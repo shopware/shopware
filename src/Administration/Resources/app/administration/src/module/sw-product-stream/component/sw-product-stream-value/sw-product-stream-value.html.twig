@@ -72,6 +72,24 @@
                     </sw-entity-single-select>
 
                     <sw-entity-single-select
+                        v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equals'"
+                        size="medium"
+                        :entity="definition.entity"
+                        :criteria="propertyCriteria"
+                        :context="context"
+                        v-model="actualCondition.value"
+                        :disabled="disabled"
+                        @select-collapsed="onSelectCollapsed"
+                        @search-term-change="setSearchTerm">
+
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
+                            </slot>
+                        </template>
+                    </sw-entity-single-select>
+
+                    <sw-entity-single-select
                         v-else-if="actualCondition.type === 'equals'"
                         size="medium"
                         :entity="definition.entity"
@@ -82,6 +100,30 @@
                 {% endblock %}
 
                 {% block sw_product_stream_value_entity_multi_value %}
+                    <sw-entity-multi-id-select
+                        v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equalsAny' && feature.isActive('FEATURE_NEXT_12108')"
+                        size="medium"
+                        :repository="repository"
+                        :criteria="propertyCriteria"
+                        :context="context"
+                        v-model="multiValue"
+                        :disabled="disabled"
+                        @select-collapsed="onSelectCollapsed"
+                        @search-term-change="setSearchTerm">
+
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
+                            </slot>
+                        </template>
+
+                        <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+                            <slot name="result-label-property" v-bind="{ item, searchTerm, highlightSearchTerm }">
+                                {{ item.group.translated.name || item.group.name }}: {{ item.translated.name || item.name }}
+                            </slot>
+                        </template>
+                    </sw-entity-multi-id-select>
+
                     <sw-entity-multi-id-select
                         v-else-if="actualCondition.type === 'equalsAny'"
                         size="medium"

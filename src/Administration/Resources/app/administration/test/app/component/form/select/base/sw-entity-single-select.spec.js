@@ -18,6 +18,30 @@ const fixture = [
     { id: utils.createId(), name: 'third entry' }
 ];
 
+const propertyFixture = [
+    {
+        id: utils.createId(),
+        name: 'first entry',
+        group: {
+            name: 'example'
+        }
+    },
+    {
+        id: utils.createId(),
+        name: 'second entry',
+        group: {
+            name: 'example'
+        }
+    },
+    {
+        id: utils.createId(),
+        name: 'third',
+        group: {
+            name: 'entry'
+        }
+    }
+];
+
 function getCollection() {
     return new EntityCollection(
         '/test-entity',
@@ -26,6 +50,18 @@ function getCollection() {
         { isShopwareContext: true },
         fixture,
         fixture.length,
+        null
+    );
+}
+
+function getPropertyCollection() {
+    return new EntityCollection(
+        '/property-group-option',
+        'property_group_option',
+        null,
+        { isShopwareContext: true },
+        propertyFixture,
+        propertyFixture.length,
         null
     );
 }
@@ -62,6 +98,9 @@ const createEntitySingleSelect = (customOptions) => {
                         get: (value) => Promise.resolve({ id: value, name: value })
                     };
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         }
     };
@@ -140,6 +179,9 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -255,5 +297,37 @@ describe('components/sw-entity-single-select', () => {
         expect(selectResultList.emitted('paginate')).not.toBe(undefined);
         expect(selectResultList.emitted('paginate').length).toEqual(1);
         expect(selectResultList.emitted('paginate')[0]).toEqual([]);
+    });
+
+    it('should emit the correct search term', async () => {
+        const swEntitySingleSelect = await createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'property_group_option'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getPropertyCollection())
+                        };
+                    }
+                },
+                feature: {
+                    isActive: () => true
+                }
+            }
+        });
+
+        swEntitySingleSelect.vm.loadData();
+        await swEntitySingleSelect.vm.$nextTick();
+        await swEntitySingleSelect.vm.$nextTick();
+
+        await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
+        await swEntitySingleSelect.find('input').setValue('first');
+        await swEntitySingleSelect.find('input').trigger('change');
+        await swEntitySingleSelect.vm.$nextTick();
+
+        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 });

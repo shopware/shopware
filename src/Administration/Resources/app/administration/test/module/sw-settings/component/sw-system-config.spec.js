@@ -212,7 +212,10 @@ function createWrapper(defaultValues = {}) {
                 })
             },
             validationService: {},
-            mediaService: {}
+            mediaService: {},
+            feature: {
+                isActive: () => false
+            }
         },
         mocks: {
             $tc: key => key,

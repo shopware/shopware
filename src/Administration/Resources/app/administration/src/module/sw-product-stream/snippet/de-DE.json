@@ -96,7 +96,10 @@
         "weight": "Gewicht",
         "width": "Breite",
         "configuratorSettings": "Konfigurator-Einstellungen",
-        "options": "Optionen"
+        "options": "Optionen",
+        "properties": "Eigenschaften",
+        "property_group": "Gruppe",
+        "property_group_option": "Eigenschafts-Ausprägung"
       }
     },
     "detail": {

@@ -149,3 +149,17 @@ specific styling for elements dependent on their parent block
         position: initial;
     }
 }
+
+.cms-block-product-heading {
+    .cms-element-product-name {
+        width: 100%;
+        height: 100%;
+        display: flex;
+    }
+
+    .cms-element-manufacturer-logo img {
+        max-width: 200px;
+        max-height: 70px;
+    }
+}
+

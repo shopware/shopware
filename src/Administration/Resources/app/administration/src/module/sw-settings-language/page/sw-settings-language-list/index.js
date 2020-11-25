@@ -77,6 +77,26 @@ Component.register('sw-settings-language-list', {
                 property: 'id',
                 label: 'sw-settings-language.list.columnDefault'
             }];
+        },
+
+        allowCreate() {
+            return this.acl.can('language.creator');
+        },
+
+        allowView() {
+            return this.acl.can('language.viewer');
+        },
+
+        allowEdit() {
+            return this.acl.can('language.editor');
+        },
+
+        allowInlineEdit() {
+            return this.acl.can('language.editor');
+        },
+
+        allowDelete() {
+            return this.acl.can('language.deleter');
         }
     },
 

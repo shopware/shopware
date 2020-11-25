@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MailTemplate\Service;
+namespace Shopware\Core\Content\Mail\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
@@ -16,19 +16,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\Exception\FeatureActiveException;
+use Shopware\Core\Framework\Feature\Exception\FeatureNotActiveException;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) MailService will be removed, use MailService instead
- */
-class MailService implements MailServiceInterface
+class MailService extends AbstractMailService
 {
     /**
      * @var DataValidator
@@ -41,14 +40,9 @@ class MailService implements MailServiceInterface
     private $templateRenderer;
 
     /**
-     * @var MessageFactoryInterface
+     * @var AbstractMailFactory
      */
     private $messageFactory;
-
-    /**
-     * @var MailSenderInterface
-     */
-    private $mailSender;
 
     /**
      * @var EntityRepositoryInterface
@@ -85,11 +79,16 @@ class MailService implements MailServiceInterface
      */
     private $urlGenerator;
 
+    /**
+     * @var AbstractMailSender
+     */
+    private $mailSender;
+
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
-        MessageFactoryInterface $messageFactory,
-        MailSenderInterface $mailSender,
+        AbstractMailFactory $messageFactory,
+        AbstractMailSender $emailSender,
         EntityRepositoryInterface $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
         EntityRepositoryInterface $salesChannelRepository,
@@ -98,10 +97,14 @@ class MailService implements MailServiceInterface
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator
     ) {
+        if (!Feature::isActive('FEATURE_NEXT_12246')) {
+            throw new FeatureNotActiveException('FEATURE_NEXT_12246');
+        }
+
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
         $this->messageFactory = $messageFactory;
-        $this->mailSender = $mailSender;
+        $this->mailSender = $emailSender;
         $this->mediaRepository = $mediaRepository;
         $this->salesChannelDefinition = $salesChannelDefinition;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -111,21 +114,19 @@ class MailService implements MailServiceInterface
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
+    public function getDecorated(): AbstractMailService
     {
-        if (Feature::isActive('FEATURE_NEXT_12246')) {
-            throw new FeatureActiveException('FEATURE_NEXT_12246');
-        }
+        throw new DecorationPatternException(self::class);
+    }
 
+    public function send(array $data, Context $context, array $templateData = []): ?Email
+    {
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
         if ($mailBeforeValidateEvent->isPropagationStopped()) {
             return null;
         }
-
-        $data = $mailBeforeValidateEvent->getData();
-        $templateData = $mailBeforeValidateEvent->getTemplateData();
 
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -152,7 +153,6 @@ class MailService implements MailServiceInterface
         $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
-        $this->templateRenderer->initialize();
         if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
             $this->templateRenderer->enableTestMode();
         }
@@ -166,7 +166,7 @@ class MailService implements MailServiceInterface
             foreach ($contents as $index => $template) {
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error(
                 "Could not render Mail-Template with error message:\n"
                 . $e->getMessage() . "\n"
@@ -187,16 +187,17 @@ class MailService implements MailServiceInterface
 
         $binAttachments = $data['binAttachments'] ?? null;
 
-        $message = $this->messageFactory->createMessage(
+        $mail = $this->messageFactory->create(
             $data['subject'],
             [$senderEmail => $data['senderName']],
             $recipients,
             $contents,
             $mediaUrls,
+            $data,
             $binAttachments
         );
 
-        if ($message === null) {
+        if ($mail->getBody()->toString() === '') {
             $this->logger->error(
                 "message is null:\n"
                 . 'Data:'
@@ -208,24 +209,22 @@ class MailService implements MailServiceInterface
             return null;
         }
 
-        $this->enrichMessage($message, $data);
-
-        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $mail, $context);
         $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
         if ($mailBeforeSentEvent->isPropagationStopped()) {
             return null;
         }
 
-        $this->mailSender->send($message);
+        $this->mailSender->send($mail);
 
         $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
         $this->eventDispatcher->dispatch($mailSentEvent);
 
-        return $message;
+        return $mail;
     }
 
-    private function getSender($data, ?string $salesChannelId): ?string
+    private function getSender(array $data, ?string $salesChannelId): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
@@ -244,25 +243,6 @@ class MailService implements MailServiceInterface
         }
 
         return $senderEmail;
-    }
-
-    private function enrichMessage(\Swift_Message $message, $data): void
-    {
-        if (isset($data['recipientsCc'])) {
-            $message->setCc($data['recipientsCc']);
-        }
-
-        if (isset($data['recipientsBcc'])) {
-            $message->setBcc($data['recipientsBcc']);
-        }
-
-        if (isset($data['replyTo'])) {
-            $message->setReplyTo($data['replyTo']);
-        }
-
-        if (isset($data['returnPath'])) {
-            $message->setReturnPath($data['returnPath']);
-        }
     }
 
     /**
@@ -317,7 +297,7 @@ class MailService implements MailServiceInterface
         });
 
         $urls = [];
-        foreach ($media as $mediaItem) {
+        foreach ($media ?? [] as $mediaItem) {
             $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
         }
 

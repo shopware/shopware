@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\Mail\Service\MailService as EMailService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailSender;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -46,6 +48,7 @@ class MailSendSubscriberTest extends TestCase
 
     /**
      * @dataProvider sendMailProvider
+     * @depracted (flag:FEATURE_NEXT_12246) remove on Feature Release
      */
     public function testSendMail(
         bool $skip,
@@ -53,6 +56,8 @@ class MailSendSubscriberTest extends TestCase
         array $expectedRecipients,
         bool $extendTemplateData = false
     ): void {
+        Feature::skipTestIfActive('FEATURE_NEXT_12246', $this);
+
         $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria();
@@ -84,6 +89,7 @@ class MailSendSubscriberTest extends TestCase
         $mailService = new TestMailService($extendTemplateData, $this->getContainer(), $templateRenderer);
         $subscriber = new MailSendSubscriber(
             $mailService,
+            null,
             $this->getContainer()->get('mail_template.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
@@ -128,6 +134,68 @@ class MailSendSubscriberTest extends TestCase
             static::assertEquals('myTestTemplateValue', $templateRenderer->templateData['myTestTemplateKey']);
             static::assertArrayHasKey('myTestAddTemplateKey', $templateRenderer->templateData);
             static::assertEquals('myTestAddTemplateValue', $templateRenderer->templateData['myTestAddTemplateKey']);
+        }
+    }
+
+    /**
+     * @dataProvider sendMailProvider
+     */
+    public function testEmailSend(bool $skip, ?array $recipients, array $expectedRecipients): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12246', $this);
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $context = Context::createDefaultContext();
+
+        $customerId = $this->createCustomer($context);
+        $orderId = $this->createOrder($customerId, $context);
+        $documentId = $this->createDocumentWithFile($orderId, $context);
+
+        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig($skip, [$documentId], []));
+
+        $mailTemplateId = $this->getContainer()
+            ->get('mail_template.repository')
+            ->searchIds($criteria, $context)
+            ->firstId();
+
+        static::assertNotEmpty($mailTemplateId);
+
+        $config = array_filter([
+            'mail_template_id' => $mailTemplateId,
+            'recipients' => $recipients,
+        ]);
+
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+
+        $mailService = new TestEmailService();
+        $subscriber = new MailSendSubscriber(
+            null,
+            $mailService,
+            $this->getContainer()->get('mail_template.repository'),
+            $this->getContainer()->get(MediaService::class),
+            $this->getContainer()->get('media.repository'),
+            $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get('logger')
+        );
+
+        $subscriber->sendMail(new BusinessEvent('test', $event, $config));
+
+        if ($skip) {
+            static::assertEquals(0, $mailService->calls);
+            static::assertNull($mailService->data);
+        } else {
+            static::assertEquals(1, $mailService->calls);
+            static::assertEquals($mailService->data['recipients'], $expectedRecipients);
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $documentId))->addFilter(new EqualsFilter('sent', true));
+            $document = $documentRepository->search($criteria, $context)->first();
+            static::assertNotNull($document);
         }
     }
 
@@ -248,6 +316,9 @@ class MailSendSubscriberTest extends TestCase
     }
 }
 
+/**
+ * @deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) TestMailService will be removed, use TestEmailService instead
+ */
 class TestMailService extends MailService
 {
     public $calls = 0;
@@ -365,5 +436,24 @@ class TestStringTemplateRenderer extends StringTemplateRenderer
 
     public function disableTestMode(): void
     {
+    }
+}
+
+class TestEmailService extends EMailService
+{
+    public $calls = 0;
+
+    public $data = null;
+
+    public function __construct()
+    {
+    }
+
+    public function send(array $data, Context $context, array $templateData = []): ?\Symfony\Component\Mime\Email
+    {
+        $this->data = $data;
+        ++$this->calls;
+
+        return null;
     }
 }

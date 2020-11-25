@@ -66,7 +66,10 @@ class DeprecatedTagTest extends TestCase
         }
 
         foreach ($finder->getIterator() as $xmlFile) {
-            if ($this->hasDeprecationFalseOrNoTag('\<deprecated\>', $xmlFile->getPathname())) {
+            if (
+                $this->hasDeprecationFalseOrNoTag('\<deprecated\>', $xmlFile->getPathname())
+                && $this->hasDeprecationFalseOrNoTag('\<tag name="deprecated" .* version="', $xmlFile->getPathname())
+            ) {
                 $return[] = $xmlFile->getPathname();
             }
         }
@@ -79,6 +82,7 @@ class DeprecatedTagTest extends TestCase
         $content = file_get_contents($file);
         $matches = [];
         $pattern = '/' . $deprecatedPrefix . '(?!\s?tag\:)/';
+
         preg_match($pattern, $content, $matches);
 
         if (!empty(array_filter($matches))) {

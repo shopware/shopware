@@ -3,8 +3,13 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Exception\FeatureActiveException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) MailSender will be removed, use MailSender instead
+ */
 class MailSender implements MailSenderInterface
 {
     /**
@@ -28,6 +33,10 @@ class MailSender implements MailSenderInterface
      */
     public function send(\Swift_Message $message): void
     {
+        if (Feature::isActive('FEATURE_NEXT_12246')) {
+            throw new FeatureActiveException('FEATURE_NEXT_12246');
+        }
+
         $failedRecipients = [];
 
         $disabled = $this->configService->get('core.mailerSettings.disableDelivery');

@@ -7,4 +7,3 @@ issue: NEXT-10716
 ___
 # Storefront
 *  Added error hints in cart canvas after the shopping cart is recalculated!
-___

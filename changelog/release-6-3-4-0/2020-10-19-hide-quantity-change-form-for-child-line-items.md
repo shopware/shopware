@@ -1,6 +1,6 @@
 ---
 title: Hide quantity change form for child line items
-issue: ---
+issue: NEXT-11771
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: JoshuaBehrens

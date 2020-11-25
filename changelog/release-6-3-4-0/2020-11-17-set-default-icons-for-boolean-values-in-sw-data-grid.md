@@ -2,7 +2,6 @@
 title: set default icons for boolean values in sw-data-grid
 issue: NEXT-9596
 author: jones1008
-author_email: - 
 author_github: jones1008
 ---
 # Administration

@@ -18,15 +18,15 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "buttonAddProductStream": "Produktgruppe anlegen",
       "status": {
-        "valid": "Valide",
-        "invalid": "Invalide"
+        "valid": "Gültig",
+        "invalid": "Ungültig"
       },
       "messageEmpty": "Noch keine Produktgruppen"
     },
     "filter": {
       "placeholderFieldSelect": "Wähle eine Eigenschaft ...",
       "placeholderOperatorSelect": "Wähle einen Operator ...",
-      "valid": "Nur valide Produktgruppen anzeigen",
+      "valid": "Nur gültige Produktgruppen anzeigen",
       "type": {
         "equals": "Gleich",
         "equalsAny": "Eins von",

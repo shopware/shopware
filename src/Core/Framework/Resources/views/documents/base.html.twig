@@ -421,6 +421,14 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+
+            {% block document_comment %}
+                {% if config.documentComment %}
+                    <div class="document-comment-container">
+                        {{ 'document.comment'|trans({'%comment%': config.documentComment})|sw_sanitize }}
+                    </div>
+                {% endif %}
+            {% endblock %}
         </div>
     {% endblock %}
     </body>

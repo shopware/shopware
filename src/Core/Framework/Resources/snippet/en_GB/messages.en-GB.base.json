@@ -10,6 +10,7 @@
         "creditNoteHeadline": "Credit note %creditNoteNumber% for invoice no. %invoiceNumber%",
         "customerNumber": "Customer %customerNumber%",
         "date": "Date: %date%",
+        "comment": "Comment: %comment%",
         "orderDate": "Order date: %orderDate%",
         "deliveryDate": "Delivery date: %deliveryDate%",
         "page": "Page %pageNumber%",

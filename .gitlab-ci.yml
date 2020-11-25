@@ -114,6 +114,7 @@ PHP Unit:
         changes:
           - "Migration*.php"
           - "**/Migration*.php"
+          - "src/Core/Framework/Resources/config/packages/shopware.yaml"
       - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$") && $EACH_MR == "true"'
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -355,11 +356,13 @@ E2E:
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
+                - "src/Core/Framework/Resources/config/packages/shopware.yaml"
             # skip @base jobs if there are changes to migrations, because the full set runs
         -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
+                - "src/Core/Framework/Resources/config/packages/shopware.yaml"
             when: never
         -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
         -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'

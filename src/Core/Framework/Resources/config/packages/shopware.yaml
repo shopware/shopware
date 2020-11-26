@@ -55,12 +55,31 @@ shopware:
 
     feature:
         flags:
-            - FEATURE_NEXT_1797
-            - FEATURE_NEXT_10549
-            - FEATURE_NEXT_10559
-            - FEATURE_NEXT_10078
-            - FEATURE_NEXT_11389
-            - FEATURE_NEXT_10536
-            - FEATURE_NEXT_7453
-            - FEATURE_NEXT_8172
-            - FEATURE_NEXT_10539
+            - name: FEATURE_NEXT_1797
+              default: false
+              major: true
+              description: "composer require for plugins"
+            - name: FEATURE_NEXT_7453
+              major: true
+              description: "use custom name prefix for nested routes"
+            - name: FEATURE_NEXT_8172
+              major: true
+              description: "prevent plugins to extend the first level menu entries"
+            - name: FEATURE_NEXT_10549
+              major: false
+              description: "save cart or products on wishlist"
+            - name: FEATURE_NEXT_10559
+              major: false
+              description: "vat handling for companies"
+            - name: FEATURE_NEXT_10078
+              major: false
+              description: "cms product page layouts"
+            - name: FEATURE_NEXT_11389
+              major: false
+              description: "layout assignment in CMS module"
+            - name: FEATURE_NEXT_10536
+              major: false
+              description: "filter settings per category"
+            - name: FEATURE_NEXT_10539
+              major: false
+              description: "prevent deletion of used rules"

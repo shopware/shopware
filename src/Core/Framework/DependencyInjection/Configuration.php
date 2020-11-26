@@ -247,8 +247,31 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('flags')
-                ->prototype('scalar')->end()
+                ->useAttributeAsKey('name')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->end()
+                        ->booleanNode('default')->defaultFalse()->end()
+                        ->booleanNode('major')->defaultFalse()->end()
+                        ->scalarNode('description')->end()
+                    ->end()
                 ->end()
+                ->beforeNormalization()
+                    ->always()->then(function ($flags) {
+                        foreach ($flags as $key => $flag) {
+                            // support old syntax
+                            if (is_int($key) && is_string($flag)) {
+                                unset($flags[$key]);
+
+                                $flags[] = [
+                                    'name' => $flag,
+                                ];
+                            }
+                        }
+
+                        return $flags;
+                    })
+                    ->end()
             ->end();
 
         return $rootNode;

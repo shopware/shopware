@@ -1,9 +1,12 @@
 {% block sw_text_editor_toolbar_button %}
-    <div class="sw-text-editor-toolbar-button">
+    <div class="sw-text-editor-toolbar-button" :class="'sw-text-editor-toolbar-button__type-' + buttonConfig.type">
 
         {% block sw_text_editor_toolbar_button_icon %}
             <template v-if="buttonConfig.icon">
-                <div class="sw-text-editor-toolbar-button__icon" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">
+                <div class="sw-text-editor-toolbar-button__icon"
+                     v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
+                     :class="classes"
+                     @click="buttonHandler($event, buttonConfig)">
                     <sw-icon :name="buttonConfig.icon" size="12"></sw-icon>
                     <sw-icon v-if="buttonConfig.children" name="default-arrow-head-down" size="8"></sw-icon>
                 </div>
@@ -59,7 +62,12 @@
                     </sw-field>
                     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
                         {% block sw_text_editor_toolbar_button_link_menu_buttons %}
-                            <sw-button size="small" variant="primary" @click="handleButtonClick(buttonConfig)">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
+                            <sw-button size="small"
+                                       variant="primary"
+                                       class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
+                                       @click="handleButtonClick(buttonConfig)">
+                                {{ $tc('sw-text-editor-toolbar.link.insert') }}
+                            </sw-button>
                         {% endblock %}
                     </div>
                 {% endblock %}

@@ -105,7 +105,7 @@ class SitemapGenerateCommand extends Command
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            if ($salesChannel->getType()->getId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            if ($salesChannel->getType()->getId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
                 $output->writeln(sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
 
                 continue;

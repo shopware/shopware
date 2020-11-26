@@ -1,10 +1,10 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Promotion v2: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

@@ -4,7 +4,7 @@ import PropertyPageObject from '../../../support/pages/module/sw-property.page-o
 
 describe('Property: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })
@@ -52,7 +52,7 @@ describe('Property: Visual tests', () => {
         cy.get(page.elements.cardTitle).contains('Basic information');
 
         // Take snapshot for visual testing
-        cy.sortListingViaColumn('Position', 'Green', '.sw-data-grid__cell--name')
+        cy.sortListingViaColumn('Position', 'Green', '.sw-data-grid__cell--name');
         cy.takeSnapshot('Property detail - Group', '.sw-property-option-list');
 
         cy.get('.sw-property-option-list').scrollIntoView();

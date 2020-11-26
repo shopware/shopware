@@ -4,7 +4,7 @@ import ProductStreamObject from '../../../support/pages/module/sw-product-stream
 
 describe('Dynamic product groups: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

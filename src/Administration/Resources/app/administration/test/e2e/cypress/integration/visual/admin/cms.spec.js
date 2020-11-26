@@ -1,8 +1,8 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

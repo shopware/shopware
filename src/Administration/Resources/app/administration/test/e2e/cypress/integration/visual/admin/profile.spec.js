@@ -2,7 +2,7 @@
 
 describe('Profile: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi()
                     .then(() => {

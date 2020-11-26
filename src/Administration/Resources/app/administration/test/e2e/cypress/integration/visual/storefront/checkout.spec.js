@@ -5,18 +5,20 @@ let product = {};
 
 describe('Checkout: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
+        cy.setToInitialStateVisual().then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
-            return cy.createProductFixture()
+            return cy.createProductFixture();
         }).then(() => {
             return cy.fixture('product');
-        }).then((result) => {
-            product = result;
-            return cy.createCustomerFixture()
-        }).then(() => {
-            cy.visit('/');
         })
+            .then((result) => {
+                product = result;
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                cy.visit('/');
+            });
     });
 
     it('@visual: check appearance of basic checkout workflow', () => {
@@ -24,10 +26,9 @@ describe('Checkout: Visual tests', () => {
         const accountPage = new AccountPageObject();
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Search product`,
+        cy.takeSnapshot('Checkout - Search product',
             '.header-search-input',
-            { widths: [375, 1920] }
-        );
+            { widths: [375, 1920] });
 
         // Product detail
         cy.get('.header-search-input')
@@ -36,10 +37,9 @@ describe('Checkout: Visual tests', () => {
         cy.get('.search-suggest-product-name').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Checkout - See product`,
+        cy.takeSnapshot('Checkout - See product',
             '.product-detail-buy',
-            { widths: [375, 1920] }
-        );
+            { widths: [375, 1920] });
 
         cy.get('.product-detail-buy .btn-buy').click();
 
@@ -54,10 +54,9 @@ describe('Checkout: Visual tests', () => {
         cy.get('.offcanvas').should('be.visible');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Offcanvas`,
+        cy.takeSnapshot('Checkout - Offcanvas',
             `${page.elements.offCanvasCart}.is-open`,
-            { widths: [375, 1920] }
-        );
+            { widths: [375, 1920] });
 
         cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
@@ -69,7 +68,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.login-collapse-toggle').click();
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Login`, accountPage.elements.loginCard, { widths: [375, 1920] });
+        cy.takeSnapshot('Checkout - Login', accountPage.elements.loginCard, { widths: [375, 1920] });
 
         cy.get('#loginMail').type('test@example.com');
         cy.get('#loginPassword').type('shopware');
@@ -79,7 +78,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Confirm`, '.confirm-tos', { widths: [375, 1920] });
+        cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
 
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
@@ -93,6 +92,6 @@ describe('Checkout: Visual tests', () => {
         cy.get('#confirmFormSubmit').click();
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Finish`, '.finish-header', { widths: [375, 1920] });
+        cy.takeSnapshot('Checkout - Finish', '.finish-header', { widths: [375, 1920] });
     });
 });

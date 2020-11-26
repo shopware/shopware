@@ -4,34 +4,34 @@ import OrderPageObject from '../../../support/pages/module/sw-order.page-object'
 
 describe('Order: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
+        cy.setToInitialStateVisual().then(() => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
             cy.clock(now);
         })
-        .then(() => {
-            cy.loginViaApi();
-        })
-        .then(() => {
-            return cy.createProductFixture();
-        })
-        .then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+            .then(() => {
+                cy.loginViaApi();
+            })
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
             });
-        })
-        .then((result) => {
-            return cy.createGuestOrder(result.id);
-        })
-        .then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-        });
     });
 
     it('@visual: check appearance of basic order workflow', () => {

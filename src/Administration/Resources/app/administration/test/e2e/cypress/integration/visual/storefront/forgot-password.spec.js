@@ -2,10 +2,10 @@ import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Password: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
-                return cy.createCustomerFixture()
-            })
+                return cy.createCustomerFixture();
+            });
     });
 
     it('@visual: check appearance of password recovery workflow', () => {

@@ -1,10 +1,8 @@
 /// <reference types="Cypress" />
 
-import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
-
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 // freezes the system time to Jan 1, 2018
                 const now = new Date(2018, 1, 1);

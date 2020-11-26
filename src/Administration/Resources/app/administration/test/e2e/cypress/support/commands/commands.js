@@ -511,6 +511,28 @@ Cypress.Commands.add('getAttached', selector => {
 
     return cy.document().should($d => {
         $el = getElement(Cypress.$($d));
+
+        // eslint-disable-next-line no-unused-expressions
         expect(Cypress.dom.isDetached($el)).to.be.false;
     }).then(() => cy.wrap($el));
+});
+
+/**
+ * Sets Shopware back to its initial state
+ * @memberOf Cypress.Chainable#
+ * @name setToInitialStateVisual
+ * @function
+ */
+Cypress.Commands.add('setToInitialStateVisual', () => {
+    // TODO: Move into setToInitialState command in e2e-testsuite-platform
+
+    return cy.log('Cleaning, please wait a little bit.').then(() => {
+        return cy
+            .exec(`cd ${Cypress.env('projectRoot')} && ./psh.phar e2e:restore-db && cd ${Cypress.env('projectPath')}`)
+            .its('stdout').should('contain', 'All commands successfully executed!');
+    }).then(() => {
+        return cy.clearCacheAdminApi('DELETE', 'api/_action/cache');
+    }).then(() => {
+        return cy.setLocaleToEnGb();
+    });
 });

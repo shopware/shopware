@@ -1,11 +1,12 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Visual tests', () => {
+    // eslint-disable-next-line no-undef
     before(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 return cy.createProductFixture();
             })
@@ -152,18 +153,18 @@ describe('Product: Visual tests', () => {
         cy.createProductFixture({
             name: 'Original product',
             productNumber: 'RS-11111',
-            description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
+            description: 'Pudding wafer apple pie fruitcake cupcake.'
         }).then(() => {
             cy.createProductFixture({
                 name: 'Second product',
                 productNumber: 'RS-22222',
-                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
+                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping.'
             });
         }).then(() => {
             cy.createProductFixture({
                 name: 'Third product',
                 productNumber: 'RS-33333',
-                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
+                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon.'
             });
         });
 

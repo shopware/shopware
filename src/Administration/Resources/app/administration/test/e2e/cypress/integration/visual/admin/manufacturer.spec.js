@@ -4,7 +4,7 @@ import ManufacturerPageObject from '../../../support/pages/module/sw-manufacture
 
 describe('Manufacturer: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

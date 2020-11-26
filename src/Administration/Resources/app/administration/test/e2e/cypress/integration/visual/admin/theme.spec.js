@@ -1,10 +1,8 @@
 /// <reference types="Cypress" />
 
-import ProductPageObject from "../../../support/pages/module/sw-product.page-object";
-
 describe('Theme: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })
@@ -15,8 +13,6 @@ describe('Theme: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic theme workflow', () => {
-        const page = new ProductPageObject();
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,

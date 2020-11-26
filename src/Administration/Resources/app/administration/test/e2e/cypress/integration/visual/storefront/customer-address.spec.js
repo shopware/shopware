@@ -1,11 +1,9 @@
-import AccountPageObject from '../../../support/pages/account.page-object';
-
 describe('Account: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
-                return cy.createCustomerFixture()
-            })
+                return cy.createCustomerFixture();
+            });
     });
 
     it('@visual: check appearance of basic account address workflow', () => {

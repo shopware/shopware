@@ -1,11 +1,11 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
 
 describe('Category: Visual tests', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

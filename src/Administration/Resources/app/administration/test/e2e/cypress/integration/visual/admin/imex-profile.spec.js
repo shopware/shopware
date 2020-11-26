@@ -1,22 +1,12 @@
-import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
-
 describe('Import/Export - Profiles:  Visual tests', () => {
-    let page = null;
-
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
+        cy.setToInitialStateVisual().then(() => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
         });
-
-        page = new SettingsPageObject();
-    });
-
-    afterEach(() => {
-        page = null;
     });
 
     it('@visual: check appearance of basic im/ex profile workflow', () => {

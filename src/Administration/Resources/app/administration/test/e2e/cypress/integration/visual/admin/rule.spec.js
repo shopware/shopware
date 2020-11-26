@@ -4,7 +4,7 @@ import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
 describe('Rule builder: Visual tests', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.setToInitialStateVisual()
             .then(() => {
                 cy.loginViaApi();
             })

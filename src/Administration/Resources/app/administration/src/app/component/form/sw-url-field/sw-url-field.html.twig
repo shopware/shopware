@@ -24,7 +24,7 @@
                 <input class="sw-url-input-field__input"
                     :name="identification"
                     :id="identification"
-                    :value="currentValue"
+                    :value="currentValue|unicodeUri"
                     :placeholder="placeholder"
                     :disabled="disabled"
                     @input="onInput"

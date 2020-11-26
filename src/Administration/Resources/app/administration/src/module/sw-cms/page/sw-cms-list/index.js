@@ -118,6 +118,10 @@ Component.register('sw-cms-list', {
                 .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                criteria.addAssociation('products');
+            }
+
             if (this.term !== null) {
                 criteria.setTerm(this.term);
             }
@@ -305,8 +309,12 @@ Component.register('sw-cms-list', {
                 property: 'type',
                 label: this.$tc('sw-cms.list.gridHeaderType')
             }, {
-                property: 'categories.length',
-                label: this.$tc('sw-cms.list.gridHeaderAssignment'),
+                property: this.feature.isActive('FEATURE_NEXT_10078')
+                    ? 'assignments'
+                    : 'categories.length',
+                label: this.feature.isActive('FEATURE_NEXT_10078')
+                    ? this.$tc('sw-cms.list.gridHeaderAssignments')
+                    : this.$tc('sw-cms.list.gridHeaderAssignment'),
                 sortable: false
             }, {
                 property: 'createdAt',
@@ -315,6 +323,14 @@ Component.register('sw-cms-list', {
         },
 
         deleteDisabledToolTip(page) {
+            if (this.feature.isActive('FEATURE_NEXT_10078') && page.type === 'product_detail') {
+                return {
+                    showDelay: 300,
+                    message: this.$tc('sw-cms.general.deleteDisabledProductToolTip'),
+                    disabled: page.products.length === 0
+                };
+            }
+
             return {
                 showDelay: 300,
                 message: this.$tc('sw-cms.general.deleteDisabledToolTip'),

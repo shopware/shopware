@@ -84,7 +84,9 @@ Component.register('sw-cms-list-item', {
 
     methods: {
         isActive() {
-            return (this.page && this.page.categories && this.page.categories.length > 0) || this.active;
+            const { categories = [], products = [] } = this.page || {};
+
+            return categories.length > 0 || products.length > 0 || this.active;
         },
 
         onChangePreviewImage(page) {

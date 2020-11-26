@@ -100,6 +100,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 {
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -121,7 +122,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(mediaModal.classes()).toContain('sw-media-modal-v2-mock');
     });
 
-    it('should show an disabled create new button', async () => {
+    it('should show a disabled create new button', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({
@@ -129,6 +130,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 {
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -150,6 +152,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 {
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -176,6 +179,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -212,6 +216,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -248,6 +253,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -284,6 +290,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -313,6 +320,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -344,6 +352,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -375,6 +384,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -406,6 +416,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     id: '1a',
                     sections: [],
                     categories: [],
+                    products: [],
                     translated: {
                         name: 'CMS Page 1'
                     }
@@ -422,6 +433,60 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         expect(contextMenuItemPreview.props().disabled).toBe(true);
         expect(contextMenuItemDuplicate.props().disabled).toBe(true);
+        expect(contextMenuItemDelete.props().disabled).toBe(false);
+    });
+
+    it('should disable the delete menu item when the layout got assigned to at least one product', async () => {
+        const wrapper = createWrapper(
+            'cms.deleter'
+        );
+
+        await wrapper.setData({
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [{}],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                }
+            ]
+        });
+
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button').trigger('click');
+
+        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
+
+        expect(contextMenuItemDelete.props().disabled).toBe(true);
+    });
+
+    it('should enable the delete menu item when the layout do not belong to any product', async () => {
+        const wrapper = createWrapper(
+            'cms.deleter'
+        );
+
+        await wrapper.setData({
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                }
+            ]
+        });
+
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button').trigger('click');
+
+        const contextMenuItemDelete = wrapper.find('.sw-cms-list-item__option-delete');
+
         expect(contextMenuItemDelete.props().disabled).toBe(false);
     });
 });

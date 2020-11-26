@@ -120,6 +120,7 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">

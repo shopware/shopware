@@ -1,0 +1,25 @@
+{
+  "sw-settings-search": {
+    "general": {
+      "mainMenuItemGeneral": "Search",
+      "textHeadline": "Search settings",
+      "buttonCancel": "Cancel",
+      "buttonCreate": "Add",
+      "buttonSave": "Save"
+    },
+    "page": {
+      "generalTab": "General",
+      "liveSearchTab": "Live search"
+    },
+    "generalTab": {
+      "labelSearchBehaviour": "Search behaviour",
+      "textTitleSearchBehaviour": "Predefine your storefront search behaviour.",
+      "labelSearchAndCondition": "“AND” Search",
+      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find products that contain both keywords \"jeans\" and \"summer\".",
+      "labelSearchOrCondition": "“OR” Search",
+      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
+      "labelMinimalSearchTerm": "Minimal search term length"
+    },
+    "liveSearchTab": {}
+  }
+}

@@ -1,5 +1,11 @@
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
+{% block utilities_offcanvas_meta %}
+    {% set isAjaxOffcanvas = true %}
+
+    {{ parent() }}
+{% endblock %}
+
 {% block utilities_offcanvas_close_text %}
     {{ "checkout.continueShopping"|trans|sw_sanitize }}
 {% endblock %}

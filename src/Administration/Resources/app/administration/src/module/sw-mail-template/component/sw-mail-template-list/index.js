@@ -13,6 +13,14 @@ Component.register('sw-mail-template-list', {
         Mixin.getByName('notification')
     ],
 
+    props: {
+        searchTerm: {
+            type: String,
+            required: false,
+            default: ''
+        }
+    },
+
     data() {
         return {
             mailTemplates: null,
@@ -24,13 +32,26 @@ Component.register('sw-mail-template-list', {
     computed: {
         mailTemplateRepository() {
             return this.repositoryFactory.create('mail_template');
+        },
+
+        skeletonItemAmount() {
+            return this.mailTemplates && this.mailTemplates.length !== 0 ? this.mailTemplates.length : 3;
+        },
+
+        showListing() {
+            return !!this.mailTemplates && this.mailTemplates.length !== 0;
+        }
+    },
+
+    watch: {
+        searchTerm() {
+            this.getList();
         }
     },
 
     methods: {
         getList() {
             this.isLoading = true;
-            this.mailTemplates = null;
 
             const criteria = new Criteria(this.page, this.limit);
 
@@ -40,7 +61,11 @@ Component.register('sw-mail-template-list', {
 
             criteria.addAssociation('mailTemplateType');
 
-            this.mailTemplateRepository.search(criteria, Shopware.Context.api).then((items) => {
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
+
+            this.mailTemplateRepository.search(criteria, Shopware.Context.api).then(items => {
                 this.total = items.total;
                 this.mailTemplates = items;
                 this.isLoading = false;
@@ -106,6 +131,10 @@ Component.register('sw-mail-template-list', {
                     }
                 );
             });
+        },
+
+        updateRecords(result) {
+            this.mailTemplates = result;
         }
     }
 });

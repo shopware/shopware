@@ -13,6 +13,14 @@ Component.register('sw-mail-header-footer-list', {
         Mixin.getByName('notification')
     ],
 
+    props: {
+        searchTerm: {
+            type: String,
+            required: false,
+            default: ''
+        }
+    },
+
     data() {
         return {
             mailHeaderFooters: null,
@@ -24,6 +32,20 @@ Component.register('sw-mail-header-footer-list', {
     computed: {
         mailHeaderFooterRepository() {
             return this.repositoryFactory.create('mail_header_footer');
+        },
+
+        skeletonItemAmount() {
+            return this.mailHeaderFooters && this.mailHeaderFooters.length !== 0 ? this.mailHeaderFooters.length : 3;
+        },
+
+        showListing() {
+            return !!this.mailHeaderFooters && this.mailHeaderFooters.length !== 0;
+        }
+    },
+
+    watch: {
+        searchTerm() {
+            this.getList();
         }
     },
 
@@ -41,14 +63,19 @@ Component.register('sw-mail-header-footer-list', {
 
         getList() {
             this.isLoading = true;
-            this.mailHeaderFooters = null;
+
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannels');
+
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
 
             this.mailHeaderFooterRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.mailHeaderFooters = items;
                 this.isLoading = false;
+
                 return this.mailHeaderFooters;
             });
         },
@@ -157,6 +184,10 @@ Component.register('sw-mail-header-footer-list', {
             return this.createNotificationError({
                 message: this.$tc('sw-mail-header-footer.list.messageDeleteError', 0, { name: item.name })
             });
+        },
+
+        updateRecords(result) {
+            this.mailHeaderFooters = result;
         }
     }
 });

@@ -23,10 +23,11 @@
       "textDeleteConfirm": "Are you sure you want to delete the email template \"{subject}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "messageEmpty": "No email templates yet",
       "titleSidebarItemRefresh": "Refresh",
       "errorMediaItemDuplicated": "Media item already assigned",
-      "columnFilename": "File name"
+      "columnFilename": "File name",
+      "emptyStateTitle": "No email templates yet",
+      "emptyStateSubTitle": "Add email templates by clicking the \"add\" button."
     },
     "detail": {
       "basic": {
@@ -93,9 +94,10 @@
       "textDeleteConfirm": "Are you sure you want to delete the header and footer \"{name}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "messageEmpty": "No email header and footer yet",
       "titleSidebarItemRefresh": "Refresh",
-      "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured."
+      "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured.",
+      "emptyStateTitle": "No email header and footer yet",
+      "emptyStateSubTitle": "Add email header and footer by clicking the \"add\" button."
     },
     "detail": {
       "basic": {

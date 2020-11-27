@@ -14,6 +14,7 @@ export default {
     smartBarHeader: '.smart-bar__header',
     smartBarAmount: '.sw-page__smart-bar-amount',
     smartBarBack: 'a.smart-bar__back-btn',
+    smartBarSearch: '.sw-search-bar__input',
 
     // Listing components
     gridRow: '.sw-grid__row',

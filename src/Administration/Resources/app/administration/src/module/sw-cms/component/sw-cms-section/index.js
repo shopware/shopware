@@ -1,7 +1,7 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-section', {
     template,
@@ -61,14 +61,13 @@ Component.register('sw-cms-section', {
         },
 
         sectionStyles() {
-            const apiContext = Shopware.Context.api;
             let backgroundMedia = null;
 
             if (this.section.backgroundMedia) {
                 if (this.section.backgroundMedia.id) {
                     backgroundMedia = `url("${this.section.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url('${apiContext.assetsPath}${this.section.backgroundMedia.url}')`;
+                    backgroundMedia = `url('${this.assetFilter(this.section.backgroundMedia.url)}')`;
                 }
             }
 
@@ -115,6 +114,10 @@ Component.register('sw-cms-section', {
         mainContentBlocks() {
             const mainContentBlocks = this.section.blocks.filter((block => block.sectionPosition !== 'sidebar'));
             return mainContentBlocks.sort((a, b) => a.position - b.position);
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

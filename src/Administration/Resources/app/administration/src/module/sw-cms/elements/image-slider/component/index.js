@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-image-slider', {
     template,
@@ -80,8 +80,13 @@ Component.register('sw-cms-el-image-slider', {
             return `align-self: ${this.element.config.verticalAlign.value};`;
         },
 
+        /** @deprecated tag:v6.4.0 use assetFilter instead */
         contextAssetPath() {
             return Shopware.Context.api.assetsPath;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 
@@ -92,7 +97,7 @@ Component.register('sw-cms-el-image-slider', {
                     this.imgSrc = this.sliderItems[0].media.url;
                     this.$emit('active-image-change', this.sliderItems[0].media);
                 } else {
-                    this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
+                    this.imgSrc = this.assetFilter(this.imgPath);
                 }
             },
             deep: true
@@ -117,7 +122,7 @@ Component.register('sw-cms-el-image-slider', {
                 this.imgSrc = this.sliderItems[0].media.url;
                 this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
             } else {
-                this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
+                this.imgSrc = this.assetFilter(this.imgPath);
             }
         },
 

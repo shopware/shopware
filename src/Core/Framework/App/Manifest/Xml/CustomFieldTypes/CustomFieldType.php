@@ -105,7 +105,7 @@ abstract class CustomFieldType extends XmlElement
                 continue;
             }
 
-            $values[self::snakeCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue);
+            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize($child->nodeValue);
         }
 
         return $values;

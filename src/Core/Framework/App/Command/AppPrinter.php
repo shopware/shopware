@@ -34,6 +34,10 @@ class AppPrinter
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
+        if (empty($apps->getElements())) {
+            return;
+        }
+
         $appTable = [];
 
         foreach ($apps as $app) {
@@ -45,8 +49,9 @@ class AppPrinter
             ];
         }
 
+        $io->title('Installed apps');
         $io->table(
-            ['Plugin', 'Label', 'Version', 'Author'],
+            ['App', 'Label', 'Version', 'Author'],
             $appTable
         );
     }
@@ -69,8 +74,9 @@ class AppPrinter
             ];
         }
 
+        $io->title('Incomplete installations');
         $io->table(
-            ['Failed', 'Reason'],
+            ['App', 'Reason'],
             $appTable
         );
     }

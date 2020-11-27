@@ -30,7 +30,7 @@ class ActivateAppCommandTest extends TestCase
     public function testActivateApp(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/withoutPermissions', false);
-        $appName = 'SwagApp';
+        $appName = 'withoutPermissions';
 
         $commandTester = new CommandTester($this->getContainer()->get(ActivateAppCommand::class));
 

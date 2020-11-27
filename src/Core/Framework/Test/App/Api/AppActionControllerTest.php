@@ -52,7 +52,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals([
             [
-                'app' => 'SwagApp',
+                'app' => 'test',
                 'label' => [
                     'en-GB' => 'View Order',
                     'de-DE' => 'Zeige Bestellung',
@@ -187,7 +187,7 @@ class AppActionControllerTest extends TestCase
         static::assertEquals([
             'modules' => [
                 [
-                    'name' => 'SwagApp',
+                    'name' => 'test',
                     'label' => [
                         'en-GB' => 'Swag App Test',
                         'de-DE' => 'Swag App Test',

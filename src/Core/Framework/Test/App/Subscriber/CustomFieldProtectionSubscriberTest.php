@@ -59,7 +59,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $client = $this->createClient(null, false, false);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', 'SwagApp'));
+        $criteria->addFilter(new EqualsFilter('name', 'test'));
 
         $appId = $this->appRepo->searchIds($criteria, Context::createDefaultContext())->firstId();
 

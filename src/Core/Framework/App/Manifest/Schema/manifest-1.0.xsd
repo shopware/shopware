@@ -81,8 +81,8 @@
     <xs:complexType name="meta">
         <xs:sequence>
             <xs:element type="xs:string" name="name"/>
-            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
-            <xs:element name="description" maxOccurs="unbounded" minOccurs="0" type="translatableString"/>
+            <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:string" name="author"/>
             <xs:element type="xs:string" name="copyright"/>
             <xs:element type="xs:string" name="version"/>
@@ -168,7 +168,7 @@
     <xs:complexType name="webhook">
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:anyURI" name="url" use="required"/>
-        <xs:attribute type="xs:string" name="event" use="required"/>
+        <xs:attribute type="xs:NMTOKEN" name="event" use="required"/>
     </xs:complexType>
     <xs:complexType name="custom-field-set">
         <xs:sequence>

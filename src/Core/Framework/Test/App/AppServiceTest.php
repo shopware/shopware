@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Finder\Finder;
 
 class AppServiceTest extends TestCase
 {
@@ -71,7 +72,7 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
 
         $this->assertDefaultActionButtons();
     }
@@ -79,7 +80,7 @@ class AppServiceTest extends TestCase
     public function testRefreshUpdatesApp(): void
     {
         $this->appRepository->create([[
-            'name' => 'SwagApp',
+            'name' => 'test',
             'path' => __DIR__ . '/Manifest/_fixtures/test',
             'version' => '0.0.1',
             'label' => 'test',
@@ -101,7 +102,7 @@ class AppServiceTest extends TestCase
                 'secretAccessKey' => 'test',
             ],
             'aclRole' => [
-                'name' => 'SwagApp',
+                'name' => 'test',
             ],
         ]], $this->context);
 
@@ -111,7 +112,7 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
 
@@ -121,7 +122,7 @@ class AppServiceTest extends TestCase
     public function testRefreshAppIsUntouched(): void
     {
         $this->appRepository->create([[
-            'name' => 'SwagApp',
+            'name' => 'test',
             'path' => __DIR__ . '/Manifest/_fixtures/test',
             'version' => '1.0.0',
             'label' => 'test',
@@ -133,7 +134,7 @@ class AppServiceTest extends TestCase
                 'secretAccessKey' => 'test',
             ],
             'aclRole' => [
-                'name' => 'SwagApp',
+                'name' => 'test',
             ],
         ]], $this->context);
 
@@ -143,7 +144,7 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertEquals('test', $apps->first()->getTranslation('label'));
     }
@@ -153,7 +154,7 @@ class AppServiceTest extends TestCase
         $appId = Uuid::randomHex();
         $this->appRepository->create([[
             'id' => $appId,
-            'name' => 'Test',
+            'name' => 'deleteTest',
             'path' => __DIR__ . '/Manifest/_fixtures/test',
             'version' => '0.0.1',
             'label' => 'test',
@@ -174,9 +175,11 @@ class AppServiceTest extends TestCase
                 'secretAccessKey' => 'test',
             ],
             'aclRole' => [
-                'name' => 'SwagApp',
+                'name' => 'deleteTest',
             ],
         ]], $this->context);
+
+        static::assertCount(1, $this->appRepository->searchIds(new Criteria([]), $this->context)->getIds());
 
         $this->appService->doRefreshApps(true, $this->context);
 
@@ -193,7 +196,7 @@ class AppServiceTest extends TestCase
     {
         $this->appRepository->create([
             [
-                'name' => 'Test',
+                'name' => 'deleteTest',
                 'path' => __DIR__ . '/Manifest/_fixtures/test',
                 'version' => '0.0.1',
                 'label' => 'test',
@@ -214,11 +217,11 @@ class AppServiceTest extends TestCase
                     'secretAccessKey' => 'test',
                 ],
                 'aclRole' => [
-                    'name' => 'SwagApp',
+                    'name' => 'deleteTest',
                 ],
             ],
             [
-                'name' => 'SwagApp',
+                'name' => 'test',
                 'path' => __DIR__ . '/Manifest/_fixtures/test',
                 'version' => '0.0.1',
                 'label' => 'test',
@@ -239,7 +242,7 @@ class AppServiceTest extends TestCase
                     'secretAccessKey' => 'test',
                 ],
                 'aclRole' => [
-                    'name' => 'SwagApp',
+                    'name' => 'test',
                 ],
             ],
         ], $this->context);
@@ -257,35 +260,46 @@ class AppServiceTest extends TestCase
         );
         $refreshableApps = $appService->getRefreshableAppInfo($this->context);
 
-        static::assertCount(4, $refreshableApps->getToBeInstalled());
+        static::assertCount(9, $refreshableApps->getToBeInstalled());
         static::assertCount(1, $refreshableApps->getToBeUpdated());
         static::assertCount(1, $refreshableApps->getToBeDeleted());
 
         static::assertInstanceOf(Manifest::class, $refreshableApps->getToBeInstalled()[0]);
         static::assertInstanceOf(Manifest::class, $refreshableApps->getToBeUpdated()[0]);
-        static::assertEquals('Test', $refreshableApps->getToBeDeleted()[0]);
+        static::assertEquals('deleteTest', $refreshableApps->getToBeDeleted()[0]);
     }
 
     public function testInstallFailureDoesNotAffectAllApps(): void
     {
+        $appDir = __DIR__ . '/Manifest/_fixtures';
+        $finder = new Finder();
+        $finder->in($appDir)
+            ->depth('<= 1')
+            ->name('manifest.xml');
+
+        $manifests = [];
+        foreach ($finder->files() as $xml) {
+            $manifests[] = $xml->getPathname();
+        }
+
         $appService = new AppService(
             new AppLifecycleIterator(
                 $this->appRepository,
                 new AppLoader(
-                    __DIR__ . '/Manifest/_fixtures',
+                    $appDir,
                     $this->getContainer()->getParameter('kernel.project_dir'),
                     $this->getContainer()->get(ConfigReader::class)
                 )
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );
-        $fails = $appService->doRefreshApps(true, $this->context);
 
+        $fails = $appService->doRefreshApps(true, $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertCount(4, $apps);
-
-        static::assertCount(1, $fails);
+        static::assertCount(12, $manifests); // 2 are not parsable
+        static::assertCount(7, $apps);
+        static::assertCount(3, $fails);
     }
 
     private function assertDefaultActionButtons(): void

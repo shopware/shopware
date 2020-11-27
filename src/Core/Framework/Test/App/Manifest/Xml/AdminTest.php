@@ -34,6 +34,7 @@ class AdminTest extends TestCase
         static::assertFalse($secondActionButton->isOpenNewTab());
         static::assertEquals([
             'en-GB' => 'Do Stuff',
+            'de-DE' => 'Mache Dinge',
         ], $secondActionButton->getLabel());
 
         $firstModule = $manifest->getAdmin()->getModules()[0];

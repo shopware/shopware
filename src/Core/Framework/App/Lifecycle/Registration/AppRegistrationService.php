@@ -126,7 +126,7 @@ class AppRegistrationService
 
         $proof = $data['proof'] ?? '';
         if (!hash_equals($handshake->fetchAppProof(), trim($proof))) {
-            throw new AppRegistrationException('The app provided a invalid response');
+            throw new AppRegistrationException('The app provided an invalid response');
         }
 
         return $data;

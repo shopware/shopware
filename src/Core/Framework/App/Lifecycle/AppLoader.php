@@ -49,6 +49,7 @@ class AppLoader extends AbstractAppLoader
 
         $finder = new Finder();
         $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in app root folders
             ->name('manifest.xml');
 
         $manifests = [];

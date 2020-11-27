@@ -33,12 +33,18 @@ class InstallAppCommand extends Command
      */
     private $appPrinter;
 
-    public function __construct(string $appDir, AppLifecycle $appLifecycle, AppPrinter $appPrinter)
+    /**
+     * @var ValidateAppCommand
+     */
+    private $validateAppCommand;
+
+    public function __construct(string $appDir, AppLifecycle $appLifecycle, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
     {
         parent::__construct();
         $this->appDir = $appDir;
         $this->appLifecycle = $appLifecycle;
         $this->appPrinter = $appPrinter;
+        $this->validateAppCommand = $validateAppCommand;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -59,6 +65,19 @@ class InstallAppCommand extends Command
 
                 return 1;
             }
+        }
+
+        if (!$input->getOption('no-validate')) {
+            $invalids = $this->validateAppCommand->validate($manifest->getPath());
+
+            if (\count($invalids) > 0) {
+                // as only one app is validated - only one exception can occur
+                $io->error($invalids[0]);
+
+                return 1;
+            }
+
+            $io->success('app is valid');
         }
 
         try {
@@ -82,18 +101,21 @@ class InstallAppCommand extends Command
                 InputArgument::REQUIRED,
                 'The name of the app, has also to be the name of the folder under
                 which the app can be found under custom/apps'
-            )
-            ->addOption(
+            )->addOption(
                 'force',
                 'f',
                 InputOption::VALUE_NONE,
-                'Force the install of the app, it will automatically grant all requested permissions.'
-            )
-            ->addOption(
+                'Force the installing of the app, it will automatically grant all requested permissions.'
+            )->addOption(
                 'activate',
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
+            )->addOption(
+                'no-validate',
+                null,
+                InputOption::VALUE_NONE,
+                'Skip app validation.'
             );
     }
 

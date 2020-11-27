@@ -30,7 +30,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'SwagApp');
+        $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'test');
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
         $response = $browser->getResponse();
@@ -43,7 +43,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($browser, 'SwagApp');
+        $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/media');
 
@@ -55,7 +55,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($browser, 'SwagAppMinimal');
+        $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
 
@@ -70,7 +70,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($browser, 'SwagAppMinimal');
+        $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
 
         $browser->request(
             'POST',
@@ -97,7 +97,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($browser, 'SwagApp');
+        $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
         $browser->request(
             'POST',
@@ -128,7 +128,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
 
         $browser = $this->createClient();
-        $this->authorizeBrowserWithIntegrationByAppName($browser, 'SwagApp');
+        $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
         $browser->request(
             'PATCH',

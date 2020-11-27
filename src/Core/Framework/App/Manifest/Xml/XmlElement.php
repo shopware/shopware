@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class XmlElement extends Struct
 {
@@ -20,14 +21,14 @@ class XmlElement extends Struct
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
         if (!\array_key_exists($child->tagName, $values)) {
-            $values[self::snakeCaseToCamelCase($child->tagName)] = [];
+            $values[self::kebabCaseToCamelCase($child->tagName)] = [];
         }
 
         // psalm would fail if it can't infer type from nested array
         /** @var array<string, string> $tagValues */
-        $tagValues = $values[self::snakeCaseToCamelCase($child->tagName)];
+        $tagValues = $values[self::kebabCaseToCamelCase($child->tagName)];
         $tagValues[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue);
-        $values[self::snakeCaseToCamelCase($child->tagName)] = $tagValues;
+        $values[self::kebabCaseToCamelCase($child->tagName)] = $tagValues;
 
         return $values;
     }
@@ -46,9 +47,9 @@ class XmlElement extends Struct
         return $values;
     }
 
-    protected static function snakeCaseToCamelCase(string $string): string
+    protected static function kebabCaseToCamelCase(string $string): string
     {
-        return lcfirst(str_replace('-', '', ucwords($string, '-')));
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 
     /**

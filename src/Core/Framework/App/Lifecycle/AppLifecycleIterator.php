@@ -3,10 +3,6 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
-use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -68,7 +64,7 @@ class AppLifecycleIterator
                     $appLifecycle->update($manifest, $app, $context);
                 }
                 $successfulUpdates[] = $manifest->getMetadata()->getName();
-            } catch (AppRegistrationException | CustomFieldTypeNotFoundException | AppAlreadyInstalledException | InvalidAppConfigurationException $exception) {
+            } catch (\Exception $exception) {
                 $fails[] = [
                     'manifest' => $manifest,
                     'exception' => $exception,

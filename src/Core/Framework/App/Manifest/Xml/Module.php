@@ -6,6 +6,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 class Module extends XmlElement
 {
+    public const TRANSLATABLE_FIELDS = ['label'];
+
     /**
      * @var array
      */
@@ -61,7 +63,8 @@ class Module extends XmlElement
                 continue;
             }
 
-            if ($child->tagName === 'label') {
+            // translated
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

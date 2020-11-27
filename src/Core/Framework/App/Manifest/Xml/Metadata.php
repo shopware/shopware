@@ -2,8 +2,16 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+
 class Metadata extends XmlElement
 {
+    public const TRANSLATABLE_FIELDS = [
+        'label',
+        'description',
+        'privacyPolicyExtensions',
+    ];
+
     /**
      * @var array
      */
@@ -70,10 +78,33 @@ class Metadata extends XmlElement
     {
         $data = parent::toArray($defaultLocale);
 
-        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
-        $data['description'] = $this->ensureTranslationForDefaultLanguageExist($data['description'], $defaultLocale);
+        foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {
+            $translatableField = self::kebabCaseToCamelCase($TRANSLATABLE_FIELD);
+
+            $data[$translatableField] = $this->ensureTranslationForDefaultLanguageExist(
+                $data[$translatableField],
+                $defaultLocale
+            );
+        }
 
         return $data;
+    }
+
+    public function validateTranslations(): ?MissingTranslationError
+    {
+        // used locales are valid, see Manifest::createFromXmlFile()
+        $usedLocales = array_keys(array_merge($this->getDescription(), $this->getPrivacyPolicyExtensions()));
+
+        // label is required in app_translation and must therefore be available in all languages
+        $diff = array_diff($usedLocales, array_keys($this->getLabel()));
+
+        if (empty($diff)) {
+            return null;
+        }
+
+        $missingTranslations['label'] = $diff;
+
+        return new MissingTranslationError(self::class, $missingTranslations);
     }
 
     public function getLabel(): array
@@ -136,7 +167,7 @@ class Metadata extends XmlElement
             }
 
             // translated
-            if (\in_array($child->tagName, ['label', 'description', 'privacyPolicyExtensions'], true)) {
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

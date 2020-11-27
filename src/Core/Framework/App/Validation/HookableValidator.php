@@ -1,12 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Webhook\Hookable;
+namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Webhook\Exception\HookableValidationException;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
-class HookableValidator
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
+class HookableValidator extends AbstractManifestValidator
 {
     /**
      * @var HookableEventCollector
@@ -18,13 +24,14 @@ class HookableValidator
         $this->hookableEventCollector = $hookableEventCollector;
     }
 
-    public function validate(Manifest $manifest, Context $context): void
+    public function validate(Manifest $manifest, Context $context): ErrorCollection
     {
+        $errors = new ErrorCollection();
         $webhooks = $manifest->getWebhooks();
         $webhooks = $webhooks ? $webhooks->getWebhooks() : [];
 
         if (!$webhooks) {
-            return;
+            return $errors;
         }
 
         $appPrivileges = $manifest->getPermissions();
@@ -52,10 +59,14 @@ class HookableValidator
             }
         }
 
-        if (empty($notHookable) && empty($missingPermissions)) {
-            return;
+        if (!empty($notHookable)) {
+            $errors->add(new NotHookableError($notHookable));
         }
 
-        throw new HookableValidationException($manifest->getMetadata()->getName(), $notHookable, $missingPermissions);
+        if (!empty($missingPermissions)) {
+            $errors->add(new MissingPermissionError($missingPermissions));
+        }
+
+        return $errors;
     }
 }

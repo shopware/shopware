@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
+use Shopware\Core\Framework\App\Validation\Error\Error;
+
 class InvalidAppConfigurationException extends \RuntimeException
 {
-    public function __construct(string $invalidElement)
+    public function __construct(Error $error)
     {
-        parent::__construct(sprintf('Custom component "%s" is not allowed to be used in app configuration.', $invalidElement));
+        parent::__construct($error->getMessage());
     }
 }

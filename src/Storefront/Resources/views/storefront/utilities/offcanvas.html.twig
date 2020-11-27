@@ -1,7 +1,11 @@
-{% if not app.request.xmlHttpRequest %}
-    {# only including this for robots to have appropriate meta tags #}
-    {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
-{% endif %}
+{% set isAjaxOffcanvas = false %}
+
+{% block utilities_offcanvas_meta %}
+    {# only including this for robots to have appropriate meta tags and when offcanvas is loaded via ajax #}
+    {% if not app.request.xmlHttpRequest and isAjaxOffcanvas %}
+        {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
+    {% endif %}
+{% endblock %}
 
 {% block utilities_offcanvas %}
     {% block utilities_offcanvas_close %}

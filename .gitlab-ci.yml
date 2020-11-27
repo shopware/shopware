@@ -125,22 +125,22 @@ PHP Unit:
             -   EACH_MR: 'true'
                 MYSQL_IMAGE: mysql:5.7
                 DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE: mysql:5.7
                 DEV_IMAGE:
                     - shopware/development:7.3
                     - shopware/development:7.4
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
                     - mariadb:10.4
                 DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
                 DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
 Javascript analysis:
@@ -376,7 +376,7 @@ E2E:
             -   cypress_grep: '@base'
                 SECTION: 'Storefront'
                 TEST_DIRECTORY:  "cypress/integration/**/*"
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
                 BROWSER: 'chrome'
                 CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
                 cypress_usePercy: 'false'
@@ -394,14 +394,14 @@ E2E:
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
                 BROWSER: ['firefox', 'chrome']
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
                     - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
                     - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
                 BROWSER: ['firefox', 'chrome']
-                FEATURE_ALL: ["false", "true"]
+                FEATURE_ALL: ["false", "minor", "major"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY: "cypress/integration/visual/**/*"

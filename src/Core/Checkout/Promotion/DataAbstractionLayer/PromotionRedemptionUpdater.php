@@ -55,9 +55,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                     ON order_customer.order_id = order_line_item.order_id
                     AND order_customer.version_id = order_line_item.version_id
                 WHERE order_line_item.type = :type
-                AND JSON_EXTRACT(`order_line_item`.`payload`, "$.promotionId") IN (:ids)
+                AND JSON_UNQUOTE(JSON_EXTRACT(`order_line_item`.`payload`, "$.promotionId")) IN (:ids)
                 AND order_line_item.version_id = :versionId
-                GROUP BY JSON_EXTRACT(`order_line_item`.`payload`, "$.promotionId"), order_customer.customer_id
+                GROUP BY JSON_UNQUOTE(JSON_EXTRACT(`order_line_item`.`payload`, "$.promotionId")), order_customer.customer_id
 SQL;
 
         $promotions = $this->connection->fetchAll(

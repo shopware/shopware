@@ -92,3 +92,6 @@ shopware:
               default: false
               major: false
               description: "improve promotions UX"
+            - name: FEATURE_NEXT_11917
+              major: false
+              description: "dynamic plugin acl privileges"

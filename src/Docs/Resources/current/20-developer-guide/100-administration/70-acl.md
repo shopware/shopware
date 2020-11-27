@@ -454,28 +454,33 @@ Module.register('your-plugin-module', {
 ```
 ## Add your custom privileges
 
-To make sure your custom privileges are additionally written to existing roles, you have to add them in your plugin `activate` method by using the `addPrivileges` method.
-To remove the privilege on deactivation of the plugin use the `removePrivileges` Method in your `deactivate` method. 
-This is only to ensure that the new privileges are available directly after the activation of the plugin, you still have to add the privileges to the admin as described above.
+To make sure your custom privileges are additionally added to existing roles, override the `enrichPrivileges` method and return a list of your custom privileges.
+This method should return an array with the technichal role name as key, while the privileges should be the array value.
+An event subscriber will add the plugins custom privileges at runtime.
 
 ```php
+<?php declare(strict_types=1);
+
+namespace SwagTestPluginAcl;
+
+use Shopware\Core\Framework\Plugin;
+
 class SwagTestPluginAcl extends Plugin
 {
-    public function activate(ActivateContext $context): void
+    public function enrichPrivileges(): array
     {
-        $this->addPrivileges('product.viewer', ['swag_demo_data:read']);
-        $this->addPrivileges('product.editor', ['swag_demo_data:read', 'swag_demo_data:update']);
-    }
-
-    public function deactivate(DeactivateContext $context): void
-    {
-        $this->removePrivileges(['swag_demo_data:read', 'swag_demo_data:update']);
+        return [
+            'product.viewer' => [
+                'my_custom_privilege:read',
+                'my_custom_privilege:write',
+                'my_other_custom_privilege:read',
+                // ...
+            ],
+            'product.editor' => [
+                // ...
+            ],
+        ];
     }
 }
 ```
 
-The `addPrivileges` method needs the role for which the privileges should be added and an array of privileges for that role.
-For every role you need to call the `addPrivileges` method once.
-
-The `removePrivileges` method needs an array of privileges to remove. The privileges will be removed from all existing roles.
-Be aware to only remove the privileges your plugin has added!.

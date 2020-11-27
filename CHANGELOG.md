@@ -121,6 +121,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-12332 - Fix that CMS tab in category details disappears](/changelog/release-6-3-4-0/2020-11-23-fix-that-cms-tab-in-category-details-disappears.md)
 *  [NEXT-12330 - generate http cache key when cart contains items](/changelog/release-6-3-4-0/2020-11-23-generate-http-cache-key-when-cart-contains-items.md)
 *  [NEXT-12451 - Fix multiple meta imports](/changelog/release-6-3-4-0/2020-11-27-fix-multiple-meta-imports.md)
+*  [NEXT-12471 - Fix url of cms assets in administration](/changelog/release-6-3-4-0/2020-11-27-fix-admin-cms-asset-urls.md)
 
 ## 6.3.3.1
 * [NEXT-11830 - Fix broken listings](/changelog/release-6-3-3-1/2020-11-04-fix-broken-listings.md)

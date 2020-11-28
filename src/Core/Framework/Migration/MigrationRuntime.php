@@ -85,9 +85,39 @@ class MigrationRuntime
         }
     }
 
+    public function migrateDown(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
+    {
+        $migrations = $this->getExecutableDownMigrations($source, $until, $limit);
+
+        $this->setDefaultStorageEngine();
+
+        foreach ($migrations as $migration) {
+            if (!class_exists($migration)) {
+                $this->logger->notice(sprintf('Migration "%s" does not exists. Ignoring it', $migration));
+
+                continue;
+            }
+
+            /** @var MigrationStep $migration */
+            $migration = new $migration();
+
+            try {
+                $migration->down($this->connection);
+            } catch (\Exception $e) {
+                $this->logError($migration, $e->getMessage());
+
+                throw $e;
+            }
+
+            $this->setDowned($migration);
+            yield \get_class($migration);
+        }
+    }
+
     public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
+            ->orderBy('`creation_timestamp`', 'ASC')
             ->andWhere('`update` IS NULL')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
@@ -96,8 +126,18 @@ class MigrationRuntime
     public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
+            ->orderBy('`creation_timestamp`', 'ASC')
             ->andWhere('`update` IS NOT NULL')
             ->andWhere('`update_destructive` IS NULL')
+            ->execute()
+            ->fetchAll(FetchMode::COLUMN);
+    }
+
+    public function getExecutableDownMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
+    {
+        return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
+            ->orderBy('`creation_timestamp`', 'DESC')
+            ->andWhere('(`update` IS NOT NULL OR WHERE `update_destructive` IS NOT NULL)')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
     }
@@ -112,8 +152,7 @@ class MigrationRuntime
         $query = $this->connection->createQueryBuilder()
             ->select('`class`')
             ->from('migration')
-            ->where('`class` REGEXP :pattern')
-            ->orderBy('`creation_timestamp`', 'ASC');
+            ->where('`class` REGEXP :pattern');
 
         if ($until !== null) {
             $query->andWhere('`creation_timestamp` <= :timestamp');
@@ -161,6 +200,18 @@ class MigrationRuntime
             'UPDATE `migration`
                SET `message` = NULL,
                    `update` = NOW(6)
+             WHERE `class` = :class',
+            ['class' => \get_class($migrationStep)]
+        );
+    }
+
+    private function setDowned(MigrationStep $migrationStep): void
+    {
+        $this->connection->executeUpdate(
+            'UPDATE `migration`
+               SET `message` = NULL,
+                   `update` = NULL,
+                   `update_destructive` = NULL
              WHERE `class` = :class',
             ['class' => \get_class($migrationStep)]
         );

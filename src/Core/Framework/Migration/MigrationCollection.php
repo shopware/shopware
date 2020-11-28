@@ -77,6 +77,16 @@ class MigrationCollection
         return iterator_to_array($this->migrateDestructiveInSteps($until, $limit));
     }
 
+    public function migrateDownInSteps(?int $until = null, ?int $limit = null): \Generator
+    {
+        return $this->migrationRuntime->migrateDown($this->migrationSource, $until, $limit);
+    }
+
+    public function migrateDownInPlace(?int $until = null, ?int $limit = null): array
+    {
+        return iterator_to_array($this->migrateDownInSteps($until, $limit));
+    }
+
     public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
     {
         return $this->migrationRuntime->getExecutableMigrations($this->migrationSource, $until, $limit);

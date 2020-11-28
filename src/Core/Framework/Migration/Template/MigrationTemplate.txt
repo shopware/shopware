@@ -21,4 +21,9 @@ class Migration%%timestamp%%%%name%% extends MigrationStep
     {
         // implement update destructive
     }
+
+    public function down(Connection $connection): void
+    {
+        // implement down
+    }
 }

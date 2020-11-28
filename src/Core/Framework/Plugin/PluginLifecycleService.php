@@ -229,6 +229,7 @@ class PluginLifecycleService
         $pluginBaseClass->uninstall($uninstallContext);
 
         if (!$uninstallContext->keepMigrations()) {
+            $this->downMigrations($uninstallContext);
             $pluginBaseClass->removeMigrations();
         }
 
@@ -506,6 +507,15 @@ class PluginLifecycleService
         }
 
         $context->getMigrationCollection()->migrateInPlace();
+    }
+
+    private function downMigrations(UninstallContext $uninstallContext): void
+    {
+        if ($uninstallContext->keepUserData()) {
+            return;
+        }
+
+        $uninstallContext->getMigrationCollection()->migrateDownInPlace();
     }
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool

@@ -173,6 +173,20 @@ class MigrationCollectionRuntimeTest extends TestCase
         static::assertNull($migrations[1]['update_destructive']);
     }
 
+    public function testDownIfUpdateRan(): void
+    {
+        $this->validMigrationCollection->migrateInPlace(null, null);
+        $migrations = $this->getMigrations();
+
+        static::assertNotNull($migrations[0]['update']);
+        static::assertNotNull($migrations[1]['update']);
+
+        $this->validMigrationCollection->migrateDownInPlace();
+
+        static::assertNull($migrations[0]['update']);
+        static::assertNull($migrations[1]['update']);
+    }
+
     public function testDestructiveIfMultipleNoneDestructive(): void
     {
         $migrations = $this->getMigrations();

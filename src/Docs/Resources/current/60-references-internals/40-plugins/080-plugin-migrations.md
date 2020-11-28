@@ -77,20 +77,27 @@ class Migration1546422281ExampleDescription extends MigrationStep
     {
         // implement update destructive
     }
+
+    public function down(Connection $connection): void
+    {
+        // implement down
+    }
 }
 ```
 *Migration/Migration1546422281ExampleDescription.php*
 
-As you can see your migration contains 3 methods:
+As you can see your migration contains 4 methods:
 * `getCreationTimestamp()`
 * `update()`
 * `updateDestructive()`
+* `down()`
 
 There is no need to change `getCreationTimestamp()`, it returns the timestamp that's also part of the file name.
 In the `update()` method you implement nondestructive changes. In other words, the `update()` method should always be reversible.
 The `updateDestructive()` method is the counterpart to `update()` and used for destructive none reversible changes,
-like dropping columns or tables.
-Below you find an example of a nondestructive migration, creating a new table for your plugin.
+like dropping columns or tables. Lastly, the `down()` method provides you to revert all the changes you did in the `update()` 
+to prevent your plugin from leaving data in the database on uninstall.
+Below you find an example of a nondestructive migration, creating a new table for your plugin on install and drop it on uninstall.
 
 ```php
 <?php declare(strict_types=1);
@@ -125,6 +132,11 @@ SQL;
 
     public function updateDestructive(Connection $connection): void
     {
+    }
+
+    public function down(Connection $connection): void
+    {
+        $connection->exec("DROP TABLE IF EXISTS `plugin_migration_example_general_settings`");
     }
 }
 ```

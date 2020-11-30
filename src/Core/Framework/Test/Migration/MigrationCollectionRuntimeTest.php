@@ -182,6 +182,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         static::assertNotNull($migrations[1]['update']);
 
         $this->validMigrationCollection->migrateDownInPlace();
+        $migrations = $this->getMigrations();
 
         static::assertNull($migrations[0]['update']);
         static::assertNull($migrations[1]['update']);

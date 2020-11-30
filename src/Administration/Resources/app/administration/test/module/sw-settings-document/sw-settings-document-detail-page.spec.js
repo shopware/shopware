@@ -89,6 +89,9 @@ const createWrapper = (customOptions, privileges = []) => {
             'sw-icon': true,
             'sw-card': true,
             'sw-container': true,
+            'sw-form-field-renderer': true,
+            'sw-checkbox-field': true,
+            'sw-entity-multi-id-select': true,
             'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
             'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] }
         },
@@ -102,6 +105,9 @@ const createWrapper = (customOptions, privileges = []) => {
             },
             acl: {
                 can: key => (key ? privileges.includes(key) : true)
+            },
+            feature: {
+                isActive: () => true
             }
         }
     };
@@ -223,5 +229,31 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('#sw-media-field').props().disabled).toEqual(true);
         expect(wrapper.findAll('.sw-field').wrappers.every(field => field.props().disabled)).toEqual(true);
         expect(wrapper.find('#documentSalesChannel').props().disabled).toEqual(true);
+    });
+
+    it('should create an invoice document with countries note delivery', async () => {
+        const wrapper = createWrapper({}, ['document.editor']);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            isShowDisplayNoteDelivery: true,
+            documentConfig: {
+                config: {
+                    displayAdditionalNoteDelivery: true
+                }
+            }
+        });
+
+        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
+            '.sw-settings-document-detail__field_additional_note_delivery'
+        );
+        const deliveryCountriesSelect = wrapper.find(
+            '.sw-settings-document-detail__field_delivery_countries'
+        );
+
+        expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
+        expect(displayAdditionalNoteDeliveryCheckbox.attributes('label')).toBe('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery');
+        expect(deliveryCountriesSelect.attributes('helptext')).toBe('sw-settings-document.detail.helpTextDisplayDeliveryCountries');
+        expect(deliveryCountriesSelect.attributes('label')).toBe('sw-settings-document.detail.labelDeliveryCountries');
     });
 });

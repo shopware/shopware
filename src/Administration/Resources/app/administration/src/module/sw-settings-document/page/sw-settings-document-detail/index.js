@@ -2,12 +2,13 @@ import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
 const { Component, Mixin } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-settings-document-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -30,13 +31,19 @@ Component.register('sw-settings-document-detail', {
 
     data() {
         return {
-            documentConfig: {},
+            documentConfig: {
+                config: {
+                    displayAdditionalNoteDelivery: false
+                }
+            },
             documentConfigSalesChannelOptionsCollection: [],
             documentConfigSalesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
             salesChannels: {},
             selectedType: {},
+            isShowDisplayNoteDelivery: false,
+            isShowCountriesSelect: false,
             generalFormFields: [
                 {
                     name: 'pageOrientation',
@@ -68,6 +75,15 @@ Component.register('sw-settings-document-detail', {
                         label: this.$tc('sw-settings-document.detail.labelPageSize')
                     }
                 },
+                {
+                    name: 'itemsPerPage',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelItemsPerPage')
+                    }
+                },
+                null,
                 {
                     name: 'displayHeader',
                     type: 'bool',
@@ -114,14 +130,6 @@ Component.register('sw-settings-document-detail', {
                     config: {
                         type: 'checkbox',
                         label: this.$tc('sw-settings-document.detail.labelDisplayPrices')
-                    }
-                },
-                {
-                    name: 'itemsPerPage',
-                    type: 'text',
-                    config: {
-                        type: 'text',
-                        label: this.$tc('sw-settings-document.detail.labelItemsPerPage')
                     }
                 },
                 {
@@ -265,6 +273,10 @@ Component.register('sw-settings-document-detail', {
             return this.documentConfig ? this.documentConfig.name : '';
         },
 
+        countryRepository() {
+            return this.repositoryFactory.create('country');
+        },
+
         documentBaseConfigCriteria() {
             const criteria = new Criteria();
 
@@ -311,6 +323,17 @@ Component.register('sw-settings-document-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        showCountriesSelect() {
+            if (!this.isShowDisplayNoteDelivery) {
+                return false;
+            }
+
+            const documentConfig = cloneDeep(this.documentConfig);
+            this.onChangeDisplayNoteDelivery();
+
+            return documentConfig.config && documentConfig.config.displayAdditionalNoteDelivery;
         }
     },
 
@@ -367,6 +390,13 @@ Component.register('sw-settings-document-detail', {
 
             this.documentConfig.documentType = documentType;
             this.documentConfigSalesChannels = [];
+            this.isShowDisplayNoteDelivery = false;
+
+            const documentTypeCurrent = cloneDeep(documentType);
+
+            if (documentTypeCurrent.technicalName === 'invoice') {
+                this.isShowDisplayNoteDelivery = true;
+            }
 
             this.createSalesChannelSelectOptions();
             const documentSalesChannelCriteria = new Criteria();
@@ -427,6 +457,13 @@ Component.register('sw-settings-document-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.document.index' });
+        },
+
+        onChangeDisplayNoteDelivery() {
+            const documentConfig = cloneDeep(this.documentConfig);
+            if (documentConfig.config && !documentConfig.config.displayAdditionalNoteDelivery) {
+                this.documentConfig.config.deliveryCountries = [];
+            }
         },
 
         createSalesChannelSelectOptions() {

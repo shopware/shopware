@@ -1,7 +1,7 @@
 import template from './sw-cms-el-product-box.html.twig';
 import './sw-cms-el-product-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-product-box', {
     template,
@@ -35,17 +35,15 @@ Component.register('sw-cms-el-product-box', {
         },
 
         mediaUrl() {
-            const context = Shopware.Context.api;
-
             if (this.product.cover && this.product.cover.media) {
                 if (this.product.cover.media.id) {
                     return this.product.cover.media.url;
                 }
 
-                return `${context.assetsPath}${this.product.cover.media.url}`;
+                return this.assetFilter(this.product.cover.media.url);
             }
 
-            return `${context.assetsPath}/administration/static/img/cms/preview_glasses_large.jpg`;
+            return this.assetFilter('administration/static/img/cms/preview_glasses_large.jpg');
         },
 
         altTag() {
@@ -70,6 +68,10 @@ Component.register('sw-cms-el-product-box', {
             }
 
             return `align-content: ${this.element.config.verticalAlign.value};`;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

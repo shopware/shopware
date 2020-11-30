@@ -4847,12 +4847,12 @@ parameters:
 
 		-
 			message: "#^Cannot call method end\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
-			count: 5
+			count: 4
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
 		-
 			message: "#^Cannot call method booleanNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
-			count: 1
+			count: 2
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
 		-

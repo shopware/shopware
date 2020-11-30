@@ -12,6 +12,8 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
     {
         $services = $container->findTaggedServiceIds('shopware.feature');
 
+        Feature::registerFeatures($container->getParameter('shopware.feature.flags'));
+
         foreach ($services as $serviceId => $tags) {
             foreach ($tags as $tag) {
                 if (!isset($tag['flag'])) {

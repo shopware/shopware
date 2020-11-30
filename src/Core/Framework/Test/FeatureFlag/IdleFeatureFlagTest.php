@@ -44,10 +44,9 @@ class IdleFeatureFlagTest extends TestCase
     protected function setUp(): void
     {
         $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = 'false';
-        Feature::setRegisteredFeatures(
-            $this->getContainer()->getParameter('shopware.feature.flags'),
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures($this->getContainer()->getParameter('shopware.feature.flags'));
     }
 
     public function testNoIdleFeatureFlagsArePresent(): void

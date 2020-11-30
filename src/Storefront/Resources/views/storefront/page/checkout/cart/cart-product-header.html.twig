@@ -8,8 +8,8 @@
             {% endblock %}
 
             {% block page_checkout_cart_header_quantity %}
-                {% set layout = context.salesChannel.taxCalculationType == 'horizontal' ? 'col-2' : 'col-4' %}
-
+                {# @deprecated tag:v6.4.0 - Variable 'layout' will be removed #}
+                {% set layout = 'col-2' %}
                 <div class="{{ layout }} cart-header-quantity">
                     {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
                 </div>

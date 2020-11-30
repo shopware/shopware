@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 Component.register('sw-cms-el-image', {
     template,
@@ -28,7 +28,6 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaUrl() {
-            const context = Shopware.Context.api;
             const elemData = this.element.data.media;
             const mediaSource = this.element.config.media.source;
 
@@ -45,10 +44,14 @@ Component.register('sw-cms-el-image', {
             }
 
             if (elemData && elemData.url) {
-                return `${context.assetsPath}${elemData.url}`;
+                return this.assetFilter(elemData.url);
             }
 
-            return `${context.assetsPath}/administration/static/img/cms/preview_mountain_large.jpg`;
+            return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

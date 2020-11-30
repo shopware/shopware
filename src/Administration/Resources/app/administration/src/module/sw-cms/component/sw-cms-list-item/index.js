@@ -1,7 +1,7 @@
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
-const { Component } = Shopware;
+const { Component, Filter } = Shopware;
 
 Component.register('sw-cms-list-item', {
     template,
@@ -52,20 +52,17 @@ Component.register('sw-cms-list-item', {
         },
 
         defaultLayoutAsset() {
-            const context = Shopware.Context.api;
-
-            return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
+            return `url(${this.assetFilter(`administration/static/img/cms/default_preview_${this.page.type}.jpg`)})`;
         },
 
         defaultItemLayoutAssetBackground() {
-            const context = Shopware.Context.api;
             const path = 'administration/static/img/cms';
 
             if (this.page.sections.length < 1) {
                 return null;
             }
 
-            return `url(${context.assetsPath}/${path}/preview_${this.page.type}_${this.page.sections[0].type}.png)`;
+            return `url(${this.assetFilter(`${path}/preview_${this.page.type}_${this.page.sections[0].type}.png`)})`;
         },
 
         componentClasses() {
@@ -79,6 +76,10 @@ Component.register('sw-cms-list-item', {
             return {
                 'is--active': this.isActive()
             };
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

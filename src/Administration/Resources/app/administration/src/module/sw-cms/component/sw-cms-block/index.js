@@ -1,7 +1,7 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
-const { Component } = Shopware;
+const { Component, Filter } = Shopware;
 
 Component.register('sw-cms-block', {
     template,
@@ -42,14 +42,13 @@ Component.register('sw-cms-block', {
         },
 
         blockStyles() {
-            const context = Shopware.Context.api;
             let backgroundMedia = null;
 
             if (this.block.backgroundMedia) {
                 if (this.block.backgroundMedia.id) {
                     backgroundMedia = `url("${this.block.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url('${context.assetsPath}${this.block.backgroundMedia.url}')`;
+                    backgroundMedia = `url('${this.assetFilter(this.block.backgroundMedia.url)}')`;
                 }
             }
 
@@ -79,6 +78,10 @@ Component.register('sw-cms-block', {
             return {
                 'is--active': this.active
             };
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

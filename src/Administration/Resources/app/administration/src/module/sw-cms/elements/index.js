@@ -14,3 +14,4 @@ import './sidebar-category-navigation';
 import './form';
 import './product-description-reviews';
 import './buy-box';
+import './cross-selling';

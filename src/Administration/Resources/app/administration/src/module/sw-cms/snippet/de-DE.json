@@ -480,7 +480,25 @@
         }
       },
       "crossSelling": {
-        "label": "Cross Selling"
+        "label": "Cross Selling",
+        "preview": {
+          "label": {
+            "similarProduct": "Ähnliche Produkte"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt",
+            "minWidth": "Mindestbreite"
+          },
+          "placeholder": {
+            "selection": "Produkt auswählen ...",
+            "minWidth": "Mindestbreite eingeben ..."
+          },
+          "infoText": {
+            "productDetailElement": "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+          }
+        }
       }
     },
     "blocks": {

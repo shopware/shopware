@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -1991,6 +1992,50 @@ EOF;
         $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertArrayHasKey('aggregations', $response);
         static::assertArrayHasKey('order_count_month', $response['aggregations']);
+    }
+
+    public function testGetBillingAddress(): void
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('customer'),
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $ids->get('address'),
+            'defaultShippingAddressId' => $ids->get('address'),
+            'addresses' => [
+                [
+                    'id' => $ids->get('address'),
+                    'customerId' => $ids->get('customer'),
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+        $this->getContainer()->get('customer.repository')
+            ->create([$data], $ids->getContext());
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/customer/' . $ids->get('customer') . '/default-billing-address');
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $response);
+        static::assertCount(1, $response['data']);
+        static::assertEquals($ids->get('address'), $response['data'][0]['id']);
     }
 
     private function createSalesChannel(string $id): void

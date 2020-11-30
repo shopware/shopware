@@ -41,6 +41,10 @@ describe('Country: Test crud operations', () => {
             cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();
         });
 
+        // Check validate vat id for correct format field exists and clicks
+        cy.get('.sw-settings-country-detail__field-check-vatid-format input').should('be.visible');
+        cy.get('.sw-settings-country-detail__field-check-vatid-format input').click();
+
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation

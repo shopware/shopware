@@ -141,7 +141,8 @@ export default function conditionService() {
             'prices',
             'createdAt',
             'updatedAt',
-            'customFields'
+            'customFields',
+            'id'
         ],
         property_group_option: [
             'colorHexCode',
@@ -149,7 +150,8 @@ export default function conditionService() {
             'productServices',
             'productProperties',
             'productOptions',
-            'customFields'
+            'customFields',
+            'productConfiguratorSettings'
         ],
         property_group: [
             'description',

@@ -309,6 +309,10 @@ E2E:
         -   name: mariadb:10.3
             alias: mysql
     script:
+        - mkdir -p $HOME/.docker
+        - echo "$DOCKER_AUTH_CONFIG" > $HOME/.docker/config.json
+        - docker login
+        - rm $HOME/.docker/config.json
         - echo matrix config
         - echo cypress_grep $cypress_grep
         - echo SECTION $SECTION
@@ -456,6 +460,10 @@ Generating docs:
         -   name: docker:18.09.7-dind
             alias: docker
     script:
+        - mkdir -p $HOME/.docker
+        - echo "$DOCKER_AUTH_CONFIG" > $HOME/.docker/config.json
+        - docker login
+        - rm $HOME/.docker/config.json
         - docker build -t shopware-plattform-plantuml dev-ops/docs/docker/plantuml/.
         - sh ./dev-ops/docs/scripts/render_puml.sh platform/src/Docs/Resources/current
         - ./psh.phar init-composer

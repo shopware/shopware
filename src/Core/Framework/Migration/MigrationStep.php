@@ -97,8 +97,8 @@ abstract class MigrationStep
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {
-        $blueGreenDeployment = (int) $_ENV['BLUE_GREEN_DEPLOYMENT'];
-        if ($blueGreenDeployment === 0) {
+        $blueGreenDeployment = $_ENV['BLUE_GREEN_DEPLOYMENT'] ?? false;
+        if ((int) $blueGreenDeployment === 0) {
             return;
         }
 

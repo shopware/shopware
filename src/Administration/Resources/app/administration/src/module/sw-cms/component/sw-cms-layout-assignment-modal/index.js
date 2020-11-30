@@ -36,7 +36,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             confirmedCategories: false,
             confirmedShopPages: false,
             hasDeletedCategories: false,
-            hasDeletedShopPages: false
+            hasDeletedShopPages: false,
+            hasCategoriesWithAssignedLayouts: false
         };
     },
 
@@ -103,10 +104,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.$emit('modal-close');
         },
 
-        shopPageSelectInheritanceFunction(value) {
-            return !!(value && value.length === 0);
-        },
-
         saveShopPages() {
             if (this.page.type !== 'page' || !this.acl.can('system.system_config')) {
                 return Promise.resolve();
@@ -129,6 +126,10 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
 
             // Set deleted items to null for API request
             Object.keys(this.previousShopPages).forEach((salesChannelId) => {
+                if (this.previousShopPages[salesChannelId] === null) {
+                    return;
+                }
+
                 this.previousShopPages[salesChannelId].forEach((name) => {
                     if (shopPages[salesChannelId][name] === undefined) {
                         shopPages[salesChannelId][name] = null;
@@ -166,7 +167,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             return this.systemConfigApiService
                 .getValues(this.systemConfigDomain, this.shopPageSalesChannelId)
                 .then((values) => {
-                    this.$set(this.selectedShopPages, this.shopPageSalesChannelId, []);
+                    const pages = [];
 
                     Object.keys(values).forEach((key) => {
                         const found = this.shopPages.find((item) => {
@@ -174,9 +175,15 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
                         });
 
                         if (found && values[key] === this.page.id) {
-                            this.selectedShopPages[this.shopPageSalesChannelId].push(key);
+                            pages.push(key);
                         }
                     });
+
+                    if (pages.length > 0) {
+                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId, pages);
+                    } else {
+                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId, null);
+                    }
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);
                 }).catch(() => {
@@ -200,6 +207,19 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             if ((this.previousCategoryIds.length > currentCategoryIds.length) ||
                 (this.previousCategoryIds.length === currentCategoryIds.length && categoryDiff.length)) {
                 this.hasDeletedCategories = true;
+                this.openConfirmChangesModal();
+                return Promise.reject();
+            }
+
+            // Search for categories which already have a different layout
+            const foundCategoriesWithAssignedLayouts = this.page.categories.find((category) => {
+                return category.hasOwnProperty('cmsPageId') &&
+                    category.cmsPageId !== null &&
+                    category.cmsPageId !== this.page.id;
+            });
+
+            if (foundCategoriesWithAssignedLayouts) {
+                this.hasCategoriesWithAssignedLayouts = true;
                 this.openConfirmChangesModal();
                 return Promise.reject();
             }

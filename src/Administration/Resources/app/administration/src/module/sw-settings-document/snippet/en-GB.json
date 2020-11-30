@@ -64,6 +64,7 @@
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed.",
       "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\" area",
+      "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account.",
       "helpTextDisplayDeliveryCountries": "All selected countries will have an additional note displayed on the invoice documents relating intra-community deliveries."
     }

@@ -64,6 +64,7 @@
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
       "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden.",
       "labelDisplayDocumentInCustomerAccount": "Dokument in \"Mein Konto\" Bereich anzeigen",
+      "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
       "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen zusätzlichen Hinweis zur Innergemeinschaftlichen Lieferung auf den Rechnungsdokumenten."
     }

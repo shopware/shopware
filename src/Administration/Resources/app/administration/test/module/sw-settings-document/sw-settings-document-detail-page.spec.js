@@ -256,4 +256,37 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(deliveryCountriesSelect.attributes('helptext')).toBe('sw-settings-document.detail.helpTextDisplayDeliveryCountries');
         expect(deliveryCountriesSelect.attributes('label')).toBe('sw-settings-document.detail.labelDeliveryCountries');
     });
+
+    it('should contain field "display divergent delivery address" in invoice form field', async () => {
+        const wrapper = createWrapper({}, ['document.editor']);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            isShowDivergentDeliveryAddress: true
+        });
+
+        const displayDivergentDeliveryAddress = wrapper.find(
+            '.sw-settings-document-detail__field_divergent_delivery_address'
+        );
+        expect(displayDivergentDeliveryAddress).toBeDefined();
+        expect(displayDivergentDeliveryAddress.attributes('label')).toBe('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress');
+    });
+
+    it('should not exist "display divergent delivery address" in general form field and company form field', async () => {
+        const wrapper = createWrapper({}, ['document.editor']);
+
+        await wrapper.vm.$nextTick();
+
+        const companyFormFields = wrapper.vm.companyFormFields;
+        const generalFormFields = wrapper.vm.generalFormFields;
+
+        const fieldDivergentDeliveryAddressInCompany = companyFormFields.find(
+            companyFormField => companyFormField && companyFormField.name === 'displayDivergentDeliveryAddress'
+        );
+        const fieldDivergentDeliveryAddressInGeneral = generalFormFields.find(
+            generalFormField => generalFormField && generalFormField.name === 'displayDivergentDeliveryAddress'
+        );
+        expect(fieldDivergentDeliveryAddressInCompany).toBeUndefined();
+        expect(fieldDivergentDeliveryAddressInGeneral).toBeUndefined();
+    });
 });

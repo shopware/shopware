@@ -43,6 +43,7 @@ Component.register('sw-settings-document-detail', {
             salesChannels: {},
             selectedType: {},
             isShowDisplayNoteDelivery: false,
+            isShowDivergentDeliveryAddress: false,
             isShowCountriesSelect: false,
             generalFormFields: [
                 {
@@ -391,11 +392,13 @@ Component.register('sw-settings-document-detail', {
             this.documentConfig.documentType = documentType;
             this.documentConfigSalesChannels = [];
             this.isShowDisplayNoteDelivery = false;
+            this.isShowDivergentDeliveryAddress = false;
 
             const documentTypeCurrent = cloneDeep(documentType);
 
             if (documentTypeCurrent.technicalName === 'invoice') {
                 this.isShowDisplayNoteDelivery = true;
+                this.isShowDivergentDeliveryAddress = true;
             }
 
             this.createSalesChannelSelectOptions();

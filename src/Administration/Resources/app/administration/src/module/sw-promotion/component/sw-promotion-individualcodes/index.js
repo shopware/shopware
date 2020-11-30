@@ -1,4 +1,5 @@
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
+import CodeGenerator from '../../service/code-generator.service';
 import entityHydrator from '../../helper/code-entity-hydrator.helper';
 import template from './sw-promotion-individualcodes.html.twig';
 import './sw-promotion-individualcodes.scss';
@@ -141,10 +142,36 @@ Component.register('sw-promotion-individualcodes', {
         onGenerateClick() {
             const snippetRoot = 'sw-promotion.detail.main.general.codes.individual.alerts';
 
-            if (string.isEmptyOrSpaces(this.promotion.individualCodePattern)) {
+            const { individualCodePattern } = this.promotion;
+
+            if (string.isEmptyOrSpaces(individualCodePattern)) {
                 this.createNotificationError({
                     title: this.$tc(`${snippetRoot}.errorNoPatternTitle`),
                     message: this.$tc(`${snippetRoot}.errorNoPatternMessage`)
+                });
+                return;
+            }
+
+            const stringCount = (individualCodePattern.split('%s').length - 1);
+            const digitCount = (individualCodePattern.split('%d').length - 1);
+
+            if (stringCount <= 0 && digitCount <= 0) {
+                this.createNotificationWarning({
+                    message: this.$tc(`${snippetRoot}.warningFormatCodes`)
+                });
+                return;
+            }
+
+            const stringSum = CodeGenerator.getCharacters()
+                .split('')
+                .filter((char) => char.match(/[a-z]/))
+                .length;
+            const digitSum = CodeGenerator.getDigit().length;
+
+            if ((digitCount === 1 && this.generateCount > digitSum)
+                || (stringCount === 1 && this.generateCount > stringSum)) {
+                this.createNotificationWarning({
+                    message: this.$tc(`${snippetRoot}.warningNotAllowPattern`, 0, { generateCount: this.generateCount })
                 });
                 return;
             }

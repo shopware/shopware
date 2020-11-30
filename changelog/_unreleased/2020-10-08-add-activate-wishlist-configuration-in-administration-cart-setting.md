@@ -1,7 +1,6 @@
 ---
 title: Add activate wishlist configuration in Administration Cart Setting
 issue: NEXT-11308
-flag: FEATURE_NEXT_10549
 ---
 # Core
 *  Added a new `wishlistEnabled` boolean `<input-field />` into `src/Core/System/Resources/config/cart.xml`.

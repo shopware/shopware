@@ -34,10 +34,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.expect(win.customerLoggedInState).to.equal(undefined);
             cy.expect(win.wishlistEnabled).to.equal(undefined);
         })
@@ -47,10 +43,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('not.be.visible');
         })
     });
@@ -59,10 +51,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.get('.product-box .product-wishlist-action-circle').should('not.be.visible');
         })
     });

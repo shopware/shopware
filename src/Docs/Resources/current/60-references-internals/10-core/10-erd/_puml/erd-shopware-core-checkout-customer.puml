@@ -129,6 +129,22 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "cu
    primary_key(customerId) foreignKey
    primary_key(tagId) foreignKey
 }
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition, "customer_wishlist\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(customerId) foreignKey
+   not_null(salesChannelId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(wishlistId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
 ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
@@ -149,6 +165,8 @@ ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinitio
 }
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
 
 ' relationshipd
 
@@ -163,6 +181,7 @@ ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> Shopwa
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
@@ -172,4 +191,7 @@ ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> Sh
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreContentProductProductDefinition
 @enduml

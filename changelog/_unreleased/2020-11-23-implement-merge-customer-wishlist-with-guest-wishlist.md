@@ -1,7 +1,6 @@
 ---
 title: Implemented wishlist merge local storage
 issue: NEXT-11282
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 * Added method `ajaxMerge` in `Shopware\Storefront\Controller\WishlistController` to merge products on wishlist from anonymous users to registered users.

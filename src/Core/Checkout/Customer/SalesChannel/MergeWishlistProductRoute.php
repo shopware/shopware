@@ -27,8 +27,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_10549)
- *
  * @RouteScope(scopes={"store-api"})
  */
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute

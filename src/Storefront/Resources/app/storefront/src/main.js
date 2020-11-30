@@ -108,7 +108,7 @@ PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 
-if (Feature.isActive('FEATURE_NEXT_10549') && window.wishlistEnabled) {
+if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
         PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
     } else {

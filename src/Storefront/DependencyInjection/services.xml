@@ -496,19 +496,16 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
     </services>
 </container>

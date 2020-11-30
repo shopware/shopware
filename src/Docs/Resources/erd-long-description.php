@@ -734,4 +734,12 @@ EOD
 Functionality to dispatch events via webhooks to external systems.
 EOD
     ,
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

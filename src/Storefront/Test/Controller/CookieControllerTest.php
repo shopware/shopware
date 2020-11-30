@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -25,7 +24,6 @@ class CookieControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $this->cookieController = $this->getContainer()->get(CookieController::class);
     }

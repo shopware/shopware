@@ -472,8 +472,6 @@ class ProductEntity extends Entity
     protected $customSearchKeywords;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
@@ -1416,17 +1414,11 @@ class ProductEntity extends Entity
         $this->customSearchKeywords = $customSearchKeywords;
     }
 
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
 
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;

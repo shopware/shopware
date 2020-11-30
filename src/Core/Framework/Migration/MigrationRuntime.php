@@ -137,7 +137,7 @@ class MigrationRuntime
     {
         return $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->orderBy('`creation_timestamp`', 'DESC')
-            ->andWhere('(`update` IS NOT NULL OR WHERE `update_destructive` IS NOT NULL)')
+            ->andWhere('`update` IS NOT NULL')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
     }

@@ -28,7 +28,9 @@ abstract class MigrationStep
     /**
      * down changes
      */
-    abstract public function down(Connection $connection): void;
+    public function down(Connection $connection): void
+    {
+    }
 
     public function removeTrigger(Connection $connection, string $name): void
     {

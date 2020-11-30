@@ -54,6 +54,7 @@
             "messageDeleteError": "The profile could not be saved. Please make sure that all logs for this profile are deleted.",
             "messageDuplicateSuccess": "The profile was duplicated successfully.",
             "messageDuplicateError": "The profile could not be duplicated.",
+            "messageSearchParentProfileError": "Cannot process request",
             "productLabel": "Product",
             "customerLabel": "Customer",
             "categoriesLabel": "Categories",

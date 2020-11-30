@@ -52,8 +52,11 @@ class ImportEntityCommand extends Command
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
             ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string')
-            ->addArgument('profile', InputArgument::OPTIONAL, 'Wrap profile names with whitespaces into quotation '
-                                   . 'marks, like \'Default Category\'');
+            ->addArgument(
+                'profile',
+                InputArgument::OPTIONAL,
+                'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -62,6 +65,11 @@ class ImportEntityCommand extends Command
         $context = Context::createDefaultContext();
 
         $profileName = $input->getArgument('profile');
+        if (is_array($profileName)) {
+            throw new \InvalidArgumentException(
+                sprintf('Profile name: Found array, expected string')
+            );
+        }
         $profile = empty($profileName)
             ? $this->chooseProfile($context, $io)
             : $this->profileByName($profileName, $context);

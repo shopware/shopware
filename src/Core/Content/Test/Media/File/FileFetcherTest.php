@@ -8,6 +8,9 @@ use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
+use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -271,5 +274,38 @@ class FileFetcherTest extends TestCase
             $request,
             'not used in this test'
         );
+    }
+
+    public function testFetchFileDoesNotRedirect(): void
+    {
+        $appUrl = trim($_SERVER['APP_URL'] ?? '');
+        if ($appUrl === '') {
+            static::markTestSkipped('APP_URL not defined');
+        }
+
+        $fileFetcher = new FileFetcher(
+            $this->createMock(FileUrlValidatorInterface::class),
+            true,
+            false
+        );
+
+        $query = [
+            'a' => Uuid::randomHex(),
+            'b' => 'test',
+        ];
+
+        $tmpFileName = tempnam(sys_get_temp_dir(), 'testFetchFileDoesNotRedirect');
+        $queryString = http_build_query($query);
+
+        $url = sprintf('%s/api/v%d/_action/redirect-to-echo?%s', $appUrl, PlatformRequest::API_VERSION, $queryString);
+        $fileFetcher->fetchFileFromURL(
+            new Request(['extension' => 'json'], ['url' => $url]),
+            $tmpFileName
+        );
+
+        $responseContent = file_get_contents($tmpFileName);
+        unlink($tmpFileName);
+
+        static::assertSame('', $responseContent);
     }
 }

@@ -145,7 +145,13 @@ class FileFetcher
      */
     private function openSourceFromUrl(string $url)
     {
-        $inputStream = @fopen($url, 'rb');
+        $streamContext = stream_context_create([
+            'http' => [
+                'follow_location' => 0,
+                'max_redirects' => 0,
+            ],
+        ]);
+        $inputStream = @fopen($url, 'rb', false, $streamContext);
 
         if ($inputStream === false) {
             throw new UploadException("Could not open source stream from {$url}");

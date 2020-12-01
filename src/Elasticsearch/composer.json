@@ -23,7 +23,7 @@
         }
     },
     "minimum-stability": "dev",
-    "version": "6.3.4.0",
+    "version": "6.3.4.1",
     "require": {
         "ext-curl": "*",
         "doctrine/dbal": "2.10.1",

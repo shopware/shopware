@@ -5,8 +5,11 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 class InvoiceGenerator implements DocumentGeneratorInterface
@@ -46,11 +49,17 @@ class InvoiceGenerator implements DocumentGeneratorInterface
     ): string {
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
-        $documentString = $this->documentTemplateRenderer->render(
+        $config = DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize();
+
+        if (Feature::isActive('FEATURE_NEXT_10559')) {
+            $config['intraCommunityDelivery'] = $this->isAllowIntraCommunityDelivery($config, $order);
+        }
+
+        return $this->documentTemplateRenderer->render(
             $templatePath,
             [
                 'order' => $order,
-                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+                'config' => $config,
                 'rootDir' => $this->rootDir,
                 'context' => $context,
             ],
@@ -59,12 +68,33 @@ class InvoiceGenerator implements DocumentGeneratorInterface
             $order->getLanguageId(),
             $order->getLanguage()->getLocale()->getCode()
         );
-
-        return $documentString;
     }
 
     public function getFileName(DocumentConfiguration $config): string
     {
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
+    }
+
+    private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
+    {
+        if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
+            return false;
+        }
+
+        $deliveries = $order->getDeliveries();
+
+        if (empty($deliveries)) {
+            return false;
+        }
+
+        /** @var OrderDeliveryEntity $delivery */
+        $delivery = $deliveries->first();
+
+        /** @var OrderAddressEntity $shippingAddress */
+        $shippingAddress = $delivery->getShippingOrderAddress();
+
+        $country = $shippingAddress->getCountry();
+
+        return $country !== null && $country->getCompanyTaxFree() && in_array($country->getId(), $config['deliveryCountries'], true);
     }
 }

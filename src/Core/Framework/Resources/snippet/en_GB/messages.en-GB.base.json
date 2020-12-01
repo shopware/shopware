@@ -24,6 +24,9 @@
         "placeOfJurisdiction": "Place of jurisdiction: %placeOfJurisdiction%",
         "serviceDateNotice": "Service date matches invoice date",
         "placeOfFulfillment": "Place of fulfillment: %placeOfFulfillment%",
+        "intraCommunity": "Intra-community delivery (EU)",
+        "shippingAddress": "Shipping address",
+        "phoneNumber": "Phone number: %phoneNumber%",
         "ceo": "CEO",
         "lineItems": {
             "header": {

@@ -24,6 +24,9 @@
         "placeOfJurisdiction": "Gerichtsstand ist %placeOfJurisdiction%",
         "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
         "placeOfFulfillment": "Erfüllungsort ist %placeOfFulfillment%",
+        "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
+        "shippingAddress": "Lieferadresse",
+        "phoneNumber": "Telefonnummer : %phoneNumber%",
         "ceo": "Geschäftsführer",
         "lineItems": {
             "header": {

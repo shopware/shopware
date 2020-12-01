@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -147,6 +148,12 @@ class CustomerDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_10549')) {
             $fields->add(
                 (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'customer_id'))->addFlags(new CascadeDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10559')) {
+            $fields->add(
+                new ListField('vat_ids', 'vatIds', StringField::class)
             );
         }
 

@@ -14,12 +14,12 @@
     vertical-align: middle;
 
     &.with-list-price {
-        color: #e52427;
+        color: $sw-color-danger;
         display: inline-block;
     }
 
     &.with-advanced-list-price {
-        color: #e52427;
+        color: $sw-color-danger;
         font-size: $font-size-base;
         display: inline-block;
     }

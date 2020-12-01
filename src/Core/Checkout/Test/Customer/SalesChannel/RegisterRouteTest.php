@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -452,6 +453,94 @@ class RegisterRouteTest extends TestCase
             [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
             [!$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
         ];
+    }
+
+    public function testRegistrationCommercialAccountWithVatIds(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+        unset($registrationData['billingAddress']['vatId']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $registrationData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertSame(['DE123456789'], $response['vatIds']);
+        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                [
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testRegistrationCommercialAccountWithVatIdsIsEmpty(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [],
+        ];
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+        unset($registrationData['billingAddress']['vatId']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $registrationData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertNull($response['vatIds']);
+        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                [
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('contextToken', $response);
     }
 
     private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array

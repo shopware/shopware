@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -100,6 +101,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $validation->add('company', new NotBlank());
         } else {
             $data->set('company', '');
+            $data->set('vatIds', null);
         }
 
         $this->dispatchValidationEvent($validation, $context->getContext());
@@ -107,6 +109,10 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $this->validator->validate($data->all(), $validation);
 
         $customer = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
+
+        if (Feature::isActive('FEATURE_NEXT_10559') && $vatIds = $data->get('vatIds')) {
+            $customer['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
+        }
 
         if ($birthday = $this->getBirthday($data)) {
             $customer['birthday'] = $birthday;

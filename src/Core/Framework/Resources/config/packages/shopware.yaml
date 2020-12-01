@@ -87,4 +87,7 @@ shopware:
               default: false
               major: true
               description: "correct spelling of a config key"
-
+            - name: FEATURE_NEXT_11253
+              default: false
+              major: true
+              description: "reduce request payload of cms listing"

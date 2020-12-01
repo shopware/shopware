@@ -21,6 +21,8 @@
         }
 
         &.is--cover {
+            width: 100%;
+
             .sw-cms-el-image-slider__image {
                 object-fit: cover;
                 width: 100%;
@@ -30,6 +32,12 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
+            }
+        }
+
+        &.is--dot-outside {
+            .sw-cms-el-image-slider__image {
+                padding-bottom: 30px;
             }
         }
     }
@@ -55,6 +63,12 @@
             .sw-cms-el-image-slider__navigation-button {
                 position: absolute;
                 top: 50%;
+            }
+
+            &.is--dot-outside {
+                .sw-cms-el-image-slider__navigation-button {
+                    top: calc(50% - 15px);
+                }
             }
 
             &.is--nav-inside {
@@ -83,27 +97,11 @@
         }
 
         .sw-cms-el-image-slider__navigation-dots {
-            position: relative;
-
-            &.is--nav-inside {
-                .sw-cms-el-image-slider__navigation-buttons {
-                    position: absolute;
-                    bottom: 10px;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                }
-            }
-
-            &.is--nav-outside {
-                padding-bottom: 0;
-
-                .sw-cms-el-image-slider__navigation-buttons {
-                    justify-content: center;
-                    padding: 7.5px;
-                }
-            }
-
             .sw-cms-el-image-slider__navigation-buttons {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 display: grid;
                 grid-auto-flow: column dense;
                 grid-auto-columns: min-content;
@@ -122,6 +120,12 @@
                     &:hover {
                         background: $color-gray-900;
                     }
+                }
+            }
+
+            &.is--dot-outside {
+                .sw-cms-el-image-slider__navigation-buttons {
+                    bottom: -6px;
                 }
             }
         }

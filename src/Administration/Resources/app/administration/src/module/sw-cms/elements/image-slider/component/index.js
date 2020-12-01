@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Component, Mixin, Filter, Utils } = Shopware;
 
 Component.register('sw-cms-el-image-slider', {
     template,
@@ -9,6 +9,8 @@ Component.register('sw-cms-el-image-slider', {
     mixins: [
         Mixin.getByName('cms-element')
     ],
+
+    inject: ['feature'],
 
     props: {
         activeMedia: {
@@ -38,6 +40,10 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         sliderItems() {
+            if (Utils.get(this.element, 'config.sliderItems.source') === 'mapped') {
+                return this.getDemoValue(this.element.config.sliderItems.value) || [];
+            }
+
             if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
                 return this.element.data.sliderItems;
             }
@@ -55,6 +61,7 @@ Component.register('sw-cms-el-image-slider', {
 
         styles() {
             if (this.element.config.displayMode.value === 'cover' &&
+                this.element.config.minHeight.value &&
                 this.element.config.minHeight.value !== 0) {
                 return {
                     'min-height': this.element.config.minHeight.value
@@ -67,6 +74,22 @@ Component.register('sw-cms-el-image-slider', {
         outsideNavArrows() {
             if (this.element.config.navigationArrows.value === 'outside') {
                 return 'has--outside-arrows';
+            }
+
+            return null;
+        },
+
+        navDotsClass() {
+            if (this.element.config.navigationDots.value) {
+                return `is--dot-${this.element.config.navigationDots.value}`;
+            }
+
+            return null;
+        },
+
+        navArrowsClass() {
+            if (this.element.config.navigationArrows.value) {
+                return `is--nav-${this.element.config.navigationArrows.value}`;
             }
 
             return null;
@@ -91,9 +114,30 @@ Component.register('sw-cms-el-image-slider', {
     },
 
     watch: {
+        // @feature-deprecated (flag:FEATURE_NEXT_10078) use sliderItems instead
         'element.data.sliderItems': {
             handler() {
+                if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                    return;
+                }
+
                 if (this.sliderItems.length > 0) {
+                    this.imgSrc = this.sliderItems[0].media.url;
+                    this.$emit('active-image-change', this.sliderItems[0].media);
+                } else {
+                    this.imgSrc = this.assetFilter(this.imgPath);
+                }
+            },
+            deep: true
+        },
+
+        sliderItems: {
+            handler() {
+                if (!this.feature.isActive('FEATURE_NEXT_10078')) {
+                    return;
+                }
+
+                if (this.sliderItems && this.sliderItems.length > 0) {
                     this.imgSrc = this.sliderItems[0].media.url;
                     this.$emit('active-image-change', this.sliderItems[0].media);
                 } else {
@@ -118,7 +162,7 @@ Component.register('sw-cms-el-image-slider', {
             this.initElementConfig('image-slider');
             this.initElementData('image-slider');
 
-            if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
+            if (this.sliderItems && this.sliderItems.length > 0) {
                 this.imgSrc = this.sliderItems[0].media.url;
                 this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
             } else {
@@ -128,6 +172,7 @@ Component.register('sw-cms-el-image-slider', {
 
         setSliderItem(mediaItem, index) {
             this.imgSrc = mediaItem.url;
+            this.sliderPos = index;
             this.$emit('active-image-change', mediaItem, index);
         },
 

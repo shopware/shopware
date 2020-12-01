@@ -1,7 +1,7 @@
-.sw-cms-block-product-heading {
+.sw-cms-block-gallery-buybox {
     display: grid;
-    grid-template-columns: 5fr 1fr;
-    grid-column-gap: 20px;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 20px;
 
     &.is--mobile {
         grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));

@@ -8,6 +8,17 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
     computed: {
         isProductPage() {
             return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
+        },
+
+        styles() {
+            const { displayMode, minHeight, verticalAlign } = this.element.config;
+            return {
+                'max-width': '180px',
+                'min-height': displayMode.value === 'cover' && minHeight.value && minHeight.value !== 0
+                    ? minHeight.value
+                    : '40px',
+                'align-self': verticalAlign.value || null
+            };
         }
     },
 

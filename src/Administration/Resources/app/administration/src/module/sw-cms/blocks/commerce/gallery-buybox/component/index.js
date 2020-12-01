@@ -1,9 +1,9 @@
-import template from './sw-cms-block-product-heading.html.twig';
-import './sw-cms-block-product-heading.scss';
+import template from './sw-cms-block-gallery-buybox.html.twig';
+import './sw-cms-block-gallery-buybox.scss';
 
 const { Component, State } = Shopware;
 
-Component.register('sw-cms-block-product-heading', {
+Component.register('sw-cms-block-gallery-buybox', {
     template,
 
     computed: {

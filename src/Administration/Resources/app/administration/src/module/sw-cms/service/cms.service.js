@@ -235,6 +235,6 @@ function getPropertyByMappingPath(entity, propertyPath) {
             return null;
         }
 
-        return obj[key];
+        return (obj.translated && obj.translated[key]) || obj[key];
     }, entity);
 }

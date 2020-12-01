@@ -523,6 +523,9 @@
               "reviews": "Reviews"
             }
           }
+        },
+        "galleryBuyBox": {
+          "label": "Image gallery and buy box"
         }
       },
       "image": {

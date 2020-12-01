@@ -83,3 +83,8 @@ shopware:
             - name: FEATURE_NEXT_10539
               major: false
               description: "prevent deletion of used rules"
+            - name: FEATURE_NEXT_12092
+              default: false
+              major: true
+              description: "correct spelling of a config key"
+

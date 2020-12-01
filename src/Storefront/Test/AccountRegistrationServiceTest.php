@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -142,6 +143,25 @@ class AccountRegistrationServiceTest extends TestCase
 
         $customerId = $this->accountRegistrationService->register($data, true, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
+    }
+
+    public function testRegistrationWithBusinessAccountAndVatIdRequired(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+        $this->systemConfigService->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $guestData = $this->getRegistrationData();
+        $guestData->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        /** @var DataBag $guestBillingAddress */
+        $guestBillingAddress = $guestData->get('billingAddress');
+        $guestBillingAddress->set('company', 'shopware');
+        $guestData->set('vatIds', []);
+
+        $this->systemConfigService->set('core.loginRegistration.vatIdFieldRequired', true);
+
+        $this->expectException(ConstraintViolationException::class);
+        $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
     }
 
     public function testRegistrationWithRequiredPhoneNumber(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
@@ -524,8 +525,91 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
+        if ($this->getContainer()->get(SystemConfigService::class)->get('core.loginRegistration.vatIdFieldRequired', $this->getSalesChannelApiSalesChannelId())) {
+            static::assertArrayHasKey('errors', $response);
+        } else {
+            static::assertSame('customer', $response['apiAlias']);
+            static::assertNull($response['vatIds']);
+            static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                    [
+                        'email' => 'teg-reg@example.com',
+                        'password' => '12345678',
+                    ]
+                );
+
+            $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+            static::assertArrayHasKey('contextToken', $response);
+        }
+    }
+
+    public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $this->getContainer()->get(Connection::class)
+            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'abcd',
+            ],
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $registrationData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('errors', $response);
+    }
+
+    public function testRegistrationBusinessAccountWithVatIdsMatchRegex(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $this->getContainer()->get(Connection::class)
+            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                '123456789',
+            ],
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $registrationData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNull($response['vatIds']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser

@@ -64,7 +64,7 @@
                     {% endblock %}
                 </div>
             </div>
-        {% else %}
+        {% elseif not hideCustomerTypeSelect %}
             <input type="hidden" name="accountType">
         {% endif %}
     {% endblock %}

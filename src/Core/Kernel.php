@@ -14,6 +14,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
@@ -218,6 +219,36 @@ class Kernel extends HttpKernel
         } finally {
             $this->rebooting = false;
         }
+    }
+
+    /**
+     * @deprecated tag:v6.4.0.0 - API Routes does not contain versions anymore
+     */
+    public function loadRoutes(LoaderInterface $loader): RouteCollection
+    {
+        $routes = new RouteCollectionBuilder($loader);
+        $this->configureRoutes($routes);
+
+        return $this->addApiFallbackRoutes($routes->build());
+    }
+
+    /**
+     * @deprecated tag:v6.4.0.0 - API Routes does not contain versions anymore
+     */
+    public function addApiFallbackRoutes(RouteCollection $routes): RouteCollection
+    {
+        foreach ($routes->all() as $name => $route) {
+            if (strpos($route->getPath(), '{version}') === false) {
+                continue;
+            }
+
+            $fallbackRoute = clone $route;
+            $fallbackRoute->setPath(str_replace(['v{version}/', '{version}/'], '', $fallbackRoute->getPath()));
+            $fallbackRoute->setDefault('version', PlatformRequest::API_VERSION);
+            $routes->add($name . '.major_fallback', $fallbackRoute);
+        }
+
+        return $routes;
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void

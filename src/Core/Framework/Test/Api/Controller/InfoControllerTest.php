@@ -43,6 +43,36 @@ class InfoControllerTest extends TestCase
         static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 
+    public function testGetShopwareVersion(): void
+    {
+        $expected = [
+            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+        ];
+
+        $url = '/api/_info/version';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+    }
+
+    public function testGetShopwareVersionOldVersion(): void
+    {
+        $expected = [
+            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+        ];
+
+        $url = '/api/v1/_info/version';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+    }
+
     public function testBusinessEventRoute(): void
     {
         $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);

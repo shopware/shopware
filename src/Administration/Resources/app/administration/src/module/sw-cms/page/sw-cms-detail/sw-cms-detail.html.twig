@@ -193,7 +193,7 @@
 
                         {% block sw_cms_detail_layout_assignment_modal %}
                             <sw-cms-layout-assignment-modal
-                                v-if="feature.isActive('FEATURE_NEXT_11389') && showLayoutAssignmentModal"
+                                v-if="showLayoutAssignmentModal"
                                 @modal-close="closeLayoutAssignmentModal"
                                 @confirm="onConfirmLayoutAssignment"
                                 :page="page">

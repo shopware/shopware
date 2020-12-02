@@ -97,6 +97,7 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
+        cy.get(':nth-child(1) > :nth-child(4) > dd').contains('English')
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 });

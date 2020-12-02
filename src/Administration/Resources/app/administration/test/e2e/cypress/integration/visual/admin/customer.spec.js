@@ -90,6 +90,7 @@ describe('Customer:  Visual test', () => {
         });
 
         // Take snapshot for visual testing
+        cy.get('.sw-customer-base-info-columns:nth-of-type(4) .sw-description-list').contains('English')
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 

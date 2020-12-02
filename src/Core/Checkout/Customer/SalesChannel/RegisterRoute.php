@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -175,6 +176,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
             $customer['company'] = $billingAddress['company'];
+            if (Feature::isActive('FEATURE_NEXT_10559') && $vatIds = $data->get('vatIds')) {
+                $customer['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
+            }
         }
 
         $customer = $this->setDoubleOptInData($customer, $context);

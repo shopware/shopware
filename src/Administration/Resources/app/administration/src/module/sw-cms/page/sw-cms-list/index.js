@@ -114,9 +114,12 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
-                .addAssociation('sections')
-                .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            if (!this.feature.isActive('FEATURE_NEXT_11253')) {
+                criteria.addAssociation('sections');
+                criteria.addAssociation('categories');
+            }
 
             if (this.feature.isActive('FEATURE_NEXT_10078')) {
                 criteria.addAssociation('products');

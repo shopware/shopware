@@ -149,6 +149,7 @@ Component.register('sw-review-detail', {
         },
 
         onSaveFinish() {
+            this.loadEntityData();
             this.isSaveSuccessful = false;
         },
 

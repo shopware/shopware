@@ -254,6 +254,11 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
+            // if no type is set just use the value and continue
+            if (!isset($data['type'])) {
+                continue;
+            }
+
             if (in_array($data['type'], ['media', 'textarea'], true)) {
                 if ($data['type'] === 'media') {
                     // Add id of media which needs to be resolved

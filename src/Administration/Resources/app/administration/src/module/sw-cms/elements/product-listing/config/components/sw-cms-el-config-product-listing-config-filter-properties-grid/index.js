@@ -47,7 +47,8 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
                 {
                     property: 'status',
                     label: 'sw-cms.elements.productListing.config.filter.gridHeaderStatus',
-                    disabled: this.disabled
+                    disabled: this.disabled,
+                    width: '70px'
                 },
                 {
                     property: 'name',

@@ -38,6 +38,7 @@ const repositoryMockFactory = (entity) => {
 
 function createWrapper(activeTab = 'sorting') {
     const localVue = createLocalVue();
+    localVue.filter('asset', key => key);
 
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-listing'), {
         localVue,
@@ -294,6 +295,9 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         await wrapper.vm.$nextTick(); // fetch property_group call
 
+        // enable filterByProperties otherwise any property is active
+        wrapper.vm.filterByProperties = true;
+
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
         const expectedOrderWhenNoPropertiesAreActive = ['foo', 'bar', 'baz'];
@@ -328,5 +332,33 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const expectedToDiplayFilteredProperties = ['bar'];
         const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
         expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+
+        await wrapper.vm.$nextTick(); // await template re-render
+
+        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
+        expect(emptyStateElement.element).not.toBeTruthy();
+    });
+
+    it('should show an empty-state when filtered properties have no result', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        expect(wrapper.vm.showPropertySelection).toBeTruthy();
+
+        const expectedToDiplayProperties = ['foo', 'bar', 'baz'];
+        const displayedProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayProperties).toEqual(displayedProperties);
+
+        wrapper.vm.filterPropertiesTerm = 'notinlist';
+
+        const expectedToDiplayFilteredProperties = [];
+        const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+
+        await wrapper.vm.$nextTick(); // await template re-render
+
+        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
+        expect(emptyStateElement.element).toBeTruthy();
     });
 });

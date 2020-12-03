@@ -148,6 +148,7 @@ Component.register('sw-cms-el-config-product-listing', {
             },
             set(value) {
                 this.updateFilters('property-filter', !value);
+                this.sortProperties(this.properties);
             }
         },
 
@@ -251,6 +252,12 @@ Component.register('sw-cms-el-config-product-listing', {
 
         sortProperties(properties) {
             properties.forEach(property => {
+                if (!this.filterByProperties) {
+                    property.active = true;
+
+                    return;
+                }
+
                 property.active = this.element.config.propertyWhitelist.value.includes(property.id);
             });
 

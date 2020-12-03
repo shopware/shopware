@@ -280,10 +280,13 @@
             "labelFilterByRating": "Nach Bewertung filtern",
             "labelFilterByPrice": "Nach Preis filtern",
             "labelFilterForFreeShipping": "Nach kostenlosem Versand filtern",
-            "labelUseFilterByProperties": "Produkteigenschaften als Filter nutzen",
+            "labelUseFilterByProperties": "Filterbare Produkteigenschaften konfigurieren",
+            "helpTextUseFilterByProperties": "Wenn deaktiviert, werden in diesem Layout Filter für alle vorhandenen Eigenschaften angezeigt.",
             "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
             "gridHeaderStatus": "Status",
-            "gridHeaderName": "Name"
+            "gridHeaderName": "Name",
+            "gridEmptyStateLabel": "Keine Eigenschaften gefunden.",
+            "gridEmptyStateHint": "Versuche es mit einem anderen Suchbegriff"
           }
         }
       },

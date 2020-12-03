@@ -151,8 +151,10 @@
 
                             {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
                                 {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
-                                    <sw-switch-field v-model="filterByProperties"
-                                                     :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')">
+                                    <sw-switch-field
+                                        v-model="filterByProperties"
+                                        :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
+                                        :helpText="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')">
                                     </sw-switch-field>
                                 {% endblock %}
 
@@ -174,12 +176,31 @@
                             {% endblock %}
 
                             {% block sw_cms_element_product_listing_config_filter_property_grid %}
-                                <sw-cms-el-config-product-listing-config-filter-properties-grid
-                                    :disabled="showFilterGrid"
-                                    :properties="displayedProperties"
-                                    @property-status-changed="propertyStatusChanged"
-                                    @page-change="onPageChange">
-                                </sw-cms-el-config-product-listing-config-filter-properties-grid>
+                                <template v-if="displayedProperties.length > 0">
+                                    <sw-cms-el-config-product-listing-config-filter-properties-grid
+                                        :disabled="showFilterGrid"
+                                        :properties="displayedProperties"
+                                        @property-status-changed="propertyStatusChanged"
+                                        @page-change="onPageChange">
+                                    </sw-cms-el-config-product-listing-config-filter-properties-grid>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_empty_state %}
+                                <template v-if="displayedProperties.length < 1">
+                                    <div class="sw-cms-element-product-listing-config-filter__empty-state">
+                                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+
+                                        <div class="sw-cms-element-product-listing-config-filter__empty-state--label">
+                                            <p>
+                                            <p>{{ $tc('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel') }}</p>
+                                        </div>
+
+                                        <div class="sw-cms-element-product-listing-config-filter__empty-state--hint">
+                                            <p>{{ $tc('sw-cms.elements.productListing.config.filter.gridEmptyStateHint') }}</p>
+                                        </div>
+                                    </div>
+                                </template>
                             {% endblock %}
                         </div>
                     {% endblock %}

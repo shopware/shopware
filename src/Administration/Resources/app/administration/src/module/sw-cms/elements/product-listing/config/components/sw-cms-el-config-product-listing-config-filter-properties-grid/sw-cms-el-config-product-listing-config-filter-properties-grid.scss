@@ -22,5 +22,13 @@
         .sw-data-grid .sw-data-grid__cell-content {
             color: $color-gray;
         }
+
+        .sw-field--switch .sw-field--switch__input input[type="checkbox"]:checked:disabled ~ .sw-field__switch-state {
+            background: $color-shopware-brand-200;
+
+            .sw-field__switch-state-knob {
+                background: $color-gray-50;
+            }
+        }
     }
 }

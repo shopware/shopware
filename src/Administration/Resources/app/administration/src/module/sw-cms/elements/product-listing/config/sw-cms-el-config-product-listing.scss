@@ -2,7 +2,7 @@
 
 .sw-cms-el-config-product-listing {
     div.sw-field--switch {
-        margin: 0;
+        margin: 0 0 0 5px;
 
         label {
             flex-grow: 0;
@@ -31,5 +31,18 @@
         font-size: $font-size-small;
         margin-bottom: 20px;
         margin-left: 34px;
+    }
+
+    .sw-cms-element-product-listing-config-filter__empty-state {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 250px;
+
+        .sw-cms-element-product-listing-config-filter__empty-state--label {
+            margin-top: 25px;
+            font-weight: 600;
+        }
     }
 }

@@ -280,10 +280,13 @@
             "labelFilterByRating": "Filter by rating",
             "labelFilterByPrice": "Filter by price",
             "labelFilterForFreeShipping": "Filter for free shipping",
-            "labelUseFilterByProperties": "Use product properties as filters",
+            "labelUseFilterByProperties": "Configure filterable product properties",
+            "helpTextUseFilterByProperties": "If disabled, filters for all existing properties are displayed in this layout.",
             "descriptionTextUseFilterByProperties": "Properties that are set to not filterable are not displayed here. You can change this in the <a href=\"#/sw/property/index\" target=\"_blank\">properties</a> module.",
             "gridHeaderStatus": "Status",
-            "gridHeaderName": "Name"
+            "gridHeaderName": "Name",
+            "gridEmptyStateLabel": "No properties found.",
+            "gridEmptyStateHint": "Try another search term"
           }
         }
       },

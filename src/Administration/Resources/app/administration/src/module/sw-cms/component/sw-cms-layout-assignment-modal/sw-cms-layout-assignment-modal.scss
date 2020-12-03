@@ -21,12 +21,22 @@
     }
 }
 
-.sw-cms-layout-assignment-modal__confirm-changes-modal {
+.sw-modal.sw-cms-layout-assignment-modal__confirm-changes-modal {
     .sw-modal__body p {
         font-size: $font-size-small;
 
         &:not(:last-of-type) {
             margin-bottom: 14px;
         }
+    }
+
+    .sw-modal__footer {
+        display: flex;
+    }
+
+    .sw-cms-layout-assignment-modal__confirm-changes-modal-main-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
     }
 }

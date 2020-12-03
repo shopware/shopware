@@ -60,6 +60,16 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
             // Confirm layout assignment
             cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+
+            // Warning modal should appear because root category has an assigned layout
+            cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('be.visible');
+            cy.get('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').should('be.visible');
+
+            // Confirm changes
+            cy.get('.sw-cms-layout-assignment-modal__action-changes-confirm').click();
+
+            // Both modals should disappear
+            cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('not.be.visible');
             cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
 
             // Save the layout

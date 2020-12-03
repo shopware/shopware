@@ -88,6 +88,7 @@
                                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
                                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
                                     :resetOption="$tc('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
+                                    :helpText="$tc('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
                                     @change="onInputSalesChannelSelect"
                                     v-model="shopPageSalesChannelId">
                                 </sw-entity-single-select>
@@ -98,7 +99,6 @@
                                     v-model="selectedShopPages[shopPageSalesChannelId]"
                                     :inheritedValue="selectedShopPages.null"
                                     :hasParent="shopPageSalesChannelId !== null"
-                                    :customInheritationCheckFunction="shopPageSelectInheritanceFunction"
                                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')">
                                     <template #content="props">
                                         <sw-multi-select
@@ -134,6 +134,14 @@
                     </p>
                 {% endblock %}
 
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_assigned_layouts %}
+                    <p
+                        v-if="hasCategoriesWithAssignedLayouts"
+                        class="sw-cms-layout-assignment-modal__confirm-text-assigned-layouts">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategoriesAssignedLayouts') }}
+                    </p>
+                {% endblock %}
+
                 {% block sw_cms_layout_assignment_modal_confirm_changes_text_shop_pages %}
                     <p
                         v-if="hasDeletedShopPages"
@@ -156,25 +164,27 @@
                         </sw-button>
                     {% endblock %}
 
-                    {% block sw_cms_layout_assignment_modal_confirm_changes_discard %}
-                        <sw-button
-                            @click="onDiscardChanges"
-                            class="sw-cms-layout-assignment-modal__action-changes-discard"
-                            variant="ghost"
-                            size="small">
-                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesRestorePrev') }}
-                        </sw-button>
-                    {% endblock %}
+                    <div class="sw-cms-layout-assignment-modal__confirm-changes-modal-main-actions">
+                        {% block sw_cms_layout_assignment_modal_confirm_changes_discard %}
+                            <sw-button
+                                @click="onDiscardChanges"
+                                class="sw-cms-layout-assignment-modal__action-changes-discard"
+                                variant="ghost"
+                                size="small">
+                                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesRestorePrev') }}
+                            </sw-button>
+                        {% endblock %}
 
-                    {% block sw_cms_layout_assignment_modal_confirm_changes_confirm %}
-                        <sw-button
-                            @click="onConfirmChanges"
-                            class="sw-cms-layout-assignment-modal__action-changes-confirm"
-                            variant="primary"
-                            size="small">
-                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesConfirm') }}
-                        </sw-button>
-                    {% endblock %}
+                        {% block sw_cms_layout_assignment_modal_confirm_changes_confirm %}
+                            <sw-button
+                                @click="onConfirmChanges"
+                                class="sw-cms-layout-assignment-modal__action-changes-confirm"
+                                variant="primary"
+                                size="small">
+                                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesConfirm') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
                 </template>
             </sw-modal>
         {% endblock %}

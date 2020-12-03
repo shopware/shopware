@@ -55,7 +55,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new Required()),
-            new FkField('logo_id', 'logoId', DocumentTypeDefinition::class),
+            new FkField('logo_id', 'logoId', MediaDefinition::class),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
             new StringField('filename_prefix', 'filenamePrefix'),

@@ -91,7 +91,18 @@
                                     {% endblock %}
                                 </template>
                             {% endblock %}
+
                             <template v-if="feature.isActive('FEATURE_NEXT_10559')">
+                                {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
+                                    <sw-checkbox-field
+                                        v-if="isShowDivergentDeliveryAddress"
+                                        v-model="documentConfig.config.displayDivergentDeliveryAddress"
+                                        class="sw-settings-document-detail__field_divergent_delivery_address"
+                                        :disabled="!acl.can('document.editor')"
+                                        :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+
                                 {% block sw_settings_document_detail_content_field_additional_note_delivery %}
                                     <sw-checkbox-field
                                         v-if="isShowDisplayNoteDelivery"

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -47,7 +48,7 @@ class ProductPurchasePriceDeprecationTest extends TestCase
     public function testUpdateNewBlueGreen(): void
     {
         $this->setBlueGreen(true);
-        $this->assertUpdateDeprecated();
+        $this->assertUpdateNew();
     }
 
     public function testInsertDeprecated(): void
@@ -71,7 +72,19 @@ class ProductPurchasePriceDeprecationTest extends TestCase
     public function testUpdateNew(): void
     {
         $this->setBlueGreen(false);
-        $this->assertUpdateDeprecated();
+        $this->assertUpdateNew();
+    }
+
+    public function testResetInheritance(): void
+    {
+        $this->setBlueGreen(false);
+        $this->assertResetInheritance();
+    }
+
+    public function testResetInheritanceBlueGreen(): void
+    {
+        $this->setBlueGreen(true);
+        $this->assertResetInheritance();
     }
 
     public function assertInsertDeprecated(): void
@@ -190,13 +203,15 @@ class ProductPurchasePriceDeprecationTest extends TestCase
 
         $repository->update(
             [
-                'id' => $product['id'],
-                'purchasePrices' => [
-                    [
-                        'net' => 2345.4321,
-                        'gross' => 3456.5432,
-                        'currencyId' => Defaults::CURRENCY,
-                        'linked' => false,
+                [
+                    'id' => $product['id'],
+                    'purchasePrices' => [
+                        [
+                            'net' => 2345.4321,
+                            'gross' => 3456.5432,
+                            'currencyId' => Defaults::CURRENCY,
+                            'linked' => false,
+                        ],
                     ],
                 ],
             ],
@@ -212,20 +227,68 @@ class ProductPurchasePriceDeprecationTest extends TestCase
         static::assertNotNull($purchasePrices);
         static::assertCount(1, $purchasePrices);
 
-        $expectedPurchasePrices = $product['purchasePrices'][0];
-
         static::assertCount(1, $purchasePrices);
 
-        $actualPurchasePrices = $purchasePrices->get($expectedPurchasePrices['currencyId']);
+        $actualPurchasePrices = $purchasePrices->get(Defaults::CURRENCY);
 
         static::assertInstanceOf(Price::class, $actualPurchasePrices);
 
         static::assertNotNull($actualPurchasePrices);
-        static::assertSame($expectedPurchasePrices['gross'], $actualPurchasePrices->getGross());
-        static::assertSame($expectedPurchasePrices['currencyId'], $actualPurchasePrices->getCurrencyId());
+        static::assertSame(3456.5432, $actualPurchasePrices->getGross());
+        static::assertSame(Defaults::CURRENCY, $actualPurchasePrices->getCurrencyId());
 
         static::assertNotNull($productEntity->getPurchasePrice());
-        static::assertSame($expectedPurchasePrices['gross'], $productEntity->getPurchasePrice());
+        static::assertSame(3456.5432, $productEntity->getPurchasePrice());
+    }
+
+    public function assertResetInheritance(): void
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            [
+                'id' => $ids->create('parent'),
+                'name' => 'test',
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'purchasePrices' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                'id' => $ids->create('child'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'stock' => 10,
+                'purchasePrices' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($data, Context::createDefaultContext());
+
+        $update = [
+            'id' => $ids->get('child'),
+            'purchasePrices' => null,
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->update([$update], Context::createDefaultContext());
+
+        $variant = $this->getContainer()
+            ->get('product.repository')
+            ->search(new Criteria([$ids->get('child')]), Context::createDefaultContext())
+            ->first();
+
+        /** @var ProductEntity $variant */
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertNull($variant->getPurchasePrices());
     }
 
     public function testBlueGreen(): void

@@ -316,7 +316,12 @@ Component.register('sw-product-detail', {
                     gross: null
                 }];
 
-                this.product.purchasePrices = [];
+                this.product.purchasePrices = [{
+                    currencyId: this.defaultCurrency.id,
+                    net: 0,
+                    linked: true,
+                    gross: 0
+                }];
 
                 this.product.featureSet = this.defaultFeatureSet;
 
@@ -333,10 +338,6 @@ Component.register('sw-product-detail', {
                 this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
-
-                // Initialize an empty price collection if the product has no purchase prices
-                this.product.purchasePrices = this.product.purchasePrices || [];
-
 
                 if (this.product.parentId) {
                     this.loadParentProduct();

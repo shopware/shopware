@@ -187,7 +187,7 @@ class CmsSectionEntity extends Entity
         $this->backgroundColor = $backgroundColor;
     }
 
-    public function getBackgroundMediaId(): ?String
+    public function getBackgroundMediaId(): ?string
     {
         return $this->backgroundMediaId;
     }

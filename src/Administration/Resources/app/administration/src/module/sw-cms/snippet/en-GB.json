@@ -486,7 +486,7 @@
         "label": "Cross Selling",
         "preview": {
           "label": {
-            "similarProduct": "Similar products"
+            "crossSellingTitle": "Cross Selling title"
           }
         },
         "config": {
@@ -529,6 +529,9 @@
         },
         "galleryBuyBox": {
           "label": "Image gallery and buy box"
+        },
+        "crossSelling": {
+          "label": "Cross Selling"
         }
       },
       "image": {

@@ -48,6 +48,16 @@ Component.register('sw-cms-detail', {
             demoEntityId: null,
             productDetailBlocks: [
                 {
+                    type: 'cross-selling',
+                    elements: [
+                        {
+                            slot: 'content',
+                            type: 'cross-selling',
+                            config: {}
+                        }
+                    ]
+                },
+                {
                     type: 'product-description-reviews',
                     elements: [
                         {

@@ -70,7 +70,7 @@ Component.register('sw-cms-el-cross-selling', {
         crossSelling() {
             if (!this.element.data.product || !this.element.data.product.crossSellings.length) {
                 return {
-                    name: 'Similar products'
+                    name: 'Cross selling title'
                 };
             }
 

@@ -7,6 +7,7 @@ final class CustomFieldTypes
     public const BOOL = 'bool';
     public const COLORPICKER = 'colorpicker';
     public const DATETIME = 'datetime';
+    public const ENTITY = 'entity';
     public const FLOAT = 'float';
     public const INT = 'int';
     public const JSON = 'json';

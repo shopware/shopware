@@ -280,6 +280,14 @@ Component.register('sw-custom-field-set-renderer', {
                 return customFieldClone;
             }
 
+            if (customFieldClone.config.customFieldType === 'entity' && customFieldClone.config.entity === 'product') {
+                const criteria = new Criteria();
+                criteria.addAssociation('options.group');
+
+                customFieldClone.config.criteria = criteria;
+                customFieldClone.config.displayVariants = true;
+            }
+
             delete customFieldClone.config.label;
             delete customFieldClone.config.helpText;
 

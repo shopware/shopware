@@ -9,7 +9,7 @@
 
                 {% block sw_product_variant_modal_body_label %}
                     <sw-label class="sw-product-variant-modal__label">
-                    
+
                         {% block sw_product_variant_modal_body_label_search %}
                             <sw-simple-search-field v-model="searchTerm"
                                 class="sw-product-variant-modal__search"
@@ -46,7 +46,7 @@
 
                         {% block sw_product_variant_modal_body_grid_column_name %}
                             <template #column-name="{item, isInlineEdit}">
-                            
+
                                 {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
                                     <sw-text-field v-if="isInlineEdit"
                                         v-model="item.name"
@@ -68,7 +68,7 @@
                                                     class="sw-product-variant-modal__variant-name">
                                                     {{ item.translated.name }}
                                                 </span>
-                                                
+
                                                 <sw-product-variant-info v-else
                                                     class="sw-product-variant-modal__variant-options"
                                                     :variations="item.variation"
@@ -98,7 +98,7 @@
                                         @inheritance-restore="onInheritanceRestore(item, currency)"
                                         @inheritance-remove="onInheritanceRemove(item, currency)">
                                     </sw-inheritance-switch>
-                                
+
                                     <sw-price-field :price="item.price ? item.price : []"
                                         :defaultPrice="productEntity.price[0]"
                                         :taxRate="productEntity.tax"
@@ -109,13 +109,13 @@
                                         :currency="currency">
                                     </sw-price-field>
                                 </template>
-                            
+
                                 <template v-else>
                                     <sw-inheritance-switch :isInherited="item.price === null"
                                         class="sw-product-variant-modal__price-inheritance-switch"
                                         disabled>
                                     </sw-inheritance-switch>
-                                    
+
                                     <sw-price-preview :price="item.price ? item.price : []"
                                         :defaultPrice="productEntity.price[0]"
                                         :taxRate="productEntity.tax"
@@ -147,7 +147,7 @@
 
                         {% block sw_product_variant_modal_body_grid_column_active %}
                             <template #column-active="{item, isInlineEdit}">
-                            
+
                                 {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
                                     <template v-if="isInlineEdit">
                                         <sw-checkbox-field v-model="item.active"
@@ -164,7 +164,7 @@
 
                                 {% block sw_product_variant_modal_body_grid_column_active_content %}
                                     <template v-else>
-                                    
+
                                         {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
                                             <sw-icon v-if="item.active === true"
                                                     name="small-default-checkmark-line-medium"
@@ -194,7 +194,7 @@
 
                         {% block sw_product_variant_modal_body_grid_actions %}
                             <template #actions="{item}">
-                            
+
                                 {% block sw_product_variant_modal_body_grid_actions_edit %}
                                     <sw-context-menu-item @click="visitProduct(item.id)">
                                         {{ contextMenuEditText }}
@@ -240,7 +240,7 @@
                         :title="$tc('sw-product.list.variantDeleteModalTitle')"
                         variant="small"
                         @modal-close="closeDeleteModal">
-                        
+
                         {% block sw_product_variant_modal_body_delete_modal_body_multiple %}
                             <template v-if="toBeDeletedVariants.length > 1">
 
@@ -262,7 +262,7 @@
 
                         {% block sw_product_variant_modal_body_delete_modal_footer %}
                             <template #modal-footer>
-                            
+
                                 {% block sw_product_variant_modal_body_delete_modal_footer_close %}
                                     <sw-button @click="closeDeleteModal"
                                         size="small">

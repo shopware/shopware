@@ -117,6 +117,14 @@ Component.register('sw-custom-field-detail', {
                 return;
             }
 
+            if (this.currentCustomField.config.customFieldType === 'entity') {
+                if (!this.currentCustomField.config.entity) {
+                    this.createEntityTypeRequiredNotification();
+
+                    return;
+                }
+            }
+
             this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
                 if (isUnique) {
                     this.$emit('custom-field-edit-save', this.currentCustomField);
@@ -129,12 +137,22 @@ Component.register('sw-custom-field-detail', {
         },
 
         createNameNotUniqueNotification() {
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
+            const notificationTitle = this.$tc('global.default.error');
+            const nameNotUniqueMessage = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({
-                title: titleSaveSuccess,
-                message: messageSaveSuccess
+                title: notificationTitle,
+                message: nameNotUniqueMessage
+            });
+        },
+
+        createEntityTypeRequiredNotification() {
+            const notificationTitle = this.$tc('global.default.error');
+            const entityTypeRequiredTitle = this.$tc('sw-settings-custom-field.set.detail.entityTypeRequired');
+
+            this.createNotificationError({
+                title: notificationTitle,
+                message: entityTypeRequiredTitle
             });
         },
 

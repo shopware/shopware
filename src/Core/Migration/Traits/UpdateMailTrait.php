@@ -17,6 +17,13 @@ trait UpdateMailTrait
         $this->updateDeMail($connection, $update);
     }
 
+    final protected function updateMailSubject(MailSubjectUpdate $update, Connection $connection): void
+    {
+        $this->updateEnMailSubject($connection, $update);
+
+        $this->updateDeMailSubject($connection, $update);
+    }
+
     final private function updateDeMail(Connection $connection, MailUpdate $update): void
     {
         $languages = $this->getLanguageIds($connection, 'de-DE');
@@ -69,6 +76,61 @@ trait UpdateMailTrait
                     'template' => $translation['mail_template_id'],
                     'html' => $update->getEnHtml(),
                     'plain' => $update->getEnPlain(),
+                ]
+            );
+        }
+    }
+
+    final private function updateEnMailSubject(Connection $connection, MailSubjectUpdate $update): void
+    {
+        $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
+        $languages = array_unique(array_filter($languages));
+
+        if (empty($languages)) {
+            return;
+        }
+
+        $translations = $this->getTranslationIds($connection, $languages, $update->getType());
+        if (empty($translations)) {
+            return;
+        }
+
+        foreach ($translations as $translation) {
+            $connection->executeUpdate(
+                'UPDATE mail_template_translation
+                 SET subject = :subject
+                 WHERE language_id = :language_id AND mail_template_id = :template',
+                [
+                    'language_id' => $translation['language_id'],
+                    'template' => $translation['mail_template_id'],
+                    'subject' => $update->getEnSubject(),
+                ]
+            );
+        }
+    }
+
+    final private function updateDeMailSubject(Connection $connection, MailSubjectUpdate $update): void
+    {
+        $languages = $this->getLanguageIds($connection, 'de-DE');
+        if (!$languages) {
+            return;
+        }
+
+        $translations = $this->getTranslationIds($connection, $languages, $update->getType());
+        if (empty($translations)) {
+            return;
+        }
+
+        foreach ($translations as $translation) {
+            $connection->executeUpdate(
+                '
+                    UPDATE mail_template_translation
+                    SET subject = :subject
+                    WHERE language_id = :language_id AND mail_template_id = :template',
+                [
+                    'language_id' => $translation['language_id'],
+                    'template' => $translation['mail_template_id'],
+                    'subject' => $update->getDeSubject(),
                 ]
             );
         }

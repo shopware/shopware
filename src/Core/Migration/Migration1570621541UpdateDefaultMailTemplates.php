@@ -129,7 +129,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                     $defaultLangId,
                     $this->getRegisterTemplate_HTML_EN(),
                     $this->getRegisterTemplate_PLAIN_EN(),
-                    '{{ salesChannel.name }}'
+                    '{{ salesChannel.translated.name }}'
                 );
             }
 
@@ -140,7 +140,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                     Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                     $this->getRegisterTemplate_HTML_EN(),
                     $this->getRegisterTemplate_PLAIN_EN(),
-                    '{{ salesChannel.name }}'
+                    '{{ salesChannel.translated.name }}'
                 );
             }
 
@@ -150,7 +150,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                 $deLangId,
                 $this->getRegisterTemplate_HTML_DE(),
                 $this->getRegisterTemplate_PLAIN_DE(),
-                '{{ salesChannel.name }}'
+                '{{ salesChannel.translated.name }}'
             );
         }
 
@@ -164,7 +164,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                     $defaultLangId,
                     $this->getOptInTemplate_HTML_EN(),
                     $this->getOptInTemplate_PLAIN_EN(),
-                    '{{ salesChannel.name }}'
+                    '{{ salesChannel.translated.name }}'
                 );
             }
 
@@ -175,7 +175,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                     Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                     $this->getOptInTemplate_HTML_EN(),
                     $this->getOptInTemplate_PLAIN_EN(),
-                    '{{ salesChannel.name }}'
+                    '{{ salesChannel.translated.name }}'
                 );
             }
 
@@ -185,7 +185,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
                 $deLangId,
                 $this->getOptInTemplate_HTML_DE(),
                 $this->getOptInTemplate_PLAIN_DE(),
-                '{{ salesChannel.name }}'
+                '{{ salesChannel.translated.name }}'
             );
         }
     }
@@ -271,9 +271,9 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         return '<div style="font-family:arial; font-size:12px;">
 
 {% set currencyIsoCode = order.currency.isoCode %}
-{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
+{{order.orderCustomer.salutation.translated.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
-Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
+Thank you for your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
 <br>
 <strong>Information on your order:</strong><br>
 <br>
@@ -354,9 +354,9 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
     private function getOrderConfirmationPlainTemplateEn(): string
     {
         return '{% set currencyIsoCode = order.currency.isoCode %}
-{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
+{{order.orderCustomer.salutation.translated.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
+Thank you for your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
 
 Information on your order:
 
@@ -413,9 +413,9 @@ If you have any questions, do not hesitate to contact us.
         return '<div style="font-family:arial; font-size:12px;">
 
 {% set currencyIsoCode = order.currency.isoCode %}
-Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
+Hallo {{order.orderCustomer.salutation.translated.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
-vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
+vielen Dank für Ihre Bestellung im {{ salesChannel.translated.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
 <br>
 <strong>Informationen zu Ihrer Bestellung:</strong><br>
 <br>
@@ -497,9 +497,9 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
     private function getOrderConfirmationPlainTemplateDe(): string
     {
         return '{% set currencyIsoCode = order.currency.isoCode %}
-Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
+Hallo {{order.orderCustomer.salutation.translated.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
+vielen Dank für Ihre Bestellung im {{ salesChannel.translated.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
 
 Informationen zu Ihrer Bestellung:
 
@@ -555,9 +555,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
             <p>
-                {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
+                {{ customer.salutation.translated.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
                 <br/>
-                thank you for your registration with our Shop.<br/>
+                thank you for your signing up with our Shop.<br/>
                 You will gain access via the email address <strong>{{ customer.email }}</strong> and the password you have chosen.<br/>
                 You can change your password anytime.
             </p>
@@ -566,9 +566,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
     private function getRegistrationPlainTemplateEn(): string
     {
-        return '{{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
+        return '{{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},
 
-                thank you for your registration with our Shop.
+                thank you for your signing up with our Shop.
                 You will gain access via the email address {{ customer.email }} and the password you have chosen.
                 You can change your password anytime.
         ';
@@ -578,7 +578,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
             <p>
-                Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
+                Hallo {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
                 <br/>
                 vielen Dank für Ihre Anmeldung in unserem Shop.<br/>
                 Sie erhalten Zugriff über Ihre E-Mail-Adresse <strong>{{ customer.email }}</strong> und dem von Ihnen gewählten Kennwort.<br/>
@@ -589,7 +589,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
     private function getRegistrationPlainTemplateDe(): string
     {
-        return 'Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
+        return 'Hallo {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},
 
                 vielen Dank für Ihre Anmeldung in unserem Shop.
                 Sie erhalten Zugriff über Ihre E-Mail-Adresse {{ customer.email }} und dem von Ihnen gewählten Kennwort.
@@ -601,9 +601,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
     <p>
-        {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
+        {{ customer.salutation.translated.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
         <br/>
-        there has been a request to reset you Password in the Shop {{ salesChannel.name }}
+        there has been a request to reset you Password in the Shop {{ salesChannel.translated.name }}
         Please confirm the link below to specify a new password.<br/>
         <br/>
         <a href="{{ urlResetPassword }}">Reset passwort</a><br/>
@@ -617,9 +617,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getPasswordChangePlainTemplateEn(): string
     {
         return '
-        {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
+        {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},
 
-        there has been a request to reset you Password in the Shop {{ salesChannel.name }}
+        there has been a request to reset you Password in the Shop {{ salesChannel.translated.name }}
         Please confirm the link below to specify a new password.
 
         Reset password: {{ urlResetPassword }}
@@ -633,9 +633,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
     <p>
-        Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
+        Hallo {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
         <br/>
-        im Shop {{ salesChannel.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
+        im Shop {{ salesChannel.translated.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
         Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.<br/>
         <br/>
         <a href="{{ urlResetPassword }}">Passwort zurücksetzen</a><br/>
@@ -649,9 +649,9 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getPasswordChangePlainTemplateDe(): string
     {
         return '
-        Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
+        Hallo {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},
 
-        im Shop {{ salesChannel.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
+        im Shop {{ salesChannel.translated.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
         Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.
 
         Passwort zurücksetzen: {{ urlResetPassword }}

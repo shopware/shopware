@@ -183,6 +183,15 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             $indices[] = $data->getIndex();
         }
 
+        $indices = array_unique($indices);
+        $indices = array_filter($indices, function (string $index) {
+            return $this->client->indices()->exists(['index' => $index]);
+        });
+
+        if (empty($indices)) {
+            return;
+        }
+
         try {
             $this->client->indices()->refresh([
                 'index' => implode(',', array_unique($indices)),

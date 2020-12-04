@@ -74,9 +74,6 @@ shopware:
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_11389
-              major: false
-              description: "layout assignment in CMS module"
             - name: FEATURE_NEXT_10536
               major: false
               description: "filter settings per category"

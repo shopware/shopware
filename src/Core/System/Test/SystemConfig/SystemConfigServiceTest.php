@@ -32,7 +32,8 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService = new SystemConfigService(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('system_config.repository'),
-            $this->getContainer()->get(ConfigReader::class)
+            $this->getContainer()->get(ConfigReader::class),
+            $this->getContainer()->get('plugin.repository')
         );
     }
 

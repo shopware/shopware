@@ -84,13 +84,11 @@
               content="{{ price.unitPrice }}">
 
         {% block page_product_detail_price_content %}
-            {% set listPrice = page.product.priceRange ? null : price.listPrice %}
-
-            <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
+            <p class="product-detail-price{% if price.listPrice.percentage > 0 %} with-list-price{% endif %}">
                 {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
             </p>
 
-            {% if listPrice.percentage > 0 %}
+            {% if price.listPrice.percentage > 0 %}
                 {% block page_product_detail_was_price %}
 
                     {% block page_product_detail_was_price_badge %}
@@ -101,10 +99,10 @@
                         <span class="product-detail-list-price-wrapper">
                             {{"listing.beforeListPrice"|trans|trim}}
                             <span {% if not ("listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0) %}class="list-price-price"{% endif %}>
-                                {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                {{ price.listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
                             </span>
                             {{"listing.afterListPrice"|trans|trim}}
-                            <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
+                            <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
                         </span>
                     {% endblock %}
                 {% endblock %}

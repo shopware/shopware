@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\Product
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationCollection;
@@ -338,6 +339,13 @@ class LanguageEntity extends Entity
      * @var ProductSortingTranslationCollection|null
      */
     protected $productSortingTranslations;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var ProductSearchConfigEntity|null
+     */
+    protected $productSearchConfig;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -907,6 +915,22 @@ class LanguageEntity extends Entity
     public function setProductSortingTranslations(ProductSortingTranslationCollection $productSortingTranslations): void
     {
         $this->productSortingTranslations = $productSortingTranslations;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    public function getProductSearchConfig(): ?ProductSearchConfigEntity
+    {
+        return $this->productSearchConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    public function setProductSearchConfig(ProductSearchConfigEntity $productSearchConfig): void
+    {
+        $this->productSearchConfig = $productSearchConfig;
     }
 
     public function getApiAlias(): string

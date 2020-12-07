@@ -118,6 +118,26 @@
             <tag name="shopware.entity.definition" entity="product_sorting_translation"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition">
+            <tag name="shopware.entity.definition" entity="product_search_config"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition">
+            <tag name="shopware.entity.definition" entity="product_search_config_field"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>

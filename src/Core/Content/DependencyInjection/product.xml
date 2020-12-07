@@ -325,6 +325,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument type="service" id="product_search_config.repository" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">

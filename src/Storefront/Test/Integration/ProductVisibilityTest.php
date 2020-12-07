@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -126,6 +127,7 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSearch(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);
@@ -184,6 +186,7 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSuggest(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);

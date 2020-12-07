@@ -322,6 +322,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testSearchKeywordIndexerConsidersUpdate(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $id = Uuid::randomHex();
 
         $data = [
@@ -2359,6 +2360,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testWriteProductCategoriesWithoutId(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $id = Uuid::randomHex();
 
         $data = [

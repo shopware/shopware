@@ -239,7 +239,7 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
                 'table' => $entityName,
                 'id' => Uuid::randomBytes(),
                 'product_search_config_id' => $configId,
-                'field' => 'variantRestrictions',
+                'field' => 'options.name',
                 'tokenize' => $defaultConfig['tokenize'],
                 'searchable' => $defaultConfig['searchable'],
                 'ranking' => $defaultConfig['ranking'],

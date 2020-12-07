@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
@@ -39,16 +42,25 @@ class SearchKeywordUpdater
      */
     private $analyzer;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var EntityRepositoryInterface|null
+     */
+    private $productSearchConfigRepository;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $productRepository,
-        ProductSearchKeywordAnalyzerInterface $analyzer
+        ProductSearchKeywordAnalyzerInterface $analyzer,
+        ?EntityRepositoryInterface $productSearchConfigRepository
     ) {
         $this->connection = $connection;
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
         $this->analyzer = $analyzer;
+        $this->productSearchConfigRepository = $productSearchConfigRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -77,7 +89,16 @@ class SearchKeywordUpdater
     {
         $products = $context->disableCache(function (Context $context) use ($ids) {
             return $context->enableInheritance(function (Context $context) use ($ids) {
-                return $this->productRepository->search((new Criteria($ids))->addAssociation('manufacturer'), $context);
+                $criteria = new Criteria($ids);
+                $criteria->addAssociation('manufacturer');
+                if (Feature::isActive('FEATURE_NEXT_10552')) {
+                    $criteria->addAssociation('categories');
+                    $criteria->addAssociation('tags');
+                    $criteria->addAssociation('properties');
+                    $criteria->addAssociation('options');
+                }
+
+                return $this->productRepository->search($criteria, $context);
             });
         });
 
@@ -91,9 +112,30 @@ class SearchKeywordUpdater
         $keywords = [];
         $dictionary = [];
 
+        $configFields = new ProductSearchConfigFieldCollection();
+
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
+            $criteria->addAssociation('configFields');
+
+            if ($this->productSearchConfigRepository !== null) {
+                $configData = $this->productSearchConfigRepository->search($criteria, $context);
+
+                if ($configData->getEntities()->first() !== null) {
+                    /** @var ProductSearchConfigFieldCollection $configFields */
+                    $configFields = $configData->getEntities()->first()->getConfigFields();
+                }
+            }
+        }
+
         /** @var ProductEntity $product */
         foreach ($products as $product) {
-            $analyzed = $this->analyzer->analyze($product, $context);
+            if (Feature::isActive('FEATURE_NEXT_10552')) {
+                $analyzed = $this->analyzer->analyzeBaseOnSearchConfig($product, $context, $configFields);
+            } else {
+                $analyzed = $this->analyzer->analyze($product, $context);
+            }
 
             $productId = Uuid::fromHexToBytes($product->getId());
 

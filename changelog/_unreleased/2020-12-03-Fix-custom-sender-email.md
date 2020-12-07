@@ -5,4 +5,4 @@ author:         Timothee Montias
 author_email:   timothee.motnias@epita.fr
 ---
 # Core
-    * Cahnged the MailService class by changing the senderEmail variable affectation begining with the custom email address.
+* Changed the `senderEmail` variable affectation beginning with the custom email address in the `Shopware\Core\Content\MailTemplate\Service\MailService`

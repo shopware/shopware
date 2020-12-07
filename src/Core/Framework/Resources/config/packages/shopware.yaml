@@ -88,3 +88,7 @@ shopware:
               default: false
               major: true
               description: "reduce request payload of cms listing"
+            - name: FEATURE_NEXT_12016
+              default: false
+              major: false
+              description: "improve promotions UX"

@@ -152,7 +152,7 @@
             <name>firstNameFieldRequired</name>
             <bordered>bordered</bordered>
             <label>First name in contact forms required</label>
-            <label lang="de-DE">Telefonnummer in Kontaktformularen als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Vorname in Kontaktformularen als Pflichtfeld behandeln</label>
             <helpText>If active, the field "first name" has to be filled in, in order to submit a contact form.</helpText>
             <helpText lang="de-DE">Wenn aktiv, muss das Feld "Vorname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
         </component>

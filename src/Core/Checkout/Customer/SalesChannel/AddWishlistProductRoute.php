@@ -82,14 +82,17 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      * @LoginRequired()
      * @Route("/store-api/v{version}/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})
      */
-    public function add(string $productId, SalesChannelContext $context): SuccessResponse
+    public function add(string $productId, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw new CustomerWishlistNotActivatedException();
         }
 
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            /** @var CustomerEntity $customer */
+            $customer = $context->getCustomer();
+        }
 
         $this->validateProduct($productId, $context);
         $wishlistId = $this->getWishlistId($context, $customer->getId());

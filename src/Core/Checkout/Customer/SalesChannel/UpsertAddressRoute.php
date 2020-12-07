@@ -113,8 +113,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      * @Route(path="/store-api/v{version}/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId": null})
      * @Route(path="/store-api/v{version}/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"})
      */
-    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context): UpsertAddressRouteResponse
+    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): UpsertAddressRouteResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         if (!$addressId) {
             $isCreate = true;
             $addressId = Uuid::randomHex();
@@ -150,7 +155,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $addressData = $mappingEvent->getOutput();
         $addressData['id'] = $addressId;
-        $addressData['customerId'] = $context->getCustomer()->getId();
+        $addressData['customerId'] = $customer->getId();
 
         $this->addressRepository->upsert([$addressData], $context->getContext());
 

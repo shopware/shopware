@@ -93,8 +93,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
      */
-    public function change(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
+    public function change(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         $validation = $this->customerProfileValidationFactory->update($context);
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
@@ -108,23 +113,24 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $this->validator->validate($data->all(), $validation);
 
-        $customer = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
+        $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
 
         if (Feature::isActive('FEATURE_NEXT_10559') && $vatIds = $data->get('vatIds')) {
-            $customer['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
+            $customerData['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
         }
 
         if ($birthday = $this->getBirthday($data)) {
-            $customer['birthday'] = $birthday;
+            $customerData['birthday'] = $birthday;
         }
 
-        $mappingEvent = new DataMappingEvent($data, $customer, $context->getContext());
+        $mappingEvent = new DataMappingEvent($data, $customerData, $context->getContext());
         $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_CUSTOMER_PROFILE_SAVE);
 
-        $customer = $mappingEvent->getOutput();
-        $customer['id'] = $context->getCustomer()->getId();
+        $customerData = $mappingEvent->getOutput();
 
-        $this->customerRepository->update([$customer], $context->getContext());
+        $customerData['id'] = $customer->getId();
+
+        $this->customerRepository->update([$customerData], $context->getContext());
 
         return new SuccessResponse();
     }

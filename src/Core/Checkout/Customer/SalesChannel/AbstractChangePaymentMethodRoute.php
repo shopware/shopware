@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -13,5 +14,8 @@ abstract class AbstractChangePaymentMethodRoute
 {
     abstract public function getDecorated(): AbstractChangePaymentMethodRoute;
 
-    abstract public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context): SuccessResponse;
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
+     */
+    abstract public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context/*, CustomerEntity $customer*/): SuccessResponse;
 }

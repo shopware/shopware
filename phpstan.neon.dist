@@ -42,6 +42,18 @@ parameters:
         - '#Method Shopware\\Core\\Content\\Category\\SalesChannel\\AbstractNavigationRoute::load\(\) invoked with 5 parameters, 4 required\.#'
         - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\AbstractProductListingRoute::load\(\) invoked with 4 parameters, 3 required\.#'
         - '#Method .*Route::load\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractCustomerRoute::load\(\) invoked with 4 parameters, 2 required\.#'
+        - '#Method .*AbstractChangeCustomerProfileRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangeEmailRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangePasswordRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangePaymentMethodRoute::change\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*AbstractDeleteAddressRoute::delete\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractRemoveWishlistProductRoute::delete\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractDeleteCustomerRoute::delete\(\) invoked with 2 parameters, 1 required\.#'
+        - '#Method .*AbstractAddWishlistProductRoute::add\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractMergeWishlistProductRoute::merge\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractSwitchDefaultAddressRoute::swap\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*AbstractUpsertAddressRoute::upsert\(\) invoked with 4 parameters, 3 required\.#'
         -
             message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
             path: src/Core/**/SalesChannel/**Route.php

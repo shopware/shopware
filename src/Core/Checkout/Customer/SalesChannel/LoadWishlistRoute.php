@@ -89,13 +89,17 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      * @LoginRequired()
      * @Route("/store-api/v{version}/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LoadWishlistRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria, ?CustomerEntity $customer = null): LoadWishlistRouteResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            /** @var CustomerEntity $customer */
+            $customer = $context->getCustomer();
+        }
+
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw new CustomerWishlistNotActivatedException();
         }
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
 
         $wishlist = $this->loadWishlist($context, $customer->getId());
         $products = $this->loadProducts($wishlist->getId(), $criteria, $context, $request);

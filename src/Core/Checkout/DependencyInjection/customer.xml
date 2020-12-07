@@ -323,5 +323,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\CustomerValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1002"/>
+        </service>
+
     </services>
 </container>

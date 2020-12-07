@@ -115,6 +115,10 @@ Component.register('sw-cms-sidebar', {
             }
 
             return Shopware.Context.api;
+        },
+
+        blockTypes() {
+            return Object.keys(this.cmsBlocks);
         }
     },
 
@@ -393,11 +397,11 @@ Component.register('sw-cms-sidebar', {
         },
 
         getMainContentBlocks(sectionBlocks) {
-            return sectionBlocks.filter((block) => block.sectionPosition === 'main');
+            return sectionBlocks.filter((block) => this.blockTypeExists(block.type) && block.sectionPosition === 'main');
         },
 
         getSidebarContentBlocks(sectionBlocks) {
-            return sectionBlocks.filter((block) => block.sectionPosition === 'sidebar');
+            return sectionBlocks.filter((block) => this.blockTypeExists(block.type) &&  block.sectionPosition === 'sidebar');
         },
 
         pageUpdate() {
@@ -406,6 +410,10 @@ Component.register('sw-cms-sidebar', {
 
         onOpenLayoutAssignment() {
             this.$emit('open-layout-assignment');
+        },
+
+        blockTypeExists(type) {
+            return this.blockTypes.includes(type)
         }
     }
 });

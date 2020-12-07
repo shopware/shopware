@@ -242,6 +242,25 @@
         {% endif %}
     {% endblock %}
 
+    {% block component_address_personal_vat_id %}
+        {% if feature('FEATURE_NEXT_10559') and showVatIdField %}
+            {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
+                <div class="js-field-toggle-contact-type-company js-field-toggle-contact-type-vat-id">
+                    {% block component_address_personal_vat_id_fields %}
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                    'vatIds': data.get('vatIds'),
+                                    'editMode': true
+                                } %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+
     {% block component_address_personal_fields_birthday %}
         {% if showBirthdayField %}
             {% block component_address_personal_fields_birthday_label %}

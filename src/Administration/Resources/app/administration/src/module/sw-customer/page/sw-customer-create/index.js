@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-customer-create', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService', 'systemConfigApiService'],
+    inject: ['repositoryFactory', 'numberRangeService', 'systemConfigApiService', 'feature'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -60,6 +60,10 @@ Component.register('sw-customer-create', {
             this.customer.defaultBillingAddressId = this.address.id;
             this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
+
+            if (this.feature.isActive('FEATURE_NEXT_10559')) {
+                this.customer.vatIds = [];
+            }
         },
 
         saveFinish() {

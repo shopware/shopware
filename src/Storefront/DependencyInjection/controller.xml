@@ -250,6 +250,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

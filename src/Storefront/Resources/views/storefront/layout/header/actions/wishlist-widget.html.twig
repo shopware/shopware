@@ -4,6 +4,10 @@
     </span>
     {% set wishlistStorageOptions = {
         listPath: path('frontend.wishlist.product.list'),
+        mergePath: path('frontend.wishlist.product.merge'),
+        tokenMergePath: sw_csrf('frontend.wishlist.product.merge', {'mode': 'token'}),
+        pageletPath: path('frontend.wishlist.product.merge.pagelet'),
+        tokenPageletPath: sw_csrf('frontend.wishlist.product.merge.pagelet', {'mode': 'token'}),
     } %}
     <span class="badge badge-primary header-wishlist-badge"
           id="wishlist-basket"

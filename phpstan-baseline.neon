@@ -7533,5 +7533,5 @@ parameters:
 		-
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
 			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductsRoute.php
+			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
 

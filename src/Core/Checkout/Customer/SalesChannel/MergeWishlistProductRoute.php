@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,7 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @RouteScope(scopes={"store-api"})
  */
-class MergeWishlistProductsRoute extends AbstractMergeWishlistProducts
+class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -70,7 +71,7 @@ class MergeWishlistProductsRoute extends AbstractMergeWishlistProducts
         $this->connection = $connection;
     }
 
-    public function getDecorated(): AbstractMergeWishlistProducts
+    public function getDecorated(): AbstractMergeWishlistProductRoute
     {
         throw new DecorationPatternException(self::class);
     }
@@ -99,6 +100,7 @@ class MergeWishlistProductsRoute extends AbstractMergeWishlistProducts
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
+     * @LoginRequired()
      * @Route("/store-api/v{version}/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
      */
     public function merge(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
@@ -107,10 +109,8 @@ class MergeWishlistProductsRoute extends AbstractMergeWishlistProducts
             throw new CustomerWishlistNotActivatedException();
         }
 
+        /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
-        if ($customer === null) {
-            throw new CustomerNotLoggedInException();
-        }
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
 

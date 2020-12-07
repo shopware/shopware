@@ -309,7 +309,7 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductsRoute" public="true">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

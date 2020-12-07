@@ -527,7 +527,8 @@
     "currentlyNotAvailable": "Currently not available",
     "manufacturerDisplayName": "Manufacturer",
     "deliveryTimeAvailable": "Available, delivery time %name%",
-    "noLongerAvailableTooltip": "The product is no longer available."
+    "noLongerAvailableTooltip": "The product is no longer available.",
+    "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit."
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

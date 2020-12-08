@@ -1,0 +1,98 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    {% set actionUrl = path(redirectTo, { deepLinkCode: redirectParameters.deepLinkCode}) %}
+
+    {% block page_account_guest_auth %}
+        <div class="account-guest-auth row justify-content-md-center">
+
+            {% block page_account_guest_auth_inner %}
+                <div class="col-md-8 col-lg-6">
+
+                    {% block page_account_guest_auth_form %}
+                        <form method="post"
+                              class="account-guest-auth-form card"
+                              action="{{ actionUrl }}"
+                              data-form-csrf-handler="true"
+                              data-form-validation="true">
+
+                            {% block page_account_guest_auth_title %}
+                                <h1 class="card-title">
+                                    {{ 'account.orderGuestLoginTitle'|trans }}
+                                </h1>
+                            {% endblock %}
+
+                            {% block page_account_guest_auth_container %}
+                                <div class="card-body">
+
+                                    {% block page_account_guest_auth_info %}
+                                        <div class="card-text account-guest-auth-info">
+                                            {{ 'account.orderGuestLoginDescription'|trans }}
+                                        </div>
+                                    {% endblock %}
+
+                                    <div class="form-row">
+                                        {% block page_account_guest_auth_mail %}
+                                            <div class="form-group col-md-8">
+                                                {% block page_account_guest_auth_mail_label %}
+                                                    <label class="form-label" for="mail">
+                                                        {{ 'account.profileCurrentMail'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                    </label>
+                                                {% endblock %}
+
+                                                {% block page_account_guest_auth_mail_input %}
+                                                    <input type="email"
+                                                           class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
+                                                           autocomplete="section-personal email"
+                                                           id="mail"
+                                                           name="email"
+                                                           placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
+                                                           required="required">
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        <div class="form-group col-md-4">
+                                            {% block page_account_guest_auth_postcode %}
+                                                {% block page_account_guest_auth_postcode_label %}
+                                                    <label class="form-label" for="recoverMail2">
+                                                        {{ 'address.zipcodeLabel'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                    </label>
+                                                {% endblock %}
+
+                                                {% block page_account_guest_auth_postcode_input %}
+                                                <input type="text"
+                                                       class="form-control"
+                                                       autocomplete="section-personal zipcode"
+                                                       id="zipcode"
+                                                       name="zipcode"
+                                                       placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
+                                                       required="required">
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock  %}
+                                    </div>
+
+                                    {% block page_account_guest_auth_actions %}
+                                        <div class="account-guest-auth-form-actions">
+                                            {% block page_account_guest_auth_action_send %}
+                                                <button type="submit"
+                                                        class="account-guest-auth-submit btn btn-primary"
+                                                        title="{{ 'account.registerSubmit'|trans|striptags }}">
+                                                    {{ 'account.registerSubmit'|trans }}
+                                                </button>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+
+                                {{ sw_csrf(redirectTo) }}
+
+                            {% endblock %}
+                        </form>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

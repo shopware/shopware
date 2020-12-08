@@ -98,6 +98,12 @@ class AccountOrderPageLoader
         $criteria = $this->createCriteria($request);
         $apiRequest = new Request();
 
+        // Add email and zipcode for guest customer verification in order view
+        if ($request->get('email', false) && $request->get('zipcode', false)) {
+            $apiRequest->query->set('email', $request->get('email'));
+            $apiRequest->query->set('zipcode', $request->get('zipcode'));
+        }
+
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 

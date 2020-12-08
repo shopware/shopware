@@ -277,7 +277,10 @@
     "passwordResetTitle": "Haben Sie Ihr Passwort vergessen?",
     "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Sobald Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
     "passwordOptInInfo": "Bestätigungs-E-Mail verschickt. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
-    "colonCharacter": ":"
+    "colonCharacter": ":",
+    "orderGuestLoginTitle": "Authentifizierung",
+    "orderGuestLoginDescription": "Um Ihre Bestellung einsehen zu können, geben Sie bitte zuerst Ihre E-Mail-Adresse sowie die Postleitzahl aus Ihrer verwendeten Rechnungsadresse ein.",
+    "orderGuestLoginWrongCredentials": "Die eingegebenen Daten konnten leider keiner Bestellung zugeordnet werden."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",

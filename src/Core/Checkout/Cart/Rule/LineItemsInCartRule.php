@@ -37,16 +37,16 @@ class LineItemsInCartRule extends Rule
         }
 
         $elements = $scope->getCart()->getLineItems()->getFlat();
-        $identifiers = \array_map(function (LineItem $element) {
+        $identifiers = array_map(function (LineItem $element) {
             return $element->getReferencedId() ? $element->getReferencedId() : null;
         }, $elements);
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return !empty(\array_intersect($identifiers, $this->identifiers));
+                return !empty(array_intersect($identifiers, $this->identifiers));
 
             case self::OPERATOR_NEQ:
-                return empty(\array_intersect($identifiers, $this->identifiers));
+                return empty(array_intersect($identifiers, $this->identifiers));
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

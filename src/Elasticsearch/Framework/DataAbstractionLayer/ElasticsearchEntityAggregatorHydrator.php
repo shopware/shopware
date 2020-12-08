@@ -109,7 +109,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 return $this->hydrateTermsAggregation($aggregation, $result, $context);
 
             default:
-                throw new \RuntimeException(\sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
         }
     }
 
@@ -119,7 +119,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
             $result = $result[$aggregation->getName()];
         }
 
-        $ids = \array_column($result['buckets'], 'key');
+        $ids = array_column($result['buckets'], 'key');
 
         $repository = $this->definitionInstanceRegistry->getRepository($aggregation->getEntity());
 

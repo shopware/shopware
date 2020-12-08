@@ -50,6 +50,6 @@ class OrderRouteResponse extends StoreApiResponse
 
     public function addPaymentChangeable(array $paymentChangeable): void
     {
-        $this->paymentChangeable = \array_merge($this->paymentChangeable, $paymentChangeable);
+        $this->paymentChangeable = array_merge($this->paymentChangeable, $paymentChangeable);
     }
 }

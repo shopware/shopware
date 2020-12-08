@@ -44,7 +44,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $unserialized = \unserialize($entity->getPayload());
+            $unserialized = unserialize($entity->getPayload());
 
             $entity->setPayload($unserialized);
         }
@@ -65,12 +65,12 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $updated = $this->updater->update(\array_keys($rules));
+        $updated = $this->updater->update(array_keys($rules));
 
         foreach ($updated as $id => $entity) {
             $rules[$id]->assign($entity);
         }
 
-        $this->cacheClearer->invalidateIds(\array_keys($updated), RuleDefinition::ENTITY_NAME);
+        $this->cacheClearer->invalidateIds(array_keys($updated), RuleDefinition::ENTITY_NAME);
     }
 }

@@ -122,8 +122,8 @@ class TaskScheduler
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
-        if (!\in_array(ScheduledTask::class, \class_parents($taskClass), true)) {
-            throw new \RuntimeException(\sprintf(
+        if (!\in_array(ScheduledTask::class, class_parents($taskClass), true)) {
+            throw new \RuntimeException(sprintf(
                 'Tried to schedule "%s", but class does not extend ScheduledTask',
                 $taskClass
             ));

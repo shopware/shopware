@@ -138,7 +138,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                 continue;
             }
 
-            $routes = \array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
+            $routes = array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
                 return $seoUrlRoute->getConfig()->getRouteName();
             }, $routes);
 

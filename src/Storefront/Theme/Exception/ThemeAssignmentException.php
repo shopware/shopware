@@ -39,9 +39,9 @@ class ThemeAssignmentException extends ShopwareHttpException
     {
         $output = [];
         foreach ($assignmentMapping as $themeName => $salesChannelName) {
-            $output[] = \sprintf('"%s" => "%s"', $themeName, \implode(', ', $salesChannelName));
+            $output[] = sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelName));
         }
 
-        return \implode(', ', $output);
+        return implode(', ', $output);
     }
 }

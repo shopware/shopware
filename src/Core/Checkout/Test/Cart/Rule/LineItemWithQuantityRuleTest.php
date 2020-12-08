@@ -54,7 +54,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(3, $exceptions);
             static::assertSame('/0/value/id', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -83,7 +83,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/id', $exceptions[0]['source']['pointer']);
             static::assertSame('This value should be of type string.', $exceptions[0]['detail']);
@@ -106,7 +106,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/id', $exceptions[0]['source']['pointer']);
             static::assertSame('The string "12345" is not a valid uuid.', $exceptions[0]['detail']);
@@ -129,7 +129,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/quantity', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
@@ -219,7 +219,7 @@ class LineItemWithQuantityRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);

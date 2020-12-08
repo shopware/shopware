@@ -22,7 +22,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
         $contactTemplateId = $this->getContactMailTemplateId($connection);
         $contactEventConfig = $this->getContactMailEventConfig($connection);
 
-        $config = \json_decode($contactEventConfig, true);
+        $config = json_decode($contactEventConfig, true);
         $contactTemplateTypeId = Uuid::fromHexToBytes($config['mail_template_type_id']);
 
         $update = false;

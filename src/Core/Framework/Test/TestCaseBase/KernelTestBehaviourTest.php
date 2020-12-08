@@ -12,26 +12,26 @@ class KernelTestBehaviourTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->kernelId = \spl_object_hash($this->getKernel());
+        $this->kernelId = spl_object_hash($this->getKernel());
     }
 
     protected function tearDown(): void
     {
-        if (!$this->kernelId === \spl_object_hash($this->getKernel())) {
+        if (!$this->kernelId === spl_object_hash($this->getKernel())) {
             throw new \RuntimeException('Kernel has changed');
         }
     }
 
     public function testTheKernelIsEqual(): void
     {
-        static::assertEquals($this->kernelId, \spl_object_hash($this->getKernel()));
+        static::assertEquals($this->kernelId, spl_object_hash($this->getKernel()));
     }
 
     public function testClientIsUsingTheSameKernel(): void
     {
         static::assertSame(
-            \spl_object_hash(KernelLifecycleManager::getKernel()),
-            \spl_object_hash(KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel())->getKernel())
+            spl_object_hash(KernelLifecycleManager::getKernel()),
+            spl_object_hash(KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel())->getKernel())
         );
     }
 }

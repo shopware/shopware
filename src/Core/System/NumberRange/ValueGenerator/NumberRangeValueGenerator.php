@@ -77,7 +77,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     protected function parsePattern(?string $pattern): ?array
     {
-        return \preg_split(
+        return preg_split(
             '/([}{])/',
             $pattern,
             -1,
@@ -189,8 +189,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 continue;
             }
             if ($startPattern === true) {
-                $patternArg = \explode('_', $patternPart);
-                $pattern = \array_shift($patternArg);
+                $patternArg = explode('_', $patternPart);
+                $pattern = array_shift($patternArg);
                 $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
                 if ($patternResolver) {
                     $generated .= $patternResolver->resolve($this->configuration, $patternArg, $preview);

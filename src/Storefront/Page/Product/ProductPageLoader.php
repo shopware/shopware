@@ -170,7 +170,7 @@ class ProductPageLoader
 
         $metaTitleParts[] = $page->getProduct()->getProductNumber();
 
-        $metaInformation->setMetaTitle(\implode(' | ', $metaTitleParts));
+        $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
     }
 
     private function loadSlotData(

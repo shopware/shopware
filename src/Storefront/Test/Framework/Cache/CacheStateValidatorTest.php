@@ -34,7 +34,7 @@ class CacheStateValidatorTest extends TestCase
     private function createRequest(string ...$states): Request
     {
         $request = new Request();
-        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, \implode(',', $states));
+        $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, implode(',', $states));
 
         return $request;
     }
@@ -42,7 +42,7 @@ class CacheStateValidatorTest extends TestCase
     private function createResponse(string ...$states): Response
     {
         $response = new Response();
-        $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, \implode(',', $states));
+        $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, implode(',', $states));
 
         return $response;
     }

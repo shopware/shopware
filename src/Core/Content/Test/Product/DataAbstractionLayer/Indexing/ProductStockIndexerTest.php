@@ -745,7 +745,7 @@ class ProductStockIndexerTest extends TestCase
             ],
         ];
 
-        $product = \array_replace_recursive($product, $config);
+        $product = array_replace_recursive($product, $config);
 
         $this->productRepository->create([$product], Context::createDefaultContext());
         $this->addTaxDataToSalesChannel($this->context, $product['tax']);

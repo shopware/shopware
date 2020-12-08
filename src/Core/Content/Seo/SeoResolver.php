@@ -36,12 +36,12 @@ class SeoResolver implements SeoResolverInterface
 
     public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $seoPathInfo = \ltrim($pathInfo, '/');
+        $seoPathInfo = ltrim($pathInfo, '/');
         if ($seoPathInfo === '') {
             return ['pathInfo' => '/', 'isCanonical' => false];
         }
 
-        $key = \md5($languageId . '-' . $salesChannelId . '-' . $pathInfo);
+        $key = md5($languageId . '-' . $salesChannelId . '-' . $pathInfo);
 
         $item = $this->cache->getItem($key);
         if ($item->isHit()) {
@@ -82,15 +82,15 @@ class SeoResolver implements SeoResolverInterface
                 ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('id', $seoPath['id'] ?? '')
-                ->setParameter('pathInfo', '/' . \ltrim($seoPath['pathInfo'], '/'));
+                ->setParameter('pathInfo', '/' . ltrim($seoPath['pathInfo'], '/'));
 
             $canonical = $query->execute()->fetch();
             if ($canonical) {
-                $seoPath['canonicalPathInfo'] = '/' . \ltrim($canonical['seoPathInfo'], '/');
+                $seoPath['canonicalPathInfo'] = '/' . ltrim($canonical['seoPathInfo'], '/');
             }
         }
 
-        $seoPath['pathInfo'] = '/' . \ltrim($seoPath['pathInfo'], '/');
+        $seoPath['pathInfo'] = '/' . ltrim($seoPath['pathInfo'], '/');
 
         $item->set($seoPath);
 

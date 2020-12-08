@@ -22,7 +22,7 @@ class NewsletterExceptionHandler implements ExceptionHandlerInterface
 
         if (
             $command->getDefinition()->getEntityName() === 'language'
-            && \preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*newsletter_recipient.*CONSTRAINT `fk.newsletter_recipient.language_id`/', $e->getMessage())
+            && preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*newsletter_recipient.*CONSTRAINT `fk.newsletter_recipient.language_id`/', $e->getMessage())
         ) {
             $primaryKey = $command->getPrimaryKey();
 

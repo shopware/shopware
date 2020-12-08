@@ -72,7 +72,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
 
     public function assign(array $options)
     {
-        $this->data = \array_replace_recursive($this->data, $options);
+        $this->data = array_replace_recursive($this->data, $options);
 
         if (\array_key_exists('id', $options)) {
             $this->_uniqueIdentifier = $options['id'];
@@ -97,6 +97,6 @@ class ArrayEntity extends Entity implements \ArrayAccess
         $data = $this->data;
         $this->convertDateTimePropertiesToJsonStringRepresentation($data);
 
-        return \array_merge($jsonArray, $data);
+        return array_merge($jsonArray, $data);
     }
 }

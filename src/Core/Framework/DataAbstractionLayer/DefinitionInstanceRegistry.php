@@ -89,7 +89,7 @@ class DefinitionInstanceRegistry
      */
     public function getDefinitions(): array
     {
-        return \array_map(function (string $name): EntityDefinition {
+        return array_map(function (string $name): EntityDefinition {
             return $this->get($name);
         }, $this->definitions);
     }

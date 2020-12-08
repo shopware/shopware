@@ -25,9 +25,9 @@ class IndexerQueuer
         $current = self::fetchCurrent($this->connection);
 
         if ($current !== null) {
-            $decodedValue = \json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode($current['configuration_value'], true);
 
-            return \array_keys($decodedValue['_value'] ?? []);
+            return array_keys($decodedValue['_value'] ?? []);
         }
 
         return [];
@@ -38,12 +38,12 @@ class IndexerQueuer
         $current = self::fetchCurrent($this->connection);
         $indexerList = [];
         if ($current !== null) {
-            $decodedValue = \json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode($current['configuration_value'], true);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
         $newList = [];
-        foreach (\array_keys($indexerList) as $indexer) {
+        foreach (array_keys($indexerList) as $indexer) {
             if (!\in_array($indexer, $names, true)) {
                 $newList[$indexer] = 1;
             }
@@ -61,7 +61,7 @@ class IndexerQueuer
 
         if ($current !== null) {
             $id = $current['id'];
-            $decodedValue = \json_decode($current['configuration_value'], true);
+            $decodedValue = json_decode($current['configuration_value'], true);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
@@ -73,7 +73,7 @@ class IndexerQueuer
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
         $date = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $newValue = \json_encode(['_value' => $indexerList]);
+        $newValue = json_encode(['_value' => $indexerList]);
 
         if (empty($indexerList) && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);

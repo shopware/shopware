@@ -69,7 +69,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     {
         $schema = [];
 
-        \ksort($definitions);
+        ksort($definitions);
 
         foreach ($definitions as $definition) {
             $entity = $definition->getEntityName();
@@ -99,7 +99,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     {
         $flags = [];
         foreach ($field->getFlags() as $flag) {
-            $flags = \array_replace_recursive($flags, \iterator_to_array($flag->parse()));
+            $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));
         }
 
         switch (true) {
@@ -108,7 +108,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     $definition,
                     EntityDefinitionQueryHelper::getTranslatedField($definition, $field)
                 );
-                $property['flags'] = \array_replace_recursive($property['flags'], $flags);
+                $property['flags'] = array_replace_recursive($property['flags'], $flags);
                 $property['flags']['translatable'] = true;
 
                 return $property;

@@ -68,7 +68,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
             /** @var string|null $taxId */
             $taxId = $this->getValue($payload, 'tax_id', $shippingMethod);
 
-            if ($taxType && !in_array($taxType, $allowTypes, true)) {
+            if ($taxType && !\in_array($taxType, $allowTypes, true)) {
                 $violations->add(
                     $this->buildViolation(
                         'The selected tax type {{ type }} is invalid.',

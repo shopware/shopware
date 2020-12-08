@@ -165,6 +165,7 @@ Javascript analysis:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
+    image: shopware/development:7.2
     cache:
         key: ${CI_JOB_NAME}
         paths:

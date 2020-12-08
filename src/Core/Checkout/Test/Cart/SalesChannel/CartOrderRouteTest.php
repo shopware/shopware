@@ -64,7 +64,7 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -80,7 +80,7 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CART_EMPTY', $response['errors'][0]['code']);
@@ -108,7 +108,7 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -121,7 +121,7 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame(10, $response['transactions'][0]['amount']['totalPrice']);
@@ -255,7 +255,7 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
 

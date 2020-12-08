@@ -109,7 +109,7 @@ class OrderRoute extends AbstractOrderRoute
             throw new CustomerNotLoggedInException();
         } else {
             // Search with deepLinkCode needs updatedAt Filter
-            $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-\abs(30) . ' Day');
+            $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
             $latestOrderChange = $latestOrderDate->format('Y-m-d H:i:s');
             $criteria->addFilter(
                 new MultiFilter(

@@ -75,7 +75,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->expects(static::once())
             ->method('update')
             ->with([$id])
-            ->willReturn([$id => ['payload' => \serialize(new AndRule()), 'invalid' => false]]);
+            ->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
 
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
@@ -106,7 +106,7 @@ class RulePayloadSubscriberTest extends TestCase
     public function testLoadValidRuleWithPayload(): void
     {
         $id = Uuid::randomHex();
-        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => \serialize(new AndRule()), 'invalid' => false, '_uniqueIdentifier' => $id]);
+        $rule = (new RuleEntity())->assign(['id' => $id, 'payload' => serialize(new AndRule()), 'invalid' => false, '_uniqueIdentifier' => $id]);
         $loadedEvent = new EntityLoadedEvent($this->ruleDefinition, [$rule], $this->context);
 
         static::assertNotNull($rule->getPayload());
@@ -136,8 +136,8 @@ class RulePayloadSubscriberTest extends TestCase
             ->with([$id, $id2])
                 ->willReturn(
                     [
-                        $id => ['payload' => \serialize(new AndRule()), 'invalid' => false],
-                        $id2 => ['payload' => \serialize(new OrRule()), 'invalid' => false],
+                        $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
+                        $id2 => ['payload' => serialize(new OrRule()), 'invalid' => false],
                     ]
                 );
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
@@ -165,7 +165,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->method('update')
             ->with([$id])
             ->willReturn(
-                [$id => ['payload' => \serialize(new AndRule()), 'invalid' => false]]
+                [$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]
             );
 
         $this->rulePayloadSubscriber->unserialize($loadedEvent);

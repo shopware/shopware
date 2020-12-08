@@ -26,6 +26,6 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
             return null;
         }
 
-        return \json_decode($value, true);
+        return json_decode($value, true);
     }
 }

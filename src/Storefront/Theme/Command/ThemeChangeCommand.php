@@ -112,7 +112,7 @@ class ThemeChangeCommand extends Command
         $themes = $this->themeRepository->search($criteria, $this->context);
 
         foreach ($salesChannels as $salesChannel) {
-            $this->io->writeln(\sprintf('Set "%s" as new theme for sales channel "%s"', $themeName, $salesChannel->getName()));
+            $this->io->writeln(sprintf('Set "%s" as new theme for sales channel "%s"', $themeName, $salesChannel->getName()));
 
             if ($themes->count() === 0) {
                 $this->io->error('Invalid theme name');
@@ -128,7 +128,7 @@ class ThemeChangeCommand extends Command
                 'salesChannelId' => $salesChannel->getId(),
             ]], $this->context);
 
-            $this->io->writeln(\sprintf('Compiling theme %s for sales channel %s', $theme->getId(), $theme->getName()));
+            $this->io->writeln(sprintf('Compiling theme %s for sales channel %s', $theme->getId(), $theme->getName()));
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
         }
 
@@ -159,8 +159,8 @@ class ThemeChangeCommand extends Command
 
     private function parseSalesChannelAnswer($answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
     {
-        $parts = \explode('|', $answer);
-        $salesChannelId = \trim(\array_pop($parts));
+        $parts = explode('|', $answer);
+        $salesChannelId = trim(array_pop($parts));
         $salesChannel = $salesChannels->get($salesChannelId);
 
         if (!$salesChannelId) {

@@ -9,7 +9,7 @@ class LineItemTypeNotSupportedException extends ShopwareHttpException
 {
     public function __construct(string $type)
     {
-        parent::__construct(\sprintf('LineItem with type is not supported %s', $type), [], null);
+        parent::__construct(sprintf('LineItem with type is not supported %s', $type), [], null);
     }
 
     public function getStatusCode(): int

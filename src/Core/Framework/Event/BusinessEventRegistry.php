@@ -41,7 +41,7 @@ class BusinessEventRegistry
      */
     public function getEventNames(): array
     {
-        return \array_keys($this->events);
+        return array_keys($this->events);
     }
 
     /**
@@ -109,6 +109,6 @@ class BusinessEventRegistry
         }
 
         $this->rawEventData = [];
-        \ksort($this->events);
+        ksort($this->events);
     }
 }

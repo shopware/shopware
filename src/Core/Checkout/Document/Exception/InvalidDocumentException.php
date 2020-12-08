@@ -9,7 +9,7 @@ class InvalidDocumentException extends ShopwareHttpException
 {
     public function __construct(string $documentId)
     {
-        $message = \sprintf('The document with id "%s" is invalid or could not be found.', $documentId);
+        $message = sprintf('The document with id "%s" is invalid or could not be found.', $documentId);
         parent::__construct($message);
     }
 

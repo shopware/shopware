@@ -26,7 +26,7 @@ class StoreHandshakeTest extends TestCase
         static::assertStringStartsWith($appEndpoint, (string) $request->getUri());
 
         $queryParams = [];
-        \parse_str($request->getUri()->getQuery(), $queryParams);
+        parse_str($request->getUri()->getQuery(), $queryParams);
 
         static::assertArrayHasKey('shop-url', $queryParams);
         static::assertEquals(urlencode($shopUrl), $queryParams['shop-url']);

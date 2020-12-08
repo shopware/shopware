@@ -97,7 +97,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200])
         );
 
-        $this->getPublicFilesystem()->putStream($thumbnailPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         return $thumbnailPath;
     }

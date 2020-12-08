@@ -23,7 +23,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testCreateThemeConfig(): void
     {
-        $basePath = \realpath(__DIR__ . '/../fixtures/ThemeConfig');
+        $basePath = realpath(__DIR__ . '/../fixtures/ThemeConfig');
         $config = $this->configFactory->createThemeConfig('TestTheme', $basePath);
         static::assertEquals('TestTheme', $config->getTechnicalName());
         static::assertEquals($basePath . '/Resources', $config->getBasePath());

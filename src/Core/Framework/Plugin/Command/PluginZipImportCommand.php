@@ -64,7 +64,7 @@ class PluginZipImportCommand extends Command
             return 1;
         }
 
-        $io->success('Successfully import zip file ' . \basename($zipFile));
+        $io->success('Successfully import zip file ' . basename($zipFile));
 
         if (!$input->getOption('no-refresh')) {
             $this->pluginService->refreshPlugins(

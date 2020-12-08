@@ -18,14 +18,14 @@ class PackageProvider
         $validator = new ConfigValidator($composerIO);
 
         [$errors, $publishErrors, $warnings] = $validator->validate($composerJsonPath);
-        $errors = \array_merge($errors, $publishErrors);
+        $errors = array_merge($errors, $publishErrors);
         if (\count($errors) !== 0) {
             throw new PluginComposerJsonInvalidException($composerJsonPath, $errors);
         }
 
         if (\count($warnings) !== 0) {
-            $warningsString = \implode("\n", $warnings);
-            $composerIO->write(\sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
+            $warningsString = implode("\n", $warnings);
+            $composerIO->write(sprintf("Attention!\nThe '%s' has some warnings:\n%s", $composerJsonPath, $warningsString));
         }
 
         try {

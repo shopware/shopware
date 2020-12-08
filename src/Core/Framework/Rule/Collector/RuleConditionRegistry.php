@@ -22,7 +22,7 @@ class RuleConditionRegistry
      */
     public function getNames(): array
     {
-        return \array_keys($this->rules);
+        return array_keys($this->rules);
     }
 
     public function has(string $name): bool

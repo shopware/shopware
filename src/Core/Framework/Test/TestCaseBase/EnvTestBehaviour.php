@@ -9,7 +9,7 @@ trait EnvTestBehaviour
     public function setEnvVars(array $envVars): void
     {
         foreach ($envVars as $envVar => $value) {
-            if (!array_key_exists($envVar, $this->originalEnvVars)) {
+            if (!\array_key_exists($envVar, $this->originalEnvVars)) {
                 $this->originalEnvVars[$envVar] = $_SERVER[$envVar];
             }
             $_SERVER[$envVar] = $value;

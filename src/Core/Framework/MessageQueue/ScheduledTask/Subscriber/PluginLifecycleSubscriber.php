@@ -41,7 +41,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         // signal worker restart
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(\microtime(true));
+        $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
     }
 }

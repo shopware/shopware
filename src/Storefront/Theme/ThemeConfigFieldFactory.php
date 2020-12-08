@@ -12,8 +12,8 @@ class ThemeConfigFieldFactory
         $configField->setName($name);
 
         foreach ($configFieldArray as $key => $value) {
-            $setter = 'set' . \ucfirst($key);
-            if (!\method_exists($configField, $setter)) {
+            $setter = 'set' . ucfirst($key);
+            if (!method_exists($configField, $setter)) {
                 throw new InvalidThemeConfigException($key);
             }
             $configField->$setter($value);

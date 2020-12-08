@@ -30,7 +30,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
         }
 
         foreach ($values as $value) {
-            $type = \mb_strtolower($constraint->type);
+            $type = mb_strtolower($constraint->type);
             $type = $type === 'boolean' ? 'bool' : $constraint->type;
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;
@@ -48,7 +48,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
             }
 
             if (\is_array($value)) {
-                $value = \print_r($value, true);
+                $value = print_r($value, true);
             }
 
             $this->context->buildViolation($constraint::INVALID_MESSAGE)

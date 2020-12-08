@@ -32,7 +32,7 @@ class CachedEntitySearcherTest extends TestCase
      */
     public function testCacheHits(Criteria $criteria, array $expectedTags): void
     {
-        $expectedTags = \array_combine($expectedTags, $expectedTags);
+        $expectedTags = array_combine($expectedTags, $expectedTags);
 
         $dbalSearcher = $this->createMock(EntitySearcher::class);
 

@@ -288,7 +288,7 @@ class SeoActionController extends AbstractController
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);
 
-        return \iterator_to_array($result);
+        return iterator_to_array($result);
     }
 
     private function getRepository(SeoUrlRouteConfig $config): EntityRepositoryInterface

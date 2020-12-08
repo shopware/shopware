@@ -22,7 +22,7 @@ class SalesChannelExceptionHandler implements ExceptionHandlerInterface
 
         if (
             $command->getDefinition()->getEntityName() === 'language'
-            && \preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*sales_channel_domain.*CONSTRAINT `fk.sales_channel_domain.language_id`/', $e->getMessage())
+            && preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*sales_channel_domain.*CONSTRAINT `fk.sales_channel_domain.language_id`/', $e->getMessage())
         ) {
             $primaryKey = $command->getPrimaryKey();
 

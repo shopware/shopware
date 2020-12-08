@@ -25,6 +25,6 @@ class PluginIdProvider
         $criteria->addFilter(new EqualsFilter('baseClass', $pluginBaseClassName));
         $pluginIds = $this->pluginRepo->searchIds($criteria, $context)->getIds();
 
-        return \array_pop($pluginIds);
+        return array_pop($pluginIds);
     }
 }

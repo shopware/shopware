@@ -167,7 +167,7 @@ class RuleValidator implements EventSubscriberInterface
     {
         $value = $condition !== null ? $condition->getValue() : [];
         if (isset($payload['value']) && $payload['value'] !== null) {
-            $value = \json_decode($payload['value'], true);
+            $value = json_decode($payload['value'], true);
         }
 
         return $value ?? [];
@@ -215,7 +215,7 @@ class RuleValidator implements EventSubscriberInterface
 
     private function getSavedConditions(array $commandQueue, Context $context): EntityCollection
     {
-        $ids = \array_map(function ($command) {
+        $ids = array_map(function ($command) {
             $uuidBytes = $command->getPrimaryKey()['id'];
 
             return Uuid::fromBytesToHex($uuidBytes);
@@ -236,7 +236,7 @@ class RuleValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
+            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,

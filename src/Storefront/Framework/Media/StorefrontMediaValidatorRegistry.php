@@ -21,7 +21,7 @@ class StorefrontMediaValidatorRegistry
     {
         $filtered = [];
         foreach ($this->validators as $validator) {
-            if (\mb_strtolower($validator->getType()) === \mb_strtolower($type)) {
+            if (mb_strtolower($validator->getType()) === mb_strtolower($type)) {
                 $filtered[] = $validator;
             }
         }

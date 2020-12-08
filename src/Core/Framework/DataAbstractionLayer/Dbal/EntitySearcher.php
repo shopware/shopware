@@ -132,10 +132,10 @@ class EntitySearcher implements EntitySearcherInterface
                 $data[$storageName] = $value;
             }
 
-            $arrayKey = \implode('-', $pk);
+            $arrayKey = implode('-', $pk);
 
             if (\count($pk) === 1) {
-                $pk = \array_shift($pk);
+                $pk = array_shift($pk);
             }
 
             $converted[$arrayKey] = [
@@ -222,7 +222,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         foreach ($ids as $id) {
             if (\is_array($id)) {
-                $id = \implode('-', $id);
+                $id = implode('-', $id);
             }
 
             if (\array_key_exists($id, $data)) {

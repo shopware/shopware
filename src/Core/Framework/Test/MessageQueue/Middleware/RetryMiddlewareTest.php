@@ -259,7 +259,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
             [
                 'id' => $deadMessageId,
                 'originalMessageClass' => \get_class($envelope->getMessage()),
-                'serializedOriginalMessage' => \serialize($envelope->getMessage()),
+                'serializedOriginalMessage' => serialize($envelope->getMessage()),
                 'handlerClass' => RetryMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),

@@ -54,11 +54,11 @@ class PluginCompatibility
             $plugins = $this->fetchActivePlugins($context);
         }
         $storeInfo = $this->storeClient->getPluginCompatibilities($update->version, $currentLanguage, $plugins);
-        $storeInfoValues = \array_column($storeInfo, 'name');
+        $storeInfoValues = array_column($storeInfo, 'name');
         $me = $this;
 
-        $pluginInfo = \array_map(static function (PluginEntity $entity) use ($storeInfoValues, $storeInfo, $me) {
-            $index = \array_search($entity->getName(), $storeInfoValues, true);
+        $pluginInfo = array_map(static function (PluginEntity $entity) use ($storeInfoValues, $storeInfo, $me) {
+            $index = array_search($entity->getName(), $storeInfoValues, true);
 
             if ($index === false) {
                 // Plugin not available in store
@@ -73,14 +73,14 @@ class PluginCompatibility
                 ];
             }
 
-            return \array_merge([
+            return array_merge([
                 'name' => $entity->getName(),
                 'managedByComposer' => $entity->getManagedByComposer(),
                 'installedVersion' => $entity->getVersion(),
                 'statusMessage' => $storeInfo[$index]['status']['label'],
                 'statusName' => $storeInfo[$index]['status']['name'],
             ], $me->mapColorToStatusVariant($storeInfo[$index]['status']['type']));
-        }, \array_values($plugins->getElements()));
+        }, array_values($plugins->getElements()));
 
         return $pluginInfo;
     }
@@ -90,7 +90,7 @@ class PluginCompatibility
      */
     public function getPluginsToDeactivate(Version $update, Context $context, string $deactivationFilter = self::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE): array
     {
-        $deactivationFilter = \trim($deactivationFilter);
+        $deactivationFilter = trim($deactivationFilter);
 
         if ($deactivationFilter === self::PLUGIN_DEACTIVATION_FILTER_NONE) {
             return [];

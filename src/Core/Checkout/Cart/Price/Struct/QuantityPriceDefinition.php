@@ -109,7 +109,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     public static function fromArray(array $data): self
     {
-        $taxRules = \array_map(
+        $taxRules = array_map(
             function (array $tax) {
                 return new TaxRule(
                     (float) $tax['taxRate'],

@@ -147,19 +147,19 @@ class GenerateMediaTypesCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
+            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
     }
 

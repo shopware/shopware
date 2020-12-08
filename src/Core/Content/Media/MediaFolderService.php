@@ -97,7 +97,7 @@ class MediaFolderService
             $payload = $this->duplicateFolderConfig($subFolders->getEntities(), $payload, $context);
         }
 
-        $this->mediaFolderRepo->update(\array_values($payload), $context);
+        $this->mediaFolderRepo->update(array_values($payload), $context);
     }
 
     private function duplicateFolderConfig(
@@ -107,7 +107,7 @@ class MediaFolderService
     ): array {
         $subFolders = $subFolders->getElements();
         /** @var MediaFolderEntity $folder */
-        $folder = \array_shift($subFolders);
+        $folder = array_shift($subFolders);
         $config = $folder->getConfiguration();
 
         $payload[$folder->getId()]['useParentConfiguration'] = false;

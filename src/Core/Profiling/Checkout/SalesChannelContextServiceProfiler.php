@@ -31,7 +31,7 @@ class SalesChannelContextServiceProfiler implements SalesChannelContextServiceIn
     {
         $this->stopwatch->start('context-generation');
 
-        $context = $this->decorated->get($salesChannelId, $token, $languageId, func_num_args() >= 4 ? func_get_arg(3) : null);
+        $context = $this->decorated->get($salesChannelId, $token, $languageId, \func_num_args() >= 4 ? func_get_arg(3) : null);
 
         $this->stopwatch->stop('context-generation');
 

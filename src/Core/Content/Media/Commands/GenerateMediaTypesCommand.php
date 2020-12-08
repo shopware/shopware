@@ -85,7 +85,7 @@ class GenerateMediaTypesCommand extends Command
             return 100;
         }
 
-        if (!\is_numeric($batchSize)) {
+        if (!is_numeric($batchSize)) {
             throw new \RuntimeException('BatchSize is not numeric');
         }
 
@@ -130,7 +130,7 @@ class GenerateMediaTypesCommand extends Command
         );
 
         $type = $this->typeDetector->detect($file);
-        $changeSet = ['id' => $media->getId(), 'mediaTypeRaw' => \serialize($type)];
+        $changeSet = ['id' => $media->getId(), 'mediaTypeRaw' => serialize($type)];
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($changeSet): void {
             $this->mediaRepository->upsert([$changeSet], $context);

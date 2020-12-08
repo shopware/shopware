@@ -41,7 +41,7 @@ class ProductRouteWarmer implements CacheRouteWarmer
             return null;
         }
 
-        $ids = \array_map(function ($id) {
+        $ids = array_map(function ($id) {
             return ['productId' => $id];
         }, $ids);
 

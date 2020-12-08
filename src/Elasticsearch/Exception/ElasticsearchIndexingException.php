@@ -10,10 +10,10 @@ class ElasticsearchIndexingException extends ShopwareHttpException
 
     public function __construct(array $items)
     {
-        $message = \PHP_EOL . \implode(\PHP_EOL . '#', \array_column($items, 'message'));
+        $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'message'));
 
         parent::__construct(
-            \sprintf('Following errors occurred while indexing: %s', $message)
+            sprintf('Following errors occurred while indexing: %s', $message)
         );
     }
 

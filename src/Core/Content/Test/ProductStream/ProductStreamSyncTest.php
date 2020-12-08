@@ -46,7 +46,7 @@ class ProductStreamSyncTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());

@@ -194,7 +194,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         try {
             $this->client->indices()->refresh([
-                'index' => \implode(',', \array_unique($indices)),
+                'index' => implode(',', array_unique($indices)),
             ]);
         } catch (\Exception $e) {
         }
@@ -237,7 +237,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $context = $message->getContext();
 
         if (!$definition) {
-            throw new \RuntimeException(\sprintf('Entity %s has no registered elasticsearch definition', $entity));
+            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
         }
 
         $repository = $this->entityRegistry->getRepository($entity);
@@ -253,7 +253,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             return $repository->search($criteria, $context);
         });
 
-        $toRemove = \array_filter($ids, function (string $id) use ($entities) {
+        $toRemove = array_filter($ids, function (string $id) use ($entities) {
             return !$entities->has($id);
         });
 
@@ -309,7 +309,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $definition = $this->registry->get($offset->getDefinition());
 
         if (!$definition) {
-            throw new \RuntimeException(\sprintf('Definition %s not found', $offset->getDefinition()));
+            throw new \RuntimeException(sprintf('Definition %s not found', $offset->getDefinition()));
         }
 
         $entity = $definition->getEntityDefinition()->getEntityName();
@@ -328,7 +328,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             $index = $alias . '_' . $offset->getTimestamp();
 
             // return indexing message for current offset
-            return new ElasticsearchIndexingMessage(new IndexingDto(\array_values($ids), $index, $entity), $offset, $context);
+            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
         }
 
         if (!$offset->hasNextDefinition()) {
@@ -419,7 +419,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         foreach ($entities as $entity) {
             $documents[] = ['index' => ['_id' => $entity->getUniqueIdentifier()]];
 
-            $document = \json_decode(\json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION), true);
+            $document = json_decode(json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION), true);
 
             $fullText = $definition->buildFullText($entity);
 

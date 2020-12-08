@@ -97,6 +97,6 @@ class ErdGenerator
 
     public function toId(string $className): string
     {
-        return \str_replace('\\', '', $className);
+        return str_replace('\\', '', $className);
     }
 }

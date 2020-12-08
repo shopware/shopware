@@ -23,12 +23,12 @@ class TemplateIteratorTest extends TestCase
 
     public function testIteratorDoesNotFullPath(): void
     {
-        $templateList = \iterator_to_array($this->iterator, false);
+        $templateList = iterator_to_array($this->iterator, false);
         $bundles = $this->getContainer()->getParameter('kernel.bundles');
         $shopwareBundles = [];
 
         foreach ($bundles as $bundleName => $bundleClass) {
-            if (isset(\class_parents($bundleClass)[Bundle::class])) {
+            if (isset(class_parents($bundleClass)[Bundle::class])) {
                 $shopwareBundles[] = '@' . $bundleName . '/';
             }
         }

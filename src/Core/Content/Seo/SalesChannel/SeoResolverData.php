@@ -22,12 +22,12 @@ class SeoResolverData
 
     public function getEntities(): array
     {
-        return \array_keys($this->entityMap);
+        return array_keys($this->entityMap);
     }
 
     public function getIds(string $entityName): array
     {
-        return \array_keys($this->entityMap[$entityName]);
+        return array_keys($this->entityMap[$entityName]);
     }
 
     public function get(string $entityName, string $id): Entity

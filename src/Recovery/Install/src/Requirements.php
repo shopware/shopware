@@ -21,8 +21,8 @@ class Requirements
      */
     public function __construct($sourceFile, TranslationService $translator)
     {
-        if (!\is_readable($sourceFile)) {
-            throw new \RuntimeException(\sprintf('Cannot read requirements file in %s.', $sourceFile));
+        if (!is_readable($sourceFile)) {
+            throw new \RuntimeException(sprintf('Cannot read requirements file in %s.', $sourceFile));
         }
 
         $this->sourceFile = $sourceFile;
@@ -52,7 +52,7 @@ class Requirements
                 continue;
             }
 
-            if ($name === 'mod_rewrite' && isset($_SERVER['SERVER_SOFTWARE']) && \mb_stripos($_SERVER['SERVER_SOFTWARE'], 'apache') === false) {
+            if ($name === 'mod_rewrite' && isset($_SERVER['SERVER_SOFTWARE']) && mb_stripos($_SERVER['SERVER_SOFTWARE'], 'apache') === false) {
                 continue;
             }
 
@@ -75,7 +75,7 @@ class Requirements
             $checks[] = $check;
         }
 
-        $checks = \array_merge($checks, $this->checkOpcache());
+        $checks = array_merge($checks, $this->checkOpcache());
 
         foreach ($checks as $check) {
             if (!$check['check'] && $check['error']) {
@@ -104,8 +104,8 @@ class Requirements
      */
     private function getRuntimeValue($name)
     {
-        $m = 'check' . \str_replace(' ', '', \ucwords(\str_replace(['_', '.'], ' ', $name)));
-        if (\method_exists($this, $m)) {
+        $m = 'check' . str_replace(' ', '', ucwords(str_replace(['_', '.'], ' ', $name)));
+        if (method_exists($this, $m)) {
             return $this->$m();
         }
 
@@ -117,14 +117,14 @@ class Requirements
             return true;
         }
 
-        if (($value = \ini_get($name)) !== false) {
+        if (($value = ini_get($name)) !== false) {
             $value = (string) $value;
 
-            if (\mb_strtolower($value) === 'off') {
+            if (mb_strtolower($value) === 'off') {
                 return false;
             }
 
-            if (\mb_strtolower($value) === 'on') {
+            if (mb_strtolower($value) === 'on') {
                 return true;
             }
 
@@ -172,8 +172,8 @@ class Requirements
      */
     private function compare($name, $value, $requiredValue)
     {
-        $m = 'compare' . \str_replace(' ', '', \ucwords(\str_replace(['_', '.'], ' ', $name)));
-        if (\method_exists($this, $m)) {
+        $m = 'compare' . str_replace(' ', '', ucwords(str_replace(['_', '.'], ' ', $name)));
+        if (method_exists($this, $m)) {
             return $this->$m($value, $requiredValue);
         }
 
@@ -181,16 +181,16 @@ class Requirements
             return (string) $requiredValue === (string) $value;
         }
 
-        if (\preg_match('#^[0-9]+[A-Z]$#', $requiredValue)) {
+        if (preg_match('#^[0-9]+[A-Z]$#', $requiredValue)) {
             return $this->decodePhpSize($requiredValue) <= $this->decodePhpSize($value);
         }
 
-        if (\preg_match('#^[0-9]+ [A-Z]+$#i', $requiredValue)) {
+        if (preg_match('#^[0-9]+ [A-Z]+$#i', $requiredValue)) {
             return $this->decodeSize($requiredValue) <= $this->decodeSize($value);
         }
 
-        if (\preg_match('#^[0-9][0-9\.]+$#', $requiredValue)) {
-            return \version_compare($requiredValue, $value, '<=');
+        if (preg_match('#^[0-9][0-9\.]+$#', $requiredValue)) {
+            return version_compare($requiredValue, $value, '<=');
         }
 
         return (string) $requiredValue === (string) $value;
@@ -203,8 +203,8 @@ class Requirements
      */
     private function checkPhp()
     {
-        if (\mb_strpos(\PHP_VERSION, '-')) {
-            return \mb_substr(\PHP_VERSION, 0, \mb_strpos(\PHP_VERSION, '-'));
+        if (mb_strpos(\PHP_VERSION, '-')) {
+            return mb_substr(\PHP_VERSION, 0, mb_strpos(\PHP_VERSION, '-'));
         }
 
         return \PHP_VERSION;
@@ -229,28 +229,28 @@ class Requirements
             return [];
         }
 
-        $useCwdOption = $this->compare('opcache.use_cwd', \ini_get('opcache.use_cwd'), '1');
+        $useCwdOption = $this->compare('opcache.use_cwd', ini_get('opcache.use_cwd'), '1');
         $opcacheRequirements = [[
             'name' => 'opcache.use_cwd',
             'group' => 'core',
             'required' => 1,
-            'version' => \ini_get('opcache.use_cwd'),
-            'result' => \ini_get('opcache.use_cwd'),
+            'version' => ini_get('opcache.use_cwd'),
+            'result' => ini_get('opcache.use_cwd'),
             'notice' => '',
-            'check' => $this->compare('opcache.use_cwd', \ini_get('opcache.use_cwd'), '1'),
+            'check' => $this->compare('opcache.use_cwd', ini_get('opcache.use_cwd'), '1'),
             'error' => '',
         ]];
 
-        if (\fileinode('/') > 2) {
-            $validateRootOption = $this->compare('opcache.validate_root', \ini_get('opcache.validate_root'), '1');
+        if (fileinode('/') > 2) {
+            $validateRootOption = $this->compare('opcache.validate_root', ini_get('opcache.validate_root'), '1');
             $opcacheRequirements[] = [
                 'name' => 'opcache.validate_root',
                 'group' => 'core',
                 'required' => 1,
-                'version' => \ini_get('opcache.validate_root'),
-                'result' => \ini_get('opcache.validate_root'),
+                'version' => ini_get('opcache.validate_root'),
+                'result' => ini_get('opcache.validate_root'),
                 'notice' => '',
-                'check' => $this->compare('opcache.validate_root', \ini_get('opcache.validate_root'), '1'),
+                'check' => $this->compare('opcache.validate_root', ini_get('opcache.validate_root'), '1'),
                 'error' => '',
             ];
         }
@@ -266,7 +266,7 @@ class Requirements
     private function checkCurl()
     {
         if (\function_exists('curl_version')) {
-            $curl = \curl_version();
+            $curl = curl_version();
 
             return $curl['version'];
         } elseif (\function_exists('curl_init')) {
@@ -298,9 +298,9 @@ class Requirements
     private function checkGd()
     {
         if (\function_exists('gd_info')) {
-            $gd = \gd_info();
-            if (\preg_match('#[0-9.]+#', $gd['GD Version'], $match)) {
-                if (\mb_substr_count($match[0], '.') === 1) {
+            $gd = gd_info();
+            if (preg_match('#[0-9.]+#', $gd['GD Version'], $match)) {
+                if (mb_substr_count($match[0], '.') === 1) {
                     $match[0] .= '.0';
                 }
 
@@ -321,7 +321,7 @@ class Requirements
     private function checkGdJpg()
     {
         if (\function_exists('gd_info')) {
-            $gd = \gd_info();
+            $gd = gd_info();
 
             return !empty($gd['JPEG Support']) || !empty($gd['JPG Support']);
         }
@@ -337,7 +337,7 @@ class Requirements
     private function checkFreetype()
     {
         if (\function_exists('gd_info')) {
-            $gd = \gd_info();
+            $gd = gd_info();
 
             return !empty($gd['FreeType Support']);
         }
@@ -353,8 +353,8 @@ class Requirements
     private function checkSessionSavePath()
     {
         if (\function_exists('session_save_path')) {
-            return (bool) \session_save_path();
-        } elseif (\ini_get('session.save_path')) {
+            return (bool) session_save_path();
+        } elseif (ini_get('session.save_path')) {
             return true;
         }
 
@@ -368,7 +368,7 @@ class Requirements
      */
     private function checkSuhosinGetMaxValueLength()
     {
-        $length = (int) \ini_get('suhosin.get.max_value_length');
+        $length = (int) ini_get('suhosin.get.max_value_length');
         if ($length === 0) {
             return 2000;
         }
@@ -383,9 +383,9 @@ class Requirements
      */
     private function checkIncludePath()
     {
-        $old = \set_include_path(\get_include_path() . \PATH_SEPARATOR . __DIR__ . \DIRECTORY_SEPARATOR);
+        $old = set_include_path(get_include_path() . \PATH_SEPARATOR . __DIR__ . \DIRECTORY_SEPARATOR);
 
-        return $old && \get_include_path() !== $old;
+        return $old && get_include_path() !== $old;
     }
 
     /**
@@ -402,7 +402,7 @@ class Requirements
             return true;
         }
 
-        return \version_compare($required, $version, '<=');
+        return version_compare($required, $version, '<=');
     }
 
     /**
@@ -414,8 +414,8 @@ class Requirements
      */
     private function decodePhpSize($val)
     {
-        $val = \mb_strtolower(\trim($val));
-        $last = \mb_substr($val, -1);
+        $val = mb_strtolower(trim($val));
+        $last = mb_substr($val, -1);
 
         $val = (float) $val;
         switch ($last) {
@@ -443,10 +443,10 @@ class Requirements
      */
     private function decodeSize($val)
     {
-        $val = \trim($val);
-        list($val, $last) = \explode(' ', $val);
+        $val = trim($val);
+        list($val, $last) = explode(' ', $val);
         $val = (float) $val;
-        switch (\mb_strtoupper($last)) {
+        switch (mb_strtoupper($last)) {
             /* @noinspection PhpMissingBreakStatementInspection */
             case 'TB':
                 $val *= 1024;
@@ -479,7 +479,7 @@ class Requirements
         $types = ['B', 'KB', 'MB', 'GB', 'TB'];
         for ($i = 0; $bytes >= 1024 && $i < (\count($types) - 1); $bytes /= 1024, $i++);
 
-        return \round($bytes, 2) . ' ' . $types[$i];
+        return round($bytes, 2) . ' ' . $types[$i];
     }
 
     /**
@@ -487,12 +487,12 @@ class Requirements
      */
     private function handleMaxCompatibleVersion(array $check)
     {
-        if (\version_compare($check['version'], $check['maxCompatibleVersion'], '>')) {
+        if (version_compare($check['version'], $check['maxCompatibleVersion'], '>')) {
             $check['check'] = false;
-            $maxCompatibleVersion = \str_replace('.99', '', $check['maxCompatibleVersion']);
+            $maxCompatibleVersion = str_replace('.99', '', $check['maxCompatibleVersion']);
             $key = 'requirements_php_max_compatible_version';
 
-            $check['notice'] = \sprintf($this->translator->translate($key), $maxCompatibleVersion);
+            $check['notice'] = sprintf($this->translator->translate($key), $maxCompatibleVersion);
         }
 
         return $check;

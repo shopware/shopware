@@ -17,7 +17,7 @@ class RequirementsValidatorTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
-        $path = \str_replace($projectDir, '', $path);
+        $path = str_replace($projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -33,7 +33,7 @@ class RequirementsValidatorTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageTest';
-        $path = \str_replace($projectDir, '', $path);
+        $path = str_replace($projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -49,7 +49,7 @@ class RequirementsValidatorTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageWildcardTest';
-        $path = \str_replace($projectDir, '', $path);
+        $path = str_replace($projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -65,7 +65,7 @@ class RequirementsValidatorTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = \str_replace($projectDir, '', $path);
+        $path = str_replace($projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -90,7 +90,7 @@ class RequirementsValidatorTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = \str_replace($projectDir, '', $path);
+        $path = str_replace($projectDir, '', $path);
 
         $plugin = $this->createPlugin($path);
 
@@ -120,8 +120,8 @@ class RequirementsValidatorTest extends TestCase
         $basePluginPath = __DIR__ . '/_fixture/SwagRequirementValidTest';
         $dependentPluginPath = __DIR__ . '/_fixture/SwagRequirementValidTestExtension';
 
-        $basePlugin = $this->createPlugin(\str_replace($projectDir, '', $basePluginPath));
-        $dependentPlugin = $this->createPlugin(\str_replace($projectDir, '', $dependentPluginPath));
+        $basePlugin = $this->createPlugin(str_replace($projectDir, '', $basePluginPath));
+        $dependentPlugin = $this->createPlugin(str_replace($projectDir, '', $dependentPluginPath));
 
         $basePlugin->setActive(true);
         $dependentPlugin->setActive(true);

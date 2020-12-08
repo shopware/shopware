@@ -23,7 +23,7 @@ class PluginLoadedSubscriber implements EventSubscriberInterface
         /** @var PluginEntity $plugin */
         foreach ($event->getEntities() as $plugin) {
             if ($plugin->getIconRaw()) {
-                $plugin->setIcon(\base64_encode($plugin->getIconRaw()));
+                $plugin->setIcon(base64_encode($plugin->getIconRaw()));
             }
         }
     }

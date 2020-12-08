@@ -60,9 +60,9 @@ class CriteriaParser
     {
         $root = $definition->getEntityName();
 
-        $parts = \explode('.', $fieldName);
+        $parts = explode('.', $fieldName);
         if ($root === $parts[0]) {
-            \array_shift($parts);
+            array_shift($parts);
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root, false);
@@ -81,7 +81,7 @@ class CriteriaParser
             $parts[] = 'gross';
         }
 
-        return \implode('.', $parts);
+        return implode('.', $parts);
     }
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
@@ -131,7 +131,7 @@ class CriteriaParser
                 return $this->parseRangeFilter($filter, $definition, $context);
 
             default:
-                throw new \RuntimeException(\sprintf('Unsupported filter %s', \get_class($filter)));
+                throw new \RuntimeException(sprintf('Unsupported filter %s', \get_class($filter)));
         }
     }
 
@@ -256,7 +256,7 @@ class CriteriaParser
             case $aggregation instanceof DateHistogramAggregation:
                 return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
             default:
-                throw new \RuntimeException(\sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
         }
     }
 
@@ -279,7 +279,7 @@ class CriteriaParser
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
-            new TermsQuery($fieldName, \array_values($filter->getValue())),
+            new TermsQuery($fieldName, array_values($filter->getValue())),
             $definition,
             $filter->getField()
         );
@@ -403,7 +403,7 @@ class CriteriaParser
 
     private function getNestedPath(EntityDefinition $definition, string $accessor): ?string
     {
-        if (\mb_strpos($accessor, $definition->getEntityName() . '.') === false) {
+        if (mb_strpos($accessor, $definition->getEntityName() . '.') === false) {
             $accessor = $definition->getEntityName() . '.' . $accessor;
         }
 
@@ -422,6 +422,6 @@ class CriteriaParser
             return null;
         }
 
-        return \implode('.', $path);
+        return implode('.', $path);
     }
 }

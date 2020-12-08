@@ -20,7 +20,7 @@ class Migration1602494493AddDefaultSettingConfigValueForWishlist extends Migrati
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => 'core.cart.wishlistEnabled',
-                'configuration_value' => \json_encode(['_value' => true]),
+                'configuration_value' => json_encode(['_value' => true]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

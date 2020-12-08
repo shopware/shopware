@@ -131,7 +131,7 @@ class CreatePageCommand extends Command
             return;
         }
 
-        $keys = \array_map(function ($id) {
+        $keys = array_map(function ($id) {
             return ['id' => $id];
         }, $pages->getIds());
 
@@ -140,7 +140,7 @@ class CreatePageCommand extends Command
 
     private function getRandomImageUrl(): string
     {
-        return 'https://source.unsplash.com/random?t=' . \random_int(1, 9999);
+        return 'https://source.unsplash.com/random?t=' . random_int(1, 9999);
     }
 
     private function getRandomProductId(): string
@@ -152,7 +152,7 @@ class CreatePageCommand extends Command
             $this->products = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         }
 
-        return $this->products[\array_rand($this->products, 1)];
+        return $this->products[array_rand($this->products, 1)];
     }
 
     private function getRandomCategoryId(): string
@@ -164,7 +164,7 @@ class CreatePageCommand extends Command
             $this->categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         }
 
-        return $this->categories[\array_rand($this->categories, 1)];
+        return $this->categories[array_rand($this->categories, 1)];
     }
 
     private function getRandomMediaId(): string
@@ -176,6 +176,6 @@ class CreatePageCommand extends Command
             $this->media = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         }
 
-        return $this->media[\array_rand($this->media, 1)];
+        return $this->media[array_rand($this->media, 1)];
     }
 }

@@ -56,9 +56,9 @@ class PromotionExclusionUpdater
             // create empty array if there are no exclusions
             $promotionExclusions = [];
 
-            if (count($exclusions) > 0) {
+            if (\count($exclusions) > 0) {
                 $firstResult = array_shift($exclusions);
-                if (array_key_exists('exclusion_ids', $firstResult)) {
+                if (\array_key_exists('exclusion_ids', $firstResult)) {
                     // if there are exclusions, set them in array
                     $promotionExclusions = json_decode($firstResult['exclusion_ids']);
                 }
@@ -70,7 +70,7 @@ class PromotionExclusionUpdater
             $this->addTags($tags, $affectedRows);
 
             // if there are no references in exclusions we don't need to update anything
-            if (count($promotionExclusions) === 0) {
+            if (\count($promotionExclusions) === 0) {
                 continue;
             }
 
@@ -79,7 +79,7 @@ class PromotionExclusionUpdater
 
             $this->addTags($tags, $results);
 
-            if (count($results) === count($promotionExclusions)) {
+            if (\count($results) === \count($promotionExclusions)) {
                 // if there is no corrupted data we will add id to all excluded promotions too
                 $this->addToJSON($id, $promotionExclusions);
 
@@ -100,7 +100,7 @@ class PromotionExclusionUpdater
                 }
 
                 // if our byte value could be found in our byte array we add hex value to our array
-                if (in_array(Uuid::fromHexToBytes($excludedId), $resultValues, true)) {
+                if (\in_array(Uuid::fromHexToBytes($excludedId), $resultValues, true)) {
                     $onlyAddThisExistingIds[] = $excludedId;
                 }
             }
@@ -131,7 +131,7 @@ class PromotionExclusionUpdater
 
         $types = [];
 
-        if (count($excludeThisIds) > 0) {
+        if (\count($excludeThisIds) > 0) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
             $types['excludedIds'] = Connection::PARAM_STR_ARRAY;
@@ -139,7 +139,7 @@ class PromotionExclusionUpdater
 
         $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAll();
 
-        if (count($results) === 0) {
+        if (\count($results) === 0) {
             return [];
         }
 
@@ -169,7 +169,7 @@ class PromotionExclusionUpdater
      */
     private function addToJSON(string $addId, array $ids): void
     {
-        if (count($ids) < 1) {
+        if (\count($ids) < 1) {
             return;
         }
 
@@ -199,7 +199,7 @@ class PromotionExclusionUpdater
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
         $value = '[]';
-        if (count($onlyAddThisExistingIds) > 0) {
+        if (\count($onlyAddThisExistingIds) > 0) {
             $value = json_encode($onlyAddThisExistingIds);
         }
 
@@ -264,7 +264,7 @@ class PromotionExclusionUpdater
      */
     private function convertHexArrayToByteArray(array $hexIds): array
     {
-        if (count($hexIds) === 0) {
+        if (\count($hexIds) === 0) {
             return [];
         }
 
@@ -274,7 +274,7 @@ class PromotionExclusionUpdater
             return Uuid::isValid((string) $hexId);
         }));
 
-        if (count($validValues) === 0) {
+        if (\count($validValues) === 0) {
             return [];
         }
 

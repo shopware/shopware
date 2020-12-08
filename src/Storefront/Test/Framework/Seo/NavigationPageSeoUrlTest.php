@@ -409,7 +409,7 @@ class NavigationPageSeoUrlTest extends TestCase
             $query->setParameter('salesChannel', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $query->setParameter('ids', Uuid::fromHexToBytesList(\array_values($ids)), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList(array_values($ids)), Connection::PARAM_STR_ARRAY);
         $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
         $query->setParameter('language', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
 

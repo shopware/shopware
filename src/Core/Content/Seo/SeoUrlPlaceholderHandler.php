@@ -59,14 +59,14 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     {
         $matches = [];
 
-        if (\preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
+        if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
             $mapping = $this->createDefaultMapping($matches[0]);
             $seoMapping = $this->createSeoMapping($salesChannelContext, $mapping);
             foreach ($seoMapping as $key => $value) {
-                $seoMapping[$key] = $host . '/' . \ltrim($value, '/');
+                $seoMapping[$key] = $host . '/' . ltrim($value, '/');
             }
 
-            $content = \str_replace(\array_keys($seoMapping), \array_values($seoMapping), $content);
+            $content = str_replace(array_keys($seoMapping), array_values($seoMapping), $content);
         }
 
         return $content;
@@ -76,7 +76,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     {
         $mapping = [];
         foreach ($matches as $match) {
-            $mapping[$match] = \str_replace(self::DOMAIN_PLACEHOLDER, '', \rtrim($match, '#'));
+            $mapping[$match] = str_replace(self::DOMAIN_PLACEHOLDER, '', rtrim($match, '#'));
         }
 
         return $mapping;
@@ -98,7 +98,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $seoUrls = $this->seoUrlRepository->search($criteria, $context)->getEntities();
 
         foreach ($seoUrls as $seoUrl) {
-            $seoPathInfo = \trim($seoUrl->getSeoPathInfo());
+            $seoPathInfo = trim($seoUrl->getSeoPathInfo());
             if ($seoPathInfo === '') {
                 continue;
             }
@@ -111,10 +111,10 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || \mb_strpos($subject, $prefix) !== 0) {
+        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
             return $subject;
         }
 
-        return \mb_substr($subject, \mb_strlen($prefix));
+        return mb_substr($subject, mb_strlen($prefix));
     }
 }

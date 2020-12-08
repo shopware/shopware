@@ -91,7 +91,7 @@ class SeoUrlGenerator
         $coreExtension->setEscaper(
             self::ESCAPE_SLUGIFY,
             static function ($twig, $string) use ($slugify) {
-                return \rawurlencode($slugify->slugify($string));
+                return rawurlencode($slugify->slugify($string));
             }
         );
     }
@@ -142,7 +142,7 @@ class SeoUrlGenerator
     private function getSeoPathInfo(SeoUrlMapping $mapping, SeoUrlRouteConfig $config): ?string
     {
         try {
-            return \trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
+            return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
         } catch (Error $error) {
             if (!$config->getSkipInvalid()) {
                 throw $error;
@@ -168,10 +168,10 @@ class SeoUrlGenerator
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || \mb_strpos($subject, $prefix) !== 0) {
+        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
             return $subject;
         }
 
-        return \mb_substr($subject, \mb_strlen($prefix));
+        return mb_substr($subject, mb_strlen($prefix));
     }
 }

@@ -110,12 +110,12 @@ class JsonApiEncodingResult implements \JsonSerializable
     public function jsonSerialize()
     {
         $output = [
-            'data' => $this->isSingle() ? \array_shift($this->data) : \array_values($this->data),
-            'included' => \array_values($this->included),
+            'data' => $this->isSingle() ? array_shift($this->data) : array_values($this->data),
+            'included' => array_values($this->included),
         ];
 
         if (!empty($this->metaData)) {
-            $output = \array_merge($output, $this->metaData);
+            $output = array_merge($output, $this->metaData);
         }
 
         return $output;

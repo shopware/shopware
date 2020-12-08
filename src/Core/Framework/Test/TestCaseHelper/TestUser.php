@@ -59,7 +59,7 @@ class TestUser
             'last_name' => '',
             'email' => "{$email}@example.com",
             'username' => $username,
-            'password' => \password_hash($password, \PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => self::getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'admin' => 0,
@@ -93,11 +93,11 @@ class TestUser
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = \json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . \print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
@@ -107,7 +107,7 @@ class TestUser
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
     }
 
     public function getPassword(): string
@@ -150,7 +150,7 @@ class TestUser
             'id' => $roleId,
             'name' => $roleName,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-            'privileges' => \json_encode($permissions),
+            'privileges' => json_encode($permissions),
         ]);
 
         return $roleId;

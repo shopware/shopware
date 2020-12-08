@@ -73,9 +73,9 @@ class OneToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                \str_replace(
-                    \array_keys($parameters),
-                    \array_values($parameters),
+                str_replace(
+                    array_keys($parameters),
+                    array_values($parameters),
                     '#source# = #alias#.#reference_column#' . $versionJoin . $ruleCondition
                 )
             );
@@ -84,9 +84,9 @@ class OneToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                \str_replace(
-                    \array_keys($parameters),
-                    \array_values($parameters),
+                str_replace(
+                    array_keys($parameters),
+                    array_values($parameters),
                     '#source# = #alias#.#reference_column#' . $versionJoin . $ruleCondition
                 )
             );

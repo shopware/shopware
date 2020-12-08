@@ -153,7 +153,7 @@ class EntityWrittenContainerEvent extends NestedEvent
             }
 
             if (!$closure) {
-                $ids = \array_merge($ids, $event->getIds());
+                $ids = array_merge($ids, $event->getIds());
 
                 continue;
             }

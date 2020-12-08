@@ -78,7 +78,7 @@ class FilesystemFactory
     {
         $dupes = [];
         foreach ($adapterFactories as $adapter) {
-            $type = \mb_strtolower($adapter->getType());
+            $type = mb_strtolower($adapter->getType());
             if (\array_key_exists($type, $dupes)) {
                 throw new DuplicateFilesystemFactoryException($type);
             }

@@ -76,7 +76,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
 
             // dont include deactivated plugins
-            if ($bundle instanceof Plugin && !in_array($bundle->getName(), $activePlugins, true)) {
+            if ($bundle instanceof Plugin && !\in_array($bundle->getName(), $activePlugins, true)) {
                 continue;
             }
 
@@ -164,7 +164,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
         }
 
-        $path = $rootPath . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $path = $rootPath . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
         if (is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);

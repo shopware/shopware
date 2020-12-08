@@ -85,7 +85,7 @@ class CleanPersonalDataCommand extends Command
                 new RangeFilter(
                     'createdAt',
                     [
-                        RangeFilter::LTE => (new \DateTime())->modify(-\abs($days) . ' Day')
+                        RangeFilter::LTE => (new \DateTime())->modify(-abs($days) . ' Day')
                             ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ]
                 )
@@ -96,7 +96,7 @@ class CleanPersonalDataCommand extends Command
                 ->getIds();
 
             if ($ids) {
-                $ids = \array_map(function ($id) {
+                $ids = array_map(function ($id) {
                     return ['id' => $id];
                 }, $ids);
 
@@ -112,7 +112,7 @@ class CleanPersonalDataCommand extends Command
             );
         }
 
-        $output->writeln('Personal data for ' . ($all ? \implode(' and ', self::VALID_TYPES) : $type) . ' successfully cleaned!');
+        $output->writeln('Personal data for ' . ($all ? implode(' and ', self::VALID_TYPES) : $type) . ' successfully cleaned!');
 
         return 0;
     }

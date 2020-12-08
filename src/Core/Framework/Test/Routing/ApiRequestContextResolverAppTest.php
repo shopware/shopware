@@ -78,7 +78,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            \json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context))
         );
         $response = $browser->getResponse();
 
@@ -105,7 +105,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            \json_encode($this->getProductData($productId, $context))
+            json_encode($this->getProductData($productId, $context))
         );
 
         static::assertEquals(204, $browser->getResponse()->getStatusCode());
@@ -136,7 +136,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => $newName,
             ])
         );
@@ -171,7 +171,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $data = json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );

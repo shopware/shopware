@@ -253,7 +253,7 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
@@ -273,13 +273,13 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -288,13 +288,13 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
@@ -313,7 +313,7 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // child -> root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -322,20 +322,20 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
 
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
@@ -414,13 +414,13 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
@@ -441,13 +441,13 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.sub', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -457,21 +457,21 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();
@@ -492,7 +492,7 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         // child -> root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -502,27 +502,27 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.sub', $now));
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(\array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getIds());
 
         /** @var Entity $first */
         $first = $result->first();

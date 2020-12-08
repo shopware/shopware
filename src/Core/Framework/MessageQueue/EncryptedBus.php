@@ -44,15 +44,15 @@ class EncryptedBus implements MessageBusInterface
 
     private function encryptMessage(Envelope $envelope): Envelope
     {
-        $serializedMessage = \serialize($envelope->getMessage());
-        $key = \openssl_pkey_get_public($this->publicKey->getKeyPath());
-        \openssl_public_encrypt(
+        $serializedMessage = serialize($envelope->getMessage());
+        $key = openssl_pkey_get_public($this->publicKey->getKeyPath());
+        openssl_public_encrypt(
             $serializedMessage,
             $encryptedMessage,
             $key
         );
 
-        $allStamps = $envelope->all() ? \array_merge(...\array_values($envelope->all())) : [];
+        $allStamps = $envelope->all() ? array_merge(...array_values($envelope->all())) : [];
 
         return new Envelope(new EncryptedMessage($encryptedMessage), $allStamps);
     }

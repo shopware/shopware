@@ -110,10 +110,10 @@ class CachedEntityReader implements EntityReaderInterface
         $collection = $definition->getCollectionClass();
 
         /* @var EntityCollection $collection */
-        $collection = new $collection(\array_filter($mapped));
+        $collection = new $collection(array_filter($mapped));
 
         //check which ids are not loaded from cache
-        $fallback = \array_diff(\array_values($criteria->getIds()), \array_keys($mapped));
+        $fallback = array_diff(array_values($criteria->getIds()), array_keys($mapped));
 
         if (empty($fallback)) {
             //sort collection by provided id sorting
@@ -204,10 +204,10 @@ class CachedEntityReader implements EntityReaderInterface
 
         $tags = [];
         foreach ($entityCollection as $entity) {
-            $tags = \array_merge($tags, $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context));
+            $tags = array_merge($tags, $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context));
         }
 
-        $tags = \array_merge($tags, $this->cacheKeyGenerator->getSearchTags($definition, $criteria));
+        $tags = array_merge($tags, $this->cacheKeyGenerator->getSearchTags($definition, $criteria));
 
         //add cache keys for associated data
         $item->tag($tags);

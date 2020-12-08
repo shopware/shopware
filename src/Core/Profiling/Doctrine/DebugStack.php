@@ -30,7 +30,7 @@ class DebugStack extends DoctrineDebugStack
         $stack = debug_backtrace();
 
         $stack = array_map(function ($caller) {
-            if (!is_array($caller)) {
+            if (!\is_array($caller)) {
                 return null;
             }
             if (!isset($caller['class']) || !isset($caller['function']) || !isset($caller['line'])) {

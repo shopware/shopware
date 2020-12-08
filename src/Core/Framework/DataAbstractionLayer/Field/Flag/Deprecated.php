@@ -42,7 +42,7 @@ class Deprecated extends Flag
 
     public function isRemovedInVersion(int $version): bool
     {
-        $removedVersion = (int) \str_replace('v', '', $this->willBeRemovedIn);
+        $removedVersion = (int) str_replace('v', '', $this->willBeRemovedIn);
         if ($version >= $removedVersion) {
             return true;
         }
@@ -52,7 +52,7 @@ class Deprecated extends Flag
 
     public function isDeprecatedInVersion(int $version): bool
     {
-        $deprecatedVersion = (int) \str_replace('v', '', $this->deprecatedSince);
+        $deprecatedVersion = (int) str_replace('v', '', $this->deprecatedSince);
 
         if ($version >= $deprecatedVersion) {
             return true;

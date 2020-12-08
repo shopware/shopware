@@ -48,19 +48,19 @@ class CreateSchemaCommand extends Command
         $schema = [];
 
         foreach ($entities as $entity) {
-            $domain = \explode('_', $entity->getEntityName());
-            $domain = \array_shift($domain);
+            $domain = explode('_', $entity->getEntityName());
+            $domain = array_shift($domain);
             $schema[$domain][] = $this->schemaGenerator->generate($entity);
         }
 
         $io->success('Created schema in ' . $this->dir);
 
-        if (!\file_exists($this->dir)) {
-            \mkdir($this->dir);
+        if (!file_exists($this->dir)) {
+            mkdir($this->dir);
         }
 
         foreach ($schema as $domain => $sql) {
-            \file_put_contents($this->dir . '/' . $domain . '.sql', \implode("\n\n", $sql));
+            file_put_contents($this->dir . '/' . $domain . '.sql', implode("\n\n", $sql));
         }
 
         return 0;

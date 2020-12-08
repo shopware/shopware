@@ -13,7 +13,7 @@ class DocumentConfigurationFactory
 
     public static function createConfiguration(array $specificConfig, ?DocumentBaseConfigEntity ...$configs): DocumentConfiguration
     {
-        $configs = \array_filter($configs);
+        $configs = array_filter($configs);
         $documentConfiguration = new DocumentConfiguration();
         foreach ($configs as $config) {
             $documentConfiguration = static::mergeConfiguration($documentConfiguration, $config);
@@ -40,10 +40,10 @@ class DocumentConfigurationFactory
         foreach ($additionalConfigArray as $key => $value) {
             if ($value !== null) {
                 if ($key === 'custom' && \is_array($value)) {
-                    $baseConfig->__set('custom', \array_merge($baseConfig->__get('custom'), $value));
-                } elseif (\strncmp($key, 'custom.', 7) === 0) {
-                    $customKey = \mb_substr($key, 7);
-                    $baseConfig->__set('custom', \array_merge($baseConfig->__get('custom'), [$customKey => $value]));
+                    $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), $value));
+                } elseif (strncmp($key, 'custom.', 7) === 0) {
+                    $customKey = mb_substr($key, 7);
+                    $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), [$customKey => $value]));
                 } else {
                     $baseConfig->__set($key, $value);
                 }
@@ -56,7 +56,7 @@ class DocumentConfigurationFactory
     private static function cleanConfig(array $config): array
     {
         if (isset($config['config'])) {
-            $config = \array_merge($config, $config['config']);
+            $config = array_merge($config, $config['config']);
             unset($config['config']);
         }
 
@@ -66,6 +66,6 @@ class DocumentConfigurationFactory
             'createdAt' => 1,
         ];
 
-        return \array_diff_key($config, $deleteKeys);
+        return array_diff_key($config, $deleteKeys);
     }
 }

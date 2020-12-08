@@ -106,7 +106,7 @@ class StoreService
         try {
             $response = $client->post('/swplatform/tracking/events', ['json' => $payload]);
 
-            return \json_decode($response->getBody()->getContents(), true);
+            return json_decode($response->getBody()->getContents(), true);
         } catch (\Exception $e) {
         }
 
@@ -129,13 +129,13 @@ class StoreService
         $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
         $header = $response->getHeader($signatureHeaderName);
         if (!isset($header[0])) {
-            throw new StoreSignatureValidationException(\sprintf('Signature not found in header "%s"', $signatureHeaderName));
+            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
         }
 
         $signature = $header[0];
 
         if (empty($signature)) {
-            throw new StoreSignatureValidationException(\sprintf('Signature not found in header "%s"', $signatureHeaderName));
+            throw new StoreSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
         }
 
         if (!$this->openSSLVerifier->isSystemSupported()) {

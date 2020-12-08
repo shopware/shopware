@@ -63,7 +63,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
         $taxRuleTypeId = $connection->executeQuery('SELECT id FROM tax_rule_type WHERE technical_name = "entire_country"')->fetchColumn();
 
         foreach ($this->getCountryTaxes() as $isoCode => $countryTax) {
-            if (!array_key_exists($isoCode, $this->countryIds)) {
+            if (!\array_key_exists($isoCode, $this->countryIds)) {
                 // country was deleted by shop owner
                 continue;
             }

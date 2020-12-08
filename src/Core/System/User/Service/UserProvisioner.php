@@ -22,7 +22,7 @@ class UserProvisioner
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username)) {
-            throw new \RuntimeException(\sprintf('User with username "%s" already exists.', $username));
+            throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
         }
 
         $password = $password ?? Random::getAlphanumericString(8);
@@ -33,7 +33,7 @@ class UserProvisioner
             'last_name' => $additionalData['lastName'] ?? $username,
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
-            'password' => \password_hash($password, \PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,

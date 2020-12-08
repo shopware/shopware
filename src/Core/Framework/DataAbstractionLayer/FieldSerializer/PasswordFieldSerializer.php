@@ -27,11 +27,11 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
         if ($value) {
-            $info = \password_get_info($value);
+            $info = password_get_info($value);
             // if no password algorithm is detected, it might be plain text which needs to be encoded.
             // otherwise, passthrough the possibly encoded string
             if (!$info['algo']) {
-                $value = \password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
+                $value = password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
             }
         }
 

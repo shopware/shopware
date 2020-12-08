@@ -46,7 +46,7 @@ class DiscountCompositionBuilder
             $compositionItems[] = new DiscountCompositionItem(
                 $item->getId(),
                 $item->getQuantity(),
-                \abs($itemTotal) * $factor
+                abs($itemTotal) * $factor
             );
         }
 
@@ -77,6 +77,6 @@ class DiscountCompositionBuilder
             }
         }
 
-        return \array_values($aggregated);
+        return array_values($aggregated);
     }
 }

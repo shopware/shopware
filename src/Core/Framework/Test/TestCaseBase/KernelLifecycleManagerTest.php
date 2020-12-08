@@ -16,8 +16,8 @@ class KernelLifecycleManagerTest extends TestCase
         static::assertFileExists($kernelTestCaseFileName);
         static::assertSame(
             self::BUILD_AGAINST_FILE_HASH,
-            \sha1_file($kernelTestCaseFileName),
-            \sprintf('You need to update the class KernelTestCase from %s and update the local hash', $kernelTestCaseFileName)
+            sha1_file($kernelTestCaseFileName),
+            sprintf('You need to update the class KernelTestCase from %s and update the local hash', $kernelTestCaseFileName)
         );
     }
 
@@ -37,9 +37,9 @@ class KernelLifecycleManagerTest extends TestCase
         $newKernel = KernelLifecycleManager::getKernel();
         $newConnection = Kernel::getConnection();
 
-        static::assertNotSame(\spl_object_hash($oldKernel), \spl_object_hash($newKernel));
-        static::assertNotSame(\spl_object_hash($oldConnection), \spl_object_hash($newConnection));
-        static::assertNotSame(\spl_object_hash($oldContainer), \spl_object_hash($newKernel->getContainer()));
+        static::assertNotSame(spl_object_hash($oldKernel), spl_object_hash($newKernel));
+        static::assertNotSame(spl_object_hash($oldConnection), spl_object_hash($newConnection));
+        static::assertNotSame(spl_object_hash($oldContainer), spl_object_hash($newKernel->getContainer()));
     }
 
     /*

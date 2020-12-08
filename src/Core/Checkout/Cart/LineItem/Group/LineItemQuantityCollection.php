@@ -45,7 +45,7 @@ class LineItemQuantityCollection extends Collection
             }
         }
 
-        $this->elements = \array_values($tmpItems);
+        $this->elements = array_values($tmpItems);
     }
 
     public function getApiAlias(): string

@@ -90,7 +90,7 @@ class ApiVersioningV3Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'discountType' => 'absolute',
                 'discount' => 5.5,
@@ -98,7 +98,7 @@ class ApiVersioningV3Test extends TestCase
             ])
         );
 
-        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
     }
 
     public function testCreateV2Works(): void
@@ -109,7 +109,7 @@ class ApiVersioningV3Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'isAbsolute' => true,
                 'discount' => 5.5,
@@ -117,7 +117,7 @@ class ApiVersioningV3Test extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
         static::assertCount(1, $bundles);
@@ -140,7 +140,7 @@ class ApiVersioningV3Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'isAbsolute' => true,
                 'discount' => 5.5,
@@ -160,7 +160,7 @@ class ApiVersioningV3Test extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $bundles = $this->connection->fetchAll('SELECT * FROM _test_bundle');
         static::assertCount(1, $bundles);

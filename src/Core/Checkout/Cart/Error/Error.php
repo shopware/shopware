@@ -49,7 +49,7 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $data = \get_object_vars($this);
+        $data = get_object_vars($this);
         $data['key'] = $this->getId();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();

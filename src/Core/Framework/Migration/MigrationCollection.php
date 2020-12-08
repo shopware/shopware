@@ -64,7 +64,7 @@ class MigrationCollection
 
     public function migrateInPlace(?int $until = null, ?int $limit = null): array
     {
-        return \iterator_to_array($this->migrateInSteps($until, $limit));
+        return iterator_to_array($this->migrateInSteps($until, $limit));
     }
 
     public function migrateDestructiveInSteps(?int $until = null, ?int $limit = null): \Generator
@@ -74,7 +74,7 @@ class MigrationCollection
 
     public function migrateDestructiveInPlace(?int $until = null, ?int $limit = null): array
     {
-        return \iterator_to_array($this->migrateDestructiveInSteps($until, $limit));
+        return iterator_to_array($this->migrateDestructiveInSteps($until, $limit));
     }
 
     public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
@@ -133,19 +133,19 @@ class MigrationCollection
         $migrations = [];
 
         foreach ($this->migrationSource->getSourceDirectories() as $directory => $namespace) {
-            foreach (\scandir($directory, \SCANDIR_SORT_ASCENDING) as $classFileName) {
+            foreach (scandir($directory, \SCANDIR_SORT_ASCENDING) as $classFileName) {
                 $path = $directory . '/' . $classFileName;
-                $className = $namespace . '\\' . \pathinfo($classFileName, \PATHINFO_FILENAME);
+                $className = $namespace . '\\' . pathinfo($classFileName, \PATHINFO_FILENAME);
 
-                if (\pathinfo($path, \PATHINFO_EXTENSION) !== 'php') {
+                if (pathinfo($path, \PATHINFO_EXTENSION) !== 'php') {
                     continue;
                 }
 
-                if (!\class_exists($className) && !\trait_exists($className) && !\interface_exists($className)) {
+                if (!class_exists($className) && !trait_exists($className) && !interface_exists($className)) {
                     throw new InvalidMigrationClassException($className, $path);
                 }
 
-                if (!\is_subclass_of($className, MigrationStep::class, true)) {
+                if (!is_subclass_of($className, MigrationStep::class, true)) {
                     continue;
                 }
 

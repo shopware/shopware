@@ -73,7 +73,7 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (get_class($command->getDefinition())) {
+            switch (\get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
 
                     /** @var string $promotionId */
@@ -141,7 +141,7 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (get_class($command->getDefinition())) {
+            switch (\get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
 
@@ -472,7 +472,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':promotion_id', $promotionId);
         }
 
-        $existingIndividual = count($query->execute()->fetchAll()) > 0;
+        $existingIndividual = \count($query->execute()->fetchAll()) > 0;
 
         if ($existingIndividual) {
             return true;
@@ -494,6 +494,6 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':id', $promotionId);
         }
 
-        return count($query->execute()->fetchAll()) > 0;
+        return \count($query->execute()->fetchAll()) > 0;
     }
 }

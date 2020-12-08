@@ -35,7 +35,7 @@ class MigrationControllerTest extends TestCase
     {
         $client = $this->getBrowser();
 
-        $url = \sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
+        $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
 
         $client->request('POST', $url, ['identifier' => self::INTEGRATION_IDENTIFIER()]);
 

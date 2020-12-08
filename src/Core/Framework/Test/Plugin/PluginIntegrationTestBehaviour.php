@@ -57,7 +57,7 @@ trait PluginIntegrationTestBehaviour
             'managed_by_composer' => $plugin->getManagedByComposer() ? '1' : '0',
             'base_class' => $plugin->getBaseClass(),
             'path' => $plugin->getPath(),
-            'autoload' => \json_encode($plugin->getAutoload()),
+            'autoload' => json_encode($plugin->getAutoload()),
             'created_at' => $plugin->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'installed_at' => $plugin->getInstalledAt() ? $plugin->getInstalledAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
         ];

@@ -13,7 +13,7 @@ class AfterSort
         }
 
         // pre-sort elements to pull elements without an after id parent to the front
-        \uasort($elements, function (Entity $a, Entity $b) use ($propertyName) {
+        uasort($elements, function (Entity $a, Entity $b) use ($propertyName) {
             if ($a->get($propertyName) === $b->get($propertyName) && $a->get($propertyName) === null) {
                 return 0;
             }
@@ -30,7 +30,7 @@ class AfterSort
         });
 
         // add first element to sorted list as this will be the absolute first item
-        $sorted = [\array_shift($elements)];
+        $sorted = [array_shift($elements)];
         $lastId = $sorted[0]->getId();
 
         while (\count($elements) > 0) {
@@ -49,7 +49,7 @@ class AfterSort
             }
 
             // chain is broken, continue with next element as parent
-            $nextItem = \array_shift($elements);
+            $nextItem = array_shift($elements);
             $sorted[] = $nextItem;
 
             if (!\count($elements)) {

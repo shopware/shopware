@@ -42,10 +42,10 @@ class TestValidityListener implements TestListener
     public function endTest(Test $test, float $time): void
     {
         $refl = new \ReflectionObject($test);
-        $contents = \file_get_contents($refl->getFileName());
+        $contents = file_get_contents($refl->getFileName());
         $class = \get_class($test);
 
-        if (\mb_strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
+        if (mb_strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
             $this->wrongTestClasses['beginTransaction'][$refl->getFileName()] = $class;
         }
 
@@ -53,7 +53,7 @@ class TestValidityListener implements TestListener
             $this->wrongTestClasses['traits'][$refl->getFileName()] = $class;
         }
 
-        if (\mb_strpos($contents, 'DELETE FROM') && !\in_array($class, $this->whitelist['deletes'], true)) {
+        if (mb_strpos($contents, 'DELETE FROM') && !\in_array($class, $this->whitelist['deletes'], true)) {
             $this->wrongTestClasses['deletes'][$refl->getFileName()] = $class;
         }
     }
@@ -71,11 +71,11 @@ class TestValidityListener implements TestListener
             return;
         }
 
-        echo \sprintf(
+        echo sprintf(
             "Found %s Errors: \n",
             $totalCount
         );
-        echo \str_replace("\n", "\n\t", \print_r($this->wrongTestClasses, true));
+        echo str_replace("\n", "\n\t", print_r($this->wrongTestClasses, true));
     }
 
     /**

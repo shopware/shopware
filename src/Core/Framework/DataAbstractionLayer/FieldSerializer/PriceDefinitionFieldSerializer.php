@@ -44,7 +44,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = \json_decode(\json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
 
         if ($value !== null) {
             if (!\array_key_exists('type', $value)) {
@@ -219,7 +219,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         $code = null
     ): ConstraintViolation {
         return new ConstraintViolation(
-            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
+            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,
@@ -232,7 +232,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     {
         $list = new ConstraintViolationList();
         foreach ($fieldValidations as $fieldName => $validations) {
-            $currentPath = \sprintf('%s/%s', $basePath, $fieldName);
+            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
             $list->addAll(
                 $this->validator->startContext()
                     ->atPath($currentPath)
@@ -242,7 +242,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
 
         foreach ($payload as $fieldName => $_value) {
-            $currentPath = \sprintf('%s/%s', $basePath, $fieldName);
+            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
             if (!\array_key_exists($fieldName, $fieldValidations)) {
                 $list->add(

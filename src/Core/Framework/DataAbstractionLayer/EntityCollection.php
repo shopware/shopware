@@ -69,7 +69,7 @@ class EntityCollection extends Collection
 
     public function insert(int $position, Entity $entity): void
     {
-        $items = \array_values($this->elements);
+        $items = array_values($this->elements);
 
         $this->elements = [];
         foreach ($items as $index => $item) {
@@ -82,7 +82,7 @@ class EntityCollection extends Collection
 
     public function getList(array $ids)
     {
-        return $this->createNew(\array_intersect_key($this->elements, \array_flip($ids)));
+        return $this->createNew(array_intersect_key($this->elements, array_flip($ids)));
     }
 
     public function sortByIdArray(array $ids): void
@@ -91,7 +91,7 @@ class EntityCollection extends Collection
 
         foreach ($ids as $id) {
             if (\is_array($id)) {
-                $id = \implode('-', $id);
+                $id = implode('-', $id);
             }
 
             if (\array_key_exists($id, $this->elements)) {

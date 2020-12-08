@@ -47,7 +47,7 @@ class ScheduledTaskRunner extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $startTime = \microtime(true);
+        $startTime = microtime(true);
         $endTime = null;
         $timeLimit = $input->getOption('time-limit');
         if (\is_array($timeLimit)) {
@@ -70,29 +70,29 @@ class ScheduledTaskRunner extends Command
 
             $idleTime = $this->scheduler->getMinRunInterval() ?? 30;
             if ($endTime) {
-                $remainingSeconds = $endTime - \microtime(true);
+                $remainingSeconds = $endTime - microtime(true);
                 if ($remainingSeconds < $idleTime) {
                     $idleTime = $remainingSeconds;
                 }
             }
 
-            $idleTime = \max(1, \min((int) $idleTime, 15));
+            $idleTime = max(1, min((int) $idleTime, 15));
 
-            \sleep($idleTime);
+            sleep($idleTime);
 
             if ($this->shouldRestart($startTime)) {
                 $this->shouldStop = true;
-                $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
+                $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
-            if ($endTime && $endTime < \microtime(true)) {
+            if ($endTime && $endTime < microtime(true)) {
                 $this->shouldStop = true;
-                $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
+                $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
-            if ($memoryLimit && \memory_get_usage() > $memoryLimit) {
+            if ($memoryLimit && memory_get_usage() > $memoryLimit) {
                 $this->shouldStop = true;
-                $output->writeln(\sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
+                $output->writeln(sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
             }
         }
 
@@ -113,10 +113,10 @@ class ScheduledTaskRunner extends Command
 
     private function convertToBytes(string $memoryLimit): int
     {
-        $memoryLimit = \mb_strtolower($memoryLimit);
-        $max = (int) \mb_strtolower(\ltrim($memoryLimit, '+'));
+        $memoryLimit = mb_strtolower($memoryLimit);
+        $max = (int) mb_strtolower(ltrim($memoryLimit, '+'));
 
-        switch (\mb_substr($memoryLimit, -1)) {
+        switch (mb_substr($memoryLimit, -1)) {
             case 't': $max *= 1024;
             // no break
             case 'g': $max *= 1024;

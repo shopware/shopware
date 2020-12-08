@@ -109,10 +109,10 @@ class PluginService
                 'name' => $pluginFromFileSystem->getName(),
                 'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
-                'path' => \str_replace($this->projectDir . '/', '', $pluginPath),
+                'path' => str_replace($this->projectDir . '/', '', $pluginPath),
                 'author' => $authors,
                 'copyright' => $extra['copyright'] ?? null,
-                'license' => \implode(', ', $license),
+                'license' => implode(', ', $license),
                 'version' => $pluginVersion,
                 'iconRaw' => $this->getPluginIconRaw($pluginPath . '/' . $pluginIconPath),
                 'autoload' => $info->getAutoload(),
@@ -211,7 +211,7 @@ class PluginService
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool
     {
-        return \version_compare($updateVersion, $currentVersion, '>');
+        return version_compare($updateVersion, $currentVersion, '>');
     }
 
     private function getLanguageIdForLocale(string $locale, Context $context): string
@@ -232,11 +232,11 @@ class PluginService
 
     private function getPluginIconRaw(string $pluginIconPath): ?string
     {
-        if (!\is_file($pluginIconPath)) {
+        if (!is_file($pluginIconPath)) {
             return null;
         }
 
-        return \file_get_contents($pluginIconPath);
+        return file_get_contents($pluginIconPath);
     }
 
     private function getAuthors(CompletePackageInterface $info): ?string
@@ -246,7 +246,7 @@ class PluginService
         $composerAuthors = $info->getAuthors();
 
         if ($composerAuthors !== null) {
-            $manufacturersAuthors = \array_filter($composerAuthors, static function (array $author): bool {
+            $manufacturersAuthors = array_filter($composerAuthors, static function (array $author): bool {
                 return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
             });
 
@@ -254,8 +254,8 @@ class PluginService
                 $manufacturersAuthors = $composerAuthors;
             }
 
-            $authorNames = \array_column($manufacturersAuthors, 'name');
-            $authors = \implode(', ', $authorNames);
+            $authorNames = array_column($manufacturersAuthors, 'name');
+            $authors = implode(', ', $authorNames);
         }
 
         return $authors;

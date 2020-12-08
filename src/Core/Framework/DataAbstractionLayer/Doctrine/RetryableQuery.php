@@ -46,7 +46,7 @@ class RetryableQuery
             }
 
             // randomize sleep to prevent same execution delay for multiple statements
-            \usleep(\random_int(10, 20));
+            usleep(random_int(10, 20));
 
             return self::retry($closure, $counter);
         }

@@ -137,7 +137,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (\mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
+            if (mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertEquals(
                     2,
@@ -232,13 +232,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
     }
 
@@ -258,11 +258,11 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            \fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
+            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream($filePath, \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
     private function getNewMediaEntities()

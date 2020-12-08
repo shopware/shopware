@@ -72,7 +72,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
         $connection->insert('cms_section', $section);
 
         // cms block
-        $name = \ucfirst($formType) . ' form';
+        $name = ucfirst($formType) . ' form';
         $block = [
             'id' => Uuid::randomBytes(),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -106,7 +106,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
             'cms_slot_version_id' => $versionId,
             'language_id' => $languageEn,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'config' => \json_encode([
+            'config' => json_encode([
                 'type' => ['source' => 'static', 'value' => $formType],
                 'mailReceiver' => ['source' => 'static', 'value' => []],
                 'confirmationText' => ['source' => 'static', 'value' => ''],

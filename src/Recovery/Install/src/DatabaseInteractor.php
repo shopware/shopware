@@ -63,7 +63,7 @@ class DatabaseInteractor
         }
 
         $question = new ConfirmationQuestion(
-            \sprintf(
+            sprintf(
                 'The database %s already contains %s tables. Continue? (yes/no) [no]',
                 $databaseName,
                 $tableCount
@@ -84,10 +84,10 @@ class DatabaseInteractor
 
     protected function askForDatabaseHostname(string $defaultHostname): string
     {
-        $question = new Question(\sprintf('Please enter database host (%s): ', $defaultHostname), $defaultHostname);
+        $question = new Question(sprintf('Please enter database host (%s): ', $defaultHostname), $defaultHostname);
         $question->setValidator(
             function ($answer) {
-                if (\trim((string) $answer) === '') {
+                if (trim((string) $answer) === '') {
                     throw new \Exception('The database user can not be empty');
                 }
 
@@ -103,12 +103,12 @@ class DatabaseInteractor
         if (empty($defaultUsername)) {
             $question = new Question('Please enter database user: ');
         } else {
-            $question = new Question(\sprintf('Please enter database user (%s): ', $defaultUsername), $defaultUsername);
+            $question = new Question(sprintf('Please enter database user (%s): ', $defaultUsername), $defaultUsername);
         }
 
         $question->setValidator(
             static function ($answer) {
-                if (\trim((string) $answer) === '') {
+                if (trim((string) $answer) === '') {
                     throw new \Exception('The database user can not be empty');
                 }
 
@@ -124,7 +124,7 @@ class DatabaseInteractor
         if (empty($defaultPassword)) {
             $question = new Question('Please enter database password: ');
         } else {
-            $question = new Question(\sprintf('Please enter database password: (%s): ', $defaultPassword), $defaultPassword);
+            $question = new Question(sprintf('Please enter database password: (%s): ', $defaultPassword), $defaultPassword);
         }
 
         return (string) $this->askQuestion($question);
@@ -132,14 +132,14 @@ class DatabaseInteractor
 
     private function askForDatabasePort(string $defaultPort): string
     {
-        $question = new Question(\sprintf('Please enter database port (%s): ', $defaultPort), $defaultPort);
+        $question = new Question(sprintf('Please enter database port (%s): ', $defaultPort), $defaultPort);
         $question->setValidator(
             static function ($answer) {
-                if (\trim((string) $answer) === '') {
+                if (trim((string) $answer) === '') {
                     throw new \Exception('The database port can not be empty');
                 }
 
-                if (!\is_numeric($answer)) {
+                if (!is_numeric($answer)) {
                     throw new \Exception('The database port must be a number');
                 }
 

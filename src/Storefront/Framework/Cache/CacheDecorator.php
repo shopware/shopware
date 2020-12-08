@@ -104,7 +104,7 @@ class CacheDecorator implements TagAwareAdapterInterface
 
         $new = $this->property->getValue($item);
 
-        return \array_merge(
+        return array_merge(
             $metaData['tags'] ?? [],
             $new['tags'] ?? []
         );

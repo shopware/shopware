@@ -75,13 +75,13 @@ class Entity extends Struct
         }
 
         throw new \InvalidArgumentException(
-            \sprintf('Property %s do not exist in class %s', $property, static::class)
+            sprintf('Property %s do not exist in class %s', $property, static::class)
         );
     }
 
     public function has(string $property): bool
     {
-        return \property_exists($this, $property);
+        return property_exists($this, $property);
     }
 
     public function getTranslated(): array
@@ -157,13 +157,13 @@ class Entity extends Struct
         }
 
         $class = static::class;
-        $class = \explode('\\', $class);
-        $class = (string) \end($class);
+        $class = explode('\\', $class);
+        $class = (string) end($class);
 
-        return $this->_entityName = \preg_replace(
+        return $this->_entityName = preg_replace(
             '/_entity$/',
             '',
-            \ltrim(\mb_strtolower((string) \preg_replace('/[A-Z]/', '_$0', $class)), '_')
+            ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_')
         );
     }
 

@@ -29,14 +29,14 @@ class CsvFileWriter extends AbstractFileWriter
         $this->loadConfig($config);
 
         if ($index === 0) {
-            $this->writeToBuffer(\array_keys($data));
+            $this->writeToBuffer(array_keys($data));
         }
-        $this->writeToBuffer(\array_values($data));
+        $this->writeToBuffer(array_values($data));
     }
 
     private function writeToBuffer(array $data): void
     {
-        if (\fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure) === false) {
+        if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure) === false) {
             throw new \RuntimeException('Could not write to buffer');
         }
     }

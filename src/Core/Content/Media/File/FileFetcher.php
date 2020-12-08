@@ -45,8 +45,8 @@ class FileFetcher
         try {
             $bytesWritten = $this->copyStreams($inputStream, $destStream);
         } finally {
-            \fclose($inputStream);
-            \fclose($destStream);
+            fclose($inputStream);
+            fclose($destStream);
         }
 
         if ($expectedLength !== $bytesWritten) {
@@ -55,7 +55,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            \mime_content_type($fileName),
+            mime_content_type($fileName),
             $extension,
             $bytesWritten
         );
@@ -81,13 +81,13 @@ class FileFetcher
         try {
             $writtenBytes = $this->copyStreams($inputStream, $destStream);
         } finally {
-            \fclose($inputStream);
-            \fclose($destStream);
+            fclose($inputStream);
+            fclose($destStream);
         }
 
         return new MediaFile(
             $fileName,
-            \mime_content_type($fileName),
+            mime_content_type($fileName),
             $extension,
             $writtenBytes
         );
@@ -95,9 +95,9 @@ class FileFetcher
 
     public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), '');
-        $fh = @\fopen($tempFile, 'wb');
-        $blobSize = @\fwrite($fh, $blob);
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $fh = @fopen($tempFile, 'wb');
+        $blobSize = @fwrite($fh, $blob);
 
         return new MediaFile(
             $tempFile,
@@ -145,7 +145,7 @@ class FileFetcher
      */
     private function openSourceFromUrl(string $url)
     {
-        $inputStream = @\fopen($url, 'rb');
+        $inputStream = @fopen($url, 'rb');
 
         if ($inputStream === false) {
             throw new UploadException("Could not open source stream from {$url}");
@@ -161,7 +161,7 @@ class FileFetcher
      */
     private function openDestinationStream(string $filename)
     {
-        $inputStream = @\fopen($filename, 'wb');
+        $inputStream = @fopen($filename, 'wb');
 
         if ($inputStream === false) {
             throw new UploadException("Could not open Stream to write upload data: ${filename}");
@@ -176,7 +176,7 @@ class FileFetcher
      */
     private function copyStreams($sourceStream, $destStream): int
     {
-        $writtenBytes = \stream_copy_to_stream($sourceStream, $destStream);
+        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
 
         if ($writtenBytes === false) {
             throw new UploadException('Error while copying media from source');
@@ -187,12 +187,12 @@ class FileFetcher
 
     private function isUrlValid(string $url): bool
     {
-        return (bool) \filter_var($url, \FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
+        return (bool) filter_var($url, \FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
     }
 
     private function isProtocolAllowed(string $url): bool
     {
-        $fragments = \explode(':', $url);
+        $fragments = explode(':', $url);
         if (\count($fragments) > 1) {
             return \in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
         }

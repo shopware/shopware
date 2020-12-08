@@ -45,7 +45,7 @@ class RuleCollection extends Collection
     public function filterInstance(string $class): RuleCollection
     {
         return new self(
-            \array_filter(
+            array_filter(
                 $this->flat,
                 function (Rule $rule) use ($class) {
                     return $rule instanceof $class;

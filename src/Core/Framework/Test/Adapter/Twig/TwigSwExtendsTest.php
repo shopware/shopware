@@ -32,7 +32,7 @@ class TwigSwExtendsTest extends TestCase
 
     public function setUp(): void
     {
-        $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . \microtime();
+        $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 

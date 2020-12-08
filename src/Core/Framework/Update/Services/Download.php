@@ -43,12 +43,12 @@ class Download
      */
     public function downloadFile(string $sourceUri, string $destinationUri, int $totalSize, string $hash): int
     {
-        if (($destination = \fopen($destinationUri, 'a+')) === false) {
-            throw new UpdateFailedException(\sprintf('Destination "%s" is invalid.', $destinationUri));
+        if (($destination = fopen($destinationUri, 'a+b')) === false) {
+            throw new UpdateFailedException(sprintf('Destination "%s" is invalid.', $destinationUri));
         }
 
-        if (\filesize($destinationUri) > 0) {
-            throw new UpdateFailedException(\sprintf('File on destination %s does already exist.', $destinationUri));
+        if (filesize($destinationUri) > 0) {
+            throw new UpdateFailedException(sprintf('File on destination %s does already exist.', $destinationUri));
         }
 
         $partFile = $destinationUri . '.part';
@@ -59,7 +59,7 @@ class Download
             $this->verifyHash($partFile, $hash);
             // close local file connections before move for windows
             $partFilePath = $partFile->getPathname();
-            \fclose($destination);
+            fclose($destination);
             unset($partFile);
             $this->moveFile($partFilePath, $destinationUri);
 
@@ -73,18 +73,18 @@ class Download
         }
 
         // Configuration of curl
-        $ch = \curl_init();
+        $ch = curl_init();
 
-        \curl_setopt($ch, \CURLOPT_RANGE, $range);
-        \curl_setopt($ch, \CURLOPT_URL, $sourceUri);
-        \curl_setopt($ch, \CURLOPT_RETURNTRANSFER, false);
-        \curl_setopt($ch, \CURLOPT_BINARYTRANSFER, true);
-        \curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
-        \curl_setopt($ch, \CURLOPT_NOPROGRESS, false);
+        curl_setopt($ch, \CURLOPT_RANGE, $range);
+        curl_setopt($ch, \CURLOPT_URL, $sourceUri);
+        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($ch, \CURLOPT_BINARYTRANSFER, true);
+        curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, \CURLOPT_NOPROGRESS, false);
 
         $me = $this;
 
-        \curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($ch, $dltotal, $dlnow) use ($size): void {
+        curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($ch, $dltotal, $dlnow) use ($size): void {
             if ($dlnow > 0) {
                 $this->progress($dltotal, $dlnow, $size + $dlnow);
             }
@@ -94,8 +94,8 @@ class Download
         $isHalted = false;
         /** @var bool $isError */
         $isError = false;
-        \curl_setopt($ch, \CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
-            if (\curl_getinfo($ch, \CURLINFO_HTTP_CODE) !== 206) {
+        curl_setopt($ch, \CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
+            if (curl_getinfo($ch, \CURLINFO_HTTP_CODE) !== 206) {
                 $isError = true;
 
                 return -1;
@@ -112,9 +112,9 @@ class Download
             return $writtenBytes;
         });
 
-        $result = \curl_exec($ch);
-        $error = \curl_error($ch);
-        \curl_close($ch);
+        $result = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
 
         if ($isError && !$isHalted) {
             throw new \Exception('Wrong http code');
@@ -124,14 +124,14 @@ class Download
             throw new \Exception($error);
         }
 
-        \clearstatcache(false, $partFile->getPathname());
+        clearstatcache(false, $partFile->getPathname());
         $size = $partFile->getSize();
 
         if ($size >= $totalSize) {
             $this->verifyHash($partFile, $hash);
             // close local file connections before move for windows
             $partFilePath = $partFile->getPathname();
-            \fclose($destination);
+            fclose($destination);
             unset($partFile);
             $this->moveFile($partFilePath, $destinationUri);
 
@@ -140,7 +140,7 @@ class Download
 
         // close local file
 
-        \fclose($destination);
+        fclose($destination);
         unset($partFile);
 
         return $size;
@@ -157,9 +157,9 @@ class Download
 
     private function verifyHash(\SplFileObject $partFile, string $hash): bool
     {
-        if (\sha1_file($partFile->getPathname()) !== $hash) {
+        if (sha1_file($partFile->getPathname()) !== $hash) {
             // try to delete invalid file so a valid one can be downloaded
-            @\unlink($partFile->getPathname());
+            @unlink($partFile->getPathname());
 
             throw new UpdateFailedException('Hash mismatch');
         }
@@ -169,6 +169,6 @@ class Download
 
     private function moveFile(string $partFilePath, string $destinationUri): void
     {
-        \rename($partFilePath, $destinationUri);
+        rename($partFilePath, $destinationUri);
     }
 }

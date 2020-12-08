@@ -15,7 +15,7 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 
         foreach ($container->getParameter('kernel.bundles_metadata') as $name => $bundle) {
             $directory = $bundle['path'] . '/Resources/views';
-            if (!\file_exists($directory)) {
+            if (!file_exists($directory)) {
                 continue;
             }
 

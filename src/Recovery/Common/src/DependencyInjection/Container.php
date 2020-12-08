@@ -50,7 +50,7 @@ abstract class Container implements ContainerInterface
         }
 
         if ($invalidBehavior === self::EXCEPTION_ON_INVALID_REFERENCE) {
-            throw new \InvalidArgumentException(\sprintf('Identifier "%s" is not defined.', $id));
+            throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
         }
 
         return null;
@@ -86,7 +86,7 @@ abstract class Container implements ContainerInterface
         $config = $this->pimple->offsetGet('config');
 
         if (!$this->hasParameter($name)) {
-            throw new \InvalidArgumentException(\sprintf('Parameter "%s" is not defined.', $name));
+            throw new \InvalidArgumentException(sprintf('Parameter "%s" is not defined.', $name));
         }
 
         return $config[$name];

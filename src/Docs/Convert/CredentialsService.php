@@ -8,7 +8,7 @@ class CredentialsService
 
     public function credentialsFileExists(): bool
     {
-        return \file_exists(self::CREDENTIAL_PATH);
+        return file_exists(self::CREDENTIAL_PATH);
     }
 
     /**
@@ -16,8 +16,8 @@ class CredentialsService
      */
     public function getCredentials(): CredentialsStruct
     {
-        $credentialsContents = \file_get_contents(self::CREDENTIAL_PATH);
-        $credentials = \json_decode($credentialsContents, true);
+        $credentialsContents = file_get_contents(self::CREDENTIAL_PATH);
+        $credentials = json_decode($credentialsContents, true);
 
         if (!$credentials['token'] || !$credentials['url'] || !$credentials['rootCategoryId'] || !$credentials['idMapperUrl']) {
             throw new InvalidCredentialsFileException('Invalid \'wiki.secret\' file. Token, URL, ID mapper URL or root category ID not available.');

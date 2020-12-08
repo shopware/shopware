@@ -182,9 +182,9 @@ class TestData
 
     public function getList(array $keys): array
     {
-        $keys = \array_flip($keys);
+        $keys = array_flip($keys);
 
-        return \array_intersect_key($this->ids, $keys);
+        return array_intersect_key($this->ids, $keys);
     }
 
     public function getAll(): array

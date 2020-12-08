@@ -12,8 +12,8 @@ class SnippetFileCollectionTest extends TestCase
 {
     public static function tearDownAfterClass(): void
     {
-        foreach (\glob(__DIR__ . '/../Mock/_fixtures/*.json') as $mockFile) {
-            \unlink($mockFile);
+        foreach (glob(__DIR__ . '/../Mock/_fixtures/*.json') as $mockFile) {
+            unlink($mockFile);
         }
     }
 

@@ -43,7 +43,7 @@ class MigrationStep
                 $result = $this->collection->migrateDestructiveInSteps(null, 1);
             }
 
-            $executedMigration = \iterator_count($result) === 1;
+            $executedMigration = iterator_count($result) === 1;
 
             if (!$executedMigration) {
                 return new FinishResult($offset, $totalCount);

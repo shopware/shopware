@@ -71,7 +71,7 @@ class Migration1571832058v3 extends MigrationStep
             '_test_bundle_translation',
             'BEFORE',
             'UPDATE',
-            \sprintf('
+            sprintf('
                 IF (NEW.language_id = "%s")
                 THEN    
                     UPDATE `_test_bundle`
@@ -86,7 +86,7 @@ class Migration1571832058v3 extends MigrationStep
             '_test_bundle',
             'BEFORE',
             'UPDATE',
-            \sprintf(' 
+            sprintf(' 
                 UPDATE `_test_bundle_translation`
                 SET `name` = NEW.name, `translated_description` = NEW.description
                 WHERE `_test_bundle_id` = NEW.id AND `language_id` = "%s"
@@ -98,7 +98,7 @@ class Migration1571832058v3 extends MigrationStep
             '_test_bundle_translation',
             'BEFORE',
             'INSERT',
-            \sprintf('
+            sprintf('
                 IF (NEW.language_id = "%s")
                 THEN    
                     UPDATE `_test_bundle`
@@ -113,7 +113,7 @@ class Migration1571832058v3 extends MigrationStep
             '_test_bundle',
             'AFTER',
             'INSERT',
-            \sprintf(' 
+            sprintf(' 
                 INSERT INTO `_test_bundle_translation` (`_test_bundle_id`, `languageId`, `name`, `translated_description`,  `created_at`)
                 VALUES (NEW.id, "%s", NEW.name, NEW.description, NOW())
             ', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))

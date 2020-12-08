@@ -19,14 +19,14 @@ class OpenSSLVerifier
     public function __construct(array $publicKeys)
     {
         foreach ($publicKeys as $publicKey) {
-            if (\is_readable($publicKey)) {
+            if (is_readable($publicKey)) {
                 $this->publicKeyPath = $publicKey;
 
                 return;
             }
         }
 
-        throw new StoreSignatureValidationException(\sprintf('Cannot find readable public key file in %s', \implode(',', $publicKeys)));
+        throw new StoreSignatureValidationException(sprintf('Cannot find readable public key file in %s', implode(',', $publicKeys)));
     }
 
     public function isSystemSupported(): bool
@@ -38,10 +38,10 @@ class OpenSSLVerifier
     {
         $pubkeyid = $this->getKeyResource();
 
-        $signature = \base64_decode($signature, true);
+        $signature = base64_decode($signature, true);
 
         // State whether signature is okay or not
-        $ok = \openssl_verify($message, $signature, $pubkeyid);
+        $ok = openssl_verify($message, $signature, $pubkeyid);
 
         if ($ok === 1) {
             return true;
@@ -49,10 +49,10 @@ class OpenSSLVerifier
         if ($ok === 0) {
             return false;
         }
-        while ($errors[] = \openssl_error_string()) {
+        while ($errors[] = openssl_error_string()) {
         }
 
-        throw new StoreSignatureValidationException(\sprintf("Error during private key read: \n%s", \implode("\n", $errors)));
+        throw new StoreSignatureValidationException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
     }
 
     private function getKeyResource()
@@ -61,15 +61,15 @@ class OpenSSLVerifier
             return $this->keyResource;
         }
 
-        $publicKey = \trim(\file_get_contents($this->publicKeyPath));
+        $publicKey = trim(file_get_contents($this->publicKeyPath));
 
-        $this->keyResource = \openssl_pkey_get_public($publicKey);
+        $this->keyResource = openssl_pkey_get_public($publicKey);
 
         if ($this->keyResource === false) {
-            while ($errors[] = \openssl_error_string()) {
+            while ($errors[] = openssl_error_string()) {
             }
 
-            throw new StoreSignatureValidationException(\sprintf("Error during public key read: \n%s", \implode("\n", $errors)));
+            throw new StoreSignatureValidationException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
         }
 
         return $this->keyResource;

@@ -10,8 +10,8 @@ class UnmappedFieldException extends ShopwareHttpException
 {
     public function __construct(string $field, EntityDefinition $definition)
     {
-        $fieldParts = \explode('.', $field);
-        $name = \array_pop($fieldParts);
+        $fieldParts = explode('.', $field);
+        $name = array_pop($fieldParts);
 
         parent::__construct(
             'Field "{{ field }}" in entity "{{ entity }}" was not found.',

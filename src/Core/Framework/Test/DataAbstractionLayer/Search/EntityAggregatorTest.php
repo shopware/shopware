@@ -1012,7 +1012,7 @@ class EntityAggregatorTest extends TestCase
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
+        static::assertCount(\count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {
             static::assertTrue($histogram->has($key));

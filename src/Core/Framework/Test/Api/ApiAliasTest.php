@@ -21,15 +21,15 @@ class ApiAliasTest extends TestCase
         $entities = $this->getContainer()->get(DefinitionInstanceRegistry::class)
             ->getDefinitions();
 
-        $aliases = \array_keys($entities);
-        $aliases = \array_flip($aliases);
+        $aliases = array_keys($entities);
+        $aliases = array_flip($aliases);
 
         $count = \count($aliases);
 
-        $classes = \array_keys($classLoader->getClassMap());
+        $classes = array_keys($classLoader->getClassMap());
 
         foreach ($classes as $class) {
-            $parts = \explode('\\', $class);
+            $parts = explode('\\', $class);
             if ($parts[0] !== 'Shopware') {
                 continue;
             }

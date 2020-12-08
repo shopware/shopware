@@ -29,7 +29,7 @@ class VersionCommitDataCollection extends EntityCollection
             if ($change->getEntityName() !== $definition->getEntityName()) {
                 return false;
             }
-            $diff = \array_intersect($primary, $change->getEntityId());
+            $diff = array_intersect($primary, $change->getEntityId());
 
             return $diff === $primary;
         });

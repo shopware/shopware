@@ -93,7 +93,7 @@ class SnippetService
         $fileSnippets = $this->getFileSnippets($languageFiles, $isoList);
         $dbSnippets = $this->databaseSnippetsToArray($this->findSnippetInDatabase(new Criteria(), $context), $fileSnippets);
 
-        $snippets = \array_replace_recursive($fileSnippets, $dbSnippets);
+        $snippets = array_replace_recursive($fileSnippets, $dbSnippets);
         $snippets = $this->fillBlankSnippets($snippets, $isoList);
 
         foreach ($requestFilters as $requestFilterName => $requestFilterValue) {
@@ -105,7 +105,7 @@ class SnippetService
         $total = 0;
         foreach ($snippets as $setId => &$set) {
             $total = $total > 0 ? $total : \count($set['snippets']);
-            $set['snippets'] = \array_chunk($set['snippets'], $limit, true)[$page] ?? [];
+            $set['snippets'] = array_chunk($set['snippets'], $limit, true)[$page] ?? [];
         }
 
         return [
@@ -125,19 +125,19 @@ class SnippetService
         }
 
         // now override fallback with defaults in catalog
-        $snippets = \array_replace_recursive(
+        $snippets = array_replace_recursive(
             $snippets,
             $catalog->all('messages')
         );
 
         // after fallback and default catalog merged, overwrite them with current locale snippets
-        $snippets = \array_replace_recursive(
+        $snippets = array_replace_recursive(
             $snippets,
             $this->getSnippetsByLocale($locale)
         );
 
         // at least overwrite the snippets with the database customer overwrites
-        $snippets = \array_replace_recursive(
+        $snippets = array_replace_recursive(
             $snippets,
             $this->fetchSnippetsFromDatabase($snippetSetId)
         );
@@ -157,7 +157,7 @@ class SnippetService
         $result = [];
         foreach ($snippetFiles as $files) {
             foreach ($this->getSnippetsFromFiles($files, '') as $namespace => $_value) {
-                $region = \explode('.', $namespace)[0];
+                $region = explode('.', $namespace)[0];
                 if (\in_array($region, $result, true)) {
                     continue;
                 }
@@ -167,14 +167,14 @@ class SnippetService
         }
 
         foreach ($dbSnippets as $snippet) {
-            $region = \explode('.', $snippet->getTranslationKey())[0];
+            $region = explode('.', $snippet->getTranslationKey())[0];
             if (\in_array($region, $result, true)) {
                 continue;
             }
 
             $result[] = $region;
         }
-        \sort($result);
+        sort($result);
 
         return $result;
     }
@@ -196,12 +196,12 @@ class SnippetService
             $result = $aggregation->getKeys();
         }
 
-        $authors = \array_flip($result);
+        $authors = array_flip($result);
         foreach ($files as $file) {
             $authors[$file['author']] = true;
         }
-        $result = \array_keys($authors);
-        \sort($result);
+        $result = array_keys($authors);
+        sort($result);
 
         return $result;
     }
@@ -252,16 +252,16 @@ class SnippetService
         $snippets = [];
 
         foreach ($files as $file) {
-            $json = \json_decode(\file_get_contents($file->getPath()), true);
+            $json = json_decode(file_get_contents($file->getPath()), true);
 
-            $jsonError = \json_last_error();
+            $jsonError = json_last_error();
             if ($jsonError !== 0) {
-                throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $file->getPath(), $jsonError));
+                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $file->getPath(), $jsonError));
             }
 
             $flattenSnippetFileSnippets = $this->flatten($json);
 
-            $snippets = \array_replace_recursive(
+            $snippets = array_replace_recursive(
                 $snippets,
                 $flattenSnippetFileSnippets
             );
@@ -287,11 +287,11 @@ class SnippetService
     {
         $result = [];
         foreach ($languageFiles as $snippetFile) {
-            $json = \json_decode(\file_get_contents($snippetFile->getPath()), true);
+            $json = json_decode(file_get_contents($snippetFile->getPath()), true);
 
-            $jsonError = \json_last_error();
+            $jsonError = json_last_error();
             if ($jsonError !== 0) {
-                throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
+                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
             }
 
             $flattenSnippetFileSnippets = $this->flatten(
@@ -300,7 +300,7 @@ class SnippetService
                 ['author' => $snippetFile->getAuthor(), 'id' => null, 'setId' => $setId]
             );
 
-            $result = \array_replace_recursive(
+            $result = array_replace_recursive(
                 $result,
                 $flattenSnippetFileSnippets
             );
@@ -334,7 +334,7 @@ class SnippetService
         $locale = $query->execute()->fetchColumn();
 
         if ($locale === false) {
-            throw new \InvalidArgumentException(\sprintf('No snippetSet with id "%s" found', $snippetSetId));
+            throw new \InvalidArgumentException(sprintf('No snippetSet with id "%s" found', $snippetSetId));
         }
 
         return (string) $locale;
@@ -362,7 +362,7 @@ class SnippetService
                     }
                 }
 
-                \ksort($fileSnippets[$currentSetId]['snippets']);
+                ksort($fileSnippets[$currentSetId]['snippets']);
             }
         }
 
@@ -408,9 +408,9 @@ class SnippetService
         $result = [];
         /** @var SnippetEntity $snippet */
         foreach ($queryResult as $snippet) {
-            $currentSnippet = \array_intersect_key(
+            $currentSnippet = array_intersect_key(
                 $snippet->jsonSerialize(),
-                \array_flip([
+                array_flip([
                     'author',
                     'id',
                     'setId',
@@ -446,9 +446,9 @@ class SnippetService
         if ($sort['sortBy'] === 'translationKey' || $sort['sortBy'] === 'id') {
             foreach ($snippets as $setId => &$set) {
                 if ($sort['sortDirection'] === 'ASC') {
-                    \ksort($set['snippets']);
+                    ksort($set['snippets']);
                 } elseif ($sort['sortDirection'] === 'DESC') {
-                    \krsort($set['snippets']);
+                    krsort($set['snippets']);
                 }
             }
 
@@ -462,9 +462,9 @@ class SnippetService
         $mainSet = $snippets[$sort['sortBy']];
         unset($snippets[$sort['sortBy']]);
 
-        \uasort($mainSet['snippets'], function ($a, $b) use ($sort) {
-            $a = \mb_strtolower($a['value']);
-            $b = \mb_strtolower($b['value']);
+        uasort($mainSet['snippets'], function ($a, $b) use ($sort) {
+            $a = mb_strtolower($a['value']);
+            $b = mb_strtolower($b['value']);
 
             return $sort['sortDirection'] !== 'DESC' ? $a > $b : $a <= $b;
         });
@@ -486,10 +486,10 @@ class SnippetService
             $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
 
             if (\is_array($value)) {
-                $result = \array_merge($result, $this->flatten($value, $newIndex, $additionalParameters));
+                $result = array_merge($result, $this->flatten($value, $newIndex, $additionalParameters));
             } else {
                 if (!empty($additionalParameters)) {
-                    $result[$newIndex] = \array_merge([
+                    $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,
                         'resetTo' => $value,

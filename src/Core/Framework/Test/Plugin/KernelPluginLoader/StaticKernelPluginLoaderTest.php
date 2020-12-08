@@ -161,7 +161,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
         $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
 
-        $bundles = \iterator_to_array($loader->getBundles());
+        $bundles = iterator_to_array($loader->getBundles());
 
         static::assertEmpty($bundles);
     }
@@ -171,7 +171,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        $bundles = \iterator_to_array($loader->getBundles());
+        $bundles = iterator_to_array($loader->getBundles());
 
         static::assertCount(1, $bundles);
         static::assertSame($loader, $bundles[0]);
@@ -183,7 +183,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, [$activePluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        $bundles = \iterator_to_array($loader->getBundles());
+        $bundles = iterator_to_array($loader->getBundles());
 
         static::assertCount(3, $bundles);
         static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
@@ -199,7 +199,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         ]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        $bundles = \iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
+        $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
 
         static::assertCount(4, $bundles);
         static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
@@ -214,7 +214,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, [$pluginData]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        $bundles = \iterator_to_array($loader->getBundles());
+        $bundles = iterator_to_array($loader->getBundles());
         static::assertCount(1, $bundles);
         static::assertSame($loader, $bundles[0]);
     }

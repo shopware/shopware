@@ -63,7 +63,7 @@ class SqlQueryParserTest extends TestCase
 
         $defaults = ['id' => $id, 'name' => 'Test'];
 
-        $parameters = \array_merge($defaults, $parameters);
+        $parameters = array_merge($defaults, $parameters);
 
         $this->manufacturerRepository->create([$parameters], Context::createDefaultContext());
 

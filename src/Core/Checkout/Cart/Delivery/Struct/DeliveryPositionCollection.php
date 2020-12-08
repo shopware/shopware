@@ -46,7 +46,7 @@ class DeliveryPositionCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            \array_map(
+            array_map(
                 function (DeliveryPosition $position) {
                     return $position->getPrice();
                 },
@@ -58,7 +58,7 @@ class DeliveryPositionCollection extends Collection
     public function getLineItems(): LineItemCollection
     {
         return new LineItemCollection(
-            \array_map(
+            array_map(
                 function (DeliveryPosition $position) {
                     return $position->getLineItem();
                 },
@@ -77,7 +77,7 @@ class DeliveryPositionCollection extends Collection
             return 0;
         });
 
-        return \array_sum($weights);
+        return array_sum($weights);
     }
 
     public function getQuantity(): float
@@ -86,7 +86,7 @@ class DeliveryPositionCollection extends Collection
             return $position->getQuantity();
         });
 
-        return \array_sum($quantities);
+        return array_sum($quantities);
     }
 
     public function getApiAlias(): string

@@ -15,7 +15,7 @@ class Random
             throw new \DomainException('Length should be >= 1');
         }
 
-        return \random_bytes($length);
+        return random_bytes($length);
     }
 
     public static function getBoolean(): bool
@@ -33,7 +33,7 @@ class Random
             );
         }
 
-        return \random_int($min, $max);
+        return random_int($min, $max);
     }
 
     public static function getString(int $length, ?string $charlist = null): string
@@ -44,16 +44,16 @@ class Random
 
         // charlist is empty or not provided
         if (empty($charlist)) {
-            $numBytes = \ceil($length * 0.75);
+            $numBytes = ceil($length * 0.75);
             $bytes = static::getBytes((int) $numBytes);
 
-            return \mb_substr(\rtrim(\base64_encode($bytes), '='), 0, $length, '8bit');
+            return mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
         }
 
-        $listLen = \mb_strlen($charlist, '8bit');
+        $listLen = mb_strlen($charlist, '8bit');
 
         if ($listLen === 1) {
-            return \str_repeat($charlist, $length);
+            return str_repeat($charlist, $length);
         }
 
         $result = '';
@@ -70,17 +70,17 @@ class Random
      */
     public static function getBase64UrlString(int $length): string
     {
-        $numBytes = \ceil($length * 0.75);
+        $numBytes = ceil($length * 0.75);
         $bytes = static::getBytes((int) $numBytes);
 
-        $base64 = \mb_substr(\rtrim(\base64_encode($bytes), '='), 0, $length, '8bit');
+        $base64 = mb_substr(rtrim(base64_encode($bytes), '='), 0, $length, '8bit');
 
-        return \str_replace(['+', '/'], ['-', '_'], $base64);
+        return str_replace(['+', '/'], ['-', '_'], $base64);
     }
 
     public static function getAlphanumericString(int $length): string
     {
-        $charlist = \implode(\range('a', 'z')) . \implode(\range('A', 'Z')) . \implode(\range(0, 9));
+        $charlist = implode('', range('a', 'z')) . implode('', range('A', 'Z')) . implode('', range(0, 9));
 
         return static::getString($length, $charlist);
     }

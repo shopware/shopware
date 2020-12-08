@@ -181,7 +181,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         foreach ($context->getRuleIds() as $ruleId) {
             $filtered = $this->filterByRuleId($rules->getElements(), $ruleId);
 
-            if (count($filtered) > 0) {
+            if (\count($filtered) > 0) {
                 return $filtered;
             }
         }

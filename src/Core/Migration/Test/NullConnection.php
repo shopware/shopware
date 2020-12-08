@@ -21,7 +21,7 @@ class NullConnection extends Connection
 
     public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
-        $matches = \preg_match_all(DebugStack::$writeSqlRegex, $query);
+        $matches = preg_match_all(DebugStack::$writeSqlRegex, $query);
 
         if ($matches) {
             throw new \RuntimeException(self::EXCEPTION_MESSAGE);

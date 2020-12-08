@@ -21,7 +21,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
 
         if ($categoryProfileId) {
             $mapping = $this->getCategoryMapping();
-            $connection->update('import_export_profile', ['mapping' => \json_encode($mapping)], ['id' => $categoryProfileId]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $categoryProfileId]);
         }
 
         $mediaProfileId = $connection->executeQuery(
@@ -31,7 +31,7 @@ class Migration1585816139FixMediaMapping extends MigrationStep
 
         if ($mediaProfileId) {
             $mapping = $this->getMediaMapping();
-            $connection->update('import_export_profile', ['mapping' => \json_encode($mapping)], ['id' => $mediaProfileId]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $mediaProfileId]);
         }
     }
 

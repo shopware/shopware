@@ -23,16 +23,16 @@ EOF;
 
         $migrationLoader = $this->getContainer()->get(MigrationCollectionLoader::class);
         foreach ($migrationLoader->collectAll() as $collection) {
-            foreach (\array_keys($collection->getMigrationSteps()) as $className) {
+            foreach (array_keys($collection->getMigrationSteps()) as $className) {
                 $file = $classLoader->findFile($className);
 
-                $result = \preg_match_all(
+                $result = preg_match_all(
                     '/date\(Defaults::(STORAGE_DATE_TIME_FORMAT|STORAGE_DATE_FORMAT).*\);/',
-                    \file_get_contents($file),
+                    file_get_contents($file),
                     $matches
                 );
 
-                static::assertSame(0, $result, \sprintf($errorTemplate, \basename($file)));
+                static::assertSame(0, $result, sprintf($errorTemplate, basename($file)));
             }
         }
     }

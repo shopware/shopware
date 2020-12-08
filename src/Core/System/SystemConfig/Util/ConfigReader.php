@@ -23,11 +23,11 @@ class ConfigReader extends XmlReader
         if ($bundleConfigName === null) {
             $bundleConfigName = 'Resources/config/config.xml';
         } else {
-            $bundleConfigName = 'Resources/config/' . \preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
+            $bundleConfigName = 'Resources/config/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
         }
-        $configPath = $bundle->getPath() . '/' . \ltrim($bundleConfigName, '/');
+        $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 
-        if (!\is_file($configPath)) {
+        if (!is_file($configPath)) {
             throw new BundleConfigNotFoundException($bundleConfigName, $bundle->getName());
         }
 
@@ -164,7 +164,7 @@ class ConfigReader extends XmlReader
             }
 
             if ($this->isBoolOption($option)) {
-                $elementData[$option->nodeName] = \filter_var($option->nodeValue, \FILTER_VALIDATE_BOOLEAN);
+                $elementData[$option->nodeName] = filter_var($option->nodeValue, \FILTER_VALIDATE_BOOLEAN);
 
                 continue;
             }

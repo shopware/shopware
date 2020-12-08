@@ -54,10 +54,10 @@ class EntityWriteResult
         $this->existence = $existence;
 
         $this->entityName = $entityName;
-        $this->operation = \mb_strtolower($operation);
+        $this->operation = mb_strtolower($operation);
 
         if (!\in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
-            throw new \RuntimeException(\sprintf('Unexpected write result operation %s', $operation));
+            throw new \RuntimeException(sprintf('Unexpected write result operation %s', $operation));
         }
         $this->changeSet = $changeSet;
     }

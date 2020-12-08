@@ -111,7 +111,7 @@ class ProductCollection extends EntityCollection
             $ids[] = $element->getPrices()->getIds();
         }
 
-        return \array_merge(...$ids);
+        return array_merge(...$ids);
     }
 
     public function getPrices(): ProductPriceCollection
@@ -122,7 +122,7 @@ class ProductCollection extends EntityCollection
             $rules[] = $element->getPrices();
         }
 
-        $rules = \array_merge(...$rules);
+        $rules = array_merge(...$rules);
 
         return new ProductPriceCollection($rules);
     }
@@ -131,7 +131,7 @@ class ProductCollection extends EntityCollection
     {
         return $this->filter(function (ProductEntity $product) use ($optionIds) {
             $ids = $product->getOptionIds();
-            $same = \array_intersect($ids, $optionIds);
+            $same = array_intersect($ids, $optionIds);
 
             return \count($same) === \count($optionIds);
         });

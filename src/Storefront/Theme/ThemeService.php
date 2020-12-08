@@ -94,7 +94,7 @@ class ThemeService
             $data['parentThemeId'] = $parentThemeId;
         }
 
-        if (array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
             $data['configValues'] = array_replace_recursive($theme->getConfigValues(), $data['configValues']);
         }
 
@@ -198,7 +198,7 @@ class ThemeService
         $config = $this->getThemeConfiguration($themeId, false, $context);
         $resolvedConfig = [];
         $mediaItems = [];
-        if (!array_key_exists('fields', $config)) {
+        if (!\array_key_exists('fields', $config)) {
             return [];
         }
 
@@ -477,7 +477,7 @@ class ThemeService
 
         if ($theme !== null && $theme->getConfigValues() !== null) {
             $configuredThemeFields = [];
-            if (array_key_exists('fields', $configuredTheme)) {
+            if (\array_key_exists('fields', $configuredTheme)) {
                 $configuredThemeFields = $configuredTheme['fields'];
             }
             $configuredTheme['fields'] = array_replace_recursive($configuredThemeFields, $theme->getConfigValues());

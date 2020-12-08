@@ -87,8 +87,8 @@ class PriceSerializer extends FieldSerializer
 
     public function isValidPrice(array $price): bool
     {
-        return \filter_var($price['net'] ?? null, \FILTER_VALIDATE_FLOAT) !== false
-            && \filter_var($price['gross'] ?? null, \FILTER_VALIDATE_FLOAT) !== false;
+        return filter_var($price['net'] ?? null, \FILTER_VALIDATE_FLOAT) !== false
+            && filter_var($price['gross'] ?? null, \FILTER_VALIDATE_FLOAT) !== false;
     }
 
     private function mapToCurrencyIso(string $currencyId): string

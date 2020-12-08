@@ -190,8 +190,8 @@ class UpdateController extends AbstractController
 
         $destination = $this->createDestinationFromVersion($update);
 
-        if ($offset === 0 && \file_exists($destination)) {
-            \unlink($destination);
+        if ($offset === 0 && file_exists($destination)) {
+            unlink($destination);
         }
 
         $result = (new DownloadStep(
@@ -250,8 +250,8 @@ class UpdateController extends AbstractController
 
             $updateFilePath = $this->rootDir . '/files/update/update.json';
 
-            if (!\file_put_contents($updateFilePath, \json_encode($payload))) {
-                throw new UpdateFailedException(\sprintf('Could not write file %s', $updateFilePath));
+            if (!file_put_contents($updateFilePath, json_encode($payload))) {
+                throw new UpdateFailedException(sprintf('Could not write file %s', $updateFilePath));
             }
 
             $this->systemConfig->set(self::UPDATE_PREVIOUS_VERSION_KEY, $update->version);
@@ -330,7 +330,7 @@ class UpdateController extends AbstractController
                 return $this->redirectToRoute('administration.index');
             }
 
-            $_unusedPreviousSetting = \ignore_user_abort(true);
+            $_unusedPreviousSetting = ignore_user_abort(true);
 
             $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
         }
@@ -364,7 +364,7 @@ class UpdateController extends AbstractController
         if ($user && $user->getLocale()) {
             $code = $user->getLocale()->getCode();
 
-            return \mb_strtolower(\explode('-', $code)[0]);
+            return mb_strtolower(explode('-', $code)[0]);
         }
 
         return 'en';
@@ -408,7 +408,7 @@ class UpdateController extends AbstractController
     private function replaceRecoveryFiles(string $fileDir): void
     {
         $recoveryDir = $fileDir . '/vendor/shopware/recovery';
-        if (!\is_dir($recoveryDir)) {
+        if (!is_dir($recoveryDir)) {
             return;
         }
 
@@ -419,7 +419,7 @@ class UpdateController extends AbstractController
         /** @var \SplFileInfo $file */
         foreach ($iterator as $file) {
             $sourceFile = $file->getPathname();
-            $destinationFile = $this->rootDir . '/' . \str_replace($fileDir, '', $file->getPathname());
+            $destinationFile = $this->rootDir . '/' . str_replace($fileDir, '', $file->getPathname());
 
             $destinationDirectory = \dirname($destinationFile);
             $fs->mkdir($destinationDirectory);

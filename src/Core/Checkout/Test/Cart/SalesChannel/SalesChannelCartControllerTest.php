@@ -85,7 +85,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $this->addProduct($browser, $productId);
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $content);
         static::assertArrayHasKey('errors', $content['data']);
         static::assertEquals('product-not-found', $content['data']['errors'][0]['messageKey']);
@@ -116,7 +116,7 @@ class SalesChannelCartControllerTest extends TestCase
         $this->addProduct($browser, $productId);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -126,7 +126,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertEquals(10, $cart['price']['totalPrice']);
         static::assertCount(1, $cart['lineItems']);
 
-        $product = \array_shift($cart['lineItems']);
+        $product = array_shift($cart['lineItems']);
         static::assertEquals($productId, $product['id']);
     }
 
@@ -211,7 +211,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
 
-        $lineItem = \array_shift($cart['lineItems']);
+        $lineItem = array_shift($cart['lineItems']);
         static::assertEquals(10, $lineItem['quantity']);
     }
 
@@ -247,7 +247,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
 
-        $lineItem = \array_shift($cart['lineItems']);
+        $lineItem = array_shift($cart['lineItems']);
         static::assertEquals(10, $lineItem['quantity']);
     }
 
@@ -335,7 +335,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertNotEmpty($cart);
         static::assertCount(1, $cart['lineItems']);
 
-        $keys = \array_column($cart['lineItems'], 'id');
+        $keys = array_column($cart['lineItems'], 'id');
         static::assertNotContains($productId1, $keys);
     }
 
@@ -353,8 +353,8 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertArrayHasKey(
             'CHECKOUT__CART_LINEITEM_NOT_FOUND',
-            \array_flip(\array_column($cart['errors'], 'code')),
-            \print_r($cart, true)
+            array_flip(array_column($cart['errors'], 'code')),
+            print_r($cart, true)
         );
     }
 
@@ -472,7 +472,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -482,7 +482,7 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertEquals(100, $cart['price']['totalPrice']);
         static::assertCount(1, $cart['lineItems']);
 
-        $product = \array_shift($cart['lineItems']);
+        $product = array_shift($cart['lineItems']);
 
         static::assertEquals($productId, $product['id']);
         static::assertEquals($type, $product['type']);
@@ -520,7 +520,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -555,12 +555,12 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
         $cart = $content['data'];
-        $product = \array_shift($cart['lineItems']);
+        $product = array_shift($cart['lineItems']);
 
         static::assertEquals($productId, $product['id']);
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $product['type']);
@@ -574,13 +574,13 @@ class SalesChannelCartControllerTest extends TestCase
 
     public function testGetCartWithoutAccessKey(): void
     {
-        $accessHeader = 'HTTP_' . \str_replace('-', '_', \mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $accessHeader = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
         static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
     }
 
@@ -605,7 +605,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(0, $content['data']['price']['totalPrice']);
     }
 
@@ -638,7 +638,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $content = \json_decode($browser->getResponse()->getContent(), true);
+        $content = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(100, $content['data']['price']['totalPrice']);
     }
 
@@ -650,7 +650,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
 
         $browser = clone $this->getSalesChannelBrowser();
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
@@ -662,7 +662,7 @@ class SalesChannelCartControllerTest extends TestCase
     {
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
 
-        $cart = \json_decode($browser->getResponse()->getContent(), true);
+        $cart = json_decode($browser->getResponse()->getContent(), true);
 
         return $cart['data'] ?? $cart;
     }

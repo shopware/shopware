@@ -26,7 +26,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
     {
         $this->ensureDirectoryExists();
 
-        $filePath = \sprintf(
+        $filePath = sprintf(
             '%s/%s',
             $this->exportDirectory,
             $productExport->getFileName()

@@ -39,7 +39,7 @@ class UpdateHtaccess implements EventSubscriberInterface
             return;
         }
 
-        if (in_array(md5_file($this->htaccessPath), self::OLD_FILES, true)) {
+        if (\in_array(md5_file($this->htaccessPath), self::OLD_FILES, true)) {
             $this->replaceFile($this->htaccessPath);
 
             return;
@@ -79,7 +79,7 @@ class UpdateHtaccess implements EventSubscriberInterface
         [$pre, $_, $post] = $this->getLinesFromMarkedFile($path);
         [$_, $existing, $_] = $this->getLinesFromMarkedFile($path . '.dist');
 
-        if (!in_array(self::INSTRUCTIONS, $existing, true)) {
+        if (!\in_array(self::INSTRUCTIONS, $existing, true)) {
             array_unshift($existing, self::INSTRUCTIONS);
         }
 

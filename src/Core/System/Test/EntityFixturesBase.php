@@ -58,7 +58,7 @@ trait EntityFixturesBase
             $connection->update(
                 'media',
                 [
-                    'media_type' => \serialize($fixtureData[$fixtureName]['mediaType']),
+                    'media_type' => serialize($fixtureData[$fixtureName]['mediaType']),
                 ],
                 ['id' => Uuid::fromHexToBytes($fixtureData[$fixtureName]['id'])]
             );

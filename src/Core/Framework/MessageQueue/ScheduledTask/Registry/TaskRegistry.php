@@ -52,7 +52,7 @@ class TaskRegistry
         /** @var ScheduledTask $task */
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
-                throw new \RuntimeException(\sprintf(
+                throw new \RuntimeException(sprintf(
                     'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
                     \get_class($task)
                 ));

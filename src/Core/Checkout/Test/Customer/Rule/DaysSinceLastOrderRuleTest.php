@@ -59,7 +59,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -84,7 +84,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
@@ -106,7 +106,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -322,7 +322,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
 
-        $orderData = \array_map(static function (array $order): array {
+        $orderData = array_map(static function (array $order): array {
             $order['orderDateTime'] = self::getTestTimestamp();
 
             return $order;

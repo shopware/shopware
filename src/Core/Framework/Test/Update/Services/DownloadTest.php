@@ -27,12 +27,12 @@ class DownloadTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->errorMask !== null) {
-            \error_reporting($this->errorMask);
+            error_reporting($this->errorMask);
         }
 
         foreach ($this->testFiles as $testFile) {
-            \unlink($testFile);
-            @\unlink($testFile . '.part');
+            unlink($testFile);
+            @unlink($testFile . '.part');
         }
     }
 
@@ -50,7 +50,7 @@ class DownloadTest extends TestCase
         );
 
         static::assertFileExists($tempfile);
-        static::assertEquals(\filesize(__DIR__ . '/../_fixtures/sw_logo_white.png'), \filesize($tempfile));
+        static::assertEquals(filesize(__DIR__ . '/../_fixtures/sw_logo_white.png'), filesize($tempfile));
     }
 
     /**
@@ -69,8 +69,8 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile('/tmp', 'updateFile');
         $remoteFile = $this->createPublicTestFile('/foo.bin', '💣💣💣 Bomb');
 
-        $sha1 = \sha1_file($remoteFile);
-        $size = \filesize($remoteFile);
+        $sha1 = sha1_file($remoteFile);
+        $size = filesize($remoteFile);
 
         $download = new Download();
 
@@ -83,7 +83,7 @@ class DownloadTest extends TestCase
 
         static::assertSame($size, $total);
         static::assertFileIsReadable($tempfile);
-        static::assertSame($sha1, \sha1_file($tempfile));
+        static::assertSame($sha1, sha1_file($tempfile));
     }
 
     public function testInvalidHash(): void
@@ -91,7 +91,7 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile('/tmp', 'updateFile');
         $remoteFile = $this->createPublicTestFile('/foo.bin', 'Test');
 
-        $size = \filesize($remoteFile);
+        $size = filesize($remoteFile);
 
         $download = new Download();
 
@@ -116,7 +116,7 @@ class DownloadTest extends TestCase
 
         $remoteFile = $this->createPublicTestFile('/foo.bin', null, $size);
 
-        $sha1 = \sha1_file($remoteFile);
+        $sha1 = sha1_file($remoteFile);
 
         $download = new Download();
 
@@ -148,7 +148,7 @@ class DownloadTest extends TestCase
         static::assertSame($size, $totalDownloaded);
         static::assertSame($size, $total);
         static::assertFileIsReadable($tempfile);
-        static::assertSame($sha1, \sha1_file($tempfile));
+        static::assertSame($sha1, sha1_file($tempfile));
     }
 
     public function testExpectUpdateFailedToExistingFile(): void
@@ -158,7 +158,7 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile();
         $this->expectExceptionMessage('File on destination ' . $tempfile . ' does already exist.');
 
-        \file_put_contents($tempfile, 'x');
+        file_put_contents($tempfile, 'x');
 
         $download = new Download();
         $download->downloadFile('asdf', $tempfile, 1, 'asdf');
@@ -169,7 +169,7 @@ class DownloadTest extends TestCase
         $this->expectException(UpdateFailedException::class);
         $this->expectExceptionMessage('Destination "unknown://foobar" is invalid.');
 
-        $this->errorMask = \error_reporting(0);
+        $this->errorMask = error_reporting(0);
         $download = new Download();
         $download->downloadFile('asdf', 'unknown://foobar', 1, 'asdf');
     }
@@ -202,7 +202,7 @@ class DownloadTest extends TestCase
 
     private function tmpFile(): string
     {
-        $tempfile = \tempnam('/tmp', 'updateFile');
+        $tempfile = tempnam('/tmp', 'updateFile');
 
         $this->testFiles[] = $tempfile;
 
@@ -214,21 +214,21 @@ class DownloadTest extends TestCase
         $projectDir = $this->getContainer()->get('kernel')->getProjectDir();
 
         $dir = $projectDir . '/public' . \dirname($path);
-        if (!\file_exists($dir)) {
-            \mkdir($dir);
+        if (!file_exists($dir)) {
+            mkdir($dir);
         }
 
         $testFile = $projectDir . '/public' . $path;
-        $handle = \fopen($testFile, 'wb');
+        $handle = fopen($testFile, 'wb');
 
         if ($content !== null) {
-            \fwrite($handle, $content);
+            fwrite($handle, $content);
         } else {
             $size = $size ?? 1024;
-            \ftruncate($handle, $size);
+            ftruncate($handle, $size);
         }
 
-        \fclose($handle);
+        fclose($handle);
 
         $this->testFiles[] = $testFile;
 

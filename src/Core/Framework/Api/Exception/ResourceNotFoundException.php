@@ -16,7 +16,7 @@ class ResourceNotFoundException extends ShopwareHttpException
 
         parent::__construct(
             'The {{ type }} resource with the following primary key was not found: {{ primaryKeyString }}',
-            ['type' => $resourceType, 'primaryKey' => $primaryKey, 'primaryKeyString' => \implode(' ', $resourceIds)]
+            ['type' => $resourceType, 'primaryKey' => $primaryKey, 'primaryKeyString' => implode(' ', $resourceIds)]
         );
     }
 

@@ -91,7 +91,7 @@ class JsonEntityEncoder
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
-                $object = \array_values($object->getElements());
+                $object = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
                     $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $object[$index]);

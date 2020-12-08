@@ -61,7 +61,7 @@ class MediaUploadController extends AbstractController
      */
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
-        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        $tempFile = tempnam(sys_get_temp_dir(), '');
 
         $destination = $request->query->get('fileName', $mediaId);
 
@@ -74,7 +74,7 @@ class MediaUploadController extends AbstractController
                 $context
             );
         } finally {
-            \unlink($tempFile);
+            unlink($tempFile);
         }
 
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);

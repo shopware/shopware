@@ -85,7 +85,7 @@ class ParentChildTest extends TestCase
             ['id' => Uuid::fromHexToBytes($parent)]
         );
 
-        $children = \array_column($children, 'id');
+        $children = array_column($children, 'id');
         static::assertContains(Uuid::fromHexToBytes($child1), $children);
         static::assertContains(Uuid::fromHexToBytes($child2), $children);
     }

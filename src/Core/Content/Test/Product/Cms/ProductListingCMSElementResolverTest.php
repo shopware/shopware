@@ -149,7 +149,7 @@ class ProductListingCMSElementResolverTest extends TestCase
             return $actualSorting->getKey();
         });
 
-        $availableSortings = \array_keys($availableSortings);
+        $availableSortings = array_keys($availableSortings);
 
         sort($actualSortings);
         sort($availableSortings);
@@ -196,10 +196,10 @@ class ProductListingCMSElementResolverTest extends TestCase
             return $actualSorting->getKey();
         });
 
-        $actualSortings = \array_values($actualSortings);
+        $actualSortings = array_values($actualSortings);
 
         arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
-        $availableSortings = \array_keys($availableSortings);
+        $availableSortings = array_keys($availableSortings);
 
         static::assertEquals($availableSortings, $actualSortings);
     }

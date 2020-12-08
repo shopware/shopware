@@ -82,7 +82,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 );
             }
 
-            $productProperties = array_slice($productProperties, 0, 20);
+            $productProperties = \array_slice($productProperties, 0, 20);
 
             $product['properties'] = array_map(function ($config) {
                 return ['id' => $config];

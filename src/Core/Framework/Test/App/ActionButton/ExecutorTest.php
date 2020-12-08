@@ -188,7 +188,7 @@ class ExecutorTest extends TestCase
 
     private function validateRequestSchema(string $body): ValidationResult
     {
-        $requestData = \json_decode($body);
+        $requestData = json_decode($body);
         $schema = Schema::fromJsonString(file_get_contents(self::SCHEMA_LOCATION));
         $validator = new Validator();
 

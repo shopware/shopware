@@ -219,7 +219,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -257,8 +257,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
         $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
 
-        $this->getPublicFilesystem()->putStream($mediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thumbnailPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thumbnailPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
@@ -309,8 +309,8 @@ class MediaRepositoryDecoratorTest extends TestCase
         $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
         $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
-        $this->getPublicFilesystem()->putStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->mediaRepository->delete([['id' => $firstId]], $this->context);
 
@@ -470,8 +470,8 @@ class MediaRepositoryDecoratorTest extends TestCase
                         'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => \date(\DATE_ISO8601),
-                        'shippingDateLatest' => \date(\DATE_ISO8601),
+                        'shippingDateEarliest' => date(\DATE_ISO8601),
+                        'shippingDateLatest' => date(\DATE_ISO8601),
                         'shippingOrderAddress' => [
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',

@@ -171,7 +171,7 @@ class SalesChannelProxyController extends AbstractController
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
         $response = new Response();
-        $response->setContent(\json_encode([
+        $response->setContent(json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
         ]));
 
@@ -268,7 +268,7 @@ class SalesChannelProxyController extends AbstractController
             $prefix = '/store-api/';
         }
 
-        $server = \array_merge($request->server->all(), ['REQUEST_URI' => $prefix . $path]);
+        $server = array_merge($request->server->all(), ['REQUEST_URI' => $prefix . $path]);
         $subrequest = $request->duplicate(null, null, [], null, null, $server);
 
         $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());

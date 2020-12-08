@@ -79,7 +79,7 @@ class DeadMessageEntity extends Entity
 
     public static function calculateNextExecutionTime(int $errorCount): \DateTimeInterface
     {
-        return (new \DateTime())->modify(\sprintf('+%d seconds', $errorCount ** 2));
+        return (new \DateTime())->modify(sprintf('+%d seconds', $errorCount ** 2));
     }
 
     public function getOriginalMessageClass(): string

@@ -106,7 +106,7 @@ class TokenStruct extends Struct
 
     public function isExpired(): bool
     {
-        return $this->expires < \time();
+        return $this->expires < time();
     }
 
     public function getException(): ?\Exception

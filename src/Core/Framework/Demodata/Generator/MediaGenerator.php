@@ -103,13 +103,13 @@ class MediaGenerator implements DemodataGeneratorInterface
             $this->mediaUpdater->persistFileToMedia(
                 new MediaFile(
                     $file,
-                    \mime_content_type($file),
-                    \pathinfo($file, \PATHINFO_EXTENSION),
-                    \filesize($file)
+                    mime_content_type($file),
+                    pathinfo($file, \PATHINFO_EXTENSION),
+                    filesize($file)
                 ),
                 $this->fileNameProvider->provide(
-                    \pathinfo($file, \PATHINFO_FILENAME),
-                    \pathinfo($file, \PATHINFO_EXTENSION),
+                    pathinfo($file, \PATHINFO_FILENAME),
+                    pathinfo($file, \PATHINFO_EXTENSION),
                     $mediaId,
                     $context->getContext()
                 ),
@@ -128,9 +128,9 @@ class MediaGenerator implements DemodataGeneratorInterface
         $fixtureDir = $context->getProjectDir() . '/build/media';
         $images = [];
 
-        if (\is_dir($fixtureDir)) {
-            $images = \array_values(
-                \iterator_to_array(
+        if (is_dir($fixtureDir)) {
+            $images = array_values(
+                iterator_to_array(
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)
@@ -141,7 +141,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         }
 
         if (\count($images)) {
-            return $images[\array_rand($images)]->getPathname();
+            return $images[array_rand($images)]->getPathname();
         }
 
         /** @var string $text */

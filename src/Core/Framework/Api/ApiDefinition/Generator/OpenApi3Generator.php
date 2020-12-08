@@ -64,7 +64,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $openApi = $this->openApiLoader->load($api);
         $this->openApiBuilder->enrich($openApi, $api, $version);
 
-        \ksort($definitions);
+        ksort($definitions);
 
         foreach ($definitions as $definition) {
             if (!$this->shouldDefinitionBeIncluded($definition)) {
@@ -85,7 +85,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $openApi->merge([$this->pathBuilder->getTag($definition)]);
         }
 
-        return \json_decode($openApi->toJson(), true);
+        return json_decode($openApi->toJson(), true);
     }
 
     public function getSchema(array $definitions, int $version): array
@@ -94,10 +94,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        \ksort($definitions);
+        ksort($definitions);
 
         foreach ($definitions as $definition) {
-            if (\preg_match('/_translation$/', $definition->getEntityName())) {
+            if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
 
@@ -109,8 +109,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version);
-            $schema = \array_shift($schema);
-            $schema = \json_decode($schema->toJson(), true);
+            $schema = array_shift($schema);
+            $schema = json_decode($schema->toJson(), true);
             $schema = $schema['allOf'][1]['properties'];
 
             $relationships = [];
@@ -134,7 +134,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 }
             }
 
-            $properties = \array_merge(
+            $properties = array_merge(
                 [
                     'id' => [
                         'type' => 'string',
@@ -187,13 +187,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
     {
-        return \ltrim('/', $rootPath) . '/' . \str_replace('_', '-', $definition->getEntityName());
+        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     private function containsSalesChannelDefinition(array $definitions): bool
     {
         foreach ($definitions as $definition) {
-            if (\is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+            if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
                 return true;
             }
         }
@@ -203,11 +203,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (\preg_match('/_translation$/', $definition->getEntityName())) {
+        if (preg_match('/_translation$/', $definition->getEntityName())) {
             return false;
         }
 
-        if (\mb_strpos($definition->getEntityName(), 'version') === 0) {
+        if (mb_strpos($definition->getEntityName(), 'version') === 0) {
             return false;
         }
 
@@ -221,7 +221,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             return true;
         }
 
-        if ($forSalesChannel && !\is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             return true;
         }
 

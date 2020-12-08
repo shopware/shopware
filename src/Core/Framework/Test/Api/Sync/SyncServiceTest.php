@@ -537,7 +537,7 @@ class SyncServiceTest extends TestCase
         );
         $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
 
-        static::assertTrue($result->isSuccess(), \print_r($result, true));
+        static::assertTrue($result->isSuccess(), print_r($result, true));
     }
 
     private function dummyEntityWrittenEvent(string $id): EntityWrittenContainerEvent

@@ -49,7 +49,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart(\count($data));
 
         foreach ($data as $group => $options) {
-            $mapped = \array_map(function ($option) {
+            $mapped = array_map(function ($option) {
                 return ['id' => Uuid::randomHex(), 'name' => $option];
             }, $options);
 

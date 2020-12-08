@@ -27,8 +27,8 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $criteria = $method->invoke($taskHandler);
 
         $filters = $criteria->getFilters();
-        $dateFilter = \array_shift($filters);
-        $equalsFilter = \array_shift($filters);
+        $dateFilter = array_shift($filters);
+        $equalsFilter = array_shift($filters);
 
         static::assertInstanceOf(RangeFilter::class, $dateFilter);
         static::assertInstanceOf(EqualsFilter::class, $equalsFilter);
@@ -57,20 +57,20 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         ];
 
         foreach ($expectedResult as $id) {
-            static::assertContains($id, \array_keys($result->getData()), \print_r(\array_keys($result->getData()), true));
+            static::assertContains($id, array_keys($result->getData()), print_r(array_keys($result->getData()), true));
         }
     }
 
     private function installTestData(): void
     {
-        $salutationSql = \file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
+        $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         $this->getContainer()->get(Connection::class)->exec($salutationSql);
 
-        $recipientSql = \file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
-        $recipientSql = \str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         $this->getContainer()->get(Connection::class)->exec($recipientSql);
 
-        $templateSql = \file_get_contents(__DIR__ . '/../fixtures/template.sql');
+        $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');
         $this->getContainer()->get(Connection::class)->exec($templateSql);
     }
 

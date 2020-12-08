@@ -80,7 +80,7 @@ class SeoUrlUpdater
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if (!$route) {
-            throw new \RuntimeException(\sprintf('Route by name %s not found', $routeName));
+            throw new \RuntimeException(sprintf('Route by name %s not found', $routeName));
         }
 
         foreach ($templates as $config) {

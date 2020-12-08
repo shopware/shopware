@@ -197,9 +197,9 @@ class OrderService
 
         $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context);
 
-        if ($paymentMethods->getTotal() !== count(array_unique($idsOfPaymentMethods))) {
+        if ($paymentMethods->getTotal() !== \count(array_unique($idsOfPaymentMethods))) {
             foreach ($cart->getTransactions() as $paymentMethod) {
-                if (!in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
+                if (!\in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
                     throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId());
                 }
             }

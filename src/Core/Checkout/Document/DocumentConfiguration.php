@@ -170,7 +170,7 @@ class DocumentConfiguration extends Struct
 
     public function __isset($name)
     {
-        return \property_exists($this, $name);
+        return property_exists($this, $name);
     }
 
     public function getFilenamePrefix(): ?string

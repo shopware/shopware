@@ -6,6 +6,6 @@ class PriceRounding implements PriceRoundingInterface
 {
     public function round(float $price, int $precision): float
     {
-        return \round($price, $precision);
+        return round($price, $precision);
     }
 }

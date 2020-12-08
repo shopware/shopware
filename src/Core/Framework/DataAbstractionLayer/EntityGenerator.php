@@ -109,9 +109,9 @@ EOF;
             return null;
         }
         $entity = $definition->getEntityName();
-        $entity = \explode('_', $entity);
-        $entity = \array_map('ucfirst', $entity);
-        $entity = \implode('', $entity);
+        $entity = explode('_', $entity);
+        $entity = array_map('ucfirst', $entity);
+        $entity = implode('', $entity);
 
         $struct = $this->generateEntity($definition);
 
@@ -140,29 +140,29 @@ EOF;
             $properties[] = $property;
         }
 
-        $functions = \array_column($properties, 'functions');
-        $properties = \array_column($properties, 'property');
+        $functions = array_column($properties, 'functions');
+        $properties = array_column($properties, 'property');
 
-        $domain = \explode('\\', $definition->getClass());
+        $domain = explode('\\', $definition->getClass());
         $domain = \array_slice($domain, 0, \count($domain) - 1);
-        $domain = \implode('\\', $domain);
+        $domain = implode('\\', $domain);
 
         $entity = $definition->getEntityName();
-        $entity = \explode('_', $entity);
-        $entity = \array_map('ucfirst', $entity);
-        $entity = \implode('', $entity);
+        $entity = explode('_', $entity);
+        $entity = array_map('ucfirst', $entity);
+        $entity = implode('', $entity);
 
         $parameters = [
             '#domain#' => $domain,
-            '#uses#' => \implode(";\n", $uses) . ';',
-            '#entity#' => \ucfirst($entity),
-            '#properties#' => \implode("\n\n    ", $properties),
-            '#functions#' => \implode("\n\n", $functions),
+            '#uses#' => implode(";\n", $uses) . ';',
+            '#entity#' => ucfirst($entity),
+            '#properties#' => implode("\n\n    ", $properties),
+            '#functions#' => implode("\n\n", $functions),
         ];
 
-        return \str_replace(
-            \array_keys($parameters),
-            \array_values($parameters),
+        return str_replace(
+            array_keys($parameters),
+            array_values($parameters),
             $this->classTemplate
         );
     }
@@ -271,10 +271,10 @@ EOF;
 
                 break;
             default:
-                throw new \RuntimeException(\sprintf('Unknown field %s', \get_class($field)));
+                throw new \RuntimeException(sprintf('Unknown field %s', \get_class($field)));
         }
 
-        $template = \str_replace(
+        $template = str_replace(
             ['#property#', '#type#', '#nullable#'],
             [$field->getPropertyName(), $type, $nullable],
             $this->propertyTemplate
@@ -285,14 +285,14 @@ EOF;
             $nullable = '';
         }
 
-        $functions = \str_replace(
+        $functions = str_replace(
             ['#propertyUc#', '#propertyLc#', '#nullable#', '#type#'],
-            [\ucfirst($field->getPropertyName()), \lcfirst($field->getPropertyName()), $nullable, $type],
+            [ucfirst($field->getPropertyName()), lcfirst($field->getPropertyName()), $nullable, $type],
             $this->propertyFunctions
         );
 
         return [
-            'property' => \trim($template),
+            'property' => trim($template),
             'uses' => $uses,
             'functions' => $functions,
         ];
@@ -301,17 +301,17 @@ EOF;
     private function generateCollection(EntityDefinition $definition)
     {
         $entityClass = $definition->getEntityClass();
-        $entityClass = \explode('\\', $entityClass);
-        $entityClass = \array_pop($entityClass);
+        $entityClass = explode('\\', $entityClass);
+        $entityClass = array_pop($entityClass);
 
         $entity = $definition->getEntityName();
-        $entity = \explode('_', $entity);
-        $entity = \array_map('ucfirst', $entity);
-        $entity = \implode('', $entity);
+        $entity = explode('_', $entity);
+        $entity = array_map('ucfirst', $entity);
+        $entity = implode('', $entity);
 
-        $domain = \explode('\\', $definition->getClass());
+        $domain = explode('\\', $definition->getClass());
         $domain = \array_slice($domain, 0, \count($domain) - 1);
-        $domain = \implode('\\', $domain);
+        $domain = implode('\\', $domain);
 
         $parameters = [
             '#domain#' => $domain,
@@ -319,9 +319,9 @@ EOF;
             '#entity#' => $entity,
         ];
 
-        return \str_replace(
-            \array_keys($parameters),
-            \array_values($parameters),
+        return str_replace(
+            array_keys($parameters),
+            array_values($parameters),
             $this->collectionTemplate
         );
     }
@@ -333,8 +333,8 @@ EOF;
 
     private function getClassTypeHint(string $class)
     {
-        $parts = \explode('\\', $class);
+        $parts = explode('\\', $class);
 
-        return \array_pop($parts);
+        return array_pop($parts);
     }
 }

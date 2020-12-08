@@ -253,7 +253,7 @@ class PromotionDiscountEntity extends Entity
     {
         $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
 
-        return \mb_strpos($this->scope, $prefix) === 0;
+        return mb_strpos($this->scope, $prefix) === 0;
     }
 
     /**
@@ -268,7 +268,7 @@ class PromotionDiscountEntity extends Entity
 
         $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
 
-        return \str_replace($prefix, '', $this->scope);
+        return str_replace($prefix, '', $this->scope);
     }
 
     public function getSorterKey(): string

@@ -69,7 +69,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
         }
 
         $confirm = $io->confirm(
-            \sprintf('Are you sure that you want to assign %d mailTemplates to %d salesChannels?', $mailtemplates->count(), $salesChannels->count()),
+            sprintf('Are you sure that you want to assign %d mailTemplates to %d salesChannels?', $mailtemplates->count(), $salesChannels->count()),
             false
         );
 
@@ -102,7 +102,7 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
             }
         }
 
-        $io->success(\sprintf('Successfully assigned %d mailTemplates to %d salesChannels.', $mailtemplatesCount, $salesChannels->count()));
+        $io->success(sprintf('Successfully assigned %d mailTemplates to %d salesChannels.', $mailtemplatesCount, $salesChannels->count()));
 
         return 0;
     }

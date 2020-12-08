@@ -155,7 +155,7 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
-        return new ProductIndexingMessage(\array_values($ids), $iterator->getOffset());
+        return new ProductIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -175,13 +175,13 @@ class ProductIndexer extends EntityIndexer
 
         $this->stockUpdater->update($updates, $event->getContext());
 
-        return new ProductIndexingMessage(\array_values($updates), null, $event->getContext());
+        return new ProductIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
 
         if (empty($ids)) {
             return;
@@ -199,7 +199,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->inheritanceUpdater->update(
             ProductDefinition::ENTITY_NAME,
-            \array_merge($ids, $parentIds, $childrenIds),
+            array_merge($ids, $parentIds, $childrenIds),
             $context
         );
 
@@ -222,7 +222,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
 
         $this->cacheClearer->invalidateIds(
-            \array_unique(\array_merge($ids, $parentIds, $childrenIds)),
+            array_unique(array_merge($ids, $parentIds, $childrenIds)),
             ProductDefinition::ENTITY_NAME
         );
     }
@@ -235,7 +235,7 @@ class ProductIndexer extends EntityIndexer
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return \array_unique(\array_filter(\array_column($childrenIds, 'id')));
+        return array_unique(array_filter(array_column($childrenIds, 'id')));
     }
 
     /**
@@ -249,6 +249,6 @@ class ProductIndexer extends EntityIndexer
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return \array_unique(\array_filter(\array_column($parentIds, 'id')));
+        return array_unique(array_filter(array_column($parentIds, 'id')));
     }
 }

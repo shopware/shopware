@@ -48,7 +48,7 @@ class LineItemTagRule extends Rule
         $identifiers = [];
 
         foreach ($scope->getCart()->getLineItems() as $lineItem) {
-            $identifiers = \array_merge($identifiers, $this->extractTagIds($lineItem));
+            $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
         }
 
         return $this->tagsMatches($identifiers);
@@ -73,9 +73,9 @@ class LineItemTagRule extends Rule
     {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return !empty(\array_intersect($tags, $this->identifiers));
+                return !empty(array_intersect($tags, $this->identifiers));
             case self::OPERATOR_NEQ:
-                return empty(\array_intersect($tags, $this->identifiers));
+                return empty(array_intersect($tags, $this->identifiers));
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }

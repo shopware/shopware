@@ -88,9 +88,9 @@ class RefreshAppCommand extends Command
             sprintf(
                 '%d apps will be installed, %d apps will be updated and
                     %d apps will be deleted. Do you want to continue?',
-                count($refreshableApps->getToBeInstalled()),
-                count($refreshableApps->getToBeUpdated()),
-                count($refreshableApps->getToBeDeleted())
+                \count($refreshableApps->getToBeInstalled()),
+                \count($refreshableApps->getToBeUpdated()),
+                \count($refreshableApps->getToBeDeleted())
             )
         )) {
             throw new UserAbortedCommandException();

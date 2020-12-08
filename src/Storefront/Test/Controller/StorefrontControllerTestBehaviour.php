@@ -12,7 +12,7 @@ trait StorefrontControllerTestBehaviour
     public function request(string $method, string $path, array $data): Response
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request($method, \getenv('APP_URL') . '/' . $path, $data);
+        $browser->request($method, getenv('APP_URL') . '/' . $path, $data);
 
         return $browser->getResponse();
     }

@@ -121,7 +121,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     private function getRawIds(array $ids)
     {
-        return \array_column($ids, 'id');
+        return array_column($ids, 'id');
     }
 
     private function deleteMediaAndSubfolders(MediaFolderCollection $folders, Context $context): void
@@ -133,7 +133,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
             $mediaResult = $this->mediaRepository->searchIds($criteria, $context);
 
             if ($mediaResult->getTotal() > 0) {
-                $affectedMediaIds = \array_map(function (string $id) {
+                $affectedMediaIds = array_map(function (string $id) {
                     return ['id' => $id];
                 }, $mediaResult->getIds());
 

@@ -23,14 +23,14 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         }
 
         $value = $entity;
-        $parts = \explode('.', $path);
+        $parts = explode('.', $path);
 
         // if property does not exist, try to omit the first key as it may contains the entity name.
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
         while (\count($parts) > 0) {
-            $part = \array_shift($parts);
+            $part = array_shift($parts);
 
             if ($value === null) {
                 break;
@@ -63,7 +63,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     protected function resolveDefinitionField(EntityDefinition $definition, string $path): ?Field
     {
         $value = null;
-        $parts = \explode('.', $path);
+        $parts = explode('.', $path);
         $fields = $definition->getFields();
 
         // if property does not exist, try to omit the first key as it may contains the entity name.
@@ -71,7 +71,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         $smartDetect = true;
 
         while (\count($parts) > 0) {
-            $part = \array_shift($parts);
+            $part = array_shift($parts);
             $value = $fields->get($part);
 
             if ($value === null && !$smartDetect) {

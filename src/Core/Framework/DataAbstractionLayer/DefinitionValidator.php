@@ -289,7 +289,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (!$fields->get($property->getName()) && !in_array($property->getName(), self::IGNORED_ENTITY_PROPERTIES, true)) {
+            if (!$fields->get($property->getName()) && !\in_array($property->getName(), self::IGNORED_ENTITY_PROPERTIES, true)) {
                 $notices[] = sprintf('Field %s in entity struct is missing in %s', $property->getName(), $definition->getClass());
             }
         }
@@ -500,7 +500,7 @@ class DefinitionValidator
         $translatedFields = array_keys($translationDefinition->getFields()->filter(function (Field $f) {
             return !$f->is(PrimaryKey::class)
                 && !$f instanceof AssociationField
-                && !in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
+                && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
         })->getElements());
 
         $violations = [];
@@ -624,7 +624,7 @@ class DefinitionValidator
         $foreignKey = $reference->getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
-            $isGeneric = in_array(
+            $isGeneric = \in_array(
                 $reference->getEntityName() . '.' . $foreignKey->getPropertyName(),
                 self::GENERIC_FK_FIELDS,
                 true
@@ -827,7 +827,7 @@ class DefinitionValidator
         $ref = str_replace($def, '', $ref);
         $refPlural = Inflector::pluralize($ref);
 
-        if (mb_stripos($propName, $refPlural) === \mb_strlen($propName) - \mb_strlen($refPlural)) {
+        if (mb_stripos($propName, $refPlural) === mb_strlen($propName) - mb_strlen($refPlural)) {
             return [];
         }
 
@@ -950,7 +950,7 @@ class DefinitionValidator
                     'Storage name `%s` is prefixed by entity name `%s`. Use storage name `%s` instead.',
                     $field->getStorageName(),
                     mb_substr($entityNamePrefix, 0, -1),
-                    mb_substr($field->getStorageName(), \mb_strlen($entityNamePrefix))
+                    mb_substr($field->getStorageName(), mb_strlen($entityNamePrefix))
                 );
             }
 
@@ -960,7 +960,7 @@ class DefinitionValidator
                     'Property name `%s` is prefixed by struct name `%s`. Use property name `%s` instead',
                     $field->getPropertyName(),
                     $defPrefix,
-                    lcfirst(mb_substr($field->getPropertyName(), \mb_strlen($defPrefix)))
+                    lcfirst(mb_substr($field->getPropertyName(), mb_strlen($defPrefix)))
                 );
             }
         }
@@ -982,7 +982,7 @@ class DefinitionValidator
     {
         $violations = [];
         // Definition has cosntant ENTITY_NAME and is not empty
-        if (!defined($definition->getClass() . '::ENTITY_NAME') || constant($definition->getClass() . '::ENTITY_NAME') === '') {
+        if (!\defined($definition->getClass() . '::ENTITY_NAME') || \constant($definition->getClass() . '::ENTITY_NAME') === '') {
             $violations = array_merge_recursive(
                 $violations,
                 [$definition->getClass() => [sprintf('ENTITY_NAME constant Missing in %s', $definition->getClass())]]
@@ -990,7 +990,7 @@ class DefinitionValidator
         }
 
         // GetEntityName returns same Value as ENTITY_NAME
-        if (constant($definition->getClass() . '::ENTITY_NAME') !== $definition->getEntityName()) {
+        if (\constant($definition->getClass() . '::ENTITY_NAME') !== $definition->getEntityName()) {
             $violations = array_merge_recursive(
                 $violations,
                 [$definition->getClass() => [sprintf('ENTITY_NAME constant differs from getEntityName in %s', $definition->getClass())]]

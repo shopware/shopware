@@ -91,7 +91,7 @@ class ProductStreamIndexer extends EntityIndexer
             return null;
         }
 
-        return new ProductStreamIndexingMessage(\array_values($ids), $iterator->getOffset());
+        return new ProductStreamIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -102,14 +102,14 @@ class ProductStreamIndexer extends EntityIndexer
             return null;
         }
 
-        return new ProductStreamIndexingMessage(\array_values($updates), null, $event->getContext());
+        return new ProductStreamIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
 
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }
@@ -186,8 +186,8 @@ class ProductStreamIndexer extends EntityIndexer
 
             $parameters = $entity['parameters'];
             if ($parameters && \is_string($parameters)) {
-                $decodedParameters = \json_decode($entity['parameters'], true);
-                if (\json_last_error() === \JSON_ERROR_NONE) {
+                $decodedParameters = json_decode($entity['parameters'], true);
+                if (json_last_error() === \JSON_ERROR_NONE) {
                     $entity['parameters'] = $decodedParameters;
                 }
             }

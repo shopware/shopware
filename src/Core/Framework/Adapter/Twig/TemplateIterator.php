@@ -25,23 +25,23 @@ class TemplateIterator implements \IteratorAggregate
 
     public function getIterator(): iterable
     {
-        $data = \iterator_to_array($this->templateIterator, false);
+        $data = iterator_to_array($this->templateIterator, false);
         $search = [];
         $replace = [];
 
         foreach ($this->kernelBundles as $bundleName => $bundle) {
-            $parents = \class_parents($bundle);
+            $parents = class_parents($bundle);
 
             if (!isset($parents[Bundle::class])) {
                 continue;
             }
 
-            $search[] = \sprintf('@%s/', $bundleName);
+            $search[] = sprintf('@%s/', $bundleName);
             $replace[] = '';
         }
 
         foreach ($data as &$template) {
-            yield \str_replace($search, $replace, $template);
+            yield str_replace($search, $replace, $template);
         }
         unset($template);
     }

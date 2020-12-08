@@ -16,7 +16,7 @@ class DebugStackTest extends TestCase
      */
     public function testExecuteQueryWriteCausesDeprecationWarningInNonTestEnv(): void
     {
-        \putenv('APP_ENV=not_test');
+        putenv('APP_ENV=not_test');
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->executeQuery('CREATE TABLE `test` (
@@ -24,7 +24,7 @@ class DebugStackTest extends TestCase
         )');
 
         $connection->executeUpdate('DROP TABLE `test`;');
-        \putenv('APP_ENV=test');
+        putenv('APP_ENV=test');
     }
 
     public function testExecuteQueryWriteCausesExceptionInTestEnv(): void

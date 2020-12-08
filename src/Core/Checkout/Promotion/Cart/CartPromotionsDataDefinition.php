@@ -29,7 +29,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function addAutomaticPromotions(array $promotions): void
     {
-        $this->automaticPromotions = \array_merge($this->automaticPromotions, $promotions);
+        $this->automaticPromotions = array_merge($this->automaticPromotions, $promotions);
     }
 
     /**
@@ -64,7 +64,7 @@ class CartPromotionsDataDefinition extends Struct
         /** @var array $existing */
         $existing = $this->codePromotions[$code];
 
-        $this->codePromotions[$code] = \array_merge($existing, $promotions);
+        $this->codePromotions[$code] = array_merge($existing, $promotions);
     }
 
     /**
@@ -117,7 +117,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function getAllCodes(): array
     {
-        return \array_keys($this->codePromotions);
+        return array_keys($this->codePromotions);
     }
 
     public function getApiAlias(): string

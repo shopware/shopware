@@ -77,7 +77,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -94,7 +94,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -109,7 +109,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -119,7 +119,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
         $ids = array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 

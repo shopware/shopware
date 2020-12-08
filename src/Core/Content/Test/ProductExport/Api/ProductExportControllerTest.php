@@ -35,7 +35,7 @@ class ProductExportControllerTest extends TestCase
     {
         $this->createProductStream();
 
-        $url = \sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
@@ -59,7 +59,7 @@ class ProductExportControllerTest extends TestCase
     {
         $this->createProductStream();
 
-        $url = \sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
@@ -81,7 +81,7 @@ class ProductExportControllerTest extends TestCase
 
     public function testValidateFalseDomain(): void
     {
-        $url = \sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => Uuid::randomHex(),
@@ -119,7 +119,7 @@ class ProductExportControllerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = \implode('|', \array_slice(\array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
         $connection->exec("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)

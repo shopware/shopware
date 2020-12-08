@@ -253,7 +253,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                 array_filter([$deLangId, $enLangId])
             );
 
-            if (!in_array(Defaults::LANGUAGE_SYSTEM, $ids, true)) {
+            if (!\in_array(Defaults::LANGUAGE_SYSTEM, $ids, true)) {
                 $this->updateMailTemplateTranslation(
                     $connection,
                     $templateId,

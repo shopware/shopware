@@ -81,7 +81,7 @@ class ProductListingSorting extends Struct
     {
         $sortings = [];
         foreach ($this->fields as $field => $direction) {
-            if (\mb_strtoupper($direction) === FieldSorting::ASCENDING) {
+            if (mb_strtoupper($direction) === FieldSorting::ASCENDING) {
                 $sortings[] = new FieldSorting($field, FieldSorting::ASCENDING);
             } else {
                 $sortings[] = new FieldSorting($field, FieldSorting::DESCENDING);

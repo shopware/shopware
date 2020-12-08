@@ -38,8 +38,8 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
          * - propertyName."attribute.name" -> attribute.name
          * - propertyName."attribute.name".foo -> attribute.name
          */
-        $attributeName = \preg_replace(
-            '#^' . \preg_quote($field->getPropertyName(), '#') . '\.("([^"]*)"|([^.]*)).*#',
+        $attributeName = preg_replace(
+            '#^' . preg_quote($field->getPropertyName(), '#') . '\.("([^"]*)"|([^.]*)).*#',
             '$2$3',
             $accessor
         );

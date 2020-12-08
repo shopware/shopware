@@ -56,7 +56,7 @@ class TreeUpdater
         foreach ($this->getChildren($entity, $definition, $context) as $child) {
             $child['parent'] = $entity;
             $child['parentCount'] = $entity['parentCount'] + 1;
-            $ids = \array_merge($ids, $this->updateRecursive($child, $definition, $context));
+            $ids = array_merge($ids, $this->updateRecursive($child, $definition, $context));
         }
 
         return $ids;
@@ -87,7 +87,7 @@ class TreeUpdater
             $path = 'null';
 
             if (\array_key_exists('parent', $entity)) {
-                $path = '"|' . \implode('|', $this->buildPathArray($entity['parent'], $pathField)) . '|"';
+                $path = '"|' . implode('|', $this->buildPathArray($entity['parent'], $pathField)) . '|"';
             }
 
             $query->set($pathField->getStorageName(), $path);

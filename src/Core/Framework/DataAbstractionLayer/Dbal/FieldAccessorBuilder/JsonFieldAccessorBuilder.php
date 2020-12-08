@@ -31,8 +31,8 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        $jsonPath = \preg_replace(
-            '#^' . \preg_quote($jsonField->getPropertyName(), '#') . '#',
+        $jsonPath = preg_replace(
+            '#^' . preg_quote($jsonField->getPropertyName(), '#') . '#',
             '',
             $accessor
         );
@@ -41,7 +41,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($jsonField->getStorageName());
         }
 
-        $jsonValueExpr = \sprintf(
+        $jsonValueExpr = sprintf(
             'JSON_EXTRACT(`%s`.`%s`, %s)',
             $root,
             $jsonField->getStorageName(),
@@ -57,17 +57,17 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
          *
          * For example: `JSON_EXTRACT('{"foo":null}', '$.foo') IS NOT NULL`
          */
-        return \sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
+        return sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
     }
 
     private function getField(string $path, array $fields): ?Field
     {
-        $fieldName = \preg_replace(
+        $fieldName = preg_replace(
             '#^\.("([^"]*)"|([^.]*)).*#',
             '$2$3',
             $path
         );
-        $subPath = \mb_substr($path, \mb_strlen($fieldName) + 1);
+        $subPath = mb_substr($path, mb_strlen($fieldName) + 1);
 
         foreach ($fields as $field) {
             if ($field->getPropertyName() !== $fieldName) {
@@ -87,11 +87,11 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
     private function getFieldAccessor(string $jsonValueExpr, ?Field $field = null): string
     {
         if ($field instanceof IntField || $field instanceof FloatField) {
-            return \sprintf('JSON_UNQUOTE(%s) + 0.0', $jsonValueExpr);
+            return sprintf('JSON_UNQUOTE(%s) + 0.0', $jsonValueExpr);
         }
 
         if ($field instanceof BoolField) {
-            return \sprintf(
+            return sprintf(
                 'IF(JSON_UNQUOTE(%s) != "true" && JSON_UNQUOTE(%s) = 0, 0, 1)',
                 $jsonValueExpr,
                 $jsonValueExpr
@@ -99,14 +99,14 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         if ($field instanceof DateTimeField) {
-            return \sprintf('CAST(JSON_UNQUOTE(%s) AS datetime(3))', $jsonValueExpr);
+            return sprintf('CAST(JSON_UNQUOTE(%s) AS datetime(3))', $jsonValueExpr);
         }
 
         if ($field instanceof DateField) {
-            return \sprintf('CAST(JSON_UNQUOTE(%s) AS DATE)', $jsonValueExpr);
+            return sprintf('CAST(JSON_UNQUOTE(%s) AS DATE)', $jsonValueExpr);
         }
 
         // The CONVERT is required for mariadb support (mysqls JSON_UNQUOTE returns utf8mb4)
-        return \sprintf('CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci', $jsonValueExpr);
+        return sprintf('CONVERT(JSON_UNQUOTE(%s) USING "utf8mb4") COLLATE utf8mb4_unicode_ci', $jsonValueExpr);
     }
 }

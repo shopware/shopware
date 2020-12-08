@@ -31,8 +31,8 @@ class SalutationSerializer extends EntitySerializer
     {
         $deserialized = parent::deserialize($config, $definition, $record);
 
-        if (\is_iterable($deserialized)) {
-            $deserialized = \iterator_to_array($deserialized);
+        if (is_iterable($deserialized)) {
+            $deserialized = iterator_to_array($deserialized);
         }
 
         if (!isset($deserialized['id']) && isset($deserialized['salutationKey'])) {

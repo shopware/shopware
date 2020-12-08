@@ -30,8 +30,8 @@ class RequirementStackExceptionTest extends TestCase
             $converted[] = $exception;
         }
 
-        $convertedMissingRequirement = \iterator_to_array($missingRequirementException->getErrors())[0];
-        $convertedVersionMismatch = \iterator_to_array($versionMismatchException->getErrors())[0];
+        $convertedMissingRequirement = iterator_to_array($missingRequirementException->getErrors())[0];
+        $convertedVersionMismatch = iterator_to_array($versionMismatchException->getErrors())[0];
 
         static::assertCount(3, $converted);
 

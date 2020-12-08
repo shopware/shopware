@@ -20,7 +20,7 @@ class ActionEventCompilerPass implements CompilerPassInterface
         $classes = [];
         /** @var BusinessEventInterface $eventClass */
         foreach ($this->getEventClasses() as $eventName => $eventClass) {
-            if (!\is_subclass_of($eventClass, BusinessEventInterface::class, true)) {
+            if (!is_subclass_of($eventClass, BusinessEventInterface::class, true)) {
                 continue;
             }
             $events[$eventName] = $eventClass::getAvailableData()->toArray();

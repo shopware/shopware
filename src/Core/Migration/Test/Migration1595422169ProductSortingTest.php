@@ -71,11 +71,11 @@ class Migration1595422169ProductSortingTest extends TestCase
         $actual = $this->fetchSortings();
 
         foreach ($actual as $index => $sorting) {
-            $actual[$index]['fields'] = \json_decode($sorting['fields'], true);
+            $actual[$index]['fields'] = json_decode($sorting['fields'], true);
         }
 
         foreach ($sortings as $index => $sorting) {
-            $sortings[$index]['fields'] = \json_decode($sorting['fields'], true);
+            $sortings[$index]['fields'] = json_decode($sorting['fields'], true);
         }
 
         static::assertEquals($sortings, $actual);
@@ -130,7 +130,7 @@ class Migration1595422169ProductSortingTest extends TestCase
         return [
             [
                 'url_key' => 'single-field-test',
-                'fields' => \json_encode([
+                'fields' => json_encode([
                     [
                         'field' => 'product.name',
                         'order' => 'asc',
@@ -143,7 +143,7 @@ class Migration1595422169ProductSortingTest extends TestCase
             ],
             [
                 'url_key' => 'multiple-field-test',
-                'fields' => \json_encode([
+                'fields' => json_encode([
                     [
                         'field' => 'product.name',
                         'order' => 'asc',

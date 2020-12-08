@@ -75,7 +75,7 @@ class PriceCollection extends Collection
 
     public function merge(self $prices): self
     {
-        return new self(\array_merge($this->elements, $prices->getElements()));
+        return new self(array_merge($this->elements, $prices->getElements()));
     }
 
     public function getApiAlias(): string
@@ -94,7 +94,7 @@ class PriceCollection extends Collection
             return $price->getUnitPrice();
         });
 
-        return \array_sum($prices);
+        return array_sum($prices);
     }
 
     private function getAmount(): float
@@ -103,6 +103,6 @@ class PriceCollection extends Collection
             return $price->getTotalPrice();
         });
 
-        return \array_sum($prices);
+        return array_sum($prices);
     }
 }

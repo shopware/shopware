@@ -55,7 +55,7 @@ class Migration1584002637NewImportExport extends MigrationStep
             $profile['file_type'] = 'text/csv';
             $profile['delimiter'] = ';';
             $profile['enclosure'] = '"';
-            $profile['mapping'] = \json_encode($profile['mapping']);
+            $profile['mapping'] = json_encode($profile['mapping']);
             $profile['created_at'] = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
             $connection->insert('import_export_profile', $profile);

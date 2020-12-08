@@ -42,21 +42,21 @@ class ThemeCreateCommand extends Command
             $themeName = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        if (\preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {
+        if (preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {
             $io->error('Theme name is too short (min 4 characters), contains invalid characters');
 
             return 1;
         }
 
         $snakeCaseName = (new CamelCaseToSnakeCaseNameConverter())->normalize($themeName);
-        $snakeCaseName = \str_replace('_', '-', $snakeCaseName);
+        $snakeCaseName = str_replace('_', '-', $snakeCaseName);
 
-        $pluginName = \ucfirst($themeName);
+        $pluginName = ucfirst($themeName);
 
         $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
 
-        if (\file_exists($directory)) {
-            $io->error(\sprintf('Plugin directory %s already exists', $directory));
+        if (file_exists($directory)) {
+            $io->error(sprintf('Plugin directory %s already exists', $directory));
 
             return 1;
         }
@@ -83,33 +83,33 @@ class ThemeCreateCommand extends Command
         $themeConfigFile = $directory . '/src/Resources/theme.json';
         $variableOverridesFile = $directory . '/src/Resources/app/storefront/src/scss/overrides.scss';
 
-        $composer = \str_replace(
+        $composer = str_replace(
             ['#namespace#', '#class#'],
             [$pluginName, $pluginName],
             $this->getComposerTemplate()
         );
 
-        $bootstrap = \str_replace(
+        $bootstrap = str_replace(
             ['#namespace#', '#class#'],
             [$pluginName, $pluginName],
             $this->getBootstrapTemplate()
         );
 
-        $themeConfig = \str_replace(
+        $themeConfig = str_replace(
             ['#name#', '#snake-case#'],
             [$themeName, $snakeCaseName],
             $this->getThemeConfigTemplate()
         );
 
-        \file_put_contents($composerFile, $composer);
-        \file_put_contents($bootstrapFile, $bootstrap);
-        \file_put_contents($themeConfigFile, $themeConfig);
-        \file_put_contents($variableOverridesFile, $this->getVariableOverridesTemplate());
+        file_put_contents($composerFile, $composer);
+        file_put_contents($bootstrapFile, $bootstrap);
+        file_put_contents($themeConfigFile, $themeConfig);
+        file_put_contents($variableOverridesFile, $this->getVariableOverridesTemplate());
 
-        \touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
-        \touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
-        \touch($directory . '/src/Resources/app/storefront/src/main.js');
-        \touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
+        touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
+        touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
+        touch($directory . '/src/Resources/app/storefront/src/main.js');
+        touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
 
         return 0;
     }
@@ -119,8 +119,8 @@ class ThemeCreateCommand extends Command
      */
     private function createDirectory(string $pathName): void
     {
-        if (!\mkdir($pathName, 0755, true) && !\is_dir($pathName)) {
-            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+        if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
+            throw new \RuntimeException(sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 

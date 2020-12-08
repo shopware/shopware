@@ -16,6 +16,6 @@ class MigrationCompilerPass implements CompilerPassInterface
             $activeCollectionMigrations[] = $collection->getActiveMigrationTimestamps();
         }
 
-        $container->setParameter('migration.active', \array_merge(...$activeCollectionMigrations));
+        $container->setParameter('migration.active', array_merge(...$activeCollectionMigrations));
     }
 }

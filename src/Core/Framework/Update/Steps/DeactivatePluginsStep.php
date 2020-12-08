@@ -66,7 +66,7 @@ class DeactivatePluginsStep
      */
     public function run(int $offset)
     {
-        $requestTime = \time();
+        $requestTime = time();
 
         $plugins = $this->pluginCompatibility->getPluginsToDeactivate($this->toVersion, $this->context, $this->deactivationFilter);
 
@@ -79,7 +79,7 @@ class DeactivatePluginsStep
             $deactivatedPlugins[] = $plugin->getId();
             $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins);
 
-            if ((\time() - $requestTime) >= 1) {
+            if ((time() - $requestTime) >= 1) {
                 return new ValidResult($offset, $pluginCount + $offset);
             }
         }

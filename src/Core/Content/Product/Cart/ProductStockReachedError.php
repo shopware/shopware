@@ -26,7 +26,7 @@ class ProductStockReachedError extends Error
     {
         $this->id = $id;
 
-        $this->message = \sprintf(
+        $this->message = sprintf(
             'The product %s is only available %s times',
             $name,
             $quantity

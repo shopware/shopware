@@ -288,7 +288,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
 
-        $orderId = \mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
+        $orderId = mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
 
         /** @var EntityRepositoryInterface $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');

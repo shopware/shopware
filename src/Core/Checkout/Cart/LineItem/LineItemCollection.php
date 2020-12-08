@@ -115,9 +115,9 @@ class LineItemCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            \array_filter(\array_map(static function (LineItem $lineItem) {
+            array_filter(array_map(static function (LineItem $lineItem) {
                 return $lineItem->getPrice();
-            }, \array_values($this->getElements())))
+            }, array_values($this->getElements())))
         );
     }
 
@@ -146,10 +146,10 @@ class LineItemCollection extends Collection
         }
 
         // Sort all line items by their price definition priority
-        \krsort($lineItemsByPricePriority);
+        krsort($lineItemsByPricePriority);
 
         if (\count($lineItemsByPricePriority)) {
-            $this->elements = \array_merge(...$lineItemsByPricePriority);
+            $this->elements = array_merge(...$lineItemsByPricePriority);
         }
     }
 

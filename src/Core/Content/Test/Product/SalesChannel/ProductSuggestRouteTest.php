@@ -55,7 +55,7 @@ class ProductSuggestRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
@@ -73,7 +73,7 @@ class ProductSuggestRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(0, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
@@ -89,7 +89,7 @@ class ProductSuggestRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
@@ -108,7 +108,7 @@ class ProductSuggestRouteTest extends TestCase
 
         $products = [];
         for ($i = 0; $i < 15; ++$i) {
-            $products[] = \array_merge(
+            $products[] = array_merge(
                 [
                     'id' => $this->ids->create('product' . $i),
                     'active' => true,

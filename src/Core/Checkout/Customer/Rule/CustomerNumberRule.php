@@ -39,14 +39,14 @@ class CustomerNumberRule extends Rule
             return false;
         }
 
-        $this->numbers = \array_map('strtolower', $this->numbers);
+        $this->numbers = array_map('strtolower', $this->numbers);
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array(\mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
+                return \in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array(\mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
+                return !\in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

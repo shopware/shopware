@@ -53,7 +53,7 @@ class CurrencyRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $errors = \iterator_to_array($stackException->getErrors());
+            $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $errors);
 
             static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
@@ -79,7 +79,7 @@ class CurrencyRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $errors = \iterator_to_array($stackException->getErrors());
+            $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $errors);
 
             static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
@@ -102,7 +102,7 @@ class CurrencyRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $errors = \iterator_to_array($stackException->getErrors());
+            $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $errors);
 
             static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
@@ -125,7 +125,7 @@ class CurrencyRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $errors = \iterator_to_array($stackException->getErrors());
+            $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(3, $errors);
 
             static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);
@@ -153,7 +153,7 @@ class CurrencyRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $errors = \iterator_to_array($stackException->getErrors());
+            $errors = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $errors);
 
             static::assertEquals('/0/value/currencyIds', $errors[0]['source']['pointer']);

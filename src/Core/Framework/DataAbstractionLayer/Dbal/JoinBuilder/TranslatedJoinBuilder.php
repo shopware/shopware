@@ -31,9 +31,9 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             EntityDefinitionQueryHelper::escape($on),
             '(' . $query->getSQL() . ')',
             EntityDefinitionQueryHelper::escape($root),
-            \str_replace(
-                \array_keys($variables),
-                \array_values($variables),
+            str_replace(
+                array_keys($variables),
+                array_values($variables),
                 '#alias#.#foreignKey# = #on#.`id`'
             )
         );
@@ -58,9 +58,9 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             EntityDefinitionQueryHelper::escape($on),
             '(' . $query->getSQL() . ')',
             EntityDefinitionQueryHelper::escape($root . '.parent'),
-            \str_replace(
-                \array_keys($variables),
-                \array_values($variables),
+            str_replace(
+                array_keys($variables),
+                array_values($variables),
                 '#alias#.#foreignKey# = #on#.`id`'
             )
         );
@@ -76,7 +76,7 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             return '`#alias#`.' . $field->getStorageName() . ' as `#alias#.' . $field->getPropertyName() . '`';
         });
 
-        return \implode(', ', $select);
+        return implode(', ', $select);
     }
 
     private function getTranslationQuery(EntityDefinition $definition, string $on, QueryBuilder $queryBuilder, Context $context): QueryBuilder
@@ -88,9 +88,9 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
         $select = $this->getSelectTemplate($definition->getTranslationDefinition());
 
         // first language has to be the from part, in this case we have to use the system language to enforce we have a record
-        $chain = \array_reverse($context->getLanguageIdChain());
+        $chain = array_reverse($context->getLanguageIdChain());
 
-        $first = \array_shift($chain);
+        $first = array_shift($chain);
         $firstAlias = $on . '.translation';
 
         $foreignKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $definition->getEntityName() . '_id';
@@ -99,7 +99,7 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
         $query->addSelect($foreignKey);
 
         // set first language as from part
-        $query->addSelect(\str_replace('#alias#', $firstAlias, $select));
+        $query->addSelect(str_replace('#alias#', $firstAlias, $select));
         $query->from(EntityDefinitionQueryHelper::escape($table), EntityDefinitionQueryHelper::escape($firstAlias));
         $query->where(EntityDefinitionQueryHelper::escape($firstAlias) . '.language_id = :languageId');
         $query->setParameter('languageId', Uuid::fromHexToBytes($first));
@@ -147,10 +147,10 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($firstAlias),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                \str_replace(\array_keys($variables), \array_values($variables), $condition)
+                str_replace(array_keys($variables), array_values($variables), $condition)
             );
 
-            $query->addSelect(\str_replace('#alias#', $alias, $select));
+            $query->addSelect(str_replace('#alias#', $alias, $select));
             $query->setParameter('languageId' . $i, Uuid::fromHexToBytes($language));
         }
 

@@ -157,7 +157,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
-        $baseUrl = \str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl(
             $request,
@@ -198,14 +198,14 @@ class RequestTransformer implements RequestTransformerInterface
          * http://localhost:8080/en
          * http://localhost:8080/fr
          */
-        $transformedServerVars = \array_merge(
+        $transformedServerVars = array_merge(
             $request->server->all(),
-            ['REQUEST_URI' => \rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
+            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
-        $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, \rtrim($absoluteBaseUrl, '/'));
+        $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(
             self::STOREFRONT_URL,
             $transformedRequest->attributes->get(self::SALES_CHANNEL_ABSOLUTE_BASE_URL)
@@ -264,16 +264,16 @@ class RequestTransformer implements RequestTransformerInterface
 
     private function isSalesChannelRequired(string $pathInfo): bool
     {
-        $pathInfo = \rtrim($pathInfo, '/') . '/';
+        $pathInfo = rtrim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
-            if (\mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {
+            if (mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {
                 return false;
             }
         }
 
         foreach ($this->whitelist as $prefix) {
-            if (\mb_strpos($pathInfo, $prefix) === 0) {
+            if (mb_strpos($pathInfo, $prefix) === 0) {
                 return false;
             }
         }
@@ -290,19 +290,19 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = \rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 
         // direct hit
         if (\array_key_exists($requestUrl, $domains)) {
             $domain = $domains[$requestUrl];
-            $domain['url'] = \rtrim($domain['url'], '/');
+            $domain['url'] = rtrim($domain['url'], '/');
 
             return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = \array_filter($domains, function ($baseUrl) use ($requestUrl) {
-            return \mb_strpos($requestUrl, $baseUrl) === 0;
+        $domains = array_filter($domains, function ($baseUrl) use ($requestUrl) {
+            return mb_strpos($requestUrl, $baseUrl) === 0;
         }, \ARRAY_FILTER_USE_KEY);
 
         if (empty($domains)) {
@@ -311,17 +311,17 @@ class RequestTransformer implements RequestTransformerInterface
 
         // determine most matching shop base url
         $lastBaseUrl = '';
-        $bestMatch = \current($domains);
+        $bestMatch = current($domains);
         /** @var string $baseUrl */
         foreach ($domains as $baseUrl => $urlConfig) {
-            if (\mb_strlen($baseUrl) > \mb_strlen($lastBaseUrl)) {
+            if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
                 $bestMatch = $urlConfig;
             }
 
             $lastBaseUrl = $baseUrl;
         }
 
-        $bestMatch['url'] = \rtrim($bestMatch['url'], '/');
+        $bestMatch['url'] = rtrim($bestMatch['url'], '/');
 
         return $bestMatch;
     }
@@ -334,17 +334,17 @@ class RequestTransformer implements RequestTransformerInterface
         // registered domain: 'shop-dev.de/de'
         // incoming request:  'shop-dev.de/detail'
         // without leading slash, detail would be stripped
-        $baseUrl = \rtrim($baseUrl, '/') . '/';
+        $baseUrl = rtrim($baseUrl, '/') . '/';
 
         if ($this->equalsBaseUrl($seoPathInfo, $baseUrl)) {
             $seoPathInfo = '';
         } elseif ($this->containsBaseUrl($seoPathInfo, $baseUrl)) {
-            $seoPathInfo = \mb_substr($seoPathInfo, \mb_strlen($baseUrl));
+            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
         $resolved = $this->resolver->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
-        $resolved['pathInfo'] = '/' . \ltrim($resolved['pathInfo'], '/');
+        $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
 
         return $resolved;
     }
@@ -360,7 +360,7 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function equalsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return $baseUrl === \rtrim($seoPathInfo, '/') . '/';
+        return $baseUrl === rtrim($seoPathInfo, '/') . '/';
     }
 
     /**
@@ -368,7 +368,7 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return !empty($baseUrl) && \mb_strpos($seoPathInfo, $baseUrl) === 0;
+        return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
     }
 
     private function fetchDomains(): array
@@ -430,7 +430,7 @@ class RequestTransformer implements RequestTransformerInterface
             $tags[] = $this->cacheKeyGenerator->getEntityTag($domain['salesChannelId'], SalesChannelDefinition::ENTITY_NAME);
             $tags[] = $this->cacheKeyGenerator->getEntityTag($domain['id'], SalesChannelDomainDefinition::ENTITY_NAME);
         }
-        $tags = \array_unique($tags);
+        $tags = array_unique($tags);
 
         $item->set($domains);
         if ($item instanceof ItemInterface) {

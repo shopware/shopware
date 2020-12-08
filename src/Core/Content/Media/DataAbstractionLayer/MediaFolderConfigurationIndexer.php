@@ -73,7 +73,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaIndexingMessage(\array_values($ids), $iterator->getOffset());
+        return new MediaIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -84,13 +84,13 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaIndexingMessage(\array_values($updates), null, $event->getContext());
+        return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }
@@ -110,7 +110,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
 
         foreach ($configs as $config) {
             $update->execute([
-                'media_thumbnail_sizes_ro' => \serialize($config->getMediaThumbnailSizes()),
+                'media_thumbnail_sizes_ro' => serialize($config->getMediaThumbnailSizes()),
                 'id' => Uuid::fromHexToBytes($config->getId()),
             ]);
         }

@@ -67,8 +67,8 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     {
         $actualColumns = $this->fetchTableInformation($table);
 
-        \sort($actualColumns);
-        \sort($expectedColumns);
+        sort($actualColumns);
+        sort($expectedColumns);
 
         static::assertEquals($expectedColumns, $actualColumns);
     }
@@ -79,7 +79,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $columns = array_filter(
             $this->connection->getSchemaManager()->listTableColumns('product'),
             static function (Column $column): bool {
-                return in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
+                return \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
             }
         );
 
@@ -100,11 +100,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $expectedFeatures = [$expectedFeature];
 
         $actual = $this->fetchDefaultFeatureSet();
-        $actualFeatures = \json_decode($actual['features'], true);
+        $actualFeatures = json_decode($actual['features'], true);
 
         static::assertCount(\count($expectedFeatures), $actualFeatures);
 
-        $actualFeature = \array_pop($actualFeatures);
+        $actualFeature = array_pop($actualFeatures);
 
         static::assertCount(\count($expectedFeature), $actualFeature);
 
@@ -115,7 +115,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     public function testDefaultFeatureSetTranslationIsCreated(): void
     {
-        $expectedTranslations = \array_values(Migration1590758953ProductFeatureSet::TRANSLATIONS);
+        $expectedTranslations = array_values(Migration1590758953ProductFeatureSet::TRANSLATIONS);
         $actual = $this->fetchFeatureSetTranslation();
 
         foreach ($actual as &$translation) {
@@ -132,8 +132,8 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
             return $a['name'] <=> $b['name'];
         };
 
-        \usort($expectedTranslations, $compareByName);
-        \usort($actual, $compareByName);
+        usort($expectedTranslations, $compareByName);
+        usort($actual, $compareByName);
 
         static::assertEquals($expectedTranslations, $actual);
     }
@@ -194,7 +194,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
             ->listTableDetails($name)
             ->getColumns();
 
-        return \array_map(static function (Column $column): array {
+        return array_map(static function (Column $column): array {
             return self::getColumn(
                 $column->getName(),
                 $column->getType(),
@@ -220,7 +220,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     private function hasColumn(Connection $connection, string $table, string $columnName): bool
     {
-        return \count(\array_filter(
+        return \count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
             static function (Column $column) use ($columnName): bool {
                 return $column->getName() === $columnName;

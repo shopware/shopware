@@ -19,6 +19,6 @@ class ValueGeneratorPatternDate implements ValueGeneratorPatternInterface
             $args[] = self::STANDARD_FORMAT;
         }
 
-        return \date($args[0]);
+        return date($args[0]);
     }
 }

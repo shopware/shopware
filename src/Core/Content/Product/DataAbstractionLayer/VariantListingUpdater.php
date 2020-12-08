@@ -21,13 +21,13 @@ class VariantListingUpdater
 
     public function update(array $ids, Context $context): void
     {
-        $ids = \array_filter($ids);
+        $ids = array_filter($ids);
 
         if (empty($ids)) {
             return;
         }
 
-        $ids = \array_keys(\array_flip($ids));
+        $ids = array_keys(array_flip($ids));
 
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
@@ -87,7 +87,7 @@ class VariantListingUpdater
                 $params[$optionAlias] = Uuid::fromHexToBytes($groupId);
             }
 
-            $query->addSelect('CONCAT(' . \implode(',', $fields) . ')');
+            $query->addSelect('CONCAT(' . implode(',', $fields) . ')');
 
             $sql = '
             UPDATE product SET display_group = MD5(
@@ -124,7 +124,7 @@ class VariantListingUpdater
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : \json_decode($config['config'], true);
+            $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
 
             $groups = [];
             foreach ($config['config'] as $group) {

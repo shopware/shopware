@@ -28,7 +28,7 @@ class DumpIterator implements \SeekableIterator, \Countable
      */
     public function __construct($filename)
     {
-        $this->stream = \fopen($filename, 'rb');
+        $this->stream = fopen($filename, 'rb');
         if (!$this->stream) {
             throw new \Exception('Can not open stream. File: ' . $filename);
         }
@@ -36,8 +36,8 @@ class DumpIterator implements \SeekableIterator, \Countable
         $this->position = 0;
         $this->count = 0;
 
-        while (!\feof($this->stream)) {
-            \stream_get_line($this->stream, 1000000, ";\n");
+        while (!feof($this->stream)) {
+            stream_get_line($this->stream, 1000000, ";\n");
             ++$this->count;
         }
 
@@ -47,7 +47,7 @@ class DumpIterator implements \SeekableIterator, \Countable
     public function __destruct()
     {
         if ($this->stream !== null) {
-            \fclose($this->stream);
+            fclose($this->stream);
         }
     }
 
@@ -79,9 +79,9 @@ class DumpIterator implements \SeekableIterator, \Countable
 
     public function rewind(): void
     {
-        \rewind($this->stream);
-        $this->current = \stream_get_line($this->stream, 1000000, ";\n");
-        $this->current = \trim(\preg_replace('#^\s*--[^\n\r]*#', '', $this->current));
+        rewind($this->stream);
+        $this->current = stream_get_line($this->stream, 1000000, ";\n");
+        $this->current = trim(preg_replace('#^\s*--[^\n\r]*#', '', $this->current));
         $this->position = 0;
     }
 
@@ -102,8 +102,8 @@ class DumpIterator implements \SeekableIterator, \Countable
     {
         ++$this->position;
 
-        $this->current = \stream_get_line($this->stream, 1000000, ";\n");
-        $this->current = \trim(\preg_replace('#^\s*--[^\n\r]*#', '', $this->current));
+        $this->current = stream_get_line($this->stream, 1000000, ";\n");
+        $this->current = trim(preg_replace('#^\s*--[^\n\r]*#', '', $this->current));
     }
 
     /**
@@ -111,6 +111,6 @@ class DumpIterator implements \SeekableIterator, \Countable
      */
     public function valid()
     {
-        return !\feof($this->stream);
+        return !feof($this->stream);
     }
 }

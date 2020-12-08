@@ -47,7 +47,7 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
             if ($fk && $fk->is(Required::class)) {
                 $parent = $on . '.parent';
 
-                $inherited = \sprintf(
+                $inherited = sprintf(
                     'IFNULL(%s, %s)',
                     $source,
                     EntityDefinitionQueryHelper::escape($parent) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -80,9 +80,9 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 '(' . $versionQuery->getSQL() . ')',
                 EntityDefinitionQueryHelper::escape($alias),
-                \str_replace(
-                    \array_keys($parameters),
-                    \array_values($parameters),
+                str_replace(
+                    array_keys($parameters),
+                    array_values($parameters),
                     '#source# = #alias#.#reference_column#'
                 )
             );
@@ -106,9 +106,9 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                \str_replace(
-                    \array_keys($parameters),
-                    \array_values($parameters),
+                str_replace(
+                    array_keys($parameters),
+                    array_values($parameters),
                     '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`'
                 )
             );
@@ -128,9 +128,9 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
             EntityDefinitionQueryHelper::escape($on),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
-            \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 '#source# = #alias#.#reference_column#'
             )
         );

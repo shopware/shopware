@@ -35,8 +35,8 @@ class DatabaseService
          * Filter parameters
          */
         $regex = '/[^A-Za-z0-9_-]/';
-        $charset = \preg_replace($regex, '', \trim($charset));
-        $collation = \preg_replace($regex, '', \trim($collation));
+        $charset = preg_replace($regex, '', trim($charset));
+        $collation = preg_replace($regex, '', trim($collation));
 
         if (empty($charset)) {
             throw new \InvalidArgumentException('Must specify charset', 1);
@@ -79,7 +79,7 @@ class DatabaseService
         }
 
         return $this->connection->exec(
-            \sprintf(
+            sprintf(
                 '%s DATABASE `%s` CHARACTER SET `%s` COLLATE `%s`',
                 $dbExists ? 'ALTER' : 'CREATE',
                 $name,
@@ -118,14 +118,14 @@ class DatabaseService
      */
     public function checkPrivilegeOnSchema(string $schema, $permissions): void
     {
-        $schema = \trim($schema);
+        $schema = trim($schema);
 
         if (empty($schema)) {
             throw new \InvalidArgumentException('Schema name can not be empty');
         }
 
         if (!\is_string($permissions) && !\is_array($permissions)) {
-            $msg = \sprintf('String or array expected, got: %s', \gettype($permissions));
+            $msg = sprintf('String or array expected, got: %s', \gettype($permissions));
 
             throw new \InvalidArgumentException($msg);
         }
@@ -149,7 +149,7 @@ class DatabaseService
                 throw new \InvalidArgumentException("At array key $key: Argument is not a string");
             }
 
-            $permission = \trim($permission);
+            $permission = trim($permission);
 
             if (empty($permission)) {
                 throw new \InvalidArgumentException("At array key $key: Given permission can not be an empty string");
@@ -210,7 +210,7 @@ EOL;
     public function checkUserPrivileges($privileges): void
     {
         if (!\is_string($privileges) && !\is_array($privileges)) {
-            $msg = \sprintf('String or array expected, got: %s', \gettype($privileges));
+            $msg = sprintf('String or array expected, got: %s', \gettype($privileges));
 
             throw new \InvalidArgumentException($msg);
         }
@@ -228,7 +228,7 @@ EOL;
                 throw new \InvalidArgumentException("At array key $key: Argument is not a string");
             }
 
-            $privilege = \trim($privilege);
+            $privilege = trim($privilege);
 
             if (empty($privilege)) {
                 throw new \InvalidArgumentException("At array key $key: Given privilege can not be an empty string");
@@ -276,7 +276,7 @@ EOL;
 
         if ($omit) {
             // IN parameters string creation (?,?,?,?)
-            $in = \mb_substr(\str_repeat('?,', \count($omit)), 0, -1);
+            $in = mb_substr(str_repeat('?,', \count($omit)), 0, -1);
             $sql .= " WHERE SCHEMA_NAME NOT IN($in)";
         }
 

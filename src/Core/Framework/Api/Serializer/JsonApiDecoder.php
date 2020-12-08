@@ -46,11 +46,11 @@ class JsonApiDecoder implements DecoderInterface
     {
         $this->validateResourceIdentifier($resource);
 
-        $hash = \md5(\json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
 
         if (!\array_key_exists($hash, $includes)) {
             throw new InvalidArgumentException(
-                \sprintf(
+                sprintf(
                     'Resolving relationship "%s(%s)" failed due to non-existence.',
                     $resource['type'],
                     $resource['id']
@@ -63,7 +63,7 @@ class JsonApiDecoder implements DecoderInterface
 
     private function isCollection(array $array): bool
     {
-        return \array_keys($array) === \range(0, \count($array) - 1);
+        return array_keys($array) === range(0, \count($array) - 1);
     }
 
     private function resolveIncludes(array $included): array
@@ -114,7 +114,7 @@ class JsonApiDecoder implements DecoderInterface
         }
 
         foreach ($data['relationships'] as $propertyName => $relationship) {
-            if (\is_numeric($propertyName)) {
+            if (is_numeric($propertyName)) {
                 throw new UnexpectedValueException('Relationships of a resource must have a valid property name.');
             }
 
@@ -145,7 +145,7 @@ class JsonApiDecoder implements DecoderInterface
                 throw new UnexpectedValueException('The attributes of a resource must be an array.');
             }
 
-            $entity = \array_merge($entity, $data['attributes']);
+            $entity = array_merge($entity, $data['attributes']);
         }
 
         return $entity;
@@ -164,7 +164,7 @@ class JsonApiDecoder implements DecoderInterface
 
     private function getIdentifierHash(array $resource): string
     {
-        return \md5(\json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
+        return md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']]));
     }
 
     private function decodeCollection(array $data, array $includes): array

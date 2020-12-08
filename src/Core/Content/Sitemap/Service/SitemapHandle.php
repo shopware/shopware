@@ -79,7 +79,7 @@ class SitemapHandle implements SitemapHandleInterface
     public function finish(): void
     {
         $this->cleanUp();
-        if (is_resource($this->handle)) {
+        if (\is_resource($this->handle)) {
             $this->printFooter();
             gzclose($this->handle);
         }

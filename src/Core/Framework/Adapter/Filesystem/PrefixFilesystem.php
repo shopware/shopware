@@ -27,9 +27,9 @@ class PrefixFilesystem extends AbstractFilesystem
      */
     public function stripPath(string $path): string
     {
-        $prefix = \rtrim($this->prefix, '/');
-        $path = \preg_replace('#^' . \preg_quote($prefix, '#') . '#', '', $path);
-        $path = \ltrim($path, '/');
+        $prefix = rtrim($this->prefix, '/');
+        $path = preg_replace('#^' . preg_quote($prefix, '#') . '#', '', $path);
+        $path = ltrim($path, '/');
 
         return $path;
     }
@@ -44,6 +44,6 @@ class PrefixFilesystem extends AbstractFilesystem
 
     private function normalizePrefix(string $prefix): string
     {
-        return \trim($prefix, '/') . '/';
+        return trim($prefix, '/') . '/';
     }
 }

@@ -42,12 +42,12 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
         $matches = $this->interpreter->interpret($term, $context);
 
-        $keywords = \array_map(function (SearchTerm $term) {
+        $keywords = array_map(function (SearchTerm $term) {
             return $term->getTerm();
         }, $matches->getTerms());
 
-        \sort($expected);
-        \sort($keywords);
+        sort($expected);
+        sort($keywords);
         static::assertEquals($expected, $keywords);
     }
 
@@ -127,7 +127,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         foreach ($keywords as $keyword) {
-            \preg_match_all('/./us', $keyword, $ar);
+            preg_match_all('/./us', $keyword, $ar);
 
             $this->connection->insert('product_keyword_dictionary', [
                 'id' => Uuid::randomBytes(),

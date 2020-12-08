@@ -189,7 +189,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             'cover.id',
         ];
         shuffle($fields);
-        $fields = array_slice($fields, 0, 2);
+        $fields = \array_slice($fields, 0, 2);
         $direction = [FieldSorting::ASCENDING, FieldSorting::DESCENDING];
         $direction = $direction[random_int(0, 1)];
         foreach ($fields as $field) {

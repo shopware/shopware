@@ -16,7 +16,7 @@ class ShippingMethodBlockedError extends Error
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->message = \sprintf(
+        $this->message = sprintf(
             'Shipping method %s not available',
             $name
         );
@@ -46,7 +46,7 @@ class ShippingMethodBlockedError extends Error
 
     public function getId(): string
     {
-        return \sprintf('%s-%s', self::KEY, $this->name);
+        return sprintf('%s-%s', self::KEY, $this->name);
     }
 
     public function getLevel(): int

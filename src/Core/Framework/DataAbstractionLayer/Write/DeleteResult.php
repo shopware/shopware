@@ -40,7 +40,7 @@ class DeleteResult
 
     public function addUpdated(array $updated): void
     {
-        $this->updated = \array_merge_recursive($this->updated, $updated);
+        $this->updated = array_merge_recursive($this->updated, $updated);
     }
 
     public function getUpdated(): array

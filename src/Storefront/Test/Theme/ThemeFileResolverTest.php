@@ -36,7 +36,7 @@ class ThemeFileResolverTest extends TestCase
             false
         );
 
-        $actual = \json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
+        $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $expected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
         static::assertStringContainsString($expected, $actual);
@@ -62,7 +62,7 @@ class ThemeFileResolverTest extends TestCase
             false
         );
 
-        $actual = \json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
+        $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $notExpected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
         static::assertStringNotContainsString($notExpected, $actual);
@@ -93,7 +93,7 @@ class ThemeFileResolverTest extends TestCase
         /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles['script'];
         $actual = $scriptFiles->getFilepaths();
-        $expected = \array_unique($scriptFiles->getFilepaths());
+        $expected = array_unique($scriptFiles->getFilepaths());
 
         static::assertEquals($expected, $actual);
     }
@@ -127,7 +127,7 @@ class ThemeFileResolverTest extends TestCase
         $pluginScriptIncluded = false;
 
         foreach ($scriptFiles->getFilepaths() as $path) {
-            if (\mb_stripos($path, $pluginScriptFile) !== false) {
+            if (mb_stripos($path, $pluginScriptFile) !== false) {
                 $pluginScriptIncluded = true;
             }
         }
@@ -140,7 +140,7 @@ class ThemeFileResolverTest extends TestCase
         $pluginStyleIncluded = false;
 
         foreach ($styleFiles->getFilepaths() as $path) {
-            if (\mb_stripos($path, $pluginStyleFile) !== false) {
+            if (mb_stripos($path, $pluginStyleFile) !== false) {
                 $pluginStyleIncluded = true;
             }
         }

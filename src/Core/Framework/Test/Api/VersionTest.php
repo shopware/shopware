@@ -47,7 +47,7 @@ class VersionTest extends TestCase
             'Route should be protected. (URL: /api/oauth/token)'
         );
 
-        $response = \json_decode($this->unauthorizedClient->getResponse()->getContent(), true);
+        $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true);
 
         static::assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
         static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);

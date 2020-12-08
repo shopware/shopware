@@ -6726,7 +6726,7 @@ parameters:
 			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function strtolower expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
 

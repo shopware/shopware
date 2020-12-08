@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 return [
-    'shopware.root_dir' => \realpath(__DIR__ . '/../../../'),
+    'shopware.root_dir' => realpath(__DIR__ . '/../../../'),
     'check.ping_url' => 'recovery/install/ping.php',
     'check.check_url' => 'recovery/install/check.php',
     'check.token.path' => __DIR__ . '/../tmp/token',

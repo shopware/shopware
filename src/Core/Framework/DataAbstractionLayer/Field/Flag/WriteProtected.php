@@ -18,7 +18,7 @@ class WriteProtected extends Flag
 
     public function getAllowedScopes(): array
     {
-        return \array_keys($this->allowedScopes);
+        return array_keys($this->allowedScopes);
     }
 
     public function isAllowed(string $scope): bool
@@ -29,7 +29,7 @@ class WriteProtected extends Flag
     public function parse(): \Generator
     {
         yield 'write_protected' => [
-            \array_keys($this->allowedScopes),
+            array_keys($this->allowedScopes),
         ];
     }
 }

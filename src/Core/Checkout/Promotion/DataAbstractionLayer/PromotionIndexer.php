@@ -75,7 +75,7 @@ class PromotionIndexer extends EntityIndexer
             return null;
         }
 
-        return new PromotionIndexingMessage(\array_values($ids), $iterator->getOffset());
+        return new PromotionIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -86,13 +86,13 @@ class PromotionIndexer extends EntityIndexer
             return null;
         }
 
-        return new PromotionIndexingMessage(\array_values($updates), null, $event->getContext());
+        return new PromotionIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
 
         if (empty($ids)) {
             return;

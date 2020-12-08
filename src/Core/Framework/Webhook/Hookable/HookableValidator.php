@@ -36,7 +36,7 @@ class HookableValidator
         $missingPermissions = [];
         foreach ($webhooks as $webhook) {
             // validate supported webhooks
-            if (!in_array($webhook->getEvent(), $hookableEventNames, true)) {
+            if (!\in_array($webhook->getEvent(), $hookableEventNames, true)) {
                 $notHookable[] = $webhook->getName() . ': ' . $webhook->getEvent();
 
                 continue;
@@ -44,7 +44,7 @@ class HookableValidator
 
             // validate permissions
             foreach ($hookableEventNamesWithPrivileges[$webhook->getEvent()]['privileges'] as $privilege) {
-                if (in_array($privilege, $appPrivileges, true)) {
+                if (\in_array($privilege, $appPrivileges, true)) {
                     continue;
                 }
 

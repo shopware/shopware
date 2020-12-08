@@ -52,9 +52,9 @@ class TestAppServer
         $appname = $this->getAppname($request);
         $shopId = $this->getQueryParameter($request, 'shop-id');
 
-        $proof = \hash_hmac('sha256', $shopId . $shopUrl . $appname, self::TEST_SETUP_SECRET);
+        $proof = hash_hmac('sha256', $shopId . $shopUrl . $appname, self::TEST_SETUP_SECRET);
 
-        return \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL]);
+        return json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL]);
     }
 
     private function isRegistration(RequestInterface $request): bool
@@ -73,7 +73,7 @@ class TestAppServer
     private function getQueryParameter(RequestInterface $request, string $param): string
     {
         $query = [];
-        \parse_str($request->getUri()->getQuery(), $query);
+        parse_str($request->getUri()->getQuery(), $query);
 
         return $query[$param];
     }

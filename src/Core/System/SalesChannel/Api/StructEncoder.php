@@ -68,7 +68,7 @@ class StructEncoder
         }
 
         if ($struct instanceof ErrorCollection) {
-            return \array_map(static function (Error $error) {
+            return array_map(static function (Error $error) {
                 return $error->jsonSerialize();
             }, $struct->getElements());
         }
@@ -203,7 +203,7 @@ class StructEncoder
     {
         $alias = $struct->getApiAlias();
 
-        $extensions = \array_keys($value);
+        $extensions = array_keys($value);
 
         foreach ($extensions as $name) {
             if (!$this->isAllowed($alias, $name, $apiVersion, $fields)) {
@@ -229,7 +229,7 @@ class StructEncoder
             return false;
         }
 
-        $values = \array_values($object);
+        $values = array_values($object);
         if (!isset($values[0])) {
             return false;
         }

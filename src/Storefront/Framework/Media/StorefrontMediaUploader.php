@@ -60,7 +60,7 @@ class StorefrontMediaUploader
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaFile, $mediaId): void {
                 $this->fileSaver->persistFileToMedia(
                     $mediaFile,
-                    \pathinfo(Uuid::randomHex(), \PATHINFO_FILENAME),
+                    pathinfo(Uuid::randomHex(), \PATHINFO_FILENAME),
                     $mediaId,
                     $context
                 );
@@ -78,7 +78,7 @@ class StorefrontMediaUploader
             throw new UploadException($file->getErrorMessage());
         }
 
-        if (\preg_match('/.+\.ph(p([3457s]|-s)?|t|tml)/', $file->getFilename())) {
+        if (preg_match('/.+\.ph(p([3457s]|-s)?|t|tml)/', $file->getFilename())) {
             throw new IllegalFileNameException($file->getFilename(), 'contains PHP related file extension');
         }
     }

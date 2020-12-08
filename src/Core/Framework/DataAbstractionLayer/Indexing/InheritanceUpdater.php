@@ -38,7 +38,7 @@ class InheritanceUpdater
 
     public function update(string $entity, array $ids, Context $context): void
     {
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }
@@ -68,7 +68,7 @@ class InheritanceUpdater
 
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = \array_map(function ($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
@@ -76,7 +76,7 @@ class InheritanceUpdater
         foreach ($associations as $association) {
             $reference = $association->getReferenceDefinition();
 
-            $sql = \sprintf(
+            $sql = sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
                         (
                             SELECT #reference#.#entity_id#
@@ -108,9 +108,9 @@ class InheritanceUpdater
                 $params['version'] = $versionId;
             }
 
-            $sql = \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            $sql = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 $sql
             );
 
@@ -126,7 +126,7 @@ class InheritanceUpdater
 
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = \array_map(function ($id) {
+        $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
@@ -157,9 +157,9 @@ class InheritanceUpdater
                 $params['version'] = $versionId;
             }
 
-            $sql = \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            $sql = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 $sql
             );
 
@@ -184,9 +184,9 @@ class InheritanceUpdater
                 $params['version'] = $versionId;
             }
 
-            $sql = \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            $sql = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 $sql
             );
 

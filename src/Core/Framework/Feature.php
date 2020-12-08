@@ -46,7 +46,7 @@ class Feature
         }
 
         $featureAll = $_SERVER['FEATURE_ALL'] ?? '';
-        if (self::isTrue((string) $featureAll) && array_key_exists($feature, self::$registeredFeatures ?? [])) {
+        if (self::isTrue((string) $featureAll) && \array_key_exists($feature, self::$registeredFeatures ?? [])) {
             if ($featureAll === Feature::ALL_MAJOR) {
                 return true;
             }
@@ -57,7 +57,7 @@ class Feature
             }
         }
 
-        if (!array_key_exists($feature, $_SERVER)) {
+        if (!\array_key_exists($feature, $_SERVER)) {
             $fallback = self::$registeredFeatures[$feature]['default'] ?? false;
 
             return (bool) $fallback;
@@ -135,7 +135,7 @@ class Feature
     {
         foreach ($registeredFeatures as $flag => $data) {
             // old format
-            if (is_string($data)) {
+            if (\is_string($data)) {
                 $flag = $data;
                 $data = [];
             }

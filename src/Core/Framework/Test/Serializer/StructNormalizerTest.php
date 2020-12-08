@@ -83,7 +83,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeDate(): void
     {
-        $date = \date_create_from_format('Y-m-d H:i:s', \date('Y-m-d H:i:s'));
+        $date = date_create_from_format('Y-m-d H:i:s', date('Y-m-d H:i:s'));
 
         static::assertEquals(
             $date,

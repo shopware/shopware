@@ -21,10 +21,10 @@ class SupportedFeaturesService
     {
         $this->entities = [];
         foreach ($entities as $entityName) {
-            if (!is_string($entityName)) {
+            if (!\is_string($entityName)) {
                 throw new \InvalidArgumentException(sprintf(
                     'Supported entities should be collection of strings. %s given.',
-                    gettype($entityName)
+                    \gettype($entityName)
                 ));
             }
             $this->entities[] = $entityName;
@@ -32,10 +32,10 @@ class SupportedFeaturesService
 
         $this->fileTypes = [];
         foreach ($fileTypes as $fileType) {
-            if (!is_string($fileType)) {
+            if (!\is_string($fileType)) {
                 throw new \InvalidArgumentException(sprintf(
                     'Supported file types should be collection of strings. %s given',
-                    gettype($fileType)
+                    \gettype($fileType)
                 ));
             }
             $this->fileTypes[] = $fileType;

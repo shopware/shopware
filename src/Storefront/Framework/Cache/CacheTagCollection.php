@@ -24,7 +24,7 @@ class CacheTagCollection
         }
 
         if (\is_array($tags)) {
-            $this->tags = \array_unique(\array_merge($this->tags, \array_values($tags)));
+            $this->tags = array_unique(array_merge($this->tags, array_values($tags)));
         }
     }
 

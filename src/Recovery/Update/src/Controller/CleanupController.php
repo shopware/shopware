@@ -69,7 +69,7 @@ class CleanupController
         if ($request->getMethod() === 'POST') {
             $result = [];
             foreach ($cleanupList as $path) {
-                $result = \array_merge($result, Utils::cleanPath($path));
+                $result = array_merge($result, Utils::cleanPath($path));
             }
 
             if (\count($result) === 0) {
@@ -78,9 +78,9 @@ class CleanupController
                 return $response->withRedirect($this->app->getContainer()->get('router')->pathFor('done'));
             }
 
-            $result = \array_map(
+            $result = array_map(
                 static function ($path) {
-                    return \mb_substr($path, \mb_strlen(SW_PATH) + 1);
+                    return mb_substr($path, mb_strlen(SW_PATH) + 1);
                 },
                 $result
             );
@@ -88,9 +88,9 @@ class CleanupController
             return $this->app->getContainer()->get('renderer')->render($response, 'cleanup.php', ['cleanupList' => $result, 'error' => true]);
         }
 
-        $cleanupList = \array_map(
+        $cleanupList = array_map(
             static function ($path) {
-                return \mb_substr($path, \mb_strlen(SW_PATH) + 1);
+                return mb_substr($path, mb_strlen(SW_PATH) + 1);
             },
             $cleanupList
         );
@@ -114,7 +114,7 @@ class CleanupController
      */
     private function getDirectoryIterator($path)
     {
-        if (\is_dir($path)) {
+        if (is_dir($path)) {
             return new \DirectoryIterator($path);
         }
 
@@ -126,13 +126,13 @@ class CleanupController
         $cleanupList = $this->filesFinder->getCleanupFiles();
 
         $cacheDirectoryList = $this->getCacheDirectoryList();
-        $cleanupList = \array_merge(
+        $cleanupList = array_merge(
             $cacheDirectoryList,
             $cleanupList
         );
 
         $temporaryBackupDirectories = $this->getTemporaryBackupDirectoryList();
-        $cleanupList = \array_merge(
+        $cleanupList = array_merge(
             $temporaryBackupDirectories,
             $cleanupList
         );

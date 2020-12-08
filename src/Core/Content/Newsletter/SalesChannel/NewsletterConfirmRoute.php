@@ -86,7 +86,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             'em' => $dataBag->get('em'),
         ];
 
-        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(\hash('sha1', $recipient->getEmail())));
+        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(hash('sha1', $recipient->getEmail())));
 
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_IN;
         $data['confirmedAt'] = new \DateTime();

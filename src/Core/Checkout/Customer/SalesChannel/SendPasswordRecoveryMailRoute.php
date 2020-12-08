@@ -178,7 +178,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 

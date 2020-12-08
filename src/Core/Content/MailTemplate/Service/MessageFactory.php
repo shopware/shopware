@@ -39,7 +39,7 @@ class MessageFactory implements MessageFactoryInterface
         array $attachments,
         ?array $binAttachments = null
     ): \Swift_Message {
-        $this->assertValidAddresses(\array_keys($recipients));
+        $this->assertValidAddresses(array_keys($recipients));
 
         $message = (new \Swift_Message($subject))
             ->setFrom($sender)
@@ -52,7 +52,7 @@ class MessageFactory implements MessageFactoryInterface
         foreach ($attachments as $url) {
             $attachment = new \Swift_Attachment(
                 $this->filesystem->read($url),
-                \basename($url),
+                basename($url),
                 $this->filesystem->getMimetype($url)
             );
             $message->attach($attachment);

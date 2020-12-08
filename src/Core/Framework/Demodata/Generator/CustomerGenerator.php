@@ -125,7 +125,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 [
                     'id' => $shippingAddressId,
                     'customerId' => $id,
-                    'countryId' => Uuid::fromBytesToHex($countries[\array_rand($countries)]),
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -136,7 +136,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 [
                     'id' => $billingAddressId,
                     'customerId' => $id,
-                    'countryId' => Uuid::fromBytesToHex($countries[\array_rand($countries)]),
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
@@ -174,11 +174,11 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
             $addresses = [];
 
-            $aCount = \random_int(2, 5);
+            $aCount = random_int(2, 5);
             for ($x = 1; $x < $aCount; ++$x) {
                 $addresses[] = [
                     'id' => Uuid::randomHex(),
-                    'countryId' => Uuid::fromBytesToHex($countries[\array_rand($countries)]),
+                    'countryId' => Uuid::fromBytesToHex($countries[array_rand($countries)]),
                     'salutationId' => $salutationId,
                     'title' => $title,
                     'firstName' => $firstName,
@@ -199,10 +199,10 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'email' => $id . $context->getFaker()->safeEmail,
                 'password' => 'shopware',
                 'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
-                'groupId' => $customerGroups[\array_rand($customerGroups)],
+                'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultBillingAddressId' => $addresses[\array_rand($addresses)]['id'],
-                'defaultShippingAddressId' => $addresses[\array_rand($addresses)]['id'],
+                'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
+                'defaultShippingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'addresses' => $addresses,
             ];
 
@@ -230,7 +230,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
     {
         $titles = ['', 'Dr.', 'Dr. med.', 'Prof.', 'Prof. Dr.'];
 
-        return $titles[\array_rand($titles)];
+        return $titles[array_rand($titles)];
     }
 
     private function getRandomSalutationId(): string
@@ -239,7 +239,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $this->salutationIds = $this->connection->executeQuery('SELECT id FROM salutation')->fetchAll(FetchMode::COLUMN);
         }
 
-        return $this->salutationIds[\array_rand($this->salutationIds)];
+        return $this->salutationIds[array_rand($this->salutationIds)];
     }
 
     private function getDefaultPaymentMethod(): ?string

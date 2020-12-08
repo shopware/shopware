@@ -208,7 +208,7 @@ class SalesChannelContext extends Struct
             throw new ContextRulesLockedException();
         }
 
-        $this->rulesIds = \array_filter(\array_values($ruleIds));
+        $this->rulesIds = array_filter(array_values($ruleIds));
         $this->getContext()->setRuleIds($this->rulesIds);
     }
 
@@ -253,7 +253,7 @@ class SalesChannelContext extends Struct
             throw new ContextPermissionsLockedException();
         }
 
-        $this->permissions = \array_filter($permissions);
+        $this->permissions = array_filter($permissions);
     }
 
     public function getApiAlias(): string

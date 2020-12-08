@@ -73,7 +73,7 @@ class MediaIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaIndexingMessage(\array_values($ids), $iterator->getOffset());
+        return new MediaIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -84,14 +84,14 @@ class MediaIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaIndexingMessage(\array_values($updates), null, $event->getContext());
+        return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
 
-        $ids = \array_unique(\array_filter($ids));
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }
@@ -109,7 +109,7 @@ class MediaIndexer extends EntityIndexer
         $medias = $this->repository->search($criteria, $context);
         foreach ($medias as $media) {
             $query->execute([
-                'thumbnails_ro' => \serialize($media->getThumbnails()),
+                'thumbnails_ro' => serialize($media->getThumbnails()),
                 'id' => Uuid::fromHexToBytes($media->getId()),
             ]);
         }

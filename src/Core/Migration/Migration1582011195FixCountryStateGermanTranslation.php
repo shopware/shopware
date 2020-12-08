@@ -75,7 +75,7 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
                 'state.id = state_translation.country_state_id AND state_translation.language_id = :germanLanguageId'
             )->where('state.short_code IN (:shortCodes)')
             ->setParameter(':germanLanguageId', $germanLanguageId)
-            ->setParameter(':shortCodes', \array_keys($default), Connection::PARAM_STR_ARRAY)
+            ->setParameter(':shortCodes', array_keys($default), Connection::PARAM_STR_ARRAY)
             ->execute()
             ->fetchAll();
 

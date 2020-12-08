@@ -358,7 +358,7 @@ class KernelPluginIntegrationTest extends TestCase
 
     private static function getTestRevision(): string
     {
-        return \md5('test');
+        return md5('test');
     }
 
     private static function getTestVersion(): string

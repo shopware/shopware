@@ -57,6 +57,6 @@ class RawUrlFunctionExtension extends AbstractExtension
             return $url;
         }
 
-        return \rtrim($domain, '/') . '/' . \ltrim($url, '/');
+        return rtrim($domain, '/') . '/' . ltrim($url, '/');
     }
 }

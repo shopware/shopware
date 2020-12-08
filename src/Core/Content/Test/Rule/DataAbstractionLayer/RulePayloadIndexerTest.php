@@ -434,7 +434,7 @@ class RulePayloadIndexerTest extends TestCase
      */
     public function testPostEventNullsPayload(PluginLifecycleEvent $event): void
     {
-        $payload = \serialize(new AndRule());
+        $payload = serialize(new AndRule());
 
         for ($i = 0; $i < 21; ++$i) {
             $this->connection->createQueryBuilder()

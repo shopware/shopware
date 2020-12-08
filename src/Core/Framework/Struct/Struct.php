@@ -21,16 +21,16 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
 
     public function getVars(): array
     {
-        return \get_object_vars($this);
+        return get_object_vars($this);
     }
 
     public function getApiAlias(): string
     {
         $class = static::class;
 
-        $class = \explode('\\', $class);
-        $class = \implode('', $class);
+        $class = explode('\\', $class);
+        $class = implode('', $class);
 
-        return \ltrim(\mb_strtolower(\preg_replace('/[A-Z]/', '_$0', $class)), '_');
+        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '_$0', $class)), '_');
     }
 }

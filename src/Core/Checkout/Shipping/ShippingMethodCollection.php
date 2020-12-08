@@ -34,7 +34,7 @@ class ShippingMethodCollection extends EntityCollection
             $ids[] = $element->getPrices()->getIds();
         }
 
-        return \array_merge(...$ids);
+        return array_merge(...$ids);
     }
 
     public function getPrices(): ShippingMethodPriceCollection
@@ -45,7 +45,7 @@ class ShippingMethodCollection extends EntityCollection
             $prices[] = $element->getPrices();
         }
 
-        $prices = \array_merge(...$prices);
+        $prices = array_merge(...$prices);
 
         return new ShippingMethodPriceCollection($prices);
     }

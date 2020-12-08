@@ -69,13 +69,13 @@ class KernelPluginCollection
             return [];
         }
 
-        return \array_filter($this->plugins, static function (Plugin $plugin) {
+        return array_filter($this->plugins, static function (Plugin $plugin) {
             return $plugin->isActive();
         });
     }
 
     public function filter(\Closure $closure): KernelPluginCollection
     {
-        return new self(\array_filter($this->plugins, $closure));
+        return new self(array_filter($this->plugins, $closure));
     }
 }

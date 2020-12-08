@@ -202,14 +202,14 @@ class MaintenanceModeResolverTest extends TestCase
             $request->server->set('REMOTE_ADDR', $proxyIp);
 
             $request::setTrustedProxies([$proxyIp], Request::HEADER_FORWARDED);
-            $request->headers->set('Forwarded', \sprintf('by=%s;for=%s', $proxyIp, $clientIp));
+            $request->headers->set('Forwarded', sprintf('by=%s;for=%s', $proxyIp, $clientIp));
         } else {
             $request->server->set('REMOTE_ADDR', $clientIp);
         }
 
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, $isSalesChannelRequest);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $isMaintenanceModeActive);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($allowedIpAddresses));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, json_encode($allowedIpAddresses));
 
         return $request;
     }

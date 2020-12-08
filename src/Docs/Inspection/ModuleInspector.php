@@ -94,9 +94,9 @@ class ModuleInspector
     public function getClassName(SplFileInfo $file): string
     {
         $filePath = $file->getRealPath();
-        $parts = \explode('/', $filePath);
+        $parts = explode('/', $filePath);
 
-        $startIndex = \array_search('Core', $parts, true);
+        $startIndex = array_search('Core', $parts, true);
 
         if ($startIndex === false) {
             throw new \RuntimeException('Unable to parse ' . $file->getRealPath());
@@ -105,19 +105,19 @@ class ModuleInspector
         $namespaceRelevantParts = \array_slice($parts, $startIndex, -1);
         $namespaceRelevantParts[] = $file->getBasename('.php');
 
-        $className = 'Shopware\\' . \implode('\\', $namespaceRelevantParts);
+        $className = 'Shopware\\' . implode('\\', $namespaceRelevantParts);
 
         try {
-            $classExists = \class_exists($className);
+            $classExists = class_exists($className);
         } catch (\Throwable $e) {
-            throw new \RuntimeException(\sprintf('No class in file %s', $filePath), 0, $e);
+            throw new \RuntimeException(sprintf('No class in file %s', $filePath), 0, $e);
         }
 
         if ($classExists) {
             return $className;
         }
 
-        throw new \RuntimeException(\sprintf('No class in file %s', $filePath));
+        throw new \RuntimeException(sprintf('No class in file %s', $filePath));
     }
 
     private function findFiles(SplFileInfo $in, string $pattern): Finder

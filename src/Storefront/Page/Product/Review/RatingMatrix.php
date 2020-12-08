@@ -59,7 +59,7 @@ class RatingMatrix extends Struct
             }
         }
 
-        \array_walk($this->matrix, function (MatrixElement &$rating): void {
+        array_walk($this->matrix, function (MatrixElement &$rating): void {
             if ($this->totalReviewCount > 0) {
                 $rating->setPercent($rating->getCount() / $this->totalReviewCount * 100);
             } else {

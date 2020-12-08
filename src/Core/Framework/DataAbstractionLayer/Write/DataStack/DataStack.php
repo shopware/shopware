@@ -38,7 +38,7 @@ class DataStack
     public function __construct(array $originalData)
     {
         if (\array_key_exists('extensions', $originalData)) {
-            $originalData = \array_merge($originalData, $originalData['extensions']);
+            $originalData = array_merge($originalData, $originalData['extensions']);
             unset($originalData['extensions']);
         }
 
@@ -82,7 +82,7 @@ class DataStack
 
         $this->data[$key] = new KeyValuePair(
             $key,
-            \array_replace_recursive($preExistingPair->getValue(), $value),
+            array_replace_recursive($preExistingPair->getValue(), $value),
             false
         );
     }

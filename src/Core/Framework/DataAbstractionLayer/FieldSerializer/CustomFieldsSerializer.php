@@ -57,7 +57,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         // set fields dynamically
-        $field->setPropertyMapping($this->getFields(\array_keys($attributes)));
+        $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
         if (empty($encoded)) {
@@ -81,7 +81,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         if ($value) {
             // set fields dynamically
-            $field->setPropertyMapping($this->getFields(\array_keys(\json_decode($value, true))));
+            $field->setPropertyMapping($this->getFields(array_keys(json_decode($value, true))));
         }
 
         return parent::decode($field, $value);

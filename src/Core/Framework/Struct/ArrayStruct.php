@@ -63,7 +63,7 @@ class ArrayStruct extends Struct implements \ArrayAccess
 
     public function assign(array $options)
     {
-        $this->data = \array_replace_recursive($this->data, $options);
+        $this->data = array_replace_recursive($this->data, $options);
 
         return $this;
     }
@@ -84,7 +84,7 @@ class ArrayStruct extends Struct implements \ArrayAccess
         $data = $this->data;
         $this->convertDateTimePropertiesToJsonStringRepresentation($data);
 
-        return \array_merge($jsonArray, $data);
+        return array_merge($jsonArray, $data);
     }
 
     public function getApiAlias(): string

@@ -57,7 +57,7 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return \array_map(function ($case) {
+        return array_map(function ($case) {
             return [$case];
         }, $cases);
     }

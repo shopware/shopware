@@ -62,14 +62,14 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
     public function updateCategoryUrls(CategoryIndexerEvent $event): void
     {
-        $ids = \array_merge($event->getIds(), $this->getCategoryChildren($event->getIds()));
+        $ids = array_merge($event->getIds(), $this->getCategoryChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
     }
 
     public function updateProductUrls(ProductIndexerEvent $event): void
     {
-        $ids = \array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
+        $ids = array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $ids);
     }
@@ -82,7 +82,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return \array_column($childrenIds, 'id');
+        return array_column($childrenIds, 'id');
     }
 
     private function getCategoryChildren(array $ids): array

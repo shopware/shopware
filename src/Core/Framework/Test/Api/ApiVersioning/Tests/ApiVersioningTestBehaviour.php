@@ -52,7 +52,7 @@ trait ApiVersioningTestBehaviour
 
         $apiVersionSubscriber = static::container()->get(ApiVersionSubscriber::class);
         $closure = \Closure::fromCallable(function () use ($apiVersions): void {
-            $this->supportedApiVersions = \array_keys($apiVersions);
+            $this->supportedApiVersions = array_keys($apiVersions);
         });
         $closure = \Closure::bind($closure, $apiVersionSubscriber, $apiVersionSubscriber);
         $closure();
@@ -86,8 +86,8 @@ trait ApiVersioningTestBehaviour
         }
 
         $closure = \Closure::fromCallable(function () use ($definitions, $repositories): void {
-            $this->definitions = \array_merge($definitions, $this->definitions);
-            $this->repositoryMap = \array_merge($repositories, $this->repositoryMap);
+            $this->definitions = array_merge($definitions, $this->definitions);
+            $this->repositoryMap = array_merge($repositories, $this->repositoryMap);
         });
         $closure = \Closure::bind($closure, $definitionRegistry, $definitionRegistry);
         $closure();

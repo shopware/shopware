@@ -9,25 +9,25 @@ class XmlFileWriter extends AbstractFileWriter
     public function append(Config $config, array $data, int $index): void
     {
         if ($index === 0) {
-            \fwrite($this->buffer, "<?xml version=\"1.0\"?><root>\n");
+            fwrite($this->buffer, "<?xml version=\"1.0\"?><root>\n");
         }
 
         $item = new \SimpleXMLElement('<item/>');
         $this->addDataToNode($item, $data);
-        $xml = \mb_strstr($item->asXML(), '<item>');
-        \fwrite($this->buffer, $xml);
+        $xml = mb_strstr($item->asXML(), '<item>');
+        fwrite($this->buffer, $xml);
     }
 
     public function finish(Config $config, $targetPath): void
     {
-        \fwrite($this->buffer, "</root>\n");
+        fwrite($this->buffer, "</root>\n");
         parent::finish($config, $targetPath);
     }
 
     private function addDataToNode(\SimpleXMLElement $node, array $data): void
     {
         foreach ($data as $key => $value) {
-            if (\is_numeric($key)) {
+            if (is_numeric($key)) {
                 $key = 'item' . $key;
             }
 

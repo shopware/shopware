@@ -150,7 +150,7 @@ class SalesChannelCheckoutController extends AbstractController
     {
         $deepLinkCode = (string) $request->query->get('accessCode');
 
-        if ($id === '' || \mb_strlen($deepLinkCode) !== 32) {
+        if ($id === '' || mb_strlen($deepLinkCode) !== 32) {
             throw new OrderNotFoundException($id);
         }
 

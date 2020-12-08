@@ -66,7 +66,7 @@ class CustomerTagRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -91,7 +91,7 @@ class CustomerTagRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -113,7 +113,7 @@ class CustomerTagRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
@@ -135,7 +135,7 @@ class CustomerTagRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = \iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
             static::assertSame('The value "TAG-ID" is not a valid uuid.', $exceptions[0]['detail']);

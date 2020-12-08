@@ -29,7 +29,7 @@ class ProductCategoryDenormalizer
             return;
         }
 
-        $ids = \array_unique($ids);
+        $ids = array_unique($ids);
 
         $categories = $this->fetchMapping($ids, $context);
 
@@ -52,7 +52,7 @@ class ProductCategoryDenormalizer
 
             $json = null;
             if (!empty($categoryIds)) {
-                $json = \json_encode($categoryIds);
+                $json = json_encode($categoryIds);
             }
 
             $params = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
@@ -136,7 +136,7 @@ class ProductCategoryDenormalizer
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
-        $bytes = \array_map(function (string $id) {
+        $bytes = array_map(function (string $id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
@@ -149,14 +149,14 @@ class ProductCategoryDenormalizer
 
     private function mapCategories(array $mapping): array
     {
-        $categoryIds = \array_filter(\explode('|', (string) $mapping['ids']));
-        $categoryIds = \array_merge(
-            \explode('|', (string) $mapping['paths']),
+        $categoryIds = array_filter(explode('|', (string) $mapping['ids']));
+        $categoryIds = array_merge(
+            explode('|', (string) $mapping['paths']),
             $categoryIds
         );
 
-        $categoryIds = \array_map('strtolower', $categoryIds);
+        $categoryIds = array_map('strtolower', $categoryIds);
 
-        return \array_keys(\array_flip(\array_filter($categoryIds)));
+        return array_keys(array_flip(array_filter($categoryIds)));
     }
 }

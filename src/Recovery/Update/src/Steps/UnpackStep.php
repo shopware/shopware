@@ -59,7 +59,7 @@ class UnpackStep
 
         if ($offset === 0) {
             if ($localFs->has($backupDirRelative)) {
-                $localFs->rename($backupDirRelative, \rtrim($backupDirRelative, '/') . \uniqid());
+                $localFs->rename($backupDirRelative, rtrim($backupDirRelative, '/') . uniqid());
             }
 
             // Maybe we have to create backup dir here:
@@ -72,16 +72,16 @@ class UnpackStep
         );
 
         if (!$total) {
-            $total = \iterator_count($iterator);
+            $total = iterator_count($iterator);
         }
 
         $count = 0;
         $maxCount = 5000;
-        $startTime = \time();
+        $startTime = time();
 
         /** @var \SplFileInfo $path */
         foreach ($iterator as $path) {
-            if (\mb_strpos($path->getPathname(), 'vendor/shopware/recovery/') !== false) {
+            if (mb_strpos($path->getPathname(), 'vendor/shopware/recovery/') !== false) {
                 continue;
             }
 
@@ -89,7 +89,7 @@ class UnpackStep
             $backupFile = $inflector->createBackupPath($path);
             $sourceFile = $inflector->createSourcePath($path);
 
-            if (\time() - $startTime >= 5 || $count >= $maxCount) {
+            if (time() - $startTime >= 5 || $count >= $maxCount) {
                 return new ValidResult($offset + $count + 1, $total);
             }
 

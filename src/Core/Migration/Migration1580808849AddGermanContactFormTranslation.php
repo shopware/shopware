@@ -50,7 +50,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
                 'description' => 'Kontaktanfrage erhalten',
                 'content_html' => $this->getContactFormHtmlTemplateDe(),
                 'content_plain' => $this->getContactFormPlainTemplateDe(),
-                'created_at' => \date(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

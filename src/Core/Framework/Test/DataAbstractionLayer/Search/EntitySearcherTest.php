@@ -386,7 +386,7 @@ class EntitySearcherTest extends TestCase
 
         $ids = new TestDataCollection();
         $data = [
-            \array_merge($defaults, [
+            array_merge($defaults, [
                 'id' => $ids->create('product-1'),
                 'productNumber' => Uuid::randomHex(),
                 'categories' => [
@@ -394,7 +394,7 @@ class EntitySearcherTest extends TestCase
                     ['name' => 'B'],
                 ],
             ]),
-            \array_merge($defaults, [
+            array_merge($defaults, [
                 'id' => $ids->create('product-2'),
                 'productNumber' => Uuid::randomHex(),
                 'categories' => [

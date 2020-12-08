@@ -64,7 +64,7 @@ class CmsBlockCollectionTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setType('slot');
         $slot->setConfig([]);
-        $slot->setSlot(\uniqid('', true));
+        $slot->setSlot(uniqid('', true));
         $slot->setUniqueIdentifier(Uuid::randomHex());
 
         return $slot;

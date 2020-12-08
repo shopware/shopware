@@ -35,7 +35,7 @@ class File implements ConfigHandlerInterface
 
     private function getSitemapCustomUrls(array $customUrls): array
     {
-        \array_walk($customUrls, static function (array &$customUrl): void {
+        array_walk($customUrls, static function (array &$customUrl): void {
             $customUrl['lastMod'] = \DateTime::createFromFormat('Y-m-d H:i:s', $customUrl['lastMod']);
         });
 

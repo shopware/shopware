@@ -110,7 +110,7 @@ class PromotionDeliveryCalculator
 
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
-            if (array_key_exists($promotionId, $exclusions)) {
+            if (\array_key_exists($promotionId, $exclusions)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
 
                 continue;

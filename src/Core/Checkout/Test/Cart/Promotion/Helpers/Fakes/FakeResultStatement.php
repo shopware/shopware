@@ -48,6 +48,6 @@ class FakeResultStatement implements \IteratorAggregate, ResultStatement
 
     public function getIterator(): \Traversable
     {
-        return new \ArrayIterator(\get_object_vars($this));
+        return new \ArrayIterator(get_object_vars($this));
     }
 }

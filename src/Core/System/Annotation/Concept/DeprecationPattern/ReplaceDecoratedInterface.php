@@ -21,6 +21,7 @@ use Doctrine\Common\Annotations\Annotation;
  * If it implements the new Interface you call the interface in the new way, if it doesn't implement the new Interface it is probably a decoration from a plugin that has not yet adapted to the Interface change, you therefore call then the deprecated Interface.
  * An example may look like this:
  * ```php
+ * class MyController
  * {
  *
  * // @var DeprecatedServiceInterface|NewServiceInterface

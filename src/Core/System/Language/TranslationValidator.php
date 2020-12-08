@@ -91,7 +91,7 @@ class TranslationValidator implements EventSubscriberInterface
         $pks = $definition->getPrimaryKeys();
         $idField = $pks->getByStorageName($idStorageName);
         if (!$idField || !$idField instanceof FkField) {
-            throw new \RuntimeException(\sprintf('`%s` primary key should have column `%s`', $definition->getClass(), $idStorageName));
+            throw new \RuntimeException(sprintf('`%s` primary key should have column `%s`', $definition->getClass(), $idStorageName));
         }
         $fields = [
             'id' => $idField,
@@ -114,7 +114,7 @@ class TranslationValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
+            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,

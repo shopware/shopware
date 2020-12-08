@@ -56,7 +56,7 @@ class ProductSubscriber implements EventSubscriberInterface
             $group = clone $origin;
 
             $groupId = $group->getId();
-            if (array_key_exists($groupId, $sorted)) {
+            if (\array_key_exists($groupId, $sorted)) {
                 $sorted[$groupId]->getOptions()->add($option);
 
                 continue;
@@ -99,7 +99,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 ];
             });
 
-            return \array_values($names);
+            return array_values($names);
         }
 
         // collect option names in order of the configuration

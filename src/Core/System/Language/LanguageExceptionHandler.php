@@ -24,7 +24,7 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
         if (
             $command instanceof DeleteCommand
             && $command->getDefinition()->getEntityName() === 'language'
-            && \preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())
+            && preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())
         ) {
             $primaryKey = $command->getPrimaryKey();
 

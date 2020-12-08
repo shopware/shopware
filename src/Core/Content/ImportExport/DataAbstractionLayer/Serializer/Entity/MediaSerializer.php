@@ -63,15 +63,15 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
     public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
-        $value = \is_array($value) ? $value : \iterator_to_array($value);
+        $value = \is_array($value) ? $value : iterator_to_array($value);
         $deserialized = parent::deserialize($config, $definition, $value);
 
-        if (\is_iterable($deserialized)) {
-            $deserialized = \iterator_to_array($deserialized);
+        if (is_iterable($deserialized)) {
+            $deserialized = iterator_to_array($deserialized);
         }
 
         $url = $value['url'] ?? null;
-        if ($url === null || !\filter_var($url, \FILTER_VALIDATE_URL)) {
+        if ($url === null || !filter_var($url, \FILTER_VALIDATE_URL)) {
             return $deserialized;
         }
 
@@ -87,8 +87,8 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
             $deserialized['id'] = $deserialized['id'] ?? Uuid::randomHex();
 
-            $parsed = \parse_url($url);
-            $pathInfo = \pathinfo($parsed['path']);
+            $parsed = parse_url($url);
+            $pathInfo = pathinfo($parsed['path']);
 
             $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
             $this->mediaFiles[$deserialized['id']] = [

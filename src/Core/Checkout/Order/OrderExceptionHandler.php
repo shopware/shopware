@@ -20,7 +20,7 @@ class OrderExceptionHandler implements ExceptionHandlerInterface
             return null;
         }
 
-        if (\preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*order.*CONSTRAINT `fk.language_id`/', $e->getMessage())) {
+        if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*order.*CONSTRAINT `fk.language_id`/', $e->getMessage())) {
             $primaryKey = $command->getPrimaryKey();
 
             return new LanguageOfOrderDeleteException(isset($primaryKey['id']) ? Uuid::fromBytesToHex($primaryKey['id']) : '', $e);

@@ -372,7 +372,7 @@ class AppLifecycle extends AbstractAppLifecycle
             foreach ($card['elements'] as $element) {
                 // Rendering of custom admin components via <component> element is not allowed for apps
                 // as it may lead to code execution by apps in the administration
-                if (array_key_exists('componentName', $element) && !in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)) {
+                if (\array_key_exists('componentName', $element) && !\in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)) {
                     throw new InvalidAppConfigurationException($element['componentName']);
                 }
             }

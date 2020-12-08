@@ -35,14 +35,14 @@ class CurrencyValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
             if ($id !== Defaults::CURRENCY) {
                 continue;
             }
 
             $msgTpl = 'The default currency {{ id }} cannot be deleted.';
             $parameters = ['{{ id }}' => $id];
-            $msg = \sprintf('The default currency %s cannot be deleted.', $id);
+            $msg = sprintf('The default currency %s cannot be deleted.', $id);
             $violation = new ConstraintViolation(
                 $msg,
                 $msgTpl,

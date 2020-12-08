@@ -58,13 +58,13 @@ class CategoryBreadcrumbUpdater
 
         $all = $ids;
         foreach ($paths as $path) {
-            $path = \explode('|', (string) $path);
+            $path = explode('|', (string) $path);
             foreach ($path as $id) {
                 $all[] = $id;
             }
         }
 
-        $all = \array_filter(\array_values(\array_keys(\array_flip($all))));
+        $all = array_filter(array_values(array_keys(array_flip($all))));
 
         $languages = $context->enableCache(function (Context $context) {
             return $this->languageRepository->search(new Criteria(), $context);
@@ -116,7 +116,7 @@ class CategoryBreadcrumbUpdater
                 'categoryId' => Uuid::fromHexToBytes($id),
                 'versionId' => $versionId,
                 'languageId' => $languageId,
-                'breadcrumb' => \json_encode($path),
+                'breadcrumb' => json_encode($path),
             ]);
         }
     }

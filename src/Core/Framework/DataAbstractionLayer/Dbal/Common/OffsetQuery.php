@@ -46,7 +46,7 @@ class OffsetQuery implements IterableQuery
         $select = $query->getQueryPart('select');
 
         $query->resetQueryPart('orderBy');
-        $query->select('COUNT(DISTINCT ' . \array_shift($select) . ')');
+        $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
         return (int) $query->execute()->fetchColumn();
     }

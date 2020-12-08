@@ -21,7 +21,7 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
     {
         $filenameSuffix = '';
         if ($thumbnail !== null) {
-            $filenameSuffix = \sprintf('_%dx%d', $thumbnail->getWidth(), $thumbnail->getHeight());
+            $filenameSuffix = sprintf('_%dx%d', $thumbnail->getWidth(), $thumbnail->getHeight());
         }
 
         $extension = $media->getFileExtension() ? '.' . $media->getFileExtension() : '';
@@ -45,16 +45,16 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 
     protected function generateMd5Path(string $fromValue): string
     {
-        $md5hash = \md5($fromValue);
+        $md5hash = md5($fromValue);
 
-        $md5hashSlices = \array_slice(\mb_str_split($md5hash, 2), 0, 3);
-        $md5hashSlices = \array_map(
+        $md5hashSlices = \array_slice(str_split($md5hash, 2), 0, 3);
+        $md5hashSlices = array_map(
             function ($slice) {
                 return \array_key_exists($slice, $this->blacklist) ? $this->blacklist[$slice] : $slice;
             },
             $md5hashSlices
         );
 
-        return \implode('/', $md5hashSlices);
+        return implode('/', $md5hashSlices);
     }
 }

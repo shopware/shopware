@@ -36,14 +36,14 @@ class DiscountFixedPriceCalculator
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        $fixedTotalPrice = (float) \abs($priceDefinition->getPrice());
+        $fixedTotalPrice = (float) abs($priceDefinition->getPrice());
 
         $discountDiff = $this->getTotalDiscountDiffSum($fixedTotalPrice, $packages);
 
         // now calculate the correct price
         // from our collected total discount price
         $discountPrice = $this->absolutePriceCalculator->calculate(
-            -\abs($discountDiff),
+            -abs($discountDiff),
             $packages->getAffectedPrices(),
             $context
         );
@@ -78,7 +78,7 @@ class DiscountFixedPriceCalculator
                 $items[] = new DiscountCompositionItem(
                     $lineItem->getId(),
                     $lineItem->getQuantity(),
-                    \abs($discountValue) * $factor
+                    abs($discountValue) * $factor
                 );
             }
         }

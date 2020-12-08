@@ -40,14 +40,14 @@ class DownloadStep
             return new ValidResult($offset + 10, 100);
         }
 
-        if (\is_file($this->destination) && \filesize($this->destination) > 0) {
+        if (is_file($this->destination) && filesize($this->destination) > 0) {
             return new FinishResult($offset, $this->version->size);
         }
 
         $download = new Download();
-        $startTime = \microtime(true);
+        $startTime = microtime(true);
         $download->setHaltCallback(function () use ($startTime) {
-            return \microtime(true) - $startTime > 10;
+            return microtime(true) - $startTime > 10;
         });
         $offset = $download->downloadFile($this->version->uri, $this->destination, (int) $this->version->size, $this->version->sha1);
 

@@ -231,7 +231,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // add path and value for each attribute value pair
             $values[] = '$."' . $attribute . '"';
             if (\is_array($value) || \is_object($value)) {
-                $values[] = \json_encode($value, \JSON_PRESERVE_ZERO_FRACTION | \JSON_UNESCAPED_UNICODE);
+                $values[] = json_encode($value, \JSON_PRESERVE_ZERO_FRACTION | \JSON_UNESCAPED_UNICODE);
                 // does the same thing as CAST(?, json) but works on mariadb
                 $identityValue = \is_object($value) || self::isAssociative($value) ? '{}' : '[]';
                 $sets[] = '?, JSON_MERGE("' . $identityValue . '", ?)';
@@ -244,10 +244,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $storageName = $command->getStorageName();
         $query->set(
             $storageName,
-            \sprintf(
+            sprintf(
                 'JSON_SET(IFNULL(%s, "{}"), %s)',
                 EntityDefinitionQueryHelper::escape($storageName),
-                \implode(', ', $sets)
+                implode(', ', $sets)
             )
         );
 
@@ -255,7 +255,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($identifier as $key => $_value) {
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
-        $query->setParameters(\array_merge($values, \array_values($identifier)));
+        $query->setParameters(array_merge($values, array_values($identifier)));
         $query->execute();
     }
 
@@ -318,7 +318,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $state = \array_replace_recursive($state, $command->getPayload());
+            $state = array_replace_recursive($state, $command->getPayload());
 
             if ($command instanceof InsertCommand) {
                 $useDatabase = false;
@@ -338,7 +338,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             unset($database['parent']);
         }
 
-        return \array_replace_recursive($database, $state);
+        return array_replace_recursive($database, $state);
     }
 
     private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
@@ -515,17 +515,17 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $query->setParameter('param' . $i, $value);
             }
 
-            $all[] = \implode(' AND ', $where);
+            $all[] = implode(' AND ', $where);
         }
 
-        $query->andWhere(\implode(' OR ', $all));
+        $query->andWhere(implode(' OR ', $all));
     }
 
     private function calculateChangeSet(WriteCommand $command, array $states): ChangeSet
     {
         foreach ($states as $state) {
             // check if current loop matches the command primary key
-            $primaryKey = \array_intersect($command->getPrimaryKey(), $state);
+            $primaryKey = array_intersect($command->getPrimaryKey(), $state);
 
             if (!$primaryKey) {
                 continue;

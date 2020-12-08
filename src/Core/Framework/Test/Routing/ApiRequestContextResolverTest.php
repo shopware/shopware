@@ -230,7 +230,7 @@ class ApiRequestContextResolverTest extends TestCase
                 'id' => $id,
                 'name' => $role,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                'privileges' => \json_encode($privs),
+                'privileges' => json_encode($privs),
             ]);
 
             $this->connection->insert('acl_user_role', [

@@ -20,7 +20,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = \json_decode(\json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
 
         unset($value['extensions']);
 
@@ -37,7 +37,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
 
         $value = parent::decode($field, $value);
 
-        $taxRules = \array_map(
+        $taxRules = array_map(
             function (array $tax) {
                 return new TaxRule(
                     (float) $tax['taxRate'],
@@ -47,7 +47,7 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
             $value['taxRules']
         );
 
-        $calculatedTaxes = \array_map(
+        $calculatedTaxes = array_map(
             function (array $tax) {
                 return new CalculatedTax(
                     (float) $tax['tax'],

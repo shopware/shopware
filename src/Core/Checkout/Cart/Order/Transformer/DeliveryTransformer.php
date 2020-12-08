@@ -54,7 +54,7 @@ class DeliveryTransformer
             'stateId' => $stateId,
         ];
 
-        $deliveryData = \array_filter($deliveryData, function ($item) {
+        $deliveryData = array_filter($deliveryData, function ($item) {
             return $item !== null;
         });
 

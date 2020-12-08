@@ -110,9 +110,9 @@ class ImportExportServiceTest extends TestCase
 
         static::assertNotnUll($profileId);
 
-        $path = \tempnam(\sys_get_temp_dir(), '');
+        $path = tempnam(sys_get_temp_dir(), '');
 
-        \copy(__DIR__ . '/../fixtures/categories.csv', $path);
+        copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $name = 'test';
         if ($fileExtension) {
@@ -131,7 +131,7 @@ class ImportExportServiceTest extends TestCase
 
         $importExportService->prepareImport(Context::createDefaultContext(), $profileId, new \DateTimeImmutable(), $uploadedFile);
 
-        @\unlink($path);
+        @unlink($path);
     }
 
     public function testConfig(): void
@@ -166,8 +166,8 @@ class ImportExportServiceTest extends TestCase
         ];
         $profileRepository->create([$profile], Context::createDefaultContext());
 
-        $path = \tempnam(\sys_get_temp_dir(), '');
-        \copy(__DIR__ . '/../fixtures/categories.csv', $path);
+        $path = tempnam(sys_get_temp_dir(), '');
+        copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
         $log = $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);

@@ -43,7 +43,7 @@ class ImportExportFileRepositoryTest extends TestCase
     {
         $data = $this->prepareImportExportFileTestData();
 
-        $id = \array_key_first($data);
+        $id = array_key_first($data);
 
         $this->repository->create([$data[$id]], $this->context);
 
@@ -54,7 +54,7 @@ class ImportExportFileRepositoryTest extends TestCase
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['originalName'], $record['original_name']);
         static::assertEquals($expect['path'], $record['path']);
-        static::assertEquals(\strtotime($expect['expireDate']), \strtotime($record['expire_date']));
+        static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
         static::assertEquals($expect['size'], $record['size']);
         static::assertEquals($expect['accessToken'], $record['access_token']);
     }
@@ -66,12 +66,12 @@ class ImportExportFileRepositoryTest extends TestCase
         $data = $this->prepareImportExportFileTestData($num);
 
         foreach ($requiredProperties as $property) {
-            $entry = \array_shift($data);
+            $entry = array_shift($data);
             unset($entry[$property]);
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(\sprintf("Create without required property '%s'", $property));
+                static::fail(sprintf("Create without required property '%s'", $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }
@@ -83,7 +83,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $num = 5;
         $data = $this->prepareImportExportFileTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
@@ -93,7 +93,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($record['expire_date']));
+            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -108,13 +108,13 @@ class ImportExportFileRepositoryTest extends TestCase
         $incompleteData = $this->prepareImportExportFileTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
-            $entry = \array_shift($incompleteData);
+            $entry = array_shift($incompleteData);
             unset($entry[$property]);
-            \array_push($data, $entry);
+            array_push($data, $entry);
         }
 
         try {
-            $this->repository->create(\array_values($data), $this->context);
+            $this->repository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
             static::assertCount(\count($requiredProperties), $e->getExceptions());
@@ -127,7 +127,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = \array_map(function ($property) {
+            $missingPropertyPaths = array_map(function ($property) {
                 return '/' . $property;
             }, $requiredProperties);
 
@@ -140,7 +140,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         foreach ($data as $expect) {
             $id = $expect['id'];
@@ -160,7 +160,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
         static::assertEquals(0, $result->count());
@@ -171,16 +171,16 @@ class ImportExportFileRepositoryTest extends TestCase
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
-        $new_data = \array_values($this->prepareImportExportFileTestData($num, 'xxx'));
+        $new_data = array_values($this->prepareImportExportFileTestData($num, 'xxx'));
         foreach ($data as $id => $value) {
-            $new_value = \array_pop($new_data);
+            $new_value = array_pop($new_data);
             $new_value['id'] = $value['id'];
             $data[$id] = $new_value;
         }
 
-        $this->repository->upsert(\array_values($data), $this->context);
+        $this->repository->upsert(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
@@ -190,7 +190,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($record['expire_date']));
+            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -200,29 +200,29 @@ class ImportExportFileRepositoryTest extends TestCase
     public function testImportExportFileUpdatePartial(): void
     {
         $data = $this->prepareImportExportFileTestData();
-        $properties = \array_keys(\array_pop($data));
+        $properties = array_keys(array_pop($data));
 
         $num = \count($properties);
         $data = $this->prepareImportExportFileTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
-        $new_data = \array_values($this->prepareImportExportFileTestData($num, 'xxx'));
+        $new_data = array_values($this->prepareImportExportFileTestData($num, 'xxx'));
         foreach ($data as $id => $value) {
-            $new_value = \array_pop($new_data);
+            $new_value = array_pop($new_data);
             $new_value['id'] = $value['id'];
             $data[$id] = $new_value;
             $upsertData = $data;
 
             // Remove property before write
-            $property = \array_pop($properties);
+            $property = array_pop($properties);
             if ($property === 'id') {
                 continue;
             }
             unset($upsertData[$id][$property]);
         }
 
-        $this->repository->upsert(\array_values($upsertData), $this->context);
+        $this->repository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
@@ -232,7 +232,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($record['expire_date']));
+            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -243,10 +243,10 @@ class ImportExportFileRepositoryTest extends TestCase
     {
         $num = 10;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $ids = [];
-        foreach (\array_column($data, 'id') as $id) {
+        foreach (array_column($data, 'id') as $id) {
             $ids[] = ['id' => $id];
         }
 
@@ -261,7 +261,7 @@ class ImportExportFileRepositoryTest extends TestCase
     {
         $num = 10;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $ids = [];
         for ($i = 0; $i <= $num; ++$i) {
@@ -286,9 +286,9 @@ class ImportExportFileRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => \sprintf('file%d.xml', $i),
-                'path' => \sprintf('/test/%d/%s', $i, $add),
-                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => sprintf('file%d.xml', $i),
+                'path' => sprintf('/test/%d/%s', $i, $add),
+                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

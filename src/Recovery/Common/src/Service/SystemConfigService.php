@@ -15,7 +15,7 @@ class SystemConfigService
 
     public function set(string $key, $value): void
     {
-        $value = \json_encode(['_value' => $value], \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
+        $value = json_encode(['_value' => $value], \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
 
         $stmt = $this->connection->prepare('SELECT id FROM `system_config` WHERE configuration_key = ?');
         $stmt->execute([$key]);
@@ -54,7 +54,7 @@ class SystemConfigService
         }
 
         try {
-            $decoded = \json_decode($value, true);
+            $decoded = json_decode($value, true);
 
             return $decoded['_value'] ?? null;
         } catch (\Exception $e) {

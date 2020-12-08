@@ -58,7 +58,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
             $referenceIdChanged = \array_key_exists('referenced_id', $payload);
 
-            $lineItemPayload = isset($payload['payload']) ? \json_decode($payload['payload'], true) : [];
+            $lineItemPayload = isset($payload['payload']) ? json_decode($payload['payload'], true) : [];
             $orderNumberChanged = \array_key_exists('productNumber', $lineItemPayload);
 
             if (!$this->isProduct($products, $lineItemPayload, $lineItemId)) {
@@ -96,7 +96,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
     private function findProducts(array $commands)
     {
-        $ids = \array_map(function (WriteCommand $command) {
+        $ids = array_map(function (WriteCommand $command) {
             if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
                 return null;
             }
@@ -108,7 +108,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
             return null;
         }, $commands);
 
-        $ids = \array_values(\array_filter($ids));
+        $ids = array_values(array_filter($ids));
 
         $products = $this->connection->fetchAll(
             'SELECT LOWER(HEX(id)) as id FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
@@ -116,7 +116,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return \array_flip(\array_column($products, 'id'));
+        return array_flip(array_column($products, 'id'));
     }
 
     private function isProduct(array $products, array $payload, string $lineItemId): bool

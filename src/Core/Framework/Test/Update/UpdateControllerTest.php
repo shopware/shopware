@@ -218,7 +218,7 @@ class UpdateControllerTest extends TestCase
         // Prepare update folder
         $fs = new Filesystem();
         $recoveryPath = '/vendor/shopware/recovery/';
-        $tmpDir = \sys_get_temp_dir() . '/' . \uniqid(__METHOD__, true);
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true);
         $tmpRecoveryPath = $tmpDir . $recoveryPath;
 
         $fs->mkdir($tmpRecoveryPath);

@@ -66,12 +66,12 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $data = $this->prepareImportExportFileTestData($num);
 
         $filePathes = [];
-        foreach (\array_keys($data) as $key) {
+        foreach (array_keys($data) as $key) {
             $filePathes[] = $data[$key]['path'];
-            $data[$key]['expireDate'] = \date('Y-m-d H:i:s', \strtotime('-1 second'));
+            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
         }
 
-        $this->fileRepository->create(\array_values($data), $this->context);
+        $this->fileRepository->create(array_values($data), $this->context);
 
         $commandTester = new CommandTester($this->deleteExpiredFilesCommand);
         $commandTester->setInputs(['y']);
@@ -79,10 +79,10 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
         $message = $commandTester->getDisplay();
         static::assertRegExp(
-            \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
+            sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
             $message
         );
-        static::assertRegExp(\sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
+        static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
 
         $this->runWorker();
 
@@ -99,18 +99,18 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $count = 0;
         $expiredIds = [];
         $filePathes = ['keep' => [], 'delete' => []];
-        foreach (\array_keys($data) as $key) {
+        foreach (array_keys($data) as $key) {
             // set every second file expired.
             if ($count++ % 2 === 0) {
                 $filePathes['delete'][] = $data[$key]['path'];
-                $data[$key]['expireDate'] = \date('Y-m-d H:i:s', \strtotime('-1 second'));
+                $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
                 $expiredIds[] = $data[$key]['id'];
             } else {
                 $filePathes['keep'][] = $data[$key]['path'];
             }
         }
 
-        $this->fileRepository->create(\array_values($data), $this->context);
+        $this->fileRepository->create(array_values($data), $this->context);
 
         $commandTester = new CommandTester($this->deleteExpiredFilesCommand);
         $commandTester->setInputs(['yes']);
@@ -119,15 +119,15 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $numExpired = \count($expiredIds);
         $message = $commandTester->getDisplay();
         static::assertRegExp(
-            \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
+            sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
             $message
         );
-        static::assertRegExp(\sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
+        static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
 
         $results = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertEquals(($num - $numExpired), \count($results));
 
-        $expectedIds = \array_diff(\array_column($data, 'id'), $expiredIds);
+        $expectedIds = array_diff(array_column($data, 'id'), $expiredIds);
         foreach ($results as $result) {
             static::assertContains($result, $expectedIds);
             static::assertNotContains($result, $expiredIds);
@@ -151,11 +151,11 @@ class DeleteExpiredFilesCommandTest extends TestCase
     {
         $num = 25;
         $data = $this->prepareImportExportFileTestData($num);
-        foreach (\array_keys($data) as $key) {
-            $data[$key]['expireDate'] = \date('Y-m-d H:i:s', \strtotime('-1 second'));
+        foreach (array_keys($data) as $key) {
+            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
         }
 
-        $this->fileRepository->create(\array_values($data), $this->context);
+        $this->fileRepository->create(array_values($data), $this->context);
 
         $inputs = ['', 'no', 'foo', 'No', 'NO', 'N'];
 
@@ -166,7 +166,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $message = $commandTester->getDisplay();
             static::assertRegExp(
-                \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
+                sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
                 $message
             );
             static::assertRegExp('/\[CAUTION\] Aborting due to user input./', $message);
@@ -189,9 +189,9 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => \sprintf('file%d.xml', $i),
+                'originalName' => sprintf('file%d.xml', $i),
                 'path' => $filePath,
-                'expireDate' => \date('Y-m-d H:i:s', \strtotime("+$i day")),
+                'expireDate' => date('Y-m-d H:i:s', strtotime("+$i day")),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

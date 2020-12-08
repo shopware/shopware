@@ -56,7 +56,7 @@ class AppCookieProvider implements CookieProviderInterface
         // build an array with the snippetName of a cookie group and the index in the cookies array
         // this way we need to iterate only once over the cookies
         foreach ($cookies as $index => $cookie) {
-            if (array_key_exists('entries', $cookie)) {
+            if (\array_key_exists('entries', $cookie)) {
                 $cookieGroups[$cookie['snippet_name']] = $index;
             }
         }
@@ -65,7 +65,7 @@ class AppCookieProvider implements CookieProviderInterface
         foreach ($apps->getEntities() as $app) {
             foreach ($app->getCookies() ?? [] as $cookie) {
                 // cookies that are not part of a group can simply be added to the cookies array
-                if (!array_key_exists('entries', $cookie)) {
+                if (!\array_key_exists('entries', $cookie)) {
                     $cookies[] = $cookie;
 
                     continue;
@@ -73,7 +73,7 @@ class AppCookieProvider implements CookieProviderInterface
 
                 // if a cookie group with the same name already exists in the cookies array
                 // we merge the entries of both cookie groups
-                if (array_key_exists($cookie['snippet_name'], $cookieGroups)) {
+                if (\array_key_exists($cookie['snippet_name'], $cookieGroups)) {
                     $originalIndex = $cookieGroups[$cookie['snippet_name']];
                     $cookies[$originalIndex]['entries'] = array_merge(
                         $cookies[$originalIndex]['entries'],
@@ -86,7 +86,7 @@ class AppCookieProvider implements CookieProviderInterface
                 // if no group with that name exists we add the cookie group to the cookies array
                 // and add the snippet name and the index to the snippet group array
                 $cookies[] = $cookie;
-                $cookieGroups[$cookie['snippet_name']] = count($cookies) - 1;
+                $cookieGroups[$cookie['snippet_name']] = \count($cookies) - 1;
             }
         }
 

@@ -97,7 +97,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    \sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build ', $filepath)
+                    sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build ', $filepath)
                 );
             }
 
@@ -124,7 +124,7 @@ class ThemeFileResolver
                 continue;
             }
             // Resolve @ dependencies
-            $name = \mb_substr($filepath, 1);
+            $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
             if (!$configuration) {
                 throw new InvalidThemeException($name);
@@ -139,13 +139,13 @@ class ThemeFileResolver
 
     private function isInclude(string $file): bool
     {
-        return \mb_strpos($file, '@') === 0;
+        return mb_strpos($file, '@') === 0;
     }
 
     private function fileExists(string $filepath): bool
     {
         if (!$this->themeFileImporter) {
-            return \file_exists($filepath);
+            return file_exists($filepath);
         }
 
         return $this->themeFileImporter->fileExists($filepath);

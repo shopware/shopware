@@ -96,7 +96,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
                 continue;
             }
             $filesToDelete[] = $this->urlGenerator->getRelativeMediaUrl($mediaEntity);
-            $thumbnailsToDelete = \array_merge($thumbnailsToDelete, $mediaEntity->getThumbnails()->getIds());
+            $thumbnailsToDelete = array_merge($thumbnailsToDelete, $mediaEntity->getThumbnails()->getIds());
         }
 
         $deleteMsg = new DeleteFileMessage();
@@ -171,6 +171,6 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     private function getRawIds(array $ids)
     {
-        return \array_column($ids, 'id');
+        return array_column($ids, 'id');
     }
 }

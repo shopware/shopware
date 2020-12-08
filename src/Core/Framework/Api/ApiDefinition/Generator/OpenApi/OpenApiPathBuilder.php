@@ -31,7 +31,7 @@ class OpenApiPathBuilder
         ]);
         $paths[$path . '/{id}']->get = $this->getDetailPath($definition);
 
-        if (\is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+        if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             return $paths;
         }
 
@@ -247,16 +247,16 @@ class OpenApiPathBuilder
 
     private function convertToHumanReadable(string $name): string
     {
-        $nameParts = \array_map('ucfirst', \explode('_', $name));
+        $nameParts = array_map('ucfirst', explode('_', $name));
 
-        return \implode(' ', $nameParts);
+        return implode(' ', $nameParts);
     }
 
     private function convertToOperationId(string $name): string
     {
-        $name = \ucfirst($this->convertToHumanReadable($name));
+        $name = ucfirst($this->convertToHumanReadable($name));
 
-        return \str_replace(' ', '', $name);
+        return str_replace(' ', '', $name);
     }
 
     private function getDefaultListingParameter(): array

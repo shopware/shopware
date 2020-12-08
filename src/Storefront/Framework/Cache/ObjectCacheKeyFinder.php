@@ -55,7 +55,7 @@ class ObjectCacheKeyFinder
             $keys[] = $key;
         }
 
-        return \array_filter(\array_keys(\array_flip($keys)));
+        return array_filter(array_keys(array_flip($keys)));
     }
 
     private function loop($data, SalesChannelContext $context, bool $skipContext = true): array
@@ -72,7 +72,7 @@ class ObjectCacheKeyFinder
             }
         }
 
-        return \array_filter(\array_keys(\array_flip($keys)));
+        return array_filter(array_keys(array_flip($keys)));
     }
 
     private function getObjectKeys(Struct $item, SalesChannelContext $context, bool $skipContext = true): array
@@ -81,7 +81,7 @@ class ObjectCacheKeyFinder
             return [];
         }
 
-        $hash = \spl_object_hash($item);
+        $hash = spl_object_hash($item);
 
         // already iterated?
         if (isset($this->objects[$hash])) {

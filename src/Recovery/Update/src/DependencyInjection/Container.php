@@ -36,7 +36,7 @@ class Container extends BaseContainer
         $me = $this;
 
         $container['shopware.version'] = function () use ($me) {
-            $version = \trim(\file_get_contents(UPDATE_ASSET_PATH . \DIRECTORY_SEPARATOR . 'version'));
+            $version = trim(file_get_contents(UPDATE_ASSET_PATH . \DIRECTORY_SEPARATOR . 'version'));
 
             return $version;
         };
@@ -69,7 +69,7 @@ class Container extends BaseContainer
         };
 
         $container['migration.source'] = static function () {
-            if (\file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBundleMigrations = [
                     SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
                     SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',
@@ -174,7 +174,7 @@ class Container extends BaseContainer
 
                 return $response->withStatus(500)
                     ->withHeader('Content-Type', 'application/json')
-                    ->write(\json_encode($data));
+                    ->write(json_encode($data));
             };
         };
 

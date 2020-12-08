@@ -84,7 +84,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         if ($value === null) {
             return null;
         }
-        $value = \json_decode($value, true);
+        $value = json_decode($value, true);
 
         $prices = [];
         foreach ($value as $row) {

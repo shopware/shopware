@@ -55,8 +55,8 @@ class LocalFactory implements AdapterFactoryInterface
         $options->setAllowedTypes('public', 'int');
         $options->setAllowedTypes('private', 'int');
 
-        $options->setDefault('public', 0666 & ~\umask());
-        $options->setDefault('private', 0600 & ~\umask());
+        $options->setDefault('public', 0666 & ~umask());
+        $options->setDefault('private', 0600 & ~umask());
 
         return $options->resolve($permissions);
     }
@@ -70,8 +70,8 @@ class LocalFactory implements AdapterFactoryInterface
         $options->setAllowedTypes('public', 'int');
         $options->setAllowedTypes('private', 'int');
 
-        $options->setDefault('public', 0777 & ~\umask());
-        $options->setDefault('private', 0700 & ~\umask());
+        $options->setDefault('public', 0777 & ~umask());
+        $options->setDefault('private', 0700 & ~umask());
 
         return $options->resolve($permissions);
     }

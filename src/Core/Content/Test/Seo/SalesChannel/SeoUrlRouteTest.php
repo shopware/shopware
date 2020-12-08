@@ -41,7 +41,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertSame('seo_url', $response[0]['apiAlias']);
@@ -62,7 +62,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertSame('seo_url', $response[0]['apiAlias']);
@@ -86,7 +86,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(0, $response);
     }
@@ -107,7 +107,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
     }

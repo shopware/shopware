@@ -44,7 +44,7 @@ class CustomFieldSetActionController extends AbstractController
             }
             $entityNames[] = $definition->getEntityName();
         }
-        \sort($entityNames);
+        sort($entityNames);
 
         return new JsonResponse($entityNames);
     }

@@ -268,7 +268,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
             ],
         ];
 
-        $product = \array_replace_recursive($product, $config);
+        $product = array_replace_recursive($product, $config);
 
         $this->repository->create([$product], Context::createDefaultContext());
         $this->addTaxDataToSalesChannel($this->context, $product['tax']);

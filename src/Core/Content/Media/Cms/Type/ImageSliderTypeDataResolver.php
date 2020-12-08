@@ -37,7 +37,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         $sliderItems = $sliderItemsConfig->getValue();
 
-        $mediaIds = \array_column($sliderItems, 'mediaId');
+        $mediaIds = array_column($sliderItems, 'mediaId');
 
         $criteria = new Criteria($mediaIds);
 

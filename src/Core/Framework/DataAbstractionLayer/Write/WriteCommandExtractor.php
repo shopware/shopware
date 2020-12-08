@@ -84,7 +84,7 @@ class WriteCommandExtractor
         $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
 
         // call map with child associations only
-        $children = \array_filter($fields, static function (Field $field) {
+        $children = array_filter($fields, static function (Field $field) {
             return $field instanceof ChildrenAssociationField;
         });
 
@@ -203,7 +203,7 @@ class WriteCommandExtractor
             return;
         }
 
-        $queue->add($definition, new InsertCommand($definition, \array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath()));
+        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath()));
     }
 
     /**
@@ -224,7 +224,7 @@ class WriteCommandExtractor
             $filtered[$field->getExtractPriority()][] = $field;
         }
 
-        \krsort($filtered, \SORT_NUMERIC);
+        krsort($filtered, \SORT_NUMERIC);
 
         $sorted = [];
         foreach ($filtered as $fields) {
@@ -248,7 +248,7 @@ class WriteCommandExtractor
         $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);
 
         //after all fields extracted, filter fields to only primary key flagged fields
-        $primaryKeys = \array_filter($mappingFields, static function (Field $field) {
+        $primaryKeys = array_filter($mappingFields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
@@ -290,11 +290,11 @@ class WriteCommandExtractor
      */
     private function getFieldsForPrimaryKeyMapping(array $fields): array
     {
-        $primaryKeys = \array_filter($fields, static function (Field $field) {
+        $primaryKeys = array_filter($fields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
-        $references = \array_filter($fields, static function (Field $field) {
+        $references = array_filter($fields, static function (Field $field) {
             return $field instanceof ManyToOneAssociationField;
         });
 
@@ -309,7 +309,7 @@ class WriteCommandExtractor
             }
         }
 
-        \usort($primaryKeys, static function (Field $a, Field $b) {
+        usort($primaryKeys, static function (Field $a, Field $b) {
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
@@ -375,13 +375,13 @@ class WriteCommandExtractor
         $allowedOrigins = '';
         if ($flag->getAllowedScopes()) {
             $message .= ' (Got: "%s" scope and "%s" is required)';
-            $allowedOrigins = \implode(' or ', $flag->getAllowedScopes());
+            $allowedOrigins = implode(' or ', $flag->getAllowedScopes());
         }
 
         $violationList = new ConstraintViolationList();
         $violationList->add(
             new ConstraintViolation(
-                \sprintf(
+                sprintf(
                     $message,
                     $parameters->getContext()->getContext()->getScope(),
                     $allowedOrigins

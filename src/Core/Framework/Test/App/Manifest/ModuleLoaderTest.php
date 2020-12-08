@@ -211,19 +211,19 @@ class ModuleLoaderTest extends TestCase
 
     private function validateSource(string $givenSource, string $urlPath, string $secret): void
     {
-        $url = \parse_url($givenSource);
+        $url = parse_url($givenSource);
         $queryString = $url['query'];
         unset($url['query']);
 
-        $expectedUrl = \parse_url($urlPath);
+        $expectedUrl = parse_url($urlPath);
         static::assertEquals($expectedUrl, $url);
 
-        \parse_str($queryString, $query);
+        parse_str($queryString, $query);
         static::assertEquals($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
 
         $hmac = $query['shopware-shop-signature'];
-        $content = \str_replace('&shopware-shop-signature=' . $hmac, '', $queryString);
+        $content = str_replace('&shopware-shop-signature=' . $hmac, '', $queryString);
 
         static::assertEquals(hash_hmac('sha256', $content, $secret), $hmac);
     }

@@ -45,11 +45,11 @@ class FileNameValidator
 
     private function validateFileNameDoesNotEndOrStartWithDot(string $fileName): void
     {
-        if (\mb_substr($fileName, 0, 1) === '.') {
+        if (mb_substr($fileName, 0, 1) === '.') {
             throw new IllegalFileNameException($fileName, 'Filename must not start with a "." (dot).');
         }
 
-        if (\mb_substr($fileName, \mb_strlen($fileName) - 1) === '.') {
+        if (mb_substr($fileName, mb_strlen($fileName) - 1) === '.') {
             throw new IllegalFileNameException($fileName, 'Filename must not end with a "." (dot).');
         }
     }
@@ -57,10 +57,10 @@ class FileNameValidator
     private function validateFileNameDoesNotContainForbiddenCharacter(string $fileName): void
     {
         foreach (self::RESTRICTED_CHARACTERS as $character) {
-            if (\mb_strpos($fileName, $character) !== false) {
+            if (mb_strpos($fileName, $character) !== false) {
                 throw new IllegalFileNameException(
                     $fileName,
-                    \sprintf(
+                    sprintf(
                         'Filename must not contain "%s"',
                         $character
                     )
@@ -71,11 +71,11 @@ class FileNameValidator
 
     private function validateFileNameDoesNotContainC0Character(string $fileName): void
     {
-        foreach (\range(0, 31) as $controlCharacter) {
-            if (\mb_strpos($fileName, \chr($controlCharacter)) !== false) {
+        foreach (range(0, 31) as $controlCharacter) {
+            if (mb_strpos($fileName, \chr($controlCharacter)) !== false) {
                 throw new IllegalFileNameException(
                     $fileName,
-                    \sprintf(
+                    sprintf(
                         'Filename must not contain character "%x"',
                         $controlCharacter
                     )
@@ -86,7 +86,7 @@ class FileNameValidator
 
     private function validateFileNameDoesNotEndWithSpaces(string $fileName): void
     {
-        if (\mb_substr($fileName, -1) === ' ') {
+        if (mb_substr($fileName, -1) === ' ') {
             throw new IllegalFileNameException($fileName, 'Filename must not end with spaces');
         }
     }

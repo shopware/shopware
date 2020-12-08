@@ -12,8 +12,8 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
      */
     public function __construct(string $dependency, array $dependants)
     {
-        $dependantNameList = \array_map(static function ($plugin) {
-            return \sprintf('"%s"', $plugin->getName());
+        $dependantNameList = array_map(static function ($plugin) {
+            return sprintf('"%s"', $plugin->getName());
         }, $dependants);
 
         parent::__construct(
@@ -21,7 +21,7 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
             [
                 'dependency' => $dependency,
                 'dependants' => $dependants,
-                'dependantNames' => \implode(', ', $dependantNameList),
+                'dependantNames' => implode(', ', $dependantNameList),
             ]
         );
     }

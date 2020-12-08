@@ -68,7 +68,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      */
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
-        $data = \array_merge($request->query->all(), $request->request->all());
+        $data = array_merge($request->query->all(), $request->request->all());
         $this->dataValidator->validate($data, $this->createDataValidation());
 
         $response = $this->paymentService->handlePaymentByOrder(

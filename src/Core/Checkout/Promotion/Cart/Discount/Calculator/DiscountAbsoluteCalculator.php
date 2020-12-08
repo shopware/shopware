@@ -36,7 +36,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        $discountValue = -\abs($definition->getPrice());
+        $discountValue = -abs($definition->getPrice());
 
         $price = $this->priceCalculator->calculate(
             $discountValue,
@@ -67,7 +67,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
                 $items[] = new DiscountCompositionItem(
                     $lineItem->getId(),
                     $lineItem->getQuantity(),
-                    \abs($discountValue) * $factor
+                    abs($discountValue) * $factor
                 );
             }
         }

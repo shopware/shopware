@@ -65,7 +65,7 @@ class RegisterRouteTest extends TestCase
                 $this->getRegistrationData()
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -80,7 +80,7 @@ class RegisterRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -247,7 +247,7 @@ class RegisterRouteTest extends TestCase
                 $this->getRegistrationData()
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('customer', $response['apiAlias']);
 
@@ -263,7 +263,7 @@ class RegisterRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('contextToken', $response);
         static::assertArrayHasKey('errors', $response);
@@ -372,7 +372,7 @@ class RegisterRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/account/register-confirm',
                 [
                     'hash' => $customer->getHash(),
-                    'em' => \sha1('teg-reg@example.com'),
+                    'em' => sha1('teg-reg@example.com'),
                 ]
             );
 
@@ -496,7 +496,7 @@ class RegisterRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
     }

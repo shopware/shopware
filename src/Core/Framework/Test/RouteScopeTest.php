@@ -18,19 +18,19 @@ class RouteScopeTest extends KernelTestBehaviourTest
         $errorMessage = 'No RouteScope defined for following Methods';
 
         foreach ($routeCollection as $route) {
-            $controllerMethod = \explode('::', $route->getDefault('_controller'));
+            $controllerMethod = explode('::', $route->getDefault('_controller'));
             $routeMethodReflection = new \ReflectionMethod($controllerMethod[0], $controllerMethod[1]);
             $docBlock = $routeMethodReflection->getDocComment() ?: '';
             $pattern = "#@([a-zA-Z]+\s*)#";
 
-            \preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
+            preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
 
             if (!\in_array('RouteScope', $matches[1], true)) {
                 $routeClassReflection = new \ReflectionClass($controllerMethod[0]);
                 $docBlock = $routeClassReflection->getDocComment() ?: '';
                 $pattern = "#@([a-zA-Z]+\s*)#";
 
-                \preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
+                preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
 
                 if (\in_array('RouteScope', $matches[1], true)) {
                     continue;
@@ -40,7 +40,7 @@ class RouteScopeTest extends KernelTestBehaviourTest
             }
         }
 
-        $errorMessage .= "\n" . \print_r($errors, true);
+        $errorMessage .= "\n" . print_r($errors, true);
 
         static::assertCount(0, $errors, $errorMessage);
     }

@@ -43,7 +43,7 @@ class ExtensionHelper
      */
     public function removeExtensions($object): void
     {
-        if (\is_scalar($object)) {
+        if (is_scalar($object)) {
             return;
         }
 

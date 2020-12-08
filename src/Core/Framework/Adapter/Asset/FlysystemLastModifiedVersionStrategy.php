@@ -50,7 +50,7 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 
     private function getMetaData(string $path): array
     {
-        $cacheKey = 'metaDataFlySystem-' . \md5($path);
+        $cacheKey = 'metaDataFlySystem-' . md5($path);
 
         /** @var ItemInterface $item */
         $item = $this->cacheAdapter->getItem($cacheKey);

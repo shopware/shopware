@@ -144,7 +144,7 @@ class EntityExtensionReadTest extends TestCase
         $created = $this->connection->fetchAll('SELECT * FROM many_to_one_product');
 
         static::assertCount(1, $created);
-        $reference = \array_shift($created);
+        $reference = array_shift($created);
         static::assertSame($extendableId, Uuid::fromBytesToHex($reference['id']));
 
         $criteria = new Criteria();

@@ -52,7 +52,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         foreach ($combines as $token) {
             $tokens[] = $token;
         }
-        $tokens = \array_keys(\array_flip($tokens));
+        $tokens = array_keys(array_flip($tokens));
 
         $scoring = $this->score($tokens, $matches);
 
@@ -73,7 +73,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private function permute($arg): array
     {
-        $array = \is_string($arg) ? \mb_str_split($arg) : $arg;
+        $array = \is_string($arg) ? str_split($arg) : $arg;
 
         if (\count($array) === 1) {
             return $array;
@@ -81,7 +81,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $result = [];
         foreach ($array as $key => $item) {
-            $nested = $this->permute(\array_diff_key($array, [$key => $item]));
+            $nested = $this->permute(array_diff_key($array, [$key => $item]));
 
             foreach ($nested as $p) {
                 $result[] = $item . ' ' . $p;
@@ -100,10 +100,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         foreach ($tokens as $token) {
             $token = (string) $token;
-            $slopSize = \mb_strlen($token) > 4 ? 2 : 1;
-            $length = \mb_strlen($token);
+            $slopSize = mb_strlen($token) > 4 ? 2 : 1;
+            $length = mb_strlen($token);
 
-            if (\mb_strlen($token) <= 2) {
+            if (mb_strlen($token) <= 2) {
                 $slops['normal'][] = $token . '%';
                 $slops['reversed'][] = $token . '%';
 
@@ -115,18 +115,18 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        $slops['normal'][] = \mb_substr($token, 0, $i) . $placeholder . \mb_substr($token, $i + $i2) . '%';
+                        $slops['normal'][] = mb_substr($token, 0, $i) . $placeholder . mb_substr($token, $i + $i2) . '%';
                         $placeholder .= '_';
                     }
                 }
             }
 
-            $token = \strrev($token);
+            $token = strrev($token);
             for ($i = 1; $i <= $length - 2; $i += $steps) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        $slops['reversed'][] = \mb_substr($token, 0, $i) . $placeholder . \mb_substr($token, $i + $i2) . '%';
+                        $slops['reversed'][] = mb_substr($token, 0, $i) . $placeholder . mb_substr($token, $i + $i2) . '%';
                         $placeholder .= '_';
                     }
                 }
@@ -158,7 +158,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         }
 
         $query->andWhere('language_id = :language');
-        $query->andWhere('(' . \implode(' OR ', $wheres) . ')');
+        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
@@ -178,7 +178,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                $levenshtein = \levenshtein($match, (string) $token);
+                $levenshtein = levenshtein($match, (string) $token);
                 if ($levenshtein === 0) {
                     $score += 6;
 
@@ -199,7 +199,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        \uasort($scoring, function ($a, $b) {
+        uasort($scoring, function ($a, $b) {
             return $b <=> $a;
         });
 

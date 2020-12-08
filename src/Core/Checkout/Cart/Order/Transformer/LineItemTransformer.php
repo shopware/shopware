@@ -19,7 +19,7 @@ class LineItemTransformer
         $output = [];
         $position = 1;
         foreach ($lineItems as $lineItem) {
-            $output = \array_replace($output, self::transform($lineItem, $parentId, $position));
+            $output = array_replace($output, self::transform($lineItem, $parentId, $position));
             ++$position;
         }
 
@@ -62,12 +62,12 @@ class LineItemTransformer
             'payload' => $lineItem->getPayload(),
         ];
 
-        $output[$lineItem->getId()] = \array_filter($data, function ($value) {
+        $output[$lineItem->getId()] = array_filter($data, function ($value) {
             return $value !== null;
         });
 
         if ($lineItem->hasChildren()) {
-            $output = \array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
+            $output = array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
         }
 
         return $output;

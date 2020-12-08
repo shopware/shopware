@@ -23,6 +23,6 @@ class ProductExportValidator implements ProductExportValidatorInterface
             $validator->validate($productExportEntity, $productExportContent, $errors);
         }
 
-        return \array_values($errors->getElements());
+        return array_values($errors->getElements());
     }
 }

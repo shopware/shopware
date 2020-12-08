@@ -20,7 +20,7 @@ class CustomerPasswordMatches extends Constraint
 
     public function __construct($options = null)
     {
-        $options = \array_merge(
+        $options = array_merge(
             ['context' => null],
             $options
         );
@@ -28,7 +28,7 @@ class CustomerPasswordMatches extends Constraint
         parent::__construct($options);
 
         if (!$this->context instanceof SalesChannelContext) {
-            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
     }
 

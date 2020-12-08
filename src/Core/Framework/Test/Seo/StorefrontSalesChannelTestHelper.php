@@ -69,7 +69,7 @@ trait StorefrontSalesChannelTestHelper
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('sales_channel.repository');
         $languageIds[] = $defaultLanguageId;
-        $languageIds = \array_unique($languageIds);
+        $languageIds = array_unique($languageIds);
 
         $domains = [];
         $languages = [];

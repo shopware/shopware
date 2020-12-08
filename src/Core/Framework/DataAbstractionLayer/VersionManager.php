@@ -441,7 +441,7 @@ class VersionManager
                 $payloadCursor = &$extensions;
             }
 
-            if (!array_key_exists($field->getPropertyName(), $dataCursor)) {
+            if (!\array_key_exists($field->getPropertyName(), $dataCursor)) {
                 continue;
             }
 
@@ -574,7 +574,7 @@ class VersionManager
         $commands = [$insert];
 
         foreach ($writtenEvents as $items) {
-            if (count($items) === 0) {
+            if (\count($items) === 0) {
                 continue;
             }
 
@@ -663,7 +663,7 @@ class VersionManager
             if ($field instanceof TranslationsAssociationField && $pkField->getStorageName() === $field->getLanguageField()) {
                 continue;
             }
-            if (array_key_exists($pkField->getPropertyName(), $nestedItem)) {
+            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }
         }
@@ -892,7 +892,7 @@ class VersionManager
 
         $primaryKeys = [];
         foreach ($rawData as $row) {
-            if (array_key_exists($fkField->getPropertyName(), $row)) {
+            if (\array_key_exists($fkField->getPropertyName(), $row)) {
                 $fk = $row[$fkField->getPropertyName()];
             } else {
                 $fk = $this->fetchForeignKey($definition, $row, $fkField);
@@ -974,10 +974,10 @@ class VersionManager
 
     private function getEntityForeignKeyName(string $parentEntity): string
     {
-        $parentPropertyName = \explode('_', $parentEntity);
-        $parentPropertyName = \array_map('ucfirst', $parentPropertyName);
+        $parentPropertyName = explode('_', $parentEntity);
+        $parentPropertyName = array_map('ucfirst', $parentPropertyName);
 
-        return \lcfirst(\implode($parentPropertyName)) . 'Id';
+        return lcfirst(implode('', $parentPropertyName)) . 'Id';
     }
 
     private function resolveRelations(EntityDefinition $definition, array $rawData, array $writeResults): array
@@ -1032,7 +1032,7 @@ class VersionManager
 
         $ids = array_unique(array_filter(array_column($parentIds, 'id')));
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return [];
         }
 

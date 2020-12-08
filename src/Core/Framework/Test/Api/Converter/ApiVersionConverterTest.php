@@ -83,7 +83,7 @@ class ApiVersionConverterTest extends TestCase
             'http://localhost',
             1
         );
-        $result = \json_decode($result, true);
+        $result = json_decode($result, true);
 
         static::assertEquals(10, $result['data']['attributes']['price']);
         static::assertArrayNotHasKey('prices', $result['data']['attributes']);
@@ -106,7 +106,7 @@ class ApiVersionConverterTest extends TestCase
             'http://localhost',
             2
         );
-        $result = \json_decode($result, true);
+        $result = json_decode($result, true);
 
         static::assertEquals([10], $result['data']['attributes']['prices']);
         static::assertArrayNotHasKey('price', $result['data']['attributes']);
@@ -191,7 +191,7 @@ class ApiVersionConverterTest extends TestCase
         $conversionException = new ApiConversionException();
         $apiVersionConverter->convertPayload($definition, ['bar' => 'asdf'], 1, $conversionException);
 
-        static::assertSame([], \iterator_to_array($conversionException->getErrors()));
+        static::assertSame([], iterator_to_array($conversionException->getErrors()));
     }
 
     public function testTryingToWriteFieldFromFutureLeadsToException(): void
@@ -244,7 +244,7 @@ class ApiVersionConverterTest extends TestCase
         $conversionException = new ApiConversionException();
         $this->apiVersionConverter->convertPayload($deprecatedDefinition, $payload, 2, $conversionException);
 
-        $errors = \iterator_to_array($conversionException->getErrors());
+        $errors = iterator_to_array($conversionException->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[0]['code']);
@@ -406,7 +406,7 @@ class ApiVersionConverterTest extends TestCase
 
         static::assertInstanceOf(SearchRequestException::class, $exception);
 
-        $errors = \iterator_to_array($exception->getErrors());
+        $errors = iterator_to_array($exception->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__QUERY_REMOVED_FIELD', $errors[0]['code']);
@@ -455,7 +455,7 @@ class ApiVersionConverterTest extends TestCase
 
         static::assertInstanceOf(SearchRequestException::class, $exception);
 
-        $errors = \iterator_to_array($exception->getErrors());
+        $errors = iterator_to_array($exception->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__QUERY_FUTURE_FIELD', $errors[0]['code']);

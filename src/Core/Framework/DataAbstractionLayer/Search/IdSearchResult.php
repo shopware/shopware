@@ -35,9 +35,9 @@ class IdSearchResult extends Struct
     public function __construct(int $total, array $data, Criteria $criteria, Context $context)
     {
         $this->total = $total;
-        $this->ids = \array_column($data, 'primaryKey');
+        $this->ids = array_column($data, 'primaryKey');
 
-        $this->data = \array_map(function ($row) {
+        $this->data = array_map(function ($row) {
             return $row['data'];
         }, $data);
 

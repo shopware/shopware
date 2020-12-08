@@ -70,7 +70,7 @@ class PathnameStrategyTest extends TestCase
         static::assertSame($encoded, $strategy->generatePathHash($media));
         static::assertStringEndsNotWith('/', $encoded);
         static::assertStringStartsNotWith('/', $encoded);
-        static::assertSame($length, \mb_strlen($encoded));
+        static::assertSame($length, mb_strlen($encoded));
     }
 
     private function assertCacheBusterGenerator(PathnameStrategyInterface $strategy): void

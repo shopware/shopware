@@ -31,7 +31,7 @@ class SeoActionControllerTest extends TestCase
     {
         $this->getBrowser()->request('POST', '/api/' . $this->getApiVersion() . '/_action/seo-url-template/validate');
         $response = $this->getBrowser()->getResponse();
-        $result = \json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($result['errors']);
         static::assertEquals(400, $response->getStatusCode());
@@ -48,7 +48,7 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/' . $this->getApiVersion() . '/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = \json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($result['errors'] ?? []);
         static::assertEquals(400, $response->getStatusCode());
@@ -65,7 +65,7 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/' . $this->getApiVersion() . '/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = \json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $result);
         static::assertEquals(200, $response->getStatusCode());
@@ -103,7 +103,7 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true);
         static::assertNotNull($data['product'] ?? null);
     }
 
@@ -122,7 +122,7 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true);
 
         static::assertEquals('test', $data[0]['seoPathInfo']);
     }
@@ -148,9 +148,9 @@ class SeoActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $data = \json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true);
 
-        $urls = \array_column($data, 'seoPathInfo');
+        $urls = array_column($data, 'seoPathInfo');
         static::assertContains('B/', $urls);
     }
 
@@ -164,7 +164,7 @@ class SeoActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', '/api/' . $this->getApiVersion() . '/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
-        $result = \json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('errors', $result);
         static::assertEquals(404, $response->getStatusCode());
@@ -275,7 +275,7 @@ class SeoActionControllerTest extends TestCase
 
         $content = $this->getBrowser()->getResponse()->getContent();
 
-        return \json_decode($content, true)['data'];
+        return json_decode($content, true)['data'];
     }
 
     private function createTestProduct(): string

@@ -65,7 +65,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $encryptedId,
                 'originalMessageClass' => EncryptedMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => true,
                 'nextExecutionTime' => new \DateTime('2000-01-01'),
@@ -77,7 +77,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $plainId,
                 'originalMessageClass' => EncryptedMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => new \DateTime('2000-01-01'),
@@ -89,7 +89,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $futureId,
                 'originalMessageClass' => EncryptedMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => (new \DateTime())->modify('+1 day'),
@@ -134,7 +134,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $testMessageId,
                 'originalMessageClass' => TestMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => new \DateTime('2000-01-01'),
@@ -146,7 +146,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $id1,
                 'originalMessageClass' => EncryptedMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => new \DateTime('2000-01-01'),
@@ -158,7 +158,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
             [
                 'id' => $id2,
                 'originalMessageClass' => EncryptedMessage::class,
-                'serializedOriginalMessage' => \serialize($msg),
+                'serializedOriginalMessage' => serialize($msg),
                 'handlerClass' => EncryptedMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => (new \DateTime())->modify('+1 day'),

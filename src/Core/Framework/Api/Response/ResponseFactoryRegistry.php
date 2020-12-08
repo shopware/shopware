@@ -43,6 +43,6 @@ class ResponseFactoryRegistry
             }
         }
 
-        throw new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', \implode(', ', $contentTypes)));
+        throw new UnsupportedMediaTypeHttpException(sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
     }
 }

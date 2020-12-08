@@ -11,7 +11,7 @@ class ImpossibleWriteOrderException extends ShopwareHttpException
     {
         parent::__construct(
             'Can not resolve write order for provided data. Remaining write order classes: {{ classesString }}',
-            ['classes' => $remaining, 'classesString' => \implode(', ', $remaining)]
+            ['classes' => $remaining, 'classesString' => implode(', ', $remaining)]
         );
     }
 

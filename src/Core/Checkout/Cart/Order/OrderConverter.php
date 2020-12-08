@@ -177,7 +177,7 @@ class OrderConverter
             );
         }
 
-        $data['lineItems'] = \array_values($convertedLineItems);
+        $data['lineItems'] = array_values($convertedLineItems);
 
         /** @var IdStruct|null $idStruct */
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);

@@ -36,7 +36,7 @@ class LineItemGroup
      */
     public function getItems(): array
     {
-        return \array_values($this->items);
+        return array_values($this->items);
     }
 
     /**

@@ -159,7 +159,7 @@ class AggregationParser
             return $data;
         }
 
-        throw new InvalidAggregationQueryException(\sprintf('The aggregation of type "%s" is not supported.', \get_class($aggregation)));
+        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', \get_class($aggregation)));
     }
 
     private function parseAggregation(int $index, EntityDefinition $definition, array $aggregation, SearchRequestException $exceptions): ?Aggregation
@@ -172,7 +172,7 @@ class AggregationParser
 
         $name = \array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
 
-        if (empty($name) || \is_numeric($name)) {
+        if (empty($name) || is_numeric($name)) {
             $exceptions->add(new InvalidAggregationQueryException('The aggregation name should be a non-empty string.'), '/aggregations/' . $index);
 
             return null;
@@ -180,7 +180,7 @@ class AggregationParser
 
         $type = $aggregation['type'] ?? null;
 
-        if (empty($type) || \is_numeric($type)) {
+        if (empty($type) || is_numeric($type)) {
             $exceptions->add(new InvalidAggregationQueryException('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $index);
 
             return null;
@@ -264,7 +264,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (\strcasecmp($order, 'desc') === 0) {
+                    if (strcasecmp($order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;
@@ -292,7 +292,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (\strcasecmp($order, 'desc') === 0) {
+                    if (strcasecmp($order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;
@@ -304,7 +304,7 @@ class AggregationParser
                 return new TermsAggregation($name, $field, $limit, $sorting, $nested);
 
             default:
-                $exceptions->add(new InvalidAggregationQueryException(\sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $index);
+                $exceptions->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $index);
 
                 return null;
         }
@@ -314,7 +314,7 @@ class AggregationParser
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (\mb_strpos($fieldName, $prefix) === false) {
+        if (mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

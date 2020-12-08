@@ -111,45 +111,45 @@ EOL;
             $name = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        $name = \ucfirst($name);
+        $name = ucfirst($name);
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;
 
-        if (\file_exists($directory)) {
-            throw new \RuntimeException(\sprintf('Plugin directory %s already exists', $directory));
+        if (file_exists($directory)) {
+            throw new \RuntimeException(sprintf('Plugin directory %s already exists', $directory));
         }
 
-        \mkdir($directory . '/src/Resources/config/', 0777, true);
+        mkdir($directory . '/src/Resources/config/', 0777, true);
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
         $servicesXmlFile = $directory . '/src/Resources/config/services.xml';
 
-        $composer = \str_replace(
+        $composer = str_replace(
             ['#namespace#', '#class#'],
             [$name, $name],
             $this->composerTemplate
         );
 
-        $bootstrap = \str_replace(
+        $bootstrap = str_replace(
             ['#namespace#', '#class#'],
             [$name, $name],
             $this->bootstrapTemplate
         );
 
-        \file_put_contents($composerFile, $composer);
-        \file_put_contents($bootstrapFile, $bootstrap);
-        \file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
+        file_put_contents($composerFile, $composer);
+        file_put_contents($bootstrapFile, $bootstrap);
+        file_put_contents($servicesXmlFile, $this->servicesXmlTemplate);
 
         if ($input->getOption('create-config')) {
             $configXmlFile = $directory . '/src/Resources/config/config.xml';
-            $configXml = \str_replace(
+            $configXml = str_replace(
                 ['pluginName'],
                 [$name],
                 $this->configXmlTemplate
             );
 
-            \file_put_contents($configXmlFile, $configXml);
+            file_put_contents($configXmlFile, $configXml);
         }
 
         return 0;

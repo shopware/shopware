@@ -158,7 +158,7 @@ class RetryMessageHandlerTest extends TestCase
             [
                 'id' => $deadMessageId,
                 'originalMessageClass' => \get_class($message),
-                'serializedOriginalMessage' => \serialize($message),
+                'serializedOriginalMessage' => serialize($message),
                 'handlerClass' => $handlerClass,
                 'encrypted' => false,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),

@@ -520,7 +520,7 @@ class CategoryEntity extends Entity
             return $breadcrumb;
         }
 
-        $parts = array_slice(explode('|', $this->path), 1, -1);
+        $parts = \array_slice(explode('|', $this->path), 1, -1);
 
         $filtered = [];
         foreach ($parts as $id) {

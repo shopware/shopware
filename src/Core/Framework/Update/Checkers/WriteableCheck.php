@@ -37,11 +37,11 @@ class WriteableCheck implements CheckerInterface
         $checkedDirectories = [];
 
         foreach ($values as $path) {
-            $fullPath = \rtrim($this->rootDir . '/' . $path, '/');
+            $fullPath = rtrim($this->rootDir . '/' . $path, '/');
             $checkedDirectories[] = $fullPath;
             $fixPermissions = true;
 
-            $directories = \array_merge(
+            $directories = array_merge(
                 $directories,
                 $this->filesystem->checkSingleDirectoryPermissions($fullPath, $fixPermissions)
             );
@@ -52,7 +52,7 @@ class WriteableCheck implements CheckerInterface
                 'writeableCheck',
                 self::VALIDATION_SUCCESS,
                 'writeableCheckValid',
-                ['checkedDirectories' => \implode('<br>', $checkedDirectories)]
+                ['checkedDirectories' => implode('<br>', $checkedDirectories)]
             );
         }
 
@@ -60,7 +60,7 @@ class WriteableCheck implements CheckerInterface
             'writeableCheck',
             self::VALIDATION_ERROR,
             'writeableCheckFailed',
-            ['failedDirectories' => \implode('<br>', $directories)]
+            ['failedDirectories' => implode('<br>', $directories)]
         );
     }
 }

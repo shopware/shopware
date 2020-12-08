@@ -62,7 +62,7 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = \array_map(function (TestEntity $entity) {
+        $actualNames = array_map(function (TestEntity $entity) {
             return $entity->getName();
         }, $afterSortCollection->getElements());
 
@@ -100,7 +100,7 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = \array_map(function (TestEntity $entity) {
+        $actualNames = array_map(function (TestEntity $entity) {
             return $entity->getName();
         }, $entities->getElements());
 
@@ -138,7 +138,7 @@ class AfterSortTest extends TestCase
             $entity3->getName(),
         ];
 
-        $actualNames = \array_map(function (TestEntity $entity) {
+        $actualNames = array_map(function (TestEntity $entity) {
             return $entity->getName();
         }, $entities->getElements());
 
@@ -178,7 +178,7 @@ class AfterSortTest extends TestCase
             return $entity->getName();
         });
 
-        $actualNames = \array_map(function (TestEntity $entity) {
+        $actualNames = array_map(function (TestEntity $entity) {
             return $entity->getName();
         }, $afterSortCollection->getElements());
 

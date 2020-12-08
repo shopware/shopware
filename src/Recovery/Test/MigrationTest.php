@@ -64,7 +64,7 @@ class MigrationTest extends TestCase
             $response = $app($this->requestFactory('GET', '/database-import/importDatabase'), new Response());
             $content = (string) $response->getBody();
             static::assertSame(200, $response->getStatusCode());
-        } while (\mb_strpos($content, '"valid":true,') !== false);
+        } while (mb_strpos($content, '"valid":true,') !== false);
 
         $this->assertTestMigrationsWereExecuted($app);
     }
@@ -162,7 +162,7 @@ class MigrationTest extends TestCase
             $parts[] = $name . '=' . $value;
         }
 
-        $uri .= '?' . \implode('&', $parts);
+        $uri .= '?' . implode('&', $parts);
         $env = Environment::mock();
         $uri = Uri::createFromString($uri);
         $headers = Headers::createFromEnvironment($env);
@@ -226,14 +226,14 @@ class MigrationTest extends TestCase
 
         $this->createDatabase();
         $_ENV['DATABASE_URL'] = $this->getDsn();
-        \putenv('DATABASE_URL=' . $this->getDsn());
+        putenv('DATABASE_URL=' . $this->getDsn());
     }
 
     protected function assertTestMigrationsWereExecuted($app): void
     {
         $container = $app->getContainer();
 
-        if (\method_exists($container, 'get')) {
+        if (method_exists($container, 'get')) {
             /** @var \PDO $pdo */
             $pdo = $app->getContainer()->get('db');
         } else {

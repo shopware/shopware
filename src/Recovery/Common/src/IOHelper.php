@@ -180,7 +180,7 @@ class IOHelper
             }
         }
 
-        return \implode("\n", $lines);
+        return implode("\n", $lines);
     }
 
     /**

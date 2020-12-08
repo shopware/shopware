@@ -44,10 +44,10 @@ class EntityCacheKeyGenerator
         ];
 
         if ($criteria && \count($criteria->getAssociations()) > 0) {
-            $keys[] = \md5(\json_encode($criteria->getAssociations()));
+            $keys[] = md5(json_encode($criteria->getAssociations()));
         }
 
-        return \md5(\implode('-', $keys));
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -63,7 +63,7 @@ class EntityCacheKeyGenerator
             $this->cacheHash,
         ];
 
-        return \md5(\implode('-', $keys));
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -78,7 +78,7 @@ class EntityCacheKeyGenerator
             $this->cacheHash,
         ];
 
-        return \md5(\implode('-', $keys));
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -87,14 +87,14 @@ class EntityCacheKeyGenerator
     public function getAggregationCacheKey(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): string
     {
         $keys = [
-            \md5(\json_encode($aggregation)),
+            md5(json_encode($aggregation)),
             $this->getDefinitionCacheKey($definition),
             $this->getAggregationHash($criteria),
             $this->getContextHash($context),
             $this->cacheHash,
         ];
 
-        return \md5(\implode('-', $keys));
+        return md5(implode('-', $keys));
     }
 
     /**
@@ -106,14 +106,14 @@ class EntityCacheKeyGenerator
     {
         if ($entityName instanceof EntityDefinition) {
             $entity = $entityName->getEntityName();
-            @\trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', \E_USER_DEPRECATED);
+            @trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', \E_USER_DEPRECATED);
         } else {
             $entity = $entityName;
         }
 
         $keys = [$entity, $id];
 
-        return \implode('-', $keys);
+        return implode('-', $keys);
     }
 
     /**
@@ -140,7 +140,7 @@ class EntityCacheKeyGenerator
         $tags = [$definition->getEntityName() . '.id'];
 
         $fields = $criteria->getAggregationQueryFields();
-        $fields = \array_merge($fields, $aggregation->getFields());
+        $fields = array_merge($fields, $aggregation->getFields());
 
         foreach ($fields as $accessor) {
             foreach ($this->getFieldsOfAccessor($definition, $accessor) as $association) {
@@ -216,7 +216,7 @@ class EntityCacheKeyGenerator
             }
         }
 
-        return \array_keys(\array_flip($keys));
+        return array_keys(array_flip($keys));
     }
 
     public function getFieldTag(EntityDefinition $definition, string $fieldName): string
@@ -226,12 +226,12 @@ class EntityCacheKeyGenerator
 
     private function getDefinitionCacheKey(EntityDefinition $definition): string
     {
-        return \str_replace('\\', '-', $definition->getClass());
+        return str_replace('\\', '-', $definition->getClass());
     }
 
     private function getReadCriteriaHash(Criteria $criteria): string
     {
-        return \md5(\json_encode([
+        return md5(json_encode([
             $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getPostFilters(),
@@ -241,12 +241,12 @@ class EntityCacheKeyGenerator
 
     private function getFieldsOfAccessor(EntityDefinition $definition, string $accessor): array
     {
-        $parts = \explode('.', $accessor);
+        $parts = explode('.', $accessor);
         $fields = $definition->getFields();
 
         $associations = [];
         if ($parts[0] === $definition->getEntityName()) {
-            \array_shift($parts);
+            array_shift($parts);
         }
 
         $source = $definition;
@@ -294,7 +294,7 @@ class EntityCacheKeyGenerator
 
     private function getCriteriaHash(Criteria $criteria): string
     {
-        return \md5(\json_encode([
+        return md5(json_encode([
             $criteria->getIds(),
             $criteria->getFilters(),
             $criteria->getTerm(),
@@ -310,14 +310,14 @@ class EntityCacheKeyGenerator
 
     private function getAggregationHash(Criteria $criteria): string
     {
-        return \md5(\json_encode([
+        return md5(json_encode([
             $criteria->getFilters(),
         ]));
     }
 
     private function getContextHash(Context $context): string
     {
-        return \md5(\json_encode([
+        return md5(json_encode([
             $context->getLanguageIdChain(),
             $context->getVersionId(),
             $context->getCurrencyFactor(),

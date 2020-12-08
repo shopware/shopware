@@ -14,30 +14,30 @@ class Uuid
 
     public static function randomHex(): string
     {
-        $hex = \bin2hex(\random_bytes(16));
-        $timeHi = self::applyVersion(\mb_substr($hex, 12, 4), 4);
-        $clockSeqHi = self::applyVariant(\hexdec(\mb_substr($hex, 16, 2)));
+        $hex = bin2hex(random_bytes(16));
+        $timeHi = self::applyVersion(mb_substr($hex, 12, 4), 4);
+        $clockSeqHi = self::applyVariant(hexdec(mb_substr($hex, 16, 2)));
 
-        return \sprintf(
+        return sprintf(
             '%08s%04s%04s%02s%02s%012s',
             // time low
-            \mb_substr($hex, 0, 8),
+            mb_substr($hex, 0, 8),
             // time mid
-            \mb_substr($hex, 8, 4),
+            mb_substr($hex, 8, 4),
             // time high and version
-            \str_pad(\dechex($timeHi), 4, '0', \STR_PAD_LEFT),
+            str_pad(dechex($timeHi), 4, '0', \STR_PAD_LEFT),
             // clk_seq_hi_res
-            \str_pad(\dechex($clockSeqHi), 2, '0', \STR_PAD_LEFT),
+            str_pad(dechex($clockSeqHi), 2, '0', \STR_PAD_LEFT),
             // clock_seq_low
-            \mb_substr($hex, 18, 2),
+            mb_substr($hex, 18, 2),
             // node
-            \mb_substr($hex, 20, 12)
+            mb_substr($hex, 20, 12)
         );
     }
 
     public static function randomBytes(): string
     {
-        return \hex2bin(self::randomHex());
+        return hex2bin(self::randomHex());
     }
 
     /**
@@ -46,10 +46,10 @@ class Uuid
      */
     public static function fromBytesToHex(string $bytes): string
     {
-        if (\mb_strlen($bytes, '8bit') !== 16) {
-            throw new InvalidUuidLengthException(\mb_strlen($bytes, '8bit'), \bin2hex($bytes));
+        if (mb_strlen($bytes, '8bit') !== 16) {
+            throw new InvalidUuidLengthException(mb_strlen($bytes, '8bit'), bin2hex($bytes));
         }
-        $uuid = \bin2hex($bytes);
+        $uuid = bin2hex($bytes);
 
         if (!self::isValid($uuid)) {
             throw new InvalidUuidException($uuid);
@@ -83,7 +83,7 @@ class Uuid
      */
     public static function fromHexToBytes(string $uuid): string
     {
-        if ($bin = @\hex2bin($uuid)) {
+        if ($bin = @hex2bin($uuid)) {
             return $bin;
         }
 
@@ -92,7 +92,7 @@ class Uuid
 
     public static function isValid(string $id): bool
     {
-        if (!\preg_match('/' . self::VALID_PATTERN . '/', $id)) {
+        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
             return false;
         }
 
@@ -101,7 +101,7 @@ class Uuid
 
     private static function applyVersion(string $timeHi, int $version): int
     {
-        $timeHi = \hexdec($timeHi) & 0x0fff;
+        $timeHi = hexdec($timeHi) & 0x0fff;
         $timeHi &= ~(0xf000);
         $timeHi |= $version << 12;
 

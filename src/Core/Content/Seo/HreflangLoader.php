@@ -79,7 +79,7 @@ class HreflangLoader implements HreflangLoaderInterface
                     $locale = $entity->getLanguage()->getLocale()->getCode();
 
                     if ($domain->isHreflangUseOnlyLocale()) {
-                        $locale = \mb_substr($locale, 0, 2);
+                        $locale = mb_substr($locale, 0, 2);
                     }
 
                     if ($domain->getId() === $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId()) {
@@ -118,7 +118,7 @@ class HreflangLoader implements HreflangLoaderInterface
             $locale = $domain->getLanguage()->getLocale()->getCode();
 
             if ($domain->isHreflangUseOnlyLocale()) {
-                $locale = \mb_substr($locale, 0, 2);
+                $locale = mb_substr($locale, 0, 2);
             }
 
             if ($domain->getId() === $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId()) {

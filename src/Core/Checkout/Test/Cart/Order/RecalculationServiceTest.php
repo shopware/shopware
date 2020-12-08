@@ -105,7 +105,7 @@ class RecalculationServiceTest extends TestCase
         $rootProductId = Uuid::randomHex();
 
         // to test the sorting rootProductId has to be smaller than parentProductId as the default sorting would be by id
-        while (\strcasecmp($parentProductId, $rootProductId) < 0) {
+        while (strcasecmp($parentProductId, $rootProductId) < 0) {
             $rootProductId = Uuid::randomHex();
         }
 
@@ -219,7 +219,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -244,7 +244,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -272,7 +272,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -311,7 +311,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -336,7 +336,7 @@ class RecalculationServiceTest extends TestCase
         // recalculate order 2nd time
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -533,7 +533,7 @@ class RecalculationServiceTest extends TestCase
         // merge versioned order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/version/merge/%s/%s',
                 PlatformRequest::API_VERSION,
                 $this->getContainer()->get(OrderDefinition::class)->getEntityName(),
@@ -621,7 +621,7 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondPriceRuleToShippingMethod($priceRuleId, $shippingMethodId);
-        $this->salesChannelContext->setRuleIds(\array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
         $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
@@ -654,7 +654,7 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
-        $this->salesChannelContext->setRuleIds(\array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
         $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
@@ -688,7 +688,7 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->addSecondShippingMethodPriceRule($priceRuleId, $shippingMethodId);
-        $this->salesChannelContext->setRuleIds(\array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
         $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
@@ -719,7 +719,7 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_PRICE);
-        $this->salesChannelContext->setRuleIds(\array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
         $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
@@ -749,7 +749,7 @@ class RecalculationServiceTest extends TestCase
         $priceRuleId = Uuid::randomHex();
         $shippingMethodId = Uuid::randomHex();
         $shippingMethod = $this->createTwoConditionsWithDifferentQuantities($priceRuleId, $shippingMethodId, DeliveryCalculator::CALCULATION_BY_WEIGHT);
-        $this->salesChannelContext->setRuleIds(\array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
+        $this->salesChannelContext->setRuleIds(array_merge($this->salesChannelContext->getRuleIds(), [$priceRuleId]));
 
         $prop = ReflectionHelper::getProperty(SalesChannelContext::class, 'shippingMethod');
         $prop->setValue($this->salesChannelContext, $shippingMethod);
@@ -809,7 +809,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order-address/%s/customer-address/%s',
                 PlatformRequest::API_VERSION,
                 $orderAddressId,
@@ -1026,7 +1026,7 @@ class RecalculationServiceTest extends TestCase
             ],
         ];
 
-        $product = \array_replace_recursive($default, $options);
+        $product = array_replace_recursive($default, $options);
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
@@ -1062,7 +1062,7 @@ class RecalculationServiceTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/version/order/%s',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -1071,7 +1071,7 @@ class RecalculationServiceTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -1093,7 +1093,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/product/%s',
                 PlatformRequest::API_VERSION,
                 $orderId,
@@ -1111,7 +1111,7 @@ class RecalculationServiceTest extends TestCase
 
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/recalculate',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -1178,7 +1178,7 @@ class RecalculationServiceTest extends TestCase
         // add product to order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/lineItem',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -1188,7 +1188,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            \json_encode($data)
+            json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1248,7 +1248,7 @@ class RecalculationServiceTest extends TestCase
         // add credit item to order
         $this->getBrowser()->request(
             'POST',
-            \sprintf(
+            sprintf(
                 '/api/v%s/_action/order/%s/creditItem',
                 PlatformRequest::API_VERSION,
                 $orderId
@@ -1258,7 +1258,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            \json_encode($data)
+            json_encode($data)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1307,7 +1307,7 @@ class RecalculationServiceTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $shippingMethodId,
@@ -1617,7 +1617,7 @@ class RecalculationServiceTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $paymentMethodId,

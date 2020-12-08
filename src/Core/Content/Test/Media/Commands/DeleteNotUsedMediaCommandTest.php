@@ -51,7 +51,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester->execute([]);
 
         $string = $commandTester->getDisplay();
-        static::assertIsInt(\mb_strpos($string, 'No unused media files found.'));
+        static::assertIsInt(mb_strpos($string, 'No unused media files found.'));
     }
 
     public function testExecuteWithConfirm(): void
@@ -69,10 +69,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thirdPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($fourthPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['yes']);
@@ -80,7 +80,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $string = $commandTester->getDisplay();
 
-        static::assertIsInt(\mb_strpos($string, 'Successfully deleted 2 media files.'));
+        static::assertIsInt(mb_strpos($string, 'Successfully deleted 2 media files.'));
 
         $this->runWorker();
 
@@ -120,10 +120,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
         $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
 
-        $this->getPublicFilesystem()->putStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($thirdPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($fourthPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($firstPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($secondPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($thirdPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($fourthPath, fopen(self::FIXTURE_FILE, 'rb'));
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['no']);
@@ -132,7 +132,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $this->runWorker();
 
         $string = $commandTester->getDisplay();
-        static::assertIsInt(\mb_strpos($string, 'Aborting due to user input.'));
+        static::assertIsInt(mb_strpos($string, 'Aborting due to user input.'));
 
         $result = $this->mediaRepository->search(
             new Criteria([

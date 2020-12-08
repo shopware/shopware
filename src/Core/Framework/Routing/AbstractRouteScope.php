@@ -13,7 +13,7 @@ abstract class AbstractRouteScope
 
     public function isAllowedPath(string $path): bool
     {
-        $basePath = \explode('/', $path);
+        $basePath = explode('/', $path);
 
         return empty($this->allowedPaths) || \in_array($basePath[1], $this->allowedPaths, true);
     }

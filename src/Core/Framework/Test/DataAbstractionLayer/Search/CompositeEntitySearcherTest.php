@@ -55,7 +55,7 @@ class CompositeEntitySearcherTest extends TestCase
     public function testDefinitionsAreUnique(): void
     {
         $closure = \Closure::fromCallable(function (): array {
-            return \iterator_to_array($this->definitions);
+            return iterator_to_array($this->definitions);
         });
         $closure = \Closure::bind($closure, $this->search, $this->search);
 
@@ -83,7 +83,7 @@ class CompositeEntitySearcherTest extends TestCase
 
         $result = $this->search->search("${filterId}_test ${filterId}_product", 20, $this->context, PlatformRequest::API_VERSION);
 
-        $productResult = \current(\array_filter($result, function ($item) {
+        $productResult = current(array_filter($result, function ($item) {
             return $item['entity'] === $this->getContainer()->get(ProductDefinition::class)->getEntityName();
         }));
 

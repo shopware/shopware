@@ -21,7 +21,7 @@ class IndexingDto
 
     public function __construct(array $ids, string $index, string $entity)
     {
-        $this->ids = \array_values($ids);
+        $this->ids = array_values($ids);
         $this->index = $index;
         $this->entity = $entity;
     }

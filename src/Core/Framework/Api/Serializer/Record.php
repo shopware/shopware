@@ -118,7 +118,7 @@ class Record implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $vars = \get_object_vars($this);
+        $vars = get_object_vars($this);
 
         unset($vars['extensions']);
         foreach ($vars['relationships'] as $i => $_x) {

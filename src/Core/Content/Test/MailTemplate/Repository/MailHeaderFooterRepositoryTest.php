@@ -57,7 +57,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
     {
         $data = $this->prepareHeaderFooterTestData();
 
-        $id = \array_key_first($data);
+        $id = array_key_first($data);
 
         $this->repository->create([$data[$id]], $this->context);
 
@@ -89,7 +89,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
             'SELECT * 
@@ -122,7 +122,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         foreach ($data as $expect) {
             $id = $expect['id'];
@@ -146,16 +146,16 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
-        $new_data = \array_values($this->prepareHeaderFooterTestData($num, 'xxx'));
+        $new_data = array_values($this->prepareHeaderFooterTestData($num, 'xxx'));
         foreach ($data as $id => $value) {
-            $new_value = \array_pop($new_data);
+            $new_value = array_pop($new_data);
             $new_value['id'] = $value['id'];
             $data[$id] = $new_value;
         }
 
-        $this->repository->upsert(\array_values($data), $this->context);
+        $this->repository->upsert(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
             'SELECT * 
@@ -186,10 +186,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
 
-        $this->repository->create(\array_values($data), $this->context);
+        $this->repository->create(array_values($data), $this->context);
 
         $ids = [];
-        foreach (\array_column($data, 'id') as $id) {
+        foreach (array_column($data, 'id') as $id) {
             $ids[] = ['id' => $id];
         }
 
@@ -219,12 +219,12 @@ class MailHeaderFooterRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'systemDefault' => (($i % 2 === 0) ? false : true),
-                'name' => \sprintf('Test-Template %d %s', $i, $add),
-                'description' => \sprintf('John Doe %d %s', $i, $add),
-                'headerPlain' => \sprintf('Test header 123 %d %s', $i, $add),
-                'headerHtml' => \sprintf('<h1>Test header %d %s </h1>', $i, $add),
-                'footerPlain' => \sprintf('Test footer 123 %d %s', $i, $add),
-                'footerHtml' => \sprintf('<h1>Test footer %d %s </h1>', $i, $add),
+                'name' => sprintf('Test-Template %d %s', $i, $add),
+                'description' => sprintf('John Doe %d %s', $i, $add),
+                'headerPlain' => sprintf('Test header 123 %d %s', $i, $add),
+                'headerHtml' => sprintf('<h1>Test header %d %s </h1>', $i, $add),
+                'footerPlain' => sprintf('Test footer 123 %d %s', $i, $add),
+                'footerHtml' => sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
 

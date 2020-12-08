@@ -98,7 +98,7 @@ class Context extends Struct
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
-        $this->languageIdChain = \array_keys(\array_flip(\array_filter($languageIdChain)));
+        $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->currencyPrecision = $currencyPrecision;
         $this->considerInheritance = $considerInheritance;
         $this->taxState = $taxState;
@@ -241,7 +241,7 @@ class Context extends Struct
         // @deprecated tag:v6.4.0 - Fallback will be removed
         if ($resource !== null) {
             // old pattern provided ->isAllowed('product', 'write');
-            $privilege = \implode(':', [$privilege, $resource]);
+            $privilege = implode(':', [$privilege, $resource]);
         }
 
         if ($this->source instanceof AdminApiSource) {
@@ -253,7 +253,7 @@ class Context extends Struct
 
     public function setRuleIds(array $ruleIds): void
     {
-        $this->ruleIds = \array_filter(\array_values($ruleIds));
+        $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
     public function enableCache(callable $function)

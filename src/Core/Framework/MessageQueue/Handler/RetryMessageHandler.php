@@ -76,7 +76,7 @@ class RetryMessageHandler extends AbstractMessageHandler
             }
         }
 
-        $this->logger->warning(\sprintf('MessageHandler for class "%s" not found.', $handlerClass));
+        $this->logger->warning(sprintf('MessageHandler for class "%s" not found.', $handlerClass));
 
         return null;
     }

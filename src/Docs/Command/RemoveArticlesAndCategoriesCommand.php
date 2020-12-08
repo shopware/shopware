@@ -21,7 +21,7 @@ class RemoveArticlesAndCategoriesCommand extends Command
     {
         parent::__construct($name);
 
-        $this->environment = \getenv('APP_ENV');
+        $this->environment = getenv('APP_ENV');
     }
 
     protected function configure(): void

@@ -47,7 +47,7 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
             return new ListingPriceCollection();
         }
 
-        $value = \json_decode((string) $value, true);
+        $value = json_decode((string) $value, true);
 
         // @deprecated tag:v6.4.0 - old data structure are no longer supported, if will be removed
         if (isset($value['structs'])) {
@@ -59,7 +59,7 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
             if ($ruleId === 'default') {
                 $ruleId = null;
             } else {
-                $ruleId = \mb_substr($ruleId, 1);
+                $ruleId = mb_substr($ruleId, 1);
             }
 
             foreach ($rows as $row) {

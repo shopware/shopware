@@ -95,10 +95,10 @@ class WriteResultMerger
         return array_filter($writeResults, static function (EntityWriteResult $result) use ($entityKey): bool {
             $primaryKey = $result->getPrimaryKey();
 
-            if (is_array($primaryKey)) {
+            if (\is_array($primaryKey)) {
                 unset($primaryKey['languageId']);
 
-                if (count($primaryKey) === 1) {
+                if (\count($primaryKey) === 1) {
                     $primaryKey = array_shift($primaryKey);
                 }
             }

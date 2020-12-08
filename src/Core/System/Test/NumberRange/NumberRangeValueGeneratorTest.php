@@ -49,20 +49,20 @@ class NumberRangeValueGeneratorTest extends TestCase
     public function testGenerateDatePattern(): void
     {
         $value = $this->getGenerator('Pre_{date}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_' . \date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
+        static::assertEquals('Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
     }
 
     public function testGenerateDateWithFormatPattern(): void
     {
         $value = $this->getGenerator('Pre_{date_ymd}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_' . \date('ymd') . '_suf', $value);
+        static::assertEquals('Pre_' . date('ymd') . '_suf', $value);
     }
 
     public function testGenerateAllPatterns(): void
     {
         $value = $this->getGenerator('Pre_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals(
-            'Pre_' . \date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . \date('ymd') . '_5_suf',
+            'Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
             $value
         );
     }
@@ -71,7 +71,7 @@ class NumberRangeValueGeneratorTest extends TestCase
     {
         $value = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals(
-            'Pre_!"§$%&/()=_' . \date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . \date('ymd') . '_5_suf',
+            'Pre_!"§$%&/()=_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
             $value
         );
     }

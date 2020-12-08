@@ -53,12 +53,12 @@ class SalesChannelCrossSellingControllerTest extends TestCase
 
         $this->productRepository->create([$productData], Context::createDefaultContext());
 
-        $this->browser->request('GET', \sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
+        $this->browser->request('GET', sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
         $response = $this->browser->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = \json_decode($response->getContent(), true)['data'];
+        $result = json_decode($response->getContent(), true)['data'];
         static::assertCount(1, $result);
 
         $element = $result[0];
@@ -99,12 +99,12 @@ class SalesChannelCrossSellingControllerTest extends TestCase
 
         $this->productRepository->create([$productData], Context::createDefaultContext());
 
-        $this->browser->request('GET', \sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
+        $this->browser->request('GET', sprintf('/sales-channel-api/v%d/product/%s/cross-selling', PlatformRequest::API_VERSION, $productId));
         $response = $this->browser->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = \json_decode($response->getContent(), true)['data'];
+        $result = json_decode($response->getContent(), true)['data'];
         static::assertCount(2, $result);
 
         foreach ($result as $index => $element) {
@@ -117,7 +117,7 @@ class SalesChannelCrossSellingControllerTest extends TestCase
         /** @var EntityRepositoryInterface $streamRepository */
         $streamRepository = $this->getContainer()->get('product_stream.repository');
         $id = Uuid::randomHex();
-        $randomProductIds = \implode('|', \array_column($this->createProducts(), 'id'));
+        $randomProductIds = implode('|', array_column($this->createProducts(), 'id'));
 
         $streamRepository->create([
             [
@@ -153,7 +153,7 @@ class SalesChannelCrossSellingControllerTest extends TestCase
 
     private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null): array
     {
-        $price = \random_int(0, 10);
+        $price = random_int(0, 10);
 
         return [
             'id' => $id ?? Uuid::randomHex(),

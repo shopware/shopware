@@ -189,10 +189,10 @@ class ApiVersionConverter
 
     private function validateQueryField(EntityDefinition $definition, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
     {
-        $parts = \explode('.', $concatenatedFields);
-        $fieldName = \array_shift($parts);
+        $parts = explode('.', $concatenatedFields);
+        $fieldName = array_shift($parts);
         if ($fieldName === $definition->getEntityName()) {
-            $fieldName = \array_shift($parts);
+            $fieldName = array_shift($parts);
         }
 
         if ($this->isFromFuture($definition->getEntityName(), $fieldName, $apiVersion)) {
@@ -221,7 +221,7 @@ class ApiVersionConverter
 
         $definition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
-        $this->validateQueryField($definition, \implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
+        $this->validateQueryField($definition, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
     }
 
     private function stripNotAllowedFields(EntityDefinition $definition, array $payload, int $apiVersion): array

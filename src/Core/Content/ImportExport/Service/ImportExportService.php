@@ -201,10 +201,10 @@ class ImportExportService
         $id = Uuid::randomHex();
         $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);
         if (!empty($sourcePath)) {
-            if (!\is_readable($sourcePath)) {
+            if (!is_readable($sourcePath)) {
                 throw new FileNotReadableException($sourcePath);
             }
-            $sourceStream = \fopen($sourcePath, 'rb');
+            $sourceStream = fopen($sourcePath, 'rb');
             if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }
@@ -255,7 +255,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = \array_filter($logEntity->jsonSerialize(), function ($value) {
+            $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
                 return $value !== null;
             });
             $this->logRepository->create([$logData], $context);
@@ -270,9 +270,9 @@ class ImportExportService
     private function generateFilename(ImportExportProfileEntity $profile): string
     {
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
-        $timestamp = \date('Ymd-His');
+        $timestamp = date('Ymd-His');
 
-        return \sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
+        return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
     }
 
     private function findUser(Context $context, string $userId): UserEntity
@@ -291,7 +291,7 @@ class ImportExportService
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),
-            'parameters' => \array_merge($parameters, $config['parameters'] ?? []),
+            'parameters' => array_merge($parameters, $config['parameters'] ?? []),
         ];
     }
 }

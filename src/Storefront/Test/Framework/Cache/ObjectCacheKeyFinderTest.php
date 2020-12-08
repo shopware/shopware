@@ -69,7 +69,7 @@ class ObjectCacheKeyFinderTest extends TestCase
 
         $keys = $this->finder->find([$product], $context);
 
-        $expected = \array_merge(
+        $expected = array_merge(
             $this->getContextCacheKeys($context),
             [
                 'product-' . $id,
@@ -121,7 +121,7 @@ class ObjectCacheKeyFinderTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $expected = \array_merge(
+        $expected = array_merge(
             ['property_group-' . $group->getId()],
             $optionKeys,
             $this->getContextCacheKeys($context)
@@ -135,11 +135,11 @@ class ObjectCacheKeyFinderTest extends TestCase
 
     private function getContextCacheKeys(SalesChannelContext $context)
     {
-        $taxKeys = \array_map(function (TaxEntity $tax) {
+        $taxKeys = array_map(function (TaxEntity $tax) {
             return 'tax-' . $tax->getId();
         }, $context->getTaxRules()->getElements());
 
-        return \array_merge(\array_values($taxKeys), [
+        return array_merge(array_values($taxKeys), [
             'customer_group-' . $context->getCurrentCustomerGroup()->getId(),
             'currency-' . $context->getCurrency()->getId(),
             'payment_method-' . $context->getPaymentMethod()->getId(),

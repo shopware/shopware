@@ -16,6 +16,6 @@ class SystemLocker
 
     public function __invoke(): void
     {
-        \file_put_contents($this->lockfile, \date('YmdHi'));
+        file_put_contents($this->lockfile, date('YmdHi'));
     }
 }

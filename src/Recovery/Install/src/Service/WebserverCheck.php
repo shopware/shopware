@@ -51,7 +51,7 @@ class WebserverCheck
     public function buildPingUrl(Shop $shop): string
     {
         if ($shop->basePath) {
-            $shop->basePath = '/' . \trim($shop->basePath, '/');
+            $shop->basePath = '/' . trim($shop->basePath, '/');
         }
 
         return 'http://' . $shop->host . $shop->basePath . '/' . $this->pingUrl;

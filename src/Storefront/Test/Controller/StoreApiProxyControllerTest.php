@@ -138,7 +138,7 @@ class StoreApiProxyControllerTest extends TestCase
             parse_str($urlComponents['query'], $query);
         }
 
-        if (strlen($url)) {
+        if (\strlen($url)) {
             $query['path'] = $url;
         }
 
@@ -146,7 +146,7 @@ class StoreApiProxyControllerTest extends TestCase
 
         $this->request = new Request($query, $body);
         $this->request->setMethod($method);
-        $this->request->server->set('REQUEST_URI', is_array($urlComponents) ? $urlComponents['path'] : $url);
+        $this->request->server->set('REQUEST_URI', \is_array($urlComponents) ? $urlComponents['path'] : $url);
         $this->request->setSession(new Session(new MockArraySessionStorage()));
 
         return $this->getContainer()->get(StoreApiProxyController::class)->proxy($this->request, $context);

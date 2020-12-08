@@ -100,7 +100,7 @@ class Manifest
         $cookies = $doc->getElementsByTagName('cookies')->item(0);
         $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
 
-        return new self(dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies);
     }
 
     public function getPath(): string

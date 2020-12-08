@@ -177,7 +177,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         /** @var ProductExportChangeEncodingEvent $encodingEvent */
         $encodingEvent = $this->eventDispatcher->dispatch(
-            new ProductExportChangeEncodingEvent($productExport, $content, \mb_convert_encoding($content, $productExport->getEncoding()))
+            new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
         );
 
         $this->translator->resetInjection();

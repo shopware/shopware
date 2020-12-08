@@ -67,7 +67,7 @@ EOL;
         foreach ($definition->getFields() as $field) {
             $columns[] = $this->generateFieldColumn($field);
         }
-        $columns = \array_filter($columns);
+        $columns = array_filter($columns);
 
         $primaryKey = $this->generatePrimaryKey($definition);
 
@@ -75,12 +75,12 @@ EOL;
 
         $jsonValidations = $this->generateJsonChecks($definition);
 
-        $keys = \array_filter([$primaryKey, $jsonValidations, $foreignKeys]);
-        $keys = \implode(",\n", $keys);
+        $keys = array_filter([$primaryKey, $jsonValidations, $foreignKeys]);
+        $keys = implode(",\n", $keys);
 
-        $template = \str_replace(
+        $template = str_replace(
             ['#name#', '#columns#', '#keys#'],
-            [$table, \implode(",\n    ", $columns), $keys],
+            [$table, implode(",\n    ", $columns), $keys],
             $this->tableTemplate
         );
 
@@ -193,16 +193,16 @@ EOL;
                 break;
 
             default:
-                throw new \RuntimeException(\sprintf('Unknown field %s', \get_class($field)));
+                throw new \RuntimeException(sprintf('Unknown field %s', \get_class($field)));
         }
 
-        $template = \str_replace(
+        $template = str_replace(
             ['#name#', '#type#', '#nullable#', '#default#'],
             [$field->getStorageName(), $type, $nullable, $default],
             $this->columnTemplate
         );
 
-        return \trim($template);
+        return trim($template);
     }
 
     private function generatePrimaryKey(EntityDefinition $definition): string
@@ -211,14 +211,14 @@ EOL;
 
         /** @var StorageAware $primaryKey */
         foreach ($definition->getPrimaryKeys() as $primaryKey) {
-            $keys[] = \sprintf('`%s`', $primaryKey->getStorageName());
+            $keys[] = sprintf('`%s`', $primaryKey->getStorageName());
         }
 
         if (empty($keys)) {
-            throw new \RuntimeException(\sprintf('No primary key detected for entity: %s', $definition->getEntityName()));
+            throw new \RuntimeException(sprintf('No primary key detected for entity: %s', $definition->getEntityName()));
         }
 
-        return 'PRIMARY KEY (' . \implode(',', $keys) . ')';
+        return 'PRIMARY KEY (' . implode(',', $keys) . ')';
     }
 
     private function generateForeignKeys(EntityDefinition $definition): string
@@ -287,11 +287,11 @@ EOL;
             $parameters = [
                 '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),
-                '#columns#' => \implode(',', $columns),
+                '#columns#' => implode(',', $columns),
             ];
-            $indices[] = \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            $indices[] = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 '    KEY `fk.#entity#.#column#` (#columns#)'
             );
 
@@ -311,24 +311,24 @@ EOL;
             $parameters = [
                 '#entity#' => $definition->getEntityName(),
                 '#column#' => $field->getStorageName(),
-                '#columns#' => \implode(',', $columns),
+                '#columns#' => implode(',', $columns),
                 '#refEntity#' => $reference->getEntityName(),
-                '#refColumns#' => \implode(',', $referenceColumns),
+                '#refColumns#' => implode(',', $referenceColumns),
                 '#delete#' => $delete,
                 '#update#' => $update,
             ];
 
-            $constraints[] = \str_replace(
-                \array_keys($parameters),
-                \array_values($parameters),
+            $constraints[] = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
                 '    CONSTRAINT `fk.#entity#.#column#` FOREIGN KEY (#columns#) REFERENCES `#refEntity#` (#refColumns#) ON DELETE #delete# ON UPDATE #update#'
             );
         }
 
-        $constraints = \implode(",\n", \array_filter($constraints));
-        $indices = \implode(",\n", \array_filter($indices));
+        $constraints = implode(",\n", array_filter($constraints));
+        $indices = implode(",\n", array_filter($indices));
 
-        return \implode(",\n", \array_filter([$indices, $constraints]));
+        return implode(",\n", array_filter([$indices, $constraints]));
     }
 
     private function generateJsonChecks(EntityDefinition $definition): string
@@ -345,9 +345,9 @@ EOL;
                 '#column#' => $field->getStorageName(),
             ];
 
-            $checks[] = \str_replace(\array_keys($parameters), \array_values($parameters), $template);
+            $checks[] = str_replace(array_keys($parameters), array_values($parameters), $template);
         }
 
-        return \implode(",\n", $checks);
+        return implode(",\n", $checks);
     }
 }

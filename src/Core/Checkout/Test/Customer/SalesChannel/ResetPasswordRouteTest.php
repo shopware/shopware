@@ -61,7 +61,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED', $response['errors'][0]['code']);
@@ -117,7 +117,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -172,7 +172,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
 
@@ -238,7 +238,7 @@ class ResetPasswordRouteTest extends TestCase
         ];
 
         if ($addLegacyPassword) {
-            $customer['legacyPassword'] = \md5('test');
+            $customer['legacyPassword'] = md5('test');
             $customer['legacyEncoder'] = 'Md5';
         }
 

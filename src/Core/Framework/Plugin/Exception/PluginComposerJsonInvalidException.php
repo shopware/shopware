@@ -11,7 +11,7 @@ class PluginComposerJsonInvalidException extends ShopwareHttpException
     {
         parent::__construct(
             'The file "{{ composerJsonPath }}" is invalid. Errors:' . \PHP_EOL . '{{ errorsString }}',
-            ['composerJsonPath' => $composerJsonPath, 'errorsString' => \implode(\PHP_EOL, $errors), 'errors' => $errors]
+            ['composerJsonPath' => $composerJsonPath, 'errorsString' => implode(\PHP_EOL, $errors), 'errors' => $errors]
         );
     }
 

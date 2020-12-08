@@ -105,7 +105,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $availableSortings = $request->get('availableSortings');
             arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
 
-            $request->request->set('order', \array_key_first($availableSortings));
+            $request->request->set('order', array_key_first($availableSortings));
         }
     }
 

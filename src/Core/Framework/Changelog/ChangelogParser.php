@@ -43,12 +43,12 @@ class ChangelogParser
         if ($startPos === false) {
             return null;
         }
-        $endPos = strpos($content, '___', $startPos + strlen('# ' . $section)) ?: 0;
+        $endPos = strpos($content, '___', $startPos + \strlen('# ' . $section)) ?: 0;
         if ($endPos) {
-            $length = $endPos - $startPos - strlen('# ' . $section);
-            $matches = substr($content, $startPos + strlen('# ' . $section), $length);
+            $length = $endPos - $startPos - \strlen('# ' . $section);
+            $matches = substr($content, $startPos + \strlen('# ' . $section), $length);
         } else {
-            $matches = substr($content, $startPos + strlen('# ' . $section));
+            $matches = substr($content, $startPos + \strlen('# ' . $section));
         }
 
         return trim($matches);

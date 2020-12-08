@@ -1,5 +1,5 @@
 <input type="hidden" id="adminUrl" value="<?= $url . '/admin'; ?>" />
-<input type="hidden" id="loginTokenData" value="<?= \htmlspecialchars(\json_encode($loginTokenData)); ?>" />
+<input type="hidden" id="loginTokenData" value="<?= htmlspecialchars(json_encode($loginTokenData)); ?>" />
 
 <script src="<?= $baseUrl; ?>../assets/common/javascript/jquery-3.4.1.min.js"></script>
 <script>

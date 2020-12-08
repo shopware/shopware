@@ -60,7 +60,7 @@ class DeliveryDate extends Struct
                 );
 
             default:
-                throw new \RuntimeException(\sprintf('Not supported unit %s', $deliveryTime->getUnit()));
+                throw new \RuntimeException(sprintf('Not supported unit %s', $deliveryTime->getUnit()));
         }
     }
 

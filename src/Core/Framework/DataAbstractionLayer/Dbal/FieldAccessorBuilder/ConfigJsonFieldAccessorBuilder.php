@@ -14,8 +14,8 @@ class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
             return null;
         }
 
-        $jsonPath = \preg_replace(
-            '#^' . \preg_quote($jsonField->getPropertyName(), '#') . '#',
+        $jsonPath = preg_replace(
+            '#^' . preg_quote($jsonField->getPropertyName(), '#') . '#',
             '',
             $accessor
         );

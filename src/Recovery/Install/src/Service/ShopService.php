@@ -71,7 +71,7 @@ class ShopService
             throw new \RuntimeException('Default currency not found');
         }
 
-        if (\mb_strtoupper($currentCurrencyIso) === \mb_strtoupper($shop->currency)) {
+        if (mb_strtoupper($currentCurrencyIso) === mb_strtoupper($shop->currency)) {
             return;
         }
 
@@ -170,7 +170,7 @@ class ShopService
 
     private function getSalesChannelAccessKey(): string
     {
-        return 'SWSC' . \mb_strtoupper(\str_replace(['+', '/', '='], ['-', '_', ''], \base64_encode(\random_bytes(16))));
+        return 'SWSC' . mb_strtoupper(str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(random_bytes(16))));
     }
 
     private function changeDefaultLanguageData(string $newDefaultLanguageId, array $currentLocaleData, Shop $shop): void
@@ -364,7 +364,7 @@ SQL;
 
     private function setSystemConfig(string $key, $value): void
     {
-        $value = \json_encode(['_value' => $value], \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
+        $value = json_encode(['_value' => $value], \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
 
         $stmt = $this->connection->prepare('SELECT id FROM `system_config` WHERE configuration_key = ?');
         $stmt->execute([$key]);
@@ -567,7 +567,7 @@ SQL;
         $selectedCurrencies = $shop->additionalCurrencies;
         $selectedCurrencies[] = $shop->currency;
 
-        $inputParameters = \str_repeat('?,', \count($shop->additionalCurrencies) - 1) . '?';
+        $inputParameters = str_repeat('?,', \count($shop->additionalCurrencies) - 1) . '?';
         $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code NOT IN (' . $inputParameters . ', ?)');
         $statement->execute($selectedCurrencies);
     }

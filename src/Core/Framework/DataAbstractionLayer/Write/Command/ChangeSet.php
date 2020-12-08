@@ -26,7 +26,7 @@ class ChangeSet extends Struct
         $this->state = $state;
 
         // calculate changes
-        $changes = \array_intersect_key($payload, $state);
+        $changes = array_intersect_key($payload, $state);
 
         // validate data types
         foreach ($changes as $property => $after) {

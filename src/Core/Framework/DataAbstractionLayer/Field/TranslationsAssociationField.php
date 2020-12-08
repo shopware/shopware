@@ -16,7 +16,7 @@ class TranslationsAssociationField extends OneToManyAssociationField
         string $propertyName = 'translations',
         string $localField = 'id'
     ) {
-        if (!\is_subclass_of($referenceClass, EntityTranslationDefinition::class)) {
+        if (!is_subclass_of($referenceClass, EntityTranslationDefinition::class)) {
             throw new \InvalidArgumentException('$referenceClass needs to be an `EntityTranslationDefinition`');
         }
 

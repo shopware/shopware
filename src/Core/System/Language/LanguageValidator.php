@@ -78,7 +78,7 @@ class LanguageValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
 
             if ($command instanceof DeleteCommand && $id === Defaults::LANGUAGE_SYSTEM) {
                 $violations->add(
@@ -207,7 +207,7 @@ class LanguageValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
+            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,

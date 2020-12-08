@@ -66,9 +66,9 @@ class LineItemPropertyRule extends Rule
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
 
-        $ids = \array_merge($properties, $options);
+        $ids = array_merge($properties, $options);
 
-        $diff = \array_intersect($ids, $this->identifiers);
+        $diff = array_intersect($ids, $this->identifiers);
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:

@@ -193,7 +193,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $sortings = $criteria->getSorting();
 
-        static::assertCount(count($expectedFields), $sortings);
+        static::assertCount(\count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -213,7 +213,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $sortings = $criteria->getSorting();
 
-        static::assertCount(count($expectedFields), $sortings);
+        static::assertCount(\count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -541,7 +541,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = array_shift($filters);
 
-        if (count($properties) <= 0) {
+        if (\count($properties) <= 0) {
             static::assertNull($filters);
 
             return;

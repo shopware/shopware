@@ -42,7 +42,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
             'first' => $this->buildPaginationUrl($uri, $parameters, $limit, 1),
         ];
 
-        $currentPage = 1 + (int) \floor($offset / $limit);
+        $currentPage = 1 + (int) floor($offset / $limit);
         if ($currentPage > 1) {
             $pagination['prev'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage - 1);
         }
@@ -57,7 +57,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                 break;
 
             case Criteria::TOTAL_COUNT_MODE_EXACT:
-                $lastPage = (int) \ceil($searchResult->getTotal() / $limit);
+                $lastPage = (int) ceil($searchResult->getTotal() / $limit);
                 $lastPage = $lastPage >= 1 ? $lastPage : 1;
                 $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
 
@@ -74,7 +74,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
                 if ($remaining > 0 && $remaining < $maxFetchCount) {
-                    $lastPage = $currentPage - 1 + (int) \ceil($remaining / $limit);
+                    $lastPage = $currentPage - 1 + (int) ceil($remaining / $limit);
                     $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
                 }
 
@@ -86,9 +86,9 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
     protected function buildPaginationUrl(string $uri, array $parameters, int $limit, int $page): string
     {
-        $params = \array_merge($parameters, ['limit' => $limit, 'page' => $page]);
+        $params = array_merge($parameters, ['limit' => $limit, 'page' => $page]);
 
-        return $uri . '?' . \http_build_query($params);
+        return $uri . '?' . http_build_query($params);
     }
 
     protected function getBaseUrl(Request $request): string
@@ -98,9 +98,9 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
     protected function camelCaseToSnailCase(string $input): string
     {
-        $input = \str_replace('_', '-', $input);
+        $input = str_replace('_', '-', $input);
 
-        return \ltrim(\mb_strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     protected function getVersion(Request $request): int

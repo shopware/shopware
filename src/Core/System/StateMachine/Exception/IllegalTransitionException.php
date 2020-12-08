@@ -14,7 +14,7 @@ class IllegalTransitionException extends ShopwareHttpException
             [
                 'transition' => $transition,
                 'currentState' => $currentState,
-                'possibleTransitionsString' => \implode(', ', $possibleTransitions),
+                'possibleTransitionsString' => implode(', ', $possibleTransitions),
                 'possibleTransitions' => $possibleTransitions,
             ]
         );

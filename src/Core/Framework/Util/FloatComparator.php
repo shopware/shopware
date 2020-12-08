@@ -13,7 +13,7 @@ class FloatComparator
 
     public static function equals(float $a, float $b): bool
     {
-        return \abs($a - $b) < self::EPSILON;
+        return abs($a - $b) < self::EPSILON;
     }
 
     public static function lessThan(float $a, float $b): bool

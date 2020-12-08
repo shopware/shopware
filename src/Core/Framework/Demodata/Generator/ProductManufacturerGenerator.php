@@ -49,7 +49,7 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        foreach (\array_chunk($payload, 100) as $chunk) {
+        foreach (array_chunk($payload, 100) as $chunk) {
             $this->writer->upsert($this->productManufacturerDefinition, $chunk, $writeContext);
             $context->getConsole()->progressAdvance(\count($chunk));
         }

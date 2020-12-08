@@ -310,8 +310,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $availableSortingsFilter = [];
 
         if ($availableSortings) {
-            \arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
-            $availableSortingsFilter = \array_keys($availableSortings);
+            arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
+            $availableSortingsFilter = array_keys($availableSortings);
 
             $criteria->addFilter(new EqualsAnyFilter('key', $availableSortingsFilter));
         }

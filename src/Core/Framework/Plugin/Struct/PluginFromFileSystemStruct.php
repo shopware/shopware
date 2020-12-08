@@ -51,9 +51,9 @@ class PluginFromFileSystemStruct extends Struct
     {
         $baseClass = $this->baseClass;
 
-        $pos = \mb_strrpos($baseClass, '\\');
+        $pos = mb_strrpos($baseClass, '\\');
 
-        return $pos === false ? $this->baseClass : \mb_substr($this->baseClass, $pos + 1);
+        return $pos === false ? $this->baseClass : mb_substr($this->baseClass, $pos + 1);
     }
 
     public function getApiAlias(): string

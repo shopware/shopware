@@ -42,7 +42,7 @@ class Executor
                     'headers' => [
                         'shopware-shop-signature' => hash_hmac(
                             'sha256',
-                            (string) \json_encode($payload),
+                            (string) json_encode($payload),
                             $action->getAppSecret()
                         ),
                     ],

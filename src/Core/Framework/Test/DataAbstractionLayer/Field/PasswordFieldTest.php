@@ -51,7 +51,7 @@ class PasswordFieldTest extends TestCase
             new WriteCommandQueue()
         ));
 
-        $payload = \iterator_to_array($payload);
+        $payload = iterator_to_array($payload);
         static::assertEquals($kvPair->getValue(), $payload['password']);
     }
 
@@ -73,9 +73,9 @@ class PasswordFieldTest extends TestCase
             new WriteCommandQueue()
         ));
 
-        $payload = \iterator_to_array($payload);
+        $payload = iterator_to_array($payload);
         static::assertNotEquals($kvPair->getValue(), $payload['password']);
-        static::assertTrue(\password_verify($kvPair->getValue(), $payload['password']));
+        static::assertTrue(password_verify($kvPair->getValue(), $payload['password']));
     }
 
     public function testValueIsRequiredOnInsert(): void
@@ -100,7 +100,7 @@ class PasswordFieldTest extends TestCase
             );
 
             $x = $handler->encode($field, $existence, $kvPair, $parameters);
-            $array = \iterator_to_array($x);
+            $array = iterator_to_array($x);
         } catch (WriteConstraintViolationException $exception) {
         }
 
@@ -129,7 +129,7 @@ class PasswordFieldTest extends TestCase
                 '',
                 new WriteCommandQueue()
             ));
-            $array = \iterator_to_array($x);
+            $array = iterator_to_array($x);
         } catch (WriteConstraintViolationException $exception) {
         }
 
@@ -140,7 +140,7 @@ class PasswordFieldTest extends TestCase
 
     public function testAlreadyEncodedValueIsPassedThrough(): void
     {
-        $password = \password_hash('shopware', \PASSWORD_DEFAULT);
+        $password = password_hash('shopware', \PASSWORD_DEFAULT);
 
         $field = new PasswordField('password', 'password');
         $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
@@ -158,7 +158,7 @@ class PasswordFieldTest extends TestCase
             new WriteCommandQueue()
         ));
 
-        $payload = \iterator_to_array($payload);
+        $payload = iterator_to_array($payload);
         static::assertEquals($kvPair->getValue(), $payload['password']);
     }
 }

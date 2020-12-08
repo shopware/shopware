@@ -77,7 +77,7 @@ class ApiVersioningV2Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'discountType' => 'absolute',
                 'discount' => 5.5,
@@ -86,7 +86,7 @@ class ApiVersioningV2Test extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $result = $this->connection->fetchAll('SELECT * FROM _test_bundle');
         static::assertCount(1, $result);
@@ -104,7 +104,7 @@ class ApiVersioningV2Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'isAbsolute' => true,
                 'discount' => 5.5,
@@ -112,7 +112,7 @@ class ApiVersioningV2Test extends TestCase
             ])
         );
 
-        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(204, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $result = $this->connection->fetchAll('SELECT * FROM _test_bundle');
         static::assertCount(1, $result);
@@ -130,13 +130,13 @@ class ApiVersioningV2Test extends TestCase
             [],
             [],
             [],
-            \json_encode([
+            json_encode([
                 'name' => 'test_bundle',
                 'isAbsolute' => true,
                 'discount' => 5.5,
             ])
         );
 
-        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), \print_r($this->browser->getResponse()->getContent(), true));
+        static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
     }
 }

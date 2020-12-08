@@ -28,7 +28,7 @@ class CopyBatch implements PluginInterface
             if (\is_resource($batchInput->getSourceFile())) {
                 $handle = $batchInput->getSourceFile();
             } else {
-                $handle = \fopen($batchInput->getSourceFile(), 'rb');
+                $handle = fopen($batchInput->getSourceFile(), 'rb');
             }
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
@@ -36,7 +36,7 @@ class CopyBatch implements PluginInterface
             }
 
             if (\is_resource($handle)) {
-                \fclose($handle);
+                fclose($handle);
             }
         }
     }

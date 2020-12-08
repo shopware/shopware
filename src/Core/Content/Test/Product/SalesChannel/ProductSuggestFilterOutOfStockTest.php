@@ -91,7 +91,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
         /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
-        $ids = \array_keys($options->getOptionIdMap());
+        $ids = array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
         static::assertContains($this->testData->getId('red'), $ids);
@@ -135,7 +135,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
         /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
-        $ids = \array_keys($options->getOptionIdMap());
+        $ids = array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
         static::assertContains($this->testData->getId('red'), $ids);
@@ -230,7 +230,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
                 //$combination = $this->combos($option['combination']);
                 $combination = $option['combination'];
 
-                $variantKey = $key . '-' . \implode('-', $this->testData->getKeyList($combination));
+                $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));
 
                 $data[] = [
                     'id' => $this->testData->createId($variantKey),
@@ -240,7 +240,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => \array_map(static function ($id) {
+                    'options' => array_map(static function ($id) {
                         return ['id' => $id];
                     }, $combination),
                 ];

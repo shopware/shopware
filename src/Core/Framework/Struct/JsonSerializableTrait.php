@@ -6,7 +6,7 @@ trait JsonSerializableTrait
 {
     public function jsonSerialize(): array
     {
-        $vars = \get_object_vars($this);
+        $vars = get_object_vars($this);
         $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
 
         return $vars;

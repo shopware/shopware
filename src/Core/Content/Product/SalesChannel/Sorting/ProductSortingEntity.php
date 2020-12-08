@@ -56,7 +56,7 @@ class ProductSortingEntity extends Entity
         });
 
         foreach ($fields as $field) {
-            $direction = \mb_strtoupper($field['order']) === FieldSorting::ASCENDING
+            $direction = mb_strtoupper($field['order']) === FieldSorting::ASCENDING
                 ? FieldSorting::ASCENDING
                 : FieldSorting::DESCENDING;
 

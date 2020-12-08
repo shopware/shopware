@@ -39,7 +39,7 @@ class Migration1602822727AddVatHandlingIntoCountryTable extends MigrationStep
         $this->fetchCountryIds($connection);
 
         foreach ($this->getCountryVatPattern() as $isoCode => $countryVatPattern) {
-            if (!array_key_exists($isoCode, $this->countryIds)) {
+            if (!\array_key_exists($isoCode, $this->countryIds)) {
                 // country was deleted by shop owner
                 continue;
             }

@@ -97,7 +97,7 @@ class LogCleanupTaskHandlerTest extends TestCase
             $entriesJson[] = $entry->jsonSerialize();
         }
 
-        $entryMessages = \array_column($entriesJson, 'message');
+        $entryMessages = array_column($entriesJson, 'message');
         foreach ($expectedMessages as $message) {
             static::assertContains($message, $entryMessages);
         }

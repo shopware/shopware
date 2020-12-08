@@ -473,17 +473,17 @@ class PluginLifecycleService
 
     private function createMigrationCollection(Plugin $pluginBaseClass): MigrationCollection
     {
-        $migrationPath = \str_replace(
+        $migrationPath = str_replace(
             '\\',
             '/',
-            $pluginBaseClass->getPath() . \str_replace(
+            $pluginBaseClass->getPath() . str_replace(
                 $pluginBaseClass->getNamespace(),
                 '',
                 $pluginBaseClass->getMigrationNamespace()
             )
         );
 
-        if (!\is_dir($migrationPath)) {
+        if (!is_dir($migrationPath)) {
             return $this->migrationLoader->collect('null');
         }
 
@@ -510,7 +510,7 @@ class PluginLifecycleService
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool
     {
-        return \version_compare($updateVersion, $currentVersion, '>');
+        return version_compare($updateVersion, $currentVersion, '>');
     }
 
     private function updatePluginData(array $pluginData, Context $context): void
@@ -573,7 +573,7 @@ class PluginLifecycleService
     private function signalWorkerStopInOldCacheDir(): void
     {
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(\microtime(true));
+        $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
     }
 
@@ -584,7 +584,7 @@ class PluginLifecycleService
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {
-        $names = \array_map(static function (Plugin $plugin) {
+        $names = array_map(static function (Plugin $plugin) {
             return $plugin->getName();
         }, $plugins);
 

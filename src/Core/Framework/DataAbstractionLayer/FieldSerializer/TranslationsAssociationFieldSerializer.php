@@ -65,7 +65,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 translations => ['{languageUuid}' => ['property' => 'translation']] -> skip
                 translations => ['en-GB' => ['property' => 'translation']] -> proceed and use localeLanguageResolver
             */
-            if (\is_numeric($identifier) || Uuid::isValid($identifier)) {
+            if (is_numeric($identifier) || Uuid::isValid($identifier)) {
                 continue;
             }
 
@@ -79,7 +79,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             if (!isset($value[$languageId])) {
                 $value[$languageId] = $fields;
             } else {
-                $value[$languageId] = \array_merge($value[$identifier], $value[$languageId]);
+                $value[$languageId] = array_merge($value[$identifier], $value[$languageId]);
             }
 
             unset($value[$identifier]);
@@ -131,7 +131,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             // See above for Supported formats
             $languageId = $keyValue;
-            if (\is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
                 // languageId is a property of $subResources. Also see formats above
                 if (isset($subResources[$languagePropName])) {
                     $languageId = $subResources[$languagePropName];
@@ -162,7 +162,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        $languageIds = \array_keys($translations);
+        $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
         if ($referenceDefinition->hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {

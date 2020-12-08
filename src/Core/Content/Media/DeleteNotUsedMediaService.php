@@ -43,7 +43,7 @@ class DeleteNotUsedMediaService
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-        $ids = \array_map(static function ($id) {
+        $ids = array_map(static function ($id) {
             return ['id' => $id];
         }, $ids);
         $this->mediaRepo->delete($ids, $context);

@@ -77,7 +77,7 @@ class RetryMiddleware implements MiddlewareInterface
             $params = [
                 'id' => $id,
                 'originalMessageClass' => \get_class($envelope->getMessage()),
-                'serializedOriginalMessage' => \serialize($envelope->getMessage()),
+                'serializedOriginalMessage' => serialize($envelope->getMessage()),
                 'handlerClass' => $e->getHandlerClass(),
                 'encrypted' => $encrypted,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
@@ -142,7 +142,7 @@ class RetryMiddleware implements MiddlewareInterface
                 [
                     'id' => $id,
                     'originalMessageClass' => $message->getOriginalMessageClass(),
-                    'serializedOriginalMessage' => \serialize($message->getOriginalMessage()),
+                    'serializedOriginalMessage' => serialize($message->getOriginalMessage()),
                     'handlerClass' => $e->getHandlerClass(),
                     'encrypted' => $message->isEncrypted(),
                     'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),

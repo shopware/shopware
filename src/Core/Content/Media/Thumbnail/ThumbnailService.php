@@ -204,7 +204,7 @@ class ThumbnailService
                 $this->mediaRepository->update([$mediaData], $context);
             });
 
-            return count($savedThumbnails);
+            return \count($savedThumbnails);
         }
     }
 
@@ -241,9 +241,9 @@ class ThumbnailService
             throw new FileTypeNotSupportedException($media->getId());
         }
 
-        if (function_exists('exif_read_data')) {
+        if (\function_exists('exif_read_data')) {
             /** @var resource $stream */
-            $stream = fopen('php://memory', 'r+');
+            $stream = fopen('php://memory', 'r+b');
 
             try {
                 // use in-memory stream to read the EXIF-metadata,

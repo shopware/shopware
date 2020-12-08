@@ -76,7 +76,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
         foreach ($payload as $category) {
             $lastId = null;
-            $randSubCategories = \random_int(5, 12);
+            $randSubCategories = random_int(5, 12);
             $numberOfSubCategories += $randSubCategories;
             for ($x = 0; $x < $randSubCategories; ++$x) {
                 $id = Uuid::randomHex();
@@ -100,7 +100,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $console->comment('Generated sub-categories: ' . $numberOfSubCategories);
         $console->progressStart($numberOfItems + $numberOfSubCategories);
 
-        foreach (\array_chunk($payload, 100) as $chunk) {
+        foreach (array_chunk($payload, 100) as $chunk) {
             $this->writer->upsert($this->categoryRepository->getDefinition(), $chunk, WriteContext::createFromContext($context->getContext()));
             $context->getConsole()->progressAdvance(\count($chunk));
         }
@@ -111,7 +111,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true)
     {
         if (!$fixedAmount) {
-            $max = \random_int(1, $max);
+            $max = random_int(1, $max);
         }
         do {
             $categories = [];
@@ -124,14 +124,14 @@ class CategoryGenerator implements DemodataGeneratorInterface
             }
 
             if (\count($categories) >= 2) {
-                $commaSeparatedCategories = \implode(', ', \array_slice($categories, 0, -1));
+                $commaSeparatedCategories = implode(', ', \array_slice($categories, 0, -1));
                 $categories = [
                     $commaSeparatedCategories,
-                    \end($categories),
+                    end($categories),
                 ];
             }
             ++$max;
-            $categoryName = \implode(' & ', $categories);
+            $categoryName = implode(' & ', $categories);
         } while (\in_array($categoryName, $this->categories, true) && $unique);
 
         $this->categories[] = $categoryName;
@@ -148,7 +148,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
         $categories = $this->categoryRepository->searchIds($criteria, $context)->getIds();
 
-        return \array_shift($categories);
+        return array_shift($categories);
     }
 
     private function getCmsPageIds(Context $getContext): array

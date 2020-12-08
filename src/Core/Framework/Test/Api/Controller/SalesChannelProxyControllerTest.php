@@ -110,7 +110,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
@@ -123,7 +123,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl($salesChannel['id'], '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayNotHasKey('errors', $response);
     }
@@ -252,7 +252,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -271,7 +271,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -287,7 +287,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
@@ -303,7 +303,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -326,7 +326,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
         $contextTokenHeaderName = $this->getContextTokenHeaderName();
         static::assertIsArray($response);
         static::assertArrayHasKey(PlatformRequest::HEADER_CONTEXT_TOKEN, $response);
@@ -349,7 +349,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
@@ -366,7 +366,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -388,7 +388,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -414,7 +414,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
         //assert response format
         static::assertNotEmpty($response);
         static::assertArrayHasKey('sw-context-token', $response);
@@ -438,7 +438,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         //assert response format
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
         static::assertNotEmpty($response);
         static::assertArrayHasKey('sw-context-token', $response);
         static::assertNotEmpty($response['sw-context-token']);
@@ -674,7 +674,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         //assert response format
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = \json_decode($response, true);
+        $response = json_decode($response, true);
         static::assertNotEmpty($response);
         static::assertArrayHasKey('sw-context-token', $response);
         static::assertNotEmpty($response['sw-context-token']);
@@ -899,7 +899,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getLangHeaderName(): string
     {
-        return 'HTTP_' . \mb_strtoupper(\str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
+        return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
     private function assertTranslation(
@@ -932,7 +932,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-        $responseData = \json_decode($response->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $responseData, $response->getContent());
 
@@ -985,11 +985,11 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getUrl(string $salesChannelId, string $url): string
     {
-        return \sprintf(
+        return sprintf(
             '/api/v%d/_proxy/sales-channel-api/%s/v%1$d/%s',
             PlatformRequest::API_VERSION,
             $salesChannelId,
-            \ltrim($url, '/')
+            ltrim($url, '/')
         );
     }
 
@@ -1005,10 +1005,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getRootProxyUrl(string $url): string
     {
-        return \sprintf(
+        return sprintf(
             '/api/v%d/_proxy/%s',
             PlatformRequest::API_VERSION,
-            \ltrim($url, '/')
+            ltrim($url, '/')
         );
     }
 
@@ -1039,7 +1039,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
-        $salesChannel = \array_merge_recursive($defaults, $salesChannel);
+        $salesChannel = array_merge_recursive($defaults, $salesChannel);
 
         $this->salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
@@ -1057,7 +1057,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
 
         $browser = clone $this->getBrowser();
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
@@ -1138,7 +1138,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
 
-        $cart = \json_decode($browser->getResponse()->getContent(), true);
+        $cart = json_decode($browser->getResponse()->getContent(), true);
 
         return $cart['data'] ?? $cart;
     }
@@ -1201,7 +1201,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getContextTokenHeaderName(): string
     {
-        return 'HTTP_' . \mb_strtoupper(\str_replace('-', '_', PlatformRequest::HEADER_CONTEXT_TOKEN));
+        return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     private function createDefaultSalesChannelContext(): SalesChannelContext
@@ -1218,7 +1218,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $shippingMethodId,

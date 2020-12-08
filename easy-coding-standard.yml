@@ -4,6 +4,7 @@ services:
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
         elements: ['property', 'method']
+    PhpCsFixer\Fixer\FunctionNotation\FopenFlagsFixer: ~
     PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer:
         on_multiline: 'ensure_fully_multiline'
     PhpCsFixer\Fixer\FunctionNotation\NullableTypeDeclarationForDefaultNullValueFixer: ~
@@ -37,7 +38,7 @@ services:
 
 parameters:
     sets:
-        - 'symfony'
+        - 'symfony-risky'
         - 'array'
         - 'control-structures'
         - 'strict'

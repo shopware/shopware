@@ -153,6 +153,8 @@ class EntityCacheKeyGenerator
 
     /**
      * Calculates all tags for a single entity. Considers the language chain, context states and loaded associations
+     *
+     * @return string[]
      */
     public function getAssociatedTags(EntityDefinition $definition, Entity $entity, Context $context): array
     {

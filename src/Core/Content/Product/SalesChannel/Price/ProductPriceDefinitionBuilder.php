@@ -103,7 +103,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $context);
 
-        if (!$prices || count($prices) <= 0) {
+        if ($prices === null) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
             $definition = new QuantityPriceDefinition($price, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product));

@@ -194,6 +194,7 @@ class MaintenanceModeResolverTest extends TestCase
 
         if ($isMaintenancePageRoute) {
             $request->attributes->set('_route', 'frontend.maintenance');
+            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE, true);
         }
 
         if ($useProxy) {

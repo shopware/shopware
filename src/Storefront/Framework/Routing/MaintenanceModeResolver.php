@@ -53,12 +53,17 @@ class MaintenanceModeResolver
 
     private function isMaintenancePageRequest(Request $request): bool
     {
+        if ($request->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE)) {
+            return true;
+        }
+
         $route = $request->attributes->get('_route');
 
         if (!$route) {
             return false;
         }
 
+        // @deprecated tag:v6.4.0 - Use defaults={"allow_maintenance"=true} in Route definition instead
         return mb_strpos($route, 'frontend.maintenance') !== false;
     }
 

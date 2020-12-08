@@ -73,11 +73,6 @@ class AppLifecycle extends AbstractAppLifecycle
     private $registrationService;
 
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @var AppStateService
      */
     private $appStateService;
@@ -100,17 +95,17 @@ class AppLifecycle extends AbstractAppLifecycle
     /**
      * @var EntityRepositoryInterface
      */
-    private $aclRoleRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $languageRepository;
 
     /*
      * @var SystemConfigService
      */
     private $systemConfigService;
+
+    /**
+     * @var string
+     */
+    private $projectDir;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
@@ -123,7 +118,6 @@ class AppLifecycle extends AbstractAppLifecycle
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
         AppStateService $appStateService,
-        EntityRepositoryInterface $aclRoleRepository,
         EntityRepositoryInterface $languageRepository,
         SystemConfigService $systemConfigService,
         string $projectDir
@@ -139,7 +133,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appStateService = $appStateService;
         $this->actionButtonPersister = $actionButtonPersister;
         $this->templatePersister = $templatePersister;
-        $this->aclRoleRepository = $aclRoleRepository;
         $this->languageRepository = $languageRepository;
         $this->systemConfigService = $systemConfigService;
     }
@@ -197,10 +190,7 @@ class AppLifecycle extends AbstractAppLifecycle
             new AppDeletedEvent($appData['id'], $context)
         );
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appData): void {
-            $this->appRepository->delete([['id' => $appData['id']]], $context);
-            $this->aclRoleRepository->delete([['id' => $appData['roleId']]], $context);
-        });
+        $this->removeAppAndRole($appData['id'], $appData['roleId'], $context);
     }
 
     private function updateApp(
@@ -228,10 +218,7 @@ class AppLifecycle extends AbstractAppLifecycle
             try {
                 $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
             } catch (AppRegistrationException $e) {
-                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id): void {
-                    $this->appRepository->delete([['id' => $id]], $context);
-                });
-                $this->permissionPersister->removeRole($roleId);
+                $this->removeAppAndRole($id, $roleId, $context);
 
                 throw $e;
             }
@@ -268,6 +255,19 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         return $app;
+    }
+
+    private function removeAppAndRole(string $appId, string $roleId, Context $context): void
+    {
+        // throw event before deleting app from db as it may be delivered via webhook to the deleted app
+        $this->eventDispatcher->dispatch(
+            new AppDeletedEvent($appId, $context)
+        );
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appId): void {
+            $this->appRepository->delete([['id' => $appId]], $context);
+        });
+        $this->permissionPersister->removeRole($roleId);
     }
 
     private function updateMetadata(array $metadata, Context $context): void

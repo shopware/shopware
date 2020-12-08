@@ -257,7 +257,7 @@ class AppServiceTest extends TestCase
         );
         $refreshableApps = $appService->getRefreshableAppInfo($this->context);
 
-        static::assertCount(3, $refreshableApps->getToBeInstalled());
+        static::assertCount(4, $refreshableApps->getToBeInstalled());
         static::assertCount(1, $refreshableApps->getToBeUpdated());
         static::assertCount(1, $refreshableApps->getToBeDeleted());
 
@@ -283,7 +283,7 @@ class AppServiceTest extends TestCase
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
-        static::assertCount(3, $apps);
+        static::assertCount(4, $apps);
 
         static::assertCount(1, $fails);
     }

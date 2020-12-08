@@ -34,6 +34,9 @@
             <label lang="de-DE">Mein erstes eigenes Modul</label>
         </module>
     </admin>
+    <permissions>
+        <read>order</read>
+    </permissions>
     <webhooks>
         <webhook name="hook1" url="https://test.com/hook" event="checkout.customer.before.login"/>
         <webhook name="hook2" url="https://test.com/hook2" event="checkout.order.placed"/>

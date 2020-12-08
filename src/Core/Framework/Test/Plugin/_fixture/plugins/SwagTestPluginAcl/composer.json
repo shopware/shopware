@@ -18,7 +18,7 @@
     "shopware/core": ">=6.0"
   },
   "extra": {
-    "shopware-plugin-class": "SwagTestPluginAclProductViewer",
+    "shopware-plugin-class": "SwagTestPluginAcl\\SwagTestPluginAcl",
     "plugin-icon": "src/Resources/public/plugin.png",
     "copyright": "(c) by shopware AG",
     "label": {

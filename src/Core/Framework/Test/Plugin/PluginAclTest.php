@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber;
@@ -44,8 +43,6 @@ class PluginAclTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_11917', $this);
-
         $this->testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . self::PLUGINS_NAMESPACE;
 
         foreach (self::PLUGINS_TO_LOAD as $pluginToLoad) {

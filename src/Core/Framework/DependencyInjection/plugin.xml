@@ -153,7 +153,6 @@
         <service id="Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection" />
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_11917"/>
         </service>
 
         <!-- Composer -->

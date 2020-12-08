@@ -55,6 +55,7 @@
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
+    "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT ID you have entered has not the correct format",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",

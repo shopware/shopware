@@ -1,29 +1,29 @@
-import template from './sw-promotion-list.html.twig';
-import './sw-promotion-list.scss';
-import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
+import template from './sw-promotion-v2-list.html.twig';
+import './sw-promotion-v2-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @feature-deprecated (flag:FEATURE_NEXT_12016)
- */
-Component.register('sw-promotion-list', {
+Component.register('sw-promotion-v2-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
-        Mixin.getByName('listing')
+        'listing'
     ],
 
     data() {
         return {
+            isLoading: true,
             promotions: null,
+            total: 0,
             showDeleteModal: false,
             sortBy: 'createdAt',
-            sortDirection: 'DESC',
-            isLoading: true
+            sortDirection: 'DESC'
         };
     },
 
@@ -38,6 +38,12 @@ Component.register('sw-promotion-list', {
             return this.repositoryFactory.create('promotion');
         },
 
+        promotionCriteria() {
+            return (new Criteria(this.page, this.limit))
+                .setTerm(this.term)
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+        },
+
         promotionColumns() {
             return this.getPromotionColumns();
         }
@@ -46,19 +52,11 @@ Component.register('sw-promotion-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            return this.promotionRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.promotionRepository.search(this.promotionCriteria, Shopware.Context.api).then((searchResult) => {
+                this.isLoading = false;
                 this.total = searchResult.total;
                 this.promotions = searchResult;
-
-                this.promotions.forEach((promotion) => {
-                    entityHydrator.hydrate(promotion);
-                });
-
-                this.isLoading = false;
 
                 return this.promotions;
             });
@@ -71,26 +69,26 @@ Component.register('sw-promotion-list', {
         getPromotionColumns() {
             return [{
                 property: 'name',
-                label: 'sw-promotion.list.columnName',
-                routerLink: 'sw.promotion.detail',
+                label: 'sw-promotion-v2.list.columnName',
+                routerLink: 'sw.promotion.v2.detail',
                 inlineEdit: 'string',
                 allowResize: true,
                 primary: true
             }, {
                 property: 'active',
-                label: 'sw-promotion.list.columnActive',
+                label: 'sw-promotion-v2.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validFrom',
-                label: 'sw-promotion.list.columnValidFrom',
+                label: 'sw-promotion-v2.list.columnValidFrom',
                 inlineEdit: 'date',
                 allowResize: true,
                 align: 'center'
             }, {
                 property: 'validUntil',
-                label: 'sw-promotion.list.columnValidUntil',
+                label: 'sw-promotion-v2.list.columnValidUntil',
                 inlineEdit: 'date',
                 allowResize: true,
                 align: 'center'
@@ -100,6 +98,5 @@ Component.register('sw-promotion-list', {
         updateTotal({ total }) {
             this.total = total;
         }
-
     }
 });

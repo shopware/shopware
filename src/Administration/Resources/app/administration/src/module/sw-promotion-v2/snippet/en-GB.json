@@ -1,0 +1,43 @@
+{
+    "sw-promotion-v2": {
+        "general": {
+            "mainMenuItemGeneral": "Promotions v2",
+            "mainMenuItemList": "Overview",
+            "description": "Manage promotions here."
+        },
+        "list": {
+            "textTitle": "Promotions",
+            "buttonAddPromotion": "Add promotion",
+            "columnActive": "Active",
+            "columnName": "Name",
+            "columnValidFrom": "Valid from",
+            "columnValidUntil": "Valid until",
+            "messageEmpty": "No promotions yet",
+            "placeholderSearchBar": "Search promotions...",
+            "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
+            "titleSidebarItemRefresh": "Refresh"
+        },
+        "detail": {
+            "header": {
+                "titleCreate": "New promotion",
+                "titleEdit": "Promotion"
+            },
+            "general": {
+                "cardTitle": "General settings",
+                "nameLabel": "Name",
+                "validFromLabel": "Valid from",
+                "validFromPlaceholder": "Select start date...",
+                "validUntilLabel": "Valid until",
+                "validUntilPlaceholder": "Select end date...",
+                "maxUsesGlobalLabel": "Max. total uses",
+                "maxUsesGlobalPlaceholder": "Unlimited",
+                "maxUsesPerCustomerLabel": "Max. uses per customer",
+                "maxUsesPerCustomerPlaceholder": "Unlimited",
+                "activeLabel": "Active"
+            },
+            "tabs": {
+                "tabGeneral": "General"
+            }
+        }
+    }
+}

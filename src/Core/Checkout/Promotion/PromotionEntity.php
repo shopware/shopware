@@ -45,12 +45,12 @@ class PromotionEntity extends Entity
     protected $validUntil;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $maxRedemptionsGlobal;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $maxRedemptionsPerCustomer;
 
@@ -193,22 +193,22 @@ class PromotionEntity extends Entity
         $this->validUntil = $validUntil;
     }
 
-    public function getMaxRedemptionsGlobal(): int
+    public function getMaxRedemptionsGlobal(): ?int
     {
         return $this->maxRedemptionsGlobal;
     }
 
-    public function setMaxRedemptionsGlobal(int $maxRedemptionsGlobal): void
+    public function setMaxRedemptionsGlobal(?int $maxRedemptionsGlobal): void
     {
         $this->maxRedemptionsGlobal = $maxRedemptionsGlobal;
     }
 
-    public function getMaxRedemptionsPerCustomer(): int
+    public function getMaxRedemptionsPerCustomer(): ?int
     {
         return $this->maxRedemptionsPerCustomer;
     }
 
-    public function setMaxRedemptionsPerCustomer(int $maxRedemptionsPerCustomer): void
+    public function setMaxRedemptionsPerCustomer(?int $maxRedemptionsPerCustomer): void
     {
         $this->maxRedemptionsPerCustomer = $maxRedemptionsPerCustomer;
     }
@@ -600,7 +600,8 @@ class PromotionEntity extends Entity
 
     public function isOrderCountValid(): bool
     {
-        return $this->getMaxRedemptionsGlobal() <= 0
+        return $this->getMaxRedemptionsGlobal() === null
+            || $this->getMaxRedemptionsGlobal() <= 0
             || $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
     }
 
@@ -608,7 +609,8 @@ class PromotionEntity extends Entity
     {
         $customerId = mb_strtolower($customerId);
 
-        return $this->getMaxRedemptionsPerCustomer() <= 0
+        return $this->getMaxRedemptionsPerCustomer() === null
+            || $this->getMaxRedemptionsPerCustomer() <= 0
             || $this->getOrdersPerCustomerCount() === null
             || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
             || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();

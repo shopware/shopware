@@ -1,0 +1,43 @@
+{
+    "sw-promotion-v2": {
+        "general": {
+            "mainMenuItemGeneral": "Rabatte & Aktionen v2",
+            "mainMenuItemList": "Übersicht",
+            "description": "Verwalte Rabattaktionen."
+        },
+        "list": {
+            "textTitle": "Rabatte & Aktionen",
+            "buttonAddPromotion": "Aktion anlegen",
+            "columnActive": "Aktiv",
+            "columnName": "Name",
+            "columnValidFrom": "Gültig von",
+            "columnValidUntil": "Gültig bis",
+            "messageEmpty": "Noch keine Rabattaktionen",
+            "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
+            "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
+            "titleSidebarItemRefresh": "Aktualisieren"
+        },
+        "detail": {
+            "header": {
+                "titleCreate": "Neue Aktion",
+                "titleEdit": "Aktion"
+            },
+            "general": {
+                "cardTitle": "Allgemeine Einstellungen",
+                "nameLabel": "Name",
+                "validFromLabel": "Gültig ab",
+                "validFromPlaceholder": "Wähle ein Startdatum ...",
+                "validUntilLabel": "Gültig bis",
+                "validUntilPlaceholder": "Wähle ein Enddatum ...",
+                "maxUsesGlobalLabel": "Gesamtnutzungen",
+                "maxUsesGlobalPlaceholder": "Unbegrenzt",
+                "maxUsesPerCustomerLabel": "Nutzungen je Kunde",
+                "maxUsesPerCustomerPlaceholder": "Unbegrenzt",
+                "activeLabel": "Aktiv"
+            },
+            "tabs": {
+                "tabGeneral": "Allgemein"
+            }
+        }
+    }
+}

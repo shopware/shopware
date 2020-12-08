@@ -41,4 +41,23 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(contextualField.attributes().disabled).toBeUndefined();
         expect(flatpickrInput.attributes().disabled).toBeUndefined();
     });
+
+    it('should show the dateformat, when no placeholderText is provided', async () => {
+        wrapper = createWrapper();
+        const flatpickrInput = wrapper.find('.flatpickr-input');
+
+        expect(flatpickrInput.attributes().placeholder).toBe('Y-m-d');
+    });
+
+    it('should show the placeholderText, when provided', async () => {
+        const placeholderText = 'Stop! Hammertime!';
+        wrapper = createWrapper({
+            propsData: {
+                placeholderText
+            }
+        });
+        const flatpickrInput = wrapper.find('.flatpickr-input');
+
+        expect(flatpickrInput.attributes().placeholder).toBe(placeholderText);
+    });
 });

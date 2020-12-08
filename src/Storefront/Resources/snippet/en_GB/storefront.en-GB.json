@@ -277,7 +277,10 @@
     "passwordResetTitle": "Did you forget your password?",
     "passwordResetInfo": "If you have forgotten your password, you may enter a new one here. The moment you hit save, your old password will be invalidated.",
     "passwordOptInInfo": "Confirmation email sent. Click on the included link to change your password.",
-    "colonCharacter": ":"
+    "colonCharacter": ":",
+    "orderGuestLoginTitle": "Authentication",
+    "orderGuestLoginDescription": "To view your order, please enter your mail address and the postal code given with your billing address.",
+    "orderGuestLoginWrongCredentials": "The given data could not be associated with an order."
   },
   "address": {
     "streetLabel": "Street address",

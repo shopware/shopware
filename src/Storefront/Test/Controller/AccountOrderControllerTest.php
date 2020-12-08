@@ -83,6 +83,56 @@ class AccountOrderControllerTest extends TestCase
         }
     }
 
+    public function testGuestCustomerGetsRedirectedToAuth(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context, true);
+        $browser = $this->login($customer->getEmail());
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderNumber'] = 'order-number';
+
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true));
+
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search($criteria, $context)->first();
+        if ($salesChannel !== null) {
+            $orderData[0]['salesChannelId'] = $salesChannel->getId();
+        }
+
+        $productId = $this->createProduct($context);
+        $orderData[0]['lineItems'][0]['identifier'] = $productId;
+        $orderData[0]['lineItems'][0]['productId'] = $productId;
+
+        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo->create($orderData, $context);
+
+        $browser->followRedirects(true);
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode']);
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        static::assertSame('frontend.account.order.single.page', $response->getData()['redirectTo']);
+        static::assertSame('BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY', $response->getData()['redirectParameters']['deepLinkCode']);
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode'],
+            $this->tokenize('frontend.account.login', [
+                'email' => $customer->getEmail(),
+                'zipcode' => $orderData[0]['orderCustomer']['customer']['addresses'][0]['zipcode'],
+            ])
+        );
+
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -100,7 +150,7 @@ class AccountOrderControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(Context $context): CustomerEntity
+    private function createCustomer(Context $context, bool $guest = false): CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -120,6 +170,7 @@ class AccountOrderControllerTest extends TestCase
                     'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
+                'guest' => $guest,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',

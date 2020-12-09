@@ -232,6 +232,10 @@ class PluginLifecycleService
             $pluginBaseClass->removeMigrations();
         }
 
+        if (!$uninstallContext->keepUserData()) {
+            $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
+        }
+
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),

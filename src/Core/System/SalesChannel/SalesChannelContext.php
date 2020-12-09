@@ -265,4 +265,9 @@ class SalesChannelContext extends Struct
     {
         return $this->permissions[$permission] ?? false;
     }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->getSalesChannel()->getId();
+    }
 }

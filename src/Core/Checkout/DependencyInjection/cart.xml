@@ -205,6 +205,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="country.repository"/>
             <tag name="shopware.cart.validator"/>
         </service>
 

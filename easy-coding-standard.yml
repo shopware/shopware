@@ -7,6 +7,9 @@ services:
     PhpCsFixer\Fixer\FunctionNotation\FopenFlagsFixer: ~
     PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer:
         on_multiline: 'ensure_fully_multiline'
+    PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer:
+        scope: 'namespaced'
+        include: ['compiler_optimized']
     PhpCsFixer\Fixer\FunctionNotation\NullableTypeDeclarationForDefaultNullValueFixer: ~
     PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer: ~
     PhpCsFixer\Fixer\Operator\ConcatSpaceFixer:
@@ -56,3 +59,5 @@ parameters:
         PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
         PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: # would otherwise destroy the example in the annotation
             - 'src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'
+        PhpCsFixer\Fixer\Basic\NonPrintableCharacterFixer: # Would otherwise fix the blocking whitespace in the currency formatter tests
+            - 'src/Core/System/Test/Currency/CurrencyFormatterTest.php'

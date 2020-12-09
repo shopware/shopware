@@ -6,6 +6,7 @@ use PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer;
 use PhpCsFixer\Fixer\ClassNotation\SelfAccessorFixer;
 use PhpCsFixer\Fixer\FunctionNotation\FopenFlagsFixer;
 use PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer;
+use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
 use PhpCsFixer\Fixer\FunctionNotation\NullableTypeDeclarationForDefaultNullValueFixer;
 use PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer;
 use PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer;
@@ -50,6 +51,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(FopenFlagsFixer::class);
     $services->set(MethodArgumentSpaceFixer::class)
         ->call('configure', [['on_multiline' => 'ensure_fully_multiline']]);
+    $services->set(NativeFunctionInvocationFixer::class)
+        ->call('configure', [[
+            'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
+            'scope' => 'namespaced'
+        ]]);
     $services->set(NullableTypeDeclarationForDefaultNullValueFixer::class);
     $services->set(VoidReturnFixer::class);
     $services->set(ConcatSpaceFixer::class)

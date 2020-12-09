@@ -41,6 +41,7 @@ services:
 
 parameters:
     sets:
+        - 'symfony'
         - 'symfony-risky'
         - 'array'
         - 'control-structures'

@@ -25,6 +25,11 @@ class SomeController
      */
     private $factory;
     
+    /**
+     * @var \Shopware\Core\Checkout\Cart\SalesChannel\CartService
+     */
+    private $cartService;
+
     public function add(\Shopware\Core\Checkout\Cart\Cart $cart, \Shopware\Core\System\SalesChannel\SalesChannelContext $context): void
     {
         // Create product line item
@@ -35,11 +40,11 @@ class SomeController
             'payload' => ['key' => 'value']
         ], $context);
         
-        $cart->add($lineItem);
+        $this->cartService->add($cart, $lineItem, $context);
 
         // Create promotion line item
         $lineItem = $this->factory->create(['type' => 'promotion', 'referencedId' => '<code>'], $context);
-        $cart->add($lineItem);
+        $this->cartService->add($cart, $lineItem, $context);
     }
 }
 ```

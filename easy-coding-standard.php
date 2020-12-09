@@ -12,6 +12,7 @@ use PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer;
 use PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer;
 use PhpCsFixer\Fixer\LanguageConstruct\ExplicitIndirectVariableFixer;
 use PhpCsFixer\Fixer\Operator\ConcatSpaceFixer;
+use PhpCsFixer\Fixer\Operator\OperatorLinebreakFixer;
 use PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer;
 use PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
@@ -33,7 +34,6 @@ use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer;
-use PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer;
 use PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer;
 use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -60,6 +60,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(VoidReturnFixer::class);
     $services->set(ConcatSpaceFixer::class)
         ->call('configure', [['spacing' => 'one']]);
+    $services->set(OperatorLinebreakFixer::class);
     $services->set(GeneralPhpdocAnnotationRemoveFixer::class)
         ->call('configure', [['annotations' => ['copyright', 'category']]]);
     $services->set(NoSuperfluousPhpdocTagsFixer::class)
@@ -79,7 +80,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(NoImportFromGlobalNamespaceFixer::class);
     $services->set(NoSuperfluousConcatenationFixer::class);
     $services->set(NoUselessCommentFixer::class);
-    $services->set(OperatorLinebreakFixer::class);
     $services->set(PhpdocNoIncorrectVarAnnotationFixer::class);
     $services->set(SingleSpaceAfterStatementFixer::class);
     $services->set(NoUselessParenthesisFixer::class);

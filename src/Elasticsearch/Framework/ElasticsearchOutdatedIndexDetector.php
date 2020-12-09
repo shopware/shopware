@@ -58,7 +58,7 @@ class ElasticsearchOutdatedIndexDetector
 
         $indicesToBeDeleted = [];
         foreach ($allIndices as $index) {
-            if (count($index['aliases']) > 0) {
+            if (\count($index['aliases']) > 0) {
                 continue;
             }
 

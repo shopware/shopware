@@ -20,7 +20,7 @@ class MetadataLoaderTest extends TestCase
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware.jpg'), new ImageType());
 
         $expected = [
-            'type' => IMAGETYPE_JPEG,
+            'type' => \IMAGETYPE_JPEG,
             'width' => 1530,
             'height' => 1021,
         ];
@@ -36,7 +36,7 @@ class MetadataLoaderTest extends TestCase
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/logo.gif'), new ImageType());
 
         $expected = [
-            'type' => IMAGETYPE_GIF,
+            'type' => \IMAGETYPE_GIF,
             'width' => 142,
             'height' => 37,
         ];
@@ -52,7 +52,7 @@ class MetadataLoaderTest extends TestCase
             ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.png'), new ImageType());
 
         $expected = [
-            'type' => IMAGETYPE_PNG,
+            'type' => \IMAGETYPE_PNG,
             'width' => 499,
             'height' => 266,
         ];
@@ -90,7 +90,7 @@ class MetadataLoaderTest extends TestCase
         return new MediaFile(
             $filePath,
             mime_content_type($filePath),
-            pathinfo($filePath, PATHINFO_EXTENSION),
+            pathinfo($filePath, \PATHINFO_EXTENSION),
             filesize($filePath)
         );
     }

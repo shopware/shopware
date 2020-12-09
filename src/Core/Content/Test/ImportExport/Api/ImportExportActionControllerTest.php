@@ -97,7 +97,7 @@ class ImportExportActionControllerTest extends TestCase
                 'label' => 'Foobar' . $i,
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => 'article' . $i,
-                'fileType' => $mimetypes[$i % count($mimetypes)],
+                'fileType' => $mimetypes[$i % \count($mimetypes)],
                 'delimiter' => ';',
                 'enclosure' => '"',
                 'createdAt' => date('Y-m-d H:i:s'),

@@ -111,7 +111,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             $nameParts = explode('.', $fileInfo->getFilenameWithoutExtension());
 
             $snippetFile = null;
-            switch (count($nameParts)) {
+            switch (\count($nameParts)) {
                 case 2:
                     $snippetFile = new GenericSnippetFile(
                         implode('.', $nameParts),
@@ -148,7 +148,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             return 'Shopware';
         }
 
-        return $this->getPluginAuthors()[get_class($bundle)] ?? '';
+        return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
     }
 
     private function getPluginAuthors(): array

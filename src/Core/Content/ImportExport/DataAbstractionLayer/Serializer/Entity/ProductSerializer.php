@@ -72,7 +72,7 @@ class ProductSerializer extends EntitySerializer
 
     public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
-        $value = is_array($value) ? $value : iterator_to_array($value);
+        $value = \is_array($value) ? $value : iterator_to_array($value);
 
         yield from parent::deserialize($config, $definition, $value);
 

@@ -57,7 +57,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function addCodePromotions(string $code, array $promotions): void
     {
-        if (!array_key_exists($code, $this->codePromotions)) {
+        if (!\array_key_exists($code, $this->codePromotions)) {
             $this->codePromotions[$code] = [];
         }
 
@@ -96,7 +96,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function hasCode(string $code): bool
     {
-        return array_key_exists($code, $this->codePromotions);
+        return \array_key_exists($code, $this->codePromotions);
     }
 
     /**
@@ -105,7 +105,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function removeCode(string $code): void
     {
-        if (!array_key_exists($code, $this->codePromotions)) {
+        if (!\array_key_exists($code, $this->codePromotions)) {
             return;
         }
 

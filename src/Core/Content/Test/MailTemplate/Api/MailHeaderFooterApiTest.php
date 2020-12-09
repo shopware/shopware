@@ -72,7 +72,7 @@ class MailHeaderFooterApiTest extends TestCase
         );
 
         // compare expected and resulting data
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);

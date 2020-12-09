@@ -277,7 +277,7 @@ class ImportExportProfileApiTest extends TestCase
         $searchExcludes = ['mapping'];
         $filter = [];
         foreach ($searchData as $key => $value) {
-            if (!in_array($key, $searchExcludes, true)) {
+            if (!\in_array($key, $searchExcludes, true)) {
                 // Search call without result
                 $filter['filter'][$key] = $invalidData[$key];
                 $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [

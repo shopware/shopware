@@ -22,7 +22,7 @@ if (!$token
 }
 
 $result = [
-    'phpversion' => PHP_VERSION,
+    'phpversion' => \PHP_VERSION,
 ];
 
-echo json_encode($result, JSON_PRETTY_PRINT);
+echo json_encode($result, \JSON_PRETTY_PRINT);

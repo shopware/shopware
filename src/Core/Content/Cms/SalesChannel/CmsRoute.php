@@ -61,7 +61,7 @@ class CmsRoute extends AbstractCmsRoute
 
         $slots = $request->get('slots');
 
-        if (is_string($slots)) {
+        if (\is_string($slots)) {
             $slots = explode('|', $slots);
         }
 

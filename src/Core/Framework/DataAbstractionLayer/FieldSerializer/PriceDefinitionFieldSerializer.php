@@ -44,10 +44,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), JSON_PRESERVE_ZERO_FRACTION), true);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION), true);
 
         if ($value !== null) {
-            if (!array_key_exists('type', $value)) {
+            if (!\array_key_exists('type', $value)) {
                 throw new InvalidPriceFieldTypeException('none');
             }
 
@@ -58,7 +58,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         QuantityPriceDefinition::getConstraints(),
                         $parameters->getPath()
                     );
-                    if (!array_key_exists('taxRules', $value)) {
+                    if (!\array_key_exists('taxRules', $value)) {
                         break;
                     }
 
@@ -74,7 +74,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         $parameters->getPath()
                     );
 
-                    if (!array_key_exists('filter', $value) || $value['filter'] === null) {
+                    if (!\array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
@@ -90,7 +90,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         $parameters->getPath()
                     );
 
-                    if (!array_key_exists('filter', $value) || $value['filter'] === null) {
+                    if (!\array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
@@ -119,7 +119,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
         $value = parent::decode($field, $value);
 
-        if (!array_key_exists('type', $value)) {
+        if (!\array_key_exists('type', $value)) {
             throw new InvalidPriceFieldTypeException('none');
         }
 
@@ -127,11 +127,11 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($value);
             case AbsolutePriceDefinition::TYPE:
-                $rules = (array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
+                $rules = (\array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
 
                 return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
             case PercentagePriceDefinition::TYPE:
-                $rules = array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
+                $rules = \array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
         }
@@ -144,7 +144,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         $violationList = new ConstraintViolationList();
         /** @var string|null $type */
         $type = null;
-        if (array_key_exists('_name', $data)) {
+        if (\array_key_exists('_name', $data)) {
             $type = $data['_name'];
             unset($data['_name']);
         }
@@ -167,7 +167,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             }
         }
 
-        if (array_key_exists('rules', $data)) {
+        if (\array_key_exists('rules', $data)) {
             foreach ($data['rules'] as $rule) {
                 $violationList->addAll($this->validateRules($rule, $basePath . '/' . $type));
             }
@@ -185,7 +185,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['_name']);
         $object = new $ruleClass();
 
-        if (array_key_exists('rules', $rule) && $object instanceof Container) {
+        if (\array_key_exists('rules', $rule) && $object instanceof Container) {
             foreach ($rule['rules'] as $item) {
                 $object->addRule($this->decodeRule($item));
             }
@@ -244,7 +244,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         foreach ($payload as $fieldName => $_value) {
             $currentPath = sprintf('%s/%s', $basePath, $fieldName);
 
-            if (!array_key_exists($fieldName, $fieldValidations)) {
+            if (!\array_key_exists($fieldName, $fieldValidations)) {
                 $list->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',

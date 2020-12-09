@@ -32,7 +32,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
             $update = true;
         }
 
-        if (!is_string($contactTemplateId)) {
+        if (!\is_string($contactTemplateId)) {
             return;
         }
 

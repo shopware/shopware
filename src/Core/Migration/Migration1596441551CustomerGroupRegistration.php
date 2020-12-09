@@ -77,7 +77,7 @@ class Migration1596441551CustomerGroupRegistration extends MigrationStep
             }
 
             // We don't have both en and de
-            if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+            if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
                 $connection->insert('mail_template_type_translation', [
                     'mail_template_type_id' => $typeId,
                     'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -182,7 +182,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
         }
 
         // We don't have both en and de
-        if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $connection->insert(
                 'mail_template_translation',
                 [

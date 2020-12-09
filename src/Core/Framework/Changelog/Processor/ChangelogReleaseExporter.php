@@ -91,7 +91,7 @@ class ChangelogReleaseExporter extends ChangelogProcessor
             }
         }
 
-        if (count($changes)) {
+        if (\count($changes)) {
             $output = array_merge($output, ['# ' . $title], $changes, ['---']);
         }
     }

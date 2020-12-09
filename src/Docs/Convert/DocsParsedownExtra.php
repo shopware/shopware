@@ -121,6 +121,6 @@ class DocsParsedownExtra extends \ParsedownExtra
 
         $implodedLines = implode('', $reIntendedLines);
 
-        $this->content = PHP_EOL . '<?php declare(strict_types=1);' . PHP_EOL . $implodedLines;
+        $this->content = \PHP_EOL . '<?php declare(strict_types=1);' . \PHP_EOL . $implodedLines;
     }
 }

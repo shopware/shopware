@@ -110,7 +110,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
+            static::assertGreaterThan(0, \count($stackException->getExceptions()));
             foreach ($stackException->getExceptions() as $_exception) {
                 $exceptions = iterator_to_array($stackException->getErrors());
 

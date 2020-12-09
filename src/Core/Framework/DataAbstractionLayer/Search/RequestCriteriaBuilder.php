@@ -86,29 +86,29 @@ class RequestCriteriaBuilder
             $array['includes'] = $criteria->getIncludes();
         }
 
-        if (count($criteria->getIds())) {
+        if (\count($criteria->getIds())) {
             $array['ids'] = $criteria->getIds();
         }
 
-        if (count($criteria->getFilters())) {
+        if (\count($criteria->getFilters())) {
             $array['filter'] = array_map(static function (Filter $filter) {
                 return QueryStringParser::toArray($filter);
             }, $criteria->getFilters());
         }
 
-        if (count($criteria->getPostFilters())) {
+        if (\count($criteria->getPostFilters())) {
             $array['post-filter'] = array_map(static function (Filter $filter) {
                 return QueryStringParser::toArray($filter);
             }, $criteria->getPostFilters());
         }
 
-        if (count($criteria->getAssociations())) {
+        if (\count($criteria->getAssociations())) {
             foreach ($criteria->getAssociations() as $assocName => $association) {
                 $array['associations'][$assocName] = $this->toArray($association);
             }
         }
 
-        if (count($criteria->getSorting())) {
+        if (\count($criteria->getSorting())) {
             $array['sort'] = json_decode(json_encode($criteria->getSorting()), true);
 
             foreach ($array['sort'] as &$sort) {
@@ -118,7 +118,7 @@ class RequestCriteriaBuilder
             unset($sort);
         }
 
-        if (count($criteria->getQueries())) {
+        if (\count($criteria->getQueries())) {
             $array['query'] = [];
 
             foreach ($criteria->getQueries() as $query) {
@@ -128,7 +128,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (count($criteria->getGroupFields())) {
+        if (\count($criteria->getGroupFields())) {
             $array['grouping'] = [];
 
             foreach ($criteria->getGroupFields() as $groupField) {
@@ -136,7 +136,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (count($criteria->getAggregations())) {
+        if (\count($criteria->getAggregations())) {
             $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
         }
 
@@ -148,7 +148,7 @@ class RequestCriteriaBuilder
         $searchException = new SearchRequestException();
 
         if (isset($payload['ids'])) {
-            if (is_string($payload['ids'])) {
+            if (\is_string($payload['ids'])) {
                 $ids = array_filter(explode('|', $payload['ids']));
             } else {
                 $ids = $payload['ids'];

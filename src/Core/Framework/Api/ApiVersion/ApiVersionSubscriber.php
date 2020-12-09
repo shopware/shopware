@@ -37,7 +37,7 @@ class ApiVersionSubscriber implements EventSubscriberInterface
 
         $requestedVersion = (int) $matches['version'];
 
-        if (in_array($requestedVersion, $this->supportedApiVersions, true)) {
+        if (\in_array($requestedVersion, $this->supportedApiVersions, true)) {
             return;
         }
 

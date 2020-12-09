@@ -3001,11 +3001,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/ApiController.php
 
 		-
-			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/CacheController.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
@@ -3134,11 +3129,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncoder\\:\\:formatToJson\\(\\) should return string but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
-
-		-
-			message: "#^Parameter \\#2 \\$decoded of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonEntityEncoder\\:\\:filterIncludes\\(\\) expects array, array\\|ArrayObject\\|bool\\|float\\|int\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\Record\\:\\:setAttribute\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -5581,11 +5571,6 @@ parameters:
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:normalize\\(\\) return type with generic class ArrayObject does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
 			message: "#^Parameter \\#1 \\$data of method Symfony\\\\Component\\\\Serializer\\\\Encoder\\\\JsonDecode\\:\\:decode\\(\\) expects string, bool\\|float\\|int\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
@@ -6021,11 +6006,6 @@ parameters:
 			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
 
 		-
-			message: "#^Parameter \\#1 \\$patternId of method Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:getPatternResolver\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\\:\\:\\$connectorId has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
@@ -6052,11 +6032,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeStruct\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Argument of an invalid type array\\|ArrayObject\\|bool\\|float\\|int\\|string\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
@@ -6606,11 +6581,6 @@ parameters:
 			path: src/Docs/Convert/DocsParsedownExtra.php
 
 		-
-			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocsParsedownExtra\\:\\:docsExtractContentsFromIncludeFile\\(\\) should return array but returns array\\<int, string\\>\\|false\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocsParsedownExtra.php
-
-		-
 			message: "#^Parameter \\#1 \\$input of function array_slice expects array, array\\<int, string\\>\\|false given\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocsParsedownExtra.php
@@ -6756,7 +6726,7 @@ parameters:
 			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function strtolower expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/AbstractElasticsearchDefinition.php
 
@@ -7227,11 +7197,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Command\\\\ThemeChangeCommand\\:\\:parseSalesChannelAnswer\\(\\) has parameter \\$answer with no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Command/ThemeChangeCommand.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function trim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Command/ThemeChangeCommand.php
 

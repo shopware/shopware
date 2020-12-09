@@ -178,8 +178,8 @@ class SystemConfigService
             $key = $cur->getConfigurationKey();
             $value = $cur->getConfigurationValue();
 
-            $inheritedValuePresent = array_key_exists($key, $merged);
-            $valueConsideredEmpty = !is_bool($value) && empty($value);
+            $inheritedValuePresent = \array_key_exists($key, $merged);
+            $valueConsideredEmpty = !\is_bool($value) && empty($value);
 
             if ($inheritedValuePresent && $valueConsideredEmpty) {
                 continue;

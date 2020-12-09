@@ -61,7 +61,7 @@ class Cookies extends XmlElement
                 continue;
             }
 
-            if (in_array($child->tagName, [self::NAME_TAG, self::DESCRIPTION_TAG, self::COOKIE_TAG, self::VALUE_TAG, self::EXPIRATION_TAG], true)) {
+            if (\in_array($child->tagName, [self::NAME_TAG, self::DESCRIPTION_TAG, self::COOKIE_TAG, self::VALUE_TAG, self::EXPIRATION_TAG], true)) {
                 $cookie[self::kebabCaseToSnakeCase($child->tagName)] = $child->nodeValue;
             }
 

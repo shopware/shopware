@@ -23,7 +23,7 @@ class StringTemplateRenderer
         $this->disableTestMode();
 
         foreach ($environment->getExtensions() as $extension) {
-            if ($this->twig->hasExtension(get_class($extension))) {
+            if ($this->twig->hasExtension(\get_class($extension))) {
                 continue;
             }
             $this->twig->addExtension($extension);

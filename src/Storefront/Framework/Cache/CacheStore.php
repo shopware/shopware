@@ -234,7 +234,7 @@ class CacheStore implements StoreInterface
     private function getRequestUri(Request $request): string
     {
         $params = $request->query->all();
-        if (count($params) === 0) {
+        if (\count($params) === 0) {
             return sprintf(
                 '%s%s%s',
                 $request->getSchemeAndHttpHost(),

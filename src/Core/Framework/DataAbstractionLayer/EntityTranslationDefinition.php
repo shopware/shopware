@@ -52,9 +52,9 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $translatedDefinition = $this->getParentDefinition();
         $entityName = $translatedDefinition->getEntityName();
 
-        $propertyBaseName = \explode('_', $entityName);
-        $propertyBaseName = \array_map('ucfirst', $propertyBaseName);
-        $propertyBaseName = \lcfirst(\implode($propertyBaseName));
+        $propertyBaseName = explode('_', $entityName);
+        $propertyBaseName = array_map('ucfirst', $propertyBaseName);
+        $propertyBaseName = lcfirst(implode('', $propertyBaseName));
 
         $baseFields = [
             (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new PrimaryKey(), new Required()),

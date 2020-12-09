@@ -103,7 +103,7 @@ class EntityRepository implements EntityRepositoryInterface
 
         /** @var Entity $element */
         foreach ($entities as $element) {
-            if (!array_key_exists($element->getUniqueIdentifier(), $search)) {
+            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
             }
 

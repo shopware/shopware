@@ -29,7 +29,7 @@ class RequirementsController
 
     public function checkRequirements(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $checks = include dirname(__DIR__, 3) . '/Common/requirements.php';
+        $checks = include \dirname(__DIR__, 3) . '/Common/requirements.php';
         $paths = $checks['paths'];
 
         clearstatcache();

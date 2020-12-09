@@ -114,7 +114,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $schema = $schema['allOf'][1]['properties'];
 
             $relationships = [];
-            if (array_key_exists('relationships', $schema)) {
+            if (\array_key_exists('relationships', $schema)) {
                 foreach ($schema['relationships']['properties'] as $propertyName => $extension) {
                     $relationshipData = $extension['properties']['data'];
                     $type = $relationshipData['type'];
@@ -145,7 +145,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $relationships
             );
 
-            if (array_key_exists('extensions', $properties)) {
+            if (\array_key_exists('extensions', $properties)) {
                 $extensions = [];
 
                 foreach ($properties['extensions']['properties'] as $propertyName => $extension) {

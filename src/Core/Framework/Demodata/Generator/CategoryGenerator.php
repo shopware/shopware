@@ -102,7 +102,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
         foreach (array_chunk($payload, 100) as $chunk) {
             $this->writer->upsert($this->categoryRepository->getDefinition(), $chunk, WriteContext::createFromContext($context->getContext()));
-            $context->getConsole()->progressAdvance(count($chunk));
+            $context->getConsole()->progressAdvance(\count($chunk));
         }
 
         $context->getConsole()->progressFinish();

@@ -142,7 +142,7 @@ abstract class StorefrontController extends AbstractController
     {
         $params = $request->get($param);
 
-        if (is_string($params)) {
+        if (\is_string($params)) {
             $params = json_decode($params, true);
         }
 

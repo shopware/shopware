@@ -186,7 +186,7 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertGreaterThanOrEqual(1, count($content['data']));
+        static::assertGreaterThanOrEqual(1, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         $ids = array_column($content['data'], 'id');
@@ -234,7 +234,7 @@ class SalesChannelControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode(), print_r($content, true));
 
-        static::assertGreaterThanOrEqual(5, count($content['data']));
+        static::assertGreaterThanOrEqual(5, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         static::assertArrayHasKey('data', $content);
@@ -251,7 +251,7 @@ class SalesChannelControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
 
-        static::assertGreaterThanOrEqual(3, count($content['data']));
+        static::assertGreaterThanOrEqual(3, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         foreach ($content['data'] as $salutation) {

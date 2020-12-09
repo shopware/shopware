@@ -164,7 +164,7 @@ class ConfigReader extends XmlReader
             }
 
             if ($this->isBoolOption($option)) {
-                $elementData[$option->nodeName] = filter_var($option->nodeValue, FILTER_VALIDATE_BOOLEAN);
+                $elementData[$option->nodeName] = filter_var($option->nodeValue, \FILTER_VALIDATE_BOOLEAN);
 
                 continue;
             }

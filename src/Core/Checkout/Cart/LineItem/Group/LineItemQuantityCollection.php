@@ -34,7 +34,7 @@ class LineItemQuantityCollection extends Collection
 
         /** @var LineItemQuantity $element */
         foreach ($this->elements as $element) {
-            if (!array_key_exists($element->getLineItemId(), $tmpItems)) {
+            if (!\array_key_exists($element->getLineItemId(), $tmpItems)) {
                 $tmpItems[$element->getLineItemId()] = $element;
             } else {
                 $existing = $tmpItems[$element->getLineItemId()];

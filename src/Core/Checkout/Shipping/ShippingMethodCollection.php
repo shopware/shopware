@@ -21,7 +21,7 @@ class ShippingMethodCollection extends EntityCollection
     {
         return $this->filter(
             function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
-                return in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
+                return \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
             }
         );
     }

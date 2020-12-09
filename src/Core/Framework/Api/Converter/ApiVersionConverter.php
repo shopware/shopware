@@ -80,7 +80,7 @@ class ApiVersionConverter
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 
@@ -99,7 +99,7 @@ class ApiVersionConverter
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 
@@ -209,7 +209,7 @@ class ApiVersionConverter
             );
         }
 
-        if (count($parts) === 0) {
+        if (\count($parts) === 0) {
             return;
         }
 
@@ -249,7 +249,7 @@ class ApiVersionConverter
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+            if (\array_key_exists($field->getPropertyName(), $payload) && \is_array($payload[$field->getPropertyName()])) {
                 $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
                     $field->getReferenceDefinition(),
                     $payload[$field->getPropertyName()],
@@ -264,7 +264,7 @@ class ApiVersionConverter
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+            if (\array_key_exists($field->getPropertyName(), $payload) && \is_array($payload[$field->getPropertyName()])) {
                 foreach ($payload[$field->getPropertyName()] as $entityPayload) {
                     $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
                         $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),

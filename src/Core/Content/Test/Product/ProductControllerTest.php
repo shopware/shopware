@@ -38,7 +38,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
@@ -84,7 +84,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
@@ -120,7 +120,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [

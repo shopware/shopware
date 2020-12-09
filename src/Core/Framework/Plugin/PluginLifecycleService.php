@@ -413,7 +413,7 @@ class PluginLifecycleService
             $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements()
         );
 
-        if (count($dependants) > 0) {
+        if (\count($dependants) > 0) {
             throw new PluginHasActiveDependantsException($plugin->getName(), $dependants);
         }
 

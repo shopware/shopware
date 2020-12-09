@@ -144,7 +144,7 @@ EOF;
         $properties = array_column($properties, 'property');
 
         $domain = explode('\\', $definition->getClass());
-        $domain = array_slice($domain, 0, count($domain) - 1);
+        $domain = \array_slice($domain, 0, \count($domain) - 1);
         $domain = implode('\\', $domain);
 
         $entity = $definition->getEntityName();
@@ -271,7 +271,7 @@ EOF;
 
                 break;
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', get_class($field)));
+                throw new \RuntimeException(sprintf('Unknown field %s', \get_class($field)));
         }
 
         $template = str_replace(
@@ -310,7 +310,7 @@ EOF;
         $entity = implode('', $entity);
 
         $domain = explode('\\', $definition->getClass());
-        $domain = array_slice($domain, 0, count($domain) - 1);
+        $domain = \array_slice($domain, 0, \count($domain) - 1);
         $domain = implode('\\', $domain);
 
         $parameters = [

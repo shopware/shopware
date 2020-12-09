@@ -130,7 +130,7 @@ class CreditNoteGeneratorTest extends TestCase
 
         $lineItems = $order->getLineItems();
 
-        static::assertCount(count($creditPrices), $lineItems);
+        static::assertCount(\count($creditPrices), $lineItems);
 
         foreach ($lineItems as $lineItem) {
             static::assertEquals(LineItem::CREDIT_LINE_ITEM_TYPE, $lineItem->getType());

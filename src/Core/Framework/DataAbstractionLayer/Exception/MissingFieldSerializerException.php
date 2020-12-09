@@ -10,7 +10,7 @@ class MissingFieldSerializerException extends ShopwareHttpException
 {
     public function __construct(Field $field)
     {
-        parent::__construct('No field serializer class found for field class "{{ class }}".', ['class' => get_class($field)]);
+        parent::__construct('No field serializer class found for field class "{{ class }}".', ['class' => \get_class($field)]);
     }
 
     public function getErrorCode(): string

@@ -382,7 +382,7 @@ class EntityWriter implements EntityWriterInterface
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
 
             foreach ($keys as $key) {
-                if (!is_array($key)) {
+                if (!\is_array($key)) {
                     $key = ['id' => $key];
                 }
 

@@ -87,6 +87,6 @@ class ChangelogChangeCommand extends Command
             'upgrade' => $input->getOption('upgrade'),
         ];
 
-        return in_array(true, array_values($requested), true) ? $requested : array_fill_keys(array_keys($requested), true);
+        return \in_array(true, array_values($requested), true) ? $requested : array_fill_keys(array_keys($requested), true);
     }
 }

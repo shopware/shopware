@@ -864,7 +864,7 @@ class ApiController extends AbstractController
         $reference = $manyToManyAssociation->getToManyReferenceDefinition();
 
         // check if we need to create the entity first
-        if (\count($payload) > 1 || !array_key_exists('id', $payload)) {
+        if (\count($payload) > 1 || !\array_key_exists('id', $payload)) {
             $events = $this->executeWriteOperation($reference, $payload, $context, $type, $request->attributes->getInt('version'));
             $event = $events->getEventByEntityName($reference->getEntityName());
 

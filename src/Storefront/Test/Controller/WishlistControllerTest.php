@@ -98,7 +98,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
-        static::assertEmpty(\json_decode($response->getContent()));
+        static::assertEmpty(json_decode($response->getContent()));
     }
 
     public function testAjaxAdd(): void
@@ -113,7 +113,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
@@ -148,7 +148,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);

@@ -20,7 +20,7 @@ if ($isManual) {
 use Shopware\Recovery\Update\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
-if (PHP_SAPI === 'cli') {
+if (\PHP_SAPI === 'cli') {
     error_reporting(-1);
     ini_set('display_errors', '1');
 

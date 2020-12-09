@@ -146,7 +146,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     private function arrayRemove($haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $haystack[$key] = $this->arrayRemove($haystack[$key], $keyToRemove);
             }
 

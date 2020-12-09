@@ -187,14 +187,14 @@ class FileFetcher
 
     private function isUrlValid(string $url): bool
     {
-        return (bool) filter_var($url, FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
+        return (bool) filter_var($url, \FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
     }
 
     private function isProtocolAllowed(string $url): bool
     {
         $fragments = explode(':', $url);
-        if (count($fragments) > 1) {
-            return in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
+        if (\count($fragments) > 1) {
+            return \in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
         }
 
         return false;

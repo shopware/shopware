@@ -86,7 +86,7 @@ class DocumentMetadata
     public function isActive(): bool
     {
         try {
-            return filter_var($this->requireMetadata('isActive'), FILTER_VALIDATE_BOOLEAN);
+            return filter_var($this->requireMetadata('isActive'), \FILTER_VALIDATE_BOOLEAN);
         } catch (\InvalidArgumentException $e) {
             return true;
         }

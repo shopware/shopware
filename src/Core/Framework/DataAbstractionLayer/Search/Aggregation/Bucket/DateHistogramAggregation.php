@@ -35,7 +35,7 @@ class DateHistogramAggregation extends BucketAggregation
         parent::__construct($name, $field, $aggregation);
 
         $interval = mb_strtolower($interval);
-        if (!in_array($interval, [self::PER_MINUTE, self::PER_HOUR, self::PER_DAY, self::PER_WEEK, self::PER_MONTH, self::PER_QUARTER, self::PER_YEAR], true)) {
+        if (!\in_array($interval, [self::PER_MINUTE, self::PER_HOUR, self::PER_DAY, self::PER_WEEK, self::PER_MONTH, self::PER_QUARTER, self::PER_YEAR], true)) {
             throw new \RuntimeException('Provided date histogram interval is not supported');
         }
 

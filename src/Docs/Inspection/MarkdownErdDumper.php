@@ -87,7 +87,7 @@ EOD;
             $this->description,
             $this->title,
             $this->overviewImage,
-            implode(PHP_EOL, $this->tables)
+            implode(\PHP_EOL, $this->tables)
         );
     }
 

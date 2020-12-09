@@ -77,7 +77,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     public function testImportExportProfileSingleCreateMissingRequired(): void
     {
         $requiredProperties = ['sourceEntity', 'fileType'];
-        $num = count($requiredProperties);
+        $num = \count($requiredProperties);
         $data = $this->prepareImportExportProfileTestData($num);
 
         foreach ($requiredProperties as $property) {
@@ -105,7 +105,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -126,7 +126,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $data = $this->prepareImportExportProfileTestData(2);
 
         $requiredProperties = ['sourceEntity', 'fileType'];
-        $incompleteData = $this->prepareImportExportProfileTestData(count($requiredProperties));
+        $incompleteData = $this->prepareImportExportProfileTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
@@ -138,7 +138,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             $this->repository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
-            static::assertCount(count($requiredProperties), $e->getExceptions());
+            static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
             /** @var WriteConstraintViolationException $violations */
@@ -210,7 +210,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -231,7 +231,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $data = $this->prepareImportExportProfileTestData();
         $properties = array_keys(array_pop($data));
 
-        $num = count($properties);
+        $num = \count($properties);
         $data = $this->prepareImportExportProfileTestData($num);
 
         $this->repository->create(array_values($data), $this->context);
@@ -256,7 +256,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -289,7 +289,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num - $deleted, count($records));
+        static::assertEquals($num - $deleted, \count($records));
     }
 
     public function testImportExportProfileDeleteSystemDefault(): void
@@ -312,7 +312,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     public function testImportExportProfileDeleteUnknown(): void
@@ -330,7 +330,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     /**

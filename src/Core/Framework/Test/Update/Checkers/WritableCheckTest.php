@@ -21,7 +21,7 @@ class WritableCheckTest extends TestCase
             'foo/bar',
         ];
 
-        $filesystem->expects(static::exactly(count($checkFiles)))
+        $filesystem->expects(static::exactly(\count($checkFiles)))
             ->method('checkSingleDirectoryPermissions')
             ->withConsecutive(
                 [static::equalTo('/tmp/foo'), static::equalTo(true)],
@@ -44,7 +44,7 @@ class WritableCheckTest extends TestCase
             'also-not-writable',
         ];
 
-        $filesystem->expects(static::exactly(count($checkFiles)))
+        $filesystem->expects(static::exactly(\count($checkFiles)))
             ->method('checkSingleDirectoryPermissions')
             ->withConsecutive(
                 [static::equalTo('/tmp/foo'), static::equalTo(true)],

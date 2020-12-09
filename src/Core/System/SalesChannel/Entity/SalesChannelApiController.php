@@ -202,7 +202,7 @@ class SalesChannelApiController
                     $referenceDefinition = $field->getToManyReferenceDefinition();
                 }
 
-                if (in_array($referenceDefinition->getClass(), self::PROTECTION_BLACKLIST, true)) {
+                if (\in_array($referenceDefinition->getClass(), self::PROTECTION_BLACKLIST, true)) {
                     throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
                 }
             }

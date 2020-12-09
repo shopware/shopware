@@ -77,7 +77,7 @@ class TemplateFinder implements TemplateFinderInterface
         // up to the source file as that has already been searched and that would lead to an endless template inheritance.
         if ($sourceBundleName !== null && $sourcePath === $templatePath) {
             $index = array_search($sourceBundleName, $queue, true);
-            $queue = array_slice($queue, $index + 1);
+            $queue = \array_slice($queue, $index + 1);
         }
 
         // iterate over all bundles but exclude the originally requested bundle

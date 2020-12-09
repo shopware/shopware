@@ -31,9 +31,9 @@ class PathBuilder
      */
     public function __construct($basePath, $sourcePath, $backupPath)
     {
-        $baseDir = rtrim($basePath, '/\\') . DIRECTORY_SEPARATOR;
-        $sourceDir = rtrim($sourcePath, '/\\') . DIRECTORY_SEPARATOR;
-        $backupDir = rtrim($backupPath, '/\\') . DIRECTORY_SEPARATOR;
+        $baseDir = rtrim($basePath, '/\\') . \DIRECTORY_SEPARATOR;
+        $sourceDir = rtrim($sourcePath, '/\\') . \DIRECTORY_SEPARATOR;
+        $backupDir = rtrim($backupPath, '/\\') . \DIRECTORY_SEPARATOR;
 
         $updateDirRelative = str_replace($baseDir, '', $sourceDir);
         $backupDirRelative = str_replace($baseDir, '', $backupDir);

@@ -195,19 +195,19 @@ class ThemeLifecycleService
     private function getLabelsFromConfig(array $config): array
     {
         $translations = [];
-        if (array_key_exists('blocks', $config)) {
+        if (\array_key_exists('blocks', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('blocks', $config['blocks']));
         }
 
-        if (array_key_exists('sections', $config)) {
+        if (\array_key_exists('sections', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('sections', $config['sections']));
         }
 
-        if (array_key_exists('tabs', $config)) {
+        if (\array_key_exists('tabs', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('tabs', $config['tabs']));
         }
 
-        if (array_key_exists('fields', $config)) {
+        if (\array_key_exists('fields', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('fields', $config['fields']));
         }
 
@@ -218,7 +218,7 @@ class ThemeLifecycleService
     {
         $labels = [];
         foreach ($data as $key => $item) {
-            if (array_key_exists('label', $item)) {
+            if (\array_key_exists('label', $item)) {
                 foreach ($item['label'] as $locale => $label) {
                     $labels[$locale][$prefix . '.' . $key] = $label;
                 }
@@ -232,7 +232,7 @@ class ThemeLifecycleService
     {
         $translations = [];
 
-        if (array_key_exists('fields', $config)) {
+        if (\array_key_exists('fields', $config)) {
             $translations = array_merge_recursive($translations, $this->extractHelpTexts('fields', $config['fields']));
         }
 
@@ -322,15 +322,15 @@ class ThemeLifecycleService
 
         $baseConfig = $pluginConfiguration->getThemeConfig();
 
-        if (array_key_exists('fields', $baseConfig)) {
+        if (\array_key_exists('fields', $baseConfig)) {
             foreach ($baseConfig['fields'] as $key => $field) {
-                if (!array_key_exists('type', $field) || $field['type'] !== 'media') {
+                if (!\array_key_exists('type', $field) || $field['type'] !== 'media') {
                     continue;
                 }
 
-                $path = $pluginConfiguration->getBasePath() . DIRECTORY_SEPARATOR . $field['value'];
+                $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
 
-                if (!array_key_exists($path, $media)) {
+                if (!\array_key_exists($path, $media)) {
                     $mediaId = Uuid::randomHex();
                     $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
 
@@ -399,9 +399,9 @@ class ThemeLifecycleService
             $result[$locale] = [$property => $translation];
         }
 
-        if (!$containsSystemLanguage && count($translations) > 0) {
+        if (!$containsSystemLanguage && \count($translations) > 0) {
             $translation = array_shift($translations);
-            if (array_key_exists('en-GB', $translations)) {
+            if (\array_key_exists('en-GB', $translations)) {
                 $translation = $translations['en-GB'];
             }
             $result[$systemLanguageLocale] = [$property => $translation];

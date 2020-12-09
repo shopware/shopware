@@ -139,7 +139,7 @@ class LineItemCollection extends Collection
                 $priceDefinitionPriority = $lineItem->getPriceDefinition()->getPriority();
             }
 
-            if (!array_key_exists($priceDefinitionPriority, $lineItemsByPricePriority)) {
+            if (!\array_key_exists($priceDefinitionPriority, $lineItemsByPricePriority)) {
                 $lineItemsByPricePriority[$priceDefinitionPriority] = [];
             }
             $lineItemsByPricePriority[$priceDefinitionPriority][] = $lineItem;
@@ -148,7 +148,7 @@ class LineItemCollection extends Collection
         // Sort all line items by their price definition priority
         krsort($lineItemsByPricePriority);
 
-        if (count($lineItemsByPricePriority)) {
+        if (\count($lineItemsByPricePriority)) {
             $this->elements = array_merge(...$lineItemsByPricePriority);
         }
     }

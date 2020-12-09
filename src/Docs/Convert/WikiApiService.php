@@ -53,20 +53,20 @@ class WikiApiService
             $this->getAllCategories()
         );
 
-        echo 'Deleting ' . \count($articleList) . ' articles ...' . PHP_EOL;
+        echo 'Deleting ' . \count($articleList) . ' articles ...' . \PHP_EOL;
         foreach ($articleList as $article) {
             $this->disableArticle($article);
             $this->deleteArticle($article);
             $this->articleHandler->deleteById($article);
         }
 
-        echo 'Deleting categories...' . PHP_EOL;
+        echo 'Deleting categories...' . \PHP_EOL;
         $this->deleteCategoryChildren();
     }
 
     public function syncFilesWithServer(DocumentTree $tree): void
     {
-        echo 'Remove deleted articles and categories...' . PHP_EOL;
+        echo 'Remove deleted articles and categories...' . \PHP_EOL;
         $this->removeDeletedEntities($tree);
 
         $this->syncArticles($tree);
@@ -232,7 +232,7 @@ class WikiApiService
         $images = $document->getHtml()->render($tree)->getImages();
         $imageMap = [];
         if (\count($images)) {
-            echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
+            echo '=> Uploading ' . \count($images) . ' media file(s) ...' . \PHP_EOL;
             foreach ($images as $key => $mediaFile) {
                 $mediaLink = $this->uploadCategoryMedia($categoryId, $oldContentEn['id'], $mediaFile);
                 $imageMap[$key] = $mediaLink;
@@ -601,7 +601,7 @@ class WikiApiService
         /** @var Document $document */
         foreach ($tree->getArticles() as $document) {
             ++$i;
-            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . PHP_EOL;
+            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . \PHP_EOL;
 
             $documentMetadata = $document->getMetadata();
 
@@ -624,7 +624,7 @@ class WikiApiService
             $images = $document->getHtml()->render($tree)->getImages();
             $imageMap = [];
             if (\count($images)) {
-                echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
+                echo '=> Uploading ' . \count($images) . ' media file(s) ...' . \PHP_EOL;
                 foreach ($images as $key => $mediaFile) {
                     $imageMap[$key] = $this->uploadArticleMedia($articleInfo, $mediaFile);
                 }
@@ -657,7 +657,7 @@ class WikiApiService
 
     private function syncCategories(DocumentTree $tree): void
     {
-        echo 'Syncing ' . \count($tree->getCategories()) . ' categories ...' . PHP_EOL;
+        echo 'Syncing ' . \count($tree->getCategories()) . ' categories ...' . \PHP_EOL;
 
         $this->addEmptyCategories($tree);
         $this->syncCategoryContents($tree);
@@ -680,7 +680,7 @@ class WikiApiService
         $categoryIds = array_column($oldCategories, 'id');
 
         foreach ($tree->getCategories() as $document) {
-            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . PHP_EOL;
+            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . \PHP_EOL;
             $parentId = $this->rootCategoryId;
             $categoryId = $document->getCategoryId();
 

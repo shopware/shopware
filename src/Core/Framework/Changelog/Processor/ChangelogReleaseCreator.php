@@ -115,7 +115,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
                 $append[] = $upgrade;
             }
         }
-        if (!count($append)) {
+        if (!\count($append)) {
             return;
         }
 

@@ -75,7 +75,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $parameters[self::LANGUAGE_ID] = $languageId;
         }
 
-        if (func_num_args() >= 4 && !array_key_exists(self::CURRENCY_ID, $parameters)) {
+        if (\func_num_args() >= 4 && !\array_key_exists(self::CURRENCY_ID, $parameters)) {
             $currencyId = func_get_arg(3);
 
             if ($currencyId !== null) {

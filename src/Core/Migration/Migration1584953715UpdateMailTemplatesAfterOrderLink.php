@@ -253,7 +253,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                 array_filter([$deLangId, $enLangId])
             );
 
-            if (!in_array(Defaults::LANGUAGE_SYSTEM, $ids, true)) {
+            if (!\in_array(Defaults::LANGUAGE_SYSTEM, $ids, true)) {
                 $this->updateMailTemplateTranslation(
                     $connection,
                     $templateId,
@@ -275,7 +275,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
         ', ['typeId' => $templateTypeId])->fetchColumn();
 
-        if ($templateId === false || !is_string($templateId)) {
+        if ($templateId === false || !\is_string($templateId)) {
             return null;
         }
 

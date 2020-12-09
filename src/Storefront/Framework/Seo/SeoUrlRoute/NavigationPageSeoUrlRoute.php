@@ -84,17 +84,17 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         $path = array_filter(explode('|', (string) $category->getPath()));
 
         $navigationId = $salesChannel->getNavigationCategoryId();
-        if ($navigationId === $category->getId() || in_array($navigationId, $path, true)) {
+        if ($navigationId === $category->getId() || \in_array($navigationId, $path, true)) {
             return $navigationId;
         }
 
         $footerId = $salesChannel->getFooterCategoryId();
-        if ($footerId === $category->getId() || in_array($footerId, $path, true)) {
+        if ($footerId === $category->getId() || \in_array($footerId, $path, true)) {
             return $footerId;
         }
 
         $serviceId = $salesChannel->getServiceCategoryId();
-        if ($serviceId === $category->getId() || in_array($serviceId, $path, true)) {
+        if ($serviceId === $category->getId() || \in_array($serviceId, $path, true)) {
             return $serviceId;
         }
 

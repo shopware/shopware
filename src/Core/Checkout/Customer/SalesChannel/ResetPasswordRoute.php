@@ -175,7 +175,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 

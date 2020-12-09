@@ -168,7 +168,7 @@ class GenerateMediaTypesCommandTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
         $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(count($this->initialMediaIds), $result->getTotal());
+        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

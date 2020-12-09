@@ -106,7 +106,7 @@ class ThemeTest extends TestCase
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
 
-        static::assertGreaterThan(0, count($themeConfiguration));
+        static::assertGreaterThan(0, \count($themeConfiguration));
 
         foreach ($themeConfiguration['fields'] as $item) {
             static::assertStringNotContainsString('sw-theme', $item['label']);
@@ -328,82 +328,82 @@ class ThemeTest extends TestCase
 
                     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function registerBundles()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function registerContainerConfiguration(LoaderInterface $loader)
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function boot()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function shutdown()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function locateResource($name)
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getName()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getEnvironment()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function isDebug()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getRootDir()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getContainer()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getStartTime()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getCacheDir()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getLogDir()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function getCharset()
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
                     public function __call($name, $arguments)
                     {
-                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
                 },
                 $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),

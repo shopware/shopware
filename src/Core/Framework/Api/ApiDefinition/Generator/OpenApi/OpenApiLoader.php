@@ -57,7 +57,7 @@ class OpenApiLoader
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
-                if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
+                if ($operation instanceof Operation && !\in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
 
@@ -70,7 +70,7 @@ class OpenApiLoader
 
                     preg_match($sinceRegex, $operation->_context->comment, $match);
 
-                    if (array_key_exists(1, $match)) {
+                    if (\array_key_exists(1, $match)) {
                         $operation->description = 'Available since: ' . $match[1];
                     }
 

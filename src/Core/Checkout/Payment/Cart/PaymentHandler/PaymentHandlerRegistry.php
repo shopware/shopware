@@ -26,7 +26,7 @@ class PaymentHandlerRegistry
 
     public function getHandler(string $handlerId)
     {
-        if (!array_key_exists($handlerId, $this->handlers)) {
+        if (!\array_key_exists($handlerId, $this->handlers)) {
             return null;
         }
 

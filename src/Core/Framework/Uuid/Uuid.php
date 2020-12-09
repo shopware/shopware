@@ -25,9 +25,9 @@ class Uuid
             // time mid
             mb_substr($hex, 8, 4),
             // time high and version
-            str_pad(dechex($timeHi), 4, '0', STR_PAD_LEFT),
+            str_pad(dechex($timeHi), 4, '0', \STR_PAD_LEFT),
             // clk_seq_hi_res
-            str_pad(dechex($clockSeqHi), 2, '0', STR_PAD_LEFT),
+            str_pad(dechex($clockSeqHi), 2, '0', \STR_PAD_LEFT),
             // clock_seq_low
             mb_substr($hex, 18, 2),
             // node
@@ -46,8 +46,8 @@ class Uuid
      */
     public static function fromBytesToHex(string $bytes): string
     {
-        if (\mb_strlen($bytes, '8bit') !== 16) {
-            throw new InvalidUuidLengthException(\mb_strlen($bytes, '8bit'), bin2hex($bytes));
+        if (mb_strlen($bytes, '8bit') !== 16) {
+            throw new InvalidUuidLengthException(mb_strlen($bytes, '8bit'), bin2hex($bytes));
         }
         $uuid = bin2hex($bytes);
 

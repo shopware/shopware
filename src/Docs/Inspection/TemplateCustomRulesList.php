@@ -81,7 +81,7 @@ EOD;
             $this->ruleListPath,
             sprintf(
                 self::TEMPLATE_PAGE,
-                implode(PHP_EOL, $markdown)
+                implode(\PHP_EOL, $markdown)
             )
         );
     }

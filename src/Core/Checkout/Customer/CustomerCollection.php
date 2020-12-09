@@ -173,7 +173,7 @@ class CustomerCollection extends EntityCollection
     public function filterByVatId(string $id): self
     {
         return $this->filter(function (CustomerEntity $customer) use ($id) {
-            return in_array($id, $customer->getVatIds() ?? [], true);
+            return \in_array($id, $customer->getVatIds() ?? [], true);
         });
     }
 

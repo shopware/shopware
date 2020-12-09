@@ -56,7 +56,7 @@ class AppLifecycleIterator
         $fails = [];
         foreach ($appsFromFileSystem as $manifest) {
             try {
-                if (!array_key_exists($manifest->getMetadata()->getName(), $installedApps)) {
+                if (!\array_key_exists($manifest->getMetadata()->getName(), $installedApps)) {
                     $appLifecycle->install($manifest, $activate, $context);
                     $successfulUpdates[] = $manifest->getMetadata()->getName();
 

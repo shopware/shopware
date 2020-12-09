@@ -34,7 +34,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->setParameter(':englishLocale', 'en-GB')
                 ->execute();
 
-            if ($englishLanguageId && !is_int($englishLanguageId)) {
+            if ($englishLanguageId && !\is_int($englishLanguageId)) {
                 $englishLanguageId = $englishLanguageId->fetchColumn();
             }
             if (!$englishLanguageId) {
@@ -48,7 +48,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->where('language_id = :englishLocale AND short_name = :swedishKronaShortName AND updated_at IS NULL ')
                 ->setParameters([':englishLocale' => $englishLanguageId, ':swedishKronaShortName' => 'SEK'])
                 ->execute();
-            if ($enSwedishCurrencyTranslationUnchanged && !is_int($enSwedishCurrencyTranslationUnchanged)) {
+            if ($enSwedishCurrencyTranslationUnchanged && !\is_int($enSwedishCurrencyTranslationUnchanged)) {
                 $enSwedishCurrencyTranslationUnchanged = $enSwedishCurrencyTranslationUnchanged->fetchColumn();
             }
 

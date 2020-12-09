@@ -86,11 +86,11 @@ class IndexCreator
 
         $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
 
-        if (!array_key_exists('_source', $mapping)) {
+        if (!\array_key_exists('_source', $mapping)) {
             return $mapping;
         }
 
-        if (!array_key_exists('includes', $mapping['_source'])) {
+        if (!\array_key_exists('includes', $mapping['_source'])) {
             return $mapping;
         }
 

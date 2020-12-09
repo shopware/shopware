@@ -77,7 +77,7 @@ class LineItemInCategoryRule extends Rule
     {
         $categoryIds = (array) $lineItem->getPayloadValue('categoryIds');
 
-        $matches = \array_intersect($categoryIds, $this->categoryIds);
+        $matches = array_intersect($categoryIds, $this->categoryIds);
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:

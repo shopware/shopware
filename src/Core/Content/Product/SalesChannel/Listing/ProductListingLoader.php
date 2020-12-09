@@ -209,7 +209,7 @@ class ProductListingLoader
             }
 
             // main variant is configured and available - add main variant id
-            if (!in_array($main, $sorted, true)) {
+            if (!\in_array($main, $sorted, true)) {
                 $remapped[$id] = $main;
                 $sorted[] = $main;
             }

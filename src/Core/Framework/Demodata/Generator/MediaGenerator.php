@@ -104,12 +104,12 @@ class MediaGenerator implements DemodataGeneratorInterface
                 new MediaFile(
                     $file,
                     mime_content_type($file),
-                    pathinfo($file, PATHINFO_EXTENSION),
+                    pathinfo($file, \PATHINFO_EXTENSION),
                     filesize($file)
                 ),
                 $this->fileNameProvider->provide(
-                    pathinfo($file, PATHINFO_FILENAME),
-                    pathinfo($file, PATHINFO_EXTENSION),
+                    pathinfo($file, \PATHINFO_FILENAME),
+                    pathinfo($file, \PATHINFO_EXTENSION),
                     $mediaId,
                     $context->getContext()
                 ),
@@ -129,8 +129,8 @@ class MediaGenerator implements DemodataGeneratorInterface
         $images = [];
 
         if (is_dir($fixtureDir)) {
-            $images = \array_values(
-                \iterator_to_array(
+            $images = array_values(
+                iterator_to_array(
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)

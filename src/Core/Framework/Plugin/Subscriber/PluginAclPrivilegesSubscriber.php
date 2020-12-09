@@ -46,7 +46,7 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
         foreach ($additionalRolePrivileges as $additionalRole => $additionalPrivileges) {
             foreach ($aclRoles as $aclRole) {
                 if (\in_array($additionalRole, $aclRole->getPrivileges(), true)) {
-                    $newPrivileges = \array_unique(\array_merge($aclRole->getPrivileges(), $additionalPrivileges));
+                    $newPrivileges = array_unique(array_merge($aclRole->getPrivileges(), $additionalPrivileges));
                     $aclRole->setPrivileges($newPrivileges);
                 }
             }
@@ -61,7 +61,7 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
         $rolePrivileges = [];
 
         foreach ($this->plugins->getActives() as $plugin) {
-            $rolePrivileges = \array_replace_recursive($rolePrivileges, $plugin->enrichPrivileges());
+            $rolePrivileges = array_replace_recursive($rolePrivileges, $plugin->enrichPrivileges());
         }
 
         return $rolePrivileges;

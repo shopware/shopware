@@ -109,13 +109,13 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 return $this->hydrateTermsAggregation($aggregation, $result, $context);
 
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
         }
     }
 
     private function hydrateEntityAggregation(EntityAggregation $aggregation, array $result, Context $context): EntityResult
     {
-        if (array_key_exists($aggregation->getName(), $result)) {
+        if (\array_key_exists($aggregation->getName(), $result)) {
             $result = $result[$aggregation->getName()];
         }
 

@@ -44,8 +44,8 @@ class ArrayWriter
 
     public function dump(bool $long = false): void
     {
-        $content = '<?php declare(strict_types=1);' . PHP_EOL . PHP_EOL;
-        $content .= 'return [' . PHP_EOL;
+        $content = '<?php declare(strict_types=1);' . \PHP_EOL . \PHP_EOL;
+        $content .= 'return [' . \PHP_EOL;
 
         if ($long) {
             $content .= $this->dumpDataLong();
@@ -53,7 +53,7 @@ class ArrayWriter
             $content .= $this->dumpDataShort();
         }
 
-        $content .= '];' . PHP_EOL;
+        $content .= '];' . \PHP_EOL;
 
         file_put_contents($this->path, $content);
     }
@@ -63,7 +63,7 @@ class ArrayWriter
         $content = '';
 
         foreach ($this->data as $key => $value) {
-            $content .= '    ' . $this->formatKey($key) . ' => ' . var_export($value, true) . ',' . PHP_EOL;
+            $content .= '    ' . $this->formatKey($key) . ' => ' . var_export($value, true) . ',' . \PHP_EOL;
         }
 
         return $content;
@@ -75,9 +75,9 @@ class ArrayWriter
 
         foreach ($this->data as $key => $value) {
             if ($value === '') {
-                $content .= '    ' . $this->formatKey($key) . ' => ' . var_export($value, true) . ',' . PHP_EOL;
+                $content .= '    ' . $this->formatKey($key) . ' => ' . var_export($value, true) . ',' . \PHP_EOL;
             } else {
-                $content .= '    ' . $this->formatKey($key) . ' => <<<\'EOD\'' . PHP_EOL . $value . PHP_EOL . 'EOD' . PHP_EOL . '    ,' . PHP_EOL;
+                $content .= '    ' . $this->formatKey($key) . ' => <<<\'EOD\'' . \PHP_EOL . $value . \PHP_EOL . 'EOD' . \PHP_EOL . '    ,' . \PHP_EOL;
             }
         }
 

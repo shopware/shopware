@@ -10,7 +10,6 @@ use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function sprintf;
 
 class SitemapExporter implements SitemapExporterInterface
 {

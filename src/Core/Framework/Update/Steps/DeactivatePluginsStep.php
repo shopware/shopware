@@ -70,7 +70,7 @@ class DeactivatePluginsStep
 
         $plugins = $this->pluginCompatibility->getPluginsToDeactivate($this->toVersion, $this->context, $this->deactivationFilter);
 
-        $pluginCount = count($plugins);
+        $pluginCount = \count($plugins);
 
         foreach ($plugins as $plugin) {
             ++$offset;

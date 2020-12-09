@@ -93,7 +93,7 @@ class BusinessEventRegistry
             $compiledEventData = [];
 
             foreach ($eventData as $key => $data) {
-                if (!in_array($data['type'], ['collection', 'entity'], true)) {
+                if (!\in_array($data['type'], ['collection', 'entity'], true)) {
                     $compiledEventData[$key] = $data;
 
                     continue;

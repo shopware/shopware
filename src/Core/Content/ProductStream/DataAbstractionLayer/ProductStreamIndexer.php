@@ -187,7 +187,7 @@ class ProductStreamIndexer extends EntityIndexer
             $parameters = $entity['parameters'];
             if ($parameters && \is_string($parameters)) {
                 $decodedParameters = json_decode($entity['parameters'], true);
-                if (json_last_error() === JSON_ERROR_NONE) {
+                if (json_last_error() === \JSON_ERROR_NONE) {
                     $entity['parameters'] = $decodedParameters;
                 }
             }

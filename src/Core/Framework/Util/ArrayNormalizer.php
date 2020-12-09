@@ -29,7 +29,7 @@ class ArrayNormalizer
     {
         $result = [];
         foreach ($input as $key => $value) {
-            if (is_string($key) && mb_strpos($key, '.') !== false) {
+            if (\is_string($key) && mb_strpos($key, '.') !== false) {
                 $first = mb_strstr($key, '.', true);
                 $rest = mb_strstr($key, '.');
                 if (isset($result[$first])) {

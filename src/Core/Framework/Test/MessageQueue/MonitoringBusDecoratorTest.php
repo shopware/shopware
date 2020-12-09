@@ -100,7 +100,7 @@ class MonitoringBusDecoratorTest extends TestCase
         $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
         $queueRepo->create(
             [[
-                'name' => get_class($testMsg),
+                'name' => \get_class($testMsg),
                 'size' => 1,
             ]],
             $context
@@ -112,7 +112,7 @@ class MonitoringBusDecoratorTest extends TestCase
         $decoratedBus->dispatch($envelope);
 
         $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', get_class($testMsg)));
+        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', \get_class($testMsg)));
         $queueStatus = $queueRepo->search($criteria, $context)->first();
 
         static::assertNotNull($queueStatus);

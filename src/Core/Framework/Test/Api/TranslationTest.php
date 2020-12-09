@@ -587,7 +587,7 @@ class TranslationTest extends TestCase
         static::assertEquals(400, $response->getStatusCode(), $response->getContent());
 
         $responseData = json_decode($response->getContent(), true);
-        static::assertCount(count($errors), $responseData['errors']);
+        static::assertCount(\count($errors), $responseData['errors']);
 
         $actualErrors = array_map(function ($error) {
             $e = [

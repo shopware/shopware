@@ -65,7 +65,7 @@ class ImportEntityCommand extends Command
         $context = Context::createDefaultContext();
 
         $profileName = $input->getArgument('profile');
-        if (is_array($profileName)) {
+        if (\is_array($profileName)) {
             throw new \InvalidArgumentException(
                 sprintf('Profile name: Found array, expected string')
             );

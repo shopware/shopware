@@ -86,7 +86,7 @@ class CurrencyFormatter
 
     private function getLocale(string $languageId, Context $context): string
     {
-        if (array_key_exists($languageId, $this->localeCache)) {
+        if (\array_key_exists($languageId, $this->localeCache)) {
             return $this->localeCache[$languageId];
         }
 

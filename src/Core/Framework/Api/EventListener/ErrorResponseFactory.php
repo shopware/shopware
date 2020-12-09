@@ -18,7 +18,7 @@ class ErrorResponseFactory
             $this->getHeadersFromException($exception)
         );
 
-        $response->setEncodingOptions($response->getEncodingOptions() | JSON_INVALID_UTF8_SUBSTITUTE);
+        $response->setEncodingOptions($response->getEncodingOptions() | \JSON_INVALID_UTF8_SUBSTITUTE);
         $response->setData(['errors' => $this->getErrorsFromException($exception, $debug)]);
 
         return $response;
@@ -95,7 +95,7 @@ class ErrorResponseFactory
             }
 
             if (\is_string($value)) {
-                if (!ctype_print($value) && \mb_strlen($value) === 16) {
+                if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
                 } elseif (!mb_detect_encoding($value, mb_detect_order(), true)) {
                     $array[$key] = utf8_encode($value);

@@ -14,10 +14,10 @@ function getProjectDir(): string
 
     $dir = $rootDir = __DIR__;
     while (!file_exists($dir . '/.env')) {
-        if ($dir === \dirname($dir)) {
+        if ($dir === dirname($dir)) {
             return $rootDir;
         }
-        $dir = \dirname($dir);
+        $dir = dirname($dir);
     }
 
     return $dir;

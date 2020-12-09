@@ -150,7 +150,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $filter = [];
 
         // try exact match first
-        if (count($plugins) === 1) {
+        if (\count($plugins) === 1) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('name', $plugins[0]));
 

@@ -25,7 +25,7 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage ex
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => \json_encode(['_value' => 24]),
+            'configuration_value' => json_encode(['_value' => 24]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

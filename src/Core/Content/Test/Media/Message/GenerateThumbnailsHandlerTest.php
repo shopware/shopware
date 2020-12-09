@@ -77,7 +77,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $msg = new GenerateThumbnailsMessage();
@@ -125,7 +125,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $msg = new UpdateThumbnailsMessage();

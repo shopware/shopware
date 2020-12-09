@@ -29,7 +29,7 @@ class TwigDateRequestListener implements EventSubscriberInterface
     {
         $timezone = $event->getRequest()->cookies->get(self::TIMEZONE_COOKIE);
 
-        if (!$timezone || !in_array($timezone, timezone_identifiers_list(), true)) {
+        if (!$timezone || !\in_array($timezone, timezone_identifiers_list(), true)) {
             $timezone = 'UTC';
         }
 

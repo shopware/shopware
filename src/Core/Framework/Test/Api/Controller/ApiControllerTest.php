@@ -353,7 +353,7 @@ EOF;
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer');
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $this->getBrowser()->getResponse()->getContent());
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $this->getBrowser()->getResponse()->getContent());
 
         static::assertArrayHasKey('data', $responseData, $this->getBrowser()->getResponse()->getContent());
         static::assertArrayHasKey(0, $responseData['data'], $this->getBrowser()->getResponse()->getContent());
@@ -406,7 +406,7 @@ EOF;
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer');
         $responseData = json_decode($browser->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $browser->getResponse()->getContent());
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $browser->getResponse()->getContent());
 
         static::assertArrayHasKey('data', $responseData, $browser->getResponse()->getContent());
         static::assertArrayHasKey(0, $responseData['data'], $browser->getResponse()->getContent());
@@ -615,7 +615,7 @@ EOF;
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $response->getContent());
 
-        $content = \json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true);
 
         static::assertSame((new LiveVersionDeleteException())->getErrorCode(), $content['errors'][0]['code']);
     }

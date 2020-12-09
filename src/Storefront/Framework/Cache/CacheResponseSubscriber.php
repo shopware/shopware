@@ -122,7 +122,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function hasInvalidationState(HttpCache $cache, array $states): bool
     {
         foreach ($states as $state) {
-            if (in_array($state, $cache->getStates(), true)) {
+            if (\in_array($state, $cache->getStates(), true)) {
                 return true;
             }
         }

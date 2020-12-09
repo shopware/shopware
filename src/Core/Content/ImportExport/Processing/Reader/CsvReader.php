@@ -48,7 +48,7 @@ class CsvReader extends AbstractReader
 
     public function read(Config $config, $resource, int $offset): iterable
     {
-        if (!is_resource($resource)) {
+        if (!\is_resource($resource)) {
             throw new \InvalidArgumentException('Argument $resource is not a resource');
         }
 
@@ -115,7 +115,7 @@ class CsvReader extends AbstractReader
             }
 
             // skip if it's an empty line
-            if ($record === false || (count($record) === 1 && $record[0] === null)) {
+            if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;
             }
 

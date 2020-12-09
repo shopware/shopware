@@ -157,7 +157,7 @@ class ProductStreamBuilderTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
         $connection->exec(
             "

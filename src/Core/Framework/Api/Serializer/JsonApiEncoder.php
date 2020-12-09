@@ -129,7 +129,7 @@ class JsonApiEncoder
 
         $input = str_replace('_', '-', $input);
 
-        return $this->caseCache[$input] = \ltrim(\mb_strtolower(\preg_replace('/[A-Z]/', '-$0', $input)), '-');
+        return $this->caseCache[$input] = ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
 
     /**
@@ -226,7 +226,7 @@ class JsonApiEncoder
 
     private function formatToJson(JsonApiEncodingResult $result): string
     {
-        return json_encode($result, JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION);
     }
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void

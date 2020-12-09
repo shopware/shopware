@@ -22,7 +22,7 @@ class StructDecoder implements DecoderInterface
             return $decoded;
         }
 
-        if (array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', $decoded['_class'])) {
+        if (\array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', $decoded['_class'])) {
             $elements = [];
             foreach ($decoded['elements'] as $element) {
                 $elements[] = $this->format($element);

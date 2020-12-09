@@ -48,7 +48,7 @@ trait CriteriaQueryHelper
         $filters = array_merge($criteria->getFilters(), $criteria->getPostFilters());
         $filter = $this->antiJoinTransform(
             $definition,
-            count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
+            \count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
         );
 
         $criteria->resetFilters();
@@ -220,7 +220,7 @@ trait CriteriaQueryHelper
             $fields[] = $field->getFields();
         }
 
-        if (count($fields) === 0) {
+        if (\count($fields) === 0) {
             return [];
         }
 
@@ -248,7 +248,7 @@ trait CriteriaQueryHelper
      */
     private function validateSortingDirection(string $direction): void
     {
-        if (!in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
+        if (!\in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
             throw new InvalidSortingDirectionException($direction);
         }
     }
@@ -335,7 +335,7 @@ trait CriteriaQueryHelper
                 $fields = $childFilter->getFields();
                 $field = @current($fields);
                 if ($childFilter instanceof MultiFilter
-                    || count($fields) !== 1
+                    || \count($fields) !== 1
                     || ($childFilter instanceof EqualsFilter && $childFilter->getValue() === null)
                     || !$this->isAssociationPath($definition, $field)
                 ) {
@@ -370,7 +370,7 @@ trait CriteriaQueryHelper
         $prefix = $definition->getEntityName() . '.';
 
         if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();

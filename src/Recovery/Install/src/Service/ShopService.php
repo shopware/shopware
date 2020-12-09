@@ -364,7 +364,7 @@ SQL;
 
     private function setSystemConfig(string $key, $value): void
     {
-        $value = json_encode(['_value' => $value], JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
+        $value = json_encode(['_value' => $value], \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
 
         $stmt = $this->connection->prepare('SELECT id FROM `system_config` WHERE configuration_key = ?');
         $stmt->execute([$key]);
@@ -567,7 +567,7 @@ SQL;
         $selectedCurrencies = $shop->additionalCurrencies;
         $selectedCurrencies[] = $shop->currency;
 
-        $inputParameters = str_repeat('?,', count($shop->additionalCurrencies) - 1) . '?';
+        $inputParameters = str_repeat('?,', \count($shop->additionalCurrencies) - 1) . '?';
         $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code NOT IN (' . $inputParameters . ', ?)');
         $statement->execute($selectedCurrencies);
     }

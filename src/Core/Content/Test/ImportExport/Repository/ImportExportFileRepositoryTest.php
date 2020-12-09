@@ -62,7 +62,7 @@ class ImportExportFileRepositoryTest extends TestCase
     public function testImportExportFileSingleCreateMissingRequired(): void
     {
         $requiredProperties = ['originalName', 'path'];
-        $num = count($requiredProperties);
+        $num = \count($requiredProperties);
         $data = $this->prepareImportExportFileTestData($num);
 
         foreach ($requiredProperties as $property) {
@@ -87,7 +87,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -105,7 +105,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $data = $this->prepareImportExportFileTestData(2);
 
         $requiredProperties = ['originalName', 'path'];
-        $incompleteData = $this->prepareImportExportFileTestData(count($requiredProperties));
+        $incompleteData = $this->prepareImportExportFileTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
@@ -117,7 +117,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $this->repository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
-            static::assertCount(count($requiredProperties), $e->getExceptions());
+            static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
             /** @var WriteConstraintViolationException $violations */
@@ -184,7 +184,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -202,7 +202,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $data = $this->prepareImportExportFileTestData();
         $properties = array_keys(array_pop($data));
 
-        $num = count($properties);
+        $num = \count($properties);
         $data = $this->prepareImportExportFileTestData($num);
 
         $this->repository->create(array_values($data), $this->context);
@@ -226,7 +226,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -272,7 +272,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     /**

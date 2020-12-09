@@ -19,7 +19,7 @@ class XmlElement extends Struct
 
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
-        if (!array_key_exists($child->tagName, $values)) {
+        if (!\array_key_exists($child->tagName, $values)) {
             $values[self::snakeCaseToCamelCase($child->tagName)] = [];
         }
 
@@ -61,7 +61,7 @@ class XmlElement extends Struct
             return $translations;
         }
 
-        if (!array_key_exists($defaultLocale, $translations)) {
+        if (!\array_key_exists($defaultLocale, $translations)) {
             $translations[$defaultLocale] = $this->getFallbackTranslation($translations);
         }
 
@@ -75,7 +75,7 @@ class XmlElement extends Struct
 
     private function getFallbackTranslation(array $translations): string
     {
-        if (array_key_exists(self::FALLBACK_LOCALE, $translations)) {
+        if (\array_key_exists(self::FALLBACK_LOCALE, $translations)) {
             return $translations[self::FALLBACK_LOCALE];
         }
 

@@ -61,7 +61,7 @@ class MediaFolderService
             ];
         }
 
-        if (count($payload) > 0) {
+        if (\count($payload) > 0) {
             $this->mediaRepo->update($payload, $context);
         }
     }
@@ -89,11 +89,11 @@ class MediaFolderService
 
         $subFolders = $subFolders->filterByProperty('useParentConfiguration', true);
 
-        if (count($subFolders) === 0) {
+        if (\count($subFolders) === 0) {
             $this->deleteOwnConfiguration($folder, $context);
         }
 
-        if ((!$folder->getUseParentConfiguration()) && count($subFolders) > 1) {
+        if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
             $payload = $this->duplicateFolderConfig($subFolders->getEntities(), $payload, $context);
         }
 

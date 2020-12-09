@@ -89,12 +89,12 @@ EOF;
 
         // Assert the two plain text templates were updated
         static::assertCount(2, array_filter($mails, static function (array $mail) use ($contentPlain): bool {
-            return in_array(trim($mail['content_plain']), $contentPlain, true);
+            return \in_array(trim($mail['content_plain']), $contentPlain, true);
         }));
 
         // Assert the two html templates were updated
         static::assertCount(2, array_filter($mails, static function (array $mail) use ($contentHtml): bool {
-            return in_array(trim($mail['content_html']), $contentHtml, true);
+            return \in_array(trim($mail['content_html']), $contentHtml, true);
         }));
     }
 

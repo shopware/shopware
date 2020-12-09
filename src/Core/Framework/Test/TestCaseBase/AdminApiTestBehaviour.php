@@ -188,13 +188,13 @@ trait AdminApiTestBehaviour
 
         $data = json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
-        if (!array_key_exists('refresh_token', $data)) {
+        if (!\array_key_exists('refresh_token', $data)) {
             throw new \RuntimeException(
                 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
             );
@@ -244,7 +244,7 @@ trait AdminApiTestBehaviour
 
         $data = json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );

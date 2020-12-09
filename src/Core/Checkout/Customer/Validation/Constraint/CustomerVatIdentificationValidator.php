@@ -31,7 +31,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return;
         }
 
-        if (!\is_iterable($vatIds)) {
+        if (!is_iterable($vatIds)) {
             throw new UnexpectedValueException($vatIds, 'iterable');
         }
 

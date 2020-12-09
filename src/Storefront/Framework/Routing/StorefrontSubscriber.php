@@ -291,7 +291,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $controller = $event->getController();
 
         // happens if Controller is a closure
-        if (!is_array($controller)) {
+        if (!\is_array($controller)) {
             return;
         }
 

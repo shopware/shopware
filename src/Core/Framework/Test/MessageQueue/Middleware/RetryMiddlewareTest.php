@@ -143,7 +143,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
             [
                 'id' => $taskId,
                 'name' => 'test',
-                'scheduledTaskClass' => get_class($message),
+                'scheduledTaskClass' => \get_class($message),
                 'runInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
             ],
@@ -242,8 +242,8 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         int $errorCount
     ): void {
         static::assertInstanceOf(DeadMessageEntity::class, $deadMessage);
-        static::assertEquals(get_class($e), $deadMessage->getException());
-        static::assertEquals(get_class($message), $deadMessage->getOriginalMessageClass());
+        static::assertEquals(\get_class($e), $deadMessage->getException());
+        static::assertEquals(\get_class($message), $deadMessage->getOriginalMessageClass());
         static::assertEquals($message, $deadMessage->getOriginalMessage());
         static::assertEquals($e->getMessage(), $deadMessage->getExceptionMessage());
         static::assertEquals($e->getFile(), $deadMessage->getExceptionFile());
@@ -258,12 +258,12 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $this->deadMessageRepository->create([
             [
                 'id' => $deadMessageId,
-                'originalMessageClass' => get_class($envelope->getMessage()),
+                'originalMessageClass' => \get_class($envelope->getMessage()),
                 'serializedOriginalMessage' => serialize($envelope->getMessage()),
                 'handlerClass' => RetryMessageHandler::class,
                 'encrypted' => false,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                'exception' => get_class($e),
+                'exception' => \get_class($e),
                 'exceptionMessage' => $e->getMessage(),
                 'exceptionFile' => $e->getFile(),
                 'exceptionLine' => $e->getLine(),

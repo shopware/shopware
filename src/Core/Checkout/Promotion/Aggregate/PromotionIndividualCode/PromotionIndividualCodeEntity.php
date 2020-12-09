@@ -99,7 +99,7 @@ class PromotionIndividualCodeEntity extends Entity
     public function setRedeemed(string $orderId, string $customerId, string $customerName): void
     {
         // check if we even have data
-        if ($this->payload !== null && array_key_exists('orderId', $this->payload)) {
+        if ($this->payload !== null && \array_key_exists('orderId', $this->payload)) {
             // if we have another order id, then throw an exception
             if ($this->payload['orderId'] !== $orderId) {
                 throw new CodeAlreadyRedeemedException((string) $this->code);

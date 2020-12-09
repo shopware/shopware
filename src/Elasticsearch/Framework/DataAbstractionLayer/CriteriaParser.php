@@ -131,7 +131,7 @@ class CriteriaParser
                 return $this->parseRangeFilter($filter, $definition, $context);
 
             default:
-                throw new \RuntimeException(sprintf('Unsupported filter %s', get_class($filter)));
+                throw new \RuntimeException(sprintf('Unsupported filter %s', \get_class($filter)));
         }
     }
 
@@ -256,7 +256,7 @@ class CriteriaParser
             case $aggregation instanceof DateHistogramAggregation:
                 return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
         }
     }
 

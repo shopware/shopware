@@ -25,7 +25,7 @@ class AntiJoinInfo
     {
         foreach ($associations as $association) {
             if (!$association instanceof AssociationField) {
-                throw new \InvalidArgumentException('Expected $associations to be an array of ' . AssociationField::class . ' got ' . get_class($association));
+                throw new \InvalidArgumentException('Expected $associations to be an array of ' . AssociationField::class . ' got ' . \get_class($association));
             }
         }
 

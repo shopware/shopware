@@ -176,7 +176,7 @@ class EntityHydrator
             }
 
             /* @var StorageAware $field */
-            if (!array_key_exists($originalKey, $row)) {
+            if (!\array_key_exists($originalKey, $row)) {
                 continue;
             }
 
@@ -232,7 +232,7 @@ class EntityHydrator
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
 
         //many to many isn't loaded in case of limited association criterias
-        if (!array_key_exists($accessor, $row)) {
+        if (!\array_key_exists($accessor, $row)) {
             return null;
         }
 
@@ -303,7 +303,7 @@ class EntityHydrator
              * `array_merge`s ordering is reversed compared to the translations array.
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
-            $merged = $this->mergeJson(\array_reverse($values, false));
+            $merged = $this->mergeJson(array_reverse($values, false));
             $decoded = $customField->getSerializer()->decode($customField, $merged);
             $entity->addTranslated($propertyName, $decoded);
 

@@ -119,6 +119,6 @@ class BatchController
         return $response
             ->withStatus($code)
             ->withHeader('Content-Type', 'application/json')
-            ->write(json_encode($data, JSON_PRETTY_PRINT));
+            ->write(json_encode($data, \JSON_PRETTY_PRINT));
     }
 }

@@ -37,7 +37,7 @@ class CacheIdLoader
             $cacheId = null;
         }
 
-        if (is_string($cacheId)) {
+        if (\is_string($cacheId)) {
             return $cacheId;
         }
 

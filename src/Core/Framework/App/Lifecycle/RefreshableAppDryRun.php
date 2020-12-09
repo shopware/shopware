@@ -69,8 +69,8 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
 
     public function isEmpty(): bool
     {
-        return count($this->toBeInstalled) === 0
-            && count($this->toBeUpdated) === 0
-            && count($this->toBeDeleted) === 0;
+        return \count($this->toBeInstalled) === 0
+            && \count($this->toBeUpdated) === 0
+            && \count($this->toBeDeleted) === 0;
     }
 }

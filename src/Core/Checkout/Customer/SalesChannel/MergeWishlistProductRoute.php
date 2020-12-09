@@ -156,7 +156,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
         /** @var string $id * */
         foreach ($ids as $id) {
-            if (array_key_exists($id, $customerProducts)) {
+            if (\array_key_exists($id, $customerProducts)) {
                 $upsertData[] = [
                     'id' => $customerProducts[$id],
                 ];

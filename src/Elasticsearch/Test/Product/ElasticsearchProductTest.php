@@ -277,7 +277,7 @@ class ElasticsearchProductTest extends TestCase
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(count($data->prefixed('p')), $products->getIds());
+            static::assertCount(\count($data->prefixed('p')), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -299,7 +299,7 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
-            static::assertSame(count($data->prefixed('p')), $products->getTotal());
+            static::assertSame(\count($data->prefixed('p')), $products->getTotal());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -433,9 +433,9 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('p2'), $products->getIds());
             static::assertContains($data->get('p3'), $products->getIds());
             static::assertTrue(
-                in_array($data->get('p4'), $products->getIds(), true)
-                || in_array($data->get('p5'), $products->getIds(), true)
-                || in_array($data->get('p6'), $products->getIds(), true)
+                \in_array($data->get('p4'), $products->getIds(), true)
+                || \in_array($data->get('p5'), $products->getIds(), true)
+                || \in_array($data->get('p6'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -465,8 +465,8 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('p6'), $products->getIds());
 
             static::assertTrue(
-                in_array($data->get('p4'), $products->getIds(), true)
-                || in_array($data->get('p5'), $products->getIds(), true)
+                \in_array($data->get('p4'), $products->getIds(), true)
+                || \in_array($data->get('p5'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -1341,7 +1341,7 @@ class ElasticsearchProductTest extends TestCase
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-            static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
+            static::assertCount(\count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
 
             foreach ($case->getBuckets() as $key => $count) {
                 static::assertTrue($histogram->has($key));

@@ -224,7 +224,7 @@ class WriteCommandExtractor
             $filtered[$field->getExtractPriority()][] = $field;
         }
 
-        krsort($filtered, SORT_NUMERIC);
+        krsort($filtered, \SORT_NUMERIC);
 
         $sorted = [];
         foreach ($filtered as $fields) {

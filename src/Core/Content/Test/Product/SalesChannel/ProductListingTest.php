@@ -280,7 +280,7 @@ class ProductListingTest extends TestCase
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
             $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+                return mb_strpos($productNumber, $item) === 0;
             });
             if ($productShouldBeGroup) {
                 static::assertTrue($product->isGrouped());
@@ -297,7 +297,7 @@ class ProductListingTest extends TestCase
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
             $productShouldNotBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+                return mb_strpos($productNumber, $item) === 0;
             });
 
             if ($productShouldNotBeGroup) {

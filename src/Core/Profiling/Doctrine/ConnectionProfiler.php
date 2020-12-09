@@ -65,7 +65,7 @@ class ConnectionProfiler implements DataCollectorInterface
 
     public function getQueryCount()
     {
-        return count($this->data['queries']);
+        return \count($this->data['queries']);
     }
 
     public function getQueries()

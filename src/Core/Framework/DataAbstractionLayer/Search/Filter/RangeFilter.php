@@ -42,7 +42,7 @@ class RangeFilter extends Filter
 
     public function hasParameter(string $key)
     {
-        return array_key_exists($key, $this->parameters);
+        return \array_key_exists($key, $this->parameters);
     }
 
     public function getParameter(string $key)

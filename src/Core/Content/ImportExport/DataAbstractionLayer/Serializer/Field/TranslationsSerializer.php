@@ -68,7 +68,7 @@ class TranslationsSerializer extends FieldSerializer
             throw new \InvalidArgumentException('Expected *ToOneField');
         }
 
-        $translations = is_array($translations) ? $translations : iterator_to_array($translations);
+        $translations = \is_array($translations) ? $translations : iterator_to_array($translations);
         if (isset($translations['DEFAULT'])) {
             $translations[Defaults::LANGUAGE_SYSTEM] = $translations['DEFAULT'];
             unset($translations['DEFAULT']);
@@ -79,7 +79,7 @@ class TranslationsSerializer extends FieldSerializer
 
         foreach ($translations as $languageId => $translation) {
             $deserialized = $entitySerializer->deserialize($config, $referenceDefinition, $translation);
-            if (!is_array($deserialized) && is_iterable($deserialized)) {
+            if (!\is_array($deserialized) && is_iterable($deserialized)) {
                 $deserialized = iterator_to_array($deserialized);
             }
 

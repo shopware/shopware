@@ -69,7 +69,7 @@ class ChangelogProcessor
 
     protected function getMajorVersion(string $version): string
     {
-        return substr($version, 0, (int) strpos($version, '.', strpos($version, '.') + strlen('.')));
+        return substr($version, 0, (int) strpos($version, '.', strpos($version, '.') + \strlen('.')));
     }
 
     protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
@@ -89,7 +89,7 @@ class ChangelogProcessor
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
-                if (count($this->validator->validate($definition))) {
+                if (\count($this->validator->validate($definition))) {
                     throw new \InvalidArgumentException('Bad syntax FOUND in ' . $file->getRealPath());
                 }
                 if (!$includeFeatureFlags && $definition->getFlag()) {

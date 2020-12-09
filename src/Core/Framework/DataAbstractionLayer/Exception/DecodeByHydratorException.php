@@ -12,7 +12,7 @@ class DecodeByHydratorException extends ShopwareHttpException
     {
         parent::__construct(
             'Decoding of {{ fieldClass }} is handled by the entity hydrator.',
-            ['fieldClass' => get_class($field)]
+            ['fieldClass' => \get_class($field)]
         );
     }
 

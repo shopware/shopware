@@ -62,7 +62,7 @@ class FileNameValidatorTest extends TestCase
         $c = [];
 
         foreach (range(0, 31) as $value) {
-            $c[] = [chr($value)];
+            $c[] = [\chr($value)];
         }
 
         return $c;
@@ -135,7 +135,7 @@ class FileNameValidatorTest extends TestCase
         $this->expectExceptionMessage(
             sprintf(
                 'Filename must not contain character "%x"',
-                ord($input)
+                \ord($input)
             )
         );
 

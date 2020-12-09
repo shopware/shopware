@@ -260,7 +260,7 @@ class Configuration implements ConfigurationInterface
                     ->always()->then(function ($flags) {
                         foreach ($flags as $key => $flag) {
                             // support old syntax
-                            if (is_int($key) && is_string($flag)) {
+                            if (\is_int($key) && \is_string($flag)) {
                                 unset($flags[$key]);
 
                                 $flags[] = [

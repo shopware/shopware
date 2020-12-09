@@ -67,7 +67,7 @@ abstract class AbstractElasticsearchDefinition
             new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 5]), // whole word matches
             new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
             new MatchPhrasePrefixQuery('fullText', $criteria->getTerm(), ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
-            new WildcardQuery('fullText', '*' . strtolower($criteria->getTerm()) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
+            new WildcardQuery('fullText', '*' . mb_strtolower($criteria->getTerm()) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
             new MatchQuery('fullText.ngram', $criteria->getTerm()),
         ];
 

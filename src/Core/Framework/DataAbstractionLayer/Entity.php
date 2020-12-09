@@ -141,7 +141,7 @@ class Entity extends Struct
         }
 
         foreach ($extension->all() as $key => $value) {
-            if (array_key_exists($key, $data)) {
+            if (\array_key_exists($key, $data)) {
                 continue;
             }
             $data[$key] = $value;
@@ -157,13 +157,13 @@ class Entity extends Struct
         }
 
         $class = static::class;
-        $class = \explode('\\', $class);
-        $class = (string) \end($class);
+        $class = explode('\\', $class);
+        $class = (string) end($class);
 
-        return $this->_entityName = \preg_replace(
+        return $this->_entityName = preg_replace(
             '/_entity$/',
             '',
-            \ltrim(\mb_strtolower((string) \preg_replace('/[A-Z]/', '_$0', $class)), '_')
+            ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_')
         );
     }
 

@@ -38,7 +38,7 @@ class RuleConditionRegistry
 
     public function getRuleInstance(string $name): Rule
     {
-        if (!array_key_exists($name, $this->rules)) {
+        if (!\array_key_exists($name, $this->rules)) {
             throw new InvalidConditionException($name);
         }
 
@@ -47,7 +47,7 @@ class RuleConditionRegistry
 
     public function getRuleClass(string $name): string
     {
-        return get_class($this->getRuleInstance($name));
+        return \get_class($this->getRuleInstance($name));
     }
 
     private function mapRules(iterable $taggedRules): void

@@ -2,7 +2,7 @@
 
 if (!file_exists(__DIR__ . '/Common/vendor/autoload.php')) {
     $template = '%s: ';
-    if (PHP_SAPI !== 'cli') {
+    if (\PHP_SAPI !== 'cli') {
         $template = '<h2>%s</h2>';
         header('Content-type: text/html; charset=utf-8', true, 503);
     }

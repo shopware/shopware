@@ -60,7 +60,7 @@ class CategoryBreadcrumbBuilder
 
             if ($pos !== false) {
                 // Remove all breadcrumbs preceding the navigation category
-                return array_slice($categoryBreadcrumb, $pos + 1);
+                return \array_slice($categoryBreadcrumb, $pos + 1);
             }
         }
 
@@ -73,7 +73,7 @@ class CategoryBreadcrumbBuilder
             return null;
         }
 
-        if ($product->getCategoryTree() === null || count($product->getCategoryTree()) === 0) {
+        if ($product->getCategoryTree() === null || \count($product->getCategoryTree()) === 0) {
             return null;
         }
 

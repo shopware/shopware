@@ -81,7 +81,7 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
             $config = json_decode($event['config'], true);
             static::assertArrayHasKey('mail_template_type_id', $config);
 
-            if (array_key_exists('mail_template_id', $config)) {
+            if (\array_key_exists('mail_template_id', $config)) {
                 static::assertNotEquals($typeId, $config['mail_template_type_id']);
             } else {
                 static::assertEquals($typeId, $config['mail_template_type_id']);

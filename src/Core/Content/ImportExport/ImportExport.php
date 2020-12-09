@@ -236,7 +236,7 @@ class ImportExport
             }
 
             $entities = $result->getEntities();
-            if (count($entities) === 0) {
+            if (\count($entities) === 0) {
                 // this can happen if entities are delete while we export
                 $progress->setTotal($progress->getOffset());
 
@@ -281,7 +281,7 @@ class ImportExport
 
         $target = $logEntity->getFile()->getPath();
 
-        $dir = dirname($target);
+        $dir = \dirname($target);
 
         $partFilePrefix = $target . self::PART_FILE_SUFFIX;
 
@@ -310,7 +310,7 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->putStream($target, $tmp);
 
-        if (is_resource($tmp)) {
+        if (\is_resource($tmp)) {
             fclose($tmp);
         }
         unlink($tmpFile);

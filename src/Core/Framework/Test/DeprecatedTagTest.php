@@ -111,14 +111,14 @@ class DeprecatedTagTest extends TestCase
     private function getTaggedVersion(): string
     {
         $envVersion = $_SERVER['VERSION'] ?? '';
-        if (is_string($envVersion) && $envVersion !== '') {
+        if (\is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }
         $tags = $this->exec('git tag');
 
         $highest = str_replace('v', '', $tags[0]);
         foreach ($tags as $tag) {
-            if (strlen($tag) > 8) {
+            if (\strlen($tag) > 8) {
                 continue;
             }
             $tag = str_replace('v', '', $tag);

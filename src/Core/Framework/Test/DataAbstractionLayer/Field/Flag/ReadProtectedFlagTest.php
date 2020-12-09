@@ -125,7 +125,7 @@ class ReadProtectedFlagTest extends TestCase
         static::assertArrayHasKey('included', $data, print_r($data, true));
 
         foreach ($data['included'] as $included) {
-            if (!array_key_exists('type', $included) || $included['type'] !== 'media') {
+            if (!\array_key_exists('type', $included) || $included['type'] !== 'media') {
                 continue;
             }
             static::assertArrayNotHasKey('thumbnailsRo', $included['attributes']);

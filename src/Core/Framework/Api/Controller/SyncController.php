@@ -53,8 +53,8 @@ class SyncController extends AbstractController
     public function sync(Request $request, Context $context, int $version): JsonResponse
     {
         $behavior = new SyncBehavior(
-            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN),
-            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), \FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), \FILTER_VALIDATE_BOOLEAN),
             $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
         );
 

@@ -36,7 +36,7 @@ EOT;
             $user->lastName,
             $user->email,
             $user->username,
-            password_hash($user->password, PASSWORD_BCRYPT),
+            password_hash($user->password, \PASSWORD_BCRYPT),
             $localeId,
         ]);
     }

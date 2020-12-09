@@ -14,6 +14,7 @@
             {% block sw_category_detail_layout_modal %}
                 <sw-cms-layout-modal
                     v-if="showLayoutSelectionModal"
+                    :cmsPageTypes="['page', 'landingpage', 'product_list']"
                     @modal-layout-select="onLayoutSelect"
                     @modal-close="closeLayoutModal">
                 </sw-cms-layout-modal>

@@ -1,13 +1,13 @@
 @import "~scss/variables";
 
-$sw-login-color-background: #1C232C;
+$sw-login-color-background: $color-gray-100;
 $sw-login-container-color-background: $color-white;
 $sw-login-badge-color-background: $color-shopware-blue;
 $sw-login-back-color: $color-kashmir;
 $sw-login-forgot-password-link-color: blue;
-$sw-login-success-animation-duration: .3s;
-$sw-login-media-query-animation-duration: .2s;
-$sw-login-error-animation-duration: .15s;
+$sw-login-success-animation-duration: 0.3s;
+$sw-login-media-query-animation-duration: 0.2s;
+$sw-login-error-animation-duration: 0.15s;
 
 .sw-login {
     height: 100%;
@@ -51,8 +51,9 @@ $sw-login-error-animation-duration: .15s;
         padding: 130px 60px;
         position: relative;
         opacity: 1;
-        transition: opacity $sw-login-success-animation-duration ease-in-out,
-                    padding $sw-login-media-query-animation-duration ease-in-out;
+        transition:
+            opacity $sw-login-success-animation-duration ease-in-out,
+            padding $sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 600px) {
             padding: 30px;
@@ -101,8 +102,9 @@ $sw-login-error-animation-duration: .15s;
         right: -10px;
         z-index: 420;
         background: $sw-login-badge-color-background;
-        transition: top $sw-login-media-query-animation-duration ease-in-out,
-                    right $sw-login-media-query-animation-duration ease-in-out;
+        transition:
+            top $sw-login-media-query-animation-duration ease-in-out,
+            right $sw-login-media-query-animation-duration ease-in-out;
 
         svg {
             fill: $color-white;
@@ -142,8 +144,9 @@ $sw-login-error-animation-duration: .15s;
         background-position: center center;
         background-size: cover;
         opacity: 1;
-        transition: opacity $sw-login-success-animation-duration ease-in-out,
-                    padding $sw-login-media-query-animation-duration ease-in-out;
+        transition:
+            opacity $sw-login-success-animation-duration ease-in-out,
+            padding $sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 600px) {
             display: none;
@@ -193,11 +196,14 @@ $sw-login-error-animation-duration: .15s;
         cursor: pointer;
     }
 
-    .fade-enter-active, .fade-leave-active {
-        transition: all .3s;
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.3s;
         transform: translateX(0);
     }
-    .fade-enter, .fade-leave-to {
+
+    .fade-enter,
+    .fade-leave-to {
         opacity: 0;
         transform: translateX(-20px);
     }
@@ -224,24 +230,24 @@ $sw-login-error-animation-duration: .15s;
     }
 
     @keyframes sw-login-error-shake {
-        0%   {
-            transform: translateX(-2px)
+        0% {
+            transform: translateX(-2px);
         }
 
-        25%  {
-            transform: translateX(0px)
+        25% {
+            transform: translateX(0);
         }
 
-        50%  {
-            transform: translateX(3px)
+        50% {
+            transform: translateX(3px);
         }
 
-        75%  {
-            transform: translateX(0px)
+        75% {
+            transform: translateX(0);
         }
 
         100% {
-            transform: translateX(-2px)
+            transform: translateX(-2px);
         }
     }
 }

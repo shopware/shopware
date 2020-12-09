@@ -14,6 +14,7 @@ services:
     PhpCsFixer\Fixer\FunctionNotation\VoidReturnFixer: ~
     PhpCsFixer\Fixer\Operator\ConcatSpaceFixer:
         spacing: 'one'
+    PhpCsFixer\Fixer\Operator\OperatorLinebreakFixer: ~
     PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer:
         annotations: ['copyright', 'category']
     PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer:
@@ -33,7 +34,6 @@ services:
     PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: ~
-    PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
     PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer: ~

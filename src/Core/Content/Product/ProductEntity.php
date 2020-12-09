@@ -477,13 +477,6 @@ class ProductEntity extends Entity
      *
      * @var CustomerWishlistCollection|null
      */
-    protected $customerWishlists;
-
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
-     * @var CustomerWishlistProductDefinition|null
-     */
     protected $wishlists;
 
     public function __construct()
@@ -1413,23 +1406,7 @@ class ProductEntity extends Entity
     /**
      *  @internal (flag:FEATURE_NEXT_10549)
      */
-    public function getCustomerWishlists(): ?CustomerWishlistCollection
-    {
-        return $this->customerWishlists;
-    }
-
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
-    public function setCustomerWishlists(CustomerWishlistCollection $customerWishlists): void
-    {
-        $this->customerWishlists = $customerWishlists;
-    }
-
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
-    public function getWishlists(): ?CustomerWishlistProductDefinition
+    public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
@@ -1437,7 +1414,7 @@ class ProductEntity extends Entity
     /**
      *  @internal (flag:FEATURE_NEXT_10549)
      */
-    public function setWishlists(CustomerWishlistProductDefinition $wishlists): void
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
     }

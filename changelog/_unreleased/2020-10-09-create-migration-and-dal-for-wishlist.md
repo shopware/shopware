@@ -12,4 +12,4 @@ flag:  FEATURE_NEXT_10549
 * Added new property `wishlists` in class `Shopware\Core\System\SalesChannel\SalesChannelEntity`.
 * Added OneToMany association between `customer_wishlist` and `customer_wishlist_product`.
 * Added OneToMany association between `product` and `customer_wishlist_product`.
-* Added new property `customerWishlists` in class `Shopware\Core\Content\Product\ProductEntity`.
+* Added new property `wishlists` in class `Shopware\Core\Content\Product\ProductEntity`.

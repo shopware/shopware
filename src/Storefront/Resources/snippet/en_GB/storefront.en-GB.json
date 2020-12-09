@@ -427,7 +427,7 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "addToWishlist": "Add to wish list",
-    "addedToWishlist": "Added to wish list",
+    "removeFromWishlist": "Remove from wishlist",
     "toggleWishlist": "Toggle wishlist"
   },
   "newsletter": {
@@ -529,7 +529,9 @@
     "manufacturerDisplayName": "Manufacturer",
     "deliveryTimeAvailable": "Available, delivery time %name%",
     "noLongerAvailableTooltip": "The product is no longer available.",
-    "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit."
+    "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit.",
+    "wishlistEmptyHeader": "Your wishlist is empty",
+    "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist."
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

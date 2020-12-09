@@ -181,6 +181,18 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.3.5.0")
+     * @Route("/api/_info/version", name="api.info.shopware.version", methods={"GET"})
+     * @Route("/api/v1/_info/version", name="api.info.shopware.version_old_version", methods={"GET"})
+     */
+    public function infoShopwareVersion(): JsonResponse
+    {
+        return $this->json([
+            'version' => $this->params->get('kernel.shopware_version'),
+        ]);
+    }
+
+    /**
      * @Since("6.0.0.0")
      *
      * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead

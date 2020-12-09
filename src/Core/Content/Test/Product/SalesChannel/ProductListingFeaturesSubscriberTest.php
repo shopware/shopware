@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -779,7 +780,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-exists',
                     'shipping-free-filter',
                     'properties-filter',
-                    'options',
+                    'options-filter',
                 ],
                 [
                     'manufacturer-filter' => true,
@@ -797,9 +798,17 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider filterAggregationsWithProducts
      */
-    public function testFilterAggregationsWithProducts(array $product, Request $request, array $expected): void
+    public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_10536', $this);
+
+        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+        );
+
+        $this->getContainer()->get('category.repository')
+            ->create([['id' => $ids->get('category'), 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
 
         $categoryId = $product['categories'][0]['id'];
 
@@ -834,14 +843,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     {
         $ids = new TestDataCollection();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
-            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
-        );
-
-        $this->getContainer()->get('category.repository')
-            ->create([['id' => $ids->get('category'), 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
-
         $defaults = [
             'id' => $ids->get('product'),
             'name' => 'test-product',
@@ -865,6 +866,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         return [
             // property-filter
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -888,6 +890,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -911,6 +914,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -936,6 +940,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
             // property-whitelist
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -959,6 +964,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -982,6 +988,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -1006,6 +1013,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'properties' => [
                         [
@@ -1031,6 +1039,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
             // manufacturer-filter
             [
+                $ids,
                 $defaults,
                 new Request(),
                 [
@@ -1039,6 +1048,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'manufacturer' => [
                         'id' => $ids->get('test-manufacturer'),
@@ -1052,6 +1062,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'manufacturer' => [
                         'id' => $ids->get('test-manufacturer'),
@@ -1067,6 +1078,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
             // price-filter
             [
+                $ids,
                 $defaults,
                 new Request(),
                 [
@@ -1075,6 +1087,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 $defaults,
                 new Request([], ['manufacturer-filter' => true]),
                 [
@@ -1083,6 +1096,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 $defaults,
                 new Request([], ['price-filter' => false]),
                 [
@@ -1093,6 +1107,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
             // rating-filter
             [
+                $ids,
                 $defaults,
                 new Request(),
                 [
@@ -1101,6 +1116,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 $defaults,
                 new Request([], ['rating-filter' => true]),
                 [
@@ -1109,6 +1125,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 $defaults,
                 new Request([], ['rating-filter' => false]),
                 [
@@ -1119,6 +1136,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
             // shipping-free-filter
             [
+                $ids,
                 array_merge($defaults, [
                     'shippingFree' => false,
                 ]),
@@ -1129,6 +1147,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'shippingFree' => true,
                 ]),
@@ -1139,6 +1158,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
             [
+                $ids,
                 array_merge($defaults, [
                     'shippingFree' => true,
                 ]),

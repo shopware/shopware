@@ -1310,6 +1310,82 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
+     */
+    public function testFilterForProperties(TestDataCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+            // check filter for categories
+            $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addFilter(new EqualsAnyFilter('product.properties.id', [$data->get('red')]));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertCount(2, $products->getIds());
+            static::assertTrue($products->has($data->get('p1')));
+            static::assertTrue($products->has($data->get('p3')));
+
+            // check filter for categories
+            $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addFilter(new EqualsAnyFilter('product.properties.groupId', [$data->get('color')]));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertCount(4, $products->getIds());
+            static::assertTrue($products->has($data->get('p1')));
+            static::assertTrue($products->has($data->get('p2')));
+            static::assertTrue($products->has($data->get('p3')));
+            static::assertTrue($products->has($data->get('p4')));
+            static::assertFalse($products->has($data->get('p5')));
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFilterAggregationWithTerms(TestDataCollection $data): void
+    {
+        try {
+            $aggregator = $this->createEntityAggregator();
+
+            // check simple search without any restrictions
+            $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addAggregation(
+                new FilterAggregation(
+                    'properties-filter',
+                    new TermsAggregation('properties', 'product.properties.id'),
+                    [new EqualsAnyFilter('product.properties.groupId', [$data->get('color')])]
+                )
+            );
+
+            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertCount(1, $aggregations);
+
+            static::assertTrue($aggregations->has('properties'));
+
+            /** @var TermsResult $result */
+            $result = $aggregations->get('properties');
+            static::assertInstanceOf(TermsResult::class, $result);
+
+            static::assertTrue($result->has($data->get('red')));
+            static::assertTrue($result->has($data->get('green')));
+            static::assertFalse($result->has($data->get('xl')));
+            static::assertFalse($result->has($data->get('l')));
+            static::assertCount(2, $result->getBuckets());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
      * @dataProvider dateHistogramProvider
      */
     public function testDateHistogram(DateHistogramCase $case, TestDataCollection $data): void
@@ -1748,7 +1824,6 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($listing->getAggregations()->has('shipping-free'));
             static::assertTrue($listing->getAggregations()->has('rating'));
             static::assertTrue($listing->getAggregations()->has('price'));
-            static::assertTrue($listing->getAggregations()->has('options'));
             static::assertTrue($listing->getAggregations()->has('properties'));
             static::assertTrue($listing->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
@@ -1806,11 +1881,26 @@ class ElasticsearchProductTest extends TestCase
         float $purchasePrice,
         int $stock,
         array $categoryKeys,
+        array $propertyKeys = [],
         array $extensions = []
     ): array {
         $categories = array_map(function ($categoryKey) {
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
         }, $categoryKeys);
+
+        $properties = [
+            'red' => ['id' => $this->ids->get('red'), 'name' => 'red', 'group' => ['id' => $this->ids->get('color'), 'name' => 'color']],
+            'green' => ['id' => $this->ids->get('green'), 'name' => 'green', 'group' => ['id' => $this->ids->get('color'), 'name' => 'color']],
+            'xl' => ['id' => $this->ids->get('xl'), 'name' => 'red', 'group' => ['id' => $this->ids->get('size'), 'name' => 'size']],
+            'l' => ['id' => $this->ids->get('l'), 'name' => 'red', 'group' => ['id' => $this->ids->get('size'), 'name' => 'size']],
+        ];
+
+        $mappedProperties = [];
+        foreach ($propertyKeys as $propertyKey) {
+            if (isset($properties[$propertyKey])) {
+                $mappedProperties[] = $properties[$propertyKey];
+            }
+        }
 
         $data = [
             'id' => $this->ids->create($key),
@@ -1835,6 +1925,10 @@ class ElasticsearchProductTest extends TestCase
             ],
         ];
 
+        if (!empty($mappedProperties)) {
+            $data['properties'] = $mappedProperties;
+        }
+
         $categories[] = ['id' => $this->navigationId];
         $data['categories'] = $categories;
 
@@ -1851,11 +1945,11 @@ class ElasticsearchProductTest extends TestCase
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => ['name' => 'test']]),
-            $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
-            $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
-            $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
-            $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['red', 'xl'], ['toOne' => ['name' => 'test']]),
+            $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1'], ['green', 'l']),
+            $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3'], ['red']),
+            $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3'], ['green']),
+            $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, [], ['xl']),
             $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
             $this->createProduct('n7', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
             $this->createProduct('n8', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),

@@ -100,7 +100,19 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
             case $aggregation instanceof FilterAggregation:
                 $nested = $aggregation->getAggregation();
 
-                return $this->hydrateAggregation($nested, $result[$nested->getName()], $context);
+                if (!$nested) {
+                    throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
+                }
+                $nestedResult = $result;
+                if (isset($nestedResult[$aggregation->getName()])) {
+                    $nestedResult = $nestedResult[$aggregation->getName()];
+                }
+
+                if (isset($nestedResult[$nested->getName()])) {
+                    $nestedResult = $nestedResult[$nested->getName()];
+                }
+
+                return $this->hydrateAggregation($nested, $nestedResult, $context);
 
             case $aggregation instanceof DateHistogramAggregation:
                 return $this->hydrateDateHistogram($aggregation, $result, $context);
@@ -164,6 +176,44 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
     }
 
     private function hydrateTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult
+    {
+        if ($aggregation->getSorting()) {
+            return $this->hydrateSortedTermsAggregation($aggregation, $result, $context);
+        }
+
+        if (isset($result[$aggregation->getName()])) {
+            $result = $result[$aggregation->getName()];
+        }
+
+        $key = $aggregation->getName() . '.key';
+        if (isset($result[$key])) {
+            $result = $result[$key];
+        }
+
+        if (!isset($result['buckets'])) {
+            return null;
+        }
+
+        $buckets = [];
+        foreach ($result['buckets'] as $bucket) {
+            $nested = null;
+
+            $nestedAggregation = $aggregation->getAggregation();
+            if ($nestedAggregation) {
+                $nested = $this->hydrateAggregation(
+                    $nestedAggregation,
+                    $bucket[$nestedAggregation->getName()],
+                    $context
+                );
+            }
+
+            $buckets[] = new Bucket((string) $bucket['key'], $bucket['doc_count'], $nested);
+        }
+
+        return new TermsResult($aggregation->getName(), $buckets);
+    }
+
+    private function hydrateSortedTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult
     {
         if (isset($result[$aggregation->getName()])) {
             $result = $result[$aggregation->getName()];

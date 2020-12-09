@@ -66,6 +66,11 @@ class IdsCollection
         return $ids;
     }
 
+    public function set(string $key, string $value): void
+    {
+        $this->ids[$key] = $value;
+    }
+
     public function getContext(): Context
     {
         return $this->context;

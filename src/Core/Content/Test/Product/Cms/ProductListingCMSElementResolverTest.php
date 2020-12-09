@@ -261,7 +261,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slot->setConfig($slotConfig);
         $slot->addTranslated('config', $slotConfig);
 
-        $this->productListingCMSElementResolver->collect($slot, $resolverContext);
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, new ElementDataCollection());
 
         $request = $resolverContext->getRequest();
 

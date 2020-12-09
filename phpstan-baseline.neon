@@ -6736,39 +6736,19 @@ parameters:
 			path: src/Elasticsearch/Framework/ClientFactory.php
 
 		-
-			message: "#^Parameter \\#1 \\$abstractAggregation of method ONGR\\\\ElasticsearchDSL\\\\Aggregation\\\\AbstractAggregation\\:\\:addAggregation\\(\\) expects ONGR\\\\ElasticsearchDSL\\\\Aggregation\\\\AbstractAggregation, ONGR\\\\ElasticsearchDSL\\\\Aggregation\\\\AbstractAggregation\\|null given\\.$#"
-			count: 3
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
-			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\CriteriaParser\\:\\:parseAggregation\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 3
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
-
-		-
 			message: "#^Cannot call method getField\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
 
 		-
 			message: "#^Cannot call method getDirection\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Sorting\\\\FieldSorting\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
 
 		-
 			message: "#^Parameter \\#4 \\$result of method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\AbstractElasticsearchAggregationHydrator\\:\\:hydrate\\(\\) expects array, array\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregator.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
-
-		-
-			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntityAggregatorHydrator\\:\\:hydrateAggregation\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntityAggregatorHydrator\\:\\:hydrateAggregation\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\TermsResult\\|null\\.$#"

@@ -574,13 +574,21 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $ids = $this->getPropertyIds($request);
 
-        $aggregation = new TermsAggregation('properties', 'product.properties.id');
+        $propertyAggregation = new TermsAggregation('properties', 'product.properties.id');
+
+        $optionAggregation = new TermsAggregation('options', 'product.options.id');
 
         if ($groupIds) {
-            $aggregation = new FilterAggregation(
+            $propertyAggregation = new FilterAggregation(
                 'properties-filter',
-                new TermsAggregation('properties', 'product.properties.id'),
-                [new EqualsAnyFilter('product.properties.group.id', $groupIds)]
+                $propertyAggregation,
+                [new EqualsAnyFilter('product.properties.groupId', $groupIds)]
+            );
+
+            $optionAggregation = new FilterAggregation(
+                'options-filter',
+                $optionAggregation,
+                [new EqualsAnyFilter('product.options.groupId', $groupIds)]
             );
         }
 
@@ -588,10 +596,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             return new Filter(
                 'properties',
                 false,
-                [
-                    $aggregation,
-                    new TermsAggregation('options', 'product.options.id'),
-                ],
+                [$propertyAggregation, $optionAggregation],
                 new MultiFilter(MultiFilter::CONNECTION_OR, []),
                 [],
                 false
@@ -624,10 +629,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return new Filter(
             'properties',
             true,
-            [
-                $aggregation,
-                new TermsAggregation('options', 'product.options.id'),
-            ],
+            [$propertyAggregation, $optionAggregation],
             new MultiFilter(MultiFilter::CONNECTION_AND, $filters),
             $ids,
             false

@@ -25,8 +25,9 @@ delivery_shipped_partially --> delivery_shipped : ship
 delivery_shipped_partially --> delivery_returned : retour
 delivery_shipped_partially --> delivery_returned_partially : retour partially
 
+delivery_returned_partially --> delivery_returned : retour
+
 delivery_cancelled --> [*]
 delivery_returned --> [*]
-delivery_returned_partially --> [*]
 
 @enduml

@@ -1,0 +1,46 @@
+{% block sw_cms_missing_element_modal %}
+    <sw-modal
+        class="sw-cms-missing-element-modal"
+        variant="small"
+        :title="$tc('sw-cms.components.cmsMissingElementModal.headline')"
+        @modal-close="onClose">
+
+        {% block sw_cms_missing_element_modal_title %}
+            <p class="sw-cms-missing-element-modal__title" v-html="title"></p>
+        {% endblock %}
+
+        {% block sw_cms_missing_element_modal_subtitle %}
+            <p class="sw-cms-missing-element-modal__subtitle">
+                {{ $tc('sw-cms.components.cmsMissingElementModal.subtitle') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_cms_missing_element_modal_paragraph %}
+            <p class="sw-cms-missing-element-modal__paragraph">
+                {{ $tc('sw-cms.components.cmsMissingElementModal.paragraph') }}
+            </p>
+        {% endblock %}
+
+        <template #modal-footer>
+            {% block sw_cms_missing_element_modal_button_cancel %}
+                <sw-button
+                    class="sw-cms-missing-element-modal__button-cancel"
+                    size="small"
+                    @click="onClose">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+            {% endblock %}
+
+            {% block sw_cms_missing_element_modal_button_save %}
+                <sw-button
+                    class="sw-cms-missing-element-modal__button-save"
+                    size="small"
+                    variant="primary"
+                    @click="onSave">
+                    {{ $tc('sw-cms.components.cmsMissingElementModal.buttonSave') }}
+                </sw-button>
+            {% endblock %}
+        </template>
+
+    </sw-modal>
+{% endblock %}

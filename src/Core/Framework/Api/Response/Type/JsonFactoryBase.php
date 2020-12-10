@@ -102,9 +102,4 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
         return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '-$0', $input)), '-');
     }
-
-    protected function getVersion(Request $request): int
-    {
-        return (int) $request->get('version');
-    }
 }

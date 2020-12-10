@@ -74,7 +74,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *       )
      *    )
      * )
-     * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
+     * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {

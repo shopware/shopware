@@ -29,7 +29,7 @@ class ResponseHeaderListenerTest extends TestCase
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
-        $browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+        $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));

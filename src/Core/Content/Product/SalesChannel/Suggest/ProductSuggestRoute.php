@@ -77,7 +77,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/search-suggest", name="store-api.search.suggest", methods={"POST"})
+     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {

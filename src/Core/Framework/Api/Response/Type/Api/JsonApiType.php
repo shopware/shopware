@@ -60,7 +60,6 @@ class JsonApiType extends JsonFactoryBase
             $definition,
             $entity,
             $this->getApiBaseUrl($request),
-            $request->attributes->getInt('version'),
             $rootNode
         );
 
@@ -91,7 +90,6 @@ class JsonApiType extends JsonFactoryBase
         foreach ($searchResult->getAggregations() as $aggregation) {
             $aggregations[$aggregation->getName()] = $this->structEncoder->encode(
                 $aggregation,
-                $request->attributes->getInt('version'),
                 $fields
             );
         }
@@ -103,7 +101,6 @@ class JsonApiType extends JsonFactoryBase
             $definition,
             $searchResult,
             $this->getApiBaseUrl($request),
-            $request->attributes->getInt('version'),
             $rootNode
         );
 
@@ -112,8 +109,6 @@ class JsonApiType extends JsonFactoryBase
 
     protected function getApiBaseUrl(Request $request): string
     {
-        $versionPart = $this->getVersion($request) ? ('/v' . $this->getVersion($request)) : '';
-
-        return $this->getBaseUrl($request) . '/api' . $versionPart;
+        return $this->getBaseUrl($request) . '/api';
     }
 }

@@ -18,7 +18,7 @@ class DefaultApiConverter
     /**
      * @var array
      */
-    private $deprecations = [];
+    private $deprecations;
 
     /**
      * @var RequestStack
@@ -31,7 +31,7 @@ class DefaultApiConverter
         $this->requestStack = $requestStack;
     }
 
-    public function convert(int $apiVersion, string $entityName, array $payload): array
+    public function convert(string $entityName, array $payload): array
     {
         $definition = $this->definitionInstanceRegistry->getByEntityName($entityName);
 
@@ -41,10 +41,10 @@ class DefaultApiConverter
         }
 
         foreach ($fields as $field) {
-            /** @var Deprecated $deprecated */
+            /** @var Deprecated|null $deprecated */
             $deprecated = $field->getFlag(Deprecated::class);
 
-            if (!$deprecated->isDeprecatedInVersion($apiVersion)) {
+            if ($deprecated === null) {
                 continue;
             }
 
@@ -61,40 +61,36 @@ class DefaultApiConverter
         return $payload;
     }
 
-    public function isDeprecated(int $apiVersion, string $entityName, ?string $fieldName = null): bool
+    public function isDeprecated(string $entityName, ?string $fieldName = null): bool
     {
         if ($this->ignoreDeprecations()) {
             return false;
         }
 
         if ($fieldName === null) {
-            return array_key_exists($entityName, $this->getDeprecations($apiVersion)) && !is_array($this->getDeprecations($apiVersion)[$entityName]);
+            return array_key_exists($entityName, $this->getDeprecations()) && !is_array($this->getDeprecations()[$entityName]);
         }
 
-        return \in_array($fieldName, $this->getDeprecations($apiVersion)[$entityName] ?? [], true);
+        return \in_array($fieldName, $this->getDeprecations()[$entityName] ?? [], true);
     }
 
-    protected function getDeprecations(int $apiVersion): array
+    protected function getDeprecations(): array
     {
-        if (isset($this->deprecations[$apiVersion])) {
-            return $this->deprecations[$apiVersion];
+        if ($this->deprecations !== null) {
+            return $this->deprecations;
         }
 
         foreach ($this->definitionInstanceRegistry->getDefinitions() as $definition) {
-            $this->deprecations[$apiVersion][$definition->getEntityName()] = [];
+            $this->deprecations[$definition->getEntityName()] = [];
 
             $fields = $definition->getFields()->filterByFlag(Deprecated::class);
 
             foreach ($fields as $field) {
-                /** @var Deprecated $deprecated */
-                $deprecated = $field->getFlag(Deprecated::class);
-                if ($deprecated->isRemovedInVersion($apiVersion)) {
-                    $this->deprecations[$apiVersion][$definition->getEntityName()][] = $field->getPropertyName();
-                }
+                $this->deprecations[$definition->getEntityName()][] = $field->getPropertyName();
             }
         }
 
-        return $this->deprecations[$apiVersion];
+        return $this->deprecations;
     }
 
     protected function ignoreDeprecations(): bool

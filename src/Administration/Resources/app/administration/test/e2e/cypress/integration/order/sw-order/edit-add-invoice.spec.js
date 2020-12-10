@@ -82,7 +82,7 @@ describe('Order: Test order state', () => {
             const documentId = xhr.response.body.documentId;
             const documentDeepLink = xhr.response.body.documentDeepLink;
 
-            return cy.request(`/api/v*/_action/document/${documentId}/${documentDeepLink}`);
+            return cy.request(`/api/_action/document/${documentId}/${documentDeepLink}`);
         }).then((xhr) => {
             expect(xhr).to.have.property('status', 200);
             expect(xhr.headers).to.have.property('content-type', 'application/pdf');

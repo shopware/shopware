@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -60,7 +60,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer-group/*',
+            url: `${Cypress.env('apiPath')}/customer-group/*`,
             method: 'patch'
         }).as('updateCustomerGroup');
 
@@ -128,7 +128,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer-group',
+            url: `${Cypress.env('apiPath')}/customer-group`,
             method: 'post'
         }).as('createCustomerGroup');
 
@@ -182,7 +182,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer-group/*',
+            url: `${Cypress.env('apiPath')}/customer-group/*`,
             method: 'delete'
         }).as('deleteCustomerGroup');
 

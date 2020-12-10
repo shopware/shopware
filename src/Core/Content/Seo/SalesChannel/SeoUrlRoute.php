@@ -69,7 +69,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      *     )
      * )
      *
-     * @Route("/store-api/v{version}/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
+     * @Route("/store-api/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {

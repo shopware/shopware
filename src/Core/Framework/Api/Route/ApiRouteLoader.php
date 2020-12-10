@@ -61,21 +61,21 @@ class ApiRouteLoader extends Loader
             $resourceName = str_replace('_', '-', $definition->getEntityName());
 
             // detail routes
-            $route = new Route('/api/v{version}/' . $resourceName . '/{path}');
+            $route = new Route('/api/' . $resourceName . '/{path}');
             $route->setMethods(['GET']);
             $route->setDefault('_controller', $class . '::detail');
             $route->setDefault('entityName', $resourceName);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.detail', $route);
 
-            $route = new Route('/api/v{version}/' . $resourceName . '/{path}');
+            $route = new Route('/api/' . $resourceName . '/{path}');
             $route->setMethods(['PATCH']);
             $route->setDefault('_controller', $class . '::update');
             $route->setDefault('entityName', $resourceName);
             $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.update', $route);
 
-            $route = new Route('/api/v{version}/' . $resourceName . '/{path}');
+            $route = new Route('/api/' . $resourceName . '/{path}');
             $route->setMethods(['DELETE']);
             $route->setDefault('_controller', $class . '::delete');
             $route->setDefault('entityName', $resourceName);
@@ -83,28 +83,28 @@ class ApiRouteLoader extends Loader
             $routes->add('api.' . $entityName . '.delete', $route);
 
             // list routes
-            $route = new Route('/api/v{version}/' . $resourceName . '{path}');
+            $route = new Route('/api/' . $resourceName . '{path}');
             $route->setMethods(['GET']);
             $route->setDefault('_controller', $class . '::list');
             $route->setDefault('entityName', $resourceName);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.list', $route);
 
-            $route = new Route('/api/v{version}/search/' . $resourceName . '{path}');
+            $route = new Route('/api/search/' . $resourceName . '{path}');
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::search');
             $route->setDefault('entityName', $resourceName);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.search', $route);
 
-            $route = new Route('/api/v{version}/search-ids/' . $resourceName . '{path}');
+            $route = new Route('/api/search-ids/' . $resourceName . '{path}');
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::searchIds');
             $route->setDefault('entityName', $resourceName);
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.search-ids', $route);
 
-            $route = new Route('/api/v{version}/' . $resourceName . '{path}');
+            $route = new Route('/api/' . $resourceName . '{path}');
             $route->setMethods(['POST']);
             $route->setDefault('_controller', $class . '::create');
             $route->setDefault('entityName', $resourceName);

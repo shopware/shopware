@@ -59,7 +59,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $this->getRegistrationData()
             );
 
@@ -71,7 +71,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -111,7 +111,7 @@ class RegisterRouteTest extends TestCase
 
         $browser->request(
             'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+            '/store-api/account/register',
             $this->getRegistrationData($storefrontUrl)
         );
 
@@ -126,7 +126,7 @@ class RegisterRouteTest extends TestCase
 
             $browser->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -147,7 +147,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $this->getRegistrationData()
             );
 
@@ -161,7 +161,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer'
+                '/store-api/account/customer'
             );
 
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
@@ -178,7 +178,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $this->getRegistrationData()
             );
 
@@ -191,7 +191,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -211,7 +211,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register-confirm',
+                '/store-api/account/register-confirm',
                 [
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
@@ -223,7 +223,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -244,7 +244,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $this->getRegistrationData()
             );
 
@@ -257,7 +257,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer'
+                '/store-api/account/customer'
             );
 
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
@@ -275,7 +275,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $this->getRegistrationData()
             );
 
@@ -288,7 +288,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer'
+                '/store-api/account/customer'
             );
 
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
@@ -304,7 +304,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register-confirm',
+                '/store-api/account/register-confirm',
                 [
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
@@ -317,7 +317,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer'
+                '/store-api/account/customer'
             );
 
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
@@ -342,7 +342,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')])
             );
 

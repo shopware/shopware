@@ -85,7 +85,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/change-email", name="store-api.account.change-email", methods={"POST"})
+     * @Route(path="/store-api/account/change-email", name="store-api.account.change-email", methods={"POST"})
      */
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context): SuccessResponse
     {

@@ -99,7 +99,7 @@ class MergeWishlistProductsRoute extends AbstractMergeWishlistProducts
      *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
+     * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
      */
     public function merge(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {

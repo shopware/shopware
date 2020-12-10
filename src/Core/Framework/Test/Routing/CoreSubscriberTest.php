@@ -15,9 +15,8 @@ class CoreSubscriberTest extends TestCase
     public function testDefaultHeadersHttp(): void
     {
         $browser = $this->getBrowser();
-        $v = $this->getContainer()->getParameter('kernel.supported_api_versions')[0];
 
-        $browser->request('GET', '/api/v' . $v . '/category');
+        $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has('X-Frame-Options'));
@@ -31,9 +30,8 @@ class CoreSubscriberTest extends TestCase
     {
         $browser = $this->getBrowser();
         $browser->setServerParameter('HTTPS', true);
-        $v = $this->getContainer()->getParameter('kernel.supported_api_versions')[0];
 
-        $browser->request('GET', '/api/v' . $v . '/category');
+        $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has('X-Frame-Options'));
@@ -83,9 +81,8 @@ class CoreSubscriberTest extends TestCase
     public function testSwaggerHasCsp(): void
     {
         $browser = $this->getBrowser();
-        $v = $this->getContainer()->getParameter('kernel.supported_api_versions')[0];
 
-        $browser->request('GET', '/api/v' . $v . '/_info/swagger.html');
+        $browser->request('GET', '/api/_info/swagger.html');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has('X-Frame-Options'));

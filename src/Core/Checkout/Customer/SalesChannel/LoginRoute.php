@@ -100,7 +100,7 @@ class LoginRoute extends AbstractLoginRoute
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/login", name="store-api.account.login", methods={"POST"})
+     * @Route(path="/store-api/account/login", name="store-api.account.login", methods={"POST"})
      */
     public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {

@@ -20,20 +20,30 @@ class OpenApiSchemaBuilder
     public const API = [
         DefinitionService::API => [
             'name' => 'Admin API',
-            'url' => '/api/v%d',
+            'url' => '/api',
             'apiKey' => false,
         ],
         DefinitionService::STORE_API => [
             'name' => 'Store API',
-            'url' => '/store-api/v%d',
+            'url' => '/store-api',
             'apiKey' => true,
         ],
     ];
 
-    public function enrich(OpenApi $openApi, string $api, int $version): void
+    /**
+     * @var string
+     */
+    private $version;
+
+    public function __construct(string $version)
     {
-        $openApi->merge($this->createServers($api, $version));
-        $openApi->info = $this->createInfo($api, $version);
+        $this->version = $version;
+    }
+
+    public function enrich(OpenApi $openApi, string $api): void
+    {
+        $openApi->merge($this->createServers($api));
+        $openApi->info = $this->createInfo($api, $this->version);
 
         /** @var array|string $security */
         $security = $openApi->security;
@@ -49,20 +59,20 @@ class OpenApiSchemaBuilder
     /**
      * @return Server[]
      */
-    private function createServers(string $api, int $version): array
+    private function createServers(string $api): array
     {
         $url = $_SERVER['APP_URL'] ?? '';
 
         return [
-            new Server(['url' => rtrim($url, '/') . sprintf(self::API[$api]['url'], $version)]),
+            new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
         ];
     }
 
-    private function createInfo(string $api, int $version): Info
+    private function createInfo(string $api, string $version): Info
     {
         return new Info([
             'title' => 'Shopware ' . self::API[$api]['name'],
-            'version' => (string) $version,
+            'version' => $version,
         ]);
     }
 

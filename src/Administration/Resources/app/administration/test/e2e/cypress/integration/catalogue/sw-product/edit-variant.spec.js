@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -138,7 +138,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -189,7 +189,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -220,7 +220,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
         cy.get('.sw-variant-modal__restriction-configuration').click();
         cy.contains('.sw-button', 'Add restriction').click();
-        cy.get('.sw-product-variants-configurator-restrictions__modal-main').should('be.visible')
+        cy.get('.sw-product-variants-configurator-restrictions__modal-main').should('be.visible');
 
         cy.get('#sw-field--selectedGroup').select('Size');
         cy.get('.sw-product-restriction-selection__select-option-wrapper .sw-multi-select')

@@ -229,7 +229,7 @@ If you add a breaking change to an API route you have to make sure that the old 
 For example if you imagine a simple controller like this:
 ```php
 /**
- * @Route("/api/v{version}/_action/do-something", name="api.do.something", methods={"POST"}, requirements={"version"="\d+"})
+ * @Route("/api/_action/do-something", name="api.do.something", methods={"POST"}, requirements={"version"="\d+"})
  */
 public function doSomething(Context $context): Response
 {
@@ -259,7 +259,7 @@ public function doSomethingV1(Context $context): Response
 After this change you can implement your new version of the route and use the version wildcard again. For the routing to work make sure to add your new action below the old version, so the old route will match first.
 ```php
 /**
- * @Route("/api/v{version}/_action/do-something", name="api.do.something", methods={"POST"}, requirements={"version"="\d+"})
+ * @Route("/api/_action/do-something", name="api.do.something", methods={"POST"}, requirements={"version"="\d+"})
  */
 public function doSomething(Context $context): Response
 {
@@ -304,7 +304,7 @@ class MyController extends AbstractController
     }
     
     /**
-     * @Route("/api/v{version}/_action/product/{id}", name="api.product.get", methods={"GET"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/product/{id}", name="api.product.get", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function getProductById(string $id, int $version, Context $context): Response
     {

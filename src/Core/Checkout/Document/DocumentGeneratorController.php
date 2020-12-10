@@ -30,7 +30,7 @@ class DocumentGeneratorController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
      *
      * @throws InvalidDocumentGeneratorTypeException
      * @throws InvalidFileGeneratorTypeException
@@ -61,7 +61,7 @@ class DocumentGeneratorController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/document/{documentId}/upload", name="api.action.document.upload", methods={"POST"})
+     * @Route("/api/_action/document/{documentId}/upload", name="api.action.document.upload", methods={"POST"})
      */
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
     {

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
@@ -55,7 +54,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -92,7 +91,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'ids' => [
                         $this->ids->get('p1'),
@@ -110,7 +109,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -134,7 +133,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'ids' => [
                         $this->ids->get('p1'),
@@ -154,7 +153,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -179,7 +178,7 @@ class CartItemRemoveRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'ids' => [
                         $this->ids->get('p1'),

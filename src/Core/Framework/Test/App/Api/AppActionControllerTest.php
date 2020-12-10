@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class AppActionControllerTest extends TestCase
 {
@@ -25,7 +24,7 @@ class AppActionControllerTest extends TestCase
 
     public function testGetActionsPerViewEmpty(): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/product/index';
+        $url = '/api/app-system/action-button/product/index';
         $this->getBrowser()->request('GET', $url);
         $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
@@ -37,7 +36,7 @@ class AppActionControllerTest extends TestCase
     public function testGetActionsPerView(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/order/detail';
+        $url = '/api/app-system/action-button/order/detail';
         $this->getBrowser()->request('GET', $url);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -80,7 +79,7 @@ class AppActionControllerTest extends TestCase
         /** @var ActionButtonEntity $action */
         $action = $action->first();
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/run/' . $action->getId();
+        $url = '/api/app-system/action-button/run/' . $action->getId();
 
         $ids = [Uuid::randomHex()];
         $postData = [
@@ -133,7 +132,7 @@ class AppActionControllerTest extends TestCase
         /** @var ActionButtonEntity $action */
         $action = $action->first();
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/run/' . $action->getId();
+        $url = '/api/app-system/action-button/run/' . $action->getId();
 
         $postData = ['ids' => []];
 
@@ -160,7 +159,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunInvalidAction(): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/run/' . Uuid::randomHex();
+        $url = '/api/app-system/action-button/run/' . Uuid::randomHex();
 
         $postData = ['ids' => []];
 
@@ -172,7 +171,7 @@ class AppActionControllerTest extends TestCase
     public function testGetModules(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/modules';
+        $url = '/api/app-system/modules';
         $this->getBrowser()->request('GET', $url);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());

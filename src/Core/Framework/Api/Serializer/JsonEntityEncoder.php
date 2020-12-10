@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -25,52 +24,46 @@ class JsonEntityEncoder
      */
     private $serializer;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    public function __construct(Serializer $serializer, ApiVersionConverter $apiVersionConverter)
+    public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;
-        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
      * @param EntityCollection|Entity|null $data
      */
-    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, int $apiVersion): array
+    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl): array
     {
         if ((!$data instanceof EntityCollection) && (!$data instanceof Entity)) {
             throw new UnsupportedEncoderInputException();
         }
 
         if ($data instanceof EntityCollection) {
-            return $this->getDecodedCollection($criteria, $data, $definition, $baseUrl, $apiVersion);
+            return $this->getDecodedCollection($criteria, $data, $definition, $baseUrl);
         }
 
-        return $this->getDecodedEntity($criteria, $data, $definition, $baseUrl, $apiVersion);
+        return $this->getDecodedEntity($criteria, $data, $definition, $baseUrl);
     }
 
-    private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl): array
     {
         $decoded = [];
 
         foreach ($collection as $entity) {
-            $decoded[] = $this->getDecodedEntity($criteria, $entity, $definition, $baseUrl, $apiVersion);
+            $decoded[] = $this->getDecodedEntity($criteria, $entity, $definition, $baseUrl);
         }
 
         return $decoded;
     }
 
-    private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
         $decoded = $this->serializer->normalize($entity);
 
         $includes = $criteria->getIncludes() ?? [];
         $decoded = $this->filterIncludes($includes, $decoded, $entity);
 
-        return $this->removeNotAllowedFields($decoded, $definition, $baseUrl, $apiVersion);
+        return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 
     private function filterIncludes(array $includes, array $decoded, Struct $struct): array
@@ -121,7 +114,7 @@ class JsonEntityEncoder
         return in_array($property, $includes[$alias], true);
     }
 
-    private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl): array
     {
         $fields = $definition->getFields();
 
@@ -129,12 +122,6 @@ class JsonEntityEncoder
             $field = $fields->get($key);
 
             if ($field === null) {
-                continue;
-            }
-
-            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), $key, $apiVersion)) {
-                unset($decoded[$key]);
-
                 continue;
             }
 
@@ -153,12 +140,12 @@ class JsonEntityEncoder
             // phpstan would complain if we remove this
             if ($field instanceof AssociationField) {
                 if ($field instanceof ManyToOneAssociationField | $field instanceof OneToOneAssociationField) {
-                    $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl, $apiVersion);
+                    $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl);
                 }
 
                 if ($field instanceof ManyToManyAssociationField | $field instanceof OneToManyAssociationField) {
                     foreach ($value as $id => $entity) {
-                        $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl, $apiVersion);
+                        $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl);
                     }
                 }
             }

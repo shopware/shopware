@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 
@@ -50,7 +49,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 $method,
-                '/api/v' . PlatformRequest::API_VERSION . '/' . $url
+                '/api/' . $url
             );
 
         $response = $this->getBrowser()->getResponse();
@@ -80,7 +79,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'GET',
-                '/api/v' . PlatformRequest::API_VERSION . '/system-config'
+                '/api/system-config'
             );
 
         $response = $this->getBrowser()->getResponse();
@@ -90,7 +89,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'GET',
-                '/api/v' . PlatformRequest::API_VERSION . '/system-config/' . Uuid::randomHex()
+                '/api/system-config/' . Uuid::randomHex()
             );
 
         $response = $this->getBrowser()->getResponse();
@@ -100,7 +99,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/system-config'
+                '/api/system-config'
             );
 
         $response = $this->getBrowser()->getResponse();
@@ -113,7 +112,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/search/user',
+                '/api/search/user',
                 [
                     'associations' => [
                         'accessKeys' => [],
@@ -128,7 +127,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/search/user',
+                '/api/search/user',
                 [
                     'associations' => [
                         'avatarMedia' => [],
@@ -146,7 +145,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/search/media',
+                '/api/search/media',
                 [
                     'associations' => [
                         'user' => [
@@ -165,7 +164,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/search/media',
+                '/api/search/media',
                 [
                     'associations' => [
                         'user' => [
@@ -188,7 +187,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'DELETE',
-                '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . Defaults::SALES_CHANNEL
+                '/api/sales-channel/' . Defaults::SALES_CHANNEL
             );
 
         $response = $this->getBrowser()->getResponse();

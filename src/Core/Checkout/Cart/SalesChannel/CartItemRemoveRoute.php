@@ -62,7 +62,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.remove-item", methods={"DELETE"})
+     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.remove-item", methods={"DELETE"})
      */
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {

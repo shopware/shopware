@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -71,7 +70,7 @@ class StateMachineActionControllerTest extends TestCase
 
     public function testOrderNotFoundException(): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . Uuid::randomHex() . '/actions/state');
+        $this->getBrowser()->request('GET', '/api/order/' . Uuid::randomHex() . '/actions/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -86,7 +85,7 @@ class StateMachineActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/_action/state-machine/order/' . $orderId . '/state');
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
@@ -104,7 +103,7 @@ class StateMachineActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/_action/state-machine/order/' . $orderId . '/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -153,7 +152,7 @@ class StateMachineActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state/foo');
+        $this->getBrowser()->request('POST', '/api/_action/state-machine/order/' . $orderId . '/state/foo');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);

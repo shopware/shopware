@@ -220,8 +220,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -245,8 +244,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -273,8 +271,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -312,8 +309,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -337,8 +333,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -394,8 +389,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/product/%s',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
             ),
@@ -412,8 +406,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -534,8 +527,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/version/merge/%s/%s',
-                PlatformRequest::API_VERSION,
+                '/api/_action/version/merge/%s/%s',
                 $this->getContainer()->get(OrderDefinition::class)->getEntityName(),
                 $versionId
             )
@@ -810,8 +802,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order-address/%s/customer-address/%s',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order-address/%s/customer-address/%s',
                 $orderAddressId,
                 $customerAddressId
             ),
@@ -1063,8 +1054,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/version/order/%s',
-                PlatformRequest::API_VERSION,
+                '/api/_action/version/order/%s',
                 $orderId
             )
         );
@@ -1094,8 +1084,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/product/%s',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/product/%s',
                 $orderId,
                 $productId
             ),
@@ -1112,8 +1101,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/recalculate',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/recalculate',
                 $orderId
             ),
             [],
@@ -1179,8 +1167,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/lineItem',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/lineItem',
                 $orderId
             ),
             [],
@@ -1249,8 +1236,7 @@ class RecalculationServiceTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             sprintf(
-                '/api/v%s/_action/order/%s/creditItem',
-                PlatformRequest::API_VERSION,
+                '/api/_action/order/%s/creditItem',
                 $orderId
             ),
             [],

@@ -55,7 +55,7 @@ class SitemapRoute extends AbstractSitemapRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Sitemap"))
      *     )
      * )
-     * @Route(path="/store-api/v{version}/sitemap", name="store-api.sitemap", methods={"GET", "POST"})
+     * @Route(path="/store-api/sitemap", name="store-api.sitemap", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {

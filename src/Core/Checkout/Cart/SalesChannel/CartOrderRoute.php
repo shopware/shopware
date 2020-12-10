@@ -94,7 +94,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/order_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/order", name="store-api.checkout.cart.order", methods={"POST"})
+     * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"})
      */
     public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): CartOrderRouteResponse
     {

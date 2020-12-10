@@ -46,7 +46,7 @@ class OrderRecalculationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      * @throws InvalidPayloadException
@@ -68,7 +68,7 @@ class OrderRecalculationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
@@ -91,7 +91,7 @@ class OrderRecalculationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
      *
      * */
     public function addCreditItemToOrder(string $orderId, Request $request, Context $context)
@@ -128,7 +128,7 @@ class OrderRecalculationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
      * @throws InvalidOrderException
@@ -158,7 +158,7 @@ class OrderRecalculationController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
+     * @Route("/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
      *
      * @throws OrderRecalculationException
      * @throws InconsistentCriteriaIdsException

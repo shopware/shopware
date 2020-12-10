@@ -37,7 +37,7 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @Since("6.3.1.0")
-     * @Route("/api/v{version}/_action/customer-group-registration/accept/{customerId}", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/customer-group-registration/accept/{customerId}", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"})
      */
     public function accept(string $customerId, Context $context): JsonResponse
     {
@@ -62,7 +62,7 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @Since("6.3.1.0")
-     * @Route("/api/v{version}/_action/customer-group-registration/decline/{customerId}", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/customer-group-registration/decline/{customerId}", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"})
      */
     public function decline(string $customerId, Context $context): JsonResponse
     {

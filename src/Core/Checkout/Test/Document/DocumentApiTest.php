@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -110,7 +109,7 @@ class DocumentApiTest extends TestCase
             'config' => [],
         ];
 
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/';
+        $baseResource = '/api/';
 
         $this->getBrowser()->request(
             'POST',

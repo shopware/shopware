@@ -53,7 +53,7 @@ class CmsRoute extends AbstractCmsRoute
      *     ),
      * )
      *
-     * @Route("/store-api/v{version}/cms/{id}", name="store-api.cms.detail", methods={"GET", "POST"})
+     * @Route("/store-api/cms/{id}", name="store-api.cms.detail", methods={"GET", "POST"})
      */
     public function load(string $id, Request $request, SalesChannelContext $context): CmsRouteResponse
     {

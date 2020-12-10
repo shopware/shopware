@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
@@ -34,7 +34,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/search/order',
+            url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
 
@@ -158,7 +158,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/search/order',
+            url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
 

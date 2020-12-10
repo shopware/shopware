@@ -220,7 +220,7 @@ describe('Minimal install', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v2/_action/store/frw/finish',
+            url: '/api/_action/store/frw/finish',
             method: 'post'
         }).as('finishCall');
 

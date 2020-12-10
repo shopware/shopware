@@ -46,11 +46,11 @@ class SyncController extends AbstractController
      * This can be inserts, upserts, updates and deletes on different entities.
      * To continue upcoming actions on errors, please provide a "fail-on-error" header with value FALSE.
      *
-     * @Route("/api/v{version}/_action/sync", name="api.action.sync", methods={"POST"})
+     * @Route("/api/_action/sync", name="api.action.sync", methods={"POST"})
      *
      * @throws \Throwable
      */
-    public function sync(Request $request, Context $context, int $version): JsonResponse
+    public function sync(Request $request, Context $context): JsonResponse
     {
         $behavior = new SyncBehavior(
             filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN),
@@ -62,7 +62,7 @@ class SyncController extends AbstractController
 
         $operations = [];
         foreach ($payload as $key => $operation) {
-            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload'], $version);
+            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
         }
 
         $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($operations, $behavior): SyncResult {

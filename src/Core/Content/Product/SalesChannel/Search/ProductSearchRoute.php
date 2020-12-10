@@ -77,7 +77,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/search", name="store-api.search", methods={"POST"})
+     * @Route("/store-api/search", name="store-api.search", methods={"POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {

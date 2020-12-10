@@ -18,9 +18,7 @@ export default class RepositoryFactory {
      * @param {Object} options
      * @returns {Repository}
      */
-    create(entityName, route, options = {
-        version: Shopware.Context.api.apiVersion
-    }) {
+    create(entityName, route, options = {}) {
         if (!route) {
             route = `/${entityName.replace(/_/g, '-')}`;
         }

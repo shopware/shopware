@@ -1,5 +1,8 @@
 # Architecture Decision Record
 
+*  [2020-11-06 - Removal of api versioning](2020-12-02-removing-api-version.md)
+*  [2020-11-06 - Creating events](2020-11-06-creating-events.md)
+*  [2020-09-08 - CustomField label loading in Storefront](2020-09-08-CustomField-label-loading-in-storefront.md)
 *  [2020-08-28 - Import acl privileges from other roles](2020-08-28-import-acl-privileges-from-other-roles.md)
 *  [2020-08-14 - Merchant registration](2020-08-14-merchant-registration.md)
 *  [2020-08-14 - Implement individual sorting](2020-08-14-implement-individual-sorting.md)

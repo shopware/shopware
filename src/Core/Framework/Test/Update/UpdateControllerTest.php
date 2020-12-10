@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
@@ -237,7 +236,7 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckUpdateEndpoint(): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/update/check');
+        $this->getBrowser()->request('GET', '/api/_action/update/check');
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
@@ -249,7 +248,7 @@ class UpdateControllerTest extends TestCase
         try {
             $this->authorizeBrowser($this->getBrowser(), [], ['something']);
             $_SERVER['SHOPWARE_UPDATE_TEST'] = 1;
-            $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/update/check');
+            $this->getBrowser()->request('GET', '/api/_action/update/check');
             $_SERVER['SHOPWARE_UPDATE_TEST'] = 0;
 
             /** @var JsonResponse $response */

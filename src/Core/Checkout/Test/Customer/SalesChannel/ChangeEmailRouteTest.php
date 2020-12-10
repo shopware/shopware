@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ChangeEmailRouteTest extends TestCase
@@ -49,7 +48,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -66,7 +65,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                '/store-api/account/change-email',
                 [
                 ]
             );
@@ -82,7 +81,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                '/store-api/account/change-email',
                 [
                     'password' => 'foooware',
                     'email' => 'test@fooware.de',
@@ -100,7 +99,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                '/store-api/account/change-email',
                 [
                     'password' => 'shopware',
                     'email' => 'test@fooware.de',
@@ -116,7 +115,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 [
                 ]
             );
@@ -148,7 +147,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                '/store-api/account/change-email',
                 [
                     'password' => 'shopware',
                     'email' => $newEmail,
@@ -164,7 +163,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 [
                 ]
             );
@@ -183,7 +182,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                '/store-api/account/change-email',
                 [
                     'password' => 'shopware',
                     'email' => $newEmail,
@@ -201,7 +200,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 [
                 ]
             );

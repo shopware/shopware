@@ -93,7 +93,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/product-stream/*',
+            url: `${Cypress.env('apiPath')}/product-stream/*`,
             method: 'patch'
         }).as('updateData');
 
@@ -147,7 +147,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
     it('@base @catalogue: can create product streams', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/product-stream',
+            url: `${Cypress.env('apiPath')}/product-stream`,
             method: 'post'
         }).as('saveData');
 
@@ -207,7 +207,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
             cy.server();
             cy.route({
-                url: '/api/v*/product-stream/*',
+                url: `${Cypress.env('apiPath')}/product-stream/*`,
                 method: 'delete'
             }).as('deleteData');
 

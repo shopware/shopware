@@ -45,7 +45,7 @@ class StoreApiProxyControllerTest extends TestCase
 
     public function testSalutation(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation');
+        $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
@@ -58,7 +58,7 @@ class StoreApiProxyControllerTest extends TestCase
     {
         $this->getContainer()->get('request_stack')->push(new Request());
 
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation');
+        $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
@@ -69,7 +69,7 @@ class StoreApiProxyControllerTest extends TestCase
 
     public function testSalutationLimitWorksInQuery(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation?limit=1');
+        $response = $this->request('GET', '/store-api/salutation?limit=1');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
@@ -80,7 +80,7 @@ class StoreApiProxyControllerTest extends TestCase
 
     public function testSalutationLimitWorksInBody(): void
     {
-        $response = $this->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation', [
+        $response = $this->request('POST', '/store-api/salutation', [
             'limit' => 1,
         ]);
 
@@ -93,7 +93,7 @@ class StoreApiProxyControllerTest extends TestCase
 
     public function test404WillBeForwarded(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/');
+        $response = $this->request('GET', '/store-api/');
         static::assertSame(404, $response->getStatusCode());
     }
 
@@ -115,7 +115,7 @@ class StoreApiProxyControllerTest extends TestCase
     {
         $customerId = $this->createCustomer('shopware', 'store-api-proxy@localhost.de');
 
-        $this->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/account/login', [
+        $this->request('POST', '/store-api/account/login', [
             'username' => 'store-api-proxy@localhost.de',
             'password' => 'shopware',
         ]);

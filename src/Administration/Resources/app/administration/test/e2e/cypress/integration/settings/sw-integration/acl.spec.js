@@ -54,7 +54,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration',
+            url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
 
@@ -97,7 +97,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration/*',
+            url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'patch'
         }).as('editIntegration');
 
@@ -140,7 +140,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration/*',
+            url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'delete'
         }).as('deleteIntegration');
 

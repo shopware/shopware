@@ -89,7 +89,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
+     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
      */
     public function change(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {

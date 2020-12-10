@@ -17,7 +17,7 @@ you can add your own ACL privilege by adding the annotation `@Acl({"my_plugin_do
 
 ```php
 /**
-     * @Route("/api/v{version}/_action/do-something", name="my.plugin.api.action.do.something", methods={"POST"})
+     * @Route("/api/_action/do-something", name="my.plugin.api.action.do.something", methods={"POST"})
      * @Acl({"my_plugin_do_something"})
      */
     public function doSomething(): Response

@@ -74,12 +74,12 @@ describe('Mail templates: Test acl privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'patch'
         }).as('saveMailTemplate');
 
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'patch'
         }).as('saveMailHeaderFooter');
 
@@ -167,12 +167,12 @@ describe('Mail templates: Test acl privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template',
+            url: `${Cypress.env('apiPath')}/mail-template`,
             method: 'post'
         }).as('createMailTemplate');
 
         cy.route({
-            url: '/api/v*/mail-header-footer',
+            url: `${Cypress.env('apiPath')}/mail-header-footer`,
             method: 'post'
         }).as('createMailHeaderFooter');
 
@@ -242,12 +242,12 @@ describe('Mail templates: Test acl privileges', () => {
         // prepare api to delete a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'delete'
         }).as('deleteMailTemplate');
 
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'delete'
         }).as('deleteMailHeaderFooter');
 
@@ -321,12 +321,12 @@ describe('Mail templates: Test acl privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'patch'
         }).as('saveMailTemplate');
 
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'patch'
         }).as('saveMailHeaderFooter');
 

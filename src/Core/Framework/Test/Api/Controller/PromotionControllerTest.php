@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class PromotionControllerTest extends TestCase
@@ -44,7 +43,7 @@ class PromotionControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->api = $this->getBrowser();
-        $this->resourceUri = '/api/v' . PlatformRequest::API_VERSION . '/promotion';
+        $this->resourceUri = '/api/promotion';
     }
 
     /**
@@ -260,7 +259,7 @@ class PromotionControllerTest extends TestCase
 
         $this->api->request(
             'DELETE',
-            '/api/v' . PlatformRequest::API_VERSION . '/promotion/' . $promotionId
+            '/api/promotion/' . $promotionId
         );
 
         $response = $this->api->getResponse();

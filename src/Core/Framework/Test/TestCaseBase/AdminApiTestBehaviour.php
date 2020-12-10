@@ -97,7 +97,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/' . implode('/', $params);
 
         $browser->request('GET', $url);
 
@@ -110,7 +110,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityNotExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/' . implode('/', $params);
 
         $browser->request('GET', $url);
 

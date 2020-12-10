@@ -52,17 +52,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $this->openApiLoader = $openApiLoader;
     }
 
-    public function supports(string $format, int $version, string $api): bool
+    public function supports(string $format, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, int $version, string $api): array
+    public function generate(array $definitions, string $api): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = $this->openApiLoader->load($api);
-        $this->openApiBuilder->enrich($openApi, $api, $version);
+        $this->openApiBuilder->enrich($openApi, $api);
 
         ksort($definitions);
 
@@ -73,7 +73,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version, $onlyReference);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
             $openApi->components->merge($schema);
 
@@ -88,7 +88,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return json_decode($openApi->toJson(), true);
     }
 
-    public function getSchema(array $definitions, int $version): array
+    public function getSchema(array $definitions): array
     {
         $schemaDefinitions = [];
 
@@ -108,7 +108,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
             $schema = array_shift($schema);
             $schema = json_decode($schema->toJson(), true);
             $schema = $schema['allOf'][1]['properties'];

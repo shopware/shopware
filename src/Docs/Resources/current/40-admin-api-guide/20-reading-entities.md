@@ -18,10 +18,10 @@ For an entity object, the system automatically creates the following routes thro
 
 | Name  | Method   | Route                   | Usage |
 | ----- | ------ | ----------------------- | ------ |
-| api.customer_group.list       | GET  | /api/v{version}/customer-group             | Allows to read a list of this entity |
-| api.customer_group.detail     | GET  | /api/v{version}/customer-group/{id}        | Allows to fetch a single entity |
-| api.customer_group.search     | POST | /api/v{version}/search/customer-group      | Allows to perform a complex search |
-| api.customer_group.search-ids | POST | /api/v{version}/search-ids/customer-group  | Allows to perform a complex search and fetching only matching ids |
+| api.customer_group.list       | GET  | /api/customer-group             | Allows to read a list of this entity |
+| api.customer_group.detail     | GET  | /api/customer-group/{id}        | Allows to fetch a single entity |
+| api.customer_group.search     | POST | /api/search/customer-group      | Allows to perform a complex search |
+| api.customer_group.search-ids | POST | /api/search-ids/customer-group  | Allows to perform a complex search and fetching only matching ids |
 
 A list of all routes and registered entities in the system can be read via the `/api/v3/_info/*` routes:
 * `/api/v3/_info/openapi3.json`

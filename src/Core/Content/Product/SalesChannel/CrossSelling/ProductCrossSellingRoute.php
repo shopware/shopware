@@ -98,7 +98,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      *          @OA\JsonContent(ref="#/components/schemas/CrossSellingElementCollection")
      *     )
      * )
-     * @Route("/store-api/v{version}/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
+     * @Route("/store-api/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
      */
     public function load(string $productId, SalesChannelContext $context): ProductCrossSellingRouteResponse
     {

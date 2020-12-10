@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -520,6 +519,6 @@ class CrossSellingRouteTest extends TestCase
 
     private function getUrl(string $productId): string
     {
-        return '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/cross-selling';
+        return '/store-api/product/' . $productId . '/cross-selling';
     }
 }

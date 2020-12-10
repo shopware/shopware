@@ -64,7 +64,7 @@ class LanguageRoute extends AbstractLanguageRoute
      *          )
      *      )
      * )
-     * @Route("/store-api/v{version}/language", name="store-api.language", methods={"GET", "POST"})
+     * @Route("/store-api/language", name="store-api.language", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {

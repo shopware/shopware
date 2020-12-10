@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class HandlePaymentMethodRouteResponseTest extends TestCase
@@ -80,7 +79,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/handle-payment',
+                '/store-api/handle-payment',
                 [
                 ]
             );
@@ -96,7 +95,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/handle-payment',
+                '/store-api/handle-payment',
                 [
                     'orderId' => Uuid::randomHex(),
                 ]
@@ -118,7 +117,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/handle-payment',
+                '/store-api/handle-payment',
                 [
                     'orderId' => $orderId,
                 ]

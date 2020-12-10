@@ -65,7 +65,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
             };
 
             return cy.request({
-                url: `/api/${Cypress.env('apiVersion')}/acl-role`,
+                url: '/api/acl-role',
                 method: 'POST',
                 headers: headers,
                 body: {
@@ -82,7 +82,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         }).then(response => {
             // save user
             cy.request({
-                url: `/api/${Cypress.env('apiVersion')}/user`,
+                url: '/api/user',
                 method: 'POST',
                 headers: headers,
                 body: {
@@ -215,7 +215,7 @@ Cypress.Commands.add('createReviewFixture', () => {
             })
             .then((data) => {
                 cy.request({
-                    url: `/api/${Cypress.env('apiVersion')}/product-review`,
+                    url: '/api/product-review',
                     method: 'POST',
                     headers: headers,
                     body: Cypress._.merge(reviewJson, {
@@ -301,7 +301,7 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
  * @param {Object} data - Necessary data for the API request
  */
 Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
-    return cy.requestAdminApi('PATCH', `api/v2/${endpoint}/${id}`, data).then((responseData) => {
+    return cy.requestAdminApi('PATCH', `api/${endpoint}/${id}`, data).then((responseData) => {
         return responseData;
     });
 });

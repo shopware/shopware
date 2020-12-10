@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class ReadProtectedFlagTest extends TestCase
 {
@@ -31,10 +30,7 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
-            '/api/v%s/media',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/media';
 
         $this->getBrowser()->request('GET', $url);
 
@@ -60,10 +56,7 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
-            '/api/v%s/media',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/media';
 
         $browser = $this->getBrowser();
         $browser->setServerParameter('HTTP_ACCEPT', 'application/json');
@@ -115,10 +108,7 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
-            '/store-api/v%s/product?associations[cover][]',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/store-api/product?associations[cover][]';
 
         $browser->request('GET', $url);
         $data = json_decode($browser->getResponse()->getContent(), true);

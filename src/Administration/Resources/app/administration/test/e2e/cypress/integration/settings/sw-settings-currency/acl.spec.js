@@ -59,7 +59,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'patch'
         }).as('saveCurrency');
 
@@ -111,7 +111,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency',
+            url: `${Cypress.env('apiPath')}/currency`,
             method: 'post'
         }).as('saveCurrency');
 
@@ -156,7 +156,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'delete'
         }).as('deleteCurrency');
 

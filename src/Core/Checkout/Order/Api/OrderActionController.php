@@ -45,14 +45,13 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
+     * @Route("/api/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
      */
     public function orderStateTransition(
         string $orderId,
         string $transition,
-        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -74,8 +73,7 @@ class OrderActionController extends AbstractController
 
         $response = $this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
-            $toPlace,
-            $version
+            $toPlace
         );
 
         return new JsonResponse($response);
@@ -83,14 +81,13 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
+     * @Route("/api/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
      */
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
-        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -112,8 +109,7 @@ class OrderActionController extends AbstractController
 
         $response = $this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
-            $toPlace,
-            $version
+            $toPlace
         );
 
         return new JsonResponse($response);
@@ -121,14 +117,13 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
+     * @Route("/api/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
      */
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,
-        int $version,
         Request $request,
         Context $context
     ): JsonResponse {
@@ -150,8 +145,7 @@ class OrderActionController extends AbstractController
 
         $response = $this->apiVersionConverter->convertEntity(
             $this->stateMachineDefinition,
-            $toPlace,
-            $version
+            $toPlace
         );
 
         return new JsonResponse($response);

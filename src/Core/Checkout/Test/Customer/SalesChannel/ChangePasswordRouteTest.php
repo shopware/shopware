@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 
 class ChangePasswordRouteTest extends TestCase
@@ -62,7 +61,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $this->email,
                     'password' => 'shopware',
@@ -81,7 +80,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
+                '/store-api/account/change-password',
                 [
                 ]
             );
@@ -97,7 +96,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
+                '/store-api/account/change-password',
                 [
                     'password' => 'foooware',
                     'newPassword' => 'foooware',
@@ -115,7 +114,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
+                '/store-api/account/change-password',
                 [
                     'password' => 'shopware',
                     'newPassword' => 'foooware',
@@ -132,7 +131,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $this->email,
                     'password' => 'foooware',
@@ -150,7 +149,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
+                '/store-api/account/change-password',
                 [
                     'password' => 'shopware',
                     'newPassword' => 'foooware',

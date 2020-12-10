@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class NavigationRouteTest extends TestCase
 {
@@ -43,7 +42,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
+                '/store-api/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
                 [
                 ]
             );
@@ -63,7 +62,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category') . '?buildTree=false',
+                '/store-api/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category') . '?buildTree=false',
                 [
                 ]
             );
@@ -89,7 +88,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
+                '/store-api/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
                 [
                     'buildTree' => false,
                 ]
@@ -116,7 +115,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/xxxxx/xxxxxx',
+                '/store-api/navigation/xxxxx/xxxxxx',
                 [
                 ]
             );
@@ -132,7 +131,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/main-navigation/main-navigation',
+                '/store-api/navigation/main-navigation/main-navigation',
                 [
                 ]
             );
@@ -152,7 +151,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/footer-navigation/footer-navigation',
+                '/store-api/navigation/footer-navigation/footer-navigation',
                 [
                 ]
             );
@@ -171,7 +170,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/service-navigation/service-navigation',
+                '/store-api/navigation/service-navigation/service-navigation',
                 [
                 ]
             );
@@ -190,7 +189,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/service-navigation/service-navigation',
+                '/store-api/navigation/service-navigation/service-navigation',
                 [
                     'includes' => [
                         'category' => ['name'],
@@ -210,7 +209,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/main-navigation/main-navigation',
+                '/store-api/navigation/main-navigation/main-navigation',
                 [
                 ]
             );
@@ -222,7 +221,7 @@ class NavigationRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/main-navigation/main-navigation',
+                '/store-api/navigation/main-navigation/main-navigation',
                 [
                     'associations' => [
                         'tags' => [],

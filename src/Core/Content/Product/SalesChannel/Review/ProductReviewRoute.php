@@ -50,7 +50,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/product_review_flat"))
      *     )
      * )
-     * @Route("/store-api/v{version}/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})
+     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {

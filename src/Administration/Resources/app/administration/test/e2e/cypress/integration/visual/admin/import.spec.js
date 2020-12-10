@@ -12,9 +12,10 @@ describe('Import/Export - Import:  Visual tests', () => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/import`);
-        });
+        })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/import`);
+            });
 
         page = new SettingsPageObject();
     });
@@ -26,17 +27,17 @@ describe('Import/Export - Import:  Visual tests', () => {
     it('@visual: check appearance of basic import workflow', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/_action/import-export/prepare',
+            url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'post'
         }).as('prepare');
 
         cy.route({
-            url: '/api/v*/_action/import-export/process',
+            url: `${Cypress.env('apiPath')}/_action/import-export/process`,
             method: 'post'
         }).as('process');
 
         cy.route({
-            url: '/api/v*/search/import-export-log',
+            url: `${Cypress.env('apiPath')}/search/import-export-log`,
             method: 'post'
         }).as('importExportLog');
 
@@ -58,7 +59,7 @@ describe('Import/Export - Import:  Visual tests', () => {
         });
 
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-importer > .sw-field').click()
+        cy.get('.sw-import-export-importer > .sw-field').click();
         cy.contains('Default product').click();
 
         // Start the import progress

@@ -91,7 +91,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/context", name="store-api.switch-context", methods={"PATCH"})
+     * @Route("/store-api/context", name="store-api.switch-context", methods={"PATCH"})
      */
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {

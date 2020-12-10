@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 {
@@ -41,7 +40,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer-group-registration/config/' . Defaults::LANGUAGE_SYSTEM
+                '/store-api/customer-group-registration/config/' . Defaults::LANGUAGE_SYSTEM
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -67,7 +66,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer-group-registration/config/' . $this->ids->get('group')
+                '/store-api/customer-group-registration/config/' . $this->ids->get('group')
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\IpUtils;
 
@@ -90,7 +89,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -106,14 +105,14 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
     private function order(): void
     {
-        $this->browser->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order');
+        $this->browser->request('POST', '/store-api/checkout/order');
     }
 
     private function login(string $email, string $password): string
     {
         $customerId = $this->createCustomer($password, $email);
 
-        $this->browser->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/account/login', [
+        $this->browser->request('POST', '/store-api/account/login', [
             'username' => $email,
             'password' => $password,
         ]);

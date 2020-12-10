@@ -55,7 +55,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
+     * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
      */
     public function delete(SalesChannelContext $context): NoContentResponse
     {

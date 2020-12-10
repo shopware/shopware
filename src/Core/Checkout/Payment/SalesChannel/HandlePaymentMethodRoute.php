@@ -64,7 +64,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      *          description="Redirect to external payment provider"
      *     )
      * )
-     * @Route("/store-api/v{version}/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})
+     * @Route("/store-api/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {

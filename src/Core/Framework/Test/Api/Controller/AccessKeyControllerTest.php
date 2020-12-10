@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\PlatformRequest;
 
 class AccessKeyControllerTest extends TestCase
 {
@@ -13,10 +12,7 @@ class AccessKeyControllerTest extends TestCase
 
     public function testIntegrationAccessKey(): void
     {
-        $url = sprintf(
-            '/api/v%s/_action/access-key/intergration',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/_action/access-key/intergration';
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
@@ -40,10 +36,7 @@ class AccessKeyControllerTest extends TestCase
 
     public function testUserAccessKey(): void
     {
-        $url = sprintf(
-            '/api/v%s/_action/access-key/user',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/_action/access-key/user';
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
@@ -67,10 +60,7 @@ class AccessKeyControllerTest extends TestCase
 
     public function testSalesChannelAccessKey(): void
     {
-        $url = sprintf(
-            '/api/v%s/_action/access-key/sales-channel',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/_action/access-key/sales-channel';
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();

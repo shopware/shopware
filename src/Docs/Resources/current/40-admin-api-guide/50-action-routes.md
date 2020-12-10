@@ -14,7 +14,7 @@ It also takes care of sending the defined state change mails. It takes arrays of
 The `transition` parameter can be one of the transitions defined in `\Core\Checkout\Order\OrderStates`. 
 
 ```
-POST /api/v{version}/_action/order/{orderId}/state/{transition}
+POST /api/_action/order/{orderId}/state/{transition}
 {
     "mediaIds" : [
         "b7d2554b0ce847cd82f3ac9bd1c0dfca",
@@ -34,7 +34,7 @@ It also takes care of sending the defined state change mails. It takes arrays of
 The `transition` parameter can be one of the transitions defined in `\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates`.
 
 ```
-POST /api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}
+POST /api/_action/order_delivery/{orderDeliveryId}/state/{transition}
 {
     "mediaIds" : [
         "b7d2554b0ce847cd82f3ac9bd1c0dfca",
@@ -54,7 +54,7 @@ It also takes care of sending the defined state change mails. It takes arrays of
 The `transition` parameter can be one of the transitions defined in `\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates`.
 
 ```
-POST /api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}
+POST /api/_action/order_transaction/{orderTransactionId}/state/{transition}
 {
     "mediaIds" : [
         "b7d2554b0ce847cd82f3ac9bd1c0dfca",

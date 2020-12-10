@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -24,7 +23,7 @@ class AuthControllerTest extends TestCase
     {
         $client = $this->getBrowser();
         $client->setServerParameter('HTTP_Authorization', '');
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -68,7 +67,7 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'HTTP_Authorization' => 'Bearer invalid_token_provided',
         ]);
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
@@ -91,7 +90,7 @@ class AuthControllerTest extends TestCase
             'HTTP_Authorization',
             'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0IiwiaWF0IjoxNTI5NDM2MTkyLCJuYmYiOjE1Mjk0MzYxOTIsImV4cCI6MTUyOTQzOTc5Miwic3ViIjoiNzI2MWQyNmMzZTM2NDUxMDk1YWZhN2MwNWY4NzMyYjUiLCJzY29wZXMiOlsid3JpdGUiLCJ3cml0ZSJdfQ.DBYbAWNpwxGL6QngLidboGbr2nmlAwjYcJIqN02sRnZNNFexy9V6uyQQ-8cJ00anwxKhqBovTzHxtXBMhZ47Ix72hxNWLjauKxQlsHAbgIKBDRbJO7QxgOU8gUnSQiXzRzKoX6XBOSHXFSUJ239lF4wai7621aCNFyEvlwf1JZVILsLjVkyIBhvuuwyIPbpEETui19BBaJ0eQZtjXtpzjsWNq1ibUCQvurLACnNxmXIj8xkSNenoX5B4p3R1gbDFuxaNHkGgsrQTwkDtmZxqCb3_0AgFL3XX0mpO5xsIJAI_hLHDPvv5m0lTQgMRrlgNdfE7ecI4GLHMkDmjWoNx_A'
         );
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
@@ -104,7 +103,7 @@ class AuthControllerTest extends TestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $this->getBrowser()->request('GET', '/api/tax');
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -256,7 +255,7 @@ class AuthControllerTest extends TestCase
          * Try access with new token
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -449,7 +448,7 @@ class AuthControllerTest extends TestCase
          * Access protected routes
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }

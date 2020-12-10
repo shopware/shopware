@@ -72,7 +72,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
+     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
      */
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {

@@ -76,7 +76,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/product/{productId}/review", name="store-api.product-review.save", methods={"POST"})
+     * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"})
      */
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {

@@ -70,7 +70,7 @@ describe('Product: Sort grid', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/search/product',
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('saveData');
 

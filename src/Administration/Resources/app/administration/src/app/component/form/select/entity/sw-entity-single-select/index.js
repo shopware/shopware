@@ -104,21 +104,9 @@ Component.register('sw-entity-single-select', {
         },
 
         /**
-         * Returns the resultCollection with the actual selection as first entry
          * @returns {EntityCollection}
          */
         results() {
-            if (this.singleSelection && this.resultCollection) {
-                const collection = this.createCollection(this.resultCollection);
-                collection.push(this.singleSelection);
-                this.resultCollection.forEach((item) => {
-                    if (item.id !== this.singleSelection.id) {
-                        collection.add(item);
-                    }
-                });
-                return collection;
-            }
-
             return this.resultCollection;
         }
     },

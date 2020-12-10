@@ -14,7 +14,7 @@ class FlatTree {
      */
     constructor() {
         this._registeredNodes = new Map();
-        this._defaultPosition = 1000;
+        this._defaultPosition = 1;
     }
 
     /**
@@ -32,17 +32,19 @@ class FlatTree {
      * @private
      * @param {String|undefined} parent
      * @param {Map|Array} elements
+     * @param {Number} [level=1]
      * @returns {Array}
      */
-    _tree(parent, elements) {
+    _tree(parent, elements, level = 1) {
         const children = [];
         elements.forEach((element) => {
             if (element.parent !== parent) {
                 return;
             }
+            element.level = level;
 
             const newParent = element.id || element.path;
-            element.children = this._tree(newParent, elements);
+            element.children = this._tree(newParent, elements, level + 1);
             children.push(element);
         });
 

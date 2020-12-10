@@ -109,7 +109,7 @@
     },
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
-      "linkMinimizeMenu": "Menü minimieren",
+      "linkMinimizeMenu": "Menü einklappen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "administrator": "Administrator",

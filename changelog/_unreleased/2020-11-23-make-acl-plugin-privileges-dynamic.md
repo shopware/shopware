@@ -4,7 +4,6 @@ issue: NEXT-11917
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com 
 author_github: lernhart
-flag: FEATURE_NEXT_11917
 ---
 # Core
 * Added `Shopware\Core\Framework\Api\Acl\Role\AclRoleEvents` to add some acl role specific events.

@@ -1,0 +1,88 @@
+{% block sw_promotion_v2_detail_base %}
+    <div class="sw-promotion-v2-detail-base">
+
+        {% block sw_promotion_v2_detail_base_general_card %}
+            <sw-card
+                    v-if="promotion"
+                    :isLoading="isLoading"
+                    :title="$tc('sw-promotion-v2.detail.general.cardTitle')">
+
+                {% block sw_promotion_v2_detail_base_general_name %}
+                    <sw-text-field
+                            v-model="promotion.name"
+                            class="sw-promotion-v2-detail-base__field-name"
+                            :label="$tc('sw-promotion-v2.detail.general.nameLabel')"
+                            :disabled="!acl.can('promotion.editor')"
+                            :error="promotionNameError">
+                    </sw-text-field>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_valid_container %}
+                    <sw-container columns="1fr 1fr" gap="0 32px">
+
+                        {% block sw_promotion_v2_detail_base_general_valid_from %}
+                            <sw-datepicker
+                                    v-model="promotion.validFrom"
+                                    dateType="datetime-local"
+                                    :label="$tc('sw-promotion-v2.detail.general.validFromLabel')"
+                                    :placeholderText="$tc('sw-promotion-v2.detail.general.validFromPlaceholder')"
+                                    :disabled="!acl.can('promotion.editor')">
+                            </sw-datepicker>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_detail_base_general_valid_until %}
+                            <sw-datepicker
+                                    v-model="promotion.validUntil"
+                                    dateType="datetime-local"
+                                    :label="$tc('sw-promotion-v2.detail.general.validUntilLabel')"
+                                    :placeholderText="$tc('sw-promotion-v2.detail.general.validUntilPlaceholder')"
+                                    :disabled="!acl.can('promotion.editor')"
+                                    :error="promotionValidUntilError">
+                            </sw-datepicker>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_max_uses %}
+                    <sw-container columns="1fr 1fr" gap="0 32px">
+
+                        {% block sw_promotion_v2_detail_base_general_max_uses_global %}
+                            <sw-number-field
+                                    v-model="promotion.maxRedemptionsGlobal"
+                                    numberType="int"
+                                    :label="$tc('sw-promotion-v2.detail.general.maxUsesGlobalLabel')"
+                                    :placeholder="$tc('sw-promotion-v2.detail.general.maxUsesGlobalPlaceholder')"
+                                    :disabled="!acl.can('promotion.editor')"
+                                    allowEmpty>
+                            </sw-number-field>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_detail_base_general_max_uses_customer %}
+                            <sw-number-field
+                                    v-model="promotion.maxRedemptionsPerCustomer"
+                                    numberType="int"
+                                    :label="$tc('sw-promotion-v2.detail.general.maxUsesPerCustomerLabel')"
+                                    :placeholder="$tc('sw-promotion-v2.detail.general.maxUsesPerCustomerPlaceholder')"
+                                    :disabled="!acl.can('promotion.editor')"
+                                    allowEmpty>
+                            </sw-number-field>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_active %}
+                    <sw-switch-field
+                            v-model="promotion.active"
+                            :label="$tc('sw-promotion-v2.detail.general.activeLabel')"
+                            :disabled="!acl.can('promotion.editor')"
+                            bordered>
+                    </sw-switch-field>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+    </div>
+{% endblock %}

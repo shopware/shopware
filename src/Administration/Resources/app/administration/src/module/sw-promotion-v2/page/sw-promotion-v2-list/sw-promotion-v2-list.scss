@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+$sw-promotion-list-color-error: $color-crimson;
+$sw-promotion-list-color-success: $color-emerald;
+
+.sw-promotion-v2-list {
+    .is--inactive {
+        color: $sw-promotion-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-promotion-list-color-success;
+    }
+}

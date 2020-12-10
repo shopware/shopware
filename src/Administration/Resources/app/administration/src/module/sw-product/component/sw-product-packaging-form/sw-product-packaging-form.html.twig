@@ -13,6 +13,7 @@
                             :mapInheritance="props"
                             :label="$tc('sw-product.settingsForm.labelWidth')"
                             :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
+                            allowEmpty
                             :min="0"
                             :error="productWidthError"
                             :disabled="props.isInherited || !allowEdit"
@@ -39,6 +40,7 @@
                             :mapInheritance="props"
                             :label="$tc('sw-product.settingsForm.labelHeight')"
                             :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
+                            allowEmpty
                             :min="0"
                             :error="productHeightError"
                             :disabled="props.isInherited || !allowEdit"
@@ -65,6 +67,7 @@
                             :mapInheritance="props"
                             :label="$tc('sw-product.settingsForm.labelLength')"
                             :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
+                            allowEmpty
                             :min="0"
                             :error="productLengthError"
                             :disabled="props.isInherited || !allowEdit"
@@ -92,6 +95,7 @@
                             :mapInheritance="props"
                             :label="$tc('sw-product.settingsForm.labelWeight')"
                             :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
+                            allowEmpty
                             :min="0"
                             :digits="3"
                             :error="productWeightError"
@@ -119,6 +123,7 @@
                             class="sw-product-packaging-form__purchase-unit-field"
                             :mapInheritance="props"
                             numberType="float"
+                            allowEmpty
                             :min="0"
                             :digits="3"
                             :error="productPurchaseUnitError"
@@ -171,7 +176,7 @@
                             :mapInheritance="props"
                             :error="productPackUnitError"
                             :label="$tc('sw-product.priceForm.labelPackUnit')"
-                            :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
+                            :placeholder="$tc('sw-product.priceForm.placeholderPackUnit')"
                             :disabled="props.isInherited || !allowEdit"
                             :helpText="$tc('sw-product.packagingForm.packUnitHelpText')"
                             :value="props.currentValue"
@@ -195,7 +200,7 @@
                             :mapInheritance="props"
                             :error="productPackUnitPluralError"
                             :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
-                            :placeholder="placeholder(product, 'packUnitPlural', $tc('sw-product.priceForm.placeholderPackUnitPlural'))"
+                            :placeholder="$tc('sw-product.priceForm.placeholderPackUnitPlural')"
                             :disabled="props.isInherited || !allowEdit"
                             :helpText="$tc('sw-product.packagingForm.packUnitPluralHelpText')"
                             :value="props.currentValue"
@@ -218,6 +223,7 @@
                             class="sw-product-packaging-form__reference-unit-field"
                             :mapInheritance="props"
                             numberType="float"
+                            allowEmpty
                             :min="0"
                             :digits="3"
                             :error="productReferenceUnitError"

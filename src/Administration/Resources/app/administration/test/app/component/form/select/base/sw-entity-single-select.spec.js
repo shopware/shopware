@@ -13,7 +13,9 @@ import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-loader';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry' }
+    { id: utils.createId(), name: 'first entry' },
+    { id: utils.createId(), name: 'second entry' },
+    { id: utils.createId(), name: 'third entry' }
 ];
 
 function getCollection() {
@@ -107,7 +109,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should have no reset option when it is defined but the value is not null', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: 'uuid',
                 entity: 'test',
@@ -115,17 +117,17 @@ describe('components/sw-entity-single-select', () => {
             }
         });
 
-        swEntitySingleSelect.vm.$nextTick(() => {
-            const { singleSelection } = swEntitySingleSelect.vm;
+        await swEntitySingleSelect.vm.$nextTick();
 
-            expect(singleSelection).not.toBeNull();
-            expect(singleSelection.id).toEqual('uuid');
-            expect(singleSelection.name).toEqual('uuid');
-        });
+        const { singleSelection } = swEntitySingleSelect.vm;
+
+        expect(singleSelection).not.toBeNull();
+        expect(singleSelection.id).toEqual('uuid');
+        expect(singleSelection.name).toEqual('uuid');
     });
 
     it('should have prepend reset option to resultCollection when resetOption is given', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: '',
                 entity: 'test',
@@ -143,11 +145,115 @@ describe('components/sw-entity-single-select', () => {
         });
 
         swEntitySingleSelect.vm.loadData();
-        swEntitySingleSelect.vm.$nextTick(() => {
-            const { resultCollection } = swEntitySingleSelect.vm;
+        await swEntitySingleSelect.vm.$nextTick();
 
-            expect(resultCollection.length).toEqual(getCollection().length + 1);
-            expect(resultCollection[0].name).toEqual('reset');
+        const { resultCollection } = swEntitySingleSelect.vm;
+
+        expect(resultCollection.length).toEqual(getCollection().length + 1);
+        expect(resultCollection[0].name).toEqual('reset');
+    });
+
+    it('should not show the selected item on first entry', async () => {
+        const secondItemId = `${fixture[2].id}`;
+
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: secondItemId,
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection()),
+                            get: (id) => {
+                                if (id === secondItemId) {
+                                    return Promise.resolve(fixture[2]);
+                                }
+
+                                return Promise.reject();
+                            }
+                        };
+                    }
+                }
+            }
         });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-select-option--0').text()).toBe('reset');
+        expect(wrapper.find('.sw-select-option--1').text()).toBe('first entry');
+        expect(wrapper.find('.sw-select-option--2').text()).toBe('second entry');
+        expect(wrapper.find('.sw-select-option--3').text()).toBe('third entry');
+    });
+
+    it('should not emit the paginate event when user does not scroll to the end of list', async () => {
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: '',
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const selectResultList = wrapper.find('.sw-select-result-list');
+        const listContent = wrapper.find('.sw-select-result-list__content');
+
+        Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
+        Object.defineProperty(listContent.element, 'clientHeight', { value: 250 });
+        Object.defineProperty(listContent.element, 'scrollTop', { value: 150 });
+
+        await listContent.trigger('scroll');
+
+        expect(selectResultList.emitted('paginate')).toBe(undefined);
+    });
+
+    it('should emit the paginate event when user scroll to the end of list', async () => {
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: '',
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const selectResultList = wrapper.find('.sw-select-result-list');
+        const listContent = wrapper.find('.sw-select-result-list__content');
+
+        Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
+        Object.defineProperty(listContent.element, 'clientHeight', { value: 250 });
+        Object.defineProperty(listContent.element, 'scrollTop', { value: 800 });
+
+        await listContent.trigger('scroll');
+
+        expect(selectResultList.emitted('paginate')).not.toBe(undefined);
+        expect(selectResultList.emitted('paginate').length).toEqual(1);
+        expect(selectResultList.emitted('paginate')[0]).toEqual([]);
     });
 });

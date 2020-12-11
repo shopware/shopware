@@ -32,7 +32,7 @@ describe('Product: Edit in various ways', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        page.changeTranslation('Deutsch', 1);
+        page.changeTranslation('Deutsch', 0);
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw_language-info__info').contains('"Product name" displayed in the content language');
         cy.get('.sw_language-info__info').contains('span', '"Deutsch"');

@@ -119,22 +119,9 @@ Component.register('sw-single-select', {
         },
 
         /**
-         * Returns the visibleResults with the actual selection as first entry
          * @returns {Array}
          */
         visibleResults() {
-            if (this.singleSelection) {
-                const results = [];
-                results.push(this.singleSelection);
-                this.results.forEach(option => {
-                    // Prevent duplicate options
-                    if (this.getKey(option, this.valueProperty) !== this.getKey(this.singleSelection, this.valueProperty)) {
-                        results.push(option);
-                    }
-                });
-                return results;
-            }
-
             return this.results;
         }
     },

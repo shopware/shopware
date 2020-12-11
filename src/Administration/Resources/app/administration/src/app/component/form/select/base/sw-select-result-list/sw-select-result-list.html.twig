@@ -1,11 +1,12 @@
 {% block sw_select_result_list %}
-    <div class="sw-select-result-list" @scroll="onScroll">
+    <div class="sw-select-result-list">
         <sw-popover class="sw-select-result-list-popover"
                     :popoverClass="popoverClass"
                     :zIndex="1100"
                     :resizeWidth="true">
             <div class="sw-select-result-list__content"
-                 :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }">
+                 :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }"
+                 @scroll="onScroll">
                 <slot name="before-item-list"></slot>
 
                 <ul class="sw-select-result-list__item-list">

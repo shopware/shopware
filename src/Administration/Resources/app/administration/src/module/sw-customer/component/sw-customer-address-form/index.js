@@ -1,4 +1,5 @@
 import template from './sw-customer-address-form.html.twig';
+import './sw-customer-address-form.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -7,7 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-address-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     props: {
         customer: {
@@ -114,6 +115,18 @@ Component.register('sw-customer-address-form', {
                     this.country = country;
                 });
             }
+        },
+
+        'address.company'(newVal) {
+            if (!this.feature.isActive('FEATURE_NEXT_10559')) {
+                return;
+            }
+
+            if (!newVal) {
+                return;
+            }
+
+            this.customer.company = newVal;
         }
     }
 });

@@ -64,6 +64,7 @@ describe('Account: Register via account menu', () => {
         cy.get(page.elements.registerCard).should('be.visible');
 
         const accountTypeSelector = 'select[name="accountType"]';
+        
         cy.get(accountTypeSelector).should('be.visible');
         cy.get(accountTypeSelector).typeAndSelect('Commercial');
 
@@ -71,36 +72,27 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="firstName"]').type('John');
         cy.get('input[name="lastName"]').type('Doe');
 
-        cy.get(`${page.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-        cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
+        cy.get('#billingAddresscompany').type('ABC Company');
+        cy.get('#billingAddressdepartment').type('ABC Department');
+        cy.get('#personalMail').type('testvat@gmail.com');
+        cy.get('#personalPassword').type('password@123456');
 
-        cy.get('.register-billing input[name="billingAddress[company]"]').type('ABC Company');
-        cy.get('.register-billing input[name="billingAddress[department]"]').type('ABC Department');
-        cy.get('.register-billing input[name="billingAddress[vatId]"]').type('ABC-VAT-ID');
-        cy.get('.register-billing input[name="billingAddress[street]"]').type('123 Main St');
-        cy.get('.register-billing input[name="billingAddress[zipcode]"]').type('9876');
-        cy.get('.register-billing input[name="billingAddress[city]"]').type('Anytown');
-        cy.get('.register-billing select[name="billingAddress[countryId]"]').select('USA');
-        cy.get('.register-billing select[name="billingAddress[countryStateId]"').should('be.visible');
-        cy.get('.register-billing select[name="billingAddress[countryStateId]"]').select('Ohio');
-
+        cy.get('#billingAddressAddressStreet').type('Ansgarstr 4');
+        cy.get('#billingAddressAddressZipcode').type('49134');
+        cy.get('#billingAddressAddressCity').type('Wallenhorst');
+        cy.get('#billingAddressAddressCountry').select('Germany');
+        cy.get('#billingAddressAddressCountryState').select('Berlin');
+        
         cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
-
-        cy.get('.register-shipping select[name="shippingAddress[salutationId]"]').select('Mr.');
-        cy.get('.register-shipping input[name="shippingAddress[firstName]"]').type('John');
-        cy.get('.register-shipping input[name="shippingAddress[lastName]"]').type('Doe');
-        cy.get('.register-shipping input[name="shippingAddress[company]"]').type('ABC Company');
-        cy.get('.register-shipping input[name="shippingAddress[department]"]').type('ABC Department');
-        cy.get('.register-shipping input[name="shippingAddress[vatId]"]').type('ABC-VAT-ID');
-        cy.get('.register-shipping input[name="shippingAddress[street]"]').type('123 Main St');
-        cy.get('.register-shipping input[name="shippingAddress[zipcode]"]').type('9876');
-        cy.get('.register-shipping input[name="shippingAddress[city]"]').type('Anytown');
-        cy.get('.register-shipping select[name="shippingAddress[countryId]"]').select('USA');
-        cy.get('.register-shipping select[name="shippingAddress[countryStateId]"').should('be.visible');
-        cy.get('.register-shipping select[name="shippingAddress[countryStateId]"]').select('Ohio');
-
-        cy.get('.register-shipping input[name="accountType"]').should('not.exist');
-
+        
+        cy.get('#shippingAddresspersonalSalutation').select('Mr.');
+        cy.get('#shippingAddresspersonalFirstName').type('John');
+        cy.get('#shippingAddresspersonalLastName').type('Doe');
+        cy.get('#shippingAddressAddressStreet').type('Ansgarstr 20');
+        cy.get('#shippingAddressAddressZipcode').type('12345');
+        cy.get('#shippingAddressAddressCity').type('Newland');
+        cy.get('#shippingAddressAddressCountry').select('Germany');
+        
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
 
         cy.url().should('not.include', '/register');
@@ -247,13 +239,14 @@ describe('Account: Register via account menu', () => {
         cy.get(`${page.elements.registerForm} input[name="email"]`).type('test@example.com');
         cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
 
-        cy.get('.register-address input[name="billingAddress[company]"]').type('Test Company');
-        cy.get('.register-address input[name="billingAddress[street]"]').type('123 Main St');
-        cy.get('.register-address input[name="billingAddress[zipcode]"]').type('9876');
-        cy.get('.register-address input[name="billingAddress[city]"]').type('Anytown');
-
-        cy.get('.register-address select[name="billingAddress[countryId]"]').select('USA');
-        cy.get('.register-address select[name="billingAddress[countryStateId]"').should('be.visible');
+        cy.get('.register-personal #billingAddresscompany').type('ABC Company');
+        cy.get('.register-personal #billingAddressdepartment').type('ABC Department');
+        cy.get('.register-personal #vatIds').type('ABC-VAT-ID');
+        cy.get('.register-address #billingAddressAddressStreet').type('Ansgarstr 4');
+        cy.get('.register-address #billingAddressAddressZipcode').type('49134');
+        cy.get('.register-address #billingAddressAddressCity').type('Wallenhorst');
+        cy.get('.register-address #billingAddressAddressCountry').select('Germany');
+        cy.get('.register-address #billingAddressAddressCountryState').select('Berlin');
 
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
     });

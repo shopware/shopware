@@ -152,18 +152,17 @@
                 {% endblock %}
 
                 {% block sw_customer_address_form_state_field %}
-                    <div class="sw-customer-address-form__state-select-placeholder">
+                    <div v-if="countryId" class="sw-customer-address-form__state-select-placeholder">
                         <sw-entity-single-select
+                            v-model="address.countryStateId"
                             class="sw-customer-address-form__state-select"
                             entity="country_state"
                             :criteria="stateCriteria"
                             :label="$tc('sw-customer.addressForm.labelState')"
                             :placeholder="$tc('sw-customer.addressForm.placeholderState')"
-                            v-show="countryId"
-                            :required="country !== null && country.forceStateInRegistration"
+                            :required="country && country.forceStateInRegistration"
                             :error="addressCountryStateIdError"
-                            :disabled="disabled"
-                            v-model="address.countryStateId">
+                            :disabled="disabled">
                         </sw-entity-single-select>
                     </div>
                 {% endblock %}
@@ -180,6 +179,7 @@
 
                 {% block sw_customer_address_form_vat_id_field %}
                     <sw-text-field
+                        v-if="!feature.isActive('FEATURE_NEXT_10559')"
                         :label="$tc('sw-customer.addressForm.labelVatId')"
                         :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
                         name="vatId"

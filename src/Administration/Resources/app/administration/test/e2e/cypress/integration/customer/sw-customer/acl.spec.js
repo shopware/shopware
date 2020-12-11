@@ -4,7 +4,10 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
+    country: 'Germany',
+    company: 'Test Company',
+    department: 'Test Department',
+    vatId: 'TEST-VAT-ID'
 };
 
 describe('Customer: Test ACL privileges', () => {

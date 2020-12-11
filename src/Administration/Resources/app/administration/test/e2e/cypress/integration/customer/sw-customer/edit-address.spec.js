@@ -4,7 +4,10 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
+    country: 'Germany',
+    company: 'Test Company',
+    department: 'Test Department',
+    vatId: 'TEST-VAT-ID'
 };
 const newAddress = {
     salutation: 'Mr.',
@@ -15,7 +18,9 @@ const newAddress = {
         zipcode: '333333',
         city: 'Little Whinging'
     }],
-    country: 'United Kingdom'
+    country: 'United Kingdom',
+    company: 'Test Company',
+    department: 'Test Department'
 };
 
 describe('Customer: Edit customer\'s addresses', () => {

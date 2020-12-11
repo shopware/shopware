@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-base', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     props: {
         customer: {

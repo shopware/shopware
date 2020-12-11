@@ -1,0 +1,18 @@
+{% block component_customer_overview_personal %}
+    {% set address = customer.defaultBillingAddress %}
+
+    <p>
+        {% block component_customer_overview_personal_company %}
+            {% if customer.company %}
+                {{ customer.company }}{% if address.department %} - {{ address.department }}{% endif %}
+                <br/>
+            {% endif %}
+        {% endblock %}
+
+        {% block component_customer_overview_personal_vat_id %}
+            {% if customer.vatIds and customer.vatIds|length > 0 and customer.vatIds[0] != '' %}
+                {{ "address.companyVatLabel"|trans|sw_sanitize }}: {{ customer.vatIds|join(', ') }}
+            {% endif %}
+        {% endblock %}
+    </p>
+{% endblock %}

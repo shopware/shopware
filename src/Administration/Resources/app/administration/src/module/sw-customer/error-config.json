@@ -9,7 +9,8 @@
       "salesChannelId",
       "defaultPaymentMethodId",
       "customerNumber",
-      "password"
+      "password",
+      "vatIds"
     ]
   }
 }

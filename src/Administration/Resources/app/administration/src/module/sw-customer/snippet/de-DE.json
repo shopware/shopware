@@ -40,7 +40,9 @@
       "labelCompany": "Firma",
       "labelEmail": "E-Mail-Adresse",
       "labelTags": "Tags",
-      "labelGuest": "Gastbesteller"
+      "labelGuest": "Gastbesteller",
+      "labelVatId": "USt-IdNr.",
+      "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },
     "list": {
       "textCustomers": "Kunden",

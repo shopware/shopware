@@ -20,6 +20,17 @@
 
         {% block page_product_detail_review_item_info %}
             <div class="row product-detail-review-item-info">
+                {% block page_product_detail_review_item_info_alert %}
+                    {% if review.status == false %}
+                        <div class="col-12 product-detail-review-item-hint">
+                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                type: "info",
+                                content: "detail.reviewNotPublicYetAlert"|trans|sw_sanitize
+                                } %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
                 {% block page_product_detail_review_item_info_date %}
                     <div class="col-12 product-detail-review-item-date">
                         <p><small>{{ review.createdAt|date }}</small></p>

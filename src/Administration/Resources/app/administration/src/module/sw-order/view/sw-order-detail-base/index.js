@@ -157,6 +157,8 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('orderCustomer')
                 .addAssociation('language');
 
+            criteria.getAssociation('lineItems').addSorting(Criteria.sort('position'));
+
             criteria
                 .getAssociation('deliveries')
                 .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));

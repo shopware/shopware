@@ -134,7 +134,9 @@
         {% block sw_product_detail_base_settings_seo_settings %}
             {% block sw_product_detail_base_settings_seo_settings_general %}
                 <sw-card :title="$tc('sw-product.detailBase.cardTitleSeo')" :isLoading="loading.product">
-                    <sw-product-seo-form :allowEdit="acl.can('product.editor')"></sw-product-seo-form>
+                    <sw-product-seo-form ref="seoForm"
+                        :allowEdit="acl.can('product.editor')">
+                    </sw-product-seo-form>
                 </sw-card>
             {% endblock %}
 

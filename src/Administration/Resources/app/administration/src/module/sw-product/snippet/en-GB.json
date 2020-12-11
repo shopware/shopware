@@ -68,9 +68,12 @@
       "labelMetaTitle": "Meta title",
       "labelMetaDescription": "Meta description",
       "labelKeywords": "SEO keywords",
+      "labelCanonicalUrlMode": "Use single canonical URL for all variants",
+      "labelCanonicalProduct": "Variant for canonical URL",
       "placeholderMetaTitle": "Enter meta title...",
       "placeholderMetaDescription": "Enter meta description...",
-      "placeholderKeywords": "Enter one or more keywords ..."
+      "placeholderKeywords": "Enter one or more keywords...",
+      "placeholderCanonicalProduct": "Select a variant..."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -194,6 +197,7 @@
       "variantModalInlineEditStockPlaceholder": "Enter stock...",
       "notificationVariantDeleteSuccess": "Successfully deleted \"{variantName}\". | Successfully deleted {amount} variants.",
       "notificationVariantDeleteError": "There went something wrong while deleting \"{variantName}\". | Something went wrong while deleting multiple variants.",
+      "notificationVariantDeleteErrorCanonicalUrl": "\"{variantName}\" could not be deleted because it is used as a canonical URL template. | Variants could not be deleted because one is used as a canonical URL template.",
       "notificationVariantSaveSuccess": "Succesfully saved \"{variantName}\".",
       "variantDeleteModalTitle": "Delete variant",
       "variantDeleteModalText": "Are your sure you want to delete the variant \"{variantName}\"?",
@@ -280,6 +284,7 @@
       "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
+      "generatedListMessageDeleteErrorCanonicalUrl": "Variant could not be deleted because it is being used as the canonical url template.",
       "generatedListMessageDeleteSuccess": "Variant has been deleted.",
       "overview": {
         "filterReset": "Reset",

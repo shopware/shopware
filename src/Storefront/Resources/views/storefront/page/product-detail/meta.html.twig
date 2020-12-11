@@ -39,5 +39,16 @@
 {% block layout_head_title_inner %}{{ page.product.translated.name }}{% if page.product.variation %} - {% for variation in page.product.variation %}{{ variation.group }}: {{ variation.option }}{% if page.product.variation|last != variation %}{{ " | " }}{% endif %}{% endfor %}{% endif %}{% endblock %}
 
 {% block layout_head_canonical %}
-    <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}" />
+    {% if feature('FEATURE_NEXT_10820') %}
+        {% set canonicalUrl = page.product.id %}
+
+        {% if page.product.canonicalProductId %}
+            {% set canonicalUrl = page.product.canonicalProductId %}
+        {% endif %}
+
+        <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}" />
+    {% else %}
+        {# @deprecated tag:v6.5.0 #}
+        <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}" />
+    {% endif %}
 {% endblock %}

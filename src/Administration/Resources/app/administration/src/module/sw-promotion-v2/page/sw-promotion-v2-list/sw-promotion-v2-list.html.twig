@@ -57,7 +57,9 @@
         {% endblock %}
 
         {% block sw_promotion_v2_list_language_switch %}
-            <sw-language-switch #language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
         {% endblock %}
 
         {% block sw_promotion_v2_list_content %}
@@ -99,7 +101,7 @@
 
                                 {% block sw_promotion_v2_list_grid_columns_valid_from %}
                                     <template #column-validFrom="{ item }">
-                                        {{ item.validFrom| date({ hour: '2-digit', minute: '2-digit' }) }}
+                                        {{ item.validFrom | date({ hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                 {% endblock %}
 
@@ -135,17 +137,19 @@
         {% endblock %}
 
         {% block sw_promotion_v2_list_sidebar %}
-            <sw-sidebar #sidebar>
+            <template #sidebar>
+                <sw-sidebar>
 
-                {% block sw_promotion_v2_list_sidebar_refresh %}
-                    <sw-sidebar-item
-                            icon="default-arrow-360-left"
-                            :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
-                            @click="onRefresh">
-                    </sw-sidebar-item>
-                {% endblock %}
+                    {% block sw_promotion_v2_list_sidebar_refresh %}
+                        <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
+                                @click="onRefresh">
+                        </sw-sidebar-item>
+                    {% endblock %}
 
-            </sw-sidebar>
+                </sw-sidebar>
+            </template>
         {% endblock %}
 
     </sw-page>

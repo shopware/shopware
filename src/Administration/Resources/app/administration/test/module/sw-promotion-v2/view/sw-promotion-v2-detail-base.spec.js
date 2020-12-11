@@ -23,6 +23,9 @@ function createWrapper(privileges = []) {
             'sw-switch-field': {
                 template: '<div class="sw-switch-field"></div>'
             },
+            'sw-select-field': {
+                template: '<div class="sw-select-field"></div>'
+            },
             'sw-datepicker': {
                 template: '<div class="sw-datepicker"></div>'
             }
@@ -55,7 +58,7 @@ function createWrapper(privileges = []) {
                 exclusive: false,
                 code: null,
                 useCodes: true,
-                useIndividualCodes: true,
+                useIndividualCodes: false,
                 individualCodePattern: 'code-%d',
                 useSetGroups: false,
                 customerRestriction: true,
@@ -118,6 +121,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
         expect(switchFields.wrappers.length).toBeGreaterThan(0);
         switchFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
 
+        const selectField = wrapper.findAll('.sw-select-field');
+        expect(selectField.wrappers.length).toBeGreaterThan(0);
+        selectField.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+
         const datepickerFields = wrapper.findAll('.sw-datepicker');
         expect(datepickerFields.wrappers.length).toBeGreaterThan(0);
         datepickerFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
@@ -141,6 +148,10 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () 
         const switchFields = wrapper.findAll('.sw-switch-field');
         expect(switchFields.wrappers.length).toBeGreaterThan(0);
         switchFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+
+        const selectFields = wrapper.findAll('.sw-select-field');
+        expect(selectFields.wrappers.length).toBeGreaterThan(0);
+        selectFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
 
         const datepickerFields = wrapper.findAll('.sw-datepicker');
         expect(datepickerFields.wrappers.length).toBeGreaterThan(0);

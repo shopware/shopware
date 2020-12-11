@@ -13,6 +13,7 @@
                 {% block sw_promotion_v2_detail_actions_abort %}
                     <sw-button
                             v-tooltip.bottom="tooltipCancel"
+                            class="sw-promotion-v2-detail__cancel-action"
                             :disabled="promotion !== null && promotion.isLoading"
                             @click="onCancel">
                         {{ $tc('global.default.cancel') }}
@@ -75,7 +76,8 @@
                     {% block sw_product_detail_content_view %}
                         <router-view
                                 :promotion="promotion"
-                                :isLoading="isLoading">
+                                :isLoading="isLoading"
+                                :isCreateMode="isCreateMode">
                         </router-view>
                     {% endblock %}
 

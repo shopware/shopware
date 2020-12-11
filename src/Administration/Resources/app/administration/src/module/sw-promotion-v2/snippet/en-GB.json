@@ -22,6 +22,9 @@
                 "titleCreate": "New promotion",
                 "titleEdit": "Promotion"
             },
+            "tabs": {
+                "tabGeneral": "General"
+            },
             "general": {
                 "cardTitle": "General settings",
                 "nameLabel": "Name",
@@ -35,8 +38,19 @@
                 "maxUsesPerCustomerPlaceholder": "Unlimited",
                 "activeLabel": "Active"
             },
-            "tabs": {
-                "tabGeneral": "General"
+            "codes": {
+                "cardTitle": "Promotion codes",
+                "codeTypeLabel": "Code options",
+                "none": {
+                    "description": "No promotion code required"
+                },
+                "fixed": {
+                    "description": "Fixed promotion code",
+                    "codeLabel": "Promotion code"
+                },
+                "individual": {
+                    "description": "Individual promotion codes"
+                }
             }
         }
     }

@@ -3,6 +3,8 @@
             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
             class="sw-settings-user-detail__grid-password"
             v-model="user.password"
+            :error="userPasswordError"
+            required
             :passwordToggleAble="true"
             :copyAble="false">
     </sw-password-field>

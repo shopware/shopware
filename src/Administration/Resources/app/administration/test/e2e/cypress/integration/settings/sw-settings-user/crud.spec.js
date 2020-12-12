@@ -173,4 +173,76 @@ describe('User: Test crud operations', () => {
             .should('be.visible')
             .should('have.value', 'changed@shopware.com');
     });
+
+    it('@settings: can not create a user with an invalid field', () => {
+        // Requests we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/user`,
+            method: 'post'
+        }).as('createCall');
+        cy.route({
+            url: '/api/oauth/token',
+            method: 'post'
+        }).as('oauthCall');
+
+        // create a new user
+        cy.get('.sw-users-permissions-user-listing__add-user-button')
+            .should('be.visible')
+            .click();
+
+        // fill in the user information
+        const userFields = {
+            '#sw-field--user-lastName': 'Allison',
+            '#sw-field--user-email': 'test@shopware.com',
+            '#sw-field--user-username': 'abraham'
+        };
+
+        Object.keys(userFields).forEach((key) => {
+            cy.get(key)
+                .should('be.visible')
+                .clear()
+                .type(userFields[key]);
+        });
+
+        // expect successful save
+        cy.get('.sw-settings-user-detail__save-action')
+            .should('be.visible')
+            .click();
+
+        // expect modal to be open
+        cy.get('.sw-modal')
+            .should('be.visible');
+        cy.get('.sw-modal__title')
+            .contains('Enter your current password to confirm');
+
+        cy.get('.sw-modal__footer > .sw-button--primary')
+            .should('be.disabled');
+
+        cy.get('.sw-modal__body input[name="sw-field--confirm-password"]')
+            .should('be.visible')
+            .typeAndCheck('shopware');
+
+        cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
+            .should('not.be.disabled')
+            .click();
+
+        cy.wait('@oauthCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.wait('@createCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+        });
+
+        cy.get('.sw-modal')
+            .should('not.be.visible');
+
+        cy.get('.sw-settings-user-detail__grid-firstName .sw-field__error')
+            .should('be.visible')
+            .contains('This field must not be empty.');
+        cy.get('.sw-settings-user-detail__grid-password .sw-field__error')
+            .should('be.visible')
+            .contains('This field must not be empty.');
+    });
 });

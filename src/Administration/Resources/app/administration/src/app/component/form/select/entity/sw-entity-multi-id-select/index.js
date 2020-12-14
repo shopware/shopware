@@ -59,6 +59,20 @@ Component.register('sw-entity-multi-id-select', {
         };
     },
 
+    computed: {
+        getListeners() {
+            const listeners = {};
+
+            Object.keys(this.$listeners).forEach(listener => {
+                if (listener !== 'change') {
+                    listeners[listener] = this.$listeners[listener];
+                }
+            });
+
+            return listeners;
+        }
+    },
+
     created() {
         this.createdComponent();
     },

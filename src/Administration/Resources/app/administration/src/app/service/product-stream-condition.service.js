@@ -204,7 +204,6 @@ export default function conditionService() {
             'metaTitle',
             'prices',
             'services',
-            'properties',
             'searchKeywords',
             'categories',
             'canonicalUrl',

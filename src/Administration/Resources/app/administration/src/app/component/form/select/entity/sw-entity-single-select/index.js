@@ -17,7 +17,7 @@ Component.register('sw-entity-single-select', {
         Mixin.getByName('remove-api-error')
     ],
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: { repositoryFactory: 'repositoryFactory', feature: 'feature' },
 
     props: {
         value: {
@@ -317,7 +317,12 @@ Component.register('sw-entity-single-select', {
             this.$refs.resultsList.setActiveItemIndex(pos);
         },
 
-        onInputSearchTerm() {
+        onInputSearchTerm(event) {
+            if (this.feature.isActive('FEATURE_NEXT_12108')) {
+                const value = event.target.value;
+
+                this.$emit('search-term-change', value);
+            }
             this.debouncedSearch();
         },
 

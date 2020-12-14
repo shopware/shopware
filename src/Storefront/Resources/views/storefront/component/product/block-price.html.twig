@@ -1,0 +1,16 @@
+{% block component_product_detail_block_price %}
+    <div>
+        {% block component_product_detail_block_price_content %}
+            {% if price.listprice %}
+                <div class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</div>
+                {% block component_product_detail_block_list_price_wrapper %}
+                    <span class="product-detail-advanced-list-price-wrapper">
+                        {{  price.listprice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                    </span>
+                {% endblock %}
+            {% else %}
+                {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -133,7 +134,9 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAssociation('domains');
+        $criteria->addSorting(new FieldSorting('id'));
+        $domainCriteria = $criteria->getAssociation('domains');
+        $domainCriteria->addSorting(new FieldSorting('languageId'));
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
@@ -169,7 +172,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             }
 
             foreach ($salesChannel->getDomains() as $domain) {
-                if ($useNextLanguage === true) {
+                if ($domain->getLanguageId() !== $message->getLastLanguageId() && $useNextLanguage === true) {
                     return $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $domain->getLanguageId()]);
                 }
 

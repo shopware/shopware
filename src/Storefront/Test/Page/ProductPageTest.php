@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
@@ -152,6 +153,28 @@ class ProductPageTest extends TestCase
         static::assertEquals(6, $matrix->getTotalReviewCount());
     }
 
+    public function testItLoadsReviewsWithCustomer(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $this->createReviews($product, $context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ReviewLoaderResult::class, $page->getReviews());
+        static::assertCount(7, $page->getReviews());
+        static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
+        static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
+        static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
+
+        $matrix = $page->getReviews()->getMatrix();
+        static::assertEquals(3.4285714285714, $matrix->getAverageRating());
+        static::assertEquals(7, $matrix->getTotalReviewCount());
+    }
+
     /**
      * @return ProductPageLoader
      */
@@ -184,6 +207,19 @@ class ProductPageTest extends TestCase
             'points' => 5,
             'status' => true,
         ];
+
+        if ($context->getCustomer()) {
+            $reviews[] = [
+                'customerId' => $context->getCustomer()->getId(),
+                'languageId' => $context->getContext()->getLanguageId(),
+                'salesChannelId' => $context->getSalesChannel()->getId(),
+                'productId' => $product->getId(),
+                'title' => 'Customer test',
+                'content' => 'Customer test',
+                'points' => 4,
+                'status' => false,
+            ];
+        }
 
         $this->getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());

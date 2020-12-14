@@ -519,7 +519,8 @@
     "reviewLoginSignupLink": "Klicken Sie hier, um sich anzumelden.",
     "reviewLoginCancelButton": "Abbrechen",
     "reviewAvgRate": "von",
-    "reviewAvgRateElements": "Sternen"
+    "reviewAvgRateElements": "Sternen",
+    "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
   "wishlist": {
     "headline": "Ihr Merkzettel",

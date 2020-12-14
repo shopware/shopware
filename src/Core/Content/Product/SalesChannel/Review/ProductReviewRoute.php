@@ -55,7 +55,9 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
-        // ToDo NEXT-10590 - Reimplement check to let users see their own, not published reviews, if display works again
+        if ($customer = $context->getCustomer()) {
+            $active->addQuery(new EqualsFilter('customerId', $customer->getId()));
+        }
 
         $criteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, [

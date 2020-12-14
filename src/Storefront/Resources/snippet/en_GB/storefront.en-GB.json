@@ -519,7 +519,8 @@
     "reviewLoginSignupLink": "Click here to sign up.",
     "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
-    "reviewAvgRateElements": "stars"
+    "reviewAvgRateElements": "stars",
+    "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
   "wishlist": {
     "headline": "Your wishlist",

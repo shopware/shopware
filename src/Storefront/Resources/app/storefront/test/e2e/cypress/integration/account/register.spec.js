@@ -206,48 +206,55 @@ describe('Account: Register via account menu', () => {
     });
 
     it('@registration: Trigger validation error with account type selection', () => {
-        cy.authenticate().then((result) => {
-            const requestConfig = {
-                headers: {
-                    Authorization: `Bearer ${result.access}`
-                },
-                method: 'post',
-                url: `api/${Cypress.env('apiVersion')}/_action/system-config/batch`,
-                body: {
-                    null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
+        cy.window().then((win) => {
+            if (!win.Feature.isActive('FEATURE_NEXT_10559')) {
+                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
+                return;
+            }
+
+            cy.authenticate().then((result) => {
+                const requestConfig = {
+                    headers: {
+                        Authorization: `Bearer ${result.access}`
+                    },
+                    method: 'post',
+                    url: `api/${Cypress.env('apiVersion')}/_action/system-config/batch`,
+                    body: {
+                        null: {
+                            'core.loginRegistration.showAccountTypeSelection': true
+                        }
                     }
-                }
-            };
-
-            return cy.request(requestConfig);
+                };
+    
+                return cy.request(requestConfig);
+            });
+    
+            cy.createCustomerFixtureStorefront();
+    
+            const page = new AccountPageObject();
+            cy.visit('/account/login');
+            cy.get(page.elements.registerCard).should('be.visible');
+    
+            const accountTypeSelector = `${page.elements.registerForm} select[name="accountType"]`;
+            cy.get(accountTypeSelector).should('be.visible');
+            cy.get(accountTypeSelector).typeAndSelect('Commercial');
+    
+            cy.get(`${page.elements.registerForm} select[name="salutationId"]`).select('Mr.');
+            cy.get(`${page.elements.registerForm} input[name="firstName"]`).type('John');
+            cy.get(`${page.elements.registerForm} input[name="lastName"]`).type('Doe');
+            cy.get(`${page.elements.registerForm} input[name="email"]`).type('test@example.com');
+            cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
+    
+            cy.get('#billingAddresscompany').type('ABC Company');
+            cy.get('#billingAddressdepartment').type('ABC Department');
+            cy.get('#vatIds').type('ABC-VAT-ID');
+            cy.get('#billingAddressAddressStreet').type('Ansgarstr 4');
+            cy.get('#billingAddressAddressZipcode').type('49134');
+            cy.get('#billingAddressAddressCity').type('Wallenhorst');
+            cy.get('#billingAddressAddressCountry').select('Germany');
+            cy.get('#billingAddressAddressCountryState').select('Berlin');
+    
+            cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
         });
-
-        cy.createCustomerFixtureStorefront();
-
-        const page = new AccountPageObject();
-        cy.visit('/account/login');
-        cy.get(page.elements.registerCard).should('be.visible');
-
-        const accountTypeSelector = `${page.elements.registerForm} select[name="accountType"]`;
-        cy.get(accountTypeSelector).should('be.visible');
-        cy.get(accountTypeSelector).typeAndSelect('Commercial');
-
-        cy.get(`${page.elements.registerForm} select[name="salutationId"]`).select('Mr.');
-        cy.get(`${page.elements.registerForm} input[name="firstName"]`).type('John');
-        cy.get(`${page.elements.registerForm} input[name="lastName"]`).type('Doe');
-        cy.get(`${page.elements.registerForm} input[name="email"]`).type('test@example.com');
-        cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
-
-        cy.get('.register-personal #billingAddresscompany').type('ABC Company');
-        cy.get('.register-personal #billingAddressdepartment').type('ABC Department');
-        cy.get('.register-personal #vatIds').type('ABC-VAT-ID');
-        cy.get('.register-address #billingAddressAddressStreet').type('Ansgarstr 4');
-        cy.get('.register-address #billingAddressAddressZipcode').type('49134');
-        cy.get('.register-address #billingAddressAddressCity').type('Wallenhorst');
-        cy.get('.register-address #billingAddressAddressCountry').select('Germany');
-        cy.get('.register-address #billingAddressAddressCountryState').select('Berlin');
-
-        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
     });
 });

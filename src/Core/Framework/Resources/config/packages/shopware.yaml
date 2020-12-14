@@ -107,3 +107,7 @@ shopware:
               default: false
               major: false
               description: "add same canonical url for variants"
+            - name: FEATURE_NEXT_12553
+              default: false
+              major: true
+              description: "Improve template hierarchy resolving"

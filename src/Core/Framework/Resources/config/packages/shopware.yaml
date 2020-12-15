@@ -115,3 +115,7 @@ shopware:
               default: false
               major: false
               description: "App System Store"
+            - name: FEATURE_NEXT_7365
+              default: false
+              major: true
+              description: "single SCSS entry file for plugins"

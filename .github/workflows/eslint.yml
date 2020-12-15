@@ -8,11 +8,9 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    -   name: Setup Node.js environment
+    - name: Setup Node.js environment
       uses: actions/setup-node@v1.4.4
       with:
         node-version: '12.x'

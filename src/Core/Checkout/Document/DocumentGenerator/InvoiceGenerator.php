@@ -95,6 +95,6 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
         $country = $shippingAddress->getCountry();
 
-        return $country !== null && $country->getCompanyTaxFree() && in_array($country->getId(), $config['deliveryCountries'], true);
+        return $country !== null && $country->getCompanyTaxFree() && \in_array($country->getId(), $config['deliveryCountries'], true);
     }
 }

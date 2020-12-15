@@ -4,6 +4,7 @@ import './page/sw-promotion-v2-detail';
 import './page/sw-promotion-v2-list';
 
 import './view/sw-promotion-v2-detail-base';
+import './view/sw-promotion-v2-discounts';
 
 const { Module } = Shopware;
 
@@ -72,6 +73,14 @@ Module.register('sw-promotion-v2', {
                 base: {
                     component: 'sw-promotion-v2-detail-base',
                     path: 'base',
+                    meta: {
+                        parentPath: 'sw.promotion.v2.index',
+                        privilege: 'promotion.viewer'
+                    }
+                },
+                discounts: {
+                    component: 'sw-promotion-v2-discounts',
+                    path: 'discounts',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
                         privilege: 'promotion.viewer'

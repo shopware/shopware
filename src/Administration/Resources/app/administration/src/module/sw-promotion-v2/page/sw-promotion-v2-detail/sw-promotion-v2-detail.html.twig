@@ -72,6 +72,15 @@
                                 </sw-tabs-item>
                             {% endblock %}
 
+                            {% block sw_promotion_v2_detail_content_tabs_discounts %}
+                                <sw-tabs-item
+                                    :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
+                                    :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
+                                    :disabled="!promotionId">
+                                    {{ $tc('sw-promotion-v2.detail.tabs.tabDiscounts') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
                         </sw-tabs>
                     {% endblock %}
 

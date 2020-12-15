@@ -42,7 +42,7 @@ describe('Order: Visual tests', () => {
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
         cy.takeSnapshot('Order listing', '.sw-order-list');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -121,6 +122,11 @@ class OrderEntity extends Entity
      * @var OrderAddressCollection|null
      */
     protected $addresses;
+
+    /**
+     * @var OrderAddressEntity|null
+     */
+    protected $billingAddress;
 
     /**
      * @var OrderDeliveryCollection|null
@@ -546,6 +552,16 @@ class OrderEntity extends Entity
     public function setRuleIds(?array $ruleIds): void
     {
         $this->ruleIds = $ruleIds;
+    }
+
+    public function getBillingAddress(): ?OrderAddressEntity
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(OrderAddressEntity $billingAddress): void
+    {
+        $this->billingAddress = $billingAddress;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

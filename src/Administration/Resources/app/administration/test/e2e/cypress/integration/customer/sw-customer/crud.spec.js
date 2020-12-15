@@ -148,7 +148,7 @@ describe('Customer: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-data-grid__cell--firstName').contains('Ronald Weasley');
+        cy.get('.sw-data-grid__cell--firstName').contains('Weasley, Ronald');
     });
 
     it('@base @customer: delete customer', () => {

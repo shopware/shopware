@@ -78,16 +78,16 @@
                                     {% block sw_order_list_grid_columns_customer_name %}
                                         <template #column-orderCustomer.firstName="{ item }">
                                             <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
-                                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                                {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                                             </router-link>
                                         </template>
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_billing_address %}
                                         <template #column-billingAddressId="{ item }">
-                                            {{ getBillingAddress(item).street }},
-                                            {{ getBillingAddress(item).zipcode }}
-                                            {{ getBillingAddress(item).city }}
+                                            {{ item.billingAddress.street }},
+                                            {{ item.billingAddress.zipcode }}
+                                            {{ item.billingAddress.city }}
                                         </template>
                                     {% endblock %}
 

@@ -95,9 +95,11 @@ describe('Customer:  Visual test', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        const language = Cypress.env('locale') === 'en-GB' ? 'English' : 'Deutsch';
+        cy.get('.sw-card-section--secondary').contains(language);
+
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.get(':nth-child(1) > :nth-child(4) > dd').contains('English')
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 });

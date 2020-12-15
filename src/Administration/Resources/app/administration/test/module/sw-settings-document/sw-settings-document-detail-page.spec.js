@@ -289,4 +289,31 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(fieldDivergentDeliveryAddressInCompany).toBeUndefined();
         expect(fieldDivergentDeliveryAddressInGeneral).toBeUndefined();
     });
+
+    it('should be have config company phone number', async () => {
+        const wrapper = createWrapper({}, ['document.editor']);
+
+        await wrapper.vm.$nextTick();
+
+        const companyFormFields = wrapper.vm.getCompanyFormFields;
+
+        expect(
+            companyFormFields.map(item => item && item.name).includes('companyPhone')
+        ).toEqual(true);
+
+        const fieldCompanyPhone = companyFormFields.find(
+            item => item && item.name === 'companyPhone'
+        );
+        expect(fieldCompanyPhone).toBeDefined();
+        expect(fieldCompanyPhone).toEqual(
+            expect.objectContaining({
+                name: 'companyPhone',
+                type: 'text',
+                config: {
+                    type: 'text',
+                    label: expect.any(String)
+                }
+            })
+        );
+    });
 });

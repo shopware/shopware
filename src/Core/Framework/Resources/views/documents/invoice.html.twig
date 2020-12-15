@@ -1,7 +1,90 @@
 {% sw_extends '@Framework/documents/base.html.twig' %}
 
+{% set shippingAddress = order.deliveries.first.getShippingOrderAddress %}
+
 {% block document_title_tag %}{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}{% endblock %}
 
 {% block document_headline %}
     <h1>{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}</h1>
+{% endblock %}
+
+{% block document_footer_fourth_column %}
+    {% if feature('FEATURE_NEXT_10559') and config.executiveDirector %}
+        <ul>
+            {{ block('document_footer_ceo') }}
+            {{ block('document_footer_ceo_name') }}
+            {% block document_footer_company_phone_number %}
+                <li>{{ config.companyPhone }}</li>
+            {% endblock %}
+        </ul>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block document_recipient %}
+    {% if feature('FEATURE_NEXT_10559') %}
+        {{ parent() }}
+
+        {% if customer.customer.vatIds %}
+            {{ customer.customer.vatIds[0] }}
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block document_side_info %}
+    {% if feature('FEATURE_NEXT_10559') %}
+        <table>
+            {% block document_side_info_contents %}
+                {{ block('document_side_info_date') }}
+                {{ block('document_side_info_customer_number') }}
+                {{ block('document_side_info_order_number') }}
+                {% if config.companyPhone %}
+                    {% block document_side_info_phone_number %}
+                        <tr>
+                            <td>
+                                {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
+                            </td>
+                        </tr>
+                    {% endblock %}
+                {% endif %}
+                {{ block('document_side_info_order_date') }}
+            {% endblock %}
+        </table><br/>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block document_payment_shipping_inner %}
+    {% if feature('FEATURE_NEXT_10559') %}
+        {{ parent() }}
+
+        {% block document_intra_community %}
+            {% if config.intraCommunityDelivery %}
+                {{ 'document.intraCommunity'|trans|sw_sanitize }}
+            {% endif %}
+        {% endblock %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block document_shipping_address %}
+    {% if feature('FEATURE_NEXT_10559') and config.displayDivergentDeliveryAddress %}
+        <div class="shipping-address-container">
+            <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>
+            {{ shippingAddress.company }}
+            {{ shippingAddress.department }} <br>
+            {{ shippingAddress.firstName }} {{ shippingAddress.lastName }} <br>
+            {{ shippingAddress.street }}<br>
+            {{ shippingAddress.zipcode }} {{ shippingAddress.city }}<br>
+            {{ shippingAddress.country.name }}
+            {{ shippingAddress.phoneNumber }}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
 {% endblock %}

@@ -40,6 +40,7 @@
       "labelCompanyAddress": "Company address",
       "labelCompanyName": "Company name",
       "labelCompanyEmail": "Company email address",
+      "labelCompanyPhone": "Company phone",
       "labelCompanyUrl": "Company URL",
       "labelTaxNumber": "Company tax number",
       "labelTaxOffice": "Tax office",

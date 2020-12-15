@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+/**
+ * @internal
+ */
 abstract class AbstractStoreController extends AbstractController
 {
     /**

@@ -1,0 +1,40 @@
+{% block sw_extension_listing_card %}
+    <div class="sw-extension-listing-card">
+        {% block sw_extension_listing_card_content %}
+            {% block sw_extension_listing_card_preview %}
+                <div class="sw-extension-listing-card__preview" :style="previewMedia" @click="openDetailPage"></div>
+            {% endblock %}
+
+            {% block sw_extension_listing_card_info_grid %}
+                <div class="sw-extension-listing-card__info-grid">
+                    {% block sw_extension_listing_card_info_name %}
+                        <p class="sw-extension-listing-card__info-name" @click="openDetailPage">{{ extension.label }}</p>
+                    {% endblock %}
+
+                    {% block sw_extension_listing_card_info_description %}
+                        <p class="sw-extension-listing-card__info-description is--wrap-content">{{ extension.shortDescription }}</p>
+                    {% endblock %}
+
+                    {% block sw_extension_listing_card_info_rating %}
+                        <div class="sw-extension-listing-card__info-rating">
+                            <sw-extension-rating-stars class="sw-extension-listing-card__info-rating-stars" :rating="extension.rating"></sw-extension-rating-stars>
+                            <span class="sw-extension-listing-card__info-rating-stars-count">{{ extension.rating }}</span>
+                            <router-link class="sw-extension-listing-card__info-rating-count"
+                                         :to="{ name: 'sw.extension.store.detail', params: { id: String(extension.id) }, hash: '#ratings-card'}">
+                                ({{ extension.numberOfRatings }})
+                            </router-link>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_listing_card_info_price %}
+                        <div class="sw-extension-listing-card__info-price">
+                            <template v-if="isInstalled">{{ $tc('sw-extension-store.component.sw-extension-listing-card.labelInstalled') }}</template>
+                            <template v-else-if="isLicensed">{{ $tc('sw-extension-store.component.sw-extension-listing-card.labelLicensed') }}</template>
+                            <span v-else :class="discountClass">{{ calculatedPrice }}</span>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

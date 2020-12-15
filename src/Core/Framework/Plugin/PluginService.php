@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @internal
+ */
 class PluginService
 {
     public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';

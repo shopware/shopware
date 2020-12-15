@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @codeCoverageIgnore
  * Pseudo immutable collection
  *
  * @method StorePluginStruct[]    getIterator()

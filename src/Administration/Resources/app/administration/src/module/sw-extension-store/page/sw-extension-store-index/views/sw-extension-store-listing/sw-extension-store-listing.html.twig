@@ -1,0 +1,32 @@
+{% block sw_extension_store_listing %}
+    <div class="sw-extension-store-listing">
+        {% block sw_extension_store_listing_loader %}
+            <sw-loader v-if="isLoading"></sw-loader>
+        {% endblock %}
+
+        {% block sw_extension_store_listing_filter %}
+            <sw-extension-store-listing-filter></sw-extension-store-listing-filter>
+        {% endblock %}
+
+        {%  block sw_extension_store_listing_black_week_banner %}
+            <div v-if="feature.isActive('FEATURE_WEB_4686') && category === null && rating === null"
+                 class="sw-extension-store-listing__banner">
+                <img :src="bwsImage" :srcset="sourceSet" @click="selectBlackFridayCategory">
+            </div>
+        {% endblock %}
+
+        {% block sw_extension_store_listing_grid %}
+            <div class="sw-extension-store-listing__listing-grid">
+                <template v-for="extension in extensions">
+                    {% block sw_extension_store_listing_card %}
+                        <sw-extension-listing-card :extension="extension"></sw-extension-listing-card>
+                    {% endblock %}
+                </template>
+            </div>
+        {% endblock %}
+
+        {% block sw_extension_store_listing_pagination %}
+            <sw-pagination v-bind="{ total, page, limit }" @page-change="setPage"></sw-pagination>
+        {% endblock %}
+    </div>
+{% endblock %}

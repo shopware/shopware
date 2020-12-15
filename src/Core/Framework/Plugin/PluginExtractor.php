@@ -5,30 +5,33 @@ namespace Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @internal
+ */
 class PluginExtractor
 {
     /**
-     * @var string
+     * @var array
      */
-    private $pluginDir;
+    private $extensionDirectories;
 
     /**
      * @var Filesystem
      */
     private $filesystem;
 
-    public function __construct(string $pluginDir, Filesystem $filesystem)
+    public function __construct(array $extensionDirectories, Filesystem $filesystem)
     {
-        $this->pluginDir = $pluginDir;
+        $this->extensionDirectories = $extensionDirectories;
         $this->filesystem = $filesystem;
     }
 
     /**
      * Extracts the provided zip file to the plugin directory
      */
-    public function extract(\ZipArchive $archive, bool $delete = true): void
+    public function extract(\ZipArchive $archive, bool $delete, string $type): void
     {
-        $destination = $this->pluginDir;
+        $destination = $this->extensionDirectories[$type];
 
         if (!is_writable($destination)) {
             throw new PluginExtractionException(sprintf('Destination directory "%s" is not writable', $destination));
@@ -37,7 +40,7 @@ class PluginExtractor
         $pluginName = $this->getPluginName($archive);
         $this->validatePluginZip($pluginName, $archive);
 
-        $oldFile = $this->findOldFile($pluginName);
+        $oldFile = $this->findOldFile($destination, $pluginName);
         $backupFile = $this->createBackupFile($oldFile);
 
         try {
@@ -118,9 +121,9 @@ class PluginExtractor
         }
     }
 
-    private function findOldFile(string $pluginName): string
+    private function findOldFile(string $destination, string $pluginName): string
     {
-        $dir = $this->pluginDir . \DIRECTORY_SEPARATOR . $pluginName;
+        $dir = $destination . \DIRECTORY_SEPARATOR . $pluginName;
         if ($this->filesystem->exists($dir)) {
             return $dir;
         }

@@ -1,0 +1,54 @@
+@import "~scss/variables";
+
+.sw-extension-permissions-modal {
+    .sw-modal__body {
+        padding: 36px 0 0 0;
+    }
+
+    .sw-extension-permissions-modal__intro {
+        text-align: center;
+        padding: 0 20%;
+        font-size: $font-size-small;
+        margin-bottom: 24px;
+
+        img {
+            margin-bottom: 28px;
+        }
+    }
+
+    .sw-extension-permissions-modal__categories {
+        .sw-extension-permissions-modal__category {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 22px 32px;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid $color-gray-300;
+            }
+
+            .sw-extension-permissions-modal__category-label {
+                font-weight: $font-weight-semi-bold;
+            }
+
+            .sw-extension-permissions-modal__link {
+                border: none;
+                outline: none;
+                background: none;
+                color: $color-shopware-brand-500;
+                justify-self: end;
+                text-decoration: none;
+                font-weight: $font-weight-regular;
+                line-height: inherit;
+                padding: 0;
+
+                &:hover {
+                    color: $color-shopware-brand-800;
+                }
+
+                .sw-icon {
+                    color: $color-shopware-brand-500;
+                }
+            }
+        }
+    }
+}

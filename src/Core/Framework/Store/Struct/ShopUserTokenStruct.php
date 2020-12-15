@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 class ShopUserTokenStruct extends Struct
 {
     /**

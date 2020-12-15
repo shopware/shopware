@@ -4881,11 +4881,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginService.php
 
 		-
-			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginZipDetector.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Requirement\\\\RequirementExceptionStack\\:\\:\\$exceptions has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Requirement/RequirementExceptionStack.php

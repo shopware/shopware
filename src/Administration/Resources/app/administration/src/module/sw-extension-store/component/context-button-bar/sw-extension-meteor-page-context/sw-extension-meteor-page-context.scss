@@ -1,0 +1,10 @@
+.sw-extension-meteor-page-context {
+    display: flex;
+    margin: 6px 0;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .sw-extension-meteor-page-context-item:not(:last-child) {
+        margin-right: 4px;
+    }
+}

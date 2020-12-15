@@ -118,7 +118,7 @@ shopware:
               description: "Improve template hierarchy resolving"
             - name: FEATURE_NEXT_12608
               default: false
-              major: false
+              major: true
               description: "App System Store"
             - name: FEATURE_NEXT_7365
               default: false

@@ -1,0 +1,55 @@
+{% block sw_review_creation %}
+    {% block sw_extension_rating_modal %}
+        <sw-modal
+            class="sw-extension-rating-modal"
+            :title="$tc('sw-extension-store.component.sw-ratings.sw-extension-rating-modal.title')"
+            variant="small"
+            @modal-close="emitClose">
+            {% block sw_extension_rating_modal_content %}
+                <template #default>
+                    {% block sw_extension_rating_modal_content_modal_body %}
+                        {% block sw_extension_rating_modal_inputs %}
+                            <sw-review-creation-inputs
+                                @changed="onChange"
+                                :errors="errors">
+                            </sw-review-creation-inputs>
+                        {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template #modal-footer>
+                    {% block sw_extension_rating_modal_footer %}
+                        {% block sw_extension_rating_modal_footer_gtc_checkbox %}
+                            <saas-rufus-gtc-checkbox v-model="tocAccepted"></saas-rufus-gtc-checkbox>
+                        {% endblock %}
+
+                        {% block sw_extension_rating_modal_footer_buttons %}
+                            <div class="sw-extension-rating-modal__buttons">
+                                {% block sw_extension_rating_modal_footer_cancel %}
+                                    <sw-button size="small" @click="emitClose" :disabled="isLoading">
+                                        {{ $tc('global.default.cancel') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_extension_rating_modal_footer_submit %}
+                                    <sw-button-process
+                                        variant="primary"
+                                        size="small"
+                                        :isLoading="isLoading"
+                                        :processSuccess="isCreatedSuccessful"
+                                        :disabled="disabled"
+                                        @process-finish="emitClose"
+                                        @click="handleCreateReview">
+                                        {% block sw_extension_rating_modal_footer_submit_text %}
+                                            {{ $tc('sw-extension-store.component.sw-ratings.sw-review-creation.submitBtn') }}
+                                        {% endblock %}
+                                    </sw-button-process>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        </sw-modal>
+    {% endblock %}
+{% endblock %}

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @method LicenseDomainStruct[]    getIterator()
  * @method LicenseDomainStruct[]    getElements()
  * @method LicenseDomainStruct|null get(string $key)

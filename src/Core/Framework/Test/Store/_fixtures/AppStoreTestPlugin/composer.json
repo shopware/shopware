@@ -1,0 +1,18 @@
+{
+  "name": "swag/plugin-skeleton",
+  "description": "Skeleton plugin",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "AppStoreTestPlugin\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "AppStoreTestPlugin\\AppStoreTestPlugin",
+    "label": {
+      "de-DE": "Skeleton plugin",
+      "en-GB": "Skeleton plugin"
+    }
+  }
+}

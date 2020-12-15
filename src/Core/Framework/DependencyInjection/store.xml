@@ -23,10 +23,13 @@
             <argument type="service" id="user.repository" />
         </service>
 
+        <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler"/>
+
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -43,6 +46,8 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%instance_id%</argument>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="shopware.store.mock_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
@@ -66,6 +71,99 @@
             <argument type="service" id="user.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">
+            <argument type="service" id="user.repository"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Helper\PermissionCategorization">
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\LicenseLoader">
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\AbstractStoreCategoryProvider" class="Shopware\Core\Framework\Store\Services\StoreCategoryProvider">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreCategoryController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreCategoryProvider"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="plugin.repository"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreDataController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService" class="Shopware\Core\Framework\Store\Services\StoreAppLifecycleService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService" class="Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\LicenseLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\ExtensionDownloader">
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
     </services>
 </container>

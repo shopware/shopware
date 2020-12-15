@@ -1,0 +1,71 @@
+@import '~scss/variables';
+
+.sw-extension-my-extensions-account {
+    .sw-meteor-card__content {
+        .sw-meteor-card__content-wrapper {
+            padding: 0;
+        }
+    }
+
+    .sw-extension-my-extensions-account__wrapper {
+        display: flex;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-illustration {
+        position: relative;
+        min-width: 50%;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-illustration img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content {
+        padding: 64px 32px;
+
+        @media screen and (max-width: 800px) {
+            padding: 32px 16px;
+        }
+
+        a {
+            color: $color-shopware-brand-500;
+            text-decoration: none;
+        }
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content-login-status {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 16px;
+        margin-top: 32px;
+        padding: 16px;
+        background-color: $color-gray-50;
+
+        .sw-button {
+            margin-left: auto;
+        }
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content-login-status-id {
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content-login-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content-login-message {
+        margin-bottom: 16px;
+    }
+
+    .sw-extension-my-extensions-account__wrapper-content-login-form {
+        margin-top: 32px;
+    }
+}

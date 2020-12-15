@@ -133,6 +133,16 @@ Component.register('sw-tabs-item', {
         },
         checkIfRouteMatchesLink() {
             this.$nextTick().then(() => {
+                /**
+                 * Prevent endless loop with checking if the route exists. Because a router-link with a
+                 * non existing route has always the class 'router-link-active'
+                 */
+                const resolvedRoute = this.$router.resolve(this.route);
+                const routeExists = resolvedRoute.resolved.matched.length > 0;
+                if (!routeExists) {
+                    return;
+                }
+
                 const routeIsActive = this.$el.classList.contains('router-link-active');
                 if (routeIsActive) {
                     this.$parent.setActiveItem(this);

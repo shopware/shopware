@@ -1,0 +1,313 @@
+{% block sw_extension_store_detail %}
+    <sw-extension-meteor-page class="sw-extension-store-detail" v-if="suspended || isLoading" :hideIcon="suspended">
+        {% block sw_extension_store_detail_loader %}<sw-loader></sw-loader>{% endblock %}
+    </sw-extension-meteor-page>
+
+    <sw-extension-meteor-page v-else class="sw-extension-store-detail" :class="variantClass">
+        {% block sw_extension_store_detail_smart_bar %}
+            {% block sw_extension_store_detail_slot_icon %}
+                <template #smart-bar-icon>
+                    {% block sw_extension_store_detail_icon %}
+                        <img :src="extension.icon" class="sw-extension-store-detail__extension-icon">
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_slot_smart_bar_header %}
+                <template #smart-bar-header>
+                    {% block sw_extension_store_detail_smart_bar_title %}
+                        {{ extension.label }}
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_slot_smart_bar_header_meta %}
+                <template #smart-bar-header-meta>
+                    {% block sw_extension_store_detail_smart_bar_producer_name %}
+                        <span v-if="extension.producerWebsite && extension.producerName">
+                            {{ $tc('sw-extension-store.detail.labelBy') }}
+                            <a  :href="extension.producerWebsite" target="_blank">
+                                {{ extension.producerName }}
+                            </a>
+                        </span>
+                        <span v-else-if="extension.producerName">
+                            {{ $tc('sw-extension-store.detail.labelBy') }} {{ extension.producerName }}
+                        </span>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_slot_smart_bar_description %}
+                <template #smart-bar-description>
+                    {% block sw_extension_store_detail_smart_bar_description %}
+                        {% block sw_extension_store_detail_short_description %}
+                            <div class="sw-extension-store-detail__short-description is--wrap-content">
+                                {{ extension.shortDescription }}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_extension_store_detail_rating_overview %}
+                            <div class="sw-extension-store-detail__rating-overview">
+                                {% block sw_extension_store_detail_rating_overview_content %}
+                                    <template v-if="extension.numberOfRatings > 0">
+                                        {% block sw_extension_store_detail_rating_overview_ratings %}
+                                            <sw-extension-rating-stars :rating="extension.rating"></sw-extension-rating-stars>
+
+                                            <span class="sw-extension-store-detail__avg-rating">
+                                                {{ extension.rating }}
+                                            </span>
+
+                                            <router-link class="sw-extension-store-detail__number-of-reviews"
+                                                         :to="{ name: 'sw.extension.store.detail', params: { id: id }, hash: '#ratings-card'}">
+                                                ({{ $tc('sw-extension-store.detail.numberOfRatings', extension.numberOfRatings)}})
+                                            </router-link>
+                                        {% endblock %}
+                                    </template>
+
+                                    <template v-else>
+                                        {% block sw_extension_store_detail_rating_overview_no_ratings %}
+                                            <sw-icon name="default-review-star-full" size="8px"></sw-icon>
+
+                                            <span>{{ $tc('sw-extension-store.detail.noRatings') }}</span>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_slot_smart_bar_actions %}
+                <template #smart-bar-actions>
+                    {% block sw_extension_store_detail_smart_bar_actions %}
+                        <template v-if="isPurchasable">
+                            {% block sw_extension_store_detail_smart_bar_actions_add %}
+                                {% block sw_extension_store_detail_smart_bar_actions_add_button %}
+                                    <sw-button variant="primary" @click="openBuyModal">
+                                        {{ $tc('sw-extension-store.detail.labelButtonAddExtension') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_extension_store_detail_smart_bar_price %}
+                                    <span v-if="calculatedPrice" v-html="calculatedPrice" :class="discountClass"></span>
+                                {% endblock %}
+
+                                {% block sw_extension_store_detail_smart_bar_discounted_price_info %}
+                                    <small v-if="hasActiveDiscount" class="sw-extension-store-detail__discounted-price-info">
+                                        <template v-if="!!discountAppliesForMonths">
+                                            {{ $tc('sw-extension-store.detail.labelDiscountPeriod', discountAppliesForMonths, { months: discountAppliesForMonths }) }}
+                                        </template>
+
+                                        {{ $tc('sw-extension-store.detail.labelDiscountInfo', 0, { endDate: dateFilter(recommendedVariant.discountCampaign.endDate) }) }}
+                                    </small>
+                                {% endblock %}
+
+                                {% block sw_extension_store_detail_smart_bar_actions_trial_info %}
+                                    <sw-button v-if="recommendedVariant.trialPhaseIncluded" class="sw-extension-store-detail__trial-info" @click="openBuyModal">
+                                        {{ $tc('sw-extension-store.component.sw-extension-buy-modal.variantCard.hasTrialPhase') }}
+                                    </sw-button>
+                                {% endblock %}
+                            {% endblock %}
+                        </template>
+
+                        <template v-else-if="isLicensed">
+                            {% block sw_extension_store_detail_smart_bar_actions_install %}
+                                <sw-button-process
+                                    v-if="!isInstalled"
+                                    variant="primary"
+                                    @click="handleInstallWithPermissionsModal"
+                                    :isLoading="isInstalling"
+                                    :processSuccess="isInstallSuccessful">
+                                    {{ $tc('sw-extension-store.detail.labelButtonInstallExtension') }}
+                                </sw-button-process>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_smart_bar_actions_open %}
+                                <sw-button v-else-if="canBeOpened" variant="primary" @click="openExtension">
+                                    {{ $tc('sw-extension-store.detail.labelButtonOpenExtension') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+
+                        {% block sw_extension_store_detail_buy_modal %}
+                            <sw-extension-buy-modal
+                                v-if="showBuyModal"
+                                :extension="extension"
+                                @modal-close="closeBuyModal">
+                            </sw-extension-buy-modal>
+                        {% endblock %}
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_slot_smart_bar_context_buttons %}
+                <template #smart-bar-context-buttons>
+                    {% block sw_extension_store_detail_show_permissions %}
+                        <saas-rufus-meteor-page-context-item
+                            v-if="Object.keys(extension.permissions).length"
+                            :label="$tc('sw-extension-store.detail.labelButtonShowPermissions')"
+                            icon="default-object-shield-full"
+                            @click="openPermissionsModal"
+                            priority="always">
+                        </saas-rufus-meteor-page-context-item>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_extension_store_detail_page_content %}
+            {% block sw_extension_store_detail_images %}
+                <sw-extension-store-slider :images="images" :slideCount="imageSlideCount"></sw-extension-store-slider>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_card_info %}
+                <sw-meteor-card
+                    :title="$tc('sw-extension-store.detail.cardTitleInformation')"
+                    class="sw-extension-store-detail--user-provided-data">
+                    {% block sw_extension_store_detail_card_info_content %}
+                        <div v-html="description"
+                             class="sw-extension-store-detail__description"
+                             :class="{ 'sw-extension-store-detail__description--collapsed': isDescriptionCollapsed }">
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_store_details_expand_description %}
+                        <sw-button
+                            v-if="isDescriptionCollapsed"
+                            class="sw-extension-store-detail__button-extend-description"
+                            size="small"
+                            @click="expandDescription">
+                            {{ $tc('sw-extension-store.detail.labelButtonReadMore') }}
+                        </sw-button>
+                    {% endblock %}
+                </sw-meteor-card>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_card_details %}
+                <sw-meteor-card :title="$tc('sw-extension-store.detail.cardTitleDetails')">
+                    {% block sw_extension_store_detail_card_details_content %}
+                        <dl class="sw-extension-store-detail__details-list">
+                            {% block sw_extension_store_detail_card_details_category %}
+                                <dt>{{ $tc('sw-extension-store.detail.details.labelCategory', extension.categories.length ) }}</dt><dd>{{ extensionCategoryNames }}</dd>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_version %}
+                                <dt>{{ $tc('sw-extension-store.detail.details.labelVersion') }}</dt><dd>{{ extension.latestVersion }}</dd>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_updated_at %}
+                                <dt>{{ $tc('sw-extension-store.detail.details.labelUpdatedAt') }}</dt><dd>{{ extension.lastUpdateDate | date({ month: 'long', year: 'numeric' }) }}</dd>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_languages %}
+                                <dt v-if="extensionLanguages.length">{{ $tc('sw-extension-store.detail.details.labelLanguages') }}</dt><dd>{{ extensionLanguages }}</dd>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_producer_website %}
+                                <template v-if="extension.producerWebsite">
+                                    <dt>
+                                        <a :href="extension.producerWebsite" target="_blank" class="sw-extension-store-detail__external-link">
+                                            {{ $tc('sw-extension-store.detail.details.labelWebsite') }}
+                                            <sw-icon name="small-arrow-small-external" size="10px"></sw-icon>
+                                        </a>
+                                    </dt>
+                                    <dd></dd>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_privacy_policy %}
+                                <template v-if="extension.privacyPolicyLink">
+                                    <dt>
+                                        <a :href="extension.privacyPolicyLink" target="_blank" class="sw-extension-store-detail__external-link">
+                                            {{ $tc('sw-extension-store.detail.details.labelPrivacy') }}
+                                            <sw-icon name="small-arrow-small-external" size="10px"></sw-icon>
+                                        </a>
+                                    </dt>
+                                    <dd></dd>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_details_additional_entries %}{% endblock %}
+                        </dl>
+                    {% endblock %}
+                </sw-meteor-card>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_card_ratings %}
+                <sw-ratings-card
+                    id="ratings-card"
+                    :extension="extension"
+                    :producerName="extension.producerName"
+                    :isInstalledAndLicensed="isLicensed && isInstalled"
+                    @update-extension="fetchExtensionAndScrollToRatings">
+                </sw-ratings-card>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_card_faq %}
+                <sw-meteor-card
+                    v-if="extension.faq.length > 0"
+                    :title="$tc('sw-extension-store.detail.cardTitleFAQ')">
+                    {% block sw_extension_store_detail_card_faq_questions %}
+                        <section v-for="(question, index) in extension.faq"
+                                 :key="`sw-extension-store-detail__faq-question-${index}`"
+                                 class="sw-extension-store-detail__faq-question sw-extension-store-detail--user-provided-data">
+                            {% block sw_extension_store_detail_card_faq_questions_question %}
+                                <h4>{{ question.question }}</h4>
+                            {% endblock %}
+
+                            {% block sw_extension_store_detail_card_faq_questions_answer %}
+                                <p v-html="question.answer"></p>
+                            {% endblock %}
+                        </section>
+                    {% endblock %}
+                </sw-meteor-card>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_card_changelog %}
+                <sw-meteor-card v-if="orderedBinaries.length > 0" :title="$tc('sw-extension-store.detail.cardTitleChangelog')">
+                    {% block sw_extension_store_detail_card_changelog_entries %}
+                        <section v-for="(binary, index) in orderedBinaries"
+                                 :key="`sw-extension-store-detail__changelog-entry-${index}`"
+                                 class="sw-extension-store-detail__changelog-entry">
+
+                                {% block sw_extension_store_detail_card_changelog_entries_version %}
+                                    <div class="sw-extension-store-detail__changelog-version">{{ binary.version }}</div>
+                                {% endblock %}
+
+                                {% block sw_extension_store_detail_card_changelog_entries_creation_date %}
+                                    <div class="sw-extension-store-detail__changelog-creation-date">{{ binary.creationDate | date }}</div>
+                                {% endblock %}
+
+                                {% block sw_extension_store_detail_card_changelog_entries_changelog_text %}
+                                    <p class="sw-extension-store-detail__changelog-text" v-html="binary.text"></p>
+                                {% endblock %}
+                        </section>
+                    {% endblock %}
+                </sw-meteor-card>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_extension_store_detail_page_modals %}
+            {% block sw_extension_store_detail_page_permission %}
+                <sw-extension-permissions-modal
+                    v-if="showPermissionsModal"
+                    :extensionLabel="extension.label"
+                    :permissions="extension.permissions"
+                    @modal-close="closePermissionsModal">
+                </sw-extension-permissions-modal>
+            {% endblock %}
+
+            {% block sw_extension_store_detail_page_permission_accept %}
+                <sw-extension-permissions-modal
+                    v-if="showAcceptPermissionsModal"
+                    :extensionLabel="extension.label"
+                    :permissions="extension.permissions"
+                    :actionLabel="$tc('sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall')"
+                    @modal-close="closeAcceptPermissionsModal"
+                    @close-with-action="closePermissionsModalAndInstallExtension">
+                </sw-extension-permissions-modal>
+            {% endblock %}
+        {% endblock %}
+    </sw-extension-meteor-page>
+{% endblock %}

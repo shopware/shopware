@@ -136,11 +136,11 @@ class ThemeFileResolverTest extends TestCase
 
         /** @var FileCollection $styleFiles */
         $styleFiles = $resolvedFiles['style'];
-        $pluginStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/example.scss';
+        $pluginEntryStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/base.scss';
         $pluginStyleIncluded = false;
 
         foreach ($styleFiles->getFilepaths() as $path) {
-            if (mb_stripos($path, $pluginStyleFile) !== false) {
+            if (mb_stripos($path, $pluginEntryStyleFile) !== false) {
                 $pluginStyleIncluded = true;
             }
         }

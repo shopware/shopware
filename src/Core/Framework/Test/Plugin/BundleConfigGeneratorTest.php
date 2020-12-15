@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -56,6 +57,41 @@ class BundleConfigGeneratorTest extends TestCase
         ];
 
         static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
+    }
+
+    public function testGenerateAppConfigWithPluginAndScriptAndStylePaths(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
+
+        $appPath = __DIR__ . '/_fixture/apps/plugin/';
+        $this->loadAppsFromDir($appPath);
+
+        $configs = $this->configGenerator->getConfig();
+
+        static::assertArrayHasKey('SwagApp', $configs);
+
+        $appConfig = $configs['SwagApp'];
+        static::assertEquals(
+            $appPath,
+            $this->getContainer()->getParameter('kernel.project_dir') . '/' . $appConfig['basePath']
+        );
+        static::assertEquals(['Resources/views'], $appConfig['views']);
+        static::assertEquals('swag-app', $appConfig['technicalName']);
+        static::assertArrayNotHasKey('administration', $appConfig);
+
+        static::assertArrayHasKey('storefront', $appConfig);
+        $storefrontConfig = $appConfig['storefront'];
+
+        static::assertEquals('Resources/app/storefront/src', $storefrontConfig['path']);
+        static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
+        static::assertNull($storefrontConfig['webpack']);
+
+        // Only base.scss from /_fixture/apps/plugin/ should be included
+        $expectedStyles = [
+            $appPath . 'Resources/app/storefront/src/scss/base.scss',
+        ];
+
+        static::assertEquals($expectedStyles, $storefrontConfig['styleFiles']);
     }
 
     public function testGenerateAppConfigIgnoresInactiveApps(): void

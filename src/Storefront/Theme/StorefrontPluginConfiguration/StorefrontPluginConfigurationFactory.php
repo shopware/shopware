@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
@@ -56,7 +57,11 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setBasePath($path);
 
         $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        $config->setStyleFiles(FileCollection::createFromArray($this->getFilesInDir($stylesPath)));
+        if (Feature::isActive('FEATURE_NEXT_7365')) {
+            $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
+        } else {
+            $config->setStyleFiles(FileCollection::createFromArray($this->getFilesInDir($stylesPath)));
+        }
 
         $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
         $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
@@ -207,6 +212,22 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         }
         $finder = new Finder();
         $finder->files()->in($path);
+
+        $files = [];
+        foreach ($finder as $file) {
+            $files[] = $file->getPathname();
+        }
+
+        return $files;
+    }
+
+    private function getScssEntryFileInDir(string $path): array
+    {
+        if (!is_dir($path)) {
+            return [];
+        }
+        $finder = new Finder();
+        $finder->files()->name('base.scss')->in($path)->depth('0');
 
         $files = [];
         foreach ($finder as $file) {

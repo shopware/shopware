@@ -8,7 +8,8 @@ Component.register('sw-promotion-v2-detail-base', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
+        'promotionCodeApiService'
     ],
 
     mixins: [
@@ -37,6 +38,8 @@ Component.register('sw-promotion-v2-detail-base', {
     data() {
         return {
             selectedCodeType: '0',
+            isGenerating: false,
+            isGenerateSuccessful: false,
             CODE_TYPES: Object.freeze({
                 NONE: '0',
                 FIXED: '1',
@@ -84,6 +87,20 @@ Component.register('sw-promotion-v2-detail-base', {
         onChangeCodeType(value) {
             this.promotion.useCodes = value !== this.CODE_TYPES.NONE;
             this.promotion.useIndividualCodes = value === this.CODE_TYPES.INDIVIDUAL;
+        },
+
+        onGenerateCodeFixed() {
+            this.isGenerating = true;
+            this.promotionCodeApiService.generateCodeFixed().then((code) => {
+                this.promotion.code = code;
+                this.isGenerateSuccessful = true;
+            }).finally(() => {
+                this.isGenerating = false;
+            });
+        },
+
+        generateFinish() {
+            this.isGenerateSuccessful = false;
         }
     }
 });

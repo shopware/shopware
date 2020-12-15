@@ -46,7 +46,8 @@
                 },
                 "fixed": {
                     "description": "Festgelegter Aktionscode",
-                    "codeLabel": "Aktionscode"
+                    "codeLabel": "Aktionscode",
+                    "generateButton": "Zufälligen Code generieren"
                 },
                 "individual": {
                     "description": "Individuelle Aktionscodes"

@@ -125,10 +125,22 @@
                                     v-model="promotion.code"
                                     class="sw-promotion-v2-detail-base__field-code-fixed"
                                     :disabled="!acl.can('promotion.editor')"
-                                    :label="$tc('sw-promotion-v2.detail.codes.fixed.codeLabel')">
+                                    :label="$tc('sw-promotion-v2.detail.codes.fixed.codeLabel')"
+                                    copyable>
                             </sw-text-field>
                         {% endblock %}
 
+                        {% block sw_promotion_v2_detail_base_codes_type_fixed_generate %}
+                            <sw-button-process
+                                    class="sw-promotion-v2-detail-base__button-generate-fixed"
+                                    :isLoading="isGenerating"
+                                    :disabled="!acl.can('promotion.editor')"
+                                    :processSuccess="isGenerateSuccessful"
+                                    @process-finish="generateFinish"
+                                    @click.prevent="onGenerateCodeFixed">
+                                {{ $tc('sw-promotion-v2.detail.codes.fixed.generateButton') }}
+                            </sw-button-process>
+                        {% endblock %}
                     </template>
                 {% endblock %}
 

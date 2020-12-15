@@ -105,7 +105,7 @@ class SeoUrlUpdater
     private function loadTemplates(array $routes): array
     {
         $domains = $this->connection->fetchAll(
-            'SELECT
+            'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
                LOWER(HEX(domains.language_id)) as languageId
              FROM sales_channel_domain as domains

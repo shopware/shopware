@@ -1,3 +1,5 @@
+import './init/services.init';
+
 import './page/sw-promotion-v2-detail';
 import './page/sw-promotion-v2-list';
 

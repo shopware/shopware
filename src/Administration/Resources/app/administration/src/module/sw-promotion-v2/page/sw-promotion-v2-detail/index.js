@@ -151,6 +151,7 @@ Component.register('sw-promotion-v2-detail', {
         savePromotion() {
             return this.promotionRepository.save(this.promotion, Shopware.Context.api).then(() => {
                 this.loadEntityData();
+                this.isSaveSuccessful = true;
             }).catch(() => {
                 this.isLoading = false;
                 this.createNotificationError({
@@ -159,6 +160,10 @@ Component.register('sw-promotion-v2-detail', {
                     })
                 });
             });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
         },
 
         onCancel() {

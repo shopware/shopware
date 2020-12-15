@@ -10,11 +10,15 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -51,10 +55,27 @@ class PromotionActionController extends AbstractController
     }
 
     /**
+     * @Since("6.3.5.0")
+     * @Route("/api/v{version}/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"})
+     * @Acl({"promotion.editor"})
+     *
+     * @throws NotFoundHttpException
+     */
+    public function generateCodeFixed(): Response
+    {
+        if (!Feature::isActive('FEATURE_NEXT_12016')) {
+            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
+        }
+
+        return new JsonResponse($this->codesLoader->generateCodeFixed());
+    }
+
+    /**
      * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes", methods={"GET"})
+     * @Acl({"promotion.viewer"})
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     public function getIndividualCodes(string $promotionId, Context $context): JsonResponse
     {
@@ -64,8 +85,9 @@ class PromotionActionController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes.remove", methods={"DELETE"})
+     * @Acl({"promotion.deleter"})
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     public function deleteIndividualCodes(string $promotionId, Context $context): Response
     {
@@ -77,8 +99,9 @@ class PromotionActionController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"})
+     * @Acl({"promotion.viewer"})
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     public function getSetGroupPackagers(): JsonResponse
     {
@@ -95,8 +118,9 @@ class PromotionActionController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"})
+     * @Acl({"promotion.viewer"})
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     public function getSetGroupSorters(): JsonResponse
     {
@@ -113,8 +137,9 @@ class PromotionActionController extends AbstractController
     /**
      * @Since("6.3.4.0")
      * @Route("/api/v{version}/_action/promotion/discount/picker", name="api.action.promotion.discount.picker", methods={"GET"})
+     * @Acl({"promotion.viewer"})
      *
-     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     * @throws InvalidUuidException
      */
     public function getDiscountFilterPickers(): JsonResponse
     {

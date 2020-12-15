@@ -46,7 +46,8 @@
                 },
                 "fixed": {
                     "description": "Fixed promotion code",
-                    "codeLabel": "Promotion code"
+                    "codeLabel": "Promotion code",
+                    "generateButton": "Generate random code"
                 },
                 "individual": {
                     "description": "Individual promotion codes"

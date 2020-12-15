@@ -35,10 +35,19 @@ describe('Promotion v2: Test crud operations', () => {
 
         // Generate and check code
         cy.get(promotionCodeFixedSelector).should('contain.value', testPromoCode);
-        cy.get('.sw-promotion-v2-detail-base__button-generate-fixed').click();
+        cy.get('.sw-promotion-v2-detail-base__fixed-generate-button').click();
         cy.get(promotionCodeFixedSelector).should('not.contain.value', testPromoCode);
         cy.get(promotionCodeFixedSelector).should((code) => {
             expect(code[0].value).to.have.length(8);
         });
+    });
+
+    it("@base @marketing: show empty state, if there're no individual codes", () => {
+        cy.server();
+        cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
+
+        cy.get('.sw-promotion-v2-detail-base__individual-empty-state').should('not.be.visible');
+        cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
+        cy.get('.sw-promotion-v2-detail-base__individual-empty-state').should('be.visible');
     });
 });

@@ -22,6 +22,9 @@
                 "titleCreate": "Neue Aktion",
                 "titleEdit": "Aktion"
             },
+            "tabs": {
+                "tabGeneral": "Allgemein"
+            },
             "general": {
                 "cardTitle": "Allgemeine Einstellungen",
                 "nameLabel": "Name",
@@ -35,8 +38,19 @@
                 "maxUsesPerCustomerPlaceholder": "Unbegrenzt",
                 "activeLabel": "Aktiv"
             },
-            "tabs": {
-                "tabGeneral": "Allgemein"
+            "codes": {
+                "cardTitle": "Aktionscodes",
+                "codeTypeLabel": "Aktionscodetypen",
+                "none": {
+                    "description": "Kein Aktionscode erforderlich"
+                },
+                "fixed": {
+                    "description": "Festgelegter Aktionscode",
+                    "codeLabel": "Aktionscode"
+                },
+                "individual": {
+                    "description": "Individuelle Aktionscodes"
+                }
             }
         }
     }

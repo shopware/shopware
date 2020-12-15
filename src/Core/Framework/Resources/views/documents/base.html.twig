@@ -181,7 +181,7 @@
                             {% block document_side_info_order_number %}
                                 <tr>
                                     <td>
-                                        {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber | u.truncate(10)})|sw_sanitize }}
+                                        {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber})|sw_sanitize }}
                                     </td>
                                 </tr>
                             {% endblock %}
@@ -257,7 +257,7 @@
 
                                                 {% block document_line_item_table_row_product_number %}
                                                     {% if lineItem.payload.productNumber %}
-                                                        <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
+                                                        <td>{{ lineItem.payload.productNumber }}</td>
                                                     {% else %}
                                                         <td></td>
                                                     {% endif %}

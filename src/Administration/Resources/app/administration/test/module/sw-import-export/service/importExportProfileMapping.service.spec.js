@@ -1,5 +1,5 @@
 import ImportExportProfileMappingService from 'src/module/sw-import-export/service/importExportProfileMapping.service';
-import entitySchemaMock from './mocks/entity-schema.mock';
+import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 import * as mappings from './mocks/mappings.mock';
 
 describe('module/sw-import-export/service/login.service.js', () => {
@@ -64,10 +64,10 @@ describe('module/sw-import-export/service/login.service.js', () => {
             'id',
             'versionId',
             'parentVersionId',
-            'stock',
             'productManufacturerVersionId',
             'taxId',
             'productNumber',
+            'stock',
             'name',
             'createdAt'
         ]);

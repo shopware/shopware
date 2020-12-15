@@ -86,6 +86,34 @@ export default class EntityHydrator {
         const data = row.attributes;
         data.id = id;
 
+        // hydrate empty json fields
+        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
+            const field = schema.getField(attributeKey);
+
+            if (!field) {
+                return;
+            }
+
+            if (!schema.isJsonField(field)) {
+                return;
+            }
+
+            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
+                data[attributeKey] = {};
+                return;
+            }
+
+            const isEmptyObject = !Array.isArray(attributeValue)
+                && typeof attributeValue === 'object'
+                && attributeValue !== null
+                && Object.keys(attributeValue).length <= 0
+                && schema.isJsonListField(field);
+
+            if (isEmptyObject) {
+                data[attributeKey] = [];
+            }
+        });
+
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property];
 

@@ -427,7 +427,7 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "addToWishlist": "Zum Merkzettel hinzufügen",
-    "addedToWishlist": "Zum Merkzettel hinzugefügt",
+    "removeFromWishlist": "Vom Merkzettel entfernen",
     "toggleWishlist": "Merkzettel ein-/ausschalten"
   },
   "newsletter": {
@@ -530,7 +530,9 @@
     "manufacturerDisplayName": "Hersteller",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
     "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar.",
-    "wishlistMergeHint": "Dein Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden."
+    "wishlistMergeHint": "Dein Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden.",
+    "wishlistEmptyHeader": "Deine Wunschliste ist leer",
+    "wishlistEmptyDescription": "Behalte interessante Produkte im Auge, indem Du sie zur Wunschliste hinzufügst."
   },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",

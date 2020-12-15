@@ -107,14 +107,14 @@ describe('Wishlist: for wishlist', () => {
             cy.get('.product-wishlist-action').first().should('be.visible');
 
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().should('not.be.visible');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('not.be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().contains('Add to wish list');
 
             cy.get('.product-wishlist-action').first().click();
 
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().should('be.visible');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('not.be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().contains('Added to wish list');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().contains('Remove from wishlist');
         })
     });
 

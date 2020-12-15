@@ -18,7 +18,7 @@ Styling for productbox component.
 
     &-not-added {
         .icon-wishlist-added,
-        .text-wishlist-added {
+        .text-wishlist-remove {
             display: none;
         }
 
@@ -34,7 +34,7 @@ Styling for productbox component.
 
     &-added {
         .icon-wishlist-added,
-        .text-wishlist-added {
+        .text-wishlist-remove {
             display: inline-flex;
         }
 

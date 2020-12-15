@@ -119,3 +119,7 @@ shopware:
               default: false
               major: true
               description: "single SCSS entry file for plugins"
+            - name: FEATURE_NEXT_12289
+              default: false
+              major: true
+              description: "Rule detail page assignments tab"

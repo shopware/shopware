@@ -23,7 +23,8 @@
                 "titleEdit": "Promotion"
             },
             "tabs": {
-                "tabGeneral": "General"
+                "tabGeneral": "General",
+                "tabDiscounts": "Discounts"
             },
             "general": {
                 "cardTitle": "General settings",
@@ -53,6 +54,10 @@
                     "description": "Individual promotion codes"
                 }
             }
+        },
+        "discounts": {
+            "emptyStateTitle": "No discount yet.",
+            "emptyStateButton": "Add discount"
         }
     }
 }

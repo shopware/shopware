@@ -23,7 +23,8 @@
                 "titleEdit": "Aktion"
             },
             "tabs": {
-                "tabGeneral": "Allgemein"
+                "tabGeneral": "Allgemein",
+                "tabDiscounts": "Rabatte"
             },
             "general": {
                 "cardTitle": "Allgemeine Einstellungen",
@@ -53,6 +54,10 @@
                     "description": "Individuelle Aktionscodes"
                 }
             }
+        },
+        "discounts": {
+            "emptyStateTitle": "Noch keinen Rabatt angelegt.",
+            "emptyStateButton": "Rabatt anlegen"
         }
     }
 }

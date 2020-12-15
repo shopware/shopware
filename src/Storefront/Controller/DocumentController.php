@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,6 +31,7 @@ class DocumentController extends StorefrontController
     /**
      * @Since("6.3.3.0")
      * @Route("/account/order/document/{documentId}/{deepLinkCode}", name="frontend.account.order.single.document", methods={"GET"})
+     * @LoginRequired(allowGuest=true)
      *
      * @throws InvalidDocumentException
      */

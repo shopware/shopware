@@ -127,6 +127,36 @@ class AuthController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.4.1")
+     * @Route("/account/guest/login", name="frontend.account.guest.login.page", methods={"GET"})
+     */
+    public function guestLoginPage(Request $request, SalesChannelContext $context): Response
+    {
+        /** @var string $redirect */
+        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
+
+        $customer = $context->getCustomer();
+
+        if ($customer !== null) {
+            $request->request->set('redirectTo', $redirect);
+
+            return $this->createActionResponse($request);
+        }
+
+        if ((bool) $request->get('loginError')) {
+            $this->addFlash('danger', $this->trans('account.orderGuestLoginWrongCredentials'));
+        }
+
+        $page = $this->loginPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/page/account/guest-auth.html.twig', [
+            'redirectTo' => $redirect,
+            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'page' => $page,
+        ]);
+    }
+
+    /**
      * @Since("6.0.0.0")
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */

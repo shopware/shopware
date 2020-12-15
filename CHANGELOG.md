@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.4.1
+*  [NEXT-12230 - Improve saving own user profile](/changelog/release-6-3-4-1/2020-11-27-improve-saving-own-user-profile.md)
+*  [NEXT-12359 - Add guest auth for order deeplinks](/changelog/release-6-3-4-1/2020-12-08-add-guest-auth-for-order-deeplinks.md)
+
 ## 6.3.4.0
 *  [NEXT-10837 - optimize route check in account site](/changelog/release-6-3-4-0/2020-09-14-optimize-account-site-route-check.md) ([Sebastian König](https://github.com/tinect))
 *  [NEXT-10716 - After restoring cart, the cart should be recalculated and display hints.](/changelog/release-6-3-4-0/2020-09-15-display-hints-after-recalculated-at-cart-canvas.md)
@@ -123,6 +127,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-12451 - Fix multiple meta imports](/changelog/release-6-3-4-0/2020-11-27-fix-multiple-meta-imports.md)
 *  [NEXT-12471 - Fix url of cms assets in administration](/changelog/release-6-3-4-0/2020-11-27-fix-admin-cms-asset-urls.md)
 *  [NEXT-12464 - Fix layout for line item table header in cart page when using vertical tax calculation](/changelog/release-6-3-4-0/2020-11-27-fix-layout-for-line-item-table-header-in-cart.md)
+*  [NEXT-11892 - Fix filter aggregation in JavaScript criteria](/changelog/release-6-3-4-0/2020-10-15-fix-filter-aggregation-in-javascript-criteria.md)
 
 ## 6.3.3.1
 * [NEXT-11830 - Fix broken listings](/changelog/release-6-3-3-1/2020-11-04-fix-broken-listings.md)

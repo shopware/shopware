@@ -105,7 +105,7 @@ shopware:
               description: "custom search index and ranking"
             - name: FEATURE_NEXT_10820
               default: false
-              major: false
+              major: true
               description: "add same canonical url for variants"
             - name: FEATURE_NEXT_12553
               default: false

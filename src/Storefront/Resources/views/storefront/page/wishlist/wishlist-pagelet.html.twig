@@ -1,5 +1,15 @@
 {% block block_wishlist_listing %}
     <div class="col-12">
+        {% if searchResult.total > 0  %}
+            {% block block_wishlist_listing_header %}
+                <h1 class="wishlist-headline">
+                    {% block block_wishlist_listing_header_text %}
+                        {{ "wishlist.headline"|trans }}
+                    {% endblock %}
+                </h1>
+            {% endblock %}
+        {% endif %}
+
         {% block block_wishlist_listing_inner %}
             {% sw_include "@Storefront/storefront/element/cms-element-wishlist-listing.html.twig" ignore missing %}
         {% endblock %}

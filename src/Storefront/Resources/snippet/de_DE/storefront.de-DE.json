@@ -526,6 +526,7 @@
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
   "wishlist": {
+    "cartTitle": "Ihr Merkzettel",
     "headline": "Ihr Merkzettel",
     "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
     "itemAddedSuccess": "Sie haben das Produkt erfolgreich in den Merkzettel eingefügt.",

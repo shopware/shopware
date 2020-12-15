@@ -36,4 +36,8 @@ export default class BaseWishlistStoragePlugin extends Plugin {
     getCurrentCounter() {
         return this.products ? Object.keys(this.products).length : 0;
     }
+
+    getProducts() {
+        return this.products;
+    }
 }

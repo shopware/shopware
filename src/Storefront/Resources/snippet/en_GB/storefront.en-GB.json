@@ -526,6 +526,7 @@
     "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
   "wishlist": {
+    "cartTitle": "Your wishlist",
     "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
     "itemAddedSuccess": "You have successfully added the product into the wishlist.",

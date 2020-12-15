@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
+/**
+ * @deprecated tag:v6.4.0 - Replaced by `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver`
+ */
 interface FieldResolverInterface
 {
     public function resolve(

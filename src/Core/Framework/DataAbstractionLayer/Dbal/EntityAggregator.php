@@ -37,27 +37,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
  */
 class EntityAggregator implements EntityAggregatorInterface
 {
-    use CriteriaQueryHelper;
-
     /**
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
 
     /**
      * @var EntityDefinitionQueryHelper
@@ -70,29 +60,20 @@ class EntityAggregator implements EntityAggregatorInterface
     private $registry;
 
     /**
-     * @var SearchTermInterpreter
+     * @var CriteriaQueryBuilder
      */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
+    private $criteriaQueryBuilder;
 
     public function __construct(
         Connection $connection,
-        SqlQueryParser $queryParser,
         EntityDefinitionQueryHelper $queryHelper,
         DefinitionInstanceRegistry $registry,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
         $this->connection = $connection;
-        $this->parser = $queryParser;
         $this->helper = $queryHelper;
         $this->registry = $registry;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
+        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
@@ -130,26 +111,6 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    protected function getParser(): SqlQueryParser
-    {
-        return $this->parser;
-    }
-
-    protected function getDefinitionHelper(): EntityDefinitionQueryHelper
-    {
-        return $this->helper;
-    }
-
-    protected function getInterpreter(): SearchTermInterpreter
-    {
-        return $this->interpreter;
-    }
-
-    protected function getScoreBuilder(): EntityScoreQueryBuilder
-    {
-        return $this->scoreBuilder;
-    }
-
     private function fetchAggregation(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResult
     {
         $clone = clone $criteria;
@@ -160,7 +121,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $query = new QueryBuilder($this->connection);
 
-        $query = $this->buildQueryByCriteria($query, $definition, $clone, $context);
+        $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context);
         $query->resetQueryPart('orderBy');
 
         if ($criteria->getTitle()) {
@@ -255,7 +216,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseFilterAggregation(FilterAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         if (!empty($aggregation->getFilter())) {
-            $this->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
+            $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
         $this->extendQuery($aggregation->getAggregation(), $query, $definition, $context);
@@ -544,7 +505,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function addSorting(FieldSorting $sorting, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
         if ($sorting->getField() !== '_count') {
-            $this->addSortings($definition, new Criteria(), [$sorting], $query, $context);
+            $this->criteriaQueryBuilder->addSortings($definition, new Criteria(), [$sorting], $query, $context);
 
             return;
         }

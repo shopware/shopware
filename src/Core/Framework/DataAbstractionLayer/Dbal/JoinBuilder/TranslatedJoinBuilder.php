@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed
+ */
 class TranslatedJoinBuilder implements JoinBuilderInterface
 {
     public function join(EntityDefinition $definition, string $joinType, $field, string $on, string $root, QueryBuilder $queryBuilder, Context $context): void

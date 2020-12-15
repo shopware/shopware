@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+//@deprecated tag:v6.4.0 - Will be removed
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AntiJoinFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -87,6 +89,13 @@ class SqlQueryParser
     ): ParseResult {
         if ($root === null) {
             $root = $definition->getEntityName();
+        }
+
+        if ($query instanceof SingleFieldFilter && $query->getResolved()) {
+            $result = new ParseResult();
+            $result->addWhere((string) $query->getResolved());
+
+            return $result;
         }
 
         switch (true) {

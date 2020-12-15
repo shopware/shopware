@@ -6,7 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
+//@deprecated tag:v6.4.0 - Will be removed
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder;
+//@deprecated tag:v6.4.0 - Will be removed
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinInfo;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -21,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -32,12 +37,17 @@ class EntityDefinitionQueryHelper
     public const HAS_TO_MANY_JOIN = 'has_to_many_join';
 
     /**
+     * @deprecated tag:v6.4.0 - Will be removed
+     *
      * @var AntiJoinBuilder
      */
     private $antiJoinBuilder;
 
-    public function __construct(AntiJoinBuilder $antiJoinBuilder)
-    {
+    public function __construct(
+        // @deprecated tag:v6.4.0 - Will be removed
+        AntiJoinBuilder $antiJoinBuilder
+    ) {
+        //@deprecated tag:v6.4.0 - Will be removed
         $this->antiJoinBuilder = $antiJoinBuilder;
     }
 
@@ -50,7 +60,7 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
-    public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor): array
+    public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
         $parts = explode('.', $accessor);
         if ($definition->getEntityName() === $parts[0]) {
@@ -69,10 +79,16 @@ class EntityDefinitionQueryHelper
             }
             $field = $fields->get($part);
 
-            if ($field instanceof TranslatedField) {
+            if ($field instanceof TranslatedField && $resolveTranslated) {
                 $source = $source->getTranslationDefinition();
                 $fields = $source->getFields();
                 $accessorFields[] = $fields->get($part);
+
+                continue;
+            }
+
+            if ($field instanceof TranslatedField && !$resolveTranslated) {
+                $accessorFields[] = $field;
 
                 continue;
             }
@@ -309,66 +325,71 @@ class EntityDefinitionQueryHelper
      * roots, the function can resolve each association part of the field name, even if one part of the fieldName contains a translation or event inherited data field.
      */
     public function resolveAccessor(
-        string $fieldName,
+        string $accessor,
         EntityDefinition $definition,
         string $root,
         QueryBuilder $query,
-        Context $context
+        Context $context,
+        ?CriteriaPartInterface $criteriaPart = null
     ): void {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $accessor = str_replace('extensions.', '', $accessor);
 
-        //example: `product.manufacturer.media.name`
-        $original = $fieldName;
-        $prefix = $root . '.';
-
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
-        } else {
-            $original = $prefix . $original;
-        }
-
-        $fields = $definition->getFields();
-
-        if (!$fields->has($fieldName)) {
-            $associationKey = explode('.', $fieldName);
-            $fieldName = array_shift($associationKey);
-        }
-
-        if (!$fields->has($fieldName)) {
+        $parts = explode('.', $accessor);
+        if (empty($parts)) {
             return;
         }
 
-        /** @var AssociationField|null $field */
-        $field = $fields->get($fieldName);
-
-        if ($field === null) {
-            return;
+        if ($parts[0] === $root) {
+            unset($parts[0]);
         }
 
-        $resolver = $field->getResolver();
+        $alias = $root;
 
-        if ($resolver !== null) {
-            $resolver->resolve($definition, $root, $field, $query, $context, $this);
+        $path = [$root];
+
+        $rootDefinition = $definition;
+
+        foreach ($parts as $part) {
+            $field = $definition->getFields()->get($part);
+
+            if ($field === null) {
+                return;
+            }
+
+            $resolver = $field->getResolver();
+            if ($resolver === null) {
+                continue;
+            }
+
+            if ($field instanceof AssociationField) {
+                $path[] = $field->getPropertyName();
+            }
+
+            $currentPath = implode('.', $path);
+            $resolverContext = new FieldResolverContext($currentPath, $alias, $field, $definition, $rootDefinition, $query, $context, $criteriaPart);
+
+            $alias = $this->callResolver($resolverContext);
+
+            if (!$field instanceof AssociationField) {
+                return;
+            }
+
+            $definition = $field->getReferenceDefinition();
+            if ($field instanceof ManyToManyAssociationField) {
+                $definition = $field->getToManyReferenceDefinition();
+            }
+
+            if ($definition->isInheritanceAware() && $context->considerInheritance() && $parent = $definition->getField('parent')) {
+                $resolverContext = new FieldResolverContext($currentPath, $alias, $parent, $definition, $rootDefinition, $query, $context, $criteriaPart);
+
+                $this->callResolver($resolverContext);
+            }
         }
-
-        if (!$field instanceof AssociationField) {
-            return;
-        }
-
-        $referenceDefinition = $field->getReferenceDefinition();
-        if ($field instanceof ManyToManyAssociationField) {
-            $referenceDefinition = $field->getToManyReferenceDefinition();
-        }
-
-        $this->resolveAccessor(
-            $original,
-            $referenceDefinition,
-            $root . '.' . $field->getPropertyName(),
-            $query,
-            $context
-        );
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed
+     */
     public function resolveAntiJoinAccessors(
         string $fieldName,
         EntityDefinition $definition,
@@ -583,6 +604,24 @@ class EntityDefinitionQueryHelper
         $this->addIdConditionWithOr($criteria, $definition, $query);
     }
 
+    private function callResolver(FieldResolverContext $context): string
+    {
+        $resolver = $context->getField()->getResolver();
+
+        if (!$resolver) {
+            return $context->getAlias();
+        }
+
+        if ($resolver instanceof AbstractFieldResolver) {
+            return $resolver->join($context);
+        }
+
+        //@deprecated tag:v6.4.0 - Will be removed
+        $resolver->resolve($context->getDefinition(), $context->getAlias(), $context->getField(), $context->getQuery(), $context->getContext(), $this);
+
+        return $context->getAlias() . '.' . $context->getField()->getPropertyName();
+    }
+
     private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
         $wheres = [];
@@ -755,7 +794,6 @@ class EntityDefinitionQueryHelper
         if ($field instanceof TranslatedField) {
             $inheritedChain = self::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
 
-            /** @var Field|StorageAware $translatedField */
             $translatedField = self::getTranslatedField($definition, $field);
 
             return $this->getTranslationFieldAccessor($translatedField, $original, $inheritedChain, $context);

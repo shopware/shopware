@@ -171,9 +171,10 @@ Javascript analysis:
 PHP analysis:
     image: shopware/development:7.2
     cache:
-        key: ${CI_JOB_NAME}
+        key: "${CI_JOB_NAME}_2"
         paths:
-            - development/var/cache/cs_fixer/
+            # disabled due to possible cache issue NEXT-12933
+            #- development/var/cache/cs_fixer/
             - development/var/cache/phpstan/
             - development/var/cache/psalm/
     only:

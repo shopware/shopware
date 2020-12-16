@@ -26,6 +26,10 @@
                 "tabGeneral": "General",
                 "tabDiscounts": "Discounts"
             },
+            "codeChangeModal": {
+                "title": "Changing promotion code option",
+                "text": "Switching the promotion code option will delete all previously generated promotion codes."
+            },
             "base": {
                 "general": {
                     "cardTitle": "General settings",

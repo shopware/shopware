@@ -26,6 +26,10 @@
                 "tabGeneral": "Allgemein",
                 "tabDiscounts": "Rabatte"
             },
+            "codeChangeModal": {
+                "title": "Ändern des Aktionscode-Typs",
+                "text": "Beim Ändern des Aktionscode-Typs werden alle zuvor erstellten Codes gelöscht."
+            },
             "base": {
                 "general": {
                     "cardTitle": "Allgemeine Einstellungen",

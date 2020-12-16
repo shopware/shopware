@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInte
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -38,6 +39,26 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatching(string $term, array $expected): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
+        $context = Context::createDefaultContext();
+
+        $matches = $this->interpreter->interpret($term, $context);
+
+        $keywords = array_map(function (SearchTerm $term) {
+            return $term->getTerm();
+        }, $matches->getTerms());
+
+        sort($expected);
+        sort($keywords);
+        static::assertEquals($expected, $keywords);
+    }
+
+    /**
+     * @dataProvider casesWithTokenFilter
+     */
+    public function testMatchingWithTokenFilter(string $term, array $expected): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
         $context = Context::createDefaultContext();
 
         $matches = $this->interpreter->interpret($term, $context);
@@ -73,6 +94,40 @@ class KeywordSearchTermInterpreterTest extends TestCase
             [
                 '1',
                 ['1', '10000', '10001', '10002', '10007'],
+            ],
+        ];
+    }
+
+    public function casesWithTokenFilter(): array
+    {
+        return [
+            [
+                'zeichn',
+                ['zeichnet', 'zeichen', 'zweichnet'],
+            ],
+            [
+                'zeichent',
+                ['ausgezeichnet', 'gezeichnet', 'zeichnet'],
+            ],
+            [
+                'Büronetz',
+                ['büronetzwerk'],
+            ],
+            [
+                '1000',
+                ['10000', '10001', '10002', '10007'],
+            ],
+            [
+                '1',
+                [],
+            ],
+            [
+                'between against in on',
+                [],
+            ],
+            [
+                'between against on in coffee bike',
+                ['betweencoffee', 'betweenbike'],
             ],
         ];
     }
@@ -123,6 +178,15 @@ class KeywordSearchTermInterpreterTest extends TestCase
             '2',
             '3',
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $keywords = array_merge($keywords, [
+                'between',
+                'against',
+                'betweencoffee',
+                'betweenbike',
+            ]);
+        }
 
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 

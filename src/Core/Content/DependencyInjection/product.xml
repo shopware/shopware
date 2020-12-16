@@ -149,6 +149,7 @@
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
@@ -383,6 +384,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <tag name="shopware.cms.data_resolver"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
         </service>
     </services>
 </container>

@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Feature;
 
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
@@ -13,9 +15,15 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private $tokenizer;
 
-    public function __construct(TokenizerInterface $tokenizer)
+    /**
+     * @var AbstractTokenFilter|null
+     */
+    private $tokenFilter;
+
+    public function __construct(TokenizerInterface $tokenizer, ?AbstractTokenFilter $tokenFilter = null)
     {
         $this->tokenizer = $tokenizer;
+        $this->tokenFilter = $tokenFilter;
     }
 
     public function analyze(ProductEntity $product, Context $context): AnalyzedKeywordCollection
@@ -27,6 +35,11 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         $name = $product->getTranslation('name');
         if ($name) {
             $tokens = $this->tokenizer->tokenize((string) $name);
+
+            if (Feature::isActive('FEATURE_NEXT_10552') && $this->tokenFilter) {
+                $tokens = $this->tokenFilter->filter($tokens, $context);
+            }
+
             foreach ($tokens as $token) {
                 $keywords->add(new AnalyzedKeyword((string) $token, 700));
             }

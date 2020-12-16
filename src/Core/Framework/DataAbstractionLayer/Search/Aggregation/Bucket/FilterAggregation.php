@@ -14,7 +14,7 @@ class FilterAggregation extends BucketAggregation
 
     public function __construct(string $name, Aggregation $aggregation, array $filter)
     {
-        parent::__construct($name, '_', $aggregation);
+        parent::__construct($name, '', $aggregation);
         $this->filter = $filter;
     }
 

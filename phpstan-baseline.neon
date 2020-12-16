@@ -4832,7 +4832,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method end\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
-			count: 4
+			count: 5
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
 		-

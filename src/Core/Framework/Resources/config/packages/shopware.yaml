@@ -126,3 +126,6 @@ shopware:
               default: false
               major: true
               description: "Rule detail page assignments tab"
+
+    logger:
+        file_rotation_count: 14

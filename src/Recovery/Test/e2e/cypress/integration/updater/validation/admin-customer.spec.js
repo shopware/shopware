@@ -19,7 +19,7 @@ describe('Minimal auto update', () => {
         cy.visit('/admin#/sw/customer/index');
         cy.login();
 
-        cy.contains('.sw-data-grid__cell--firstName', 'Heino Knopf').click();
+        cy.contains('.sw-data-grid__cell--firstName', 'Knopf').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-customer-detail').should('be.visible');
 

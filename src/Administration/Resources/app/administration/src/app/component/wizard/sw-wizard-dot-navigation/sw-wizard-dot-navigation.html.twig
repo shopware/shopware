@@ -1,0 +1,14 @@
+{% block sw_wizard_dot_navigation %}
+    <ul class="sw-wizard-dot-navigation">
+
+        {% block sw_wizard_dot_navigation_item %}
+            <li
+                v-for="(page, index) in pages"
+                class="sw-wizard-dot-navigation__item"
+                :class="{ 'is--active': index === activePage }"
+                :key="index">
+            </li>
+        {% endblock %}
+
+    </ul>
+{% endblock %}

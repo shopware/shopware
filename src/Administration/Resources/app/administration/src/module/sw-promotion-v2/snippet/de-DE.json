@@ -66,6 +66,22 @@
             "discounts": {
                 "emptyStateTitle": "Noch keinen Rabatt angelegt.",
                 "emptyStateButton": "Rabatt anlegen"
+            },
+            "discount-selection": {
+                "modalTitle": "Neuer Rabatt",
+                "description": "Rabatte können als Brutto- oder Nettowert, als feste Summe oder als Prozentsatz angewendet werden. Es ist möglich, einzelne Produkte, ein Produktsortiment oder Versandkosten zu rabattieren.",
+                "basic": {
+                    "name": "Basis-Rabatt",
+                    "description": "Rabattiere ganze Warenkörbe oder eine ausgewählte Gruppe von Produkten."
+                },
+                "buy-x-get-y": {
+                    "name": "X kaufen, Y bekommen",
+                    "description": "Lege einen Rabatt fest, der aktiviert wird, wenn ein bestimmtes Produkt oder bestimmte Produkte in den Warenkorb gelegt werden."
+                },
+                "shipping-discount": {
+                    "name": "Versand-Rabatt",
+                    "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
+                }
             }
         }
     }

@@ -21,7 +21,7 @@
                             <template #actions>
                                 <sw-button
                                     variant="ghost"
-                                    :disabled="true">
+                                    @click="onShowDiscountModal">
                                     {{ $tc('sw-promotion-v2.detail.discounts.emptyStateButton') }}
                                 </sw-button>
                             </template>
@@ -31,6 +31,22 @@
                 {% endblock %}
 
             </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_v2_discounts_wizard %}
+            <sw-wizard
+                v-if="showDiscountModal"
+                :showNavigationDots="selectedDiscountType !== null"
+                @close="onCloseDiscountModal"
+                @finish="onCloseDiscountModal">
+
+                {% block sw_promotion_v2_discounts_wizard_selection %}
+                    <sw-promotion-v2-wizard-discount-selection
+                        @change-selection="onChangeSelection">
+                    </sw-promotion-v2-wizard-discount-selection>
+                {% endblock %}
+
+            </sw-wizard>
         {% endblock %}
 
     </div>

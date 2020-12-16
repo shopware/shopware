@@ -4,5 +4,31 @@ import './sw-promotion-v2-discounts.scss';
 const { Component } = Shopware;
 
 Component.register('sw-promotion-v2-discounts', {
-    template
+    template,
+
+    data() {
+        return {
+            isActive: false,
+            selectedDiscountType: null,
+            showDiscountModal: false
+        };
+    },
+
+    methods: {
+        onButtonClick() {
+            this.isActive = !this.isActive;
+        },
+
+        onChangeSelection(value) {
+            this.selectedDiscountType = value;
+        },
+
+        onShowDiscountModal() {
+            this.showDiscountModal = true;
+        },
+
+        onCloseDiscountModal() {
+            this.showDiscountModal = false;
+        }
+    }
 });

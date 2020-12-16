@@ -66,6 +66,22 @@
             "discounts": {
                 "emptyStateTitle": "No discount yet.",
                 "emptyStateButton": "Add discount"
+            },
+            "discount-selection": {
+                "modalTitle": "New discount",
+                "description": "Discounts can be applied as gross or net values, as a fixed sum or as a percentage. It is possible to discount single products, a product range or shipping costs.",
+                "basic": {
+                    "name": "Basic discount",
+                    "description": "Discount whole shopping carts or a selected group of products."
+                },
+                "buy-x-get-y": {
+                    "name": "Buy X get Y",
+                    "description": "Set a discount that gets activated when one or more certain products are added to the cart."
+                },
+                "shipping-discount": {
+                  "name": "Shipping discount",
+                  "description": "Discount shipping costs or provide free shipping using optional product triggers."
+                }
             }
         }
     }

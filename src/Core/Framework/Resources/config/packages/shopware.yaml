@@ -65,6 +65,9 @@ shopware:
             - name: FEATURE_NEXT_8172
               major: true
               description: "prevent plugins to extend the first level menu entries"
+            - name: FEATURE_NEXT_12009
+              major: true
+              description: "remove countries from sales channel object inside context"
             - name: FEATURE_NEXT_10549
               major: false
               description: "save cart or products on wishlist"

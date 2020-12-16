@@ -67,6 +67,8 @@ ForeignTable(ShopwareCoreContentImportExportAggregateImportExportLogImportExport
 }
 ForeignTable(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role") {
 }
+ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
+}
 
 ' relationshipd
 
@@ -77,4 +79,5 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregati
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 @enduml

@@ -75,6 +75,25 @@
                                           @selection-change="updateSelection">
 
                                 {% block sw_order_list_grid_columns %}
+                                    {% block sw_order_list_grid_columns_order_number %}
+                                        <template #column-orderNumber="{ item }">
+                                            {% block sw_order_list_grid_order_number_link %}
+                                                <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                                    {{ item.orderNumber }}
+                                                </router-link>
+                                            {% endblock %}
+
+                                            {% block sw_order_list_grid_label_manual_order %}
+                                                <sw-label v-if="item.createdById"
+                                                          appearance="pill"
+                                                          size="small"
+                                                          class="sw-order-list__manual-order-label">
+                                                    {{ $tc('sw-order.list.labelManualOrder') }}
+                                                </sw-label>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+
                                     {% block sw_order_list_grid_columns_customer_name %}
                                         <template #column-orderCustomer.firstName="{ item }">
                                             <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">

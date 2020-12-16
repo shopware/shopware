@@ -18,6 +18,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\User\UserEntity;
 
 class OrderEntity extends Entity
 {
@@ -197,6 +198,26 @@ class OrderEntity extends Entity
      * @var string[]|null
      */
     protected $ruleIds = [];
+
+    /**
+     * @var string|null
+     */
+    protected $createdById;
+
+    /**
+     * @var UserEntity|null
+     */
+    protected $createdBy;
+
+    /**
+     * @var string|null
+     */
+    protected $updatedById;
+
+    /**
+     * @var UserEntity|null
+     */
+    protected $updatedBy;
 
     public function getCurrencyId(): string
     {
@@ -562,6 +583,46 @@ class OrderEntity extends Entity
     public function setBillingAddress(OrderAddressEntity $billingAddress): void
     {
         $this->billingAddress = $billingAddress;
+    }
+
+    public function getCreatedById(): ?string
+    {
+        return $this->createdById;
+    }
+
+    public function setCreatedById(string $createdById): void
+    {
+        $this->createdById = $createdById;
+    }
+
+    public function getCreatedBy(): ?UserEntity
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(UserEntity $createdBy): void
+    {
+        $this->createdBy = $createdBy;
+    }
+
+    public function getUpdatedById(): ?string
+    {
+        return $this->updatedById;
+    }
+
+    public function setUpdatedById(string $updatedById): void
+    {
+        $this->updatedById = $updatedById;
+    }
+
+    public function getUpdatedBy(): ?UserEntity
+    {
+        return $this->updatedBy;
+    }
+
+    public function setUpdatedBy(UserEntity $updatedBy): void
+    {
+        $this->updatedBy = $updatedBy;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

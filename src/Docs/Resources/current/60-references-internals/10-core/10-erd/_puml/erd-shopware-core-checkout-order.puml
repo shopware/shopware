@@ -49,6 +49,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(stateId) stateMachineState
    ruleIds list
    customFields customFields
+   createdById createdBy
+   updatedById updatedBy
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -182,6 +184,8 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 }
 ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
 }
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
 ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
 }
 ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
@@ -214,6 +218,7 @@ ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> Shopw
 ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition

@@ -1738,6 +1738,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(stateId) stateMachineState
    ruleIds list
    customFields customFields
+   createdById createdBy
+   updatedById updatedBy
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -2217,6 +2219,7 @@ ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> Shopware
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -92,6 +93,8 @@ class UserDefinition extends EntityDefinition
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
             (new StringField('store_token', 'storeToken'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
+            new OneToManyAssociationField('createdOrders', OrderDefinition::class, 'created_by_id', 'id'),
+            new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
         ]);
     }
 }

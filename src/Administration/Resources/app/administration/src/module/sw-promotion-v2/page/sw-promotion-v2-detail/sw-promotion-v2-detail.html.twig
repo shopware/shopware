@@ -12,25 +12,25 @@
 
                 {% block sw_promotion_v2_detail_actions_abort %}
                     <sw-button
-                            v-tooltip.bottom="tooltipCancel"
-                            class="sw-promotion-v2-detail__cancel-action"
-                            :disabled="promotion !== null && promotion.isLoading"
-                            @click="onCancel">
+                        v-tooltip.bottom="tooltipCancel"
+                        class="sw-promotion-v2-detail__cancel-action"
+                        :disabled="promotion !== null && promotion.isLoading"
+                        @click="onCancel">
                         {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_promotion_v2_detail_actions_save %}
                     <sw-button-process
-                            v-model="isSaveSuccessful"
-                            v-tooltip.bottom="tooltipSave"
-                            class="sw-promotion-v2-detail__save-action"
-                            variant="primary"
-                            :isLoading="isLoading"
-                            :disabled="isLoading || !acl.can('promotion.editor')"
-                            :processSuccess="isSaveSuccessful"
-                            @process-finish="saveFinish"
-                            @click.prevent="onSave">
+                        v-model="isSaveSuccessful"
+                        v-tooltip.bottom="tooltipSave"
+                        class="sw-promotion-v2-detail__save-action"
+                        variant="primary"
+                        :isLoading="isLoading"
+                        :disabled="isLoading || !acl.can('promotion.editor')"
+                        :processSuccess="isSaveSuccessful"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('global.default.save') }}
                     </sw-button-process>
                 {% endblock %}
@@ -53,21 +53,21 @@
 
                     {% block sw_promotion_v2_detail_content_language_info %}
                         <sw-language-info
-                                :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
-                                :isNewEntity="!promotionId">
+                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.header.titleCreate'))"
+                            :isNewEntity="!promotionId">
                         </sw-language-info>
                     {% endblock %}
 
                     {% block sw_promotion_v2_detail_content_tabs %}
                         <sw-tabs
-                                v-if="!isCreateMode"
-                                class="sw-promotion-v2-detail-page__tabs">
+                            v-if="!isCreateMode"
+                            class="sw-promotion-v2-detail-page__tabs">
 
                             {% block sw_promotion_v2_detail_content_tabs_general %}
                                 <sw-tabs-item
-                                        :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
-                                        :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
-                                        :disabled="!promotionId">
+                                    :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
+                                    :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
+                                    :disabled="!promotionId">
                                     {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}
                                 </sw-tabs-item>
                             {% endblock %}
@@ -86,9 +86,9 @@
 
                     {% block sw_product_detail_content_view %}
                         <router-view
-                                :promotion="promotion"
-                                :isLoading="isLoading"
-                                :isCreateMode="isCreateMode">
+                            :promotion="promotion"
+                            :isLoading="isLoading"
+                            :isCreateMode="isCreateMode">
                         </router-view>
                     {% endblock %}
 

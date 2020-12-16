@@ -17,7 +17,7 @@ Module.register('sw-promotion-v2', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'default-package-gift',
+    icon: 'default-object-marketing',
     favicon: 'default-object-marketing',
     entity: 'promotion',
 
@@ -109,7 +109,7 @@ Module.register('sw-promotion-v2', {
         path: 'sw.promotion.v2.index',
         label: 'sw-promotion-v2.general.mainMenuItemGeneral',
         color: '#FFD700',
-        icon: 'default-package-gift',
+        icon: 'default-object-marketing',
         position: 100,
         parent: 'sw-marketing',
         privilege: 'promotion.viewer'

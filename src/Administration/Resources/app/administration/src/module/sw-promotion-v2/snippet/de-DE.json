@@ -26,38 +26,43 @@
                 "tabGeneral": "Allgemein",
                 "tabDiscounts": "Rabatte"
             },
-            "general": {
-                "cardTitle": "Allgemeine Einstellungen",
-                "nameLabel": "Name",
-                "validFromLabel": "Gültig ab",
-                "validFromPlaceholder": "Wähle ein Startdatum ...",
-                "validUntilLabel": "Gültig bis",
-                "validUntilPlaceholder": "Wähle ein Enddatum ...",
-                "maxUsesGlobalLabel": "Gesamtnutzungen",
-                "maxUsesGlobalPlaceholder": "Unbegrenzt",
-                "maxUsesPerCustomerLabel": "Nutzungen je Kunde",
-                "maxUsesPerCustomerPlaceholder": "Unbegrenzt",
-                "activeLabel": "Aktiv"
-            },
-            "codes": {
-                "cardTitle": "Aktionscodes",
-                "codeTypeLabel": "Aktionscodetypen",
-                "none": {
-                    "description": "Kein Aktionscode erforderlich"
+            "base": {
+                "general": {
+                    "cardTitle": "Allgemeine Einstellungen",
+                    "nameLabel": "Name",
+                    "validFromLabel": "Gültig ab",
+                    "validFromPlaceholder": "Wähle ein Startdatum ...",
+                    "validUntilLabel": "Gültig bis",
+                    "validUntilPlaceholder": "Wähle ein Enddatum ...",
+                    "maxUsesGlobalLabel": "Gesamtnutzungen",
+                    "maxUsesGlobalPlaceholder": "Unbegrenzt",
+                    "maxUsesPerCustomerLabel": "Nutzungen je Kunde",
+                    "maxUsesPerCustomerPlaceholder": "Unbegrenzt",
+                    "activeLabel": "Aktiv"
                 },
-                "fixed": {
-                    "description": "Festgelegter Aktionscode",
-                    "codeLabel": "Aktionscode",
-                    "generateButton": "Zufälligen Code generieren"
-                },
-                "individual": {
-                    "description": "Individuelle Aktionscodes"
+                "codes": {
+                    "cardTitle": "Aktionscodes",
+                    "codeTypeLabel": "Aktionscodetypen",
+                    "none": {
+                        "description": "Kein Aktionscode erforderlich"
+                    },
+                    "fixed": {
+                        "description": "Festgelegter Aktionscode",
+                        "codeLabel": "Aktionscode",
+                        "codePlaceholder": "Gib einen Aktionscode ein ...",
+                        "generateButton": "Zufälligen Code generieren"
+                    },
+                    "individual": {
+                        "description": "Individuelle Aktionscodes",
+                        "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
+                        "generateButton": "Erstelle Aktionscodes"
+                    }
                 }
+            },
+            "discounts": {
+                "emptyStateTitle": "Noch keinen Rabatt angelegt.",
+                "emptyStateButton": "Rabatt anlegen"
             }
-        },
-        "discounts": {
-            "emptyStateTitle": "Noch keinen Rabatt angelegt.",
-            "emptyStateButton": "Rabatt anlegen"
         }
     }
 }

@@ -73,7 +73,8 @@
     &.sw-card--large {
         max-width: 1330px;
 
-        .sw-card__title {
+        .sw-card__title,
+        .sw-card__subtitle {
             width: auto;
             position: relative;
             top: 0;
@@ -82,18 +83,34 @@
         }
     }
 
-    .sw-card__title {
+    .sw-card__title,
+    .sw-card__subtitle {
         margin-bottom: 12px;
-        font-size: 18px;
-        line-height: 24px;
         color: $color-darkgray-200;
 
         @media screen and (min-width: 1580px) {
             width: 200px;
             position: absolute;
             left: -240px;
-            top: 0;
             text-align: right;
+        }
+    }
+
+    .sw-card__title {
+        font-size: $font-size-large;
+        line-height: 24px;
+
+        @media screen and (min-width: 1580px) {
+            top: 0;
+        }
+    }
+
+    .sw-card__subtitle {
+        font-size: $font-size-small;
+        line-height: 20px;
+
+        @media screen and (min-width: 1580px) {
+            top: 40px;
         }
     }
 

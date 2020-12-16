@@ -1,6 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-base';
-import cmsStore from 'src/module/sw-cms/state/cms-page.state';
 import Vuex from 'vuex';
 
 function createWrapper(privileges = []) {
@@ -41,8 +40,7 @@ function createWrapper(privileges = []) {
             'sw-card': {
                 template: '<div><slot></slot><slot name="grid"></slot></div>'
             },
-            'sw-context-menu-item': true,
-            'sw-product-layout-assignment': true
+            'sw-context-menu-item': true
         },
         mocks: {
             $tc: () => {},
@@ -51,13 +49,7 @@ function createWrapper(privileges = []) {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => {
-                        return Promise.resolve('bar');
-                    },
-
-                    get: (id) => {
-                        return Promise.resolve({ id });
-                    }
+                    search: () => Promise.resolve('bar')
                 })
             },
             acl: {
@@ -68,9 +60,6 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         }
     });
@@ -115,15 +104,8 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     product: false,
                     media: false
                 }
-            },
-            mutations: {
-                setProduct(state, newProduct) {
-                    state.product = newProduct;
-                }
             }
         });
-
-        Shopware.State.registerModule('cmsPageState', cmsStore);
     });
 
     it('should be a Vue.JS component', async () => {
@@ -183,21 +165,5 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         const deleteMenuItem = wrapper.find('.sw-product-detail-base__review-edit');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    it('should be able to assign a new product page layout', async () => {
-        wrapper.vm.onLayoutSelect('ad6b4ff55b9949f2a6b8bdab80d64c64');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.product.cmsPageId).toBe('ad6b4ff55b9949f2a6b8bdab80d64c64');
-        expect(Shopware.State.get('cmsPageState').currentPage.id).toBe('ad6b4ff55b9949f2a6b8bdab80d64c64');
-    });
-
-    it('should be able to remove product page layout', async () => {
-        wrapper.vm.onLayoutReset();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.product.cmsPageId).toBe(null);
-        expect(Shopware.State.get('cmsPageState').currentPage.id).toBe(null);
     });
 });

@@ -2,15 +2,20 @@
     <div class="sw-card" :class="cardClasses">
         {% block sw_card_title %}
             <slot name="title">
-                <div class="sw-card__title" v-if="title">{{ title }}</div>
+                <div v-if="title" class="sw-card__title">{{ title }}</div>
+            </slot>
+        {% endblock %}
+
+        {% block sw_card_subtitle %}
+            <slot name="subtitle">
+                <div v-if="subtitle" class="sw-card__subtitle">{{ subtitle }}</div>
             </slot>
         {% endblock %}
 
         <slot name="tabs"></slot>
 
         {% block sw_card_toolbar %}
-            <div class="sw-card__toolbar"
-                 v-if="!!$slots.toolbar">
+            <div v-if="!!$slots.toolbar" class="sw-card__toolbar">
                 {% block sw_card_toolbar_inner %}
                     <slot name="toolbar">
                         {% block sw_card_slot_toolbar %}{% endblock %}
@@ -18,6 +23,7 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
         {% block sw_card_content %}
             <div class="sw-card__content">
                 <slot>

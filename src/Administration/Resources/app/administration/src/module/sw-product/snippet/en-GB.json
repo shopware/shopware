@@ -131,8 +131,7 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO",
-      "cardTitleLayout": "Layout assignment"
+      "cardTitleSeo": "SEO"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -216,6 +215,7 @@
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",
+      "tabLayout": "Layout",
       "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
@@ -336,6 +336,10 @@
         "cancel": "Cancel",
         "save": "Save"
       }
+    },
+    "layout": {
+      "title": "Layout assignment",
+      "subtitle": "You may change product detail pages by assigning custom layouts. If no custom layout is assigned here, the default layout will be used."
     },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",

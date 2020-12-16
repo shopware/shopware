@@ -83,7 +83,7 @@ class LineItemCustomFieldRule extends Rule
      */
     private function isCustomFieldValid(LineItem $lineItem): bool
     {
-        $customFields = $lineItem->getPayloadValue('customFields');
+        $customFields = $lineItem->getPayloadValue('customFields') ?? [];
 
         $actual = $this->getValue($customFields, $this->renderedField);
         if ($actual === null) {

@@ -189,6 +189,10 @@
             <xs:element name="single-select" type="custom-field-single-select-type" maxOccurs="unbounded"
                         minOccurs="0"/>
             <xs:element name="multi-select" type="custom-field-multi-select-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="single-entity-select" type="custom-field-single-entity-select-type" maxOccurs="unbounded"
+                        minOccurs="0"/>
+            <xs:element name="multi-entity-select" type="custom-field-multi-entity-select-type" maxOccurs="unbounded"
+                        minOccurs="0"/>
             <xs:element name="color-picker" type="custom-field-color-picker-type" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="media-selection" type="custom-field-media-type" maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
@@ -258,6 +262,21 @@
     <xs:complexType name="custom-field-multi-select-type">
         <xs:complexContent>
             <xs:extension base="custom-field-single-select-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="custom-field-single-entity-select-type">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+                <xs:group ref="custom-field-type"/>
+                <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+            <xs:element name="entity" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-multi-entity-select-type">
+        <xs:complexContent>
+            <xs:extension base="custom-field-single-entity-select-type"/>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="custom-field-color-picker-type">

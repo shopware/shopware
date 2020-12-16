@@ -126,6 +126,9 @@ shopware:
               default: false
               major: true
               description: "Rule detail page assignments tab"
+            - name: FEATURE_NEXT_10551
+              major: false
+              description: "custom field entity type"
 
     logger:
         file_rotation_count: 14

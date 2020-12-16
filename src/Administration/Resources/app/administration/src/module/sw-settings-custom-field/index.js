@@ -7,6 +7,7 @@ import './component/sw-custom-field-list';
 import './component/sw-custom-field-detail';
 import './component/sw-custom-field-type-base';
 import './component/sw-custom-field-type-select';
+import './component/sw-custom-field-type-entity';
 import './component/sw-custom-field-type-text';
 import './component/sw-custom-field-type-number';
 import './component/sw-custom-field-type-date';

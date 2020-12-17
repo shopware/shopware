@@ -53,6 +53,15 @@ class DataValidationDefinition
         return $this->add($name, ...$constraints);
     }
 
+    public function remove(string $name): self
+    {
+        if (\array_key_exists($name, $this->properties)) {
+            unset($this->properties[$name]);
+        }
+
+        return $this;
+    }
+    
     public function addSub(string $name, DataValidationDefinition $definition): self
     {
         $this->subDefinitions[$name] = $definition;

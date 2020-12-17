@@ -50,7 +50,8 @@
       "modalTitleReset": "Theme zurücksetzen",
       "buttonSave": "Speichern",
       "modalTitleSave": "Theme speichern",
-      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird die Visualisierung Ihres Shops verändern."
+      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird die Visualisierung Ihres Shops verändern.",
+      "addToMediaLabel": "Zu {name} hinzufügen"
     },
     "list": {
       "titleSidebarItemRefresh": "Aktualisieren",

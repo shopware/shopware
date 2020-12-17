@@ -1,7 +1,6 @@
 ---
 title: Entity Type Custom Field
 issue: NEXT-12269
-flag: FEATURE_NEXT_10551
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com 
 author_github: lernhart

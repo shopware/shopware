@@ -6,7 +6,6 @@ import 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base'
 function createWrapper(privileges = [], isNew = true) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    Shopware.Feature.flags.FEATURE_NEXT_10551 = true;
 
     return shallowMount(Shopware.Component.build('sw-custom-field-type-entity'), {
         localVue,

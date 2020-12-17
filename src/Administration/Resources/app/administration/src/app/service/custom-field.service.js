@@ -1,5 +1,3 @@
-import Feature from '../../core/feature';
-
 const { remove } = Shopware.Utils.array;
 
 /**
@@ -17,6 +15,11 @@ export default function createCustomFieldService() {
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
+            config: {}
+        },
+        entity: {
+            configRenderComponent: 'sw-custom-field-type-entity',
+            type: 'select',
             config: {}
         },
         text: {
@@ -84,14 +87,6 @@ export default function createCustomFieldService() {
             }
         }
     };
-
-    if (Feature.isActive('FEATURE_NEXT_10551')) {
-        $typeStore.entity = {
-            configRenderComponent: 'sw-custom-field-type-entity',
-            type: 'select',
-            config: {}
-        };
-    }
 
     const $entityNameStore = [
         'category',

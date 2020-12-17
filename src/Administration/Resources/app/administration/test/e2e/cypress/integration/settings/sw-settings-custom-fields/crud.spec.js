@@ -25,10 +25,6 @@ describe('Custom Fields: Test crud operations', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
 
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10551')) {
-                return;
-            }
-
             cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
             cy.get('.sw-custom-field-translated-labels input').clearTypeAndCheck('My custom field set');

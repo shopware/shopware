@@ -59,7 +59,15 @@
                     "individual": {
                         "description": "Individual promotion codes",
                         "emptyStateTitle": "No promotion codes generated yet.",
-                        "generateButton": "Generate codes"
+                        "generateButton": "Generate codes",
+                        "searchPlaceholder": "Search promotion codes...",
+                        "addButton": "Add codes",
+                        "columnCode": "Code",
+                        "columnRedeemed": "Redeemed",
+                        "columnCustomer": "Customer",
+                        "textDeleteConfirm": "Are you sure you want to delete the code \"{code}\"? | Are you sure cou want to delete these {count} codes?",
+                        "openCustomer": "Open customer",
+                        "routingError": "The customer \"{name}\" has not been found."
                     }
                 }
             },

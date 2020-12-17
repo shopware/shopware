@@ -137,7 +137,10 @@
 
                             {% block sw_product_list_grid_action_modals %}
                                 <template slot="action-modals" slot-scope="{ item }">
-                                    <sw-modal v-if="showDeleteModal === item.id" @modal-close="onCloseDeleteModal" :title="$tc('global.default.warning')" variant="small">
+                                    <sw-modal v-if="showDeleteModal === item.id"
+                                              variant="small"
+                                              :title="$tc('global.default.warning')"
+                                              @modal-close="onCloseDeleteModal">
                                         <p class="sw-property-list__confirm-delete-text">
                                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                         </p>

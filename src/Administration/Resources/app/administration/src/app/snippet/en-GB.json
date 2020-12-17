@@ -894,7 +894,10 @@
   "sw-image-slider": {
     "imageAlt": "Image {index} / {total}"
   },
-  "sw-rule-modal": {
+  "sw-confirm-modal": {
+        "defaultText": "Are you sure you want to proceed?"
+    },
+    "sw-rule-modal": {
     "modalTitleNew": "Create new global rule",
     "modalTitleModify": "Modify global rule",
     "labelDescription": "Description",

@@ -151,13 +151,9 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         deleteItems() {
             this.isBulkLoading = true;
-            const promises = [];
+            const selectedIds = Object.values(this.selection).map(selectedProxy => selectedProxy.id);
 
-            Object.values(this.selection).forEach((selectedProxy) => {
-                promises.push(this.repository.delete(selectedProxy.id, this.items.context));
-            });
-
-            return Promise.all(promises).then(() => {
+            return this.repository.syncDeleted(selectedIds, this.items.context).then(() => {
                 return this.deleteItemsFinish();
             }).catch(() => {
                 return this.deleteItemsFinish();

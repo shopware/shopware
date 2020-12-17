@@ -54,9 +54,9 @@
       "labelPlaceOfJurisdiction": "Geichtsstand / HBR",
       "labelPlaceOfFulfillment": "Erfüllungsort",
       "labelExecutiveDirector": "Geschäftsführer",
-      "labelDisplayAdditionalNoteDelivery": "Hinweis zur innergemeinschaftlichen Lieferung auf Belegen anzeigen",
-      "labelDeliveryCountries": "Innergemeinschaftliche Länder",
-      "placeholderDisplayDeliveryCountries": "Innergemeinschaftliche Länder durchsuchen und hinzufügen...",
+      "labelDisplayAdditionalNoteDelivery": "Hinweis \"innergemeinschaftliche Lieferung\" anzeigen",
+      "labelDeliveryCountries": "Mitgliedsländer",
+      "placeholderDisplayDeliveryCountries": "Gültige Länder für innergemeinschaftliche Lieferung suchen und hinzufügen ...",
       "labelOptionMedia": "Firmenlogo",
       "placeholderName": "Namen eingeben ...",
       "buttonCancel": "Abbrechen",
@@ -67,7 +67,7 @@
       "labelDisplayDocumentInCustomerAccount": "Dokument in \"Mein Konto\" Bereich anzeigen",
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
-      "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen zusätzlichen Hinweis zur Innergemeinschaftlichen Lieferung auf den Rechnungsdokumenten."
+      "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen zusätzlichen Hinweis zur innergemeinschaftlichen Lieferung auf den Rechnungsdokumenten."
     }
   },
   "sw-privileges": {

@@ -61,7 +61,7 @@ class DataValidationDefinition
 
         return $this;
     }
-    
+
     public function addSub(string $name, DataValidationDefinition $definition): self
     {
         $this->subDefinitions[$name] = $definition;

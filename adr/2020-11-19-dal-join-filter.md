@@ -62,3 +62,30 @@ After the `join-groups` have been formed, the field to be resolved is passed to 
 Resolved filters in the JOIN are then marked and later in the WHERE they are linked with the corresponding AND/OR/NOT logic.
 
 ## Consequences
+Queries against the DAL can now behave differently if multiple filters are set on a to many association.
+To filter a to many association on multiple fields, where all filters should be related to each other, they must now be wrapped in a multi filter.
+
+Note: If you use filters that filter on a to-many association field, you should check if the results of this query are still correct. It may be that more or less records are returned.
+
+The following example shows how the filter behavior has changed on to-many associations:
+```
+1: 
+$criteria->addFilter(
+    new AndFilter([
+        new EqualsFilter('product.categories.name', 'test-category'),
+        new EqualsFilter('product.categories.active', true)
+    ])
+);
+
+2:
+$criteria->addFilter(
+    new EqualsFilter('product.categories.name', 'test-category')
+);
+$criteria->addFilter(
+    new EqualsFilter('product.categories.active', true)
+);
+
+```
+
+1: Returns all products assigned to the `test-category` category where `test-category` is also active.
+2: Returns all products that are assigned to the `test-category` category AND have a category assigned that is active.

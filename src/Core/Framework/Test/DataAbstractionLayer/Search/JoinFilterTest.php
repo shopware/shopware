@@ -16,19 +16,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\AfterClassTransactionBehavior;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class JoinFilterTest extends TestCase
 {
     use KernelTestBehaviour;
-    use AfterClassTransactionBehavior;
+
+    /**
+     * @beforeClass
+     */
+    public static function startTransactionBefore(): void
+    {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $connection->beginTransaction();
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function stopTransactionAfter(): void
+    {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $connection->rollBack();
+    }
 
     public function testIndexing()
     {
-        $this->getContainer()->get(Connection::class)
-            ->executeUpdate('DELETE FROM product');
-
         $ids = new IdsCollection();
 
         $products = [

@@ -97,6 +97,29 @@
                             showSettings
                             :showSelection="false"
                             :compactMode="true">
+                            {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
+                                <template #additionalSettings>
+                                    <template v-if="feature.isActive('FEATURE_NEXT_10541')">
+                                    {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
+                                        <sw-switch-field
+                                            size="medium"
+                                            v-model="showListPrices[priceGroup.ruleId]"
+                                            noMarginTop
+                                            :label="$tc('sw-product.prices.settingShowListPrices')">
+                                        </sw-switch-field>
+                                    {% endblock %}
+                                    </template>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_grid_type %}
+                                <template slot="column-type" slot-scope="{ item, itemIndex, compact }">
+                                    <div class="sw-product-detail-context-prices__type-label">
+                                        <label>Price</label>
+                                        <label v-if="showListPrices[priceGroup.ruleId]">List price</label>
+                                    </div>
+                                </template>
+                            {% endblock %}
 
                             {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                                 <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
@@ -134,9 +157,35 @@
 
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                                 <template v-for="currency in currencies" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, column, compact }">
-                                    <div class="product-detail-context-prices__price-field-wrapper">
+                                    <template v-if="!showListPrices[priceGroup.ruleId]">
+                                        <div class="product-detail-context-prices__price-field-wrapper">
+                                            {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
+                                                <sw-inheritance-switch
+                                                    v-if="!currency.isSystemDefault"
+                                                    class="sw-product-detail-context-prices__inherited-icon"
+                                                    :isInherited="isPriceFieldInherited(item, currency)"
+                                                    @inheritance-restore="onInheritanceRestore(item, currency)"
+                                                    @inheritance-remove="onInheritanceRemove(item, currency)"
+                                                    :disabled="!acl.can('product.editor')">
+                                                </sw-inheritance-switch>
+                                            {% endblock %}
 
-                                        {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
+                                            {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
+                                                <sw-price-field
+                                                    :price="item.price"
+                                                    :defaultPrice="findDefaultPriceOfRule(item)"
+                                                    :taxRate="productTaxRate"
+                                                    :label="false"
+                                                    :compact="compact"
+                                                    :currency="currency"
+                                                    :disabled="!acl.can('product.editor')">
+                                                </sw-price-field>
+                                            {% endblock %}
+                                        </div>
+                                    </template>
+
+                                    <template v-if="showListPrices[priceGroup.ruleId] && feature.isActive('FEATURE_NEXT_10541')">
+                                        <div class="product-detail-context-prices__price-field-wrapper">
                                             <sw-inheritance-switch
                                                 v-if="!currency.isSystemDefault"
                                                 class="sw-product-detail-context-prices__inherited-icon"
@@ -145,21 +194,18 @@
                                                 @inheritance-remove="onInheritanceRemove(item, currency)"
                                                 :disabled="!acl.can('product.editor')">
                                             </sw-inheritance-switch>
-                                        {% endblock %}
-
-                                        {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
-                                            <sw-price-field
+                                            <sw-list-price-field
                                                 :price="item.price"
                                                 :defaultPrice="findDefaultPriceOfRule(item)"
+                                                :vertical="true"
                                                 :taxRate="productTaxRate"
                                                 :label="false"
                                                 :compact="compact"
-                                                :currency="currency"
-                                                :disabled="!acl.can('product.editor')">
-                                            </sw-price-field>
-                                        {% endblock %}
-
-                                    </div>
+                                                :disabled="!acl.can('product.editor')"
+                                                :currency="currency">
+                                            </sw-list-price-field>
+                                        </div>
+                                    </template>
                                 </template>
                             {% endblock %}
 

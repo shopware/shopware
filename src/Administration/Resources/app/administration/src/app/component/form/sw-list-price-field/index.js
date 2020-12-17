@@ -123,7 +123,7 @@ Component.register('sw-list-price-field', {
 
                 return [{
                     gross: 0,
-                    currencyId: this.currency.id,
+                    currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
                     linked: true,
                     net: 0
                 }];
@@ -136,6 +136,21 @@ Component.register('sw-list-price-field', {
                     this.$set(price, 'listPrice', newValue);
                 }
             }
+        },
+
+        defaultListPrice() {
+            const price = this.defaultPrice.listPrice;
+
+            if (price) {
+                return price;
+            }
+
+            return {
+                currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                gross: 0,
+                net: 0,
+                linked: true
+            };
         }
     },
 

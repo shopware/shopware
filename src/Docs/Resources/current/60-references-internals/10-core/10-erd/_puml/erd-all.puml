@@ -1404,7 +1404,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    translated json
 }
 TranslationTable(ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition, "cms_slot_translation\n((Translations))") {
-   not_null(config) configurationValue
+   config configurationValue
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt

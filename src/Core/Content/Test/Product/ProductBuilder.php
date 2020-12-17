@@ -25,7 +25,7 @@ class ProductBuilder
     /**
      * @var string
      */
-    public $number;
+    public $productNumber;
 
     /**
      * @var string
@@ -63,6 +63,11 @@ class ProductBuilder
     public $categories = [];
 
     /**
+     * @var array
+     */
+    public $properties = [];
+
+    /**
      * @var int
      */
     public $stock;
@@ -92,16 +97,31 @@ class ProductBuilder
      */
     public $purchasePrice;
 
+    /**
+     * @var string|null
+     */
+    public $parentId;
+
+    /**
+     * @var array
+     */
     public $_dynamic = [];
 
     public function __construct(IdsCollection $ids, string $number, string $taxKey, int $stock)
     {
         $this->ids = $ids;
-        $this->number = $number;
+        $this->productNumber = $number;
         $this->id = $this->ids->create($number);
         $this->tax($taxKey);
         $this->stock = $stock;
         $this->name = $number;
+    }
+
+    public function parent(string $key): self
+    {
+        $this->parentId = $this->ids->get($key);
+
+        return $this;
     }
 
     public function name(string $name): self
@@ -139,9 +159,9 @@ class ProductBuilder
         return $this;
     }
 
-    public function visibility(string $salesChannelId = Defaults::SALES_CHANNEL, string $visibiltiy = ProductVisibilityDefinition::VISIBILITY_ALL): self
+    public function visibility(string $salesChannelId = Defaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
     {
-        $this->visibilities[] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibiltiy];
+        $this->visibilities[] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibility];
 
         return $this;
     }
@@ -222,10 +242,25 @@ class ProductBuilder
     public function build(): array
     {
         $data = get_object_vars($this);
-        unset($data['ids']);
-        unset($data['_dynamic']);
+
+        unset($data['ids'], $data['_dynamic']);
+
         $data = array_merge($data, $this->_dynamic);
 
         return array_filter($data);
+    }
+
+    public function property(string $key, string $group): ProductBuilder
+    {
+        $this->properties[] = [
+            'id' => $this->ids->get($key),
+            'name' => $key,
+            'group' => [
+                'id' => $this->ids->get($group),
+                'name' => $group,
+            ],
+        ];
+
+        return $this;
     }
 }

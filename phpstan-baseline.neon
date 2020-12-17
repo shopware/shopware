@@ -7435,3 +7435,12 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
 
+		-
+			message: "#^Method .*ProductBuilder\\:\\:customField\\(\\) has parameter \\$value with no typehint specified\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Product/ProductBuilder.php
+
+		-
+			message: "#^Method .*ProductBuilder\\:\\:add\\(\\) has parameter \\$value with no typehint specified\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Product/ProductBuilder.php

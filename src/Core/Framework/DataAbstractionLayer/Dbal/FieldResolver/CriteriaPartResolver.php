@@ -177,7 +177,7 @@ class CriteriaPartResolver
         }
 
         if (!$field instanceof ManyToManyAssociationField) {
-            throw new \RuntimeException(sprintf('Unknown association class provided %s', get_class($field)));
+            throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($field)));
         }
 
         $reference = $field->getReferenceDefinition();
@@ -379,6 +379,6 @@ class CriteriaPartResolver
             return EntityDefinitionQueryHelper::escape($association->getLocalField());
         }
 
-        throw new \RuntimeException(sprintf('Unknown association class provided %s', get_class($association)));
+        throw new \RuntimeException(sprintf('Unknown association class provided %s', \get_class($association)));
     }
 }

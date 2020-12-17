@@ -74,7 +74,7 @@
 
                         {% block sw_review_list_content_list_user %}
                             <template #column-user="{ item }">
-                                <router-link :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }">
+                                <router-link v-if="item.customer" :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }">
                                     {{ item.customer.lastName }}, {{ item.customer.firstName }}
                                 </router-link>
                             </template>

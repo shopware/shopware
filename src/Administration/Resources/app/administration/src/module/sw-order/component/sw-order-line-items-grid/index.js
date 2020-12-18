@@ -104,9 +104,9 @@ Component.register('sw-order-line-items-grid', {
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
-                label: this.taxStatus === 'net' ?
-                    'sw-order.detailBase.columnTotalPriceNet' :
-                    'sw-order.detailBase.columnTotalPriceGross',
+                label: this.taxStatus === 'gross' ?
+                    'sw-order.detailBase.columnTotalPriceGross' :
+                    'sw-order.detailBase.columnTotalPriceNet',
                 allowResize: false,
                 align: 'right',
                 width: '80px'

@@ -120,9 +120,9 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
-                label: this.taxStatus === 'net' ?
-                    this.$tc('sw-order.createBase.columnTotalPriceNet') :
-                    this.$tc('sw-order.createBase.columnTotalPriceGross'),
+                label: this.taxStatus === 'gross' ?
+                    this.$tc('sw-order.createBase.columnTotalPriceGross') :
+                    this.$tc('sw-order.createBase.columnTotalPriceNet'),
                 allowResize: false,
                 align: 'right',
                 width: '80px'

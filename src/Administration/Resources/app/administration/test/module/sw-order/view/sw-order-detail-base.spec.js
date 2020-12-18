@@ -178,6 +178,7 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
         const orderSummary = wrapper.find('.sw-order-detail__summary');
         expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountTotal');
+        expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountGrandTotal');
     });
 
     it('should only display Total row when tax status tax free', async () => {
@@ -189,5 +190,6 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
         const orderSummary = wrapper.find('.sw-order-detail__summary');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountTotal');
+        expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountGrandTotal');
     });
 });

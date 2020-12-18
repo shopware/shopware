@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -88,12 +89,17 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/change-email", name="store-api.account.change-email", methods={"POST"})
      */
-    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context): SuccessResponse
+    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         $this->validateEmail($requestDataBag, $context);
 
         $customerData = [
-            'id' => $context->getCustomer()->getId(),
+            'id' => $customer->getId(),
             'email' => $requestDataBag->get('email'),
         ];
 

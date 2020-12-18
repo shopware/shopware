@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -97,12 +98,17 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/change-password", name="store-api.account.change-password", methods={"POST"})
      */
-    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context)
+    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null)
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         $this->validatePasswordFields($requestDataBag, $context);
 
         $customerData = [
-            'id' => $context->getCustomer()->getId(),
+            'id' => $customer->getId(),
             'password' => $requestDataBag->get('newPassword'),
         ];
 

@@ -81,14 +81,17 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      * @LoginRequired()
      * @Route("/store-api/v{version}/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"})
      */
-    public function delete(string $productId, SalesChannelContext $context): SuccessResponse
+    public function delete(string $productId, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            /** @var CustomerEntity $customer */
+            $customer = $context->getCustomer();
+        }
+
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw new CustomerWishlistNotActivatedException();
         }
-
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
 

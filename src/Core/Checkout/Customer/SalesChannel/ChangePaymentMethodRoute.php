@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -78,13 +79,18 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"})
      */
-    public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context): SuccessResponse
+    public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         $this->validatePaymentMethodId($paymentMethodId, $context->getContext());
 
         $this->customerRepository->update([
             [
-                'id' => $context->getCustomer()->getId(),
+                'id' => $customer->getId(),
                 'defaultPaymentMethodId' => $paymentMethodId,
             ],
         ], $context->getContext());

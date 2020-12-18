@@ -322,6 +322,10 @@ Component.register('sw-custom-field-set-renderer', {
         onChangeCustomFieldSetSelectionActive(newVal) {
             this.onChangeCustomFieldSets();
             if (!newVal) {
+                if (!this.entity.customFieldSets) {
+                    this.initializeCustomFields();
+                    return;
+                }
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });

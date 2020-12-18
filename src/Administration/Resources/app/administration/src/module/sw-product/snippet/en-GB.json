@@ -240,7 +240,9 @@
       "advancedPricesInherited": "This product has inherited prices from its parent.",
       "linkAdvancedPricesOfParent": "Show prices of parent product",
       "inheritSwitchLabel": "Use advanced prices from parent product",
-      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant."
+      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
+      "advancedListPricePriceLabel": "Price",
+      "advancedListPriceLabel": "List price"
     },
     "properties": {
       "cardTitleProperties": "Available properties",

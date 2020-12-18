@@ -48,7 +48,7 @@
                 {% block component_product_box_block_list_price_wrapper %}
                     {% set cheapestPrice = product.calculatedPrices|last %}
 
-                    <span class="product-advanced-list-price-wrapper">
+                    <span class="product-price product-advanced-list-price-wrapper">
                         {{ "listing.listingTextFrom"|trans|sw_sanitize }} <b>{{ cheapestPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</b>
                     </span>
                 {% endblock %}

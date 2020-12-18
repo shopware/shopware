@@ -115,8 +115,8 @@
                             {% block sw_product_detail_prices_price_card_price_group_grid_type %}
                                 <template slot="column-type" slot-scope="{ item, itemIndex, compact }">
                                     <div class="sw-product-detail-context-prices__type-label">
-                                        <label>Price</label>
-                                        <label v-if="showListPrices[priceGroup.ruleId]">List price</label>
+                                        <label>{{ $tc('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
+                                        <label v-if="showListPrices[priceGroup.ruleId]">{{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}</label>
                                     </div>
                                 </template>
                             {% endblock %}

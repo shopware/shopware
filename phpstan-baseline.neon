@@ -2262,7 +2262,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method getCurrencyPrice\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\PriceCollection\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Content/Product/SalesChannel/Price/ProductPriceDefinitionBuilder.php
 
 		-

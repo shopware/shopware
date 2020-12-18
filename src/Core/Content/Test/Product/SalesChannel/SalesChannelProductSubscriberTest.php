@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,61 +22,47 @@ class SalesChannelProductSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testMaxQuantityCalculation(): void
+    /**
+     * @dataProvider maxPurchaseProvider
+     */
+    public function testMaxPurchaseCalculation(int $expected, bool $closeout, int $stock, int $steps, ?int $max, int $config): void
     {
-        $ids = new TestDataCollection(Context::createDefaultContext());
+        $method = new \ReflectionClass(SalesChannelProductSubscriber::class);
+        $method = $method->getMethod('calculateMaxPurchase');
+        $method->setAccessible(true);
 
-        $defaults = [
-            'name' => 'test',
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-            ],
-        ];
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.cart.maxQuantity', $config);
 
-        $cases = [
-            new MaxPurchaseTestCase(10, false, 25, 10, 100, 'should use configured max purchase'),
-            new MaxPurchaseTestCase(10, false, 1, 10, 100, 'less stock, but not closeout'),
-            new MaxPurchaseTestCase(20, false, 5, null, 20, 'not configured, fallback to config'),
+        $product = new SalesChannelProductEntity();
+        $product->setIsCloseout($closeout);
 
-            new MaxPurchaseTestCase(2, true, 2, 10, 100, 'closeout with less stock'),
-            new MaxPurchaseTestCase(10, true, 30, 10, 50, 'use configured max purchase for closeout with stock'),
-            new MaxPurchaseTestCase(2, true, 2, null, 50, 'not configured, use stock because closeout'),
-        ];
-
-        foreach ($cases as $i => $case) {
-            $id = $ids->create('product-' . $i);
-
-            $data = array_merge($defaults, [
-                'id' => $id,
-                'productNumber' => $id,
-
-                'maxPurchase' => $case->maxPurchase,
-                'isCloseout' => $case->isCloseout,
-                'stock' => $case->stock,
-            ]);
-
-            $this->getContainer()->get('product.repository')
-                ->create([$data], $ids->getContext());
-
-            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
-            $this->getContainer()->get(SystemConfigService::class)
-                ->set('core.cart.maxQuantity', $case->config);
-
-            /** @var SalesChannelProductEntity|null $product */
-            $product = $this->getContainer()->get('sales_channel.product.repository')
-                ->search(new Criteria([$id]), $context)
-                ->get($id);
-
-            static::assertInstanceOf(SalesChannelProductEntity::class, $product);
-
-            static::assertSame($case->expected, $product->getCalculatedMaxPurchase(), $case->description);
+        if ($max) {
+            $product->setMaxPurchase($max);
         }
+
+        $product->setAvailableStock($stock);
+        $product->setPurchaseSteps($steps);
+
+        $subscriber = $this->getContainer()->get(SalesChannelProductSubscriber::class);
+
+        $calculated = $method->invoke($subscriber, $product, Defaults::SALES_CHANNEL);
+
+        static::assertSame($expected, $calculated);
+    }
+
+    public function maxPurchaseProvider()
+    {
+        // expected, closeout, stock, steps, max, config
+        yield 'should use configured max purchase' => [10, false, 25, 1, 10, 100];
+        yield 'less stock, but not closeout' => [10, false, 1, 1, 10, 100];
+        yield 'not configured, fallback to config' => [20, false, 5, 1, null, 20];
+        yield 'closeout with less stock' => [2, true, 2, 1, 10, 100];
+        yield 'use configured max purchase for closeout with stock' => [10, true, 30, 1, 10, 50];
+        yield 'not configured, use stock because closeout' => [2, true, 2, 1, null, 50];
+        yield 'next step would be higher than available' => [6, true, 9, 6, 20, 20];
+        yield 'second step would be higher than available' => [12, true, 13, 6, 20, 20];
+        yield 'max config is not in steps' => [12, true, 100, 12, 22, 22];
     }
 
     public function testListPrices(): void
@@ -262,48 +249,5 @@ class ListPriceTestCase
         $this->usedCurrency = $usedCurrency;
         $this->expectedPrice = $expectedPrice;
         $this->expectedWas = $expectedWas;
-    }
-}
-
-class MaxPurchaseTestCase
-{
-    /**
-     * @var bool
-     */
-    public $isCloseout;
-
-    /**
-     * @var int
-     */
-    public $stock;
-
-    /**
-     * @var int|null
-     */
-    public $maxPurchase;
-
-    /**
-     * @var int
-     */
-    public $expected;
-
-    /**
-     * @var int
-     */
-    public $config;
-
-    /**
-     * @var string
-     */
-    public $description;
-
-    public function __construct(int $expected, bool $isCloseout, int $stock, ?int $maxPurchase, int $config, string $description)
-    {
-        $this->isCloseout = $isCloseout;
-        $this->stock = $stock;
-        $this->maxPurchase = $maxPurchase;
-        $this->expected = $expected;
-        $this->config = $config;
-        $this->description = $description;
     }
 }

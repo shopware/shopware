@@ -282,7 +282,7 @@ Component.register('sw-admin-menu', {
             return true;
         },
         closeFlyout(event) {
-            if (event.toElement && event.toElement.closest('.sw-admin-menu__navigation-list-item')) {
+            if (!!event && event.toElement && event.toElement.closest('.sw-admin-menu__navigation-list-item')) {
                 if (event.toElement.closest('.sw-admin-menu__navigation-list-item')
                     .classList.contains(this.flyoutEntries[0].parent)) {
                     return;

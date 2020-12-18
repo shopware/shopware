@@ -6,7 +6,8 @@
   },
   "sw-sales-channel": {
     "general": {
-      "titleMenuItems": "Sales Channel"
+      "titleMenuItems": "Sales Channel",
+      "tooltipOpenStorefront": "Open storefront"
     },
     "modal": {
       "title": "Add Sales Channel",

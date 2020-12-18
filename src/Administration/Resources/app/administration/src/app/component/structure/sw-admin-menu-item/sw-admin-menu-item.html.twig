@@ -22,10 +22,13 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                    <span class="sw-admin-menu__navigation-link-label"
+                          :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ getEntryLabel }}
                     </span>
                 {% endblock %}
+
+                <slot name="additional-text"></slot>
             </router-link>
         {% endblock %}
 
@@ -46,10 +49,13 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                    <span class="sw-admin-menu__navigation-link-label"
+                          :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
                     </span>
                 {% endblock %}
+
+                <slot name="additional-text"></slot>
             </a>
         {% endblock %}
 
@@ -68,10 +74,13 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                     <span :class="collapsibleText ? 'collapsible-text' : ''">
+                     <span class="sw-admin-menu__navigation-link-label"
+                           :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
                      </span>
                 {% endblock %}
+
+                <slot name="additional-text"></slot>
             </span>
         {% endblock %}
 

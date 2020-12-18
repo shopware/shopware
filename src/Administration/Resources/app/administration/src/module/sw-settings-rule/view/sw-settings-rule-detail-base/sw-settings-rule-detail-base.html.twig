@@ -1,0 +1,85 @@
+{% block sw_settings_rule_detail_base %}
+    <div class="sw-settings-rule-detail-base">
+        {% block sw_settings_rule_detail_base_content_card %}
+            <sw-card
+                :large="true"
+                :title="$tc('sw-settings-rule.detail.titleCard')">
+                <template v-if="rule">
+                    <sw-container columns="2fr 1fr" gap="0px 32px">
+                        {% block sw_settings_rule_detail_base_content_card_field_name %}
+                            <sw-field
+                                type="text"
+                                :label="$tc('sw-settings-rule.detail.labelName')"
+                                :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                                :error="ruleNameError"
+                                :disabled="!acl.can('rule.editor')"
+                                required
+                                v-model="rule.name">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_settings_rule_detail_base_content_card_field_priority %}
+                            <sw-field
+                                type="number"
+                                :label="$tc('sw-settings-rule.detail.labelPriority')"
+                                :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                                :error="rulePriorityError"
+                                :disabled="!acl.can('rule.editor')"
+                                required
+                                v-model="rule.priority">
+                            </sw-field>
+                        {% endblock %}
+                    </sw-container>
+
+                    {% block sw_settings_rule_detail_base_content_card_field_description %}
+                        <sw-field
+                            type="textarea"
+                            :label="$tc('sw-settings-rule.detail.labelDescription')"
+                            :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                            :disabled="!acl.can('rule.editor')"
+                            v-model="rule.description">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_settings_rule_detail_base_content_card_field_type %}
+                        <sw-multi-select
+                            v-if="rule"
+                            valueProperty="id"
+                            labelProperty="name"
+                            :label="$tc('sw-settings-rule.detail.labelType')"
+                            :disabled="!acl.can('rule.editor')"
+                            :options="availableModuleTypes"
+                            v-model="moduleTypes">
+                            <template #selection-label-property="{ item }">
+                                {{ $tc(item.name) }}
+                            </template>
+
+                            <template #result-label-property="{ item }">
+                                {{ $tc(item.name) }}
+                            </template>
+                        </sw-multi-select>
+                    {% endblock %}
+                </template>
+                <sw-loader v-else></sw-loader>
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_settings_rule_detail_base_conditions_card %}
+            <sw-card
+                class="sw-settings-rule-detail__condition_container"
+                :large="true"
+                :title="$tc('sw-settings-rule.detail.ruleCard')">
+                <sw-condition-tree
+                    :initialConditions="conditions"
+                    :conditionRepository="conditionRepository"
+                    :conditionDataProviderService="ruleConditionDataProviderService"
+                    associationField="ruleId"
+                    :associationValue="rule.id"
+                    :rootCondition="null"
+                    :disabled="!acl.can('rule.editor')"
+                    @conditions-changed="onConditionsChanged">
+                </sw-condition-tree>
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

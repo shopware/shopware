@@ -33,6 +33,9 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppLifecycle extends AbstractAppLifecycle
 {
     /**
@@ -241,10 +244,11 @@ class AppLifecycle extends AbstractAppLifecycle
         $config = $this->appLoader->getConfiguration($app);
         if ($config) {
             $errors = $this->configValidator->validate($manifest, null);
+            $configError = $errors->first();
 
-            if ($errors->count() > 0) {
+            if ($configError) {
                 // only one error can be in the returned collection
-                throw new InvalidAppConfigurationException($errors->first());
+                throw new InvalidAppConfigurationException($configError);
             }
 
             $this->systemConfigService->saveConfig(

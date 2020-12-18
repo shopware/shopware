@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\App;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class ActiveAppsLoader
 {
     /**

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class Metadata extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = [

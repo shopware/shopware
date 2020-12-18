@@ -6,6 +6,9 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class ShopIdProvider
 {
     public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';

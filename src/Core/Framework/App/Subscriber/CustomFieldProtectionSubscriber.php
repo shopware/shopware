@@ -17,6 +17,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
 {
     public const VIOLATION_NO_PERMISSION = 'no_permission_violation';

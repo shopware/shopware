@@ -37,7 +37,7 @@ Shopware.Service('cmsService').registerCmsElement({
     },
     defaultData: {
         boxLayout: 'standard',
-        product: {
+        product: Shopware.Feature.isActive('FEATURE_NEXT_10078') ? null : {
             name: 'Lorem Ipsum dolor',
             description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
                           sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,

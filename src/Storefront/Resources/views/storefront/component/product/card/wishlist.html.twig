@@ -3,6 +3,7 @@
         productId: productId,
         router: {
             add: {
+                afterLoginPath: path('frontend.wishlist.add.after.login', { productId: productId }),
                 path: path('frontend.wishlist.product.add', { productId: productId }),
                 token: sw_csrf('frontend.wishlist.product.add', {"mode": "token"})
             },
@@ -31,8 +32,8 @@
                         <span class="product-wishlist-btn-content text-wishlist-not-added product-wishlist-btn-content-{{ size }}">
                             {{ "listing.addToWishlist"|trans|sw_sanitize }}
                         </span>
-                        <span class="product-wishlist-btn-content text-wishlist-added product-wishlist-btn-content-{{ size }}">
-                            {{ "listing.addedToWishlist"|trans|sw_sanitize }}
+                        <span class="product-wishlist-btn-content text-wishlist-remove product-wishlist-btn-content-{{ size }}">
+                            {{ "listing.removeFromWishlist"|trans|sw_sanitize }}
                         </span>
 
                     {% endif %}

@@ -54,6 +54,7 @@
             "messageDeleteError": "Das Profil konnte nicht gelöscht werden. Bitte stelle sicher das keine Logs mehr zu dem Profil existieren.",
             "messageDuplicateSuccess": "Das Profil wurde erfolgreich dupliziert.",
             "messageDuplicateError": "Das Profil konnte nicht dupliziert werden.",
+            "messageSearchParentProfileError": "Anfrage kann nicht verarbeitet werden",
             "productLabel": "Produkt",
             "customerLabel": "Kunde",
             "categoriesLabel": "Kategorien",

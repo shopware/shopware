@@ -26,6 +26,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
                 ->append($this->createFeatureSection())
+                ->append($this->createLoggerSection())
             ->end();
 
         return $treeBuilder;
@@ -247,7 +248,44 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('flags')
-                ->prototype('scalar')->end()
+                ->useAttributeAsKey('name')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->end()
+                        ->booleanNode('default')->defaultFalse()->end()
+                        ->booleanNode('major')->defaultFalse()->end()
+                        ->scalarNode('description')->end()
+                    ->end()
+                ->end()
+                ->beforeNormalization()
+                    ->always()->then(function ($flags) {
+                        foreach ($flags as $key => $flag) {
+                            // support old syntax
+                            if (\is_int($key) && \is_string($flag)) {
+                                unset($flags[$key]);
+
+                                $flags[] = [
+                                    'name' => $flag,
+                                ];
+                            }
+                        }
+
+                        return $flags;
+                    })
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createLoggerSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('logger'))->getRootNode();
+        $rootNode
+            ->children()
+                ->integerNode('file_rotation_count')
+                    ->defaultValue(14)
                 ->end()
             ->end();
 

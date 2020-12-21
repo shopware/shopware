@@ -23,7 +23,7 @@
             "messageSaveError": "Shipping method \"{name}\" could not be saved.",
             "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
             "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted.",
-            "columnTaxType": "Tax Type",
+            "columnTaxType": "Tax calculation",
             "columnTaxRate": "Tax Rate",
             "placeholderTaxType": "Select tax type"
         },
@@ -49,11 +49,12 @@
             "placeholderTrackingUrl": "Enter URL...",
             "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details.",
             "tax": {
-                "fieldName": "Tax",
+                "fieldName": "Tax calculation",
                 "labelTaxType": "Type",
                 "labelTaxRate": "Rate",
                 "placeholderTaxType": "Select tax type...",
-                "placeholderTaxRate": "Select tax rate..."
+                "placeholderTaxRate": "Select tax rate...",
+                "helpText": "Select from different modes of calculating taxes on shipping costs:<ul style='margin-left: 15px'><li>Auto - Calculation based on all tax rates present in a shopping cart</li><li>Highest - Calculation based on the highest tax rate present in a shopping cart </li><li>Fixed - Calculation based on a manually selected tax rate</li></ul>"
             }
         },
         "constants": {

@@ -46,7 +46,7 @@ class ProductExportControllerTest extends TestCase
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL') . sprintf('/export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
@@ -59,7 +59,7 @@ class ProductExportControllerTest extends TestCase
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL') . sprintf('/export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());
@@ -164,7 +164,7 @@ class ProductExportControllerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
         $connection->exec("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)

@@ -137,7 +137,7 @@ class ConvertMarkdownDocsCommand extends Command
             $tree->add($document);
 
             $hash = $document->getMetadata()->getHash();
-            if (array_key_exists($hash, $hashes)) {
+            if (\array_key_exists($hash, $hashes)) {
                 throw new DuplicateHashException(sprintf('Hash \'%s\' is duplicated in files \'%s\' and \'%s\'.', $hash, $document->getFile()->getFileInfo(), $hashes[$hash]));
             }
             $hashes[$hash] = $document->getFile()->getFileInfo();

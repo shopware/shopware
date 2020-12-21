@@ -21,7 +21,7 @@ class Handler
 {
     public function __construct(array $info)
     {
-        if (!array_key_exists('serviceTag', $info) || !array_key_exists('handlerInterface', $info)) {
+        if (!\array_key_exists('serviceTag', $info) || !\array_key_exists('handlerInterface', $info)) {
             throw new \Exception('Handler annotation must be created with a hint on the "serviceTag" and the "handlerInterface".');
         }
     }

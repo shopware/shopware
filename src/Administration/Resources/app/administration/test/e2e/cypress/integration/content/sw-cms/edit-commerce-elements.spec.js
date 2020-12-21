@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('CMS: Check usage and editing of commerce elements', () => {
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             });
     });
 
-    it.skip('@base @content: use simple product block', () => {
+    it('@base @content: use simple product block', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -58,9 +58,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-three-column').should('be.visible');
-        cy.get('.sw-cms-sidebar__block-preview')
-            .first()
-            .dragTo('.sw-cms-section__empty-stage');
+        cy.get('.sw-cms-preview-product-three-column').dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block__config-overlay').invoke('show');
         cy.get('.sw-cms-block__config-overlay').should('be.visible');
         cy.get('.sw-cms-block__config-overlay').click();
@@ -104,7 +102,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').then((response) => {
@@ -118,7 +116,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.product-name[title="Third product"]').should('be.visible');
     });
 
-    it.skip('@base @content: use product slider block with dynamic product group', () => {
+    it('@base @content: use product slider block with dynamic product group', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -137,9 +135,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-slider').should('be.visible');
-        cy.get('.sw-cms-sidebar__block-preview')
-            .eq(1)
-            .dragTo('.sw-cms-section__empty-stage');
+        cy.get('.sw-cms-preview-product-slider').dragTo('.sw-cms-section__empty-stage');
 
         cy.get('.sw-cms-block__config-overlay').invoke('show');
         cy.get('.sw-cms-block__config-overlay').should('be.visible');
@@ -195,7 +191,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').then((response) => {

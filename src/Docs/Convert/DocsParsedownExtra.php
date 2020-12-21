@@ -110,7 +110,7 @@ class DocsParsedownExtra extends \ParsedownExtra
             throw new \RuntimeException(sprintf('Unable to find the stop of %s in %s', $namespace, $includeFile));
         }
 
-        return \array_slice($lines, $start, $stop - $start);
+        return (array) \array_slice($lines, $start, $stop - $start);
     }
 
     protected function docsRenderIncludeContents(array $slicedLines): void
@@ -121,6 +121,6 @@ class DocsParsedownExtra extends \ParsedownExtra
 
         $implodedLines = implode('', $reIntendedLines);
 
-        $this->content = PHP_EOL . '<?php declare(strict_types=1);' . PHP_EOL . $implodedLines;
+        $this->content = \PHP_EOL . '<?php declare(strict_types=1);' . \PHP_EOL . $implodedLines;
     }
 }

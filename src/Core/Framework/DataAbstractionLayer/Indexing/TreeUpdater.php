@@ -86,7 +86,7 @@ class TreeUpdater
         foreach ($definition->getFields()->filterInstance(TreePathField::class) as $pathField) {
             $path = 'null';
 
-            if (array_key_exists('parent', $entity)) {
+            if (\array_key_exists('parent', $entity)) {
                 $path = '"|' . implode('|', $this->buildPathArray($entity['parent'], $pathField)) . '|"';
             }
 
@@ -97,7 +97,7 @@ class TreeUpdater
         foreach ($definition->getFields()->filterInstance(TreeLevelField::class) as $field) {
             $level = 1;
 
-            if (array_key_exists('parent', $entity)) {
+            if (\array_key_exists('parent', $entity)) {
                 $level = $entity['parent']['parentCount'] + 1;
             }
 
@@ -119,7 +119,7 @@ class TreeUpdater
     {
         $path = [];
 
-        if (array_key_exists('parent', $parent)) {
+        if (\array_key_exists('parent', $parent)) {
             $path = $this->buildPathArray($parent['parent'], $field);
         }
 
@@ -168,7 +168,7 @@ class TreeUpdater
         $fields = $definition->getFields()
             ->filterInstance(TreePathField::class)
             ->reduce(function (array $fields, TreePathField $field) {
-                if (!in_array($field->getPathField(), $fields, true)) {
+                if (!\in_array($field->getPathField(), $fields, true)) {
                     $fields[] = $field->getPathField();
                 }
 

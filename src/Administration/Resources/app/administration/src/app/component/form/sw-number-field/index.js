@@ -68,6 +68,12 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 }
                 return isInt;
             }
+        },
+
+        allowEmpty: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -162,6 +168,10 @@ Component.extend('sw-number-field', 'sw-text-field', {
 
         parseValue(value) {
             if (value === null || Number.isNaN(value) || !Number.isFinite(value)) {
+                if (this.allowEmpty) {
+                    return null;
+                }
+
                 return this.parseValue(0);
             }
 

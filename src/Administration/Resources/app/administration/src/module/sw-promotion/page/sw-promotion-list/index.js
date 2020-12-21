@@ -5,6 +5,9 @@ import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12016)
+ */
 Component.register('sw-promotion-list', {
     template,
 

@@ -11,7 +11,7 @@ describe('User: Test general user values', () => {
             });
     });
 
-    it('@base @general: check if user title is set correctly', () => {
+    it('@general: check if user title is set correctly', () => {
         cy.get('.sw-admin-menu__user-type').contains('Administrator');
     });
 });

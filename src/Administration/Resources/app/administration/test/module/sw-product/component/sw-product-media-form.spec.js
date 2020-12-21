@@ -36,7 +36,8 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-upload-listener': true,
             'sw-product-image': true,
-            'sw-media-upload-v2': true
+            'sw-media-upload-v2': true,
+            'sw-media-preview-v2': true
         }
     });
 }
@@ -44,7 +45,33 @@ function createWrapper(privileges = []) {
 describe('module/sw-product/component/sw-product-media-form', () => {
     beforeAll(() => {
         const product = {
-            media: []
+            cover: {
+                mediaId: 'c621b5f556424911964e848fa1b7e8a5',
+                position: 1,
+                id: '520a8b95abc2446db77b173fcd718567',
+                media: {
+                    id: 'c621b5f556424911964e848fa1b7e8a5'
+                }
+            },
+            coverId: '520a8b95abc2446db77b173fcd718567',
+            media: [
+                {
+                    mediaId: 'c621b5f556424911964e848fa1b7e8a5',
+                    position: 1,
+                    id: '520a8b95abc2446db77b173fcd718567',
+                    media: {
+                        id: 'c621b5f556424911964e848fa1b7e8a5'
+                    }
+                },
+                {
+                    mediaId: 'c621b5f556424911964e848fa1b7e8a5',
+                    position: 1,
+                    id: '5a73a7f88b544a9ab52b2e795c95c7a7',
+                    media: {
+                        id: 'c621b5f556424911964e848fa1b7e8a5'
+                    }
+                }
+            ]
         };
         product.getEntityName = () => 'T-Shirt';
 
@@ -74,5 +101,20 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();
+    });
+
+    it('should only show 1 cover', async () => {
+        const wrapper = createWrapper([
+            'product.editor'
+        ]);
+
+        let coverCount = 0;
+        wrapper.vm.mediaItems.forEach(mediaItem => {
+            if (wrapper.vm.isCover(mediaItem)) {
+                coverCount += 1;
+            }
+        });
+
+        expect(coverCount).toBe(1);
     });
 });

@@ -22,10 +22,15 @@
                                                   :hideLabels="hideLabels">
                             {% block sw_entity_multi_select_base_selection_list %}
                                 {% block sw_entity_multi_select_base_selection_list_label %}
-                                    <template #label-property="{ item, index, labelProperty, valueProperty }">
+                                    <template #label-property="{ item, index, labelProperty, valueProperty, getKey }">
                                         {% block sw_entity_multi_select_base_selection_list_label_inner %}
-                                            <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
-                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty, getKey }">
+                                                <sw-product-variant-info v-if="$attrs.displayVariants" :variations="item.variation">
+                                                    {{ displayLabelProperty(item) }}
+                                                </sw-product-variant-info>
+                                                <template v-else>
+                                                    {{ displayLabelProperty(item) }}
+                                                </template>
                                             </slot>
                                         {% endblock %}
                                     </template>
@@ -62,12 +67,21 @@
                                                 v-bind="{ item, index }">
                                                 {% block sw_entity_multi_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
-                                                        <sw-highlight-text v-if="highlightSearchTerm"
-                                                                           :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                                           :searchTerm="searchTerm">
-                                                        </sw-highlight-text>
+                                                        <sw-product-variant-info
+                                                            v-if="$attrs.displayVariants"
+                                                            :variations="item.variation"
+                                                            :highlighted="true"
+                                                            :searchTerm="searchTerm">
+                                                            {{ displayLabelProperty(item) }}
+                                                        </sw-product-variant-info>
                                                         <template v-else>
-                                                            {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                                               :text="displayLabelProperty(item)"
+                                                                               :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                            <template v-else>
+                                                                {{ displayLabelProperty(item) }}
+                                                            </template>
                                                         </template>
                                                     </slot>
                                                 {% endblock %}

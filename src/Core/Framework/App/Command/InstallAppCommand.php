@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -60,7 +61,13 @@ class InstallAppCommand extends Command
             }
         }
 
-        $this->appLifecycle->install($manifest, (bool) $input->getOption('activate'), Context::createDefaultContext());
+        try {
+            $this->appLifecycle->install($manifest, (bool) $input->getOption('activate'), Context::createDefaultContext());
+        } catch (AppAlreadyInstalledException $e) {
+            $io->error($e->getMessage());
+
+            return 1;
+        }
 
         $io->success('App installed successfully.');
 

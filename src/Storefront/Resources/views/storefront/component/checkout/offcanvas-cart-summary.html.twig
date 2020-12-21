@@ -10,7 +10,7 @@
 
                 {% block component_offcanvas_summary_total_value %}
                     <dd class="col-5 summary-value summary-total">
-                        <strong>{{ page.cart.price.positionPrice|currency }}</strong>
+                        <strong>{{ page.cart.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</strong>
                     </dd>
                 {% endblock %}
             {% endblock %}
@@ -76,6 +76,7 @@
     {% block component_offcanvas_summary_tax_info %}
         <p class="offcanvas-cart-tax">
             <small>
+                {{ "general.star"|trans|sw_sanitize }}
                 {% if page.cart.price.taxStatus == "gross" %}
                     {{ "general.grossTaxInformation"|trans|sw_sanitize }}
                 {% else %}

@@ -46,7 +46,7 @@ class RatingMatrix extends Struct
                 }
             }
 
-            if (!array_key_exists($points, $this->matrix)) {
+            if (!\array_key_exists($points, $this->matrix)) {
                 $this->matrix[$points] = new MatrixElement($points, 0);
             }
         }

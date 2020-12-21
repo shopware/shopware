@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -88,12 +89,22 @@ class CountryDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('taxRules', TaxRuleDefinition::class, 'country_id', 'id'))
                 ->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
+
+            (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        $fields->add(
-            (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
-        );
+        if (Feature::isActive('FEATURE_NEXT_10559')) {
+            $fields->add(
+                new BoolField('company_tax_free', 'companyTaxFree')
+            );
+            $fields->add(
+                new BoolField('check_vat_id_pattern', 'checkVatIdPattern')
+            );
+            $fields->add(
+                new StringField('vat_id_pattern', 'vatIdPattern')
+            );
+        }
 
         return $fields;
     }

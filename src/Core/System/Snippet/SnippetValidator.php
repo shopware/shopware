@@ -38,7 +38,7 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($files as $snippetFile) {
             $availableISOs[] = $snippetFile->getIso();
 
-            if (!array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
+            if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
                 $snippetFileMappings[$snippetFile->getIso()] = [];
             }
 
@@ -101,7 +101,7 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($dataSet as $key => $data) {
             $key = $keyString . $key;
 
-            if (!is_array($data)) {
+            if (!\is_array($data)) {
                 $keyPaths[] = [
                     $key => $data,
                 ];
@@ -127,7 +127,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 unset($tempISOs[$isoKey]);
 
                 foreach ($tempISOs as $tempISO) {
-                    if (!array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
+                    if (!\array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
                         $missingSnippetsArray[$tempISO][$snippetKeyPath] = [
                             'path' => $snippetFileMeta['path'],
                             'availableISO' => $availableISO,

@@ -78,7 +78,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'shopware' => [
                 'config' => $this->getConfig($context),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
-                'dateFormat' => DATE_ATOM,
+                'dateFormat' => \DATE_ATOM,
                 'csrfEnabled' => $this->csrfEnabled,
                 'csrfMode' => $this->csrfMode,
             ],

@@ -413,7 +413,13 @@ can be influenced. These parameters refer to the aggregations determined and are
 
 **`no-aggregations`** - No aggregations are loaded. This is used, for example, in the storefront if a filtering or sorting has taken place and then only the product list is updated.
 **`reduce-aggregations`** - All `post-filters` are used as `filters`. This means that the aggregations will only contain values that would lead to a further result.
-**`only-aggregations`** - This parameter sets the internal `limit` to `0`, so that no products are loaded and only the aggregations are returned. 
+**`only-aggregations`** - This parameter sets the internal `limit` to `0`, so that no products are loaded and only the aggregations are returned.
+**`manufacturer-filter`** - This parameter is `true` by default. If set to `false` the `manufacturer` aggregation will be excluded from the aggregations.
+**`price-filter`** - This parameter is `true` by default. If set to `false` the `price` aggregation will be excluded from the aggregations.
+**`rating-filter`** - This parameter is `true` by default. If set to `false` the `rating-exits` aggregation will be excluded from the aggregations.
+**`shipping-free-filter`** - This parameter is `true` by default If set to `false` the `shipping-free` aggregation will be excluded from the aggregations.
+**`property-filter`** - This parameter is `true` by default. If set to `false` the `properties` and `options` aggregations will be excluded from the aggregations.
+**`property-whitelist`** - This parameter is `null` by default. If set to an `array` with `propertyIds` and `property-filter` is set to `false` only properties with `ids` in that whitelist will be included in the aggregations as `properties-filter`.
 In the storefront this parameter is used to update the filters and in combination with the `reduce-aggregations` parameter to deactivate filters that would lead to an empty result.
 
 ### Get a product search

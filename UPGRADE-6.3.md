@@ -1,6 +1,36 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
+# 6.3.4.0
+## Customer's sales channel context is restored after logged in
+- Each customer now has a unique sales channel context, which means it will be shared across devices and browsers, including its cart.
+- Which this change, when working with `SalesChannelContextPersister`, you should pass a 3rd parameter `sales_channel_id` and 4th parameter `customer_id` in `SalesChannelContextPersister::save()` to save customer's customer's context.
+*  Customer email is not unique from all customers anymore, instead it will unique from other customers' email in a same sales channel.
+*  The `$context` property in `Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique` is deprecated, using `SalesChannelContext $salesChannelContext` to get the context instead.
+Use `import from src/module` instead of `import from 'module'`. However we discourage you to directly use imports of the administration's source in your plugins.
+ Use the administration's open API through the global Shopware object.
+## Usage of DBAL connection methods in migrations
+For compatibility with main/replica database environments and blue green deployment,
+it is important to use the correct methods of the DBAL connection in migrations.
+Use `Doctrine\DBAL\Connection::executeUpdate` for these operations: `UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE`
+For everything else `Doctrine\DBAL\Connection::executeQuery` could be used.
+Using `executeQuery` for the mentioned operations above is deprecated and will throw an exception with Shopware 6.4.0.0.
+## Removed associations in customer group criteria
+We have to remove the associations `salesChannels` and `customers` 
+in these computed properties: `allCustomerGroupsCriteria` and `customerGroupCriteriaWithFilter`
+which can be find in this component: `sw-settings-customer-group-list`.
+
+The reason for this is that a shop with many customers can´t open the module. The response
+is too heavy because all customers in the shop will be loaded. This can lead to a response 
+timeout.
+
+When you need the customer information then it would be good to fetch them in your plugin.
+You should use a criteria object which only fetches a limited amount of customers.
+## Upcoming config key change
+Please be aware, that the configuration key `core.basicInformation.404Page` will be changed to
+`core.basicInformation.http404Page` with the next major version v6.4.0.0. Please make sure that there are no references
+to the old key `404Page` in your code before upgrading.
+
 # 6.3.3.0
 ## Deprecation of the current sortings implementation
 

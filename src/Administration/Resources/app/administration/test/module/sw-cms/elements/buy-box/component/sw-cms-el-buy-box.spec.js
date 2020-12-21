@@ -54,11 +54,7 @@ function createWrapper() {
                     return {};
                 },
                 getCmsElementRegistry: () => {
-                    return {
-                        'buy-box': {
-                            defaultData: {}
-                        }
-                    };
+                    return { 'buy-box': {} };
                 }
             }
         }
@@ -80,7 +76,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         expect(wrapper.find('.sw-cms-el-buy-box__skeleton').exists()).toBeTruthy();
     });
 
-    it('should show dummy data initally if page type is not product page and no product config', () => {
+    it('should show dummy data initially if page type is not product page and no product config', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
@@ -101,5 +97,39 @@ describe('module/sw-cms/elements/buy-box/component', () => {
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+    });
+
+    it('should show current demo data if mapping entity is product', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentPage: {
+                    type: 'product_detail'
+                },
+                currentMappingEntity: 'product',
+                currentDemoEntity: productMock
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+    });
+
+    it('should show dummy data initially if mapping entity is not product', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentPage: {
+                    type: 'landingpage'
+                },
+                currentMappingEntity: null,
+                currentDemoEntity: productMock
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
     });
 });

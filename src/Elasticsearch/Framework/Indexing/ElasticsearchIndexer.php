@@ -189,6 +189,15 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             $indices[] = $data->getIndex();
         }
 
+        $indices = array_unique($indices);
+        $indices = array_filter($indices, function (string $index) {
+            return $this->client->indices()->exists(['index' => $index]);
+        });
+
+        if (empty($indices)) {
+            return;
+        }
+
         try {
             $this->client->indices()->refresh([
                 'index' => implode(',', array_unique($indices)),
@@ -398,13 +407,13 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
                 continue;
             }
 
-            if (is_array($document)) {
+            if (\is_array($document)) {
                 $documents[$key] = $this->mapExtensionsToRoot($document);
             }
         }
 
         foreach ($extensions as $extensionKey => $extension) {
-            if (is_array($extension)) {
+            if (\is_array($extension)) {
                 $documents[$extensionKey] = $this->mapExtensionsToRoot($extension);
             } else {
                 $documents[$extensionKey] = $extension;
@@ -419,7 +428,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $documents = [];
 
         foreach ($entities as $entity) {
-            $document = json_decode(json_encode($entity, JSON_PRESERVE_ZERO_FRACTION), true);
+            $document = json_decode(json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION), true);
 
             $fullText = $definition->buildFullText($entity);
 
@@ -449,7 +458,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         foreach ($result['items'] as $item) {
             $item = $item['index'];
 
-            if (in_array($item['status'], [200, 201], true)) {
+            if (\in_array($item['status'], [200, 201], true)) {
                 continue;
             }
 

@@ -40,6 +40,12 @@
                     :showActions="true">
                     {% block sw_sales_channel_detail_domains_columns_template %}
 
+                        {% block sw_sales_channel_detail_domains_column_url %}
+                            <template slot="column-url" slot-scope="{ item}">
+                                {{ item.url|unicodeUri }}
+                            </template>
+                        {% endblock %}
+
                         {% block sw_sales_channel_detail_domains_column_language_id %}
                             <template slot="column-languageId" slot-scope="{ item, isInlineEdit}">
                                 {{ item.language.name }}
@@ -162,7 +168,7 @@
                 @modal-close="onCloseDeleteDomainModal">
 
                 {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-                    {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: deleteDomain.url }) }}
+                    {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', 0, { url: $options.filters.unicodeUri(deleteDomain.url) }) }}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_domains_delete_modal_footer %}

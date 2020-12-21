@@ -228,4 +228,6 @@ return [
     Shopware\Core\Framework\Webhook\WebhookDefinition::class => '__EMPTY__',
     'Shopware\\Core\\Framework\\App' => '__EMPTY__',
     'Shopware\\Core\\Framework\\Webhook' => '__EMPTY__',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition::class => '__EMPTY__',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition::class => '__EMPTY__',
 ];

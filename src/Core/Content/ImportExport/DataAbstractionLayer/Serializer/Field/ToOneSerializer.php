@@ -44,7 +44,7 @@ class ToOneSerializer extends FieldSerializer
 
         $result = $entitySerializer->deserialize($config, $definition, $records);
 
-        if (is_iterable($result) && !is_array($result)) {
+        if (is_iterable($result) && !\is_array($result)) {
             $result = iterator_to_array($result);
         }
         if (empty($result)) {

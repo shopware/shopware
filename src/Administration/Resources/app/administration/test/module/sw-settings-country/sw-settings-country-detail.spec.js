@@ -161,6 +161,9 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const countryCompaniesTaxFreeField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
         );
+        const countryCheckVatIdFormatField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
+        );
         const countryForceStateInRegistrationField = wrapper.find(
             'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
         );
@@ -174,6 +177,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         expect(countryShippingAvailableField.attributes().disabled).toBeUndefined();
         expect(countryTaxFreeField.attributes().disabled).toBeUndefined();
         expect(countryCompaniesTaxFreeField.attributes().disabled).toBeUndefined();
+        expect(countryCheckVatIdFormatField.attributes().disabled).toBeUndefined();
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeUndefined();
     });
 
@@ -208,6 +212,9 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const countryCompaniesTaxFreeField = wrapper.find(
             'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
         );
+        const countryCheckVatIdFormatField = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
+        );
         const countryForceStateInRegistrationField = wrapper.find(
             'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
         );
@@ -221,6 +228,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         expect(countryShippingAvailableField.attributes().disabled).toBeTruthy();
         expect(countryTaxFreeField.attributes().disabled).toBeTruthy();
         expect(countryCompaniesTaxFreeField.attributes().disabled).toBeTruthy();
+        expect(countryCheckVatIdFormatField.attributes().disabled).toBeTruthy();
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeTruthy();
     });
 

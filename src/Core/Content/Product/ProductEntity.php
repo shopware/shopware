@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -470,14 +469,21 @@ class ProductEntity extends Entity
      *
      * @var CustomerWishlistCollection|null
      */
-    protected $customerWishlists;
+    protected $wishlists;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
+     * @internal (flag:FEATURE_NEXT_10820)
      *
-     * @var CustomerWishlistProductDefinition|null
+     * @var string|null
      */
-    protected $wishlists;
+    protected $canonicalProductId;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10820)
+     *
+     * @var ProductEntity|null
+     */
+    protected $canonicalProduct;
 
     public function __construct()
     {
@@ -1390,23 +1396,7 @@ class ProductEntity extends Entity
     /**
      *  @internal (flag:FEATURE_NEXT_10549)
      */
-    public function getCustomerWishlists(): ?CustomerWishlistCollection
-    {
-        return $this->customerWishlists;
-    }
-
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
-    public function setCustomerWishlists(CustomerWishlistCollection $customerWishlists): void
-    {
-        $this->customerWishlists = $customerWishlists;
-    }
-
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
-    public function getWishlists(): ?CustomerWishlistProductDefinition
+    public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
@@ -1414,8 +1404,40 @@ class ProductEntity extends Entity
     /**
      *  @internal (flag:FEATURE_NEXT_10549)
      */
-    public function setWishlists(CustomerWishlistProductDefinition $wishlists): void
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10820)
+     */
+    public function getCanonicalProductId(): ?string
+    {
+        return $this->canonicalProductId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10820)
+     */
+    public function setCanonicalProductId(string $canonicalProductId): void
+    {
+        $this->canonicalProductId = $canonicalProductId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10820)
+     */
+    public function getCanonicalProduct(): ?ProductEntity
+    {
+        return $this->canonicalProduct;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10820)
+     */
+    public function setCanonicalProduct(ProductEntity $product): void
+    {
+        $this->canonicalProduct = $product;
     }
 }

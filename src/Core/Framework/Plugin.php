@@ -116,6 +116,14 @@ abstract class Plugin extends Bundle
         return $this->basePath;
     }
 
+    public function enrichPrivileges(): array
+    {
+        return [];
+    }
+
+    /**
+     * @deprecated tag:v6.4.0.0 use enrichPrivileges instead
+     */
     final protected function addPrivileges(string $role, array $privileges): void
     {
         /** @var EntityRepositoryInterface $aclRepository */
@@ -139,6 +147,9 @@ abstract class Plugin extends Bundle
         }
     }
 
+    /**
+     * @deprecated tag:v6.4.0.0 will be removed
+     */
     final protected function removePrivileges(array $privileges): void
     {
         /** @var EntityRepositoryInterface $aclRepository */

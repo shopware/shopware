@@ -14,7 +14,7 @@ class LocalFactory implements AdapterFactoryInterface
 
         return new Local(
             $options['root'],
-            LOCK_EX,
+            \LOCK_EX,
             Local::DISALLOW_LINKS,
             $options
         );

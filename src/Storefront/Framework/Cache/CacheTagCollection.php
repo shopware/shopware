@@ -19,11 +19,11 @@ class CacheTagCollection
      */
     public function add($tags): void
     {
-        if (is_string($tags)) {
+        if (\is_string($tags)) {
             $this->tags[] = $tags;
         }
 
-        if (is_array($tags)) {
+        if (\is_array($tags)) {
             $this->tags = array_unique(array_merge($this->tags, array_values($tags)));
         }
     }

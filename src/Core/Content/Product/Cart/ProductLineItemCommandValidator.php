@@ -54,12 +54,12 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
             $lineItemId = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
 
-            $productIdChanged = array_key_exists('product_id', $payload);
+            $productIdChanged = \array_key_exists('product_id', $payload);
 
-            $referenceIdChanged = array_key_exists('referenced_id', $payload);
+            $referenceIdChanged = \array_key_exists('referenced_id', $payload);
 
             $lineItemPayload = isset($payload['payload']) ? json_decode($payload['payload'], true) : [];
-            $orderNumberChanged = array_key_exists('productNumber', $lineItemPayload);
+            $orderNumberChanged = \array_key_exists('productNumber', $lineItemPayload);
 
             if (!$this->isProduct($products, $lineItemPayload, $lineItemId)) {
                 continue;

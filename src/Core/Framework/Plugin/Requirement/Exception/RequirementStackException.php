@@ -60,6 +60,6 @@ class RequirementStackException extends ShopwareHttpException
             $details[] = "\n" . $innerException->getMessage();
         }
 
-        return implode($details);
+        return implode('', $details);
     }
 }

@@ -57,7 +57,7 @@ class MigrationLoaderTest extends TestCase
         static::assertInstanceOf(MigrationCollection::class, $collection);
         static::assertSame('core', $collection->getName());
         static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
-        static::assertGreaterThan(1, count($collection->getMigrationSteps()));
+        static::assertGreaterThan(1, \count($collection->getMigrationSteps()));
     }
 
     public function testItLoadsTheValidMigrations(): void

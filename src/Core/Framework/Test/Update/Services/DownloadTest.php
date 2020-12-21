@@ -158,7 +158,7 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile();
         $this->expectExceptionMessage('File on destination ' . $tempfile . ' does already exist.');
 
-        \file_put_contents($tempfile, 'x');
+        file_put_contents($tempfile, 'x');
 
         $download = new Download();
         $download->downloadFile('asdf', $tempfile, 1, 'asdf');
@@ -213,7 +213,7 @@ class DownloadTest extends TestCase
     {
         $projectDir = $this->getContainer()->get('kernel')->getProjectDir();
 
-        $dir = $projectDir . '/public' . dirname($path);
+        $dir = $projectDir . '/public' . \dirname($path);
         if (!file_exists($dir)) {
             mkdir($dir);
         }

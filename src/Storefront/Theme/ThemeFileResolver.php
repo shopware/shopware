@@ -102,7 +102,7 @@ class ThemeFileResolver
             }
 
             // bundle or wildcard already included? skip to prevent duplicate style/script injection
-            if (in_array($filepath, $included, true)) {
+            if (\in_array($filepath, $included, true)) {
                 continue;
             }
             $included[] = $filepath;

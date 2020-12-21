@@ -47,6 +47,7 @@
         <create>product_manufacturer</create>
         <delete>product_manufacturer</delete>
         <create>tax</create>
+        <read>order</read>
     </permissions>
     <custom-fields>
         <custom-field-set>

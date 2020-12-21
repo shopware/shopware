@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -58,6 +57,7 @@ class JsonEntityEncoder
 
     private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
+        /** @var array $decoded */
         $decoded = $this->serializer->normalize($entity);
 
         $includes = $criteria->getIncludes() ?? [];
@@ -77,7 +77,7 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 continue;
             }
 
@@ -95,8 +95,6 @@ class JsonEntityEncoder
 
             if ($object instanceof Struct) {
                 $decoded[$property] = $this->filterIncludes($includes, $value, $object);
-
-                continue;
             }
         }
 
@@ -111,7 +109,7 @@ class JsonEntityEncoder
             return true;
         }
 
-        return in_array($property, $includes[$alias], true);
+        return \in_array($property, $includes[$alias], true);
     }
 
     private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl): array
@@ -137,16 +135,13 @@ class JsonEntityEncoder
                 continue;
             }
 
-            // phpstan would complain if we remove this
-            if ($field instanceof AssociationField) {
-                if ($field instanceof ManyToOneAssociationField | $field instanceof OneToOneAssociationField) {
-                    $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl);
-                }
+            if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
+                $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl);
+            }
 
-                if ($field instanceof ManyToManyAssociationField | $field instanceof OneToManyAssociationField) {
-                    foreach ($value as $id => $entity) {
-                        $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl);
-                    }
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                foreach ($value as $id => $entity) {
+                    $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl);
                 }
             }
         }

@@ -28,15 +28,26 @@
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     'data': data.get('address'),
-                                    'prefix': 'address'
+                                    'prefix': 'address',
+                                    'accountType': data.get('accountType')
                                 } %}
                             {% endblock %}
 
                             {% block page_account_address_form_create_general %}
-                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                    'data': data.get('address'),
-                                    'prefix': 'address'
-                                } %}
+                                {% if feature('FEATURE_NEXT_10559') %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                        'data': data.get('address'),
+                                        'prefix': 'address',
+                                        'showFormCompany': true
+                                    } %}
+                                {% else %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                        'data': data.get('address'),
+                                        'prefix': 'address',
+                                        'showFormCompany': true,
+                                        'showVatIdField': true
+                                    } %}
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_account_address_required %}

@@ -25,7 +25,7 @@ trait ShippingMethodPricesTestBehaviour
         );
 
         foreach ($rows as $row) {
-            if (array_key_exists($row['id'], $this->oldValues)) {
+            if (\array_key_exists($row['id'], $this->oldValues)) {
                 continue;
             }
             $this->oldValues[$row['id']] = $row['currency_price'];

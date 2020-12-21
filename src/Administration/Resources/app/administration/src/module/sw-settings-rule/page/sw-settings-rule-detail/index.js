@@ -8,7 +8,12 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-rule-detail', {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'repositoryFactory', 'acl'],
+    inject: [
+        'ruleConditionDataProviderService',
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -65,10 +70,12 @@ Component.register('sw-settings-rule-detail', {
             );
         },
 
+        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
         },
 
+        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
         moduleTypes: {
             get() {
                 if (!this.rule || !this.rule.moduleTypes) {
@@ -109,6 +116,22 @@ Component.register('sw-settings-rule-detail', {
             };
         },
 
+        tabItems() {
+            return [
+                {
+                    title: this.$tc('sw-settings-rule.detail.tabGeneral'),
+                    route: { name: 'sw.settings.rule.detail.base', params: { id: this.$route.params.id } },
+                    cssClassSuffix: 'general'
+                },
+                {
+                    title: this.$tc('sw-settings-rule.detail.tabAssignments'),
+                    route: { name: 'sw.settings.rule.detail.assignments', params: { id: this.$route.params.id } },
+                    cssClassSuffix: 'assignments'
+                }
+            ];
+        },
+
+        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
         ...mapPropertyErrors('rule', ['name', 'priority'])
     },
 

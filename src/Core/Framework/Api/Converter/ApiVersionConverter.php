@@ -36,7 +36,7 @@ class ApiVersionConverter
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 
@@ -54,7 +54,7 @@ class ApiVersionConverter
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 

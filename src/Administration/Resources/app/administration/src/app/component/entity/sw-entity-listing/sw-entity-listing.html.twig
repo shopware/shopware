@@ -1,5 +1,5 @@
 {% block sw_data_grid_slot_pagination %}
-    <sw-pagination v-bind="{ page, limit, total }" :total-visible="7" @page-change="paginate"></sw-pagination>
+    <sw-pagination v-bind="{ page, limit, total, steps }" :total-visible="7" @page-change="paginate"></sw-pagination>
 {% endblock %}
 
 {% block sw_data_grid_bulk_selected_actions_content %}

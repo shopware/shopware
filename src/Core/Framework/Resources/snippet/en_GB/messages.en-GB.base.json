@@ -6,10 +6,11 @@
         "stornoNumber": "Cancellation number %stornoNumber%",
         "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
         "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for order %orderNumber%",
-        "creditNoteNumber": "Credit note %deliveryNoteNumber%",
+        "creditNoteNumber": "Credit note %creditNoteNumber%",
         "creditNoteHeadline": "Credit note %creditNoteNumber% for invoice no. %invoiceNumber%",
         "customerNumber": "Customer %customerNumber%",
         "date": "Date: %date%",
+        "comment": "Comment: %comment%",
         "orderDate": "Order date: %orderDate%",
         "deliveryDate": "Delivery date: %deliveryDate%",
         "page": "Page %pageNumber%",
@@ -23,6 +24,9 @@
         "placeOfJurisdiction": "Place of jurisdiction: %placeOfJurisdiction%",
         "serviceDateNotice": "Service date matches invoice date",
         "placeOfFulfillment": "Place of fulfillment: %placeOfFulfillment%",
+        "intraCommunity": "Intra-community delivery (EU)",
+        "shippingAddress": "Shipping address",
+        "phoneNumber": "Phone number: %phoneNumber%",
         "ceo": "CEO",
         "lineItems": {
             "header": {

@@ -1,0 +1,34 @@
+@import "~scss/variables";
+
+.sw-cms-el-config-product-listing-config-filter-properties-grid {
+    &__grid {
+        border-top: 0;
+        margin: 0 -30px -55px;
+    }
+
+    .sw-data-grid.is--compact .sw-data-grid__header .sw-data-grid__cell-content {
+        padding: 0 45px;
+    }
+
+    .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+        padding: 0 45px;
+    }
+
+    .sw-field--switch .sw-field--switch__input {
+        padding: 0 0 15px 0;
+    }
+
+    &.is--disabled {
+        .sw-data-grid .sw-data-grid__cell-content {
+            color: $color-gray;
+        }
+
+        .sw-field--switch .sw-field--switch__input input[type="checkbox"]:checked:disabled ~ .sw-field__switch-state {
+            background: $color-shopware-brand-200;
+
+            .sw-field__switch-state-knob {
+                background: $color-gray-50;
+            }
+        }
+    }
+}

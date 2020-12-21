@@ -74,7 +74,7 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
             FROM `temp_import_export_profile_translation`;
         ');
 
-        if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
+        if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $insertNamesAsLabelsStatement->execute([
                 'languageId' => $defaultLanguageId,
             ]);

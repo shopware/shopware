@@ -289,7 +289,7 @@ class FileSaver
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
-            if (is_resource($stream)) {
+            if (\is_resource($stream)) {
                 fclose($stream);
             }
         }
@@ -398,7 +398,7 @@ class FileSaver
         $this->eventDispatcher->dispatch($event);
 
         foreach ($event->getWhitelist() as $extension) {
-            if (strtolower($mediaFile->getFileExtension()) === strtolower($extension)) {
+            if (mb_strtolower($mediaFile->getFileExtension()) === mb_strtolower($extension)) {
                 return;
             }
         }

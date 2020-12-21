@@ -37,7 +37,7 @@ class DeliveryTransformer
         $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
         $shippingAddress = null;
 
-        if ($addressId !== null && array_key_exists($addressId, $addresses)) {
+        if ($addressId !== null && \array_key_exists($addressId, $addresses)) {
             $shippingAddress = $addresses[$addressId];
         } elseif ($delivery->getLocation()->getAddress() !== null) {
             $shippingAddress = AddressTransformer::transform($delivery->getLocation()->getAddress());

@@ -48,7 +48,7 @@ class DeleteExpiredFilesService
         $criteria->addFilter(new RangeFilter(
             'expireDate',
             [
-                RangeFilter::LT => date(DATE_ATOM),
+                RangeFilter::LT => date(\DATE_ATOM),
             ]
         ));
 

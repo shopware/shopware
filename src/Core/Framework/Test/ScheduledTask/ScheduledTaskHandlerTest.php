@@ -64,7 +64,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
         static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
         static::assertEquals($task->getLastExecutionTime()->modify('+300 seconds'), $task->getNextExecutionTime());
-        static::assertNotEquals($originalNextExecution->format(DATE_ATOM), $task->getNextExecutionTime()->format(DATE_ATOM));
+        static::assertNotEquals($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
     }
 
     public function testHandleOnException(): void

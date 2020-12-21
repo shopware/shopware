@@ -3,9 +3,11 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -152,6 +154,60 @@ class ProductPageTest extends TestCase
         static::assertEquals(6, $matrix->getTotalReviewCount());
     }
 
+    public function testItLoadsReviewsWithCustomer(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $this->createReviews($product, $context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ReviewLoaderResult::class, $page->getReviews());
+        static::assertCount(7, $page->getReviews());
+        static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
+        static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
+        static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
+
+        $matrix = $page->getReviews()->getMatrix();
+        static::assertEquals(3.4285714285714, $matrix->getAverageRating());
+        static::assertEquals(7, $matrix->getTotalReviewCount());
+    }
+
+    public function testItDoesLoadACmsProductDetailPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $cmsPageId = Uuid::randomHex();
+        $productCmsPageData = [
+            'cmsPage' => [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [],
+            ],
+        ];
+
+        $product = $this->getRandomProduct($context, 10, false, $productCmsPageData);
+
+        static::assertEquals($cmsPageId, $product->getCmsPageId());
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ProductPage::class, $page);
+        static::assertEquals($cmsPageId, $page->getCmsPage()->getId());
+
+        static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
+        self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
     /**
      * @return ProductPageLoader
      */
@@ -184,6 +240,19 @@ class ProductPageTest extends TestCase
             'points' => 5,
             'status' => true,
         ];
+
+        if ($context->getCustomer()) {
+            $reviews[] = [
+                'customerId' => $context->getCustomer()->getId(),
+                'languageId' => $context->getContext()->getLanguageId(),
+                'salesChannelId' => $context->getSalesChannel()->getId(),
+                'productId' => $product->getId(),
+                'title' => 'Customer test',
+                'content' => 'Customer test',
+                'points' => 4,
+                'status' => false,
+            ];
+        }
 
         $this->getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());

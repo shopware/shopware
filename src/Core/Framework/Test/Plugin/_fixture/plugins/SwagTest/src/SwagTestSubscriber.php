@@ -23,7 +23,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function preActivate(PluginPreActivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!get_class($plugin) === 'SwagTest\\SwagTest') {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -34,7 +34,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function postActivate(PluginPostActivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!get_class($plugin) === 'SwagTest\\SwagTest') {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -45,7 +45,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function preDeactivate(PluginPreDeactivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!get_class($plugin) === 'SwagTest\\SwagTest') {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -56,7 +56,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function postDeactivate(PluginPostDeactivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!get_class($plugin) === 'SwagTest\\SwagTest') {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 

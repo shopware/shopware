@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';
@@ -23,7 +25,8 @@ function createWrapper(privileges = []) {
             'sw-cms-stage-add-section': true,
             'sw-cms-sidebar': true,
             'sw-loader': true,
-            'sw-cms-section': true
+            'sw-cms-section': true,
+            'sw-cms-layout-assignment-modal': true
         },
         mocks: {
             $store: Shopware.State._store,
@@ -49,15 +52,25 @@ function createWrapper(privileges = []) {
                             sections: [
                                 {}
                             ]
-                        })
+                        }),
+                        save: jest.fn(() => Promise.resolve())
                     };
                 }
+            },
+            feature: {
+                isActive: () => true
             },
             entityFactory: {},
             entityHydrator: {},
             loginService: {},
             cmsPageService: {},
-            cmsService: {},
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {
+                        'product-listing': {}
+                    };
+                }
+            },
             cmsDataResolverService: {}
         }
     });
@@ -159,5 +172,86 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(buyBoxElements).toBe(2);
         expect(warningMessages.length).toBe(1);
+    });
+
+    it('should show layout assignment when saving after create wizard', async () => {
+        const wrapper = createWrapper([
+            'cms.editor'
+        ]);
+        const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
+
+        await wrapper.vm.$nextTick();
+
+        const from = { path: '/sw/cms/create', name: 'sw.cms.create' };
+        const to = { path: '/sw/cms/detail', name: 'sw.cms.detail' };
+
+        // Ensure `previousRoute` dataProp will be set by navigation guard
+        wrapper.vm.$options.beforeRouteEnter(to, from, cb => cb(wrapper.vm));
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isLoading: false,
+            page: {
+                name: 'My custom layout',
+                type: 'product_list',
+                categories: new EntityCollection(null, null, null, new Criteria())
+            }
+        });
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        // Save the current layout
+        wrapper.vm.onSave();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.previousRoute).toBe('sw.cms.create');
+        expect(openLayoutAssignmentModalSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showLayoutAssignmentModal).toBe(true);
+        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeTruthy();
+    });
+
+    it('should not show layout assignment when saving and not coming from create wizard', async () => {
+        const wrapper = createWrapper([
+            'cms.editor'
+        ]);
+        const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
+        const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isLoading: false,
+            page: {
+                name: 'My custom layout',
+                type: 'product_list',
+                categories: new EntityCollection(null, null, null, new Criteria()),
+                sections: [
+                    {
+                        name: 'Section 1',
+                        blocks: [
+                            {
+                                name: 'Test block',
+                                type: 'product-listing',
+                                slots: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        });
+
+        // Save the current layout
+        wrapper.vm.onSave();
+
+        await wrapper.vm.$nextTick();
+
+        // Layout assignment should not be shown and save operation should be executed
+        expect(wrapper.vm.previousRoute).toBe('');
+        expect(openLayoutAssignmentModalSpy).toHaveBeenCalledTimes(0);
+        expect(SaveSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
+        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeFalsy();
     });
 });

@@ -77,11 +77,11 @@ class DocumentHtml
 //            throw new \RuntimeException(sprintf('Unknown link format %s in %s', $linkHref, $this->document->getFile()->getRealPath()));
 //        }
 
-        if (pathinfo($linkHref, PATHINFO_EXTENSION) === 'md') {
+        if (pathinfo($linkHref, \PATHINFO_EXTENSION) === 'md') {
             return $this->resolveLinkUrl($matches, $tree, $linkHref, $linkAnchor);
         }
 
-        if (\in_array(pathinfo($linkHref, PATHINFO_EXTENSION), ['svg', 'png', 'jpg', 'jpeg'], true)) {
+        if (\in_array(pathinfo($linkHref, \PATHINFO_EXTENSION), ['svg', 'png', 'jpg', 'jpeg'], true)) {
             return $this->resolveMedia($matches, $linkHref);
         }
 

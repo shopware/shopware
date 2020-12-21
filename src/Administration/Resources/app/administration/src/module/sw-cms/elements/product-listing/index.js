@@ -2,6 +2,7 @@ import './component';
 import './config';
 import './preview';
 import './config/components/sw-cms-el-config-product-listing-config-sorting-grid';
+import './config/components/sw-cms-el-config-product-listing-config-filter-properties-grid';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',
@@ -31,6 +32,14 @@ Shopware.Service('cmsService').registerCmsElement({
         defaultSorting: {
             source: 'static',
             value: ''
+        },
+        filters: {
+            source: 'static',
+            value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter'
+        },
+        propertyWhitelist: {
+            source: 'static',
+            value: []
         }
     }
 });

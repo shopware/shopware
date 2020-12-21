@@ -28,18 +28,26 @@ describe('Sales Channel: Visual tests', () => {
 
         // Open sales channel
         cy.contains('Storefront').click();
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('#sw-field--salesChannel-name').should('be.visible');
 
         // Take snapshot for visual testing
+        cy.get('.sw-sales-channel-detail__select-customer-group .sw-entity-single-select__selection')
+            .contains('Standard customer group');
+        cy.get('.sw-sales-channel-detail__assign-countries .sw-entity-single-select__selection')
+            .contains('Germany');
+        cy.get('.sw-sales-channel-detail__assign-languages .sw-entity-single-select__selection')
+            .contains('English');
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select-selection-list',
-            'visibility: hidden'
+            'display: none'
         );
 
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select__selection',
             'background-color: #189EF'
         );
-        cy.pause();
         cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
     });
 });

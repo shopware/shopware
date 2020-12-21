@@ -2,6 +2,11 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-description-reviews/component';
 
+const productMock = {
+    name: 'Awesome Product',
+    description: 'This product is awesome'
+};
+
 function createWrapper() {
     const localVue = createLocalVue();
     return shallowMount(Shopware.Component.build('sw-cms-el-product-description-reviews'), {
@@ -19,16 +24,13 @@ function createWrapper() {
                     return {};
                 },
                 getCmsElementRegistry: () => {
-                    return {
-                        'product-description-reviews': {
-                            defaultData: {}
-                        }
-                    };
+                    return { 'product-description-reviews': {} };
                 }
             }
         },
         propsData: {
             element: {
+                config: {},
                 data: {}
             },
             defaultConfig: {
@@ -77,7 +79,40 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
                         name: 'Product information',
                         description: 'lorem'
                     }
-                }
+                },
+                config: {}
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Product information');
+    });
+
+    it('should show current demo data if mapping entity is product', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentPage: {
+                    type: 'product_detail'
+                },
+                currentMappingEntity: 'product',
+                currentDemoEntity: productMock
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Awesome Product');
+    });
+
+    it('should show dummy data initially if mapping entity is not product', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            cmsPageState: {
+                currentPage: {
+                    type: 'landingpage'
+                },
+                currentMappingEntity: null,
+                currentDemoEntity: productMock
             }
         });
 

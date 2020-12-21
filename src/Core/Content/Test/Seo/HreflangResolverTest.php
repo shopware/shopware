@@ -303,7 +303,7 @@ class HreflangResolverTest extends TestCase
         $foundLinks = 0;
 
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === substr($languages->first()->getLocale()->getCode(), 0, 2)) {
+            if ($element->getLocale() === mb_substr($languages->first()->getLocale()->getCode(), 0, 2)) {
                 static::assertEquals('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }

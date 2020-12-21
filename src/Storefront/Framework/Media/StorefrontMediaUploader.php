@@ -60,7 +60,7 @@ class StorefrontMediaUploader
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaFile, $mediaId): void {
                 $this->fileSaver->persistFileToMedia(
                     $mediaFile,
-                    pathinfo(Uuid::randomHex(), PATHINFO_FILENAME),
+                    pathinfo(Uuid::randomHex(), \PATHINFO_FILENAME),
                     $mediaId,
                     $context
                 );

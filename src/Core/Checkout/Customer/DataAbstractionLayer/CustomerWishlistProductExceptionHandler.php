@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterface
 {
@@ -24,7 +25,7 @@ class CustomerWishlistProductExceptionHandler implements ExceptionHandlerInterfa
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.customer_wishlist.sales_channel_id__customer_id\'/', $e->getMessage())) {
             $payload = $command->getPayload();
 
-            return new DuplicateWishlistProductException($payload['product_id'] ?? '');
+            return new DuplicateWishlistProductException(!empty($payload['product_id']) ? Uuid::fromBytesToHex($payload['product_id']) : '');
         }
 
         return null;

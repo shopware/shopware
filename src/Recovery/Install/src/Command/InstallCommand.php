@@ -252,7 +252,7 @@ class InstallCommand extends Command
         $adminUser->firstName = $input->getOption('admin-firstname');
         $adminUser->lastName = $input->getOption('admin-lastname');
 
-        if ($adminUser->locale && !in_array($adminUser->locale, Locale::getValidLocales(), true)) {
+        if ($adminUser->locale && !\in_array($adminUser->locale, Locale::getValidLocales(), true)) {
             throw new \RuntimeException('Invalid admin-locale provided');
         }
 
@@ -334,7 +334,7 @@ class InstallCommand extends Command
         $shop->currency = $input->getOption('shop-currency');
         $shop->country = $input->getOption('shop-country');
 
-        if ($shop->locale && !in_array($shop->locale, Locale::getValidLocales(), true)) {
+        if ($shop->locale && !\in_array($shop->locale, Locale::getValidLocales(), true)) {
             throw new \RuntimeException('Invalid shop-locale provided');
         }
 
@@ -405,7 +405,7 @@ class InstallCommand extends Command
 
         $defaultChoice = null;
         if ($connectionInfo->databaseName) {
-            if (in_array($connectionInfo->databaseName, $databaseNames, true)) {
+            if (\in_array($connectionInfo->databaseName, $databaseNames, true)) {
                 $defaultChoice = array_search($connectionInfo->databaseName, $databaseNames, true);
             }
         }
@@ -696,7 +696,7 @@ EOT;
 
         $coreMigrations->sync();
 
-        $total = count($coreMigrations->getExecutableMigrations());
+        $total = \count($coreMigrations->getExecutableMigrations());
 
         $progress = $this->IOHelper->createProgressBar($total);
         $progress->setRedrawFrequency(20);

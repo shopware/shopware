@@ -7,12 +7,15 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
@@ -44,14 +47,21 @@ class SystemConfigService
      */
     private $configReader;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $pluginRepository;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $systemConfigRepository,
-        ConfigReader $configReader
+        ConfigReader $configReader,
+        EntityRepositoryInterface $pluginRepository
     ) {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
         $this->configReader = $configReader;
+        $this->pluginRepository = $pluginRepository;
     }
 
     /**
@@ -178,8 +188,8 @@ class SystemConfigService
             $key = $cur->getConfigurationKey();
             $value = $cur->getConfigurationValue();
 
-            $inheritedValuePresent = array_key_exists($key, $merged);
-            $valueConsideredEmpty = !is_bool($value) && empty($value);
+            $inheritedValuePresent = \array_key_exists($key, $merged);
+            $valueConsideredEmpty = !\is_bool($value) && empty($value);
 
             if ($inheritedValuePresent && $valueConsideredEmpty) {
                 continue;
@@ -258,6 +268,41 @@ class SystemConfigService
         }
     }
 
+    public function deletePluginConfiguration(Bundle $bundle): void
+    {
+        try {
+            $config = $this->configReader->getConfigFromBundle($bundle);
+        } catch (BundleConfigNotFoundException $e) {
+            return;
+        }
+
+        $prefix = $bundle->getName() . '.config.';
+
+        $configKeys = [];
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                $configKeys[] = $prefix . $element['name'];
+            }
+        }
+
+        if (empty($configKeys)) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('configurationKey', $configKeys));
+        $systemConfigIds = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        if (empty($systemConfigIds)) {
+            return;
+        }
+
+        $ids = array_map(static function ($id) {
+            return ['id' => $id];
+        }, $systemConfigIds);
+
+        $this->systemConfigRepository->delete($ids, Context::createDefaultContext());
+    }
+
     private function load(?string $salesChannelId): array
     {
         $key = $salesChannelId ?? 'global';
@@ -328,6 +373,22 @@ class SystemConfigService
             $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
         }
 
+        return $this->filterNotActivatedPlugins($configValues);
+    }
+
+    private function filterNotActivatedPlugins(array $configValues): array
+    {
+        $notActivatedPlugins = $this->getNotActivatedPlugins();
+        foreach (array_keys($configValues) as $key) {
+            $notActivatedPlugin = $notActivatedPlugins->filter(function (PluginEntity $plugin) use ($key) {
+                return $plugin->getName() === $key;
+            })->first();
+
+            if ($notActivatedPlugin) {
+                unset($configValues[$key]);
+            }
+        }
+
         return $configValues;
     }
 
@@ -374,5 +435,13 @@ class SystemConfigService
         $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return array_shift($ids);
+    }
+
+    private function getNotActivatedPlugins(): EntityCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', false));
+
+        return $this->pluginRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 }

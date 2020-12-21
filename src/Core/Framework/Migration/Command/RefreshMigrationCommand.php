@@ -21,7 +21,7 @@ class RefreshMigrationCommand extends Command
     {
         $path = $input->getArgument('path');
         $filename = basename($path);
-        $className = pathinfo($filename, PATHINFO_FILENAME);
+        $className = pathinfo($filename, \PATHINFO_FILENAME);
 
         $output->writeln('Updating timestamp of migration: ' . $filename);
 
@@ -35,7 +35,7 @@ class RefreshMigrationCommand extends Command
         $newPath = str_replace($timestamp, $newTimestamp, $path);
 
         $search = [
-            pathinfo($filename, PATHINFO_FILENAME),
+            pathinfo($filename, \PATHINFO_FILENAME),
             'return ' . $timestamp . ';',
         ];
 

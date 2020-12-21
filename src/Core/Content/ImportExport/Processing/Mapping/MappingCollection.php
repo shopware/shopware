@@ -40,7 +40,7 @@ class MappingCollection extends Collection
 
     public function getMapped(string $readKey): ?Mapping
     {
-        if (!array_key_exists($readKey, $this->reverseIndex)) {
+        if (!\array_key_exists($readKey, $this->reverseIndex)) {
             return null;
         }
 
@@ -63,9 +63,9 @@ class MappingCollection extends Collection
         $mappingCollection = new self();
 
         foreach ($data as $mapping) {
-            if (is_string($mapping)) {
+            if (\is_string($mapping)) {
                 $mapping = new Mapping($mapping);
-            } elseif (is_array($mapping)) {
+            } elseif (\is_array($mapping)) {
                 $mapping = Mapping::fromArray($mapping);
             }
 

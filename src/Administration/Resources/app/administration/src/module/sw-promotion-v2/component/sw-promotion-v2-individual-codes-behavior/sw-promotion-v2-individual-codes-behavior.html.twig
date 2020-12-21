@@ -1,0 +1,38 @@
+{% block sw_promotion_v2_individual_codes_behavior %}
+    <div class="sw-promotion-v2-individual-codes-behavior">
+
+        {% block sw_promotion_v2_individual_codes_behavior_grid %}
+            <template v-if="codes && codes.length > 0">
+                {# ToDo NEXT-12514 - Implement listing #}
+            </template>
+        {% endblock %}
+
+        {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
+            <sw-empty-state
+                v-else
+                class="sw-promotion-v2-individual-codes-behavior__empty-state"
+                :title="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
+                :absolute="false">
+
+                {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}
+                    <template #icon>
+                        <img class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
+                             :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset">
+                    </template>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}
+                    <template #actions>
+                        <sw-button
+                            class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-button"
+                            variant="ghost">
+                            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
+                        </sw-button>
+                    </template>
+                {% endblock %}
+
+            </sw-empty-state>
+        {% endblock %}
+
+    </div>
+{% endblock %}

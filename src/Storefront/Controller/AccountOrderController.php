@@ -3,10 +3,13 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -91,46 +94,16 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->orderPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
-    }
-
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET"})
-     *
-     * @throws CustomerNotLoggedInException
-     */
-    public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
-    {
-        $page = $this->orderPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
-    public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-        $page = $this->orderDetailPageLoader->load($request, $context);
-
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
-            'orderDetails' => $page->getLineItems(),
-            'orderId' => $page->getOrder()->getId(),
-            'page' => $page,
-        ]);
     }
 
     /**
@@ -162,12 +135,51 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.2.0.0")
+     * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET", "POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     */
+    public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
+    {
+        try {
+            $page = $this->orderPageLoader->load($request, $context);
+        } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException $exception) {
+            return $this->redirectToRoute(
+                'frontend.account.guest.login.page',
+                [
+                    'redirectTo' => 'frontend.account.order.single.page',
+                    'redirectParameters' => ['deepLinkCode' => $request->get('deepLinkCode')],
+                    'loginError' => ($exception instanceof WrongGuestCredentialsException),
+                ]
+            );
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Since("6.0.0.0")
+     * @LoginRequired()
+     * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->orderDetailPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
+            'orderDetails' => $page->getLineItems(),
+            'orderId' => $page->getOrder()->getId(),
+            'page' => $page,
+        ]);
+    }
+
+    /**
+     * @Since("6.2.0.0")
+     * @LoginRequired(allowGuest=true)
      * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"})
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn(true);
-
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
         if ($page->isPaymentChangeable() === false) {

@@ -15,8 +15,8 @@
       "columnStatus": "Status",
       "contextMenuDuplicate": "Duplizieren",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "valid": "Valide",
-      "invalid": "Invalide",
+      "valid": "Gültig",
+      "invalid": "Ungütig",
       "messageEmpty": "Noch keine Regeln"
     },
     "detail": {
@@ -34,6 +34,15 @@
       "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
       "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+      "tabGeneral": "Allgemein",
+      "tabAssignments": "Zuweisungen",
+      "associationsWithProducts": "Produkten",
+      "associationsWithShippingMethods": "Versandarten",
+      "associationsWithPaymentMethods": "Zahlarten",
+      "associationsWithPromotions": "Rabatten & Aktionen",
+      "associationsWithEventActions": "Business-Events",
+      "hasNoAssociations": "Diese Regel wird nicht verwendet",
+      "associationsLoadingError": "Die Zuweisungen der Regel konnten nicht geladen werden.",
       "types": {
         "shipping": "Versandart",
         "payment": "Zahlungart",

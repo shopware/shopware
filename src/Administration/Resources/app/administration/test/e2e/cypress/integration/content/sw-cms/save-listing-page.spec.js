@@ -17,7 +17,7 @@ describe('CMS: check validation of product list page', () => {
             });
     });
 
-    it.skip('@content: create product list page and try to save with deleted listing block', () => {
+    it('@content: create product list page and try to save with deleted listing block', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page`,
@@ -49,10 +49,17 @@ describe('CMS: check validation of product list page', () => {
         cy.get('.sw-cms-sidebar__section-settings').should('be.visible');
         cy.get('.sw-collapse__content').should('be.visible');
         cy.get('.sw-cms-section-config__quickaction.is--danger').click();
-
+        cy.get('.sw-cms-detail__empty-stage-content').should('be.visible');
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            cy.awaitAndCheckNotification('Unable to save. Please add a product listing block or change the layout type.');
-        });
+
+        // Shows layout assignment modal the first time saving after the wizard
+        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+
+        // Confirm without layout
+        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
+        cy.get('.sw-cms-detail__save-action').click();
+
+        cy.awaitAndCheckNotification('Unable to save. Please add at least one product listing block or change this layout\'s type.');
     });
 });

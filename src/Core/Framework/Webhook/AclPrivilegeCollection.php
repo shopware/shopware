@@ -19,6 +19,6 @@ class AclPrivilegeCollection
 
     public function isAllowed(string $resource, string $privilege): bool
     {
-        return in_array($resource . ':' . $privilege, $this->privileges, true);
+        return \in_array($resource . ':' . $privilege, $this->privileges, true);
     }
 }

@@ -57,7 +57,7 @@ class UninstallContext extends InstallContext
      */
     public function enableKeepMigrations(): void
     {
-        trigger_error('Do not use enableKeepMigrations() anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
+        @trigger_error('Do not use enableKeepMigrations() anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
         $this->keepMigrations = true;
     }
 }

@@ -5,6 +5,7 @@
         :criteria="criteria"
         :disabled="disabled"
         v-bind="$attrs"
+        v-on="getListeners"
         @change="updateIds">
 
         {% block sw_entity_multi_id_select_label_property %}

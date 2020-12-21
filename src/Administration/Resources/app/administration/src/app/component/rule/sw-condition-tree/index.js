@@ -132,7 +132,8 @@ Component.register('sw-condition-tree', {
         createTreeRecursive(condition, conditions) {
             const children = conditions.filter(c => c.parentId === condition.id)
                 .sort((a, b) => a.position - b.position)
-                .map(c => this.createTreeRecursive(c, conditions));
+                .map(c => this.createTreeRecursive(c, conditions))
+                .filter(c => !condition[this.childAssociationField].has(c.id));
 
             condition[this.childAssociationField] = new EntityCollection(
                 condition[this.childAssociationField].source,
@@ -158,6 +159,8 @@ Component.register('sw-condition-tree', {
                 this.rootId,
                 0
             );
+
+            this.initialConditions.push(rootContainer);
 
             rootNodes.forEach(root => { root.parentId = rootContainer.id; });
             return rootContainer;

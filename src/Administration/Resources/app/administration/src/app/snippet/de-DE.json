@@ -4,10 +4,10 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
       "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
-      "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
+      "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
-      "SHOPWARE_INVALID_IP": "Bitte gib eine valide IP-Adresse ein.",
-      "INVALID_URL": "Bitte gib eine valide URL ein."
+      "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
+      "INVALID_URL": "Bitte gib eine gültige URL ein."
     },
     "default": {
       "add": "Hinzufügen",
@@ -25,7 +25,8 @@
       "confirm": "Bestätigen",
       "view": "Anzeigen",
       "ascending": "Aufsteigend",
-      "descending": "Absteigend"
+      "descending": "Absteigend",
+      "xTimesIn": "{n} mal in"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -33,7 +34,7 @@
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
-      "messageDeleteFailed": "wird verwendet von: "
+      "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: "
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -173,6 +174,13 @@
       "listItemAdd": "\"{term}\" hinzufügen",
       "placeholder": "Tags durchsuchen ..."
     },
+    "sw-snippet-field": {
+      "tooltip": "Bearbeite und übersetze diesen Textbaustein"
+    },
+    "sw-snippet-field-edit-modal": {
+      "title": "Textbaustein",
+      "labelName": "Name"
+    },
     "sw-data-grid": {
       "tooltipListSettings": "Listeneinstellungen",
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
@@ -208,7 +216,7 @@
           "message": "Fehler beim Speichern des Ordners."
         },
         "errorInvalidItemName": {
-          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen validen Ordnernamen ein."
+          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen gültigen Ordnernamen ein."
         }
       }
     },
@@ -451,14 +459,14 @@
       "addData": "Eintrag hinzufügen"
     },
     "sw-multi-tag-ip-select": {
-      "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
       "addIpAdress": "IP-Adresse hinzufügen",
       "knownIps": {
         "you": "Du"
       }
     },
     "sw-multi-ip-select": {
-      "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
       "addIpAdress": "IP-Adresse hinzufügen"
     },
     "sw-entity-multi-select": {
@@ -647,19 +655,24 @@
       "product": "Produkt | Produkte",
       "product_manufacturer": "Hersteller",
       "product_media": "Produktmedium | Produktmedien",
+      "product_price": "Produktpreis | Produktpreise",
       "product_stream": "Produktgruppe | Produktgruppen",
       "product_review": "Bewertung | Bewertungen",
       "product_variation": "Variante | Varianten",
       "promotion": "Promotion | Promotions",
+      "promotion_order_rule": "Promotion qualifizierte Bestellung | Promotion qualifizierte Bestellungen",
+      "promotion_cart_rule": "Promotion qualifizierter Warenkorb | Promotion qualifizierte Warenkörbe",
+      "promotion_persona_rule": "Promotion Zielgruppe | Promotion Zielgruppen",
       "rule": "Regel | Regeln",
       "rule_condition": "Bedingung | Bedingungen",
-      "sales_channel": "Verkaufkanal | Verkaufskanäle",
+      "sales_channel": "Verkaufskanal | Verkaufskanäle",
       "sales_channel_type": "Verkaufskanaltyp | Verkaufskanaltypen",
       "salutation": "Anrede | Anreden",
       "seo_url": "SEO-URL | SEO-URLs",
       "shipping_method": "Versandart | Versandarten",
       "snippet": "Textbaustein | Textbausteine",
       "tax": "Steuern",
+      "tax_rule": "Steuerregel | Steuerregeln",
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",

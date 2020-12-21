@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -609,6 +610,9 @@ class ApiController extends AbstractController
 
             //contains now the inverse side association: category.products
             $reverse = $reverse->first();
+            if (!$reverse) {
+                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+            }
 
             /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
@@ -656,10 +660,13 @@ class ApiController extends AbstractController
             //get inverse association to filter to parent value
             $reverse = $definition->getFields()->filter(
                 function (Field $field) use ($parentDefinition) {
-                    return $field instanceof OneToManyAssociationField && $parentDefinition === $field->getReferenceDefinition();
+                    return $field instanceof AssociationField && $parentDefinition === $field->getReferenceDefinition();
                 }
             );
             $reverse = $reverse->first();
+            if (!$reverse) {
+                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+            }
 
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
@@ -683,6 +690,9 @@ class ApiController extends AbstractController
                 }
             );
             $reverse = $reverse->first();
+            if (!$reverse) {
+                throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
+            }
 
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
@@ -851,7 +861,7 @@ class ApiController extends AbstractController
         $reference = $manyToManyAssociation->getToManyReferenceDefinition();
 
         // check if we need to create the entity first
-        if (\count($payload) > 1 || !array_key_exists('id', $payload)) {
+        if (\count($payload) > 1 || !\array_key_exists('id', $payload)) {
             $events = $this->executeWriteOperation($reference, $payload, $context, $type);
             $event = $events->getEventByEntityName($reference->getEntityName());
 

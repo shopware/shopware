@@ -34,6 +34,14 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             default: true
         },
 
+        steps: {
+            type: Array,
+            required: false,
+            default() {
+                return [10, 25, 50, 75, 100];
+            }
+        },
+
         fullPage: {
             type: Boolean,
             required: false,

@@ -147,6 +147,33 @@
             <helpText>Shows a button which allows users to accept all cookies in the storefront</helpText>
             <helpText lang="de-DE">Zeigt einen Button an, der es Nutzern erlaubt alle Cookies in der Storefront zu akzeptieren</helpText>
         </component>
+
+        <component name="sw-switch-field">
+            <name>firstNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>First name in contact forms required</label>
+            <label lang="de-DE">Vorname in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "first name" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Vorname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>lastNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Last name in contact forms required</label>
+            <label lang="de-DE">Nachname in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "last name" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Nachname" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>phoneNumberFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Phone number in contact forms required</label>
+            <label lang="de-DE">Telefonummer in Kontaktformularen als Pflichtfeld behandeln</label>
+            <helpText>If active, the field "phone number" has to be filled in, in order to submit a contact form.</helpText>
+            <helpText lang="de-DE">Wenn aktiv, muss das Feld "Telefonnummer" ausgefüllt werden, um ein Kontaktformular absenden zu können.</helpText>
+        </component>
     </card>
 
 </config>

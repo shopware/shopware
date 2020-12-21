@@ -55,7 +55,7 @@ class Filesystem
                 continue;
             }
             // skip VCS dirs
-            if (in_array($fileInfo->getBasename(), $this->VCSDirs, true)) {
+            if (\in_array($fileInfo->getBasename(), $this->VCSDirs, true)) {
                 continue;
             }
             if ($fixPermission && !$fileInfo->isWritable()) {

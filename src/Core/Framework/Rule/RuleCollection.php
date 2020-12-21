@@ -56,7 +56,7 @@ class RuleCollection extends Collection
 
     public function has($class): bool
     {
-        return array_key_exists($class, $this->classes);
+        return \array_key_exists($class, $this->classes);
     }
 
     public function getApiAlias(): string

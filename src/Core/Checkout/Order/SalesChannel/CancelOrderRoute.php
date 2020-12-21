@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -51,13 +51,11 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )
+     * @LoginRequired()
      * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"})
      */
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
-        if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
         $newState = $this->orderService->orderStateTransition(
             $request->get('orderId'),
             'cancel',

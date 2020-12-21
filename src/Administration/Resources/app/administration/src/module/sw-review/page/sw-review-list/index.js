@@ -47,7 +47,7 @@ Component.register('sw-review-list', {
                 },
                 {
                     property: 'user',
-                    dataIndex: 'externalUser',
+                    dataIndex: 'customer.lastName,customer.firstName',
                     label: 'sw-review.list.columnUser'
                 },
                 {

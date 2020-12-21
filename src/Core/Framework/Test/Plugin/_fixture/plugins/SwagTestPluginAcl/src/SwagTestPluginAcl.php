@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 
+/** @deprecated tag:v6.4.0.0 */
 class SwagTestPluginAcl extends Plugin
 {
     public function activate(ActivateContext $context): void

@@ -31,8 +31,8 @@ class MessageFailedException extends ShopwareHttpException
             'The handler "{{ handlerClass }}" threw a "{{ exceptionClass }}" for message "{{ messageClass }}". The Exception was "{{ exceptionMessage }}.',
             [
                 'handlerClass' => $handlerClass,
-                'exceptionClass' => get_class($exception),
-                'messageClass' => get_class($originalMessage),
+                'exceptionClass' => \get_class($exception),
+                'messageClass' => \get_class($originalMessage),
                 'exceptionMessage' => $exception->getMessage(),
             ]
         );

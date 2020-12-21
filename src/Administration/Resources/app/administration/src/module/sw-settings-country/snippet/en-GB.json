@@ -32,6 +32,8 @@
       "labelShippingAvailable": "Shipping available",
       "labelTaxFree": "Tax free",
       "labelCompanyTaxFree": "Tax free for companies",
+      "labelCheckVatIdFormat": "Validate VAT ID format",
+      "helpTextCheckVatIdFormat": "Provides VAT validation for all EU member states.",
       "labelForceStateInRegistration": "State is required on registration",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",

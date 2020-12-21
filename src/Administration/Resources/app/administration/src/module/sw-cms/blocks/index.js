@@ -35,6 +35,8 @@ import './commerce/product-heading';
 import './commerce/product-three-column';
 import './commerce/product-listing';
 import './commerce/product-slider';
+import './commerce/gallery-buybox';
 import './commerce/product-description-reviews';
+import './commerce/cross-selling';
 
 import './form/form';

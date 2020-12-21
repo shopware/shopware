@@ -81,7 +81,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             '/([}{])/',
             $pattern,
             -1,
-            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
+            \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY
         ) ?? null;
     }
 
@@ -191,7 +191,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             if ($startPattern === true) {
                 $patternArg = explode('_', $patternPart);
                 $pattern = array_shift($patternArg);
-                $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
+                $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver((string) $pattern);
                 if ($patternResolver) {
                     $generated .= $patternResolver->resolve($this->configuration, $patternArg, $preview);
                 } else {

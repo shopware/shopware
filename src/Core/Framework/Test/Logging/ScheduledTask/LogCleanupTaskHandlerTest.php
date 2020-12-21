@@ -89,7 +89,7 @@ class LogCleanupTaskHandlerTest extends TestCase
         $handler->run();
 
         $results = $this->logEntryRepository->search(new Criteria(), $this->context);
-        static::assertEquals(count($expectedMessages), $results->getTotal());
+        static::assertEquals(\count($expectedMessages), $results->getTotal());
 
         $entries = $results->getEntities();
         $entriesJson = [];

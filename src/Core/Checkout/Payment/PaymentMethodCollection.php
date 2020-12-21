@@ -24,7 +24,7 @@ class PaymentMethodCollection extends EntityCollection
                     return true;
                 }
 
-                return in_array($paymentMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
+                return \in_array($paymentMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
             }
         );
     }

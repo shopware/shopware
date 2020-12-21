@@ -31,7 +31,7 @@ class OpenSSLVerifier
 
     public function isSystemSupported(): bool
     {
-        return function_exists('openssl_verify');
+        return \function_exists('openssl_verify');
     }
 
     public function isValid(string $message, string $signature): bool

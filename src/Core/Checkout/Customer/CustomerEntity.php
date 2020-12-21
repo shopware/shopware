@@ -101,6 +101,13 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     *
+     * @var array|null
+     */
+    protected $vatIds;
+
+    /**
      * @var string|null
      */
     protected $affiliateCode;
@@ -470,6 +477,22 @@ class CustomerEntity extends Entity
     public function setTitle(?string $title): void
     {
         $this->title = $title;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function getVatIds(): ?array
+    {
+        return $this->vatIds;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function setVatIds(?array $vatIds): void
+    {
+        $this->vatIds = $vatIds;
     }
 
     public function getActive(): bool

@@ -17,6 +17,11 @@ export default function createCustomFieldService() {
             configRenderComponent: 'sw-custom-field-type-select',
             config: {}
         },
+        entity: {
+            configRenderComponent: 'sw-custom-field-type-entity',
+            type: 'select',
+            config: {}
+        },
         text: {
             configRenderComponent: 'sw-custom-field-type-text',
             type: 'text',
@@ -89,7 +94,7 @@ export default function createCustomFieldService() {
         'product_manufacturer',
         'customer',
         'customer_address',
-        // 'order', TODO: fix NEXT-3006
+        'order',
         'sales_channel',
         'media'
     ];

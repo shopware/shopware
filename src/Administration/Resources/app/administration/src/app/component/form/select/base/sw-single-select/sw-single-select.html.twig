@@ -69,7 +69,7 @@
                                                 v-bind="{ item, index }">
                                                 {% block sw_single_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }">
-                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                        <sw-highlight-text v-if="highlightSearchTerm && !isSelected(item)"
                                                                            :text="getKey(item, labelProperty)"
                                                                            :searchTerm="searchTerm">
                                                         </sw-highlight-text>

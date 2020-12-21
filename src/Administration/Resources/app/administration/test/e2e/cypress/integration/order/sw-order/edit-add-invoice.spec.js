@@ -46,7 +46,7 @@ describe('Order: Test order state', () => {
             method: 'post'
         }).as('findOrder');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -102,7 +102,7 @@ describe('Order: Test order state', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,

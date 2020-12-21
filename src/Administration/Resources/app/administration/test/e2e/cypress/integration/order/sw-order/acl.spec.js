@@ -40,7 +40,7 @@ describe('Order: Test ACL privileges', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -87,7 +87,7 @@ describe('Order: Test ACL privileges', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
@@ -148,7 +148,7 @@ describe('Order: Test ACL privileges', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,

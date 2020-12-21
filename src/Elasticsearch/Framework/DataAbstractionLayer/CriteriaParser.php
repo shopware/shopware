@@ -102,7 +102,12 @@ class CriteriaParser
     {
         $fieldName = $this->buildAccessor($definition, $aggregation->getField(), $context);
 
-        $path = $this->getNestedPath($definition, $aggregation->getField());
+        $fields = $aggregation->getFields();
+
+        $path = null;
+        if (\count($fields) > 0) {
+            $path = $this->getNestedPath($definition, $fields[0]);
+        }
 
         $esAggregation = $this->createAggregation($aggregation, $fieldName, $definition, $context);
 
@@ -138,7 +143,7 @@ class CriteriaParser
                 return $this->parseRangeFilter($filter, $definition, $context);
 
             default:
-                throw new \RuntimeException(sprintf('Unsupported filter %s', get_class($filter)));
+                throw new \RuntimeException(sprintf('Unsupported filter %s', \get_class($filter)));
         }
     }
 
@@ -146,38 +151,63 @@ class CriteriaParser
     {
         $query = new BoolQuery();
         foreach ($aggregation->getFilter() as $filter) {
-            $query->add(
-                $this->parseFilter($filter, $definition, $definition->getEntityName(), $context)
-            );
+            $parsed = $this->parseFilter($filter, $definition, $definition->getEntityName(), $context);
+            if ($parsed instanceof NestedQuery) {
+                $parsed = $parsed->getQuery();
+            }
+            $query->add($parsed);
         }
 
         $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query);
 
+        $nested = $aggregation->getAggregation();
+
+        if (!$nested) {
+            throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
+        }
+
         $filter->addAggregation(
-            $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+            $this->parseNestedAggregation($nested, $definition, $context)
         );
 
         return $filter;
     }
 
-    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): CompositeAggregation
+    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
     {
+        if ($aggregation->getSorting() === null) {
+            $terms = new Bucketing\TermsAggregation($aggregation->getName(), $fieldName);
+
+            if ($nested = $aggregation->getAggregation()) {
+                $terms->addAggregation(
+                    $this->parseNestedAggregation($nested, $definition, $context)
+                );
+            }
+
+            // set default size to 10.000 => max for default configuration
+            $terms->addParameter('size', ElasticsearchHelper::MAX_SIZE_VALUE);
+
+            if ($aggregation->getLimit()) {
+                $terms->addParameter('size', (string) $aggregation->getLimit());
+            }
+
+            return $terms;
+        }
+
         $composite = new CompositeAggregation($aggregation->getName());
 
-        if ($aggregation->getSorting()) {
-            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+        $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
 
-            $sorting = new Bucketing\TermsAggregation($aggregation->getName() . '.sorting', $accessor);
-            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
-            $composite->addSource($sorting);
-        }
+        $sorting = new Bucketing\TermsAggregation($aggregation->getName() . '.sorting', $accessor);
+        $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+        $composite->addSource($sorting);
 
         $terms = new Bucketing\TermsAggregation($aggregation->getName() . '.key', $fieldName);
         $composite->addSource($terms);
 
-        if ($aggregation->getAggregation()) {
+        if ($nested = $aggregation->getAggregation()) {
             $composite->addAggregation(
-                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+                $this->parseNestedAggregation($nested, $definition, $context)
             );
         }
 
@@ -221,13 +251,20 @@ class CriteriaParser
         );
         $composite->addSource($histogram);
 
-        if ($aggregation->getAggregation()) {
+        if ($nested = $aggregation->getAggregation()) {
             $composite->addAggregation(
-                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+                $this->parseNestedAggregation($nested, $definition, $context)
             );
         }
 
         return $composite;
+    }
+
+    private function parseNestedAggregation(Aggregation $aggregation, EntityDefinition $definition, Context $context): AbstractAggregation
+    {
+        $fieldName = $this->buildAccessor($definition, $aggregation->getField(), $context);
+
+        return $this->createAggregation($aggregation, $fieldName, $definition, $context);
     }
 
     private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
@@ -263,7 +300,7 @@ class CriteriaParser
             case $aggregation instanceof DateHistogramAggregation:
                 return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', get_class($aggregation)));
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
         }
     }
 

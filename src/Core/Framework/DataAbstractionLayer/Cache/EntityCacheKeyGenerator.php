@@ -106,7 +106,7 @@ class EntityCacheKeyGenerator
     {
         if ($entityName instanceof EntityDefinition) {
             $entity = $entityName->getEntityName();
-            @trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', E_USER_DEPRECATED);
+            @trigger_error('Providing an entity definition to `getEntityTag` is deprecated since 6.1, please provide the entity name instead. String type hint will be added in 6.3', \E_USER_DEPRECATED);
         } else {
             $entity = $entityName;
         }
@@ -153,6 +153,8 @@ class EntityCacheKeyGenerator
 
     /**
      * Calculates all tags for a single entity. Considers the language chain, context states and loaded associations
+     *
+     * @return string[]
      */
     public function getAssociatedTags(EntityDefinition $definition, Entity $entity, Context $context): array
     {

@@ -37,8 +37,7 @@
                         <sw-inherit-wrapper
                             v-model="product.featureSetId"
                             :inheritedValue="parentProduct.featureSetId"
-                            :label="$tc('sw-product.featureSets.templateSelectFieldLabel')"
-                            isAssociation>
+                            :label="$tc('sw-product.featureSets.templateSelectFieldLabel')">
                                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
 
                                     {% block sw_product_feature_set_form_input %}

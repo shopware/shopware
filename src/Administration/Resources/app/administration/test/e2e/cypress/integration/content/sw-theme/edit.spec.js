@@ -12,7 +12,7 @@ describe('Theme: Test common editing of theme', () => {
             });
     });
 
-    it('@base @media @content: change theme logo image', { browser: '!firefox' }, () => {
+    it('@base @media @content: change theme logo image', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
@@ -98,5 +98,61 @@ describe('Theme: Test common editing of theme', () => {
         cy.get('.header-cart-total')
             .should('have.css', 'color', 'rgb(0, 0, 0)');
 
+    });
+
+    it('@base @media @content: change theme logo image by sidebar', () => {
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/theme/*`,
+            method: 'patch'
+        }).as('saveData');
+
+        cy.get('.sw-theme-list-item')
+            .last()
+            .get('.sw-theme-list-item__title')
+            .contains('Shopware default theme')
+            .click();
+
+        cy.contains('.sw-card__title', 'Media').scrollIntoView();
+        cy.get('.sw-media-upload-v2__label')
+            .contains('Desktop')
+            .parent()
+            .parent()
+            .find('.sw-media-upload-v2__remove-icon')
+            .click();
+
+        cy.get('.sw-sidebar-navigation-item').click();
+
+        cy.contains('.sw-media-base-item__name', 'demostore-logo.png')
+            .parent()
+            .parent()
+            .find('.sw-context-button .sw-context-button__button')
+            .click();
+
+        cy.contains('.sw-context-menu-item__text', /Add to Desktop/)
+            .click();
+
+        cy.get('.sw-media-upload-v2')
+            .first()
+            .get('.sw-media-preview-v2__item')
+            .should('have.attr', 'src')
+            .and('match', /demostore-logo/);
+
+        cy.get('.sw-button-process').click();
+
+        cy.get('.sw-modal').should('be.visible');
+        cy.get('.sw_theme_manager__confirm-save-text')
+            .contains('Do you really want to save the changes? This will change the visualization of your shop.');
+        cy.get('.sw-modal__footer > .sw-button--primary').click();
+
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.visit('/');
+        cy.get('.img-fluid').should('be.visible');
+        cy.get('.img-fluid')
+            .should('have.attr', 'src')
+            .and('match', /demostore-logo/);
     });
 });

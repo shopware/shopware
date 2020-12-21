@@ -15,7 +15,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
             });
     });
 
-    it('@base @general: read manufacturer with ACL, but without rights', () => {
+    it('@general: read manufacturer with ACL, but without rights', () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
@@ -25,7 +25,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@base @general: read manufacturer with ACL', () => {
+    it('@general: read manufacturer with ACL', () => {
         const page = new ManufacturerPageObject();
 
         cy.loginAsUserWithPermissions([

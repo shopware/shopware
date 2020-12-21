@@ -61,4 +61,59 @@ describe('components/base/sw-button', () => {
         expect(slot).toBeTruthy();
         expect(slot.text()).toBe('Router-link text');
     });
+
+    it('should trigger an click event when the button is clicked', async () => {
+        const click = jest.fn();
+
+        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+            slots: { default: 'I am clickable' },
+            listeners: {
+                click
+            }
+        });
+
+        await wrapper.trigger('click');
+        expect(click).toBeCalled();
+    });
+
+    it('should not trigger an event when disabled', async () => {
+        const click = jest.fn();
+
+        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+            propsData: {
+                disabled: true
+            },
+            slots: { default: 'I am clickable' },
+            listeners: {
+                click
+            }
+        });
+
+        await wrapper.trigger('click');
+        expect(click).not.toBeCalled();
+    });
+
+    it('should not trigger an event if html5 disabled is removed', async () => {
+        const click = jest.fn();
+
+        const wrapper = shallowMount(Shopware.Component.build('sw-button'), {
+            propsData: {
+                disabled: true
+            },
+            slots: { default: 'I am clickable' },
+            listeners: {
+                click
+            }
+        });
+
+        const button = wrapper.find('button');
+        expect(button.attributes('disabled')).toBe('disabled');
+
+        button.element.removeAttribute('disabled');
+
+        expect(button.attributes('disabled')).toBeFalsy();
+
+        await wrapper.trigger('click');
+        expect(click).not.toBeCalled();
+    });
 });

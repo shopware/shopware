@@ -20,6 +20,8 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return array<string, mixed>
      */
     public function normalize($data, $format = null, array $context = [])
     {

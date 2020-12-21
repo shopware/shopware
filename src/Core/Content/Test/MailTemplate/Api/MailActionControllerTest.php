@@ -46,7 +46,7 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
+        static::assertGreaterThan(0, \count($messages));
         $message = array_pop($messages);
 
         // Asserting email data
@@ -83,7 +83,7 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
+        static::assertGreaterThan(0, \count($messages));
         $message = array_pop($messages);
 
         // Asserting email data
@@ -116,7 +116,7 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
+        static::assertGreaterThan(0, \count($messages));
         $message = array_pop($messages);
 
         // Asserting email data

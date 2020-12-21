@@ -79,7 +79,7 @@ class HreflangLoader implements HreflangLoaderInterface
                     $locale = $entity->getLanguage()->getLocale()->getCode();
 
                     if ($domain->isHreflangUseOnlyLocale()) {
-                        $locale = substr($locale, 0, 2);
+                        $locale = mb_substr($locale, 0, 2);
                     }
 
                     if ($domain->getId() === $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId()) {
@@ -108,7 +108,7 @@ class HreflangLoader implements HreflangLoaderInterface
         /** @var SalesChannelDomainEntity[] $domains */
         $domains = $this->salesChannelDomainRepository->search($criteria, $salesChannelContext->getContext());
 
-        if (count($domains) <= 1) {
+        if (\count($domains) <= 1) {
             return new HreflangCollection();
         }
 
@@ -118,7 +118,7 @@ class HreflangLoader implements HreflangLoaderInterface
             $locale = $domain->getLanguage()->getLocale()->getCode();
 
             if ($domain->isHreflangUseOnlyLocale()) {
-                $locale = substr($locale, 0, 2);
+                $locale = mb_substr($locale, 0, 2);
             }
 
             if ($domain->getId() === $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId()) {

@@ -83,7 +83,7 @@ class CookieController extends StorefrontController
                     return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
                 });
                 // Only add statistics cookie group if it has entries
-                if (count($cookieGroup['entries']) > 0) {
+                if (\count($cookieGroup['entries']) > 0) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
@@ -112,7 +112,7 @@ class CookieController extends StorefrontController
                 }
             }
 
-            if (count($cookieGroups[$groupIndex]['entries']) === 0) {
+            if (\count($cookieGroups[$groupIndex]['entries']) === 0) {
                 unset($cookieGroups[$groupIndex]);
             }
         }

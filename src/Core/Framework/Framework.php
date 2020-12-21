@@ -91,7 +91,7 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        Feature::setRegisteredFeatures(
+        Feature::registerFeatures(
             $this->container->getParameter('shopware.feature.flags'),
             $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
         );

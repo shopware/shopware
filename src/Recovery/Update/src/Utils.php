@@ -21,7 +21,7 @@ class Utils
             return true;
         }
 
-        return self::check(dirname($file));
+        return self::check(\dirname($file));
     }
 
     /**
@@ -104,7 +104,7 @@ class Utils
         $allowed = explode("\n", $allowed);
         $allowed = array_map('trim', $allowed);
 
-        return in_array($clientIp, $allowed, true);
+        return \in_array($clientIp, $allowed, true);
     }
 
     /**
@@ -117,7 +117,7 @@ class Utils
         $allowedLanguages = ['de', 'en', 'cz', 'es', 'fr', 'it', 'nl', 'pt', 'sv'];
         $selectedLanguage = 'en';
 
-        if ($lang && in_array($lang, $allowedLanguages, true)) {
+        if ($lang && \in_array($lang, $allowedLanguages, true)) {
             return $lang;
         }
 
@@ -126,14 +126,14 @@ class Utils
             $selectedLanguage = mb_substr($selectedLanguage[0], 0, 2);
         }
 
-        if (empty($selectedLanguage) || !in_array($selectedLanguage, $allowedLanguages, true)) {
+        if (empty($selectedLanguage) || !\in_array($selectedLanguage, $allowedLanguages, true)) {
             $selectedLanguage = 'en';
         }
 
-        if (isset($_POST['language']) && in_array($_POST['language'], $allowedLanguages, true)) {
+        if (isset($_POST['language']) && \in_array($_POST['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_POST['language'];
             $_SESSION['language'] = $selectedLanguage;
-        } elseif (isset($_SESSION['language']) && in_array($_SESSION['language'], $allowedLanguages, true)) {
+        } elseif (isset($_SESSION['language']) && \in_array($_SESSION['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_SESSION['language'];
         } else {
             $_SESSION['language'] = $selectedLanguage;
@@ -160,7 +160,7 @@ class Utils
                 $db['pass'] = '';
             }
         } else {
-            die('Critical environment variable \'DATABASE_URL\' missing!' . PHP_EOL);
+            die('Critical environment variable \'DATABASE_URL\' missing!' . \PHP_EOL);
         }
 
         if (!isset($db['host'])) {

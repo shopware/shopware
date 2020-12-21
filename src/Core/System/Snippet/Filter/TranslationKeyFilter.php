@@ -17,14 +17,14 @@ class TranslationKeyFilter extends AbstractFilter implements SnippetFilterInterf
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !is_array($requestFilterValue)) {
+        if (empty($requestFilterValue) || !\is_array($requestFilterValue)) {
             return $snippets;
         }
 
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!in_array($translationKey, $requestFilterValue, true)) {
+                if (!\in_array($translationKey, $requestFilterValue, true)) {
                     continue;
                 }
                 $result[$setId]['snippets'][$translationKey] = $snippet;

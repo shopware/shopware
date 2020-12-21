@@ -1,6 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-sidebar';
+import 'src/app/component/base/sw-button';
 import Vuex from 'vuex';
 
 function getBlockData() {
@@ -30,6 +31,18 @@ function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
+    localVue.directive('tooltip', {
+        bind(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        inserted(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        update(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        }
+    });
+
     localVue.use(Vuex);
 
     return shallowMount(Shopware.Component.build('sw-cms-sidebar'), {
@@ -56,6 +69,7 @@ function createWrapper() {
             }
         },
         stubs: {
+            'sw-button': Shopware.Component.build('sw-button'),
             'sw-sidebar': true,
             'sw-sidebar-item': true,
             'sw-sidebar-collapse': true,
@@ -66,7 +80,8 @@ function createWrapper() {
             'sw-cms-section-config': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
-            'sw-cms-sidebar-nav-element': true
+            'sw-cms-sidebar-nav-element': true,
+            'sw-entity-single-select': true
         },
         mocks: {
             $tc: (value) => value,
@@ -88,6 +103,9 @@ function createWrapper() {
             },
             feature: {
                 isActive: () => true
+            },
+            acl: {
+                can: () => true
             }
         }
     });
@@ -115,7 +133,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         });
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
-        expect(sidebarItems.length).toBe(4);
+        expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBe('true');
@@ -126,7 +144,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = createWrapper();
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
-        expect(sidebarItems.length).toBe(4);
+        expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBeUndefined();
@@ -155,5 +173,52 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const [slot] = newBlock.slots;
 
         expect(slot.id).toBe('41d71c21cfb346149c066b4ebeeb0dbf');
+    });
+
+    it('should fire event to open layout assignment modal', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('open-layout-assignment')).toBeTruthy();
+    });
+
+    it('should show tooltip and disable layout type select when page type is product detail', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            page: {
+                ...wrapper.props().page,
+                type: 'product_detail'
+            }
+        });
+
+
+        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+
+        expect(layoutTypeSelect.attributes()['tooltip-message'])
+            .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
+
+        expect(layoutTypeSelect.attributes().disabled).toBeTruthy();
+    });
+
+    it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            page: {
+                ...wrapper.props().page,
+                type: 'page'
+            }
+        });
+
+
+        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+        const productPageOption = wrapper.find('option[value="product_detail"]');
+
+        expect(layoutTypeSelect.attributes().disabled).toBeFalsy();
+        expect(productPageOption.attributes().disabled).toBeTruthy();
     });
 });

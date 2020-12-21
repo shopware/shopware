@@ -96,7 +96,10 @@
         "weight": "Weight",
         "width": "Width",
         "configuratorSettings": "Configurator settings",
-        "options": "Options"
+        "options": "Options",
+        "properties": "Properties",
+        "property_group": "Group",
+        "property_group_option": "Property value"
       }
     },
     "detail": {

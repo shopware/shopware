@@ -1,5 +1,5 @@
 {% block sw_cms_block_product_heading %}
-    <div class="sw-cms-block-product-heading">
+    <div class="sw-cms-block-product-heading" :class="currentDeviceViewClass">
         <slot name="left">
             {% block sw_cms_block_product_heading_slot_left %}{% endblock %}
         </slot>

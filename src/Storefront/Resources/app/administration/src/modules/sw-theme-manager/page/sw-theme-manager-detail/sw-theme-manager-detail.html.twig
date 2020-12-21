@@ -478,6 +478,23 @@
                     <sw-sidebar-media-item
                         ref="mediaSidebarItem"
                         :initialFolderId="defaultMediaFolderId">
+                        <template #context-menu-items="media">
+                            {% block sw_theme_manager_detail_sidebar_media_items %}
+                                <template v-if="shouldShowContent" v-for="(tab, tabName) in structuredThemeFields.tabs">
+                                    <template v-for="block in tab.blocks">
+                                        <template v-for="section in block.sections">
+                                            <sw-context-menu-item
+                                                v-for="(field, fieldName) in section.fields"
+                                                v-if="themeConfig[fieldName] && field.type === 'media'"
+                                                :key="fieldName"
+                                                @click="onAddMediaToTheme(media.mediaItem, themeConfig[fieldName])">
+                                                {{ $tc('sw-theme-manager.modal.addToMediaLabel', 0, { name: field.label }) }}
+                                            </sw-context-menu-item>
+                                        </template>
+                                    </template>
+                                </template>
+                            {% endblock %}
+                        </template>
                     </sw-sidebar-media-item>
                 {% endblock %}
             </sw-sidebar>

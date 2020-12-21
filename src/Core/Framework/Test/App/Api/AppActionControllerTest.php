@@ -209,7 +209,7 @@ class AppActionControllerTest extends TestCase
     private function removeQueryStringsFromResult(array $result): array
     {
         $queryString = parse_url($result['modules'][0]['modules'][0]['source'], PHP_URL_QUERY);
-        $result['modules'][0]['modules'][0]['source'] = \str_replace(
+        $result['modules'][0]['modules'][0]['source'] = str_replace(
             '?' . $queryString,
             '',
             $result['modules'][0]['modules'][0]['source']

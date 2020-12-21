@@ -1,7 +1,7 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
-const { Component } = Shopware;
+const { Component, Filter } = Shopware;
 
 Component.register('sw-cms-create-wizard', {
     template,
@@ -51,10 +51,9 @@ Component.register('sw-cms-create-wizard', {
                 return '';
             }
 
-            const context = Shopware.Context.api;
             const imgPath = 'administration/static/img/cms';
 
-            return `url(${context.assetsPath}/${imgPath}/preview_${this.page.type}_${this.page.sections[0].type}.png)`;
+            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${this.page.sections[0].type}.png`)})`;
         },
 
         pagePreviewStyle() {
@@ -62,6 +61,10 @@ Component.register('sw-cms-create-wizard', {
                 'background-image': this.pagePreviewMedia,
                 'background-size': 'cover'
             };
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 

@@ -149,7 +149,7 @@ class CacheController extends AbstractController
 
         $name = \get_class($adapter);
         $parts = explode('\\', $name);
-        $name = str_replace('Adapter', '', end($parts));
+        $name = str_replace('Adapter', '', (string) end($parts));
 
         return $name;
     }

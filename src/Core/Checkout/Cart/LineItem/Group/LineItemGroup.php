@@ -20,7 +20,7 @@ class LineItemGroup
      */
     public function addItem(string $lineItemId, int $quantity): void
     {
-        if (!array_key_exists($lineItemId, $this->items)) {
+        if (!\array_key_exists($lineItemId, $this->items)) {
             $this->items[$lineItemId] = new LineItemQuantity($lineItemId, $quantity);
         } else {
             $package = $this->items[$lineItemId];
@@ -44,6 +44,6 @@ class LineItemGroup
      */
     public function hasItems(): bool
     {
-        return count($this->items) > 0;
+        return \count($this->items) > 0;
     }
 }

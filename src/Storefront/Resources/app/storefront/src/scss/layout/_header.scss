@@ -15,10 +15,17 @@ The header contains the shop logo, the search form and various actions like the 
 
 .header-logo-main {
     text-align: center;
+    display: block;
 }
 
 .header-logo-main-link {
+    width: 100%;
+}
+
+.header-logo-picture {
     display: block;
+    max-width: 300px;
+    margin: auto;
 }
 
 .header-search {

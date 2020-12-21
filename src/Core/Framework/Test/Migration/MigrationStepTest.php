@@ -133,7 +133,7 @@ class MigrationStepTest extends TestCase
             'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`) 
                 VALUES (:class, :creationTimestamp, :update, :updateDestructive);',
             [
-                'class' => get_class($migration),
+                'class' => \get_class($migration),
                 'creationTimestamp' => $migration->getCreationTimestamp(),
                 'update' => $now,
                 'updateDestructive' => $now,
@@ -146,7 +146,7 @@ class MigrationStepTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate(
             'DELETE FROM `migration` WHERE `class` = :class',
-            ['class' => get_class($migration)]
+            ['class' => \get_class($migration)]
         );
     }
 

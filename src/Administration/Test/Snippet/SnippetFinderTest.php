@@ -151,9 +151,9 @@ class SnippetFinderTest extends TestCase
     private function ensureFileOrder(array $files): array
     {
         // core should be overwritten by plugin fixture, therefore core should be index 0
-        if (strpos($files[0], '/core/') === false) {
+        if (mb_strpos($files[0], '/core/') === false) {
             foreach ($files as $currentIndex => $file) {
-                if (strpos($file, '/core/') !== false) {
+                if (mb_strpos($file, '/core/') !== false) {
                     [$files[0], $files[$currentIndex]] = [$files[$currentIndex], $files[0]];
 
                     return $files;

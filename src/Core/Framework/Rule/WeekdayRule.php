@@ -34,7 +34,7 @@ class WeekdayRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $todaysDayOfWeek = (int) \date('N');
+        $todaysDayOfWeek = (int) date('N');
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:

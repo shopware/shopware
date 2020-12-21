@@ -81,7 +81,7 @@ class UnpackStep
 
         /** @var \SplFileInfo $path */
         foreach ($iterator as $path) {
-            if (strpos($path->getPathname(), 'vendor/shopware/recovery/') !== false) {
+            if (mb_strpos($path->getPathname(), 'vendor/shopware/recovery/') !== false) {
                 continue;
             }
 

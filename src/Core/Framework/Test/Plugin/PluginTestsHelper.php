@@ -56,7 +56,7 @@ trait PluginTestsHelper
 
     abstract protected function getContainer(): ContainerInterface;
 
-    private function addTestPluginToKernel($pluginName): void
+    private function addTestPluginToKernel(string $pluginName, bool $active = false): void
     {
         $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
         $class = '\\' . $pluginName . '\\' . $pluginName;
@@ -64,6 +64,6 @@ trait PluginTestsHelper
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
         $this->container->get(KernelPluginCollection::class)
-            ->add(new $class(false, $testPluginBaseDir));
+            ->add(new $class($active, $testPluginBaseDir));
     }
 }

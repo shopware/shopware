@@ -75,6 +75,6 @@ abstract class WriteCommand
 
     public function hasField(string $storageName): bool
     {
-        return array_key_exists($storageName, $this->getPayload());
+        return \array_key_exists($storageName, $this->getPayload());
     }
 }

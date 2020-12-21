@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@base @content: create, translate and read layout', () => {
+    it('@base @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -69,10 +69,17 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
+
         cy.wait('@saveData').then((xhr) => {
-            cy.get(page.elements.successIcon).should('be.visible');
             expect(xhr).to.have.property('status', 204);
         });
+
+        // Shows layout assignment modal the first time saving after the wizard
+        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+
+        // Confirm without layout
+        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
 
         cy.wait('@reloadPage').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -82,10 +89,18 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+
+            // Shows layout assignment modal the first time saving after the wizard
+            cy.get('.sw-modal').should('be.visible');
+
+            // Confirm without layout
+            cy.get('#sw-language-switch-save-changes-button').click();
+            cy.get('.sw-modal').should('not.exist');
         });
 
         cy.get('.sw-cms-block').should('be.visible');
@@ -142,9 +157,11 @@ describe('CMS: Test crud operations of layouts', () => {
             cy.get(page.elements.successIcon).should('be.visible');
         });
         cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -166,6 +183,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
@@ -181,7 +199,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.get('.sw-card.sw-category-layout-card .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').then((response) => {

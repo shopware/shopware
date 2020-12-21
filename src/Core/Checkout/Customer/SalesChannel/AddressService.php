@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -58,12 +59,11 @@ class AddressService
      */
     public function getAddressByContext(SalesChannelContext $context): array
     {
-        $this->validateCustomerIsLoggedIn($context);
-        $customer = $context->getCustomer();
+        $customer = $this->validateCustomerIsLoggedIn($context);
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
-        $addresses = $this->listAddressRoute->load($criteria, $context)->getAddressCollection();
+        $addresses = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection();
 
         return $addresses->sortByDefaultAddress($customer)->getElements();
     }
@@ -74,10 +74,20 @@ class AddressService
      * @throws InvalidUuidException
      * @throws ConstraintViolationException
      */
-    public function upsert(DataBag $data, SalesChannelContext $context): string
+    public function upsert(DataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): string
     {
+        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         return $this->updateAddressRoute
-            ->upsert($data->get('id'), $data->toRequestDataBag(), $context)
+            ->upsert($data->get('id'), $data->toRequestDataBag(), $context, $customer)
             ->getAddress()
             ->getId();
     }
@@ -88,19 +98,31 @@ class AddressService
      * @throws AddressNotFoundException
      * @throws CannotDeleteDefaultAddressException
      */
-    public function delete(string $addressId, SalesChannelContext $context): void
+    public function delete(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
     {
-        $this->deleteAddressRoute->delete($addressId, $context);
+        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
+        $this->deleteAddressRoute->delete($addressId, $context, $customer);
     }
 
     /**
      * @throws CustomerNotLoggedInException
      */
-    private function validateCustomerIsLoggedIn(SalesChannelContext $context): void
+    private function validateCustomerIsLoggedIn(SalesChannelContext $context): CustomerEntity
     {
-        if (!$context->getCustomer()) {
+        if ($context->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
         }
+
+        return $context->getCustomer();
     }
 
     /**
@@ -113,13 +135,13 @@ class AddressService
             throw new InvalidUuidException($addressId);
         }
 
-        $this->validateCustomerIsLoggedIn($context);
+        $customer = $this->validateCustomerIsLoggedIn($context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $addressId));
-        $criteria->addFilter(new EqualsFilter('customerId', $context->getCustomer()->getId()));
+        $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        $address = $this->listAddressRoute->load($criteria, $context)->getAddressCollection()->get($addressId);
+        $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
             throw new AddressNotFoundException($addressId);

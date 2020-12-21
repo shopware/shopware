@@ -37,10 +37,10 @@ class DateRangeRule extends Rule
 
     public function __wakeup(): void
     {
-        if (is_string($this->fromDate)) {
+        if (\is_string($this->fromDate)) {
             $this->fromDate = new \DateTime($this->fromDate);
         }
-        if (is_string($this->toDate)) {
+        if (\is_string($this->toDate)) {
             $this->toDate = new \DateTime($this->toDate);
         }
     }

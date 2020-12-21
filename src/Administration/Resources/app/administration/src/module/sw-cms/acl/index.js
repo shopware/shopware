@@ -20,7 +20,9 @@ Shopware.Service('privileges')
                     'property_group:read',
                     'property_group_option:read',
                     'product_media:read',
-                    'delivery_time:read'
+                    'delivery_time:read',
+                    'product_cross_selling:read',
+                    'product_cross_selling_assigned_products:read'
                 ],
                 dependencies: []
             },
@@ -39,7 +41,8 @@ Shopware.Service('privileges')
                     Shopware.Service('privileges').getPrivileges('media.creator'),
                     'product_stream:read',
                     'currency:read',
-                    'product_manufacturer:read'
+                    'product_manufacturer:read',
+                    'category:update'
                 ],
                 dependencies: [
                     'cms.viewer'

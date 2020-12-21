@@ -11,7 +11,7 @@ class IncompletePrimaryKeyException extends ShopwareHttpException
     {
         parent::__construct(
             'The primary key consists of {{ fieldCount }} fields. Please provide values for the following fields: {{ fieldsString }}',
-            ['fieldCount' => count($primaryKeyFields), 'fields' => $primaryKeyFields, 'fieldsString' => implode(', ', $primaryKeyFields)]
+            ['fieldCount' => \count($primaryKeyFields), 'fields' => $primaryKeyFields, 'fieldsString' => implode(', ', $primaryKeyFields)]
         );
     }
 

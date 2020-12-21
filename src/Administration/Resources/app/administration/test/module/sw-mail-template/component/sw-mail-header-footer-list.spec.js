@@ -197,4 +197,44 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
         wrapper.vm.createNotificationError.mockRestore();
     });
+
+    it('should show the listing when there are more than zero mail templates', async () => {
+        const wrapper = createWrapper();
+
+        // wait for vue to render the listing
+        await wrapper.vm.$nextTick();
+
+        // fill listing with mail templates mocks
+        wrapper.vm.mailHeaderFooters = [
+            { type: 'contact_form', salesChannel: 'Headless' },
+            { type: 'password_recovery', salesChannel: 'Storefront' }
+        ];
+
+        // wait for vue to update the grid
+        await wrapper.vm.$nextTick();
+
+        const listing = wrapper.find('#mailHeaderFooterGrid');
+        expect(listing.exists()).toBe(true);
+
+        const isListingVisible = wrapper.vm.showListing;
+        expect(isListingVisible).toBe(true);
+    });
+
+    it('should hide mail templates when there are no mail templates', async () => {
+        const wrapper = createWrapper();
+
+        // wait for vue to render the listing
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.mailHeaderFooters = [];
+
+        // wait for vue to remove the grid
+        await wrapper.vm.$nextTick();
+
+        const listing = wrapper.find('#mailHeaderFooterGrid');
+        expect(listing.exists()).toBe(false);
+
+        const isListingVisible = wrapper.vm.showListing;
+        expect(isListingVisible).toBe(false);
+    });
 });

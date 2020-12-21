@@ -23,7 +23,7 @@
       "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
       "messageDeleteError": "Die Versandart \"{name}\" konnte nicht gelöscht werden.",
       "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
-      "columnTaxType": "Steuer-Typ",
+      "columnTaxType": "Steuerberechnung",
       "columnTaxRate": "Steuersatz",
       "placeholderTaxType": "Wähle einen Steuer-Typ"
     },
@@ -49,11 +49,12 @@
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
       "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist.",
       "tax": {
-        "fieldName": "Steuern",
+        "fieldName": "Tax calculation",
         "labelTaxType": "Steuer-Typ",
         "labelTaxRate": "Steuersatz",
         "placeholderTaxType": "Wähle einen Steuer-Typ...",
-        "placeholderTaxRate": "Wähle einen Steuersatz..."
+        "placeholderTaxRate": "Wähle einen Steuersatz...",
+        "helpText": "Wähle aus, wie Steuern in Versandkosten berechnet werden:<ul style='margin-left: 15px'><li>Automatisch - Berechnung auf Basis aller im Warenkorb enthaltener Steuersätze</li><li>Höchste - Berechnung auf Basis des höchsten im Warenkorb enthaltenen Steuersatzes</li><li>Festgelegt - Berechnung auf Basis eines manuell ausgewählten Steuersatzes</li></ul>"
       }
     },
     "constants": {

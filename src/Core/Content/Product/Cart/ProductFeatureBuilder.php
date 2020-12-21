@@ -195,7 +195,7 @@ class ProductFeatureBuilder
                 continue;
             }
 
-            if ($feature['name'] === $name && array_key_exists($name, $product->getTranslation('customFields'))) {
+            if ($feature['name'] === $name && \array_key_exists($name, $product->getTranslation('customFields'))) {
                 return true;
             }
         }
@@ -208,7 +208,7 @@ class ProductFeatureBuilder
         $translated = $product->getTranslated();
         $value = $product->get($name);
 
-        if (array_key_exists($name, $translated)) {
+        if (\array_key_exists($name, $translated)) {
             $value = $translated[$name];
         }
 
@@ -273,7 +273,7 @@ class ProductFeatureBuilder
         $fieldKey = sprintf('custom-field-%s', $name);
         $translation = $product->getTranslation('customFields');
 
-        if ($translation === null || !array_key_exists($name, $translation)) {
+        if ($translation === null || !\array_key_exists($name, $translation)) {
             return null;
         }
 
@@ -327,7 +327,7 @@ class ProductFeatureBuilder
 
     private function getCustomFieldLabel(CustomFieldEntity $customField, CartDataCollection $data): ?string
     {
-        if ($customField->getConfig() === null || !array_key_exists('label', $customField->getConfig())) {
+        if ($customField->getConfig() === null || !\array_key_exists('label', $customField->getConfig())) {
             return null;
         }
 
@@ -343,7 +343,7 @@ class ProductFeatureBuilder
             $localeCode = $lang->getLocale()->getCode();
         }
 
-        if ($localeCode === null || !array_key_exists($localeCode, $labels)) {
+        if ($localeCode === null || !\array_key_exists($localeCode, $labels)) {
             return null;
         }
 

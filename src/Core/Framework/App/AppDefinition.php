@@ -85,6 +85,8 @@ class AppDefinition extends EntityDefinition
 
             new ListField('modules', 'modules', JsonField::class),
 
+            new ListField('cookies', 'cookies', JsonField::class),
+
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(
                 new Required(),
                 new CascadeDelete()

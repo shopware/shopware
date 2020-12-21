@@ -197,7 +197,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             }
 
             /** @var string $jsonPayload */
-            $jsonPayload = \json_encode($payload);
+            $jsonPayload = json_encode($payload);
 
             $request = new Request(
                 'POST',

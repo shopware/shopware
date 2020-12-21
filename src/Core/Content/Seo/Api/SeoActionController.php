@@ -130,7 +130,7 @@ class SeoActionController extends AbstractController
         $seoUrlTemplate = $request->request->all();
 
         $previewCriteria = new Criteria();
-        if (array_key_exists('criteria', $seoUrlTemplate)) {
+        if (\array_key_exists('criteria', $seoUrlTemplate)) {
             /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 

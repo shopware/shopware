@@ -28,6 +28,7 @@ describe('Theme: Visual tests', () => {
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();
+        cy.get('.sw-colorpicker').should('be.visible');
 
         // Take snapshot for visual testing
         cy.changeElementStyling(

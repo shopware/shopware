@@ -40,6 +40,7 @@
       "labelCompanyAddress": "Geschäftsadresse",
       "labelCompanyName": "Firmenname",
       "labelCompanyEmail": "Firmen-E-Mail-Adresse",
+      "labelCompanyPhone": "Firmen-Telefon",
       "labelCompanyUrl": "Firmen-Webseite",
       "labelTaxNumber": "Firmen-Steuernummer",
       "labelTaxOffice": "Finanzamt",
@@ -53,6 +54,9 @@
       "labelPlaceOfJurisdiction": "Geichtsstand / HBR",
       "labelPlaceOfFulfillment": "Erfüllungsort",
       "labelExecutiveDirector": "Geschäftsführer",
+      "labelDisplayAdditionalNoteDelivery": "Hinweis \"innergemeinschaftliche Lieferung\" anzeigen",
+      "labelDeliveryCountries": "Mitgliedsländer",
+      "placeholderDisplayDeliveryCountries": "Gültige Länder für innergemeinschaftliche Lieferung suchen und hinzufügen ...",
       "labelOptionMedia": "Firmenlogo",
       "placeholderName": "Namen eingeben ...",
       "buttonCancel": "Abbrechen",
@@ -61,7 +65,9 @@
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
       "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden.",
       "labelDisplayDocumentInCustomerAccount": "Dokument in \"Mein Konto\" Bereich anzeigen",
-      "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt."
+      "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse anzeigen",
+      "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
+      "helpTextDisplayDeliveryCountries": "Alle ausgewählten Länder erhalten einen zusätzlichen Hinweis zur innergemeinschaftlichen Lieferung auf den Rechnungsdokumenten."
     }
   },
   "sw-privileges": {

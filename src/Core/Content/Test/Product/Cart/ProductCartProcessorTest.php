@@ -156,7 +156,7 @@ class ProductCartProcessorTest extends TestCase
         $token = $this->ids->create('token');
         /** @var SalesChannelContextService $salesChannelContextService */
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token);
+        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY);
         /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);

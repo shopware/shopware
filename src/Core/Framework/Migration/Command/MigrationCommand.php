@@ -64,7 +64,7 @@ class MigrationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $identifiers = $input->getArgument('identifier');
-        if (!is_array($identifiers)) {
+        if (!\is_array($identifiers)) {
             $identifiers = [$identifiers];
         }
 
@@ -84,7 +84,7 @@ class MigrationCommand extends Command
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
         }
 
-        if (count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
+        if (\count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
             throw new \InvalidArgumentException('Running migrations for mutliple identifiers without --all option or with --limit option is not supported.');
         }
 

@@ -19,7 +19,14 @@
                                          :class="selectionTextClasses">
                                         <template v-if="singleSelection">
                                             <slot name="selection-label-property" v-bind="{ item: singleSelection, labelProperty, searchTerm, getKey }">
-                                                {{ getKey(singleSelection,labelProperty) || getKey(singleSelection, `translated.${labelProperty}`) }}
+                                                <sw-product-variant-info
+                                                    v-if="$attrs.displayVariants"
+                                                    :variations="singleSelection.variation">
+                                                    {{ displayLabelProperty(singleSelection) }}
+                                                </sw-product-variant-info>
+                                                <template v-else>
+                                                    {{ displayLabelProperty(singleSelection) }}
+                                                </template>
                                             </slot>
                                         </template>
                                         <template v-else>
@@ -65,12 +72,21 @@
                                             <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
                                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                                        <sw-highlight-text v-if="highlightSearchTerm"
-                                                                           :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                                           :searchTerm="searchTerm">
-                                                        </sw-highlight-text>
+                                                        <sw-product-variant-info
+                                                            v-if="$attrs.displayVariants"
+                                                            :variations="item.variation"
+                                                            :highlighted="true"
+                                                            :searchTerm="searchTerm">
+                                                            {{ displayLabelProperty(item) }}
+                                                        </sw-product-variant-info>
                                                         <template v-else>
-                                                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                            <sw-highlight-text v-if="highlightSearchTerm && !isSelected(item)"
+                                                                               :text="displayLabelProperty(item)"
+                                                                               :searchTerm="searchTerm">
+                                                            </sw-highlight-text>
+                                                            <template v-else>
+                                                                {{ displayLabelProperty(item) }}
+                                                            </template>
                                                         </template>
                                                     </slot>
                                                 {% endblock %}

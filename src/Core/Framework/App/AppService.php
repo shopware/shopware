@@ -30,17 +30,24 @@ class AppService
 
     /**
      * @return Manifest[]
+     *
+     * @deprecated tag:v6.4.0 use doRefreshApps() instead
      */
     public function refreshApps(bool $activateInstalled, Context $context): array
     {
         return $this->appLifecycleIterator->iterate($this->appLifecycle, $activateInstalled, $context);
     }
 
+    public function doRefreshApps(bool $activateInstalled, Context $context): array
+    {
+        return $this->appLifecycleIterator->iterateOverApps($this->appLifecycle, $activateInstalled, $context);
+    }
+
     public function getRefreshableAppInfo(Context $context): RefreshableAppDryRun
     {
         $appInfo = new RefreshableAppDryRun();
 
-        $this->appLifecycleIterator->iterate($appInfo, false, $context);
+        $this->appLifecycleIterator->iterateOverApps($appInfo, false, $context);
 
         return $appInfo;
     }

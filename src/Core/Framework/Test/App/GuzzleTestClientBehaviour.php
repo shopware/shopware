@@ -34,7 +34,7 @@ trait GuzzleTestClientBehaviour
 
     public function getRequestCount(): int
     {
-        return count($this->getContainer()->get(GuzzleHistoryCollector::class)->getHistory());
+        return \count($this->getContainer()->get(GuzzleHistoryCollector::class)->getHistory());
     }
 
     /**

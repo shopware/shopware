@@ -204,7 +204,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 
-            if (isset($processed[get_class($definition)])) {
+            if (isset($processed[\get_class($definition)])) {
                 continue;
             }
 
@@ -212,7 +212,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
                 $definition->processCriteria($criteria, $salesChannelContext);
             }
 
-            $processed[get_class($definition)] = true;
+            $processed[\get_class($definition)] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition

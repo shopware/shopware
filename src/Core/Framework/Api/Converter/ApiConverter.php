@@ -7,7 +7,7 @@ abstract class ApiConverter
     public function convert(string $entityName, array $payload): array
     {
         $converterFns = $this->getConverterFunctions();
-        if (array_key_exists($entityName, $converterFns)) {
+        if (\array_key_exists($entityName, $converterFns)) {
             $payload = $converterFns[$entityName]($payload);
         }
 

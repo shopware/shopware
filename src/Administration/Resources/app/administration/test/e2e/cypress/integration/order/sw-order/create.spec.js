@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
 describe('Order: Create order', () => {
@@ -31,7 +31,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -134,7 +134,7 @@ describe('Order: Create order', () => {
         }).as('modifyShippingCostsCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -480,7 +480,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -552,7 +552,7 @@ describe('Order: Create order', () => {
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@base @order: add invalid promotion code', () => {
+    it('@order: add invalid promotion code', () => {
         const page = new OrderPageObject();
 
         // start server
@@ -565,7 +565,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 

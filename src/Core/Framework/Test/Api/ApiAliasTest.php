@@ -24,7 +24,7 @@ class ApiAliasTest extends TestCase
         $aliases = array_keys($entities);
         $aliases = array_flip($aliases);
 
-        $count = count($aliases);
+        $count = \count($aliases);
 
         $classes = array_keys($classLoader->getClassMap());
 
@@ -68,6 +68,6 @@ class ApiAliasTest extends TestCase
             $aliases[$alias] = true;
         }
 
-        static::assertTrue(count($aliases) > $count, 'Validated only entities, please check registered classes of class loader');
+        static::assertTrue(\count($aliases) > $count, 'Validated only entities, please check registered classes of class loader');
     }
 }

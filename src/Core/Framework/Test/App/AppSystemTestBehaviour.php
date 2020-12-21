@@ -44,6 +44,6 @@ trait AppSystemTestBehaviour
             $this->getContainer()->get(AppLifecycle::class)
         );
 
-        $appService->refreshApps($activateApps, Context::createDefaultContext());
+        $appService->doRefreshApps($activateApps, Context::createDefaultContext());
     }
 }

@@ -61,6 +61,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
    icon string
    appSecret string
    modules list
+   cookies list
    label translated
    description translated
    privacyPolicyExtensions translated
@@ -1412,7 +1413,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    translated json
 }
 TranslationTable(ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition, "cms_slot_translation\n((Translations))") {
-   not_null(config) configurationValue
+   config configurationValue
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -1746,6 +1747,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(stateId) stateMachineState
    ruleIds list
    customFields customFields
+   createdById createdBy
+   updatedById updatedBy
    itemRounding cashRoundingConfig
    totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
@@ -1903,8 +1906,8 @@ Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts w
    not_null(active) bool
    validFrom dateTime
    validUntil dateTime
-   not_null(maxRedemptionsGlobal) int
-   not_null(maxRedemptionsPerCustomer) int
+   maxRedemptionsGlobal int
+   maxRedemptionsPerCustomer int
    not_null(exclusive) bool
    code string
    not_null(useCodes) bool
@@ -2229,6 +2232,7 @@ ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> Shopware
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition

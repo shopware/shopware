@@ -122,7 +122,7 @@ class DefinitionInstanceRegistry
     {
         $map = $this->loadClassMapping();
 
-        $source = get_class($entity);
+        $source = \get_class($entity);
 
         return $map[$source] ?? null;
     }
@@ -130,7 +130,7 @@ class DefinitionInstanceRegistry
     public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
         if (!$serviceId) {
-            $serviceId = get_class($definition);
+            $serviceId = \get_class($definition);
         }
 
         if (!$this->container->has($serviceId)) {

@@ -121,7 +121,7 @@ class ThemeLifecycleHandler
             }
         }
 
-        if (count($themeSalesChannel) === 0 && count($childThemeSalesChannel) === 0) {
+        if (\count($themeSalesChannel) === 0 && \count($childThemeSalesChannel) === 0) {
             return;
         }
 
@@ -158,7 +158,7 @@ class ThemeLifecycleHandler
             }
         }
 
-        if (count($data)) {
+        if (\count($data)) {
             $this->themeRepository->update($data, $context);
         }
     }

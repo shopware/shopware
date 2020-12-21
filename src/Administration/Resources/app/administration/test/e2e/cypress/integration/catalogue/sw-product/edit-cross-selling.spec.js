@@ -170,7 +170,8 @@ describe('Product: Check cross selling integration', () => {
         // Add products to cross selling
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Second');
         cy.get('.sw-select-result').should('be.visible');
-        cy.contains('.sw-select-result', 'Second product').click();
+        cy.get('.sw-select-option--1').should('not.exist');
+        cy.contains('.sw-select-option--0', 'Second product').click();
         cy.get('.sw-card__title').click();
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-data-grid__cell--product-translated-name').contains('Second product');
@@ -178,7 +179,8 @@ describe('Product: Check cross selling integration', () => {
         // Add more products to cross selling
         cy.get('.sw-product-cross-selling-assignment__select-container .sw-entity-single-select__selection').type('Third');
         cy.get('.sw-select-result').should('be.visible');
-        cy.contains('.sw-select-result', 'Third product').click();
+        cy.get('.sw-select-option--1').should('not.exist');
+        cy.contains('.sw-select-option--0', 'Third product').click();
         cy.get('.sw-card__title').click();
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-data-grid__cell--product-translated-name').contains('Third product');

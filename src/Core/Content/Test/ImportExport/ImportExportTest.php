@@ -183,7 +183,7 @@ class ImportExportTest extends TestCase
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
+        file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $uploadedFile = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
 
@@ -267,7 +267,7 @@ class ImportExportTest extends TestCase
 
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
 
-        \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
+        file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
         $file = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
@@ -344,7 +344,7 @@ class ImportExportTest extends TestCase
         $repo->delete([['id' => $testData['id']]], Context::createDefaultContext());
 
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
+        file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $uploadedFile = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
         $expireDate = new \DateTimeImmutable('2099-01-01');
@@ -423,7 +423,7 @@ class ImportExportTest extends TestCase
         static::assertGreaterThan(0, $filesystem->getSize($logEntity->getFile()->getPath()));
 
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
-        \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
+        file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $uploadedFile = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
@@ -447,14 +447,14 @@ class ImportExportTest extends TestCase
 
         $ids = array_column($groups, 'id');
         $actual = $repository->searchIds(new Criteria($ids), Context::createDefaultContext());
-        static::assertCount(count($ids), $actual->getIds());
+        static::assertCount(\count($ids), $actual->getIds());
 
         /** @var EntityRepositoryInterface $optionRepository */
         $optionRepository = $this->getContainer()->get('property_group_option.repository');
         foreach ($groups as $group) {
             $ids = array_column($group['options'], 'id');
             $actual = $optionRepository->searchIds(new Criteria($ids), Context::createDefaultContext());
-            static::assertCount(count($ids), $actual->getIds());
+            static::assertCount(\count($ids), $actual->getIds());
         }
     }
 
@@ -990,7 +990,7 @@ class StockSubscriber implements EventSubscriberInterface
         }
 
         $keys = $event->getConfig()->getMapping()->getKeys();
-        if (!in_array('stock', $keys, true)) {
+        if (!\in_array('stock', $keys, true)) {
             return;
         }
 

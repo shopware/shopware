@@ -1,5 +1,13 @@
 {% sw_extends '@Storefront/storefront/page/checkout/cart/cart-product-header.html.twig' %}
 
+{% block page_checkout_cart_header_quantity %}
+    {% set layout = context.salesChannel.taxCalculationType == 'horizontal' ? 'col-2' : 'col-4' %}
+
+    <div class="{{ layout }} cart-header-quantity">
+        {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
+    </div>
+{% endblock %}
+
 {% block page_checkout_cart_header_unit_price %}
     {# display tax instead of item price in confirm header #}
     {% block page_checkout_cart_header_tax_price %}

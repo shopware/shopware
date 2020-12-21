@@ -31,8 +31,12 @@
                                 {% set isCompany  = true %}
                             {% endif %}
 
+                            {% if accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+                                {% set isCompany  = true %}
+                            {% endif %}
+
                             {% set isLoginPage = false %}
-                            {% if activeRoute in ['frontend.account.login.page', 'frontend.checkout.register.page'] %}
+                            {% if activeRoute == 'frontend.account.login.page' %}
                                 {% set isLoginPage = true %}
                             {% endif %}
 
@@ -60,7 +64,7 @@
                     {% endblock %}
                 </div>
             </div>
-        {% else %}
+        {% elseif not hideCustomerTypeSelect %}
             <input type="hidden" name="accountType">
         {% endif %}
     {% endblock %}
@@ -235,6 +239,25 @@
                     </div>
                 {% endblock %}
             </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block component_address_personal_vat_id %}
+        {% if feature('FEATURE_NEXT_10559') and showVatIdField %}
+            {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
+                <div class="js-field-toggle-contact-type-company js-field-toggle-contact-type-vat-id">
+                    {% block component_address_personal_vat_id_fields %}
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                    'vatIds': data.get('vatIds'),
+                                    'editMode': true
+                                } %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
         {% endif %}
     {% endblock %}
 

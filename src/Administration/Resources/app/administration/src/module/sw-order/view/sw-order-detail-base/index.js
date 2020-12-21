@@ -221,6 +221,10 @@ Component.register('sw-order-detail-base', {
 
         'order.orderNumber'() {
             this.emitIdentifier();
+        },
+
+        'order.createdById'() {
+            this.emitCreatedById();
         }
     },
 
@@ -270,6 +274,11 @@ Component.register('sw-order-detail-base', {
         emitIdentifier() {
             const orderNumber = this.order !== null ? this.order.orderNumber : '';
             this.$emit('identifier-change', orderNumber);
+        },
+
+        emitCreatedById() {
+            const createdById = this.order !== null ? this.order.createdById : '';
+            this.$emit('created-by-id-change', createdById);
         },
 
         saveAndReload() {

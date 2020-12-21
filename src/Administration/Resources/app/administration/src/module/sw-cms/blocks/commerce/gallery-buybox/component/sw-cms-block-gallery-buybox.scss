@@ -1,0 +1,9 @@
+.sw-cms-block-gallery-buybox {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 20px;
+
+    &.is--mobile {
+        grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+    }
+}

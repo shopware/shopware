@@ -77,14 +77,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $this->setCurrencyCookie($request, $response);
         }
 
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
         /* @var SalesChannelContext $context */
-        $states = $this->updateSystemState($context, $request, $response);
+        $states = $this->updateSystemState($cart, $context, $request, $response);
 
         if ($request->getMethod() !== Request::METHOD_GET) {
             return;
         }
 
-        if ($context->getCustomer()) {
+        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
             $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $this->buildCacheHash($context));
             $cookie->setSecureDefault($request->isSecure());
 
@@ -120,7 +122,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private function hasInvalidationState(HttpCache $cache, array $states): bool
     {
         foreach ($states as $state) {
-            if (in_array($state, $cache->getStates(), true)) {
+            if (\in_array($state, $cache->getStates(), true)) {
                 return true;
             }
         }
@@ -141,10 +143,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      * System states can be used to stop caching routes at certain states. For example,
      * the checkout routes are no longer cached if the customer has products in the cart or is logged in.
      */
-    private function updateSystemState(SalesChannelContext $context, Request $request, Response $response): array
+    private function updateSystemState(Cart $cart, SalesChannelContext $context, Request $request, Response $response): array
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
-
         $states = $this->getSystemStates($request, $context, $cart);
 
         if (empty($states)) {

@@ -25,7 +25,7 @@ After the feature is released in the master branch, you are not finished yet. As
 
 ## Creating the flag
 When you start developing a new feature, the first thing to do is to register a new feature flag.
-of the corresponing epic or story as its name, by adding it to *Core/Framework/Resources/config/packages/shopware.yaml* under the key *shopware.feature.flags*
+of the corresponding epic or story as its name, by adding it to *Core/Framework/Resources/config/packages/shopware.yaml* under the key *shopware.feature.flags*
 
 ```yaml
 ...
@@ -34,10 +34,23 @@ shopware:
     feature:
         flags:
             ...
-            - NEXT-1128
-            - FEATURE_NEXT-1129
-            - FEATURE_NEXT_1130
+            # new form
+            - name: FEATURE_NEXT_1130
+              major: false
+              default: false
+              description: "example feature"
+            # old form without meta data
+            - FEATURE_NEXT_1129
 ```
+
+The following attributes can be configured for each feature:
+
+|attribute|type|default value|description|
+|---|---|---|---|
+|name|string|(is required)|The name of the feature flag|
+|major|bool|`false`|Controls if a feature is intended for a major release, which usually means it breaks some APIs|
+|default|bool|`false`|The default value of the feature flag, if it is not defined in the environment (`!array_key_exists('FEATURE_XXX', $_SERVER)`|
+|description|string|`''`|A description of the feature
 
 ## Creating flags for Shopware plugins
 
@@ -46,17 +59,13 @@ ___
 
 When you need to implement a feature flag for a plugin you can't edit the shopware.yaml or provide an override for it, so you have to register the new flag "on the fly".
 ```php
-    private const FEATURE_FLAGS = [
-        'FEATURE_NEXT_555'
-    ];
-...
-    public function boot(): void
-    {
-        Feature::setRegisteredFeatures(
-            array_merge(array_keys(Feature::getAll()), self::FEATURE_FLAGS),
-            $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
-...
+public function boot(): void
+{
+    Feature::registerFeature(
+        'FEATURE_NEXT_555', 
+        ['major' => false, 'default' => false, 'description' => 'My awesome feature']
+    );
+}
 ```
 
 Now your own feature flag can be handled like every core flag.

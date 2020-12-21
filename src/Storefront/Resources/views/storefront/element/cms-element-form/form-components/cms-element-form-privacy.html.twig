@@ -5,15 +5,18 @@
 
     <div class="form-text privacy-notice custom-control custom-checkbox">
         {% block cms_form_privacy_opt_in_input %}
+            {# @deprecated tag:v6.4.0.0 - This condition will be removed and the correctly spelled id prefix 'form-privacy-opt-in-' will become the default #}
+            {% set identifierTemplate = feature('FEATURE_NEXT_12092') ? 'form-privacy-opt-in-%s' : 'form-pvivacy-opt-in-%s' %}
+
             <input name="privacy"
                    type="checkbox"
                    class="custom-control-input"
-                   id="form-pvivacy-opt-in-{{ _key }}"
+                   id="{{ identifierTemplate|format(_key) }}"
                    required>
         {% endblock %}
 
         {% block cms_form_privacy_opt_in_label %}
-            <label for="form-pvivacy-opt-in-{{ _key }}" class=" custom-control-label">
+            <label for="{{ identifierTemplate|format(_key) }}" class=" custom-control-label">
                 {{ "general.privacyNotice"|trans({
                     '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
                 })|raw }}

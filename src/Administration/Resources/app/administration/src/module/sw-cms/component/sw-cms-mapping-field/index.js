@@ -110,7 +110,7 @@ Component.register('sw-cms-mapping-field', {
 
         onMappingRemove() {
             this.config.source = 'static';
-            this.config.value = null;
+            this.config.value = this.config.type === Array ? [] : null;
             this.demoValue = null;
         },
 

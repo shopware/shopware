@@ -54,12 +54,37 @@
                                 {% block sw_cms_sidebar_page_settings_demo_field %}
                                     <sw-entity-single-select
                                         v-if="demoEntity !== null"
+                                        v-model="demoEntityId"
                                         ref="cmsDemoSelection"
                                         :label="$tc('sw-cms.detail.label.demoEntity')"
                                         :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
                                         :entity="demoEntity"
-                                        @change="onDemoEntityChange"
-                                        v-model="demoEntityId">
+                                        :criteria="demoCriteria"
+                                        :context="demoContext"
+                                        @change="onDemoEntityChange">
+
+                                        {% block sw_cms_sidebar_page_settings_demo_field_variant_label %}
+                                            <template v-if="demoEntity === 'product'" #selection-label-property="{ item }">
+                                                <sw-product-variant-info :variations="item.variation">
+                                                    {{ item.translated.name || item.name }}
+                                                </sw-product-variant-info>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_cms_sidebar_page_settings_demo_field_result_item %}
+                                            <template v-if="demoEntity === 'product'" #result-item="{ item, index }">
+                                                <li is="sw-select-result" v-bind="{ item, index }">
+
+                                                    {% block sw_cms_sidebar_page_settings_demo_field_result_label %}
+                                                        <span class="sw-select-result__result-item-text">
+                                                            <sw-product-variant-info :variations="item.variation">
+                                                                {{ item.translated.name || item.name }}
+                                                            </sw-product-variant-info>
+                                                        </span>
+                                                    {% endblock %}
+                                                </li>
+                                            </template>
+                                        {% endblock %}
                                     </sw-entity-single-select>
                                 {% endblock %}
                             </div>
@@ -332,6 +357,42 @@
                                     {% endblock %}
                                 </template>
                             </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
+
+        {% block sw_cms_sidebar_layout_assignment %}
+            <sw-sidebar-item
+                class="sw-cms-sidebar__layout-assignment"
+                icon="default-action-share"
+                :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
+                :disabled="page.locked || disabled"
+                ref="layoutAssignment">
+
+                {% block sw_cms_sidebar_layout_assignment_content %}
+                    <div class="sw-cms-sidebar__layout-assignment-content">
+                        {% block sw_cms_sidebar_layout_assignment_headline %}
+                            <h3 class="sw-cms-sidebar__layout-assignment-headline">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.headline') }}
+                            </h3>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_layout_assignment_info_text %}
+                            <p class="sw-cms-sidebar__layout-assignment-info-text">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.infoText') }}
+                            </p>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_layout_assignment_action_open %}
+                            <sw-button
+                                variant="ghost"
+                                size="small"
+                                class="sw-cms-sidebar__layout-assignment-open"
+                                @click="onOpenLayoutAssignment">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
+                            </sw-button>
                         {% endblock %}
                     </div>
                 {% endblock %}

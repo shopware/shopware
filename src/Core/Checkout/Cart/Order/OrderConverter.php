@@ -159,7 +159,7 @@ class OrderConverter
         if ($conversionContext->shouldIncludeBillingAddress()) {
             $customerAddressId = $context->getCustomer()->getActiveBillingAddress()->getId();
 
-            if (array_key_exists($customerAddressId, $shippingAddresses)) {
+            if (\array_key_exists($customerAddressId, $shippingAddresses)) {
                 $billingAddressId = $shippingAddresses[$customerAddressId]['id'];
             } else {
                 $billingAddress = AddressTransformer::transform($context->getCustomer()->getActiveBillingAddress());

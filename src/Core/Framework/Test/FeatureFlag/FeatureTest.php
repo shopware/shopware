@@ -49,15 +49,18 @@ class FeatureTest extends TestCase
         unset($_SERVER['FEATURE_NEXT_101']);
         unset($_SERVER['FEATURE_NEXT_102']);
 
-        Feature::setRegisteredFeatures(
-            $this->getContainer()->getParameter('shopware.feature.flags'),
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures($this->getContainer()->getParameter('shopware.feature.flags'));
     }
 
     protected function tearDown(): void
     {
         $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = self::$appEnvValue;
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+
+        unset($_SERVER['FEATURE_NEXT_101']);
+        unset($_SERVER['FEATURE_NEXT_102']);
+
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
@@ -105,11 +108,7 @@ class FeatureTest extends TestCase
     {
         $this->setUp();
         $currentConfig = array_keys(Feature::getAll());
-        $featureFlags = $this->getContainer()->getParameter('shopware.feature.flags');
-
-        foreach ($featureFlags as &$flag) {
-            $flag = Feature::normalizeName($flag);
-        }
+        $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
 
         static::assertEquals($featureFlags, $currentConfig);
 
@@ -169,6 +168,30 @@ class FeatureTest extends TestCase
         $template->render([]);
     }
 
+    public function testRegisterFeaturesDoesNotOverrideMetaData(): void
+    {
+        $features = [
+            'FEATURE_NEXT_101' => [
+                'major' => true,
+                'default' => true,
+                'description' => 'test',
+            ],
+        ];
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures($features);
+
+        Feature::registerFeatures(array_merge(array_keys(Feature::getAll()), ['FEATURE_NEXT_102']));
+
+        $actualFeatures = Feature::getRegisteredFeatures();
+        static::assertSame($features['FEATURE_NEXT_101'], $actualFeatures['FEATURE_NEXT_101']);
+
+        $expectedFeatureFlags = [
+            'FEATURE_NEXT_101' => true,
+            'FEATURE_NEXT_102' => false,
+        ];
+        static::assertSame($expectedFeatureFlags, Feature::getAll());
+    }
+
     public function featureAllDataProvider(): array
     {
         return [
@@ -196,16 +219,343 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
+    public function isActiveDataProvider(): \Generator
+    {
+        yield 'registered active feature' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered inactive feature' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered inactive feature without env' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered inactive feature' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'false',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered inactive feature without env' => [
+            [],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered active feature' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'true',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered major active feature' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_NEXT_101' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered major inactive feature' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered major inactive feature without env' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered active feature with default false' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'default' => false,
+                ],
+            ],
+            [
+                'FEATURE_NEXT_101' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered inactive feature with default true' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'default' => true,
+                ],
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered inactive feature without env with default true' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'default' => true,
+                ],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered inactive feature without env with default false' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'default' => false,
+                ],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered inactive with empty FEATURE_ALL' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'false',
+                'FEATURE_ALL' => '',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered inactive only empty FEATURE_ALL as env' => [
+            [],
+            [
+                'FEATURE_ALL' => '',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered active with empty FEATURE_ALL' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'true',
+                'FEATURE_ALL' => '',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'unregistered inactive with minor FEATURE_ALL' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'false',
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered inactive only minor FEATURE_ALL as env' => [
+            [],
+            [
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'unregistered active with minor FEATURE_ALL' => [
+            [],
+            [
+                'FEATURE_NEXT_101' => 'true',
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered active with minor FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '1',
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered inactive with minor FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered major inactive  only with minor FEATURE_ALL env' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered active major with major FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '1',
+                'FEATURE_ALL' => 'major',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered inactive major with major FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+                'FEATURE_ALL' => 'major',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered major inactive only with major FEATURE_ALL env' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'major',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'unregistered inactive only with major FEATURE_ALL env' => [
+            [],
+            [
+                'FEATURE_ALL' => 'major',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'registered inactive with FEATURE_ALL=minor' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+                'FEATURE_ALL' => 'minor',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'registered major inactive with FEATURE_ALL=minor' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_NEXT_101' => '',
+                'FEATURE_ALL' => 'minor',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+    }
+
+    /**
+     * @dataProvider isActiveDataProvider
+     */
+    public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
+    {
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'prod';
+
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
+
+        foreach ($env as $key => $value) {
+            $_SERVER[$key] = $value;
+        }
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures($featureConfig);
+
+        static::assertSame(Feature::isActive($feature), $expected);
+    }
+
     private function setUpFixtures(): void
     {
         //init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll());
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
-        Feature::setRegisteredFeatures(
-            $registeredFlags,
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+        Feature::registerFeatures($registeredFlags);
     }
 
     private function indicate(?\stdClass $arg = null): void

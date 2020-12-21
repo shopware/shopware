@@ -4,7 +4,10 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
+    country: 'Germany',
+    company: 'Test Company',
+    department: 'Test Department',
+    vatId: 'TEST-VAT-ID'
 };
 
 describe('Customer: Test crud operations', () => {
@@ -50,6 +53,20 @@ describe('Customer: Test crud operations', () => {
         cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
         cy.get(page.elements.customerMailInput).type('tester@example.com');
+
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
+                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
+                return;
+            }
+
+            // check vat id field not exists in customer address form
+            cy.get('.sw-customer-address-form input#vatId').should('not.be.visible');
+
+            // check vat id field exists in customer base form and type
+            cy.get('.sw-customer-base-form input#vatId').should('be.visible');
+            cy.get('.sw-customer-base-form input#vatId').type(customer.vatId);
+        });
 
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck('Standard customer group', '.sw-customer-base-form__customer-group-select');
@@ -112,6 +129,18 @@ describe('Customer: Test crud operations', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('#sw-field--customer-firstName').clear().type('Ronald');
         cy.get('#sw-field--customer-lastName').clear().type('Weasley');
+
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
+                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
+                return;
+            }
+
+            // check vat id field exists in customer base form and type
+            cy.get('.sw-customer-card__metadata input#vatId').should('be.visible');
+            cy.get('.sw-customer-card__metadata input#vatId').type('TEST-VAT-ID-02');
+        });
+
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify updated customer
@@ -119,10 +148,10 @@ describe('Customer: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get(page.elements.smartBarBack).click();
-        cy.get('.sw-data-grid__cell--firstName').contains('Ronald Weasley');
+        cy.get('.sw-data-grid__cell--firstName').contains('Weasley, Ronald');
     });
 
-    it('@customer: delete customer', () => {
+    it('@base @customer: delete customer', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

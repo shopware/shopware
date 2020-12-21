@@ -156,7 +156,7 @@ class RuleValidator implements EventSubscriberInterface
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
         $type = $condition !== null ? $condition->getType() : null;
-        if (array_key_exists('type', $payload)) {
+        if (\array_key_exists('type', $payload)) {
             $type = $payload['type'];
         }
 
@@ -185,7 +185,7 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         foreach ($payload as $fieldName => $_value) {
-            if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
+            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
                 $violationList->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',

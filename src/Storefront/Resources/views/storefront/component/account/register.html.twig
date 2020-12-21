@@ -45,8 +45,18 @@
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
+                                        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
+                                        'accountType': data.get('accountType')
                                     } %}
+                                {% endblock %}
+
+                                {% block component_account_register_company_fields %}
+                                    {% if feature('FEATURE_NEXT_10559') %}
+                                        {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
+                                            'prefix': 'billingAddress',
+                                            'address': data.get('billingAddress')
+                                        } %}
+                                    {% endif %}
                                 {% endblock %}
 
                                 {% set formGroupMail %}
@@ -252,11 +262,22 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_billing_fields %}
-                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                'prefix': 'billingAddress',
-                                                'data': data.get('billingAddress'),
-                                                'hasSelectedBusiness': data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')
-                                            } %}
+                                            {% if feature('FEATURE_NEXT_10559') %}
+                                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                    'prefix': 'billingAddress',
+                                                    'data': data.get('billingAddress'),
+                                                    'hasSelectedBusiness': data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')
+                                                } %}
+                                            {% else %}
+                                                {# @deprecated tag:v6.4.0 hasSelectedBusiness variable will be removed #}
+                                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                    'prefix': 'billingAddress',
+                                                    'data': data.get('billingAddress'),
+                                                    'hasSelectedBusiness': false,
+                                                    'showFormCompany': true,
+                                                    'showVatIdField': true
+                                                } %}
+                                            {% endif %}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -299,15 +320,25 @@
                                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                                             'prefix': 'shippingAddress',
                                                             'data': data.get('shippingAddress'),
-                                                            'hideCustomerTypeSelect': true
+                                                            'hideCustomerTypeSelect': true,
+                                                            'accountType': data.get('accountType')
                                                         } %}
                                                     {% endblock %}
 
                                                     {% block component_account_register_address_shipping_fields_address %}
-                                                        {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                            'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress')
-                                                        } %}
+                                                        {% if feature('FEATURE_NEXT_10559') %}
+                                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                                'prefix': 'shippingAddress',
+                                                                'data': data.get('shippingAddress')
+                                                            } %}
+                                                        {% else %}
+                                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                                'prefix': 'shippingAddress',
+                                                                'data': data.get('shippingAddress'),
+                                                                'showFormCompany': true,
+                                                                'showVatIdField': true
+                                                            } %}
+                                                        {% endif %}
                                                     {% endblock %}
                                                 {% endblock %}
                                             </div>

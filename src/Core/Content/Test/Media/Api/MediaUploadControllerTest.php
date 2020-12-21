@@ -163,7 +163,7 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            \json_encode([])
+            json_encode([])
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -194,7 +194,7 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            \json_encode(['fileName' => 'new file name'])
+            json_encode(['fileName' => 'new file name'])
         );
 
         $response = $this->getBrowser()->getResponse();

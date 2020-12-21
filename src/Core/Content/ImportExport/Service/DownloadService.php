@@ -60,7 +60,7 @@ class DownloadService
             'Content-Type' => 'application/octet-stream',
         ];
         $stream = $this->filesystem->readStream($entity->getPath());
-        if (!is_resource($stream)) {
+        if (!\is_resource($stream)) {
             throw new FileNotFoundException($fileId);
         }
 

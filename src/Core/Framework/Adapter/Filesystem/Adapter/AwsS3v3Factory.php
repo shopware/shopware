@@ -44,7 +44,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
 
         $config = $options->resolve($definition);
 
-        if (array_key_exists('credentials', $config)) {
+        if (\array_key_exists('credentials', $config)) {
             $config['credentials'] = $this->resolveCredentialsOptions($config['credentials']);
         }
 

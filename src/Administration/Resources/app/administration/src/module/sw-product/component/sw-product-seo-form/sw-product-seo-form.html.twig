@@ -3,7 +3,7 @@
         {% block sw_product_seo_form_meta_title %}
             <sw-inherit-wrapper
                 v-model="product.metaTitle"
-                :hasParent="!!parentProduct.id"
+                :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelMetaTitle')"
                 :inheritedValue="parentProduct.metaTitle">
                 <template #content="props">
@@ -22,7 +22,7 @@
         {% block sw_product_seo_form_meta_description %}
             <sw-inherit-wrapper
                 v-model="product.metaDescription"
-                :hasParent="!!parentProduct.id"
+                :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelMetaDescription')"
                 :inheritedValue="parentProduct.metaDescription">
                 <template #content="props">
@@ -41,7 +41,7 @@
         {% block sw_product_seo_form_keywords %}
             <sw-inherit-wrapper
                 v-model="product.keywords"
-                :hasParent="!!parentProduct.id"
+                :hasParent="hasParent"
                 :label="$tc('sw-product.seoForm.labelKeywords')"
                 :inheritedValue="parentProduct.keywords">
                 <template #content="props">
@@ -55,6 +55,48 @@
                     </sw-field>
                 </template>
             </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_seo_form_canonical_url %}
+            <template v-if="feature.isActive('FEATURE_NEXT_10820') && !hasParent && hasVariants">
+
+                {% block sw_product_seo_form_canonical_url_switch %}
+                    <sw-switch-field v-model="canonicalProductSwitchEnabled"
+                        :label="$tc('sw-product.seoForm.labelCanonicalUrlMode')">
+                    </sw-switch-field>
+                {% endblock %}
+
+                {% block sw_product_seo_form_canonical_url_select %}
+                    <sw-single-select v-model="product.canonicalProductId"
+                         ref="canonicalProductSelect"
+                         :options="variants"
+                         :disabled="!canonicalProductSwitchEnabled"
+                         valueProperty="id"
+                         :label="$tc('sw-product.seoForm.labelCanonicalProduct')"
+                         :placeholder="$tc('sw-product.seoForm.placeholderCanonicalProduct')"
+                         :disableSearchFunction="true"
+                         @search="onSearch">
+
+                        <template #selection-label-property="{ item }">
+                            {% block sw_product_seo_form_canonical_url_select_selection %}
+                                <sw-product-variant-info :variations="item.variation"
+                                     :showTooltip="false">
+                                    {{ getItemName(item) }}
+                                </sw-product-variant-info>
+                            {% endblock %}
+                        </template>
+
+                        <template #result-label-property="{ item }">
+                            {% block sw_product_seo_form_canonical_url_select_result %}
+                                <sw-product-variant-info :variations="item.variation"
+                                     :showTooltip="false">
+                                    {{ getItemName(item) }}
+                                </sw-product-variant-info>
+                            {% endblock %}
+                        </template>
+                    </sw-single-select>
+                {% endblock %}
+            </template>
         {% endblock %}
     </div>
 {% endblock %}

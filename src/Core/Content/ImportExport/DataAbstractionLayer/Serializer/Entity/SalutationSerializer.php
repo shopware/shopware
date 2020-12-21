@@ -39,7 +39,7 @@ class SalutationSerializer extends EntitySerializer
             $id = $this->getSalutationId($deserialized['salutationKey']);
 
             // if we dont find it by salutationKey, only set the id to the fallback if we dont have any other data
-            if (!$id && count($deserialized) === 1) {
+            if (!$id && \count($deserialized) === 1) {
                 $id = $this->getSalutationId('not_specified');
             }
 

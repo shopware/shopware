@@ -8,6 +8,9 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12016)
+ */
 Component.register('sw-promotion-detail', {
     template,
 

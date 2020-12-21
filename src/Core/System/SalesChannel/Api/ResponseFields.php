@@ -20,7 +20,7 @@ class ResponseFields
             return true;
         }
 
-        return in_array($property, $this->includes[$type], true);
+        return \in_array($property, $this->includes[$type], true);
     }
 
     public function hasNested(string $alias, string $prefix): bool
@@ -29,7 +29,7 @@ class ResponseFields
 
         $prefix .= '.';
         foreach ($fields as $property) {
-            if (strpos($property, $prefix) === 0) {
+            if (mb_strpos($property, $prefix) === 0) {
                 return true;
             }
         }

@@ -113,7 +113,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
             }
         }
 
-        if (array_key_exists($path, $this->databaseTemplateCache) && array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
+        if (\array_key_exists($path, $this->databaseTemplateCache) && \array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
             return $this->databaseTemplateCache[$path][$namespace];
         }
 

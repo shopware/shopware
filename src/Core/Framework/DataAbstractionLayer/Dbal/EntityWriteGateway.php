@@ -186,7 +186,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private static function isAssociative(array $array): bool
     {
         foreach ($array as $key => $_value) {
-            if (!is_int($key)) {
+            if (!\is_int($key)) {
                 return true;
             }
         }
@@ -230,10 +230,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
             $values[] = '$."' . $attribute . '"';
-            if (is_array($value) || is_object($value)) {
-                $values[] = \json_encode($value, JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_UNICODE);
+            if (\is_array($value) || \is_object($value)) {
+                $values[] = json_encode($value, \JSON_PRESERVE_ZERO_FRACTION | \JSON_UNESCAPED_UNICODE);
                 // does the same thing as CAST(?, json) but works on mariadb
-                $identityValue = is_object($value) || self::isAssociative($value) ? '{}' : '[]';
+                $identityValue = \is_object($value) || self::isAssociative($value) ? '{}' : '[]';
                 $sets[] = '?, JSON_MERGE("' . $identityValue . '", ?)';
             } else {
                 $values[] = $value;
@@ -333,7 +333,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $parent = $this->getParentField($definition);
 
-        if ($parent && array_key_exists('parent', $database)) {
+        if ($parent && \array_key_exists('parent', $database)) {
             $database[$parent->getStorageName()] = $database['parent'];
             unset($database['parent']);
         }
@@ -350,8 +350,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
-            if (!array_key_exists($field->getStorageName(), $primaryKey)) {
-                if (!array_key_exists($field->getPropertyName(), $primaryKey)) {
+            if (!\array_key_exists($field->getStorageName(), $primaryKey)) {
+                if (!\array_key_exists($field->getPropertyName(), $primaryKey)) {
                     throw new PrimaryKeyNotProvidedException($definition, $field);
                 }
 
@@ -397,7 +397,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $fk = $this->getParentField($definition);
         //foreign key provided, !== null has parent otherwise not
-        if (array_key_exists($fk->getPropertyName(), $data)) {
+        if (\array_key_exists($fk->getPropertyName(), $data)) {
             return isset($data[$fk->getPropertyName()]);
         }
 

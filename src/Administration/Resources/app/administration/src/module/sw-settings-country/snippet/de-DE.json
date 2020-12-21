@@ -32,6 +32,8 @@
       "labelShippingAvailable": "Versand verfügbar",
       "labelTaxFree": "Steuerfrei",
       "labelCompanyTaxFree": "Steuerfrei für Unternehmen",
+      "labelCheckVatIdFormat": "USt-ID-Format überprüfen",
+      "helpTextCheckVatIdFormat": "Erlaubt eine Formatprüfung der USt-ID für alle europäischen Mitgliedsstaaten.",
       "labelForceStateInRegistration": "Bundesland bei Registrierung erforderlich",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",

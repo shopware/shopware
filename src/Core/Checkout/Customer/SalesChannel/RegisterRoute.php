@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -41,6 +43,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -175,6 +178,12 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
             $customer['company'] = $billingAddress['company'];
+
+            if (Feature::isActive('FEATURE_NEXT_10559') && $data->get('vatIds')) {
+                /* @var array $vatIds */
+                $vatIds = $data->get('vatIds');
+                $customer['vatIds'] = empty($vatIds) ? null : $vatIds;
+            }
         }
 
         $customer = $this->setDoubleOptInData($customer, $context);
@@ -287,6 +296,25 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($accountType, false, $context));
         }
 
+        if (Feature::isActive('FEATURE_NEXT_10559')) {
+            $billingAddress = $addressData->all();
+
+            if ($data->get('vatIds') instanceof DataBag) {
+                $vatIds = array_filter($data->get('vatIds')->all());
+                $data->set('vatIds', $vatIds);
+            }
+
+            if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
+                    $definition->add('vatIds', new NotBlank());
+                }
+
+                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                    ['countryId' => $billingAddress['countryId']]
+                ));
+            }
+        }
+
         $violations = $this->validator->getViolations($data->all(), $definition);
         if (!$violations->count()) {
             return;
@@ -298,7 +326,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function getDomainUrls(SalesChannelContext $context): array
     {
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return $domainEntity->getUrl();
+            return rtrim($domainEntity->getUrl(), '/');
         }, $context->getSalesChannel()->getDomains()->getElements());
     }
 

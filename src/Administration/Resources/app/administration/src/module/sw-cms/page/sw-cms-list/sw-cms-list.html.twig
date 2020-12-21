@@ -132,6 +132,12 @@
                                                                 </template>
                                                             {% endblock %}
 
+                                                            {% block sw_cms_list_listing_list_data_grid_column_assignments %}
+                                                                <template v-if="feature.isActive('FEATURE_NEXT_10078')" #column-assignments="{ item }">
+                                                                    {{ item.categories.length + item.products.length }}
+                                                                </template>
+                                                            {% endblock %}
+
                                                             {% block sw_cms_list_listing_list_data_grid_column_created %}
                                                                 <template #column-createdAt="{ item }">
                                                                     {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
@@ -162,7 +168,11 @@
                                                                             variant="danger"
                                                                             @click="onDeleteCmsPage(item)"
                                                                             class="sw-cms-list__context-menu-item-delete"
-                                                                            :disabled="item.categories.length > 0 || !acl.can('cms.deleter')"
+                                                                            :disabled="
+                                                                                item.categories.length > 0 ||
+                                                                                (item.products && item.products.length > 0) ||
+                                                                                !acl.can('cms.deleter')
+                                                                            "
                                                                             v-tooltip="deleteDisabledToolTip(item)"
                                                                             v-if="!item.locked">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
@@ -239,7 +249,11 @@
                                                                                 v-if="!cmsPage.locked"
                                                                                 class="sw-cms-list-item__option-delete"
                                                                                 variant="danger"
-                                                                                :disabled="cmsPage.categories.length > 0 || !acl.can('cms.deleter')"
+                                                                                :disabled="
+                                                                                    cmsPage.categories.length > 0 ||
+                                                                                    (cmsPage.products && cmsPage.products.length > 0) ||
+                                                                                    !acl.can('cms.deleter')
+                                                                                "
                                                                                 v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                                                 @click="onDeleteCmsPage(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}

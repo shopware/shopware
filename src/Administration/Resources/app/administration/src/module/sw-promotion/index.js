@@ -28,7 +28,7 @@ Module.register('sw-promotion', {
     targetVersion: '1.0.0',
     color: '#FFD700',
     icon: 'default-package-gift',
-    favicon: 'icon-module-marketing.png',
+    favicon: 'default-object-marketing',
     entity: 'promotion',
 
     routes: {

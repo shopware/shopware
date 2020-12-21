@@ -205,7 +205,7 @@ class ImportExportService
                 throw new FileNotReadableException($sourcePath);
             }
             $sourceStream = fopen($sourcePath, 'rb');
-            if (!is_resource($sourceStream)) {
+            if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }
             $this->filesystem->putStream($path, $sourceStream);

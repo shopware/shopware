@@ -74,7 +74,7 @@ const PluginManager = window.PluginManager;
 PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
 ```
 
-In this case the plugin just gets executed if the HTML document contains at least one element with the `data-scroll-detector` attribute.
+In this case the plugin just gets executed if the HTML document contains at least one element with the `data-example-plugin` attribute.
 You could use `this.el` inside your plugin to access the DOM element your plugin is bound to.
 
 ## Loading your plugin

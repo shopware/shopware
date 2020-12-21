@@ -96,10 +96,10 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $self = new self(
             (float) $data['price'],
             new TaxRuleCollection($taxRules),
-            array_key_exists('quantity', $data) ? $data['quantity'] : 1
+            \array_key_exists('quantity', $data) ? $data['quantity'] : 1
         );
 
-        $self->setIsCalculated(array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
+        $self->setIsCalculated(\array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
         $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
 
         return $self;

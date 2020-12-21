@@ -4,11 +4,15 @@
     {% block page_wishlist %}
         <div class="cms-page wishlist-page">
             {% block page_wishlist_headline %}
-                <h1 class="wishlist-headline">
-                    {% block page_wishlist_headline_text %}
-                        {{ "wishlist.headline"|trans }}
-                    {% endblock %}
-                </h1>
+                {% set searchResult = page.wishlist.productListing %}
+
+                {% if searchResult.total > 0 %}
+                    <h1 class="wishlist-headline">
+                        {% block page_wishlist_headline_text %}
+                            {{ "wishlist.headline"|trans }}
+                        {% endblock %}
+                    </h1>
+                {% endif %}
             {% endblock %}
 
             {% sw_include '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig' with { page: page } %}

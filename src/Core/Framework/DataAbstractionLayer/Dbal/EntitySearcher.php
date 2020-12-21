@@ -137,7 +137,7 @@ class EntitySearcher implements EntitySearcherInterface
 
             $arrayKey = implode('-', $pk);
 
-            if (count($pk) === 1) {
+            if (\count($pk) === 1) {
                 $pk = array_shift($pk);
             }
 

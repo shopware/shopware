@@ -96,7 +96,7 @@ class ConfigurationService
                     continue;
                 }
 
-                if (array_key_exists('type', $field)) {
+                if (\array_key_exists('type', $field)) {
                     $newField['type'] = $field['type'];
                 }
 
@@ -129,7 +129,7 @@ class ConfigurationService
 
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
-        $technicalName = array_slice(explode('\\', $scope), -1)[0];
+        $technicalName = \array_slice(explode('\\', $scope), -1)[0];
         foreach ($this->bundles as $bundle) {
             if ($bundle->getName() === $technicalName) {
                 return $this->configReader->getConfigFromBundle($bundle, $configName);

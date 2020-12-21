@@ -88,7 +88,7 @@ class PriceActionController extends AbstractController
 
         $calculated = $calculator->calculate($definition, $config);
 
-        $data = json_decode(json_encode($calculated, JSON_PRESERVE_ZERO_FRACTION), true);
+        $data = json_decode(json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true);
 
         return new JsonResponse(
             ['data' => $data]

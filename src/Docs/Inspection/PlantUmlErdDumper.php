@@ -121,8 +121,8 @@ EOD;
 
         return sprintf(
             self::TEMPLATE,
-            implode(PHP_EOL, $tables),
-            implode(PHP_EOL, $this->associations)
+            implode(\PHP_EOL, $tables),
+            implode(\PHP_EOL, $this->associations)
         );
     }
 
@@ -146,7 +146,7 @@ EOD;
 
     private function renderTable(array $table): string
     {
-        $table[3] = implode(PHP_EOL . '   ', $table[3]);
+        $table[3] = implode(\PHP_EOL . '   ', $table[3]);
         $isTranslation = $table[4];
 
         if ($isTranslation) {

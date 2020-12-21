@@ -166,6 +166,7 @@ Component.register('sw-settings-payment-detail', {
                 .then(() => {
                     this.isSaveSuccessful = true;
                     this.$refs.mediaSidebarItem.getList();
+                    this.loadEntityData();
                 })
                 .catch((exception) => {
                     this.createNotificationError({

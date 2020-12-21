@@ -41,6 +41,7 @@ import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/sw-textarea-field';
 import 'src/app/component/form/sw-url-field';
 import 'src/app/component/form/sw-password-field';
+import 'src/app/filter/unicode-uri';
 
 /** @type Wrapper */
 let wrapper;
@@ -50,6 +51,7 @@ function createWrapper(defaultValues = {}) {
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});
     localVue.filter('mediaName', Shopware.Filter.getByName('mediaName'));
+    localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
 
     return shallowMount(Shopware.Component.build('sw-system-config'), {
         localVue,
@@ -210,7 +212,10 @@ function createWrapper(defaultValues = {}) {
                 })
             },
             validationService: {},
-            mediaService: {}
+            mediaService: {},
+            feature: {
+                isActive: () => false
+            }
         },
         mocks: {
             $tc: key => key,

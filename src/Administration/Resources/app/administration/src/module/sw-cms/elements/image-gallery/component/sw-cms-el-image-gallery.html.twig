@@ -4,11 +4,11 @@
         {% block sw_cms_element_image_gallery_grid %}
             <div class="sw-cms-el-image-gallery__grid" ref="galleryItemHolder">
 
-                <template v-if="element.data && element.data.sliderItems && element.data.sliderItems.length">
+                <template v-if="mediaUrls && mediaUrls.length">
                     <div class="sw-cms-el-image-gallery__item-holder">
                         {% block sw_cms_element_image_gallery_selection %}
                             <sw-media-list-selection-item-v2
-                                v-for="(sliderItem, index) in element.data.sliderItems"
+                                v-for="(sliderItem, index) in mediaUrls"
                                 v-if="index < galleryLimit"
                                 :key="index"
                                 :item="sliderItem.media"
@@ -24,9 +24,9 @@
                 <template v-else>
                     {% block sw_cms_element_image_gallery_empty %}
                         <div class="sw-cms-el-image-gallery__item-holder">
-                            <img class="sw-cms-el-image-gallery__item-placeholder"
-                                 v-for="mediaItem in getPlaceholderItems()"
-                                 :src="mediaItem.url"/>
+                            <img v-for="mediaItem in getPlaceholderItems()"
+                                 class="sw-cms-el-image-gallery__item-placeholder"
+                                 :src="mediaItem.url">
                         </div>
                     {% endblock %}
                 </template>

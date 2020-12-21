@@ -18,7 +18,7 @@ class CacheStateValidator implements CacheStateValidatorInterface
         $invalidationStates = array_filter($invalidationStates);
 
         foreach ($invalidationStates as $state) {
-            if (array_key_exists($state, $states)) {
+            if (\array_key_exists($state, $states)) {
                 return false;
             }
         }

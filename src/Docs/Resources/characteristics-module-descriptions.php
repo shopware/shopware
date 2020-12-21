@@ -337,4 +337,16 @@ EOD
 Traits for different migration operations
 EOD
     ,
+    'Migration/6.4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/6.5' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/unreleased' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

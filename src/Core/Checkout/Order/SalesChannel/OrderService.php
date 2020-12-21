@@ -90,16 +90,13 @@ class OrderService
     }
 
     /**
-     * @deprecated tag:v6.4.0 Parameter $customerId will be removed
-     *
      * @internal Should not be called from outside the core
      */
     public function orderStateTransition(
         string $orderId,
         string $transition,
         ParameterBag $data,
-        Context $context,
-        ?string $customerId = null
+        Context $context
     ): StateMachineStateEntity {
         $stateFieldName = $data->get('stateFieldName', 'stateId');
 
@@ -197,9 +194,9 @@ class OrderService
 
         $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context);
 
-        if ($paymentMethods->getTotal() !== count(array_unique($idsOfPaymentMethods))) {
+        if ($paymentMethods->getTotal() !== \count(array_unique($idsOfPaymentMethods))) {
             foreach ($cart->getTransactions() as $paymentMethod) {
-                if (!in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
+                if (!\in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
                     throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId());
                 }
             }

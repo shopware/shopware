@@ -1,0 +1,40 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/product-detail/meta.html.twig' %}
+{% endblock %}
+
+{% block base_content %}
+    <div class="container-main">
+        {% block page_product_detail %}
+            <div class="product-detail"
+                 itemscope
+                 itemtype="https://schema.org/Product">
+                {% block page_product_detail_inner %}
+                    <div class="product-detail-content">
+                        {% block page_product_detail_breadcrumb %}
+                            {% deprecated '@deprecated tag:v6.4.0 - Breadcrumb will be handled by "base_breadcrumb" in "storefront/base.html.twig"' %}
+                            <div class="breadcrumb cms-breadcrumb breadcrumb product-breadcrumb container">
+                                {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {
+                                    context: context,
+                                    category: page.product.seoCategory,
+                                    navigationTree: page.header.navigation.tree,
+                                    categoryTree: page.product.categoryTree|last,
+                                    product: page.product
+                                } only %}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_product_detail_main %}
+                            <div class="cms-page product-detail-page">
+                                {% block page_content_blocks %}
+                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -204,7 +204,7 @@ SQL;
             ]
         );
 
-        if (is_array($languageId)) {
+        if (\is_array($languageId)) {
             return $languageId;
         }
 

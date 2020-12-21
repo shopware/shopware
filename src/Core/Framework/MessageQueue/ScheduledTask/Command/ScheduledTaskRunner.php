@@ -90,7 +90,7 @@ class ScheduledTaskRunner extends Command
                 $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
-            if ($memoryLimit && \memory_get_usage() > $memoryLimit) {
+            if ($memoryLimit && memory_get_usage() > $memoryLimit) {
                 $this->shouldStop = true;
                 $output->writeln(sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
             }

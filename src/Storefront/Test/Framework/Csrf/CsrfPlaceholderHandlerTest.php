@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Loader\LoaderInterface;
@@ -92,6 +93,15 @@ class CsrfPlaceholderHandlerTest extends TestCase
     {
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 404, ['Content-Type' => 'text/html']);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
+        static::assertSame($expectedResponse, $response);
+    }
+
+    public function testReplaceStreamedResponseShouldNotCrash(): void
+    {
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
+        $expectedResponse = new StreamedResponse(function (): void {
+        }, 200, ['Content-Type' => 'text/csv']);
         $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
         static::assertSame($expectedResponse, $response);
     }

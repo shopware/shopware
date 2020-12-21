@@ -17,7 +17,7 @@ describe('Cache module', () => {
         cy.awaitAndCheckNotification('All caches cleared.');
     });
 
-    it('@settings: clear cache', () => {
+    it('@base @settings: clear cache', () => {
         cy.contains('Caches & Indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();
@@ -25,7 +25,7 @@ describe('Cache module', () => {
         cy.awaitAndCheckNotification('All caches cleared.');
     });
 
-    it('@settings: rebuild index', () => {
+    it('@base @settings: rebuild index', () => {
         cy.contains('Caches & Indexes');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();

@@ -42,7 +42,7 @@ class TaskRegistry
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
-        if (count($deletionPayload) > 0) {
+        if (\count($deletionPayload) > 0) {
             $this->scheduledTaskRepository->delete($deletionPayload, Context::createDefaultContext());
         }
     }
@@ -54,7 +54,7 @@ class TaskRegistry
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
                     'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
-                    get_class($task)
+                    \get_class($task)
                 ));
             }
 
@@ -66,7 +66,7 @@ class TaskRegistry
                 $this->scheduledTaskRepository->create([
                     [
                         'name' => $task::getTaskName(),
-                        'scheduledTaskClass' => get_class($task),
+                        'scheduledTaskClass' => \get_class($task),
                         'runInterval' => $task::getDefaultInterval(),
                         'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                     ],
@@ -99,10 +99,10 @@ class TaskRegistry
         ScheduledTaskCollection $alreadyScheduledTasks,
         ScheduledTask $task
     ): bool {
-        return count(
+        return \count(
             $alreadyScheduledTasks
                 ->filter(function (ScheduledTaskEntity $registeredTask) use ($task) {
-                    return $registeredTask->getScheduledTaskClass() === get_class($task);
+                    return $registeredTask->getScheduledTaskClass() === \get_class($task);
                 })
         ) > 0;
     }
@@ -110,7 +110,7 @@ class TaskRegistry
     private function taskClassStillAvailable(ScheduledTaskEntity $registeredTask): bool
     {
         foreach ($this->tasks as $task) {
-            if ($registeredTask->getScheduledTaskClass() === get_class($task)) {
+            if ($registeredTask->getScheduledTaskClass() === \get_class($task)) {
                 return true;
             }
         }

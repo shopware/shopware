@@ -55,6 +55,7 @@
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
+    "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT ID you have entered has not the correct format",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",
@@ -277,7 +278,10 @@
     "passwordResetTitle": "Did you forget your password?",
     "passwordResetInfo": "If you have forgotten your password, you may enter a new one here. The moment you hit save, your old password will be invalidated.",
     "passwordOptInInfo": "Confirmation email sent. Click on the included link to change your password.",
-    "colonCharacter": ":"
+    "colonCharacter": ":",
+    "orderGuestLoginTitle": "Authentication",
+    "orderGuestLoginDescription": "To view your order, please enter your mail address and the postal code given with your billing address.",
+    "orderGuestLoginWrongCredentials": "The given data could not be associated with an order."
   },
   "address": {
     "streetLabel": "Street address",
@@ -430,7 +434,7 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "addToWishlist": "Add to wish list",
-    "addedToWishlist": "Added to wish list",
+    "removeFromWishlist": "Remove from wishlist",
     "toggleWishlist": "Toggle wishlist"
   },
   "newsletter": {
@@ -522,15 +526,20 @@
     "reviewLoginSignupLink": "Click here to sign up.",
     "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
-    "reviewAvgRateElements": "stars"
+    "reviewAvgRateElements": "stars",
+    "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
   "wishlist": {
     "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
+    "itemAddedSuccess": "You have successfully added the product into the wishlist.",
     "currentlyNotAvailable": "Currently not available",
     "manufacturerDisplayName": "Manufacturer",
     "deliveryTimeAvailable": "Available, delivery time %name%",
-    "noLongerAvailableTooltip": "The product is no longer available."
+    "noLongerAvailableTooltip": "The product is no longer available.",
+    "wishlistMergeHint": "Your wishlist might contain products that have been added and saved during a previous visit.",
+    "wishlistEmptyHeader": "Your wishlist is empty",
+    "wishlistEmptyDescription": "Keep an eye on products you like by adding them to your wishlist."
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

@@ -28,7 +28,7 @@ describe('Category: Edit categories', () => {
             .should('be.visible')
             .contains('Home');
 
-        page.changeTranslation('Deutsch', 1);
+        page.changeTranslation('Deutsch', 0);
         cy.get('.sw-tree-item__label').should('be.visible');
         cy.get('.sw-empty-state__element').should('be.visible');
 
@@ -56,7 +56,7 @@ describe('Category: Edit categories', () => {
             .should('be.visible')
             .should('have.value', 'Home');
 
-        page.changeTranslation('Deutsch', 1);
+        page.changeTranslation('Deutsch', 0);
         cy.get('.sw-loader').should('not.exist');
         cy.get('#categoryName')
             .should('be.visible')

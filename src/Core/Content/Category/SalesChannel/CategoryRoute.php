@@ -146,11 +146,11 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $slots = $request->get('slots');
 
-        if (is_string($slots)) {
+        if (\is_string($slots)) {
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && is_array($slots)) {
+        if (!empty($slots) && \is_array($slots)) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

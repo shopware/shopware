@@ -11,7 +11,8 @@ Component.register('sw-product-stream-value', {
         'repositoryFactory',
         'conditionDataProviderService',
         'productCustomFields',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     props: {
@@ -41,7 +42,8 @@ Component.register('sw-product-stream-value', {
     data() {
         return {
             value: null,
-            childComponents: null
+            childComponents: null,
+            searchTerm: ''
         };
     },
 
@@ -213,6 +215,20 @@ Component.register('sw-product-stream-value', {
             return criteria;
         },
 
+        propertyCriteria() {
+            const criteria = new Criteria();
+
+            if (this.feature.isActive('FEATURE_NEXT_12108') && this.definition.entity === 'property_group_option') {
+                criteria.addAssociation('group');
+
+                if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                    criteria.addQuery(Criteria.contains('group.name', this.searchTerm), 500);
+                }
+            }
+
+            return criteria;
+        },
+
         resultCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('options.group');
@@ -298,6 +314,14 @@ Component.register('sw-product-stream-value', {
         setBooleanValue(value) {
             this.condition.value = value;
             this.condition.type = 'equals';
+        },
+
+        setSearchTerm(value) {
+            this.searchTerm = value;
+        },
+
+        onSelectCollapsed() {
+            this.searchTerm = '';
         }
     }
 });

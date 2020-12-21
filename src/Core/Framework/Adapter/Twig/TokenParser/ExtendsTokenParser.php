@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Twig\Node\Node;
 use Twig\Parser;
 use Twig\Token;
@@ -37,9 +38,11 @@ final class ExtendsTokenParser extends AbstractTokenParser
 
         $template = $stream->next()->getValue();
 
-        $source = explode('/', $source);
-        $source = array_shift($source);
-        $source = ltrim($source, '@');
+        if (!Feature::isActive('FEATURE_NEXT_12553')) {
+            $source = explode('/', $source);
+            $source = (string) array_shift($source);
+            $source = ltrim($source, '@');
+        }
 
         //resolves parent template
         //set pointer to next value (contains the template file name)

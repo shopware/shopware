@@ -31,7 +31,7 @@ class XmlFileWriter extends AbstractFileWriter
                 $key = 'item' . $key;
             }
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $child = $node->addChild($key);
                 $this->addDataToNode($child, $value);
             } else {
@@ -42,7 +42,7 @@ class XmlFileWriter extends AbstractFileWriter
 
     private function toString($scalar): string
     {
-        if (is_bool($scalar)) {
+        if (\is_bool($scalar)) {
             return $scalar ? '1' : '0';
         }
 

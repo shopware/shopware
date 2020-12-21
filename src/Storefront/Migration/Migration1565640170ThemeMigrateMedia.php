@@ -37,20 +37,20 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
 
             $baseConfig = json_decode($themeConfig['base_config'], true);
 
-            if (!array_key_exists('fields', $baseConfig) || !is_array($baseConfig['fields'])) {
+            if (!\array_key_exists('fields', $baseConfig) || !\is_array($baseConfig['fields'])) {
                 continue;
             }
 
             foreach ($baseConfig['fields'] as $field) {
-                if (!array_key_exists('type', $field) || $field['type'] !== 'media') {
+                if (!\array_key_exists('type', $field) || $field['type'] !== 'media') {
                     continue;
                 }
 
-                if (!array_key_exists('value', $field) || !Uuid::isValid($field['value'])) {
+                if (!\array_key_exists('value', $field) || !Uuid::isValid($field['value'])) {
                     continue;
                 }
 
-                if (array_key_exists($field['value'], $themeMediaMapping)) {
+                if (\array_key_exists($field['value'], $themeMediaMapping)) {
                     continue;
                 }
 
@@ -65,7 +65,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                WHERE `media_default_folder`.`entity` = \'theme\';'
         )->fetchAll(FetchMode::COLUMN);
 
-        if (!$mediaIds || count($mediaIds) === 0) {
+        if (empty($mediaIds)) {
             return;
         }
 

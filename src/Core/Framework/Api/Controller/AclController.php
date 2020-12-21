@@ -85,7 +85,7 @@ class AclController extends AbstractController
             if (isset($defaults['_controller'])) {
                 list($controllerService, $controllerMethod) = explode('::', $defaults['_controller']);
                 if ($this->container->has($controllerService)) {
-                    $reflectedMethod = new \ReflectionMethod(get_class($this->container->get($controllerService)), $controllerMethod);
+                    $reflectedMethod = new \ReflectionMethod(\get_class($this->container->get($controllerService)), $controllerMethod);
                     $annotations = $annotationReader->getMethodAnnotations($reflectedMethod);
                     /** @var Acl|null $aclAnnotation */
                     $aclAnnotation = current(array_filter($annotations, static function ($annotation) {

@@ -120,6 +120,7 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
@@ -166,6 +167,22 @@
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <tag name="shopware.cms.data_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\ProductNameCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
+            <tag name="shopware.cms.data_resolver"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"

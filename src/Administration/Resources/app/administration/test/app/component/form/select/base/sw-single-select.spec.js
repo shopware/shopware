@@ -172,4 +172,17 @@ describe('components/sw-single-select', () => {
 
         expect(swSingleSelect.vm.searchTerm).toBe('Entry 3');
     });
+
+    it('should not show the selected item on first entry', async () => {
+        const wrapper = await createSingleSelect();
+        await wrapper.setProps({
+            value: 'entryThreeValue'
+        });
+
+        await wrapper.find('input').trigger('click');
+
+        expect(wrapper.find('.sw-select-option--0').text()).toEqual('Entry 1');
+        expect(wrapper.find('.sw-select-option--1').text()).toEqual('Entry 2');
+        expect(wrapper.find('.sw-select-option--2').text()).toEqual('Entry 3');
+    });
 });

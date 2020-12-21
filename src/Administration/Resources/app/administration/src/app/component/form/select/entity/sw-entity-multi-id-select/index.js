@@ -59,6 +59,20 @@ Component.register('sw-entity-multi-id-select', {
         };
     },
 
+    computed: {
+        getListeners() {
+            const listeners = {};
+
+            Object.keys(this.$listeners).forEach(listener => {
+                if (listener !== 'change') {
+                    listeners[listener] = this.$listeners[listener];
+                }
+            });
+
+            return listeners;
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -78,7 +92,7 @@ Component.register('sw-entity-multi-id-select', {
             const criteria = Criteria.fromCriteria(this.criteria);
             criteria.setIds(this.ids);
 
-            return this.repository.search(criteria, this.context).then((entities) => {
+            return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
                 return this.collection;
             });

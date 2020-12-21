@@ -5,9 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PercentagePriceCalculator
@@ -18,14 +17,23 @@ class PercentagePriceCalculator
     private $rounding;
 
     /**
+     * @var QuantityPriceCalculator
+     */
+    private $priceCalculator;
+
+    /**
      * @var PercentageTaxRuleBuilder
      */
-    private $taxRuleBuilder;
+    private $percentageTaxRuleBuilder;
 
-    public function __construct(CashRounding $rounding, PercentageTaxRuleBuilder $taxRuleBuilder)
-    {
+    public function __construct(
+        CashRounding $rounding,
+        QuantityPriceCalculator $priceCalculator,
+        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
         $this->rounding = $rounding;
-        $this->taxRuleBuilder = $taxRuleBuilder;
+        $this->priceCalculator = $priceCalculator;
+        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     /**
@@ -35,33 +43,18 @@ class PercentagePriceCalculator
      */
     public function calculate(float $percentage, PriceCollection $prices, SalesChannelContext $context): CalculatedPrice
     {
-        $total = $prices->sum();
+        $price = $prices->sum();
 
         $discount = $this->round(
-            $total->getTotalPrice() / 100 * $percentage,
+            $price->getTotalPrice() / 100 * $percentage,
             $context
         );
 
-        $taxes = new CalculatedTaxCollection();
-        foreach ($prices->getCalculatedTaxes() as $calculatedTax) {
-            $tax = $this->round(
-                $calculatedTax->getTax() / 100 * $percentage,
-                $context
-            );
+        $rules = $this->percentageTaxRuleBuilder->buildRules($price);
 
-            $price = $this->round(
-                $calculatedTax->getPrice() / 100 * $percentage,
-                $context
-            );
+        $definition = new QuantityPriceDefinition($discount, $rules, 1);
 
-            $taxes->add(
-                new CalculatedTax($tax, $calculatedTax->getTaxRate(), $price)
-            );
-        }
-
-        $rules = $this->taxRuleBuilder->buildRules($total);
-
-        return new CalculatedPrice($discount, $discount, $taxes, $rules, 1);
+        return $this->priceCalculator->calculate($definition, $context);
     }
 
     private function round(float $price, SalesChannelContext $context): float

@@ -13,6 +13,10 @@ Component.register('sw-cms-el-buy-box', {
 
     computed: {
         product() {
+            if (this.currentDemoEntity) {
+                return this.currentDemoEntity;
+            }
+
             if (!this.element.data || !this.element.data.product) {
                 return {
                     name: 'Lorem Ipsum dolor',
@@ -27,7 +31,7 @@ Component.register('sw-cms-el-buy-box', {
                 };
             }
 
-            return this.element.data.product;
+            return Utils.get(this.element, 'data.product', null);
         },
 
         pageType() {
@@ -44,6 +48,14 @@ Component.register('sw-cms-el-buy-box', {
             }
 
             return `justify-content: ${this.element.config.alignment.value};`;
+        },
+
+        currentDemoEntity() {
+            if (this.cmsPageState.currentMappingEntity === 'product') {
+                return this.cmsPageState.currentDemoEntity;
+            }
+
+            return null;
         }
     },
 

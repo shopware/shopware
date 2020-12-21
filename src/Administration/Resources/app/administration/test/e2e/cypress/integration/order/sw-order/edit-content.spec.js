@@ -217,7 +217,7 @@ describe('Order: Read order', () => {
 
         // Assert the price breakdown contains both VATs. This also implies that a recalculation has taken place.
         assertPriceBreakdownContains(/^plus 19\% VAT$/, /^[0-9]+,[0-9]{2}.€$/);
-        assertPriceBreakdownContains(/^plus 10\% VAT$/, /^121,55.€$/);
+        assertPriceBreakdownContains(/^plus 10\% VAT$/, /^1\.215,45.€$/);
     });
 
     it('@base @order: can add custom credit items', () => {

@@ -125,4 +125,28 @@ describe('src/app/component/tree/sw-tree-item', () => {
 
         expect(contextButton.find('.sw-context-menu__group-button-delete').attributes().disabled).not.toBeUndefined();
     });
+
+    it('should not show href attribute', async () => {
+        await wrapper.setProps({
+            allowDeleteCategories: false,
+            onChangeRoute: () => {}
+        });
+
+        const treeLink = wrapper.find('.tree-link');
+        expect(treeLink.attributes().href).toBeFalsy();
+    });
+
+    it('should show href attribute', async () => {
+        await wrapper.setProps({
+            allowDeleteCategories: false,
+            onChangeRoute: () => {},
+            getItemUrl: (item) => {
+                return 'detail/:id'.replace(':id', item.data.id);
+            }
+        });
+
+        const treeLink = wrapper.find('.tree-link');
+        expect(treeLink.attributes().href).not.toEqual('detail/1a2b');
+        expect(treeLink.attributes().href).toEqual('detail/1a2b3c');
+    });
 });

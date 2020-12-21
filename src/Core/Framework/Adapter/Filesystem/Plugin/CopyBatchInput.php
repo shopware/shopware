@@ -20,10 +20,10 @@ class CopyBatchInput
      */
     public function __construct($sourceFile, array $targetFiles)
     {
-        if (!is_resource($sourceFile) && !is_string($sourceFile)) {
+        if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
             throw new \InvalidArgumentException(sprintf(
                 'CopyBatchInpit expects first parameter to be either a resource or the filepath as a string, "%s" given.',
-                gettype($sourceFile)
+                \gettype($sourceFile)
             ));
         }
         $this->sourceFile = $sourceFile;

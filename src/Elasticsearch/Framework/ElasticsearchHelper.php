@@ -297,7 +297,7 @@ class ElasticsearchHelper
         }
 
         $count = $this->client->count(['index' => $index]);
-        if (!array_key_exists('count', $count)) {
+        if (!\array_key_exists('count', $count)) {
             return false;
         }
 

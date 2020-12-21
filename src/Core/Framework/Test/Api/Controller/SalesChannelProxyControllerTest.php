@@ -14,7 +14,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
@@ -333,7 +332,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals($browser->getServerParameter($contextTokenHeaderName), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         //assert customer is updated in database
-        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), Feature::isActive('FEATURE_NEXT_10058') ? $salesChannel['id'] : null);
+        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $salesChannel['id']);
         static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
@@ -893,6 +892,42 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
     }
 
+    public function testProxyCreateOrderWithInvalidSalesChannelId(): void
+    {
+        $this->getBrowser()->request('POST', $this->getCreateOrderApiUrl(Uuid::randomHex()));
+
+        $response = $this->getBrowser()->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
+    }
+
+    public function testProxyCreateOrderWithHeadersAreCopied(): void
+    {
+        $salesChannel = $this->createSalesChannel();
+        $uuid = Uuid::randomHex();
+
+        $this->getBrowser()->request(
+            'GET',
+            $this->getUrl($salesChannel['id'], '/product'),
+            [],
+            [],
+            [
+                'HTTP_SW_CONTEXT_TOKEN' => $uuid,
+                'HTTP_SW_LANGUAGE_ID' => $uuid,
+                'HTTP_SW_VERSION_ID' => $uuid,
+            ]
+        );
+
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
+    }
+
     private function getLangHeaderName(): string
     {
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
@@ -992,6 +1027,14 @@ class SalesChannelProxyControllerTest extends TestCase
             '/api/_proxy/store-api/%s/%s',
             $salesChannelId,
             ltrim($url, '/')
+        );
+    }
+
+    private function getCreateOrderApiUrl(string $salesChannelId): string
+    {
+        return sprintf(
+            '/api/_proxy-order/%s',
+            $salesChannelId
         );
     }
 

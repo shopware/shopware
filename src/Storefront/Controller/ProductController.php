@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -91,7 +93,16 @@ class ProductController extends StorefrontController
 
         $ratingSuccess = $request->get('success');
 
-        return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
+        if (!Feature::isActive('FEATURE_NEXT_10078')) {
+            return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
+        }
+
+        // Fallback layout for non-assigned product layout
+        if (!$page->getCmsPage()) {
+            return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
     /**
@@ -135,13 +146,12 @@ class ProductController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
-
-        $this->denyAccessUnlessLoggedIn();
 
         try {
             $this->productReviewService->save($productId, $data, $context);

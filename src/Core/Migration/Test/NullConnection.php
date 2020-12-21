@@ -47,7 +47,7 @@ class NullConnection extends Connection
 
     public function query()
     {
-        return $this->originalConnection->query(...func_get_args());
+        return $this->originalConnection->query(...\func_get_args());
     }
 
     public function update($tableExpression, array $data, array $identifier, array $types = [])

@@ -54,7 +54,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
         $defaultCurrencyId = Defaults::CURRENCY;
         $connection->executeUpdate(
             'UPDATE `product`
-            LEFT JOIN tax ON product.tax_id = tax.id
+            LEFT JOIN tax ON product.tax = tax.id
             SET purchase_prices = IF(
                 purchase_price IS NULL,
                 NULL,

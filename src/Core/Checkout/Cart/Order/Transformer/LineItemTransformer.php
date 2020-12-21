@@ -82,7 +82,7 @@ class LineItemTransformer
         $root = new LineItemCollection();
 
         foreach ($lineItems as $id => $lineItem) {
-            if (!array_key_exists($id, $index)) {
+            if (!\array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
 
@@ -96,7 +96,7 @@ class LineItemTransformer
                 continue;
             }
 
-            if (!array_key_exists($lineItem->getParentId(), $index)) {
+            if (!\array_key_exists($lineItem->getParentId(), $index)) {
                 $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
             }
 

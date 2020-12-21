@@ -53,7 +53,7 @@ class Migration1595489705PreventOldListingPricesTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        if (is_string($row)) {
+        if (\is_string($row)) {
             $row = json_decode($row, true);
         }
         static::assertEquals($expected, $row);

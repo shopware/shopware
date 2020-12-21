@@ -6,9 +6,12 @@ use OpenApi\Annotations\JsonContent;
 use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\PathItem;
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\RequestBody;
+use OpenApi\Context;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 use function OpenApi\scan;
@@ -52,12 +55,16 @@ class OpenApiLoader
 
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
+            if (!$this->routeIsActive($pathItem)) {
+                continue;
+            }
+
             $allUndefined = true;
 
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
-                if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
+                if ($operation instanceof Operation && !\in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
 
@@ -70,7 +77,7 @@ class OpenApiLoader
 
                     preg_match($sinceRegex, $operation->_context->comment, $match);
 
-                    if (array_key_exists(1, $match)) {
+                    if (\array_key_exists(1, $match)) {
                         $operation->description = 'Available since: ' . $match[1];
                     }
 
@@ -286,5 +293,46 @@ class OpenApiLoader
                 $operation->parameters = array_values($operation->parameters);
             }
         }
+    }
+
+    /**
+     * Check if route is annotated as internal and therefore inactive if not activated by a feature flag
+     */
+    private function routeIsActive(PathItem $item): bool
+    {
+        $docBlock = $item->_context->comment ?: '';
+        $pattern = '#@([a-zA-Z]+)#';
+
+        preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
+
+        if (!\in_array('internal', $matches[1], true)) {
+            //get the comment from the Class
+            if ($item->_context->with('comment') instanceof Context) {
+                $classDocBlock = $item->_context->with('comment')->__get('comment') ?: '';
+                $pattern = '#@([a-zA-Z]+)#';
+
+                preg_match_all($pattern, $classDocBlock, $matches, \PREG_PATTERN_ORDER);
+
+                if (\in_array('internal', $matches[1], true)) {
+                    return $this->featureIsActive($classDocBlock);
+                }
+            }
+
+            return true;
+        }
+
+        return $this->featureIsActive($docBlock);
+    }
+
+    private function featureIsActive(string $docBlock): bool
+    {
+        $flagPattern = "#@internal \(flag:([a-zA-Z_0-9]+)\)#";
+        preg_match_all($flagPattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
+
+        if (\count($matches[1]) > 0 && strpos($matches[1][0], 'FEATURE_') === 0 && Feature::isActive($matches[1][0])) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -81,6 +81,12 @@
             <tag name="validator.constraint_validator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="validator.constraint_validator"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10559"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5">
             <tag name="shopware.legacy_encoder"/>
         </service>
@@ -135,7 +141,6 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute" public="true">
@@ -232,12 +237,17 @@
             <argument type="service" id="customer_group.repository"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerVatIdsDeprecationUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerVatIdsDeprecationUpdater"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -283,7 +293,7 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductsRoute" public="true">
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
@@ -291,5 +301,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\CustomerValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1002"/>
+        </service>
+
     </services>
 </container>

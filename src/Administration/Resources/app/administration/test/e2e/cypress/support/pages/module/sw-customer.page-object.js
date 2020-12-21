@@ -16,6 +16,16 @@ export default class CustomerPageObject {
     }
 
     createBasicAddress(customer) {
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
+                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
+                return;
+            }
+
+            cy.get('input[name="sw-field--address-company"]').type(customer.company);
+            cy.get('input[name="sw-field--address-department"]').type(customer.department);
+        });
+
         cy.get('.sw-customer-address-form__salutation-select')
             .typeSingleSelectAndCheck(customer.salutation, '.sw-customer-address-form__salutation-select');
         cy.get('input[name=sw-field--address-firstName]').type(customer.firstName);

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Theme\StorefrontPluginConfiguration;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -60,6 +61,39 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
                 ],
             ],
         ], $config->getThemeConfig());
+    }
+
+    public function testPluginHasSingleScssEntryPoint(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
+
+        $basePath = realpath(__DIR__ . '/../fixtures/SimplePlugin');
+        $config = $this->configFactory->createPluginConfig('SimplePlugin', $basePath);
+
+        $this->assertFileCollection([
+            $basePath . '/Resources/app/storefront/src/scss/base.scss' => [],
+        ], $config->getStyleFiles());
+    }
+
+    public function testPluginHasNoScssEntryPoint(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
+
+        $basePath = realpath(__DIR__ . '/../fixtures/SimplePluginWithoutCompilation');
+        $config = $this->configFactory->createPluginConfig('SimplePluginWithoutCompilation', $basePath);
+
+        $this->assertFileCollection([], $config->getStyleFiles());
+    }
+
+    public function testPluginHasNoScssEntryPointButDifferentScssFiles(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
+
+        $basePath = realpath(__DIR__ . '/../fixtures/SimpleWithoutStyleEntryPoint');
+        $config = $this->configFactory->createPluginConfig('SimpleWithoutStyleEntryPoint', $basePath);
+
+        // Style files should still be empty because of missing base.scss
+        $this->assertFileCollection([], $config->getStyleFiles());
     }
 
     private function assertFileCollection(array $expected, FileCollection $files): void

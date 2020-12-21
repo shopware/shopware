@@ -1,0 +1,26 @@
+{% block block_product_heading %}
+    <div class="row align-items-center product-detail-headline w-100">
+    {% set productNameElement = block.slots.getSlot('left') %}
+    {% set manufacturerLogoElement = block.slots.getSlot('right') %}
+
+    {% block block_product_heading_product_name_element %}
+        <div class="col product-heading-name-container" data-cms-element-id="{{ productNameElement.id }}">
+            {% block block_product_heading_product_name_inner %}
+                {% sw_include "@Storefront/storefront/element/cms-element-" ~ productNameElement.type ~ ".html.twig" ignore missing with {
+                    element: productNameElement
+                } %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block block_product_heading_product_manufacturer_logo_element %}
+        <div class="col-md-auto product-heading-manufacturer-logo-container" data-cms-element-id="{{ manufacturerLogoElement.id }}">
+            {% block block_product_heading_product_manufacturer_logo_inner %}
+                {% sw_include "@Storefront/storefront/element/cms-element-" ~ manufacturerLogoElement.type ~ ".html.twig" ignore missing with {
+                    element: manufacturerLogoElement
+                } %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+    </div>
+{% endblock %}

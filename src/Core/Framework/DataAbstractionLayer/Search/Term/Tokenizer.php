@@ -16,9 +16,9 @@ class Tokenizer implements TokenizerInterface
 
         $filtered = [];
         foreach ($tags as $tag) {
-            $tag = \trim($tag);
+            $tag = trim($tag);
 
-            if (empty($tag) || \mb_strlen($tag) < 3) {
+            if (empty($tag) || mb_strlen($tag) < 3) {
                 continue;
             }
 

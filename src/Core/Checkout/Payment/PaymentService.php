@@ -108,6 +108,8 @@ class PaymentService
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
             $this->transactionStateHandler->fail($transactionId, $context->getContext());
             if ($errorUrl !== null) {
+                $errorUrl .= (parse_url($errorUrl, PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $e->getErrorCode();
+
                 return new RedirectResponse($errorUrl);
             }
 

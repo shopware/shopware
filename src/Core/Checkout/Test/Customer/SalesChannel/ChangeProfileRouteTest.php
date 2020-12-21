@@ -3,9 +3,13 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,6 +34,11 @@ class ChangeProfileRouteTest extends TestCase
      */
     private $customerRepository;
 
+    /**
+     * @var string
+     */
+    private $customerId;
+
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
@@ -43,7 +52,7 @@ class ChangeProfileRouteTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->customerId = $this->createCustomer('shopware', $email);
 
         $this->browser
             ->request(
@@ -103,6 +112,105 @@ class ChangeProfileRouteTest extends TestCase
         static::assertSame('Max', $customer['firstName']);
         static::assertSame('Mustermann', $customer['lastName']);
         static::assertSame($this->getValidSalutationId(), $customer['salutationId']);
+    }
+
+    public function testChangeProfileDataWithCommercialAccount(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertTrue($response['success']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+
+        static::assertEquals(['DE123456789'], $customer->getVatIds());
+        static::assertEquals($changeData['company'], $customer->getCompany());
+        static::assertEquals($changeData['firstName'], $customer->getFirstName());
+        static::assertEquals($changeData['lastName'], $customer->getLastName());
+    }
+
+    public function testChangeProfileDataWithCommercialAccountAndVatIdsIsEmpty(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertTrue($response['success']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+
+        static::assertNull($customer->getVatIds());
+        static::assertEquals($changeData['company'], $customer->getCompany());
+        static::assertEquals($changeData['firstName'], $customer->getFirstName());
+        static::assertEquals($changeData['lastName'], $customer->getLastName());
+    }
+
+    public function testChangeProfileDataWithPrivateAccount(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'firstName' => 'FirstName',
+            'lastName' => 'LastName',
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertTrue($response['success']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+        $customer = $this->customerRepository->search($criteria, $this->ids->context)->first();
+
+        static::assertNull($customer->getVatIds());
+        static::assertEquals('', $customer->getCompany());
+        static::assertEquals($changeData['firstName'], $customer->getFirstName());
+        static::assertEquals($changeData['lastName'], $customer->getLastName());
     }
 
     private function createData(): void

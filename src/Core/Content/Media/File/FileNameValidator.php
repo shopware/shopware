@@ -72,7 +72,7 @@ class FileNameValidator
     private function validateFileNameDoesNotContainC0Character(string $fileName): void
     {
         foreach (range(0, 31) as $controlCharacter) {
-            if (mb_strpos($fileName, chr($controlCharacter)) !== false) {
+            if (mb_strpos($fileName, \chr($controlCharacter)) !== false) {
                 throw new IllegalFileNameException(
                     $fileName,
                     sprintf(

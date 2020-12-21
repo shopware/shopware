@@ -65,7 +65,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
         $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
         $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
 
-        if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
+        if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
@@ -119,7 +119,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
         $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
         $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
 
-        if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
+        if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
                 'mail_template_translation',
                 [

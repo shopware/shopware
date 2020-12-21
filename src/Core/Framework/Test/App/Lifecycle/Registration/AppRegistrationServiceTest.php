@@ -87,7 +87,7 @@ class AppRegistrationServiceTest extends TestCase
         $confirmationReq = $this->getPastRequest(1);
         static::assertEquals('POST', $confirmationReq->getMethod());
 
-        $postBody = \json_decode($confirmationReq->getBody()->getContents(), true);
+        $postBody = json_decode($confirmationReq->getBody()->getContents(), true);
         static::assertEquals($secretAccessKey, $postBody['secretKey']);
         static::assertEquals($app->getIntegration()->getAccessKey(), $postBody['apiKey']);
         static::assertEquals($_SERVER['APP_URL'], $postBody['shopUrl']);
@@ -236,10 +236,10 @@ class AppRegistrationServiceTest extends TestCase
             $shopId = $this->shopIdProvider->getShopId();
         }
 
-        $proof = \hash_hmac('sha256', $shopId . $this->shopUrl . $manifest->getMetadata()->getName(), $manifest->getSetup()->getSecret());
+        $proof = hash_hmac('sha256', $shopId . $this->shopUrl . $manifest->getMetadata()->getName(), $manifest->getSetup()->getSecret());
 
         $confirmationUrl = 'https://my-app.com/confirm';
-        $appResponseBody = \json_encode(['proof' => $proof, 'secret' => $appSecret, 'confirmation_url' => $confirmationUrl]);
+        $appResponseBody = json_encode(['proof' => $proof, 'secret' => $appSecret, 'confirmation_url' => $confirmationUrl]);
 
         return $appResponseBody;
     }

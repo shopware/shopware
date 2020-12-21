@@ -28,7 +28,7 @@ class ChainPipeTest extends TestCase
                 function (Config $c, $record) use ($config, $data, &$innerInCalled) {
                     $this->assertSame($config, $c);
 
-                    $record = is_array($record) ? $record : iterator_to_array($record);
+                    $record = \is_array($record) ? $record : iterator_to_array($record);
                     $this->assertSame($data, $record);
 
                     static::assertFalse($innerInCalled, 'outer must be called first');
@@ -42,7 +42,7 @@ class ChainPipeTest extends TestCase
                 function (Config $c, $record) use ($config, $data, &$innerInCalled) {
                     $this->assertSame($config, $c);
 
-                    $record = is_array($record) ? $record : iterator_to_array($record);
+                    $record = \is_array($record) ? $record : iterator_to_array($record);
                     $this->assertSame($data, $record);
 
                     $innerInCalled = true;
@@ -61,7 +61,7 @@ class ChainPipeTest extends TestCase
                 function (Config $c, $record) use ($config, $data, &$innerOutCalled) {
                     $this->assertSame($config, $c);
 
-                    $record = is_array($record) ? $record : iterator_to_array($record);
+                    $record = \is_array($record) ? $record : iterator_to_array($record);
                     $this->assertSame($data, $record);
 
                     static::assertTrue($innerOutCalled, 'outer must be called last');
@@ -75,7 +75,7 @@ class ChainPipeTest extends TestCase
                 function (Config $c, $record) use ($config, $data, &$innerOutCalled) {
                     $this->assertSame($config, $c);
 
-                    $record = is_array($record) ? $record : iterator_to_array($record);
+                    $record = \is_array($record) ? $record : iterator_to_array($record);
                     $this->assertSame($data, $record);
 
                     $innerOutCalled = true;

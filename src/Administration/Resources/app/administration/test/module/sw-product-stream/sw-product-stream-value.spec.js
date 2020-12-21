@@ -20,7 +20,10 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                     return privileges.includes(identifier);
                 }
             },
-            productCustomFields: []
+            productCustomFields: [],
+            feature: {
+                isActive: () => true
+            }
         },
         propsData: {
             definition: {

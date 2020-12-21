@@ -293,7 +293,7 @@ class RequestTransformer implements RequestTransformerInterface
         $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 
         // direct hit
-        if (array_key_exists($requestUrl, $domains)) {
+        if (\array_key_exists($requestUrl, $domains)) {
             $domain = $domains[$requestUrl];
             $domain['url'] = rtrim($domain['url'], '/');
 
@@ -303,7 +303,7 @@ class RequestTransformer implements RequestTransformerInterface
         // reduce shops to which base url is the beginning of the request
         $domains = array_filter($domains, function ($baseUrl) use ($requestUrl) {
             return mb_strpos($requestUrl, $baseUrl) === 0;
-        }, ARRAY_FILTER_USE_KEY);
+        }, \ARRAY_FILTER_USE_KEY);
 
         if (empty($domains)) {
             return null;
@@ -314,7 +314,7 @@ class RequestTransformer implements RequestTransformerInterface
         $bestMatch = current($domains);
         /** @var string $baseUrl */
         foreach ($domains as $baseUrl => $urlConfig) {
-            if (\mb_strlen($baseUrl) > \mb_strlen($lastBaseUrl)) {
+            if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
                 $bestMatch = $urlConfig;
             }
 

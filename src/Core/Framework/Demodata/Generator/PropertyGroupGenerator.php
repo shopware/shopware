@@ -46,7 +46,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
             'size' => ['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '28,5', '29,5', '30,5', '31,5', '32,5', '33,5', '34,5', '35,5', '36,5', '37,5', '38,5', '39,5', '40,5', '41,5', '42,5'],
         ];
 
-        $context->getConsole()->progressStart(count($data));
+        $context->getConsole()->progressStart(\count($data));
 
         foreach ($data as $group => $options) {
             $mapped = array_map(function ($option) {

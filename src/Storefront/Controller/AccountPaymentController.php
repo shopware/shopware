@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -41,14 +43,13 @@ class AccountPaymentController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/payment/index.html.twig', ['page' => $page]);
@@ -56,21 +57,19 @@ class AccountPaymentController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
      */
-    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context): Response
+    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
 
             $this->changePaymentMethodRoute->change(
                 $paymentMethodId,
                 $requestDataBag,
-                $context
+                $context,
+                $customer
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
             $this->addFlash('danger', $this->trans('error.' . $exception->getErrorCode()));

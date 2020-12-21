@@ -544,6 +544,10 @@ Component.register('sw-text-editor', {
                 `href="${value}"`
             ];
 
+            if (target === '_blank') {
+                attributes.push('rel="noopener"');
+            }
+
             if (buttonVariant) {
                 classes.push('btn');
                 classes.push(...buttonVariant.split('-').map(cls => `btn-${cls}`));

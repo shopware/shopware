@@ -25,7 +25,7 @@
         {% block sw_notification_center_item_content %}
             <div class="sw-notification-center-item__content">
                 {% block sw_notification_center_item_content_message %}
-                    <p class="sw-notification-center-item__message" v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u'], ALLOWED_ATTR: ['href', 'target'] })">
+                    <p class="sw-notification-center-item__message" v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })">
                     </p>
                 {% endblock %}
                 {% block sw_notification_center_item_loader %}

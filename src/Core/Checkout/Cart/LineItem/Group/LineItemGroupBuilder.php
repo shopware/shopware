@@ -131,7 +131,7 @@ class LineItemGroupBuilder
         foreach ($restOfCart as $item) {
             // if its a totally different item
             // just add it to the rest of our cart
-            if (!in_array($item->getId(), $lineItemsToRemoveIDs, true)) {
+            if (!\in_array($item->getId(), $lineItemsToRemoveIDs, true)) {
                 $newRestOfCart->add($item);
             } else {
                 // we have an item that should be removed

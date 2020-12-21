@@ -7,7 +7,6 @@ Component.register('sw-promotion-v2-detail-base', {
     template,
 
     inject: [
-        'repositoryFactory',
         'acl',
         'promotionCodeApiService'
     ],
@@ -76,17 +75,30 @@ Component.register('sw-promotion-v2-detail-base', {
             }
 
             if (this.promotion.useCodes && this.promotion.useIndividualCodes) {
-                this.selectedCodeType = this.CODE_TYPES.INDIVIDUAL;
+                this.setNewCodeType(this.CODE_TYPES.INDIVIDUAL);
 
                 return;
             }
 
-            this.selectedCodeType = Number(this.promotion.useCodes).toString();
+            const newCode = typeof this.promotion.useCodes !== 'string' ? '0' : Number(this.promotion.useCodes).toString();
+            this.setNewCodeType(newCode);
         },
 
         onChangeCodeType(value) {
+            const hasInactiveIndividualCodes = value !== this.CODE_TYPES.INDIVIDUAL &&
+                (this.promotion.individualCodes !== null && this.promotion.individualCodes.length > 0);
+            const hasInactiveFixedCode = value !== this.CODE_TYPES.FIXED &&
+                (this.promotion.code !== null && this.promotion.code.length > 0);
+
+            this.$emit('clean-up-codes', hasInactiveIndividualCodes, hasInactiveFixedCode);
+            this.setNewCodeType(value);
+        },
+
+        setNewCodeType(value) {
             this.promotion.useCodes = value !== this.CODE_TYPES.NONE;
             this.promotion.useIndividualCodes = value === this.CODE_TYPES.INDIVIDUAL;
+
+            this.selectedCodeType = value;
         },
 
         onGenerateCodeFixed() {

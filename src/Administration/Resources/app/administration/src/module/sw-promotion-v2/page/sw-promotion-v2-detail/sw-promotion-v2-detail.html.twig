@@ -88,8 +88,46 @@
                         <router-view
                             :promotion="promotion"
                             :isLoading="isLoading"
-                            :isCreateMode="isCreateMode">
+                            :isCreateMode="isCreateMode"
+                            @clean-up-codes="onCleanUpCodes">
                         </router-view>
+                    {% endblock %}
+
+                    {% block sw_promotion_v2_detail_change_code_type_modal %}
+                        <sw-modal
+                            v-if="!!showCodeTypeChangeModal"
+                            class="sw-promotion-v2-detail__change-modal"
+                            :title="$tc('sw-promotion-v2.detail.codeChangeModal.title')"
+                            @modal-close="onCloseCodeTypeChangeModal">
+
+                            {{ $tc('sw-promotion-v2.detail.codeChangeModal.text') }}
+
+                            {% block sw_promotion_v2_detail_change_code_type_modal_footer %}
+                                <template #modal-footer>
+
+                                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_cancel_action %}
+                                        <sw-button
+                                            class="sw-promotion-v2-detail__change-modal-cancel-action"
+                                            size="small"
+                                            @click="onCloseCodeTypeChangeModal">
+                                            {{ $tc('global.default.cancel') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_promotion_v2_detail_change_code_type_modal_footer_confirm_action %}
+                                        <sw-button
+                                            class="sw-promotion-v2-detail__change-modal-confirm-action"
+                                            size="small"
+                                            variant="primary"
+                                            @click="onConfirmSave">
+                                            {{ $tc('global.default.confirm') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                        </sw-modal>
                     {% endblock %}
 
                 </sw-card-view>

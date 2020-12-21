@@ -1,3 +1,5 @@
+import './component/sw-promotion-v2-individual-codes-behavior';
+
 import './init/services.init';
 
 import './page/sw-promotion-v2-detail';

@@ -12,7 +12,8 @@ Component.register('sw-promotion-code-form', {
     inject: ['acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('notification')
     ],
 
     props: {
@@ -99,6 +100,15 @@ Component.register('sw-promotion-code-form', {
     },
     methods: {
         openModalIndividualCodes() {
+            const snippetRoot = 'sw-promotion.detail.main.general.codes';
+
+            if (string.isEmptyOrSpaces(this.promotion.name)) {
+                this.createNotificationWarning({
+                    message: this.$tc(`${snippetRoot}.warningEmptyPromotionName`)
+                });
+                return;
+            }
+
             this.modalIndividualVisible = true;
         },
         closeModalIndividualCodes() {

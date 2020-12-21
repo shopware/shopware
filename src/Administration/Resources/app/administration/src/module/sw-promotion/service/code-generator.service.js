@@ -1,6 +1,10 @@
 export default {
     generateCode,
-    getPermutationCount
+    getPermutationCount,
+    getRandomCharacter,
+    getRandomNumber,
+    getCharacters,
+    getDigit
 };
 
 /**
@@ -59,13 +63,18 @@ function getPermutationCount(pattern) {
     return (stringSum * digitSum);
 }
 
-
 function getRandomCharacter() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    return characters.charAt(Math.floor(Math.random() * Math.floor(characters.length)));
+    return getCharacters().charAt(Math.floor(Math.random() * Math.floor(getCharacters().length)));
 }
 
 function getRandomNumber() {
-    const characters = '0123456789';
-    return characters.charAt(Math.floor(Math.random() * Math.floor(characters.length)));
+    return getDigit().charAt(Math.floor(Math.random() * Math.floor(getDigit().length)));
+}
+
+function getCharacters() {
+    return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+}
+
+function getDigit() {
+    return '0123456789';
 }

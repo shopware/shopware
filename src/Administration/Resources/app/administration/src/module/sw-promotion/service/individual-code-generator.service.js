@@ -286,31 +286,33 @@ export default class IndividualCodeGenerator extends EventEmitter {
  * @param {Array} existingCodes - List of existing codes that must not be generated again
  * @param {Number} promotionId - The promotion Id of the new code
  */
-function createCodes(pattern, count, existingCodes, promotionId) {
-    const plainNewCodesList = [];
+export function createCodes(pattern, count, existingCodes, promotionId) {
+    let i = 0;
     const allNewCodes = [];
+    const plainNewCodesList = [];
+    const codeLimit = 10000;
 
-    for (let i = 1; i <= count; i += 1) {
+    do {
         // generate a new random code
         const randomCode = CodeGenerator.generateCode(pattern);
 
         if (!existingCodes.includes(randomCode) && !plainNewCodesList.includes(randomCode)) {
             const codeObject = {
-                promotionId: promotionId,
+                promotionId,
                 code: randomCode
             };
 
             allNewCodes.push(codeObject);
 
             plainNewCodesList.push(randomCode);
-
-            if (plainNewCodesList.length >= count) {
-                break;
-            }
-        } else {
-            i -= 1;
         }
-    }
+
+        i += 1;
+
+        if (i >= codeLimit) {
+            break;
+        }
+    } while (plainNewCodesList.length < count);
 
     return allNewCodes;
 }

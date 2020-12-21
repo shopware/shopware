@@ -270,9 +270,13 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         checkEmail() {
-            if (this.user.email && !email(this.user.email)) {
+            if (!this.user.email) {
+                return Promise.resolve();
+            }
+
+            if (!email(this.user.email)) {
                 this.createNotificationError({
-                    title: this.$tc('global.defaul.error'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage'
                     )
@@ -333,43 +337,48 @@ Component.register('sw-users-permissions-user-detail', {
                 promises = [Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId)];
             }
 
-            return Promise.all(promises).then(this.checkEmail().then(() => {
-                if (!this.isEmailUsed) {
-                    this.isLoading = true;
-                    const titleSaveError = this.$tc('global.default.error');
-                    const messageSaveError = this.$tc(
-                        'sw-users-permissions.users.user-detail.notification.saveError.message', 0, { name: this.fullName }
-                    );
+            return Promise.all(promises).then(
+                this.checkEmail()
+                    .then(() => {
+                        if (!this.isEmailUsed) {
+                            this.isLoading = true;
+                            const titleSaveError = this.$tc('global.default.error');
+                            const messageSaveError = this.$tc(
+                                'sw-users-permissions.users.user-detail.notification.saveError.message', 0, { name: this.fullName }
+                            );
 
-                    return this.userRepository.save(this.user, context).then(() => {
-                        return this.updateCurrentUser();
-                    }).then(() => {
-                        this.createdComponent();
+                            return this.userRepository.save(this.user, context).then(() => {
+                                return this.updateCurrentUser();
+                            }).then(() => {
+                                this.createdComponent();
 
-                        this.confirmPasswordModal = false;
-                        this.isSaveSuccessful = true;
-                    }).catch((exception) => {
+                                this.confirmPasswordModal = false;
+                                this.isSaveSuccessful = true;
+                            }).catch((exception) => {
+                                this.createNotificationError({
+                                    title: titleSaveError,
+                                    message: messageSaveError
+                                });
+                                warn(this._name, exception.message, exception.response);
+                                this.isLoading = false;
+                                throw exception;
+                            })
+                                .finally(() => {
+                                    this.isLoading = false;
+                                });
+                        }
+
                         this.createNotificationError({
-                            title: titleSaveError,
-                            message: messageSaveError
+                            message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
                         });
-                        warn(this._name, exception.message, exception.response);
-                        this.isLoading = false;
-                        throw exception;
+
+                        return Promise.resolve();
                     })
-                        .finally(() => {
-                            this.isLoading = false;
-                        });
-                }
-
-                this.createNotificationError({
-                    message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
-                });
-
-                return Promise.resolve();
-            }).finally(() => {
-                this.isLoading = false;
-            }));
+                    .catch(() => Promise.reject())
+                    .finally(() => {
+                        this.isLoading = false;
+                    })
+            );
         },
 
         updateCurrentUser() {

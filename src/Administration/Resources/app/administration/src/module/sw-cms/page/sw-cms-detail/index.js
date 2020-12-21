@@ -41,6 +41,7 @@ Component.register('sw-cms-detail', {
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
+            isSaveable: false,
             currentSalesChannelKey: null,
             selectedBlockSectionId: null,
             currentMappingEntity: null,
@@ -99,6 +100,8 @@ Component.register('sw-cms-detail', {
                 }
             ],
             showLayoutAssignmentModal: false,
+            showMissingElementModal: false,
+            missingElements: [],
             previousRoute: ''
         };
     },
@@ -606,6 +609,10 @@ Component.register('sw-cms-detail', {
             return warningMessages;
         },
 
+        getMissingElements(elements) {
+            return Object.keys(elements).filter((key) => elements[key] === 0);
+        },
+
         onSave() {
             this.isSaveSuccessful = false;
 
@@ -685,6 +692,14 @@ Component.register('sw-cms-detail', {
                 }
             }
 
+            const missingElements = this.getMissingElements(foundProductPageElements);
+            if (this.page.type === 'product_detail' && missingElements.length > 0 && !this.isSaveable) {
+                this.missingElements = missingElements;
+                this.showMissingElementModal = true;
+
+                return Promise.reject();
+            }
+
             if (foundEmptyRequiredField.length > 0) {
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
                 this.createNotificationError({
@@ -695,8 +710,6 @@ Component.register('sw-cms-detail', {
             }
 
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
-
-            // TODO: NEXT-11886 Show missing element modal if there is no product page element in product page layout
 
             return this.onSaveEntity();
         },
@@ -912,6 +925,21 @@ Component.register('sw-cms-detail', {
 
         onConfirmLayoutAssignment() {
             this.previousRoute = '';
+        },
+
+        onCloseMissingElementModal() {
+            this.showMissingElementModal = false;
+        },
+
+        onSaveMissingElementModal() {
+            this.showMissingElementModal = false;
+            this.isSaveable = true;
+
+            this.$nextTick(() => {
+                this.onSave().finally(() => {
+                    this.isSaveable = false;
+                });
+            });
         }
     }
 });

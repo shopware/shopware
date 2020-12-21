@@ -200,6 +200,15 @@
                             </sw-cms-layout-assignment-modal>
                         {% endblock %}
 
+                        {% block sw_cms_detail_missing_element_modal %}
+                            <sw-cms-missing-element-modal
+                                v-if="showMissingElementModal"
+                                :missingElements="missingElements"
+                                @modal-close="onCloseMissingElementModal"
+                                @modal-save="onSaveMissingElementModal">
+                            </sw-cms-missing-element-modal>
+                        {% endblock %}
+
                         {% block sw_cms_detail_loader %}
                             <sw-loader v-if="isLoading"></sw-loader>
                         {% endblock %}

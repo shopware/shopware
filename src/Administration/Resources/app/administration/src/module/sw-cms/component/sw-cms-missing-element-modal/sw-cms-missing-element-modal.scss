@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-cms-missing-element-modal {
+    font-size: $font-size-small;
+
+    &__title {
+        span {
+            text-transform: lowercase;
+            font-weight: $font-weight-semi-bold;
+        }
+    }
+
+    &__subtitle {
+        margin: 12px 0 18px;
+    }
+
+    &__paragraph {
+        font-weight: $font-weight-semi-bold;
+    }
+}

@@ -52,6 +52,10 @@ Component.register('sw-customer-detail-addresses', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        customerAddressRepository() {
+            return this.repositoryFactory.create('customer_address');
+        },
+
         addressColumns() {
             return this.getAddressColumns();
         },
@@ -261,11 +265,8 @@ Component.register('sw-customer-detail-addresses', {
         onConfirmDeleteAddress(id) {
             this.onCloseDeleteAddressModal();
 
-            // address have to be removed after the modal is closed because otherwise
-            // the slot does not exist anymore and the modal stays open
-            this.$nextTick(() => {
-                this.customer.addresses.remove(id);
-                this.activeCustomer.addresses.remove(id);
+            return this.customerAddressRepository.delete(id, Shopware.Context.api).then(() => {
+                this.refreshList();
             });
         },
 

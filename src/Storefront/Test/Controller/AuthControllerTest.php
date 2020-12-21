@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,8 +70,11 @@ class AuthControllerTest extends TestCase
         static::assertFalse($oldContextExists);
     }
 
-    public function testLogoutWhenSalesChannelIdChanged(): void
+    public function testLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOn(): void
     {
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+
         $browser = $this->login();
 
         $session = $browser->getRequest()->getSession();
@@ -88,6 +92,30 @@ class AuthControllerTest extends TestCase
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
         static::assertNotEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+    }
+
+    public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
+    {
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', false);
+
+        $browser = $this->login();
+
+        $session = $browser->getRequest()->getSession();
+        $contextToken = $session->get('sw-context-token');
+
+        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+
+        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, Defaults::SALES_CHANNEL);
+
+        $browser->request('GET', '/account');
+
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertInstanceOf(AccountOverviewPage::class, $response->getData()['page']);
+        static::assertEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
     }
 
     public function testSessionIsInvalidatedOnLogOutIsDeactivated(): void

@@ -18,12 +18,14 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -83,6 +85,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $activeAppsLoader;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
@@ -93,7 +100,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         bool $kernelDebug,
         MaintenanceModeResolver $maintenanceModeResolver,
         ShopIdProvider $shopIdProvider,
-        ActiveAppsLoader $activeAppsLoader
+        ActiveAppsLoader $activeAppsLoader,
+        SystemConfigService $systemConfigService
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -105,6 +113,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->hreflangLoader = $hreflangLoader;
         $this->shopIdProvider = $shopIdProvider;
         $this->activeAppsLoader = $activeAppsLoader;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public static function getSubscribedEvents(): array
@@ -172,7 +181,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId) {
+        if ($this->shouldRenewToken($session, $salesChannelId)) {
             $token = Random::getAlphanumericString(32);
             $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
             $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
@@ -369,5 +378,18 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
         );
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null): bool
+    {
+        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $salesChannelId === null) {
+            return true;
+        }
+
+        if ($this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+            return $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId;
+        }
+
+        return false;
     }
 }

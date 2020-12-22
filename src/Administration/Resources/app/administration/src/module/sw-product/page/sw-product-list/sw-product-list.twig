@@ -68,8 +68,12 @@
                                            :allowEdit="acl.can('product.editor')"
                                            :allowDelete="acl.can('product.deleter')"
                                            :allowInlineEdit="acl.can('product.editor')"
+                                           :sortBy="sortBy"
+                                           :sortDirection="sortDirection"
+                                           :criteriaLimit="limit"
                                            @column-sort="onColumnSort"
-                                           @paginate="onColumnSort"
+                                           @page-change="onPageChange"
+                                           :disableDataFetching=true
                                            @inline-edit-save="onInlineEditSave"
                                            @selection-change="updateSelection"
                                            @update-records="updateTotal">

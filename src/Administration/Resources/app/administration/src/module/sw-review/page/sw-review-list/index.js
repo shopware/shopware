@@ -1,7 +1,7 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-review-list', {
@@ -9,13 +9,15 @@ Component.register('sw-review-list', {
 
     inject: ['repositoryFactory', 'acl'],
 
+    mixins: [
+        Mixin.getByName('listing')
+    ],
+
     data() {
         return {
             isLoading: false,
-            criteria: null,
-            repository: null,
             items: null,
-            term: this.$route.query ? this.$route.query.term : null
+            sortBy: 'status,createdAt'
         };
     },
 
@@ -68,6 +70,22 @@ Component.register('sw-review-list', {
                     align: 'center'
                 }
             ];
+        },
+        repository() {
+            return this.repositoryFactory.create('product_review');
+        },
+        criteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.setTerm(this.term);
+
+            this.sortBy.split(',').forEach(sorting => {
+                criteria.addSorting(Criteria.sort(sorting, this.sortDirection, this.naturalSorting));
+            });
+            criteria.addAssociation('customer');
+            criteria.addAssociation('product');
+
+            return criteria;
         }
     },
 
@@ -81,33 +99,14 @@ Component.register('sw-review-list', {
         },
 
         getList() {
-            this.repository = this.repositoryFactory.create('product_review');
-
-            this.criteria = new Criteria();
-            this.criteria.addSorting(Criteria.sort('status', 'ASC'));
-            this.criteria.addSorting(Criteria.sort('createdAt', 'ASC'));
-            this.criteria.addAssociation('customer');
-            this.criteria.addAssociation('product');
-
-            if (this.term) {
-                this.criteria.setTerm(this.term);
-            }
-
             this.isLoading = true;
 
             const context = { ...Shopware.Context.api, inheritance: true };
-
             return this.repository.search(this.criteria, context).then((result) => {
                 this.total = result.total;
                 this.items = result;
                 this.isLoading = false;
             });
-        },
-
-        onSearch(term) {
-            this.criteria.setTerm(term);
-            this.$route.query.term = term;
-            this.$refs.listing.doSearch();
         },
 
         onDelete(option) {
@@ -117,10 +116,6 @@ Component.register('sw-review-list', {
                 this.total = result.total;
                 this.items = result;
             });
-        },
-
-        onRefresh() {
-            this.getList();
         }
     }
 });

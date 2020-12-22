@@ -72,7 +72,9 @@
                                           :allowColumnEdit="true"
                                           identifier="sw-order-list"
                                           @column-sort="onSortColumn"
-                                          @selection-change="updateSelection">
+                                          @page-change="onPageChange"
+                                          @selection-change="updateSelection"
+                                          :disableDataFetching=true>
 
                                 {% block sw_order_list_grid_columns %}
                                     {% block sw_order_list_grid_columns_order_number %}

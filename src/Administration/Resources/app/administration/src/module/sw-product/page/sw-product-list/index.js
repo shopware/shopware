@@ -67,6 +67,21 @@ Component.register('sw-product-list', {
                 };
             });
         },
+        productCriteria() {
+            const productCriteria = new Criteria(this.page, this.limit);
+
+            productCriteria.setTerm(this.term);
+            productCriteria.addFilter(Criteria.equals('product.parentId', null));
+            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            productCriteria.addAssociation('cover');
+            productCriteria.addAssociation('manufacturer');
+
+            return productCriteria;
+        },
+
+        currencyCriteria() {
+            return new Criteria(1, 500);
+        },
 
         showVariantModal() {
             return !!this.productEntityVariantModal;
@@ -103,20 +118,9 @@ Component.register('sw-product-list', {
         getList() {
             this.isLoading = true;
 
-            const productCriteria = new Criteria(this.page, this.limit);
-            this.naturalSorting = this.sortBy === 'productNumber';
-
-            productCriteria.setTerm(this.term);
-            productCriteria.addFilter(Criteria.equals('product.parentId', null));
-            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            productCriteria.addAssociation('cover');
-            productCriteria.addAssociation('manufacturer');
-
-            const currencyCriteria = new Criteria(1, 500);
-
             return Promise.all([
-                this.productRepository.search(productCriteria, Shopware.Context.api),
-                this.currencyRepository.search(currencyCriteria, Shopware.Context.api)
+                this.productRepository.search(this.productCriteria, Shopware.Context.api),
+                this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api)
             ]).then((result) => {
                 const products = result[0];
                 const currencies = result[1];
@@ -230,13 +234,7 @@ Component.register('sw-product-list', {
         },
 
         onColumnSort(column) {
-            this.$refs.swProductGrid.loading = true;
-
-            const context = Object.assign({}, Shopware.Context.api);
-            context.currencyId = column.currencyId;
-
-            return this.$refs.swProductGrid.repository.search(this.$refs.swProductGrid.items.criteria, context)
-                .then(this.$refs.swProductGrid.applyResult);
+            this.onSortColumn(column);
         },
 
         productHasVariants(productEntity) {

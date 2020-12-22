@@ -59,11 +59,17 @@
                         <sw-entity-listing
                             class="sw-manufacturer-list__grid"
                             detailRoute="sw.manufacturer.detail"
-                            :isLoading="!manufacturers"
+                            :isLoading="isLoading"
                             :columns="manufacturerColumns"
                             :repository="manufacturerRepository"
                             :items="manufacturers"
+                            :criteriaLimit="limit"
                             @update-records="updateTotal"
+                            @page-change="onPageChange"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            @column-sort="onSortColumn"
+                            :disableDataFetching=true
                             :allowEdit="acl.can('product_manufacturer.editor')"
                             :allowInlineEdit="acl.can('product_manufacturer.editor')"
                             :allowDelete="acl.can('product_manufacturer.deleter')"

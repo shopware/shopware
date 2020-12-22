@@ -71,11 +71,16 @@
                                             :allowView="acl.can('delivery_times.viewer')"
                                             :allowEdit="acl.can('delivery_times.editor')"
                                             :allowDelete="acl.can('delivery_times.deleter')"
+                                            :sortBy="sortBy"
+                                            :sortDirection="sortDirection"
+                                            @column-sort="onSortColumn"
+                                            @page-change="onPageChange"
                                             :allowColumnEdit="false"
                                             :showSelection="acl.can('delivery_times.deleter')"
                                             :showSettings="false"
                                             :isLoading="isLoading"
-                                            :fullPage="false">
+                                            :fullPage="false"
+                                            :disableDataFetching=true>
 
                                             {% block sw_settings_delivery_time_list_grid_column_unit %}
                                                 <template #column-unit="{ item }">

@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
@@ -48,7 +48,7 @@ describe('Language: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`)
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`)
             .contains('Japanese');
 
         // Check if language can be selected as translation
@@ -93,7 +93,7 @@ describe('Language: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
             .contains('Kyoto Japanese');
     });
 
@@ -111,7 +111,7 @@ describe('Language: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-modal__body').should('be.visible');

@@ -81,7 +81,9 @@
                             :allowDelete="acl.can('property.deleter')"
                             :allowInlineEdit="acl.can('property.editor')"
                             identifier="sw-properties-list"
-                            @column-sort="onSortColumn">
+                            @column-sort="onSortColumn"
+                            @page-change="onPageChange"
+                            :disableDataFetching=true>
 
                             {% block sw_property_list_grid_options %}
                                 <template slot="column-options" slot-scope="{ item }">

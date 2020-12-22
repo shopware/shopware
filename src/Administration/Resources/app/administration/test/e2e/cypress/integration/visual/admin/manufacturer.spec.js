@@ -26,7 +26,7 @@ describe('Manufacturer: Visual tests', () => {
             method: 'patch'
         }).as('saveData');
 
-        cy.sortListingViaColumn('Manufacturer', 'MAN-U-FACTURE');
+        cy.sortListingViaColumn('Manufacturer', 'shopware AG');
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');

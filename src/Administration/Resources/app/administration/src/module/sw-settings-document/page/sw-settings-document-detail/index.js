@@ -2,8 +2,9 @@ import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
 const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { get, cloneDeep } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-settings-document-detail', {
     template,
@@ -279,7 +280,7 @@ Component.register('sw-settings-document-detail', {
 
     computed: {
         identifier() {
-            return this.documentConfig ? this.documentConfig.name : '';
+            return get(this.documentConfig, 'name', '');
         },
 
         countryRepository() {
@@ -343,7 +344,11 @@ Component.register('sw-settings-document-detail', {
             this.onChangeDisplayNoteDelivery();
 
             return documentConfig.config && documentConfig.config.displayAdditionalNoteDelivery;
-        }
+        },
+        documentBaseConfig() {
+            return this.documentConfig;
+        },
+        ...mapPropertyErrors('documentBaseConfig', ['name', 'documentTypeId'])
     },
 
     created() {
@@ -366,20 +371,31 @@ Component.register('sw-settings-document-detail', {
         },
 
         async loadEntityData() {
+            this.isLoading = true;
+            const documentConfigId = this.documentConfigId || this.$route.params.id;
+
             this.documentConfig = await this.documentBaseConfigRepository.get(
-                this.documentConfigId,
+                documentConfigId,
                 Shopware.Context.api,
                 this.documentBaseConfigCriteria
             );
-
-            if (this.documentConfig.config === null) {
-                this.documentConfig.config = {};
+            if (!this.documentConfig) {
+                this.documentConfig = {};
             }
+            if (!this.documentConfig.config) {
+                this.$set(this.documentConfig, 'config', {});
+            }
+
             await this.onChangeType(this.documentConfig.documentType);
+
+            if (this.documentConfig.salesChannels === undefined) {
+                this.$set(this.documentConfig, 'salesChannels', []);
+            }
 
             this.documentConfig.salesChannels.forEach(salesChannelAssoc => {
                 this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
+            this.isLoading = false;
         },
 
         async loadAvailableSalesChannel() {
@@ -448,7 +464,10 @@ Component.register('sw-settings-document-detail', {
         },
 
         saveFinish() {
-            this.isSaveSuccessful = false;
+            if (this.documentConfig.isNew()) {
+                this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
+            }
+            this.loadEntityData();
         },
 
         onSave() {
@@ -461,8 +480,6 @@ Component.register('sw-settings-document-detail', {
                 this.isSaveSuccessful = true;
             }).catch(() => {
                 this.isLoading = false;
-            }).then(() => {
-                this.loadEntityData();
             });
         },
 

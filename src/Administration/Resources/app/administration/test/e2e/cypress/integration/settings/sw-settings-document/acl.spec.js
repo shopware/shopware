@@ -129,7 +129,73 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-settings-document-list-grid').contains('very Document');
     });
+    it('@catalogue: create, read and then edit document with ACL', () => {
+        const page = new DocumentPageObject();
 
+        cy.loginAsUserWithPermissions([
+            { key: 'document', role: 'viewer' },
+            { key: 'document', role: 'editor' },
+            { key: 'document', role: 'creator' }
+        ]);
+
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
+        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config`, method: 'post' }).as('createData');
+        cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
+
+        // check if delete button is disabled
+        cy.get('.sw-grid__row--0').find('.sw-context-button__button').click();
+        cy.get('.sw-document-list__delete-action').should('have.class', 'is--disabled');
+
+        // click on link to create a new document
+        cy.get(page.elements.primaryButton).contains('Add document').click();
+        cy.url().should('contain', '#/sw/settings/document/create');
+
+        // fill out all the required fields
+        cy.get('#sw-field--documentConfig-name').typeAndCheck('very Document');
+        cy.get('#documentConfigTypes').scrollIntoView()
+            .typeSingleSelectAndCheck('Credit note', '#documentConfigTypes');
+        cy.get('.sw-document-detail__select-type').typeMultiSelectAndCheck('Storefront');
+
+        // save minimal document
+        cy.route({ url: `${Cypress.env('apiPath')}/search/document-base-config-sales-channel`, method: 'post' }).as('loadData');
+        cy.get('.sw-settings-document-detail__save-action').click();
+
+        // Verify successful create request
+        cy.wait('@createData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+        // wait for Data to be loaded
+        cy.wait('@loadData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get('#sw-field--documentConfig-name').scrollIntoView();
+        cy.get('#sw-field--documentConfig-name').type('1');
+
+        // save the changed name
+        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'patch' }).as('updateData');
+
+        cy.get('.sw-settings-document-detail__save-action').click();
+
+        // verify successful update request
+        cy.wait('@updateData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        // wait for Data to be loaded
+        cy.wait('@loadData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-loader').should('not.exist');
+
+        // go back and see if change persisted
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-settings-document-list-grid').contains('very Document1');
+    });
     it('@catalogue: delete document with ACL', () => {
         const page = new DocumentPageObject();
         cy.loginAsUserWithPermissions([

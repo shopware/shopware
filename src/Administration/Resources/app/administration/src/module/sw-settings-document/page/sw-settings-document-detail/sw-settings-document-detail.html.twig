@@ -19,9 +19,8 @@
                 {% block sw_settings_document_detail_actions_save %}
                     <sw-button-process
                             class="sw-settings-document-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="documentConfig.isLoading || !acl.can('document.editor')"
+                            v-model="isSaveSuccessful"
+                            :disabled="this.isLoading || !acl.can('document.editor')"
                             variant="primary"
                             @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
@@ -46,6 +45,7 @@
                                               :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                               :disabled="!acl.can('document.editor')"
                                               validation="required"
+                                              :error="documentBaseConfigNameError"
                                               required
                                               v-model="documentConfig.name">
                                     </sw-field>
@@ -158,6 +158,7 @@
                             {% block sw_document_detail_base_general_input_type %}
                                 <sw-entity-single-select
                                     required
+                                    :error="documentBaseConfigDocumentTypeIdError"
                                     entity="document_type"
                                     v-model="documentConfig.documentTypeId"
                                     id="documentConfigTypes"

@@ -38,16 +38,13 @@ class ConflictingPackageTest extends TestCase
     public function testValidateConflictsSpecificMessage(): void
     {
         $plugin = $this->createTestPlugin(__FUNCTION__);
-        $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
 
-        $template = 'Could not test plugin, got 1 failure(s). 
-"%s" conflicts with plugin/package "%s == %s"';
+        $regexTemplate = '#.*"%s" conflicts with plugin/package "%s == 6\.[0-9]+\.[0-9]+\.[0-9]+.*#im';
 
-        $this->expectExceptionMessage(sprintf(
-            $template,
-            $plugin->getComposerName(),
-            'shopware/core',
-            $shopwareVersion
+        $this->expectExceptionMessageRegExp(sprintf(
+            $regexTemplate,
+            preg_quote($plugin->getComposerName(), '#'),
+            preg_quote('shopware/core', '#')
         ));
         $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
     }

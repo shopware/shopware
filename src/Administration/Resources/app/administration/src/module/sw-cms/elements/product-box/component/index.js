@@ -6,6 +6,8 @@ const { Component, Mixin, Filter } = Shopware;
 Component.register('sw-cms-el-product-box', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder')
@@ -32,6 +34,10 @@ Component.register('sw-cms-el-product-box', {
             }
 
             return this.element.data.product;
+        },
+
+        displaySkeleton() {
+            return !this.element.data || !this.element.data.product;
         },
 
         mediaUrl() {

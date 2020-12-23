@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Template;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 abstract class AbstractTemplateLoader
 {
     /**

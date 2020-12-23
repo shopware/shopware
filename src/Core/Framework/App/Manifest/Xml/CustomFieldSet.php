@@ -5,8 +5,13 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class CustomFieldSet extends XmlElement
 {
+    public const TRANSLATABLE_FIELDS = ['label'];
+
     /**
      * @var array
      */
@@ -20,7 +25,7 @@ class CustomFieldSet extends XmlElement
     /**
      * @var string[]
      */
-    protected $relatedEntities;
+    protected $relatedEntities = [];
 
     /**
      * @var CustomFieldType[]
@@ -103,7 +108,8 @@ class CustomFieldSet extends XmlElement
 
     private static function parseChild(\DOMElement $child, array $values): array
     {
-        if ($child->tagName === 'label') {
+        // translated
+        if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
             return self::mapTranslatedTag($child, $values);
         }
 
@@ -119,7 +125,7 @@ class CustomFieldSet extends XmlElement
         }
 
         if ($child->tagName === 'related-entities') {
-            $values[self::snakeCaseToCamelCase($child->tagName)] = self::parseChildNodes(
+            $values[self::kebabCaseToCamelCase($child->tagName)] = self::parseChildNodes(
                 $child,
                 static function (\DOMElement $element): string {
                     return $element->tagName;
@@ -129,7 +135,7 @@ class CustomFieldSet extends XmlElement
             return $values;
         }
 
-        $values[self::snakeCaseToCamelCase($child->tagName)] = $child->nodeValue;
+        $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
     }

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-1.0.xsd';

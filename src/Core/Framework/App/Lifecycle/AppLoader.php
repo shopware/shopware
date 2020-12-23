@@ -9,6 +9,9 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppLoader extends AbstractAppLoader
 {
     /**
@@ -49,6 +52,7 @@ class AppLoader extends AbstractAppLoader
 
         $finder = new Finder();
         $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in app root folders
             ->name('manifest.xml');
 
         $manifests = [];

@@ -27,7 +27,7 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeApps = $this->activeAppsLoader->getActiveApps();
         static::assertCount(1, $activeApps);
-        static::assertEquals('SwagApp', $activeApps[0]['name']);
+        static::assertEquals('test', $activeApps[0]['name']);
     }
 
     public function testGetActiveAppsWithInactiveApp(): void

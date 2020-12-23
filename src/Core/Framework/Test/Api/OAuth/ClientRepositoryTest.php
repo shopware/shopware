@@ -26,7 +26,7 @@ class ClientRepositoryTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/../../App/Manifest/_fixtures/test', false);
 
         $browser = $this->createClient();
-        $app = $this->fetchApp('SwagApp');
+        $app = $this->fetchApp('test');
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secret = AccessKeyHelper::generateSecretAccessKey();

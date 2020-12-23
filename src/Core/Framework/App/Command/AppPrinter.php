@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppPrinter
 {
     private const PRIVILEGE_TO_HUMAN_READABLE = [
@@ -34,6 +37,10 @@ class AppPrinter
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
+        if (empty($apps->getElements())) {
+            return;
+        }
+
         $appTable = [];
 
         foreach ($apps as $app) {
@@ -45,8 +52,9 @@ class AppPrinter
             ];
         }
 
+        $io->title('Installed apps');
         $io->table(
-            ['Plugin', 'Label', 'Version', 'Author'],
+            ['App', 'Label', 'Version', 'Author'],
             $appTable
         );
     }
@@ -69,8 +77,9 @@ class AppPrinter
             ];
         }
 
+        $io->title('Incomplete installations');
         $io->table(
-            ['Failed', 'Reason'],
+            ['App', 'Reason'],
             $appTable
         );
     }

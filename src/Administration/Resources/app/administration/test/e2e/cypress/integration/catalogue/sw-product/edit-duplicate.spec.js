@@ -60,6 +60,10 @@ describe('Product: Duplicate product', () => {
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
+            url: `${Cypress.env('apiPath')}/product/*`,
+            method: 'PATCH'
+        }).as('saveProduct');
+        cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
         }).as('getProduct');
@@ -76,11 +80,24 @@ describe('Product: Duplicate product', () => {
         });
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
 
+        // edit description
+        cy.get('.sw-text-editor__content-editor')
+            .clear()
+            .type('Some random description');
+
+        // edit price
+        cy.get('#sw-price-field-gross').clearTypeAndCheck('1337');
+
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
             '.sw-product-detail__save-button-group .sw-context-button'
         );
+
+        // verify save request got fired
+        cy.wait('@saveProduct').then(xhr => {
+            expect(xhr).to.have.property('status', 204);
+        });
 
         // Verify product
         cy.wait('@duplicateProduct').then((xhr) => {
@@ -91,10 +108,58 @@ describe('Product: Duplicate product', () => {
             'What remains of Edith Finch Copy'
         );
 
+        // check description
+        cy.get('.sw-text-editor__content-editor')
+            .invoke('text')
+            .then(text => {
+                expect(text).to.equal('Some random description');
+            });
+
+        // check price
+        cy.get('#sw-price-field-gross')
+            .invoke('val')
+            .then(text => {
+                expect(text).to.equal('1337');
+            });
+
+        // change name of copied product
+        cy.get('#sw-field--product-name')
+            .scrollIntoView()
+            .clearTypeAndCheck('Copied product');
+
+        cy.contains('Save').click();
+
+        // verify save request got fired
+        cy.wait('@saveProduct').then(xhr => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
         cy.contains('Cancel').click();
-        cy.get('.sw-data-grid').should('be.visible');
-        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch Copy');
-        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch');
+
+        cy.get('.sw-search-bar__input').typeAndCheckSearchField('What remains of Edith Finch');
+
+        cy.get('.sw-data-grid__cell-content > :nth-child(2) > a').click();
+
+        // check product name
+        cy.get('#sw-field--product-name')
+            .invoke('val')
+            .then(text => {
+                expect(text).to.equal('What remains of Edith Finch');
+            });
+
+        // check description
+        cy.get('.sw-text-editor__content-editor')
+            .invoke('text')
+            .then(text => {
+                expect(text).to.equal('Some random description');
+            });
+
+        // check price
+        cy.get('#sw-price-field-gross')
+            .invoke('val')
+            .then(text => {
+                expect(text).to.equal('1337');
+            });
     });
 
     it('@catalogue: duplicate duplicated product in product-detail', () => {

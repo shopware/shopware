@@ -41,7 +41,8 @@ Component.register('sw-customer-detail', {
             isSaveSuccessful: false,
             customer: null,
             customerAddressCustomFieldSets: [],
-            customerCustomFieldSets: []
+            customerCustomFieldSets: [],
+            salesChannelDomains: []
         };
     },
 
@@ -58,6 +59,10 @@ Component.register('sw-customer-detail', {
 
         customerRepository() {
             return this.repositoryFactory.create('customer');
+        },
+
+        salesChannelDomainRepository() {
+            return this.repositoryFactory.create('sales_channel_domain');
         },
 
         editMode: {
@@ -90,6 +95,16 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags')
                 .addAssociation('requestedGroup');
+
+            return criteria;
+        },
+
+        salesChannelDomainCriteria() {
+            const criteria = new Criteria();
+
+            if (this.customer && this.customer.boundSalesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannelId', this.customer.boundSalesChannelId));
+            }
 
             return criteria;
         },
@@ -144,8 +159,20 @@ Component.register('sw-customer-detail', {
                 if (this.feature.isActive('FEATURE_NEXT_10559')) {
                     this.customer.vatIds = this.customer.vatIds || [];
                 }
-                this.isLoading = false;
+
+                this.salesChannelDomainRepository.search(
+                    this.salesChannelDomainCriteria,
+                    Shopware.Context.api
+                ).then((domains) => {
+                    this.salesChannelDomains = domains;
+
+                    this.isLoading = false;
+                });
             });
+        },
+
+        impersonate(salesChannelDomainUrl) {
+            window.open(salesChannelDomainUrl + '/account/impersonate?customerId=' + this.customer.id);
         },
 
         saveFinish() {

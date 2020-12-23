@@ -63,6 +63,9 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CartLineItemController">

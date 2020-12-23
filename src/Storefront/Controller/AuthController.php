@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
@@ -21,8 +23,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -31,6 +38,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"storefront"})
@@ -77,6 +85,15 @@ class AuthController extends StorefrontController
      */
     private $cartService;
 
+    /** @var EntityRepositoryInterface */
+    private $customerRepository;
+
+    /** @var SalesChannelContextRestorer */
+    private $salesChannelContextRestorer;
+
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         EntityRepositoryInterface $customerRecoveryRepository,
@@ -85,7 +102,10 @@ class AuthController extends StorefrontController
         AbstractLoginRoute $loginRoute,
         SystemConfigService $systemConfig,
         AbstractLogoutRoute $logoutRoute,
-        CartService $cartService
+        CartService $cartService,
+        EntityRepositoryInterface $customerRepository,
+        SalesChannelContextRestorer $salesChannelContextRestorer,
+        \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->customerRecoveryRepository = $customerRecoveryRepository;
@@ -95,6 +115,41 @@ class AuthController extends StorefrontController
         $this->logoutRoute = $logoutRoute;
         $this->systemConfig = $systemConfig;
         $this->cartService = $cartService;
+        $this->customerRepository = $customerRepository;
+        $this->salesChannelContextRestorer = $salesChannelContextRestorer;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @Route("/account/impersonate", name="frontend.account.impersonate", methods={"GET"})
+     */
+    public function impersonate(Request $request, SalesChannelContext $context): Response
+    {
+        if (!$request->get(SalesChannelContextService::CUSTOMER_ID)) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        $customer = $this->customerRepository->search(
+            (new Criteria([$request->get(SalesChannelContextService::CUSTOMER_ID)])),
+            $context->getContext()
+        )->first();
+
+        if (!($customer instanceof CustomerEntity)) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        $token = $this->salesChannelContextRestorer->restore($customer->getId(), $context);
+        $this->addCartErrors($this->cartService->getCart($token->getToken(), $context));
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $token);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token->getToken());
+
+        $event = new CustomerLoginEvent($context, $customer, $token->getToken());
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->redirectToRoute(
+            'frontend.account.home.page'
+        );
     }
 
     /**

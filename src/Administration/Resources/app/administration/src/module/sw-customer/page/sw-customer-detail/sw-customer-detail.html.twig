@@ -10,6 +10,26 @@
             <template #smart-bar-actions>
                 {% block sw_customer_detail_actions_edit %}
                     <span v-if="!editMode">
+                        <sw-context-button :menuWidth="450">
+                            <template slot="button">
+                                <sw-button
+                                    :disabled="isLoading || !salesChannelDomains">
+                                    {{ $t('sw-customer.detail.buttonImpersonate') }}
+                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                                </sw-button>
+                            </template>
+
+                            <sw-context-menu-item
+                                v-for="domain of salesChannelDomains"
+                                icon="default-action-external"
+                                target="_blank"
+                                :key="domain.id"
+                                @click="impersonate(domain.url)"
+                            >
+                                {{ domain.url }}
+                            </sw-context-menu-item>
+                        </sw-context-button>
+
                         <sw-button
                             class="sw-customer-detail__open-edit-mode-action"
                             variant="primary"

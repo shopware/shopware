@@ -216,6 +216,7 @@
       "buttonSave": "Save",
       "buttonCancel": "Cancel",
       "buttonEdit": "Edit",
+      "buttonImpersonate": "Impersonate",
       "tabGeneral": "General",
       "tabAddresses": "Addresses",
       "messageSaveError": "Customer could not be saved.",

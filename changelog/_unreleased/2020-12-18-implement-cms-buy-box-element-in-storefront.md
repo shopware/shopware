@@ -10,6 +10,7 @@ ___
 # Storefront
 * Added method `switchBuyBoxVariant` in `Storefront\Controller\CmsController.php` to handle product variant switch for buy box element
 * Changed delivery information template in `Shopware\Storefront\Resources\views\storefront\component\delivery-information.html.twig` 
+* Added cms buybox element template in `Shopware\Storefront\Resources\views\storefront\element\cms-element-buy-box.html.twig`
 * Added buy widget template in `Shopware\Storefront\Resources\views\storefront\component\buy-widget\buy-widget.html.twig` 
 * Added buy widget form template in `Shopware\Storefront\Resources\views\storefront\component\buy-widget\buy-widget-form.html.twig`
 * Added buy widget price template in `Shopware\Storefront\Resources\views\storefront\component\buy-widget\buy-widget-price.html.twig`

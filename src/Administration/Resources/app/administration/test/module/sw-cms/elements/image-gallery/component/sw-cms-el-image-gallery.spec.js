@@ -28,7 +28,7 @@ const sliderItemsDataMock = [
     }
 ];
 
-function createWrapper() {
+function createWrapper(propsOverride, dataOverride) {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-cms-el-image-gallery'), {
@@ -47,6 +47,9 @@ function createWrapper() {
                 },
                 getCmsElementRegistry: () => {
                     return { 'image-gallery': {} };
+                },
+                getPropertyByMappingPath: () => {
+                    return {};
                 }
             }
         },
@@ -57,7 +60,12 @@ function createWrapper() {
         },
         propsData: {
             element: {
-                config: {},
+                config: {
+                    sliderItems: {
+                        source: 'static',
+                        value: []
+                    }
+                },
                 data: {}
             },
             defaultConfig: {
@@ -73,7 +81,8 @@ function createWrapper() {
                     source: 'static',
                     value: null
                 }
-            }
+            },
+            ...propsOverride
         },
         data() {
             return {
@@ -81,13 +90,52 @@ function createWrapper() {
                     currentPage: {
                         type: 'ladingpage'
                     }
-                }
+                },
+                ...dataOverride
             };
         }
     });
 }
 
 describe('src/module/sw-cms/elements/image-gallery/component', () => {
+    it('should map to product media if the component is in a product page', () => {
+        const wrapper = createWrapper(null, {
+            cmsPageState: {
+                currentPage: {
+                    type: 'product_detail'
+                }
+            }
+        });
+
+        expect(wrapper.vm.element.config.sliderItems.source).toBe('mapped');
+        expect(wrapper.vm.element.config.sliderItems.value).toBe('product.media');
+    });
+
+    it('should not initially map to product media if the component is sliderItems data exists', () => {
+        const wrapper = createWrapper({
+            element: {
+                config: {
+                    sliderItems: {
+                        source: 'static',
+                        value: sliderItemsConfigMock
+                    }
+                },
+                data: {
+                    sliderItems: sliderItemsDataMock
+                }
+            }
+        }, {
+            cmsPageState: {
+                currentPage: {
+                    type: 'product_detail'
+                }
+            }
+        });
+
+        expect(wrapper.vm.element.config.sliderItems.source).toBe('static');
+        expect(wrapper.vm.element.config.sliderItems.value).toEqual(sliderItemsConfigMock);
+    });
+
     it('should gallery empty if there is no slider items value', () => {
         const wrapper = createWrapper();
 

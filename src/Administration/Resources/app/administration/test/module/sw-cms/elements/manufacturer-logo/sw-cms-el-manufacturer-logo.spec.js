@@ -3,7 +3,7 @@ import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/image/component';
 import 'src/module/sw-cms/elements/manufacturer-logo/component';
 
-function createWrapper() {
+function createWrapper(propsOverride) {
     return shallowMount(Shopware.Component.build('sw-cms-el-manufacturer-logo'), {
         propsData: {
             element: {
@@ -41,7 +41,8 @@ function createWrapper() {
                     media: ''
                 }
             },
-            defaultConfig: {}
+            defaultConfig: {},
+            ...propsOverride
         },
         data() {
             return {
@@ -79,6 +80,33 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
     it('should map to a product manufacturer media if the component is in a product page', () => {
         expect(wrapper.vm.element.config.media.source).toBe('mapped');
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
+    });
+
+    it('should not initially map to a product manufacturer media if element data media has value', () => {
+        wrapper = createWrapper({
+            element: {
+                config: {
+                    ...wrapper.props().element.config,
+                    media: {
+                        source: 'static',
+                        value: '1',
+                        required: true,
+                        entity: {
+                            name: 'media'
+                        }
+                    }
+                },
+                data: {
+                    media: {
+                        url: 'http://shopware.com/image.jpg',
+                        id: '1'
+                    }
+                }
+            }
+        });
+
+        expect(wrapper.vm.element.config.media.source).toBe('static');
+        expect(wrapper.vm.element.config.media.value).toBe('1');
     });
 
     it('should update style regarding to config value', async () => {

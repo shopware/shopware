@@ -169,8 +169,11 @@ class CartOrderRoute extends AbstractCartOrderRoute
     {
         $affiliateCode = $data->get(OrderService::AFFILIATE_CODE_KEY);
         $campaignCode = $data->get(OrderService::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
+        if ($affiliateCode) {
             $cart->setAffiliateCode($affiliateCode);
+        }
+
+        if ($campaignCode) {
             $cart->setCampaignCode($campaignCode);
         }
     }

@@ -351,5 +351,12 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
+            <tag name="shopware.cms.data_resolver"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
+        </service>
     </services>
 </container>

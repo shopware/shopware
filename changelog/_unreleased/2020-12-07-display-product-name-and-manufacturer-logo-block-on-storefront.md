@@ -1,6 +1,7 @@
 ---
 title: Display product name and manufacturer logo block on storefront
 issue: NEXT-11744
+flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added a new `Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver` to resolve `manufacturer-logo` cms element.

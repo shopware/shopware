@@ -1,6 +1,8 @@
 {% block component_delivery_information %}
     {# @var product \Shopware\Core\Content\Product\ProductEntity #}
-    {% set product = page.product %}
+    {% if page is defined and page.product is defined %}
+        {% set product = page.product %}
+    {% endif %}
 
     <div class="product-delivery-information">
         {% if product.shippingFree %}

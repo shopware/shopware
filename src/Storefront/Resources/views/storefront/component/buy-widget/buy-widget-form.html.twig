@@ -1,0 +1,95 @@
+{% block buy_widget_buy_form_inner %}
+    <form
+        id="productDetailPageBuyProductForm"
+        action="{% block buy_widget_buy_form_action %}{{ path('frontend.checkout.line-item.add') }}{% endblock %}"
+        method="post"
+        class="buy-widget"
+        data-add-to-cart="true">
+
+        {% block buy_widget_buy_form_inner_csrf %}
+            {{ sw_csrf('frontend.checkout.line-item.add') }}
+        {% endblock %}
+
+        {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+        {% block buy_widget_buy_container %}
+            {% if buyable %}
+                <div class="form-row buy-widget-container">
+                    {% block buy_widget_buy_quantity_container %}
+                        <div class="col-4">
+                            {% block buy_widget_buy_quantity %}
+                                <select name="lineItems[{{ product.id }}][quantity]"
+                                        class="custom-select product-detail-quantity-select">
+                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
+                                        <option value="{{ quantity }}">
+                                            {{ quantity }}
+                                            {% if quantity == 1 %}
+                                                {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
+                                            {% else %}
+                                                {% if product.translated.packUnitPlural %}
+                                                    {{ product.translated.packUnitPlural }}
+                                                {% elseif product.translated.packUnit %}
+                                                    {{ product.translated.packUnit }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block buy_widget_buy_redirect_input %}
+                        {# fallback redirect back to detail page is deactivated via js #}
+                        <input type="hidden"
+                               name="redirectTo"
+                               value="frontend.detail.page">
+
+                        <input type="hidden"
+                               name="redirectParameters"
+                               data-redirect-parameters="true"
+                               value='{"productId": "{{ product.id }}"}'>
+                    {% endblock %}
+
+                    {% block buy_widget_buy_product_buy_info %}
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][id]"
+                               value="{{ product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][type]"
+                               value="product">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][referencedId]"
+                               value="{{ product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][stackable]"
+                               value="1">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][removable]"
+                               value="1">
+                    {% endblock %}
+
+                    {% block buy_widget_product_buy_meta %}
+                        <input type="hidden"
+                               name="product-name"
+                               value="{{ product.translated.name }}">
+                        <input type="hidden"
+                               name="brand-name"
+                               value="{{ product.manufacturer.getName() }}">
+                    {% endblock %}
+
+                    {% block buy_widget_buy_button_container %}
+                        <div class="col-8">
+                            {% block buy_widget_buy_button %}
+                                <button class="btn btn-primary btn-block btn-buy"
+                                        title="{{ "detail.addProduct"|trans|striptags }}"
+                                        aria-label="{{ "detail.addProduct"|trans|striptags }}">
+                                    {{ "detail.addProduct"|trans|sw_sanitize }}
+                                </button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </form>
+{% endblock %}

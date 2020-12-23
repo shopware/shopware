@@ -67,6 +67,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder" public="true"/>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator">
@@ -112,25 +114,36 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder"/>
+            <argument type="service"
+                      id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter">
@@ -166,18 +179,22 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToOneJoinBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
 
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\OneToManyJoinBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
 
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToManyJoinBuilder" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
 
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>

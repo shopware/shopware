@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed
+ */
 class AntiJoinBuilder implements JoinBuilderInterface
 {
     /**

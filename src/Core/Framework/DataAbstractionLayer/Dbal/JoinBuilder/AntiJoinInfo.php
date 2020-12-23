@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed
+ */
 class AntiJoinInfo
 {
     /**

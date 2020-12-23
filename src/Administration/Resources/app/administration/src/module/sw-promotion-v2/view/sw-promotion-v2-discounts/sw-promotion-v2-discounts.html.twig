@@ -1,0 +1,37 @@
+{% block sw_promotion_v2_discounts %}
+    <div class="sw-promotion-v2-discounts">
+
+        {% block sw_promotion_v2_discounts_cards %}
+            <sw-card
+                :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
+                class="sw-promotion-v2-discounts__card">
+
+                {% block sw_promotion_v2_discounts_empty_state %}
+                    <sw-empty-state
+                        :title="$tc('sw-promotion-v2.detail.discounts.emptyStateTitle')"
+                        :absolute="false">
+
+                        {% block sw_promotion_v2_discounts_empty_state_icon %}
+                            <template #icon>
+                                <img :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset">
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_discounts_empty_state_actions %}
+                            <template #actions>
+                                <sw-button
+                                    variant="ghost"
+                                    :disabled="true">
+                                    {{ $tc('sw-promotion-v2.detail.discounts.emptyStateButton') }}
+                                </sw-button>
+                            </template>
+                        {% endblock %}
+
+                    </sw-empty-state>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+    </div>
+{% endblock %}

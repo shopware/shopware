@@ -86,7 +86,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
         $afterTranslations = $translationQuery->execute()->fetchAll();
 
         foreach ($afterTranslations as $afterTranslation) {
-            if (in_array($afterTranslation['short_code'], ['DE-SN', 'DE-SH', 'DE-ST'], true)) {
+            if (\in_array($afterTranslation['short_code'], ['DE-SN', 'DE-SH', 'DE-ST'], true)) {
                 static::assertSame($afterTranslation['name'], $testTranslations[$afterTranslation['short_code']]);
             } elseif ($afterTranslation['short_code'] === 'DE-TH') {
                 static::assertNotSame($afterTranslation['name'], $testTranslations['DE-TH']);

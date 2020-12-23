@@ -20,6 +20,7 @@
     "test-debug": "node --inspect node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
     "lint": "eslint --ext .js,.vue src test",
     "lint:junit": "eslint --ext .js,.vue --format junit src test > eslint.junit.xml",
+    "lint-fix": "eslint --fix --ext .js,.vue src test",
     "lint:scss": "LIST=`git diff --name-only --diff-filter=ACMR HEAD --relative | grep -E '\\.(scss)'`; if [ \"$LIST\" ]; then stylelint $LIST; fi",
     "lint:scss:fix": "LIST=`git diff --name-only --diff-filter=ACMR HEAD --relative | grep -E '\\.(scss)'`; if [ \"$LIST\" ]; then stylelint $LIST --fix; fi",
     "lint:scss-all": "stylelint '**/*.scss'",

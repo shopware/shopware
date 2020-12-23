@@ -10,6 +10,7 @@
         "creditNoteHeadline": "Gutschein-Nr. %creditNoteNumber% für Rechnung Nr. %invoiceNumber%",
         "customerNumber": "Kunden-Nr. %customerNumber%",
         "date": "Datum %date%",
+        "comment": "Kommentar: %comment%",
         "orderDate": "Bestelldatum %orderDate%",
         "deliveryDate": "Liefertermin %deliveryDate%",
         "page": "Seite %pageNumber%",
@@ -23,6 +24,9 @@
         "placeOfJurisdiction": "Gerichtsstand ist %placeOfJurisdiction%",
         "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
         "placeOfFulfillment": "Erfüllungsort ist %placeOfFulfillment%",
+        "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
+        "shippingAddress": "Lieferadresse",
+        "phoneNumber": "Telefonnummer : %phoneNumber%",
         "ceo": "Geschäftsführer",
         "lineItems": {
             "header": {

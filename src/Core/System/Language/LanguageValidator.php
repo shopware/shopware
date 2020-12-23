@@ -78,7 +78,7 @@ class LanguageValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
 
             if ($command instanceof DeleteCommand && $id === Defaults::LANGUAGE_SYSTEM) {
                 $violations->add(
@@ -95,7 +95,7 @@ class LanguageValidator implements EventSubscriberInterface
 
             if ($command instanceof UpdateCommand && $id === Defaults::LANGUAGE_SYSTEM) {
                 $payload = $command->getPayload();
-                if (array_key_exists('parent_id', $payload) && $payload['parent_id'] !== null) {
+                if (\array_key_exists('parent_id', $payload) && $payload['parent_id'] !== null) {
                     $violations->add(
                         $this->buildViolation(
                             'The default language {{ id }} cannot inherit from another language.',

@@ -169,7 +169,7 @@ class AdvancedPackageFilter
             // if our indexes are empty, then
             // we use all items, otherwise do only use
             // the items of our pre calculated indexes
-            if (!empty($applierIndexes) && !in_array($index, $applierIndexes, true)) {
+            if (!empty($applierIndexes) && !\in_array($index, $applierIndexes, true)) {
                 continue;
             }
 

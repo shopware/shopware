@@ -25,6 +25,7 @@ Open up the `src/Rescoure/theme.json` file with your favorite code-editor. The c
     "app/storefront/dist/storefront/js/my-theme.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ]
 }
@@ -106,6 +107,20 @@ The `app/storefront/src/scss/overrides.scss` file is used for a special case. Ma
 
 The `asset` option you can configure you paths to your assets like images, fonts, etc.
 The standard location to put your assets to is the `app/storefront/src/assets` folder.
+
+If you need the assets from the storefront theme for your theme, just add `@Storefront` as asset path
+
+```json
+# src/Resources/theme.json
+{
+  ...
+  "asset": [
+     "@Storefront",
+     "app/storefront/src/assets"
+   ]
+  ...
+}
+```
 
 ## Config fields
 
@@ -247,6 +262,7 @@ or
     "app/storefront/dist/storefront/js/select-example.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ],
   "config": {
@@ -336,6 +352,7 @@ or
     "app/storefront/dist/storefront/js/select-example.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ],
   "config": {

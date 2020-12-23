@@ -19,6 +19,8 @@ describe('Wishlist: for wishlist', () => {
             return cy.request(requestConfig);
         });
 
+        cy.setCookie('wishlist-enabled', '1');
+
         return cy.createCustomerFixtureStorefront().then(() => {
             return cy.createProductFixture().then(() => {
                 return cy.createDefaultFixture('category')
@@ -92,7 +94,7 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
-    it('@wishlist: Heart icon badge display in produt detail', () => {
+    it('@wishlist: Heart icon badge display in product detail', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -105,14 +107,14 @@ describe('Wishlist: for wishlist', () => {
             cy.get('.product-wishlist-action').first().should('be.visible');
 
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().should('not.be.visible');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('not.be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().contains('Add to wish list');
 
             cy.get('.product-wishlist-action').first().click();
 
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().should('be.visible');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('not.be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-added').first().contains('Added to wish list');
+            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().contains('Remove from wishlist');
         })
     });
 
@@ -132,6 +134,33 @@ describe('Wishlist: for wishlist', () => {
 
             cy.get('.product-box .product-wishlist-action-circle').first().click();
             cy.get('#wishlist-basket').should('not.be.visible');
+        })
+    });
+
+    it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', () => {
+        cy.visit('/');
+
+        cy.window().then((win) => {
+            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
+                return;
+            }
+
+            cy.clearCookie('wishlist-enabled');
+
+            cy.get('#wishlist-basket').should('not.be.visible');
+            cy.get('.product-box .product-wishlist-action-circle').first().click();
+
+            cy.get('.login-card').should('be.visible');
+            cy.url().should('include', '/account/login?redirectTo=frontend.wishlist.add.after.login');
+
+            cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+            cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+            cy.get('.login-submit [type="submit"]').click();
+
+            cy.get('.flashbags').should('be.visible');
+            cy.get('.flashbags .alert-success').should('be.visible');
+
+            cy.get('.alert-content').contains('You have successfully added the product into the wishlist.')
         })
     });
 });

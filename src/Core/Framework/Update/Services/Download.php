@@ -35,7 +35,7 @@ class Download
             return false;
         }
 
-        return (bool) call_user_func($this->haltCallback);
+        return (bool) \call_user_func($this->haltCallback);
     }
 
     /**
@@ -43,7 +43,7 @@ class Download
      */
     public function downloadFile(string $sourceUri, string $destinationUri, int $totalSize, string $hash): int
     {
-        if (($destination = fopen($destinationUri, 'a+')) === false) {
+        if (($destination = fopen($destinationUri, 'a+b')) === false) {
             throw new UpdateFailedException(sprintf('Destination "%s" is invalid.', $destinationUri));
         }
 
@@ -68,23 +68,23 @@ class Download
 
         $range = $size . '-' . ($totalSize - 1);
 
-        if (!function_exists('curl_init')) {
+        if (!\function_exists('curl_init')) {
             throw new \Exception('PHP Extension "curl" is required to download a file');
         }
 
         // Configuration of curl
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_RANGE, $range);
-        curl_setopt($ch, CURLOPT_URL, $sourceUri);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+        curl_setopt($ch, \CURLOPT_RANGE, $range);
+        curl_setopt($ch, \CURLOPT_URL, $sourceUri);
+        curl_setopt($ch, \CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($ch, \CURLOPT_BINARYTRANSFER, true);
+        curl_setopt($ch, \CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, \CURLOPT_NOPROGRESS, false);
 
         $me = $this;
 
-        curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function ($ch, $dltotal, $dlnow) use ($size): void {
+        curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($ch, $dltotal, $dlnow) use ($size): void {
             if ($dlnow > 0) {
                 $this->progress($dltotal, $dlnow, $size + $dlnow);
             }
@@ -94,8 +94,8 @@ class Download
         $isHalted = false;
         /** @var bool $isError */
         $isError = false;
-        curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
-            if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 206) {
+        curl_setopt($ch, \CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
+            if (curl_getinfo($ch, \CURLINFO_HTTP_CODE) !== 206) {
                 $isError = true;
 
                 return -1;
@@ -152,7 +152,7 @@ class Download
             return;
         }
 
-        call_user_func_array($this->progressCallback, [$downloadSize, $downloaded, $total]);
+        \call_user_func_array($this->progressCallback, [$downloadSize, $downloaded, $total]);
     }
 
     private function verifyHash(\SplFileObject $partFile, string $hash): bool

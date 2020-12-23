@@ -60,7 +60,7 @@ class CleanupController
 
         $cleanupList = $this->getCleanupList();
 
-        if (count($cleanupList) === 0) {
+        if (\count($cleanupList) === 0) {
             $_SESSION['CLEANUP_DONE'] = true;
 
             return $response->withRedirect($this->app->getContainer()->get('router')->pathFor('done'));
@@ -72,7 +72,7 @@ class CleanupController
                 $result = array_merge($result, Utils::cleanPath($path));
             }
 
-            if (count($result) === 0) {
+            if (\count($result) === 0) {
                 $_SESSION['CLEANUP_DONE'] = true;
 
                 return $response->withRedirect($this->app->getContainer()->get('router')->pathFor('done'));

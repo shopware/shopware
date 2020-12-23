@@ -173,7 +173,7 @@ class AccountServiceEventTest extends TestCase
 
         static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
-        $this->logoutRoute->logout($this->salesChannelContext);
+        $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
         static::assertTrue($eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
 
@@ -204,7 +204,8 @@ class AccountServiceEventTest extends TestCase
         $this->changePaymentMethodRoute->change(
             $customer->getDefaultPaymentMethodId(),
             new RequestDataBag(),
-            $this->salesChannelContext
+            $this->salesChannelContext,
+            $customer
         );
         static::assertTrue($eventDidRun, 'Event "' . CustomerChangedPaymentMethodEvent::class . '" did not run');
 

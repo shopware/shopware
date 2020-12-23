@@ -63,7 +63,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
         $taxRuleTypeId = $connection->executeQuery('SELECT id FROM tax_rule_type WHERE technical_name = "entire_country"')->fetchColumn();
 
         foreach ($this->getCountryTaxes() as $isoCode => $countryTax) {
-            if (!array_key_exists($isoCode, $this->countryIds)) {
+            if (!\array_key_exists($isoCode, $this->countryIds)) {
                 // country was deleted by shop owner
                 continue;
             }
@@ -77,7 +77,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            if (array_key_exists('reduced1', $countryTax)) {
+            if (\array_key_exists('reduced1', $countryTax)) {
                 $connection->insert('tax_rule', [
                     'id' => Uuid::randomBytes(),
                     'tax_id' => $reducedRate,
@@ -88,7 +88,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
                 ]);
             }
 
-            if (array_key_exists('reduced2', $countryTax)) {
+            if (\array_key_exists('reduced2', $countryTax)) {
                 $connection->insert('tax_rule', [
                     'id' => Uuid::randomBytes(),
                     'tax_id' => $reducedRate2,

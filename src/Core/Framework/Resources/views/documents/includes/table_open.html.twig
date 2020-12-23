@@ -13,6 +13,9 @@ All blocks of this template are available in the template which renders this tem
 
 {% block table_open %}
     <div class="letter-body">
+        <div class="document-title-container">
+            {% block document_headline %}{% endblock %}
+        </div>
         {% if config.displayLineItems %}
             <div class="line-item-container">
                 {% block document_line_items %}

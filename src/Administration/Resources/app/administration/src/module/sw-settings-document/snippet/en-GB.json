@@ -40,6 +40,7 @@
       "labelCompanyAddress": "Company address",
       "labelCompanyName": "Company name",
       "labelCompanyEmail": "Company email address",
+      "labelCompanyPhone": "Company phone",
       "labelCompanyUrl": "Company URL",
       "labelTaxNumber": "Company tax number",
       "labelTaxOffice": "Tax office",
@@ -53,6 +54,9 @@
       "labelPlaceOfJurisdiction": "Place of jurisdiction / HBR",
       "labelPlaceOfFulfillment": "Place of fulfillment",
       "labelExecutiveDirector": "Executive director",
+      "labelDisplayAdditionalNoteDelivery": "Display \"intra-Community delivery\" label",
+      "labelDeliveryCountries": "Member countries",
+      "placeholderDisplayDeliveryCountries": "Search and add countries valid for intra-Community delivery...",
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
@@ -61,7 +65,9 @@
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed.",
       "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\" area",
-      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account."
+      "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
+      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account.",
+      "helpTextDisplayDeliveryCountries": "All selected countries will have an additional note displayed on the invoice documents relating intra-community deliveries."
     }
   },
   "sw-privileges": {

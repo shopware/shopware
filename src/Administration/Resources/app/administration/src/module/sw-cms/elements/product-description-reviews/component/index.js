@@ -13,6 +13,10 @@ Component.register('sw-cms-el-product-description-reviews', {
 
     computed: {
         product() {
+            if (this.currentDemoEntity) {
+                return this.currentDemoEntity;
+            }
+
             if (!this.element.data || !this.element.data.product) {
                 return {
                     name: 'Product information',
@@ -44,6 +48,14 @@ Component.register('sw-cms-el-product-description-reviews', {
             }
 
             return `align-content: ${this.element.config.alignment.value};`;
+        },
+
+        currentDemoEntity() {
+            if (this.cmsPageState.currentMappingEntity === 'product') {
+                return this.cmsPageState.currentDemoEntity;
+            }
+
+            return null;
         }
     },
 

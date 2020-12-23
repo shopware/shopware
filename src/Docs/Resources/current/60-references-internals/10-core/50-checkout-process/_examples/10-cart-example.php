@@ -206,7 +206,7 @@ namespace DocsTest {
         public function testLineItemIsInCorrectVersion(): void
         {
             static::assertSame(
-                '7318974ed59f19306a6622dbd27fe4c694234992',
+                'd5f4de0f4e0d9afe3f405e43d2ba0d8b09a0b19d',
                 sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Checkout/Cart/LineItem/LineItem.php'),
                 'The line item class changed apparently, ensure the docs are up to date'
             );

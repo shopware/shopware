@@ -80,7 +80,7 @@ class PluginExtractor
     {
         $entry = $archive->statIndex(0);
 
-        return explode(DIRECTORY_SEPARATOR, $entry['name'])[0];
+        return explode(\DIRECTORY_SEPARATOR, $entry['name'])[0];
     }
 
     /**
@@ -89,11 +89,11 @@ class PluginExtractor
      */
     private function clearOpcodeCache(): void
     {
-        if (function_exists('opcache_reset')) {
+        if (\function_exists('opcache_reset')) {
             opcache_reset();
         }
 
-        if (function_exists('apcu_clear_cache')) {
+        if (\function_exists('apcu_clear_cache')) {
             apcu_clear_cache();
         }
     }
@@ -113,14 +113,14 @@ class PluginExtractor
 
     private function assertNoDirectoryTraversal(string $filename): void
     {
-        if (mb_strpos($filename, '..' . DIRECTORY_SEPARATOR) !== false) {
+        if (mb_strpos($filename, '..' . \DIRECTORY_SEPARATOR) !== false) {
             throw new PluginExtractionException('Directory Traversal detected');
         }
     }
 
     private function findOldFile(string $pluginName): string
     {
-        $dir = $this->pluginDir . DIRECTORY_SEPARATOR . $pluginName;
+        $dir = $this->pluginDir . \DIRECTORY_SEPARATOR . $pluginName;
         if ($this->filesystem->exists($dir)) {
             return $dir;
         }

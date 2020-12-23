@@ -18,12 +18,12 @@ if (is_file($lockFile)) {
 }
 
 // Check the minimum required php version
-if (PHP_VERSION_ID < 70400) {
+if (\PHP_VERSION_ID < 70400) {
     header('Content-type: text/html; charset=utf-8', true, 503);
     echo '<h2>Fehler</h2>';
-    echo 'Auf Ihrem Server läuft PHP version ' . PHP_VERSION . ', Shopware 6 benötigt mindestens PHP 7.4.0.';
+    echo 'Auf Ihrem Server läuft PHP version ' . \PHP_VERSION . ', Shopware 6 benötigt mindestens PHP 7.4.0.';
     echo '<h2>Error</h2>';
-    echo 'Your server is running PHP version ' . PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.0.';
+    echo 'Your server is running PHP version ' . \PHP_VERSION . ' but Shopware 6 requires at least PHP 7.4.0.';
     exit;
 }
 
@@ -37,7 +37,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 
 require_once dirname(__DIR__) . '/autoload.php';
 
-if (PHP_SAPI === 'cli') {
+if (\PHP_SAPI === 'cli') {
     $input = new ArgvInput();
     $env = $input->getParameterOption(['--env', '-e'], 'production');
 

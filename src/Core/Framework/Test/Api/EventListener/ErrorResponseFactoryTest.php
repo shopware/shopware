@@ -36,7 +36,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new Exception($exceptionDetail, 5), false);
-        $responseBody = \json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         static::assertEquals(500, $response->getStatusCode());
         static::assertEquals([
@@ -58,7 +58,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new HttpException(418, $exceptionDetail), false);
 
-        $responseBody = \json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         static::assertEquals(418, $response->getStatusCode());
         static::assertEquals([
@@ -80,7 +80,7 @@ class ErrorResponseFactoryTest extends TestCase
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException(new HttpException(418, $exceptionDetail, new HttpException(500, 'im nested')), true);
 
-        $responseBody = \json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         $meta = $responseBody['errors'][0]['meta'];
         unset($meta['previous'][0]['meta']);
@@ -120,7 +120,7 @@ class ErrorResponseFactoryTest extends TestCase
         $simpleHttpException = new SimpleShopwareHttpException($params);
         $errorResponseFactory = new ErrorResponseFactory();
         $response = $errorResponseFactory->getResponseFromException($simpleHttpException);
-        $responseBody = \json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         static::assertEquals(418, $response->getStatusCode());
         static::assertEquals([
@@ -189,7 +189,7 @@ class ErrorResponseFactoryTest extends TestCase
         $response = $errorResponseFactory->getResponseFromException($writeException);
         $convertedShopwareHttpException = $errorResponseFactory->getErrorsFromException($simpleShopwareHttpException)[0];
 
-        $responseBody = \json_decode($response->getContent(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         static::assertCount(4, $responseBody['errors']);
         static::assertEquals([

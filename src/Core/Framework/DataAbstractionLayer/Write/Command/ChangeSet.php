@@ -66,7 +66,7 @@ class ChangeSet extends Struct
 
     public function hasChanged(string $property): bool
     {
-        return array_key_exists($property, $this->after) || $this->isDelete;
+        return \array_key_exists($property, $this->after) || $this->isDelete;
     }
 
     public function getApiAlias(): string

@@ -170,6 +170,11 @@ class PluginLifecycleServiceTest extends TestCase
         $this->uninstallPluginThrowsException($this->context);
     }
 
+    public function testUninstallPluginWithoutConfig(): void
+    {
+        $this->uninstallPluginWithoutConfig($this->context);
+    }
+
     public function testUpdatePlugin(): void
     {
         $this->updatePlugin($this->context);
@@ -453,9 +458,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installPluginTest(Context $context): void
     {
-        $pluginInstalled = $this->installPlugin($context);
-
+        $pluginInstalled = $this->installAndActivatePlugin($context);
         static::assertNotNull($pluginInstalled->getInstalledAt());
+
+        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $context);
+        static::assertTrue($pluginInstalled->getActive());
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
 
@@ -513,10 +520,35 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginInstalled = $this->installPlugin($context);
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
+        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $context);
+        static::assertTrue($pluginInstalled->getActive());
+
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $context);
 
         $pluginUninstalled = $this->getTestPlugin($context);
 
+        $pluginUninstalledConfigs = $this->systemConfigService->all();
+        static::assertArrayNotHasKey('SwagTest', $pluginUninstalledConfigs);
+        static::assertNull($pluginUninstalled->getInstalledAt());
+        static::assertFalse($pluginUninstalled->getActive());
+    }
+
+    private function uninstallPluginWithoutConfig(Context $context): void
+    {
+        $this->pluginService->refreshPlugins($context, new NullIO());
+
+        $pluginInstalled = $this->pluginService->getPluginByName('SwagTestWithoutConfig', $context);
+        $this->pluginLifecycleService->installPlugin($pluginInstalled, $context);
+
+        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $context);
+        static::assertTrue($pluginInstalled->getActive());
+
+        $pluginConfigs = $this->systemConfigService->all();
+        static::assertArrayNotHasKey('SwagTest', $pluginConfigs);
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $context);
+
+        $pluginUninstalled = $this->getTestPlugin($context);
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
     }

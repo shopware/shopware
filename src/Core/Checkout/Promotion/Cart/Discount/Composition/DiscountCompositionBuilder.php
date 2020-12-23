@@ -64,7 +64,7 @@ class DiscountCompositionBuilder
 
         /** @var DiscountCompositionItem $item */
         foreach ($items as $item) {
-            if (!array_key_exists($item->getId(), $aggregated)) {
+            if (!\array_key_exists($item->getId(), $aggregated)) {
                 $aggregated[$item->getId()] = $item;
             } else {
                 $existing = $aggregated[$item->getId()];

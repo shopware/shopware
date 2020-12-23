@@ -111,7 +111,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -177,7 +177,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -322,7 +322,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -510,7 +510,7 @@ class EntityDefinitionQueryHelper
 
         if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
             throw new \RuntimeException(
-                \sprintf(
+                sprintf(
                     'Missing translated storage aware property %s in %s',
                     $translatedField->getPropertyName(),
                     $translationDefinition->getClass()
@@ -523,7 +523,7 @@ class EntityDefinitionQueryHelper
 
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
-        $count = count($context->getLanguageIdChain()) - 1;
+        $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
             $chain[] = $root . '.translation.fallback_' . $i;
@@ -588,7 +588,7 @@ class EntityDefinitionQueryHelper
         $wheres = [];
 
         foreach ($criteria->getIds() as $primaryKey) {
-            if (!is_array($primaryKey)) {
+            if (!\is_array($primaryKey)) {
                 $primaryKey = ['id' => $primaryKey];
             }
 
@@ -627,7 +627,7 @@ class EntityDefinitionQueryHelper
         $prefix = $root . '.';
 
         if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+            $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();

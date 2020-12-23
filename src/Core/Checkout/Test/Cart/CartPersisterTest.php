@@ -86,7 +86,7 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(
-                \serialize(new Cart('shopware', 'existing'))
+                serialize(new Cart('shopware', 'existing'))
             );
 
         $persister = new CartPersister($connection, $eventDispatcher);

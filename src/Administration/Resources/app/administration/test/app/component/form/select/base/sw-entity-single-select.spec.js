@@ -11,9 +11,36 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/app/component/utils/sw-loader';
+import 'src/app/component/base/sw-product-variant-info';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry' }
+    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
+    { id: utils.createId(), name: 'second entry' },
+    { id: utils.createId(), name: 'third entry' }
+];
+
+const propertyFixture = [
+    {
+        id: utils.createId(),
+        name: 'first entry',
+        group: {
+            name: 'example'
+        }
+    },
+    {
+        id: utils.createId(),
+        name: 'second entry',
+        group: {
+            name: 'example'
+        }
+    },
+    {
+        id: utils.createId(),
+        name: 'third',
+        group: {
+            name: 'entry'
+        }
+    }
 ];
 
 function getCollection() {
@@ -28,9 +55,22 @@ function getCollection() {
     );
 }
 
+function getPropertyCollection() {
+    return new EntityCollection(
+        '/property-group-option',
+        'property_group_option',
+        null,
+        { isShopwareContext: true },
+        propertyFixture,
+        propertyFixture.length,
+        null
+    );
+}
+
 const createEntitySingleSelect = (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
+    localVue.directive('tooltip', {});
 
     const options = {
         localVue,
@@ -46,7 +86,8 @@ const createEntitySingleSelect = (customOptions) => {
             'sw-popover': Shopware.Component.build('sw-popover'),
             'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-            'sw-loader': Shopware.Component.build('sw-loader')
+            'sw-loader': Shopware.Component.build('sw-loader'),
+            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
         },
         mocks: { $tc: key => key },
         propsData: {
@@ -60,6 +101,9 @@ const createEntitySingleSelect = (customOptions) => {
                         get: (value) => Promise.resolve({ id: value, name: value })
                     };
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         }
     };
@@ -107,7 +151,7 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should have no reset option when it is defined but the value is not null', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
             propsData: {
                 value: 'uuid',
                 entity: 'test',
@@ -115,17 +159,83 @@ describe('components/sw-entity-single-select', () => {
             }
         });
 
-        swEntitySingleSelect.vm.$nextTick(() => {
-            const { singleSelection } = swEntitySingleSelect.vm;
+        await swEntitySingleSelect.vm.$nextTick();
 
-            expect(singleSelection).not.toBeNull();
-            expect(singleSelection.id).toEqual('uuid');
-            expect(singleSelection.name).toEqual('uuid');
-        });
+        const { singleSelection } = swEntitySingleSelect.vm;
+
+        expect(singleSelection).not.toBeNull();
+        expect(singleSelection.id).toEqual('uuid');
+        expect(singleSelection.name).toEqual('uuid');
     });
 
     it('should have prepend reset option to resultCollection when resetOption is given', async () => {
-        const swEntitySingleSelect = createEntitySingleSelect({
+        const swEntitySingleSelect = await createEntitySingleSelect({
+            propsData: {
+                value: '',
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                },
+                feature: {
+                    isActive: () => true
+                }
+            }
+        });
+
+        swEntitySingleSelect.vm.loadData();
+        await swEntitySingleSelect.vm.$nextTick();
+
+        const { resultCollection } = swEntitySingleSelect.vm;
+
+        expect(resultCollection.length).toEqual(getCollection().length + 1);
+        expect(resultCollection[0].name).toEqual('reset');
+    });
+
+    it('should not show the selected item on first entry', async () => {
+        const secondItemId = `${fixture[2].id}`;
+
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: secondItemId,
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection()),
+                            get: (id) => {
+                                if (id === secondItemId) {
+                                    return Promise.resolve(fixture[2]);
+                                }
+
+                                return Promise.reject();
+                            }
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-select-option--0').text()).toBe('reset');
+        expect(wrapper.find('.sw-select-option--1').text()).toBe('first entry');
+        expect(wrapper.find('.sw-select-option--2').text()).toBe('second entry');
+        expect(wrapper.find('.sw-select-option--3').text()).toBe('third entry');
+    });
+
+    it('should not emit the paginate event when user does not scroll to the end of list', async () => {
+        const wrapper = await createEntitySingleSelect({
             propsData: {
                 value: '',
                 entity: 'test',
@@ -142,12 +252,129 @@ describe('components/sw-entity-single-select', () => {
             }
         });
 
-        swEntitySingleSelect.vm.loadData();
-        swEntitySingleSelect.vm.$nextTick(() => {
-            const { resultCollection } = swEntitySingleSelect.vm;
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
 
-            expect(resultCollection.length).toEqual(getCollection().length + 1);
-            expect(resultCollection[0].name).toEqual('reset');
+        const selectResultList = wrapper.find('.sw-select-result-list');
+        const listContent = wrapper.find('.sw-select-result-list__content');
+
+        Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
+        Object.defineProperty(listContent.element, 'clientHeight', { value: 250 });
+        Object.defineProperty(listContent.element, 'scrollTop', { value: 150 });
+
+        await listContent.trigger('scroll');
+
+        expect(selectResultList.emitted('paginate')).toBe(undefined);
+    });
+
+    it('should emit the paginate event when user scroll to the end of list', async () => {
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: '',
+                entity: 'test',
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const selectResultList = wrapper.find('.sw-select-result-list');
+        const listContent = wrapper.find('.sw-select-result-list__content');
+
+        Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
+        Object.defineProperty(listContent.element, 'clientHeight', { value: 250 });
+        Object.defineProperty(listContent.element, 'scrollTop', { value: 800 });
+
+        await listContent.trigger('scroll');
+
+        expect(selectResultList.emitted('paginate')).not.toBe(undefined);
+        expect(selectResultList.emitted('paginate').length).toEqual(1);
+        expect(selectResultList.emitted('paginate')[0]).toEqual([]);
+    });
+
+    it('should emit the correct search term', async () => {
+        const swEntitySingleSelect = await createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'property_group_option'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getPropertyCollection())
+                        };
+                    }
+                },
+                feature: {
+                    isActive: () => true
+                }
+            }
+        });
+
+        swEntitySingleSelect.vm.loadData();
+        await swEntitySingleSelect.vm.$nextTick();
+        await swEntitySingleSelect.vm.$nextTick();
+
+        await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
+        await swEntitySingleSelect.find('input').setValue('first');
+        await swEntitySingleSelect.find('input').trigger('change');
+        await swEntitySingleSelect.vm.$nextTick();
+
+        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
+    });
+
+    it('should not display variations', () => {
+        const swEntitySingleSelect = createEntitySingleSelect();
+        const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
+
+        expect(productVariantInfo.exists()).toBeFalsy();
+    });
+
+    it('should display variations', async () => {
+        const swEntitySingleSelect = createEntitySingleSelect({
+            propsData: {
+                value: fixture[0].id,
+                entity: 'test',
+                displayVariants: true,
+                resetOption: 'reset'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(fixture[0])
+                        };
+                    }
+                }
+            }
+        });
+
+        await swEntitySingleSelect.vm.loadSelected();
+
+        swEntitySingleSelect.vm.$nextTick(() => {
+            const productVariantInfo = swEntitySingleSelect.find('.sw-product-variant-info');
+
+            expect(productVariantInfo.exists()).toBeTruthy();
+
+            expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
+                .toContain(fixture[0].name);
+
+            expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
+                .toContain(fixture[0].variation[0].group);
+
+            expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
+                .toContain(fixture[0].variation[0].option);
         });
     });
 });

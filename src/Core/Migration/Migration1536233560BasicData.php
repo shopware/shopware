@@ -1858,7 +1858,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         foreach ($definitionMailTypes as $typeName => $mailType) {
             $availableEntities = null;
-            if (array_key_exists('availableEntities', $mailType)) {
+            if (\array_key_exists('availableEntities', $mailType)) {
                 $availableEntities = json_encode($mailType['availableEntities']);
             }
 

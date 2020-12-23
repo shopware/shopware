@@ -13,7 +13,7 @@
 
         {% block sw_cms_element_product_description_reviews_placeholder %}
             {% block sw_cms_element_product_description_reviews_placeholder_header %}
-                <div v-if="isProductPageType"
+                <div v-if="isProductPageType && !currentDemoEntity"
                      class="sw-cms-el-product-description-reviews__placeholder">
                     <div class="sw-cms-el-product-description-reviews__placeholder-title"></div>
                     <div class="sw-cms-el-product-description-reviews__placeholder-description"></div>
@@ -23,7 +23,7 @@
             {% endblock %}
 
             {% block sw_cms_element_product_description_reviews_placeholder_listing %}
-                <ul v-if="isProductPageType"
+                <ul v-if="isProductPageType && !currentDemoEntity"
                     class="sw-cms-el-product-description-reviews__placeholder-listing">
                     <li class="sw-cms-el-product-description-reviews__placeholder-item">
                         <div class="sw-cms-el-product-description-reviews__placeholder-left"></div>
@@ -52,7 +52,7 @@
 
         {% block sw_cms_element_product_description_reviews_detail %}
             {% block sw_cms_element_product_description_reviews_detail_header %}
-                <div v-if="!isProductPageType"
+                <div v-if="!isProductPageType || currentDemoEntity"
                      class="sw-cms-el-product-description-reviews__detail">
                     <h3 class="sw-cms-el-product-description-reviews__detail-title">
                         {{ placeholder(product, 'name', product.name) }}
@@ -64,7 +64,7 @@
             {% endblock %}
 
             {% block sw_cms_element_product_description_reviews_detail_listing %}
-                <ul v-if="!isProductPageType"
+                <ul v-if="!isProductPageType || currentDemoEntity"
                     class="sw-cms-el-product-description-reviews__detail-listing">
                     <li class="sw-cms-el-product-description-reviews__detail-item">
                         <div class="sw-cms-el-product-description-reviews__detail-item-label">property</div>

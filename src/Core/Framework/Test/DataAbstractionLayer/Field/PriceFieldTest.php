@@ -514,7 +514,7 @@ EOF;
             ->get(EntitySearcherInterface::class)
             ->search($definition, $criteria, $context);
 
-        static::assertEquals(count($expected), $result->getTotal(), print_r($result->getData(), true));
+        static::assertEquals(\count($expected), $result->getTotal(), print_r($result->getData(), true));
         foreach ($expected as $id) {
             static::assertTrue($result->has($id));
         }

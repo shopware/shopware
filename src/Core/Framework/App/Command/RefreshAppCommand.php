@@ -74,7 +74,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        $fails = $this->appService->refreshApps((bool) $input->getOption('activate'), $context);
+        $fails = $this->appService->doRefreshApps((bool) $input->getOption('activate'), $context);
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
@@ -88,9 +88,9 @@ class RefreshAppCommand extends Command
             sprintf(
                 '%d apps will be installed, %d apps will be updated and
                     %d apps will be deleted. Do you want to continue?',
-                count($refreshableApps->getToBeInstalled()),
-                count($refreshableApps->getToBeUpdated()),
-                count($refreshableApps->getToBeDeleted())
+                \count($refreshableApps->getToBeInstalled()),
+                \count($refreshableApps->getToBeUpdated()),
+                \count($refreshableApps->getToBeDeleted())
             )
         )) {
             throw new UserAbortedCommandException();

@@ -69,9 +69,9 @@ class ProductListingSortingRegistry
 
     private function convertToProductSortingEntity(ProductListingSorting $sorting): ProductSortingEntity
     {
-        $fields = \array_map(function ($field, $order) {
+        $fields = array_map(function ($field, $order) {
             return ['field' => $field, 'order' => $order, 'priority' => 0, 'naturalSorting' => 0];
-        }, \array_keys($sorting->getFields()), $sorting->getFields());
+        }, array_keys($sorting->getFields()), $sorting->getFields());
 
         $productSortingEntity = new ProductSortingEntity();
         $productSortingEntity->setId(Uuid::randomHex());

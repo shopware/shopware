@@ -107,6 +107,8 @@ abstract class StorefrontController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use annotation `LoginRequired` instead
+     *
      * @throws CustomerNotLoggedInException
      */
     protected function denyAccessUnlessLoggedIn(bool $allowGuest = false): void
@@ -140,7 +142,7 @@ abstract class StorefrontController extends AbstractController
     {
         $params = $request->get($param);
 
-        if (is_string($params)) {
+        if (\is_string($params)) {
             $params = json_decode($params, true);
         }
 

@@ -159,7 +159,7 @@ class AggregationParser
             return $data;
         }
 
-        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', get_class($aggregation)));
+        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', \get_class($aggregation)));
     }
 
     private function parseAggregation(int $index, EntityDefinition $definition, array $aggregation, SearchRequestException $exceptions): ?Aggregation
@@ -170,7 +170,7 @@ class AggregationParser
             return null;
         }
 
-        $name = array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
+        $name = \array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
 
         if (empty($name) || is_numeric($name)) {
             $exceptions->add(new InvalidAggregationQueryException('The aggregation name should be a non-empty string.'), '/aggregations/' . $index);

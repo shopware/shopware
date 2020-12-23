@@ -309,7 +309,7 @@ class CmsSlotsDataResolver
 
                 $ids = $criteria->getIds();
                 $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
-                    return in_array($entity->getUniqueIdentifier(), $ids, true);
+                    return \in_array($entity->getUniqueIdentifier(), $ids, true);
                 });
 
                 $result->add($key, $filtered);

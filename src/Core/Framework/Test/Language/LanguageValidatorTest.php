@@ -807,7 +807,7 @@ class LanguageValidatorTest extends TestCase
             static::assertInstanceOf(WriteException::class, $stack);
         }
 
-        $actualViolations = $stack ? \iterator_to_array($stack->getErrors()) : [];
+        $actualViolations = $stack ? iterator_to_array($stack->getErrors()) : [];
 
         foreach ($actualViolations as $violation) {
             $actual = [$violation['code'], $violation['source']['pointer']];

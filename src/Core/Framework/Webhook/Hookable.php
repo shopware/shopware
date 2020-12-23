@@ -2,8 +2,22 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+
 interface Hookable
 {
+    public const HOOKABLE_EVENTS = [
+        AppActivatedEvent::class => AppActivatedEvent::NAME,
+        AppDeactivatedEvent::class => AppDeactivatedEvent::NAME,
+        AppDeletedEvent::class => AppDeletedEvent::NAME,
+        AppInstalledEvent::class => AppInstalledEvent::NAME,
+        AppUpdatedEvent::class => AppUpdatedEvent::NAME,
+    ];
+
     public function getName(): string;
 
     /**

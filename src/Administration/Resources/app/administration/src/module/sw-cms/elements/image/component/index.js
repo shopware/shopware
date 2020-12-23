@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Filter, Utils } = Shopware;
 
 Component.register('sw-cms-el-image', {
     template,
@@ -22,13 +22,13 @@ Component.register('sw-cms-el-image', {
         styles() {
             return {
                 'min-height': this.element.config.displayMode.value === 'cover' &&
+                              this.element.config.minHeight.value &&
                               this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : '340px',
-                'align-self': !this.element.config.verticalAlign.value ? null : this.element.config.verticalAlign.value
+                'align-self': this.element.config.verticalAlign.value || null
             };
         },
 
         mediaUrl() {
-            const context = Shopware.Context.api;
             const elemData = this.element.data.media;
             const mediaSource = this.element.config.media.source;
 
@@ -38,6 +38,8 @@ Component.register('sw-cms-el-image', {
                 if (demoMedia && demoMedia.url) {
                     return demoMedia.url;
                 }
+
+                return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
             }
 
             if (elemData && elemData.id) {
@@ -45,10 +47,18 @@ Component.register('sw-cms-el-image', {
             }
 
             if (elemData && elemData.url) {
-                return `${context.assetsPath}${elemData.url}`;
+                return this.assetFilter(elemData.url);
             }
 
-            return `${context.assetsPath}/administration/static/img/cms/preview_mountain_large.jpg`;
+            return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
+        },
+
+        mediaConfigValue() {
+            return Utils.get(this.element, 'config.sliderItems.value');
         }
     },
 
@@ -57,6 +67,15 @@ Component.register('sw-cms-el-image', {
             deep: true,
             handler() {
                 this.$forceUpdate();
+            }
+        },
+
+        mediaConfigValue(value) {
+            const mediaId = Utils.get(this.element, 'data.media.id');
+            const isSourceStatic = Utils.get(this.element, 'config.media.source') === 'static';
+
+            if (isSourceStatic && mediaId && value !== mediaId) {
+                this.element.config.media.value = mediaId;
             }
         }
     },

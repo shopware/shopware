@@ -106,7 +106,7 @@ class ProductReviewLoader
             );
         }
 
-        $this->handlePointsAggregation($request, $criteria);
+        $this->handlePointsAggregation($request, $criteria, $context);
 
         return $criteria;
     }
@@ -138,11 +138,11 @@ class ProductReviewLoader
         return $customerReviews->first();
     }
 
-    private function handlePointsAggregation(Request $request, Criteria $criteria): void
+    private function handlePointsAggregation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         $points = $request->get('points', []);
 
-        if (is_array($points) && count($points) > 0) {
+        if (\is_array($points) && \count($points) > 0) {
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [
@@ -154,11 +154,18 @@ class ProductReviewLoader
             $criteria->addPostFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $pointFilter));
         }
 
+        $reviewFilters[] = new EqualsFilter('status', true);
+        if ($context->getCustomer() !== null) {
+            $reviewFilters[] = new EqualsFilter('customerId', $context->getCustomer()->getId());
+        }
+
         $criteria->addAggregation(
             new FilterAggregation(
-                'status-filter',
+                'customer-login-filter',
                 new TermsAggregation('ratingMatrix', 'points'),
-                [new EqualsFilter('status', 1)]
+                [
+                    new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
+                ]
             )
         );
     }

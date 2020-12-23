@@ -121,7 +121,7 @@ Component.register('sw-inherit-wrapper', {
                     return;
                 }
 
-                this.updateValue(newValue);
+                this.updateValue(newValue, 'restore');
             }
         },
 

@@ -18,12 +18,13 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content')
             .dblclick();
         cy.get('.sw-data-grid .is--inline-edit').should('exist');
-        cy.get('.sw-data-grid__inline-edit-save').should('be.visible');
 
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content input')
             .scrollIntoView()
+            .click()
             .clearTypeAndCheck('5');
 
+        cy.get('.sw-data-grid__inline-edit-save').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // save changes

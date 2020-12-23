@@ -76,7 +76,7 @@ class WriteException extends ShopwareHttpException
             $messages[] = sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
         }
 
-        $messagesString = implode(PHP_EOL, $messages);
+        $messagesString = implode(\PHP_EOL, $messages);
 
         $this->parameters = [
             'errorCount' => \count($this->exceptions),

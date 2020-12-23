@@ -107,7 +107,7 @@ class ThemeDumpCommand extends Command
         $dump['basePath'] = $themeConfig->getBasePath();
 
         file_put_contents(
-            $this->projectDir . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'theme-files.json',
+            $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',
             json_encode($dump, JSON_PRETTY_PRINT)
         );
 

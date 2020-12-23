@@ -59,7 +59,7 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
             if ($ruleId === 'default') {
                 $ruleId = null;
             } else {
-                $ruleId = substr($ruleId, 1);
+                $ruleId = mb_substr($ruleId, 1);
             }
 
             foreach ($rows as $row) {

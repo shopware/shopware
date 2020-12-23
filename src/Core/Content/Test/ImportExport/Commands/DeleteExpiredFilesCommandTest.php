@@ -116,7 +116,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $commandTester->setInputs(['yes']);
         $commandTester->execute([]);
 
-        $numExpired = count($expiredIds);
+        $numExpired = \count($expiredIds);
         $message = $commandTester->getDisplay();
         static::assertRegExp(
             sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
@@ -125,7 +125,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
 
         $results = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
-        static::assertEquals(($num - $numExpired), count($results));
+        static::assertEquals(($num - $numExpired), \count($results));
 
         $expectedIds = array_diff(array_column($data, 'id'), $expiredIds);
         foreach ($results as $result) {

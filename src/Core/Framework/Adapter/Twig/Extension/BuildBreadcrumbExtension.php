@@ -30,7 +30,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     public function buildSeoBreadcrumb(array $twigContext, CategoryEntity $category, ?string $navigationCategoryId = null): ?array
     {
         $salesChannel = null;
-        if (array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
+        if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
             $salesChannel = $twigContext['context']->getSalesChannel();
         }
 

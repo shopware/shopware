@@ -63,7 +63,7 @@ abstract class AbstractFileWriter extends AbstractWriter
     private function initTempFile(): void
     {
         $this->tempPath = tempnam(sys_get_temp_dir(), '');
-        $this->tempFile = \fopen($this->tempPath, 'a+b');
+        $this->tempFile = fopen($this->tempPath, 'a+b');
     }
 
     private function initBuffer(): void

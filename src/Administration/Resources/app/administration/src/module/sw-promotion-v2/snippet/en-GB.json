@@ -1,0 +1,72 @@
+{
+    "sw-promotion-v2": {
+        "general": {
+            "mainMenuItemGeneral": "Promotions v2",
+            "mainMenuItemList": "Overview",
+            "description": "Manage promotions here."
+        },
+        "list": {
+            "textTitle": "Promotions",
+            "buttonAddPromotion": "Add promotion",
+            "columnActive": "Active",
+            "columnName": "Name",
+            "columnValidFrom": "Valid from",
+            "columnValidUntil": "Valid until",
+            "messageEmpty": "No promotions yet",
+            "placeholderSearchBar": "Search promotions...",
+            "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
+            "titleSidebarItemRefresh": "Refresh"
+        },
+        "detail": {
+            "header": {
+                "titleCreate": "New promotion",
+                "titleEdit": "Promotion"
+            },
+            "tabs": {
+                "tabGeneral": "General",
+                "tabDiscounts": "Discounts"
+            },
+            "codeChangeModal": {
+                "title": "Changing promotion code option",
+                "text": "Switching the promotion code option will delete all previously generated promotion codes."
+            },
+            "base": {
+                "general": {
+                    "cardTitle": "General settings",
+                    "nameLabel": "Name",
+                    "validFromLabel": "Valid from",
+                    "validFromPlaceholder": "Select start date...",
+                    "validUntilLabel": "Valid until",
+                    "validUntilPlaceholder": "Select end date...",
+                    "maxUsesGlobalLabel": "Max. total uses",
+                    "maxUsesGlobalPlaceholder": "Unlimited",
+                    "maxUsesPerCustomerLabel": "Max. uses per customer",
+                    "maxUsesPerCustomerPlaceholder": "Unlimited",
+                    "activeLabel": "Active"
+                },
+                "codes": {
+                    "cardTitle": "Promotion codes",
+                    "codeTypeLabel": "Code options",
+                    "none": {
+                        "description": "No promotion code required"
+                    },
+                    "fixed": {
+                        "description": "Fixed promotion code",
+                        "codeLabel": "Promotion code",
+                        "codePlaceholder": "Enter promotion code...",
+                        "generateButton": "Generate random code"
+                    },
+                    "individual": {
+                        "description": "Individual promotion codes",
+                        "emptyStateTitle": "No promotion codes generated yet.",
+                        "generateButton": "Generate codes"
+                    }
+                }
+            },
+            "discounts": {
+                "emptyStateTitle": "No discount yet.",
+                "emptyStateButton": "Add discount"
+            }
+        }
+    }
+}

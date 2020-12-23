@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -56,6 +57,40 @@ class TwigSwExtendsTest extends TestCase
         $template = $twig->loadTemplate($templatePath);
 
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
+    }
+
+    public function testMultipleInheritanceIfExtendingTemplateInSamePlugin(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12553', $this);
+
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
+        ]);
+
+        $templatePath = $templateFinder->find('@Storefront/storefront/frontend/extend_template_in_same_plugin.html.twig');
+
+        $template = $twig->loadTemplate($templatePath);
+
+        static::assertSame('Base/TestPlugin1/TestPlugin2/TestPlugin2Content', $template->render([]));
+    }
+
+    public function testMultipleInheritanceIfExtendingBaseTemplateInSamePlugin(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12553', $this);
+
+        [$twig, $templateFinder] = $this->createFinder([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
+        ]);
+
+        $templatePath = $templateFinder->find('@Storefront/storefront/frontend/extend_base_template_in_same_plugin.html.twig');
+
+        $template = $twig->loadTemplate($templatePath);
+
+        static::assertSame('Base/TestPlugin1/TestPlugin2/StorefrontContent/TestPlugin2Content', $template->render([]));
     }
 
     public function testMultipleInheritanceWithChangingTemplateChain(): void

@@ -38,9 +38,16 @@ describe('Checkout: Visual tests', () => {
         cy.get('.product-detail-buy .btn-buy').click();
 
         // Off canvas
-
-        cy.get('.cart-item').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
         cy.get('.cart-item-price').contains('64');
+
+        const continueShopping = Cypress.env('locale') === 'en-GB' ?
+            'Continue shopping' : 'Weiter einkaufen';
+        cy.contains(continueShopping).should('be.visible');
+        cy.contains(continueShopping).click();
+        cy.get('.header-cart-total').contains('64');
+        cy.get('.header-cart-total').click();
+        cy.get('.offcanvas').should('be.visible');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,
@@ -105,10 +112,7 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
         cy.takeSnapshot(`Order listing`, '.sw-order-list');
 
@@ -137,10 +141,7 @@ describe('Checkout: Visual tests', () => {
             '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
             'color: rgb(240, 242, 245);'
         );
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Order detail', '.sw-order-detail');
 
     });

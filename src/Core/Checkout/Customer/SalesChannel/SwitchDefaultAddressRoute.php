@@ -3,9 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
@@ -76,28 +77,25 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      *          description=""
      *     )
      * )
+     * @LoginRequired()
      * @Route(path="/store-api/account/address/default-shipping/{addressId}", name="store-api.account.address.change.default.shipping", methods={"PATCH"}, defaults={"type" = "shipping"})
      * @Route(path="/store-api/account/address/default-billing/{addressId}", name="store-api.account.address.change.default.billing", methods={"PATCH"}, defaults={"type" = "billing"})
      */
-    public function swap(string $addressId, string $type, SalesChannelContext $context): NoContentResponse
+    public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        $this->validateAddress($addressId, $context);
+        $this->validateAddress($addressId, $context, $customer);
 
         switch ($type) {
             case 'billing':
                 $data = [
-                    'id' => $context->getCustomer()->getId(),
+                    'id' => $customer->getId(),
                     'defaultBillingAddressId' => $addressId,
                 ];
 
                 break;
             default:
                 $data = [
-                    'id' => $context->getCustomer()->getId(),
+                    'id' => $customer->getId(),
                     'defaultShippingAddressId' => $addressId,
                 ];
 

@@ -110,7 +110,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $withAssets = true
     ): void {
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
-        $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
+        $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
         if ($withAssets && $this->filesystem->has($outputPath)) {
             $this->filesystem->deleteDir($outputPath);
@@ -125,7 +125,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
-        $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
+        $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
@@ -135,7 +135,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
 
-        $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
+        $scriptFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
         $this->filesystem->put($scriptFilepath, $concatenatedScripts);
 
         // assets
@@ -191,15 +191,15 @@ class ThemeCompiler implements ThemeCompilerInterface
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
                 if (mb_strpos($originalPath, $resolve) === 0) {
-                    $dirname = $resolvePath . dirname(mb_substr($originalPath, mb_strlen($resolve)));
+                    $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
                     $filename = basename($originalPath);
                     $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
-                    $path = $dirname . DIRECTORY_SEPARATOR . $filename . $extension;
+                    $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
                     if (file_exists($path)) {
                         return $path;
                     }
 
-                    $path = $dirname . DIRECTORY_SEPARATOR . '_' . $filename . $extension;
+                    $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
                     if (file_exists($path)) {
                         return $path;
                     }
@@ -233,7 +233,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private function dumpVariables(array $config, string $salesChannelId): string
     {
-        if (!array_key_exists('fields', $config)) {
+        if (!\array_key_exists('fields', $config)) {
             return '';
         }
 
@@ -245,7 +245,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             // Do not include fields which have the scss option set to false
-            if (array_key_exists('scss', $data) && $data['scss'] === false) {
+            if (\array_key_exists('scss', $data) && $data['scss'] === false) {
                 continue;
             }
 
@@ -254,7 +254,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if (in_array($data['type'], ['media', 'textarea'], true)) {
+            // if no type is set just use the value and continue
+            if (!isset($data['type'])) {
+                continue;
+            }
+
+            if (\in_array($data['type'], ['media', 'textarea'], true)) {
                 if ($data['type'] === 'media') {
                     // Add id of media which needs to be resolved
                     if (Uuid::isValid($data['value'])) {
@@ -271,7 +276,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // Resolve media urls
-        if (count($mediaIds) > 0) {
+        if (\count($mediaIds) > 0) {
             /** @var MediaCollection $medias */
             $medias = $this->mediaRepository
                 ->search(

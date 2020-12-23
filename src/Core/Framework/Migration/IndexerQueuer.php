@@ -44,7 +44,7 @@ class IndexerQueuer
 
         $newList = [];
         foreach (array_keys($indexerList) as $indexer) {
-            if (!in_array($indexer, $names, true)) {
+            if (!\in_array($indexer, $names, true)) {
                 $newList[$indexer] = 1;
             }
         }

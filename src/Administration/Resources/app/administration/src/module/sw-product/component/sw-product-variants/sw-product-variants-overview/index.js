@@ -8,7 +8,11 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-variants-overview', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -23,7 +27,8 @@ Component.register('sw-product-variants-overview', {
             filterOptions: [],
             activeFilter: [],
             includeOptions: [],
-            filterWindowOpen: false
+            filterWindowOpen: false,
+            toBeDeletedVariantId: null
         };
     },
 
@@ -107,6 +112,13 @@ Component.register('sw-product-variants-overview', {
                     width: '250px'
                 };
             });
+        },
+
+        canBeDeletedCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('canonicalProductId', this.toBeDeletedVariantId));
+
+            return criteria;
         }
     },
 
@@ -420,16 +432,41 @@ Component.register('sw-product-variants-overview', {
         onConfirmDelete(item) {
             this.modalLoading = true;
             this.showDeleteModal = false;
+            this.toBeDeletedVariantId = item.id;
 
-            this.productRepository.delete(item.id, Shopware.Context.api).then(() => {
-                this.modalLoading = false;
+            this.canVariantBeDeleted(item.id).then(canBeDeleted => {
+                if (!canBeDeleted) {
+                    this.modalLoading = false;
+                    this.toBeDeletedVariantId = null;
 
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
+                    this.createNotificationError({
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl')
+                    });
+
+                    return;
+                }
+
+                this.productRepository.delete(item.id, Shopware.Context.api).then(() => {
+                    this.modalLoading = false;
+                    this.toBeDeletedVariantId = null;
+
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
+                    });
+
+                    this.getList();
                 });
-
-                this.getList();
             });
+        },
+
+        async canVariantBeDeleted() {
+            if (!this.feature.isActive('FEATURE_NEXT_10820')) {
+                return true;
+            }
+
+            const products = await this.productRepository.search(this.canBeDeletedCriteria, Shopware.Context.api);
+
+            return products.length === 0;
         },
 
         onOptionEdit(variant) {

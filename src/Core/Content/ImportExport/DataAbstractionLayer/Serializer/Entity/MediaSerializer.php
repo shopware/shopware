@@ -63,7 +63,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
     public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
-        $value = is_array($value) ? $value : iterator_to_array($value);
+        $value = \is_array($value) ? $value : iterator_to_array($value);
         $deserialized = parent::deserialize($config, $definition, $value);
 
         if (is_iterable($deserialized)) {
@@ -71,7 +71,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         }
 
         $url = $value['url'] ?? null;
-        if ($url === null || !filter_var($url, FILTER_VALIDATE_URL)) {
+        if ($url === null || !filter_var($url, \FILTER_VALIDATE_URL)) {
             return $deserialized;
         }
 

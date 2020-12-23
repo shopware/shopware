@@ -11,7 +11,7 @@ trait AssertValuesTrait
         foreach ($expected as $key => $value) {
             TestCase::assertArrayHasKey($key, $actual);
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $this->assertValues($value, $actual[$key]);
             } else {
                 TestCase::assertEquals($value, $actual[$key]);

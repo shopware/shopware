@@ -65,11 +65,11 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
         });
 
         $missingStates = array_filter($allStates, static function (array $state) use ($reopenStates) {
-            if (in_array($state['to_state_id'], array_column($reopenStates, 'from_state_id'), true)) {
+            if (\in_array($state['to_state_id'], array_column($reopenStates, 'from_state_id'), true)) {
                 return false;
             }
 
-            if (in_array($state['to_state_id'], array_column($reopenStates, 'to_state_id'), true)) {
+            if (\in_array($state['to_state_id'], array_column($reopenStates, 'to_state_id'), true)) {
                 return false;
             }
 

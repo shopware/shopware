@@ -65,8 +65,8 @@ class PromotionDefinition extends EntityDefinition
             'useIndividualCodes' => false,
             'individualCodePattern' => '',
             'useSetGroups' => false,
-            'maxRedemptionsGlobal' => 0,
-            'maxRedemptionsPerCustomer' => 0,
+            'maxRedemptionsGlobal' => null,
+            'maxRedemptionsPerCustomer' => null,
         ];
     }
 
@@ -83,8 +83,8 @@ class PromotionDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new Required()),
             new DateTimeField('valid_from', 'validFrom'),
             new DateTimeField('valid_until', 'validUntil'),
-            (new IntField('max_redemptions_global', 'maxRedemptionsGlobal'))->addFlags(new Required()),
-            (new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'))->addFlags(new Required()),
+            new IntField('max_redemptions_global', 'maxRedemptionsGlobal'),
+            new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'),
             (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),
             new StringField('code', 'code'),
             (new BoolField('use_codes', 'useCodes'))->addFlags(new Required()),

@@ -203,8 +203,8 @@ class IOHelper
         }
 
         // http://en.wikipedia.org/wiki/ANSI_escape_code
-        $this->output->write(chr(27) . '[2J'); // ED – Erase Display
-        $this->output->write(chr(27) . '[1;1H'); // CUP – Set Cursor Position to upper left
+        $this->output->write(\chr(27) . '[2J'); // ED – Erase Display
+        $this->output->write(\chr(27) . '[1;1H'); // CUP – Set Cursor Position to upper left
     }
 
     /**

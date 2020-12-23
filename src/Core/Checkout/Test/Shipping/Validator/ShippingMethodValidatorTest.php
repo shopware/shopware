@@ -68,7 +68,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         if (!$success) {
             static::assertNotNull($exception);
-            static::assertEquals(WriteConstraintViolationException::class, get_class($exception->getExceptions()[0]));
+            static::assertEquals(WriteConstraintViolationException::class, \get_class($exception->getExceptions()[0]));
         } else {
             static::assertNull($exception);
         }

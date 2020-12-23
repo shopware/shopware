@@ -44,14 +44,13 @@ Component.register('sw-cms-layout-modal', {
     computed: {
         pageRepository() {
             return this.repositoryFactory.create('cms_page');
-        }
-    },
+        },
 
-    methods: {
-        getList() {
-            this.isLoading = true;
+        cmsPageCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-            criteria.addAssociation('previewMedia')
+
+            criteria
+                .addAssociation('previewMedia')
                 .addAssociation('sections')
                 .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
@@ -64,7 +63,15 @@ Component.register('sw-cms-layout-modal', {
                 criteria.setTerm(this.term);
             }
 
-            return this.pageRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return criteria;
+        }
+    },
+
+    methods: {
+        getList() {
+            this.isLoading = true;
+
+            return this.pageRepository.search(this.cmsPageCriteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
                 this.isLoading = false;

@@ -58,7 +58,7 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     {
         $regex = [];
         foreach ($parameters as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 continue;
             }
 

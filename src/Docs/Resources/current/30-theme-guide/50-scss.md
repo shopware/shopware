@@ -113,6 +113,7 @@ This entry point is called `overrides.scss`:
     "app/storefront/dist/storefront/js/just-another-theme.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ]
 }

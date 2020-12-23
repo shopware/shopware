@@ -48,11 +48,36 @@ Component.register('sw-cms-detail', {
             demoEntityId: null,
             productDetailBlocks: [
                 {
+                    type: 'cross-selling',
+                    elements: [
+                        {
+                            slot: 'content',
+                            type: 'cross-selling',
+                            config: {}
+                        }
+                    ]
+                },
+                {
                     type: 'product-description-reviews',
                     elements: [
                         {
                             slot: 'content',
                             type: 'product-description-reviews',
+                            config: {}
+                        }
+                    ]
+                },
+                {
+                    type: 'gallery-buybox',
+                    elements: [
+                        {
+                            slot: 'left',
+                            type: 'image-gallery',
+                            config: {}
+                        },
+                        {
+                            slot: 'right',
+                            type: 'buy-box',
                             config: {}
                         }
                     ]
@@ -72,7 +97,9 @@ Component.register('sw-cms-detail', {
                         }
                     ]
                 }
-            ]
+            ],
+            showLayoutAssignmentModal: false,
+            previousRoute: ''
         };
     },
 
@@ -80,6 +107,12 @@ Component.register('sw-cms-detail', {
         return {
             title: this.$createTitle(this.identifier)
         };
+    },
+
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.previousRoute = from.name;
+        });
     },
 
     computed: {
@@ -198,7 +231,9 @@ Component.register('sw-cms-detail', {
             const criteria = new Criteria(1, 1);
             const sortCriteria = Criteria.sort('position', 'ASC', true);
 
-            criteria.getAssociation('sections')
+            criteria
+                .addAssociation('categories')
+                .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .getAssociation('blocks')
@@ -211,6 +246,15 @@ Component.register('sw-cms-detail', {
 
         currentDeviceView() {
             return this.cmsPageState.currentCmsDeviceView;
+        },
+
+        demoProductCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('media');
+            criteria.addAssociation('deliveryTime');
+            criteria.addAssociation('manufacturer.media');
+
+            return criteria;
         }
     },
 
@@ -349,6 +393,10 @@ Component.register('sw-cms-detail', {
         },
 
         loadFirstDemoEntity() {
+            if (this.cmsPageState.currentMappingEntity === 'product') {
+                return;
+            }
+
             const criteria = new Criteria();
 
             if (this.cmsPageState.currentMappingEntity === 'category') {
@@ -404,7 +452,13 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            this.currentMappingEntityRepo.get(demoEntityId, Shopware.Context.api).then((entity) => {
+            const demoContext = this.cmsPageState.currentMappingEntity === 'product'
+                ? { ...Shopware.Context.api, inheritance: true }
+                : Shopware.Context.api;
+
+            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product' ? this.demoProductCriteria : new Criteria();
+
+            this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
                 if (!entity) {
                     return;
                 }
@@ -566,6 +620,12 @@ Component.register('sw-cms-detail', {
                 return Promise.reject();
             }
             const sections = this.page.sections;
+
+            if (!this.page.categories.length && this.previousRoute === 'sw.cms.create') {
+                this.openLayoutAssignmentModal();
+
+                return Promise.reject();
+            }
 
             if (this.page.type === 'product_list') {
                 let foundListingBlock = false;
@@ -836,6 +896,22 @@ Component.register('sw-cms-detail', {
 
         isProductPageElement(slot) {
             return ['buy-box', 'product-description-reviews', 'cross-selling'].includes(slot.type);
+        },
+
+        onOpenLayoutAssignment() {
+            this.openLayoutAssignmentModal();
+        },
+
+        openLayoutAssignmentModal() {
+            this.showLayoutAssignmentModal = true;
+        },
+
+        closeLayoutAssignmentModal() {
+            this.showLayoutAssignmentModal = false;
+        },
+
+        onConfirmLayoutAssignment() {
+            this.previousRoute = '';
         }
     }
 });

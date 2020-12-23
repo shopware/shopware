@@ -18,7 +18,7 @@ class DocumentTypeDetector implements TypeDetectorInterface
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
     {
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
-        if (!array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
+        if (!\array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
             return $previouslyDetectedType;
         }
 

@@ -277,6 +277,25 @@ for further details.
 Watch out! The names of the custom fields are global and therefore should always 
 contain a vendor prefix, like "swag" for "shopware ag", to keep them unique.
 
+### Cookies
+
+If your app wants to set cookies, you need to define those cookies in the manifest file, so they are included in the cookie consent manager.
+You can either add single cookies or group them together. If you use the `snippet_name` from a core cookie group as the name of your group, your cookies will be added to the core group.
+To add your cookie to the group of technical required cookies the entry in the manifest.xml would look like this: 
+```xml
+<cookies>
+    <group>
+        <snippet-name>cookie.groupRequired</snippet-name>
+        <entries>
+            <cookie>
+                <snippet-name>myApp.cookies.someCookie</snippet-name>
+                <cookie>swag.app.something</cookie>
+           </cookie>
+        </entries>
+    </group>
+</cookies>
+```
+For a detailed explanation refer to this [HowTo](./../50-how-to/730-add-plugin-cookies.md). Keep in mind that you won't need to provide a custom CookieProvider, but can add your cookies to the cookie consent manager via entries in your manifest file. 
 ## Examples
 
 ### One full example of a manifest file
@@ -372,5 +391,20 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
     <webhooks>
         <webhook name="orderPromotion" url="https://example.com//promotion/event/state-enter-order-transaction-state-paid" event="state_enter.order_transaction.state.paid"/>
     </webhooks>
+    <cookies>
+	    <cookie>
+            <snippet-name>myApp.cookies.analyticsCookie</snippet-name>
+            <cookie>swag.app.analytics</cookie>
+        </cookie>
+        <group>
+            <snippet-name>cookie.groupRequired</snippet-name>
+            <entries>
+                <cookie>
+                    <snippet-name>myApp.cookies.someCookie</snippet-name>
+                    <cookie>swag.app.something</cookie>
+               </cookie>
+            </entries>
+        </group>
+    </cookies>
 </manifest>
 ```

@@ -176,7 +176,7 @@ class Criteria extends Struct
 
     public function hasEqualsFilter($field): bool
     {
-        return count(array_filter($this->filters, static function (Filter $filter) use ($field) {
+        return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
             /* EqualsFilter $filter */
             return $filter instanceof EqualsFilter && $filter->getField() === $field;
         })) > 0;
@@ -293,7 +293,7 @@ class Criteria extends Struct
 
         $criteria = $this;
         foreach ($parts as $part) {
-            if (\mb_strtolower($part) === 'extensions') {
+            if (mb_strtolower($part) === 'extensions') {
                 continue;
             }
 

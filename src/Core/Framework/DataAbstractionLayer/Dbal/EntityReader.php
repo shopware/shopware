@@ -750,7 +750,7 @@ class EntityReader implements EntityReaderInterface
 
             $parentId = $struct->has('parentId') ? $struct->get('parentId') : '';
 
-            if (array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
+            if (\array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
                 //filter mapping list of whole data array
                 $structData = $data->getList($mapping[$id]);
 

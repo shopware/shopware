@@ -87,7 +87,7 @@ class SystemConfigController extends AbstractController
         if (empty($values)) {
             $json = '{}';
         } else {
-            $json = json_encode($values, JSON_PRESERVE_ZERO_FRACTION);
+            $json = json_encode($values, \JSON_PRESERVE_ZERO_FRACTION);
         }
 
         return new JsonResponse($json, 200, [], true);

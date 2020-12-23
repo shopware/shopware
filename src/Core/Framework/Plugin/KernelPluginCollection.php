@@ -65,6 +65,10 @@ class KernelPluginCollection
      */
     public function getActives(): array
     {
+        if (!$this->plugins) {
+            return [];
+        }
+
         return array_filter($this->plugins, static function (Plugin $plugin) {
             return $plugin->isActive();
         });

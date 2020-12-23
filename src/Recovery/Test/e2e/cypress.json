@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://localhost:8000",
+  "baseUrl": "http://docker.vm:8000",
   "watchForFileChanges": true,
   "requestTimeout": 10000,
   "responseTimeout": 60000,

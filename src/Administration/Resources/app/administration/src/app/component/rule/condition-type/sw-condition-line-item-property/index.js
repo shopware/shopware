@@ -15,11 +15,12 @@ const { EntityCollection, Criteria } = Shopware.Data;
 Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
-            options: null
+            options: null,
+            searchTerm: ''
         };
     },
 
@@ -47,6 +48,20 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
+        },
+
+        optionCriteria() {
+            const criteria = new Criteria();
+            criteria.setIds(this.identifiers);
+            if (this.feature.isActive('FEATURE_NEXT_12108')) {
+                criteria.addAssociation('group');
+
+                if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                    criteria.addQuery(Criteria.contains('group.name', this.searchTerm), 500);
+                }
+            }
+
+            return criteria;
         }
     },
 
@@ -59,17 +74,15 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
             this.options = new EntityCollection(
                 this.optionRepository.route,
                 this.optionRepository.entityName,
-                Context.api
+                Context.api,
+                this.optionCriteria
             );
 
             if (this.identifiers.length <= 0) {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
-            criteria.setIds(this.identifiers);
-
-            return this.optionRepository.search(criteria, Context.api).then((options) => {
+            return this.optionRepository.search(this.optionCriteria, Context.api).then((options) => {
                 this.options = options;
             });
         },
@@ -77,6 +90,14 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
         setOptions(options) {
             this.identifiers = options.getIds();
             this.options = options;
+        },
+
+        setSearchTerm(value) {
+            this.searchTerm = value;
+        },
+
+        onSelectCollapsed() {
+            this.searchTerm = '';
         }
     }
 });

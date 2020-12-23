@@ -101,6 +101,12 @@ Component.register('sw-tree-item', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        getItemUrl: {
+            type: Function,
+            required: false,
+            default: null
         }
     },
 
@@ -375,6 +381,14 @@ Component.register('sw-tree-item', {
             }
 
             return item.data.name;
+        },
+
+        showItemUrl(item) {
+            if (this.getItemUrl) {
+                return this.getItemUrl(item);
+            }
+
+            return false;
         }
     }
 });

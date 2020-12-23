@@ -66,7 +66,7 @@ class RetryMiddleware implements MiddlewareInterface
     private function createDeadMessageFromEnvelope(Envelope $envelope, MessageFailedException $e): void
     {
         $this->context->scope(Context::SYSTEM_SCOPE, function () use ($envelope, $e): void {
-            $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
+            $encrypted = \count($envelope->all(DecryptedStamp::class)) > 0;
             $scheduledTaskId = null;
             if ($envelope->getMessage() instanceof ScheduledTask) {
                 $scheduledTaskId = $envelope->getMessage()->getTaskId();
@@ -76,12 +76,12 @@ class RetryMiddleware implements MiddlewareInterface
 
             $params = [
                 'id' => $id,
-                'originalMessageClass' => get_class($envelope->getMessage()),
+                'originalMessageClass' => \get_class($envelope->getMessage()),
                 'serializedOriginalMessage' => serialize($envelope->getMessage()),
                 'handlerClass' => $e->getHandlerClass(),
                 'encrypted' => $encrypted,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                'exception' => get_class($e->getException()),
+                'exception' => \get_class($e->getException()),
                 'exceptionMessage' => $e->getException()->getMessage(),
                 'exceptionFile' => $e->getException()->getFile(),
                 'exceptionLine' => $e->getException()->getLine(),
@@ -115,7 +115,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function isExceptionEqual(DeadMessageEntity $deadMessage, \Throwable $e): bool
     {
-        return $deadMessage->getException() === get_class($e)
+        return $deadMessage->getException() === \get_class($e)
             && $deadMessage->getExceptionMessage() === $e->getMessage()
             && $deadMessage->getExceptionFile() === $e->getFile()
             && $deadMessage->getExceptionLine() === $e->getLine();
@@ -146,7 +146,7 @@ class RetryMiddleware implements MiddlewareInterface
                     'handlerClass' => $e->getHandlerClass(),
                     'encrypted' => $message->isEncrypted(),
                     'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                    'exception' => get_class($e->getException()),
+                    'exception' => \get_class($e->getException()),
                     'exceptionMessage' => $e->getException()->getMessage(),
                     'exceptionFile' => $e->getException()->getFile(),
                     'exceptionLine' => $e->getException()->getLine(),

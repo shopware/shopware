@@ -59,7 +59,7 @@ class MenuHelper
      */
     public function setCurrent($name): void
     {
-        if (!in_array($name, $this->entries, true)) {
+        if (!\in_array($name, $this->entries, true)) {
             throw new \Exception('could not find entry');
         }
 

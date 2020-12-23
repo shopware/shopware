@@ -63,7 +63,10 @@ Component.register('sw-customer-list', {
                 criteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
             }
 
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            this.sortBy.split(',').forEach(sortBy => {
+                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
+            });
+
             criteria
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
@@ -142,26 +145,30 @@ Component.register('sw-customer-list', {
         getCustomerColumns() {
             const columns = [{
                 property: 'firstName',
-                dataIndex: 'firstName,lastName',
+                dataIndex: 'lastName,firstName',
                 inlineEdit: 'string',
                 label: 'sw-customer.list.columnName',
                 routerLink: 'sw.customer.detail',
                 width: '250px',
                 allowResize: true,
-                primary: true
+                primary: true,
+                useCustomSort: true
             }, {
                 property: 'defaultBillingAddress.street',
                 label: 'sw-customer.list.columnStreet',
-                allowResize: true
+                allowResize: true,
+                useCustomSort: true
             }, {
                 property: 'defaultBillingAddress.zipcode',
                 label: 'sw-customer.list.columnZip',
                 align: 'right',
-                allowResize: true
+                allowResize: true,
+                useCustomSort: true
             }, {
                 property: 'defaultBillingAddress.city',
                 label: 'sw-customer.list.columnCity',
-                allowResize: true
+                allowResize: true,
+                useCustomSort: true
             }, {
                 property: 'customerNumber',
                 dataIndex: 'customerNumber',
@@ -169,7 +176,8 @@ Component.register('sw-customer-list', {
                 label: 'sw-customer.list.columnCustomerNumber',
                 allowResize: true,
                 inlineEdit: 'string',
-                align: 'right'
+                align: 'right',
+                useCustomSort: true
             }, {
                 property: 'group',
                 dataIndex: 'group',
@@ -177,29 +185,34 @@ Component.register('sw-customer-list', {
                 label: 'sw-customer.list.columnGroup',
                 allowResize: true,
                 inlineEdit: 'string',
-                align: 'right'
+                align: 'right',
+                useCustomSort: true
             }, {
                 property: 'email',
                 inlineEdit: 'string',
                 label: 'sw-customer.list.columnEmail',
-                allowResize: true
+                allowResize: true,
+                useCustomSort: true
             }, {
                 property: 'affiliateCode',
                 inlineEdit: 'string',
                 label: 'sw-customer.list.columnAffiliateCode',
                 allowResize: true,
-                visible: false
+                visible: false,
+                useCustomSort: true
             }, {
                 property: 'campaignCode',
                 inlineEdit: 'string',
                 label: 'sw-customer.list.columnCampaignCode',
                 allowResize: true,
-                visible: false
+                visible: false,
+                useCustomSort: true
             }, {
                 property: 'boundSalesChannelId',
                 label: 'sw-customer.list.columnBoundSalesChannel',
                 allowResize: true,
-                visible: false
+                visible: false,
+                useCustomSort: true
             }];
 
             return columns;

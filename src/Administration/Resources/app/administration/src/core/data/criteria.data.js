@@ -390,7 +390,7 @@ export default class Criteria {
      * @returns {Object}
      */
     static filter(name, filter, aggregation) {
-        return { type: 'terms', filter, aggregation };
+        return { type: 'filter', name, filter, aggregation };
     }
 
     /**

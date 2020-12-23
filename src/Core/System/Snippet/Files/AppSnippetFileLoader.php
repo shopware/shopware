@@ -63,7 +63,7 @@ class AppSnippetFileLoader
      */
     private function createSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): ?GenericSnippetFile
     {
-        switch (count($nameParts)) {
+        switch (\count($nameParts)) {
             case 2:
                 return $this->getSnippetFile($nameParts, $fileInfo, $author);
             case 3:

@@ -1,12 +1,26 @@
 {% block sw_mail_header_footer_list_grid %}
-    <sw-card
-        :isLoading="isLoading"
-        :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')">
+    <sw-card :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')">
+    
+        <template>
+            {% block sw_mail_header_footer_list_grid_empty_state %}
+                <sw-empty-state v-if="!showListing"
+                    :title="$tc('sw-mail-header-footer.list.emptyStateTitle')"
+                    :subline="$tc('sw-mail-header-footer.list.emptyStateSubTitle')"
+                    :absolute="false">
+
+                    {% block sw_mail_header_footer_list_grid_empty_state_icon %}
+                        <template #icon>
+                            <img :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                        </template>
+                    {% endblock %}
+
+                </sw-empty-state>
+            {% endblock %}
+        </template>
 
         {% block sw_mail_template_list_grid %}
             <template #grid>
-                <sw-entity-listing
-                    v-if="mailHeaderFooters"
+                <sw-entity-listing v-if="showListing"
                     class="sw-mail-templates-list-grid"
                     id="mailHeaderFooterGrid"
                     detailRoute="sw.mail.template.detail_head_foot"
@@ -19,7 +33,10 @@
                     :allowView="acl.can('mail_templates.viewer')"
                     :allowEdit="acl.can('mail_templates.editor')"
                     :allowDelete="acl.can('mail_templates.deleter')"
-                    :showSelection="acl.can('mail_templates.deleter')">
+                    :showSelection="acl.can('mail_templates.deleter')"
+                    :skeletonItemAmount="skeletonItemAmount"
+                    @update-records="updateRecords">
+
                     <template #column-salesChannels.name="{ item }">
                         {% block sw_mail_template_list_columns_sales_channels_label %}
                             {{  getSalesChannelsString(item) }}

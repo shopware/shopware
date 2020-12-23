@@ -3,20 +3,20 @@
 namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class OpenApi3GeneratorTest extends TestCase
 {
-    use AssertArraySubsetBehaviour;
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
@@ -30,24 +30,82 @@ class OpenApi3GeneratorTest extends TestCase
      */
     private $entityName;
 
+    /**
+     * @var OpenApi3Generator
+     */
+    private $openApiGenerator;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
     protected function setUp(): void
     {
         $this->registerDefinition(SimpleDefinition::class);
 
-        $definitionRegistry = new DefinitionInstanceRegistry(
+        $this->definitionRegistry = new DefinitionInstanceRegistry(
             $this->getContainer(),
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
-        $openApiGenerator = new OpenApi3Generator(
+        $this->openApiGenerator = new OpenApi3Generator(
             new OpenApiSchemaBuilder('6.4.0.0'),
             new OpenApiPathBuilder(),
             new OpenApiDefinitionSchemaBuilder(),
             new OpenApiLoader($this->getContainer()->get('router'), $this->getContainer()->get('event_dispatcher'))
         );
 
-        $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions());
+        $this->schema = $this->openApiGenerator->getSchema($this->definitionRegistry->getDefinitions());
         $this->entityName = 'simple';
+    }
+
+    public function testGenerateStoreApiSchemaFeaturedInternalActive(): void
+    {
+        Feature::registerFeature('FEATURE_NEXT_12345', ['default' => true]);
+        $generatedSchema = $this->openApiGenerator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API
+        );
+
+        static::assertArrayHasKey('paths', $generatedSchema);
+
+        //check for class internal annotation
+        static::assertArrayHasKey('/testinternal', $generatedSchema['paths']);
+
+        //check for method internal with flag
+        static::assertArrayHasKey('/testinternalother', $generatedSchema['paths']);
+
+        //check for method not internal
+        static::assertArrayHasKey('/testnotinternalother', $generatedSchema['paths']);
+
+        //check for method internal without flag
+        static::assertArrayNotHasKey('/testinternalnoflagother', $generatedSchema['paths']);
+    }
+
+    public function testGenerateStoreApiSchemaFeaturedInternalInActive(): void
+    {
+        if (static::isFeatureAllTrue()) {
+            static::markTestSkipped('skipped because FEATURE_ALL is set');
+        }
+        Feature::registerFeature('FEATURE_NEXT_12345', ['default' => false]);
+        $generatedSchema = $this->openApiGenerator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API
+        );
+        static::assertArrayHasKey('paths', $generatedSchema);
+
+        //check for class internal annotation
+        static::assertArrayNotHasKey('/testinternal', $generatedSchema['paths']);
+
+        //check for method internal with flag
+        static::assertArrayNotHasKey('/testinternalother', $generatedSchema['paths']);
+
+        //check for method not internal
+        static::assertArrayHasKey('/testnotinternalother', $generatedSchema['paths']);
+
+        //check for method internal without flag
+        static::assertArrayNotHasKey('/testinternalnoflagother', $generatedSchema['paths']);
     }
 
     public function testEntityNameConversion(): void
@@ -95,5 +153,16 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('readOnlyField', $properties);
         static::assertArrayHasKey('readOnly', $properties['readOnlyField']);
         static::assertTrue($properties['readOnlyField']['readOnly']);
+    }
+
+    private static function isFeatureAllTrue(): bool
+    {
+        /* @var mixed $value */
+        $value = $_SERVER['FEATURE_ALL'];
+
+        return $value
+            && $value !== 'false'
+            && $value !== '0'
+            && $value !== '';
     }
 }

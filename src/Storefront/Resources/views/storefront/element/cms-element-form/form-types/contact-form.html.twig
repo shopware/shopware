@@ -16,10 +16,11 @@
             {% endblock %}
 
             {% block cms_form_contact_input_first_name %}
+                {% set firstNameFieldRequired = shopware.config.core.basicInformation.firstNameFieldRequired == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'firstName',
-                    required: true,
+                    required: firstNameFieldRequired,
                     additionalClass: 'col-md-4',
                     label: 'account.personalFirstNameLabel',
                     placeholder: 'account.personalFirstNamePlaceholder'
@@ -28,10 +29,11 @@
             {% endblock %}
 
             {% block cms_form_contact_input_last_name %}
+                {% set lastNameFieldRequired = shopware.config.core.basicInformation.lastNameFieldRequired == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'lastName',
-                    required: true,
+                    required: lastNameFieldRequired,
                     additionalClass: 'col-md-4',
                     label: 'account.personalLastNameLabel',
                     placeholder: 'account.personalLastNamePlaceholder'
@@ -55,10 +57,11 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phome %}
+                {% set phoneNumberFieldRequired = shopware.config.core.basicInformation.phoneNumberFieldRequired == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'phone',
-                    required: true,
+                    required: phoneNumberFieldRequired,
                     additionalClass: 'col-md-6',
                     label: 'account.personalPhoneLabel',
                     placeholder: 'account.personalPhonePlaceholder'

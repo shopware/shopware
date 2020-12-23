@@ -140,7 +140,7 @@ class PasswordFieldTest extends TestCase
 
     public function testAlreadyEncodedValueIsPassedThrough(): void
     {
-        $password = password_hash('shopware', PASSWORD_DEFAULT);
+        $password = password_hash('shopware', \PASSWORD_DEFAULT);
 
         $field = new PasswordField('password', 'password');
         $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);

@@ -76,7 +76,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context);
     }
 
-    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, ?array $config = []): ProductEntity
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
@@ -99,6 +99,8 @@ trait StorefrontPageTestBehaviour
                 ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+
+        $data = array_merge_recursive($data, $config);
 
         $productRepository->create([$data], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $data['tax']);

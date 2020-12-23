@@ -51,7 +51,7 @@ trait EntityFixturesBase
 
         $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
 
-        if (array_key_exists('mediaType', $fixtureData[$fixtureName])) {
+        if (\array_key_exists('mediaType', $fixtureData[$fixtureName])) {
             $connection = KernelLifecycleManager::getKernel()
                 ->getContainer()
                 ->get(Connection::class);

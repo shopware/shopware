@@ -26,12 +26,12 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string
     {
-        return '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
+        return '@import \'' . $file->getFilepath() . '\';' . \PHP_EOL;
     }
 
     public function getConcatenableScriptPath(File $file, StorefrontPluginConfiguration $configuration): string
     {
-        return file_get_contents($file->getFilepath()) . PHP_EOL;
+        return file_get_contents($file->getFilepath()) . \PHP_EOL;
     }
 
     public function getCopyBatchInputsForAssets(string $assetPath, string $outputPath, StorefrontPluginConfiguration $configuration): array
@@ -52,10 +52,10 @@ class ThemeFileImporter implements ThemeFileImporterInterface
             $assetDir = basename($assetPath);
 
             $assets[] = new CopyBatchInput(
-                $assetPath . DIRECTORY_SEPARATOR . $relativePathname,
+                $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
                 [
-                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                    'bundles' . \DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
+                    $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
                 ]
             );
         }

@@ -301,6 +301,14 @@ Component.register('sw-order-line-items-grid', {
 
         hasMultipleTaxes(item) {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
+        },
+
+        updateItemQuantity(item) {
+            if (item.type !== this.lineItemTypes.CUSTOM) {
+                return;
+            }
+
+            item.priceDefinition.quantity = item.quantity;
         }
     }
 });

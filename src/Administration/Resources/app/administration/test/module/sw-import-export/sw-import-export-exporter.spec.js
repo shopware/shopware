@@ -104,6 +104,9 @@ describe('components/sw-import-export-exporter', () => {
                 },
                 repositoryFactory: {
                     create: () => repositoryMockFactory()
+                },
+                feature: {
+                    isActive: () => {}
                 }
             }
         });

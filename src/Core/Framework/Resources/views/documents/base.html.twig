@@ -11,6 +11,8 @@ merge 16.11.2020
 {% use '@Framework/documents/includes/footer.html.twig' %}
 {% use '@Framework/documents/includes/summary.html.twig' %}
 {% use '@Framework/documents/includes/payment_shipping.html.twig' %}
+{% use '@Framework/documents/includes/comment.html.twig' %}
+{% use '@Framework/documents/includes/shipping_address.html.twig' %}
 
 {% block document_base %}
     {# @var order \Shopware\Core\Checkout\Order\OrderEntity #}
@@ -51,7 +53,7 @@ merge 16.11.2020
 
             {% block document_font_links %}
                 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap" rel="stylesheet">
-            {% endblock %}
+            {% endblock %}document_body
 
             {% if config.custom.pageOrientation == 'landscape' %}
                 {% sw_include '@Framework/documents/style_base_landscape.css.twig' %}
@@ -79,6 +81,10 @@ merge 16.11.2020
         {{ block('summary') }}
 
         {{ block('payment_shipping')  }}
+
+        {{ block('comment')  }}
+
+        {{ block('shipping_address')  }}
     {% endblock %}
     </body>
     </html>

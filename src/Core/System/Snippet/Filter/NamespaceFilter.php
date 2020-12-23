@@ -17,7 +17,7 @@ class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !is_array($requestFilterValue)) {
+        if (empty($requestFilterValue) || !\is_array($requestFilterValue)) {
             return $snippets;
         }
 
@@ -25,7 +25,7 @@ class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
         foreach ($requestFilterValue as $term) {
             foreach ($snippets as $setId => $set) {
                 foreach ($set['snippets'] as $translationKey => $snippet) {
-                    if (!fnmatch(sprintf('%s*', $term), $snippet['translationKey'], FNM_CASEFOLD)) {
+                    if (!fnmatch(sprintf('%s*', $term), $snippet['translationKey'], \FNM_CASEFOLD)) {
                         continue;
                     }
                     $result[$setId]['snippets'][$translationKey] = $snippet;

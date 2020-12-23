@@ -33,7 +33,7 @@ class AfterSort
         $sorted = [array_shift($elements)];
         $lastId = $sorted[0]->getId();
 
-        while (count($elements) > 0) {
+        while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
                 if ($element->get($propertyName) !== $lastId) {
                     continue;
@@ -52,7 +52,7 @@ class AfterSort
             $nextItem = array_shift($elements);
             $sorted[] = $nextItem;
 
-            if (!count($elements)) {
+            if (!\count($elements)) {
                 break;
             }
 

@@ -31,7 +31,7 @@ class ConnectionFactoryFactory implements ConnectionFactoryFactoryInterface
      */
     public function create($config): ConnectionFactory
     {
-        $config = !is_array($config) ? [] : $config;
+        $config = !\is_array($config) ? [] : $config;
         $config = array_replace_recursive([
             'connection' => [],
             'table_name' => 'enqueue',

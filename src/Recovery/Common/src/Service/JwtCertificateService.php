@@ -18,9 +18,9 @@ class JwtCertificateService
     {
         $key = openssl_pkey_new([
             'digest_alg' => 'aes256',
-            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+            'private_key_type' => \OPENSSL_KEYTYPE_RSA,
             'encrypt_key' => false,
-            'encrypt_key_cipher' => OPENSSL_CIPHER_AES_256_CBC,
+            'encrypt_key_cipher' => \OPENSSL_CIPHER_AES_256_CBC,
         ]);
 
         // export private key

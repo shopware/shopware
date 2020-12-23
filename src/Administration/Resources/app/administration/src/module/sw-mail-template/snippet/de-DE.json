@@ -23,10 +23,11 @@
       "textDeleteConfirm": "Möchtest Du das E-Mail-Template \"{subject}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine E-Mail-Templates",
       "titleSidebarItemRefresh": "Aktualisieren",
       "errorMediaItemDuplicated": "Medium bereits verwendet",
-      "columnFilename": "Dateiname"
+      "columnFilename": "Dateiname",
+      "emptyStateTitle": "Noch keine E-Mail-Templates",
+      "emptyStateSubTitle": "Füge E-Mail-Templates über den \"Hinzufügen\"-Button hinzu."
     },
     "detail": {
       "basic": {
@@ -93,9 +94,10 @@
       "textDeleteConfirm": "Möchtest Du die Kopf- und Fußzeile \"{name}\" wirklich löschen?",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine Kopf- und Fußzeile",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "messageDeleteError": "Die Kopf- und Fußzeile \"{name}\" kann nicht gelöscht werden, solange Verkaufskanäle konfiguriert sind."
+      "messageDeleteError": "Die Kopf- und Fußzeile \"{name}\" kann nicht gelöscht werden, solange Verkaufskanäle konfiguriert sind.",
+      "emptyStateTitle": "Noch keine Kopf- und Fußzeile",
+      "emptyStateSubTitle": "Füge Kopf- und Fußzeile über den \"Hinzufügen\"-Button."
     },
     "detail": {
       "basic": {

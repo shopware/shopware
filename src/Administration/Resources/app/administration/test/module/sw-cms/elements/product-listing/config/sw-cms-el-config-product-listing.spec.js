@@ -3,15 +3,49 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-listing/config';
 
-function createWrapper() {
+
+const productSortingRepositoryMock = {
+    search: () => Promise.resolve([]),
+    route: '/product_sorting',
+    schema: {
+        entity: 'product_sorting'
+    }
+};
+const propertyGroupRepositoryMock = {
+    search: () => Promise.resolve([
+        { id: 'x01', name: 'foo' },
+        { id: 'x02', name: 'bar' },
+        { id: 'x03', name: 'baz' }
+    ]),
+    route: '/property_group',
+    schema: {
+        entity: 'property_group'
+    }
+};
+
+const repositoryMockFactory = (entity) => {
+    if (entity === 'product_sorting') {
+        return productSortingRepositoryMock;
+    }
+
+    if (entity === 'property_group') {
+        return propertyGroupRepositoryMock;
+    }
+
+    return false;
+};
+
+
+function createWrapper(activeTab = 'sorting') {
     const localVue = createLocalVue();
+    localVue.filter('asset', key => key);
 
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-listing'), {
         localVue,
         stubs: {
             'sw-tabs': {
                 data() {
-                    return { active: 'sorting' };
+                    return { active: activeTab };
                 },
                 template: `
 <div>
@@ -25,7 +59,10 @@ function createWrapper() {
             'sw-switch-field': true,
             'sw-entity-single-select': true,
             'sw-entity-multi-select': true,
-            'sw-cms-el-config-product-listing-config-sorting-grid': true
+            'sw-container': true,
+            'sw-simple-search-field': true,
+            'sw-cms-el-config-product-listing-config-sorting-grid': true,
+            'sw-cms-el-config-product-listing-config-filter-properties-grid': true
         },
         provide: {
             cmsService: {
@@ -34,13 +71,7 @@ function createWrapper() {
                 }
             },
             repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                    route: '/product_sorting',
-                    schema: {
-                        entity: 'product_sorting'
-                    }
-                })
+                create: (entity) => repositoryMockFactory(entity)
             },
             feature: {
                 isActive: () => true
@@ -67,6 +98,12 @@ function createWrapper() {
                     },
                     useCustomSorting: {
                         value: true
+                    },
+                    filters: {
+                        value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter'
+                    },
+                    propertyWhitelist: {
+                        value: []
                     }
                 }
             }
@@ -80,11 +117,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain both tab items', () => {
+    it('should contain tab items content, sorting and filter', () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
+        expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
     });
 
     it('should contain content for sorting when defaultSorting is deactivated', () => {
@@ -210,5 +248,117 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             bar: 5,
             foo: 2
         });
+    });
+
+    it('should contain content for filter setting', () => {
+        const wrapper = createWrapper('filter');
+
+        const showFilterManufacturerSwitchField = wrapper
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
+        const showFilterRatingSwitchField = wrapper
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByRating"]');
+        const showFilterPriceSwitchField = wrapper
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]');
+        const showFilterForFreeShippingSwitchField = wrapper
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]');
+
+
+        expect(showFilterManufacturerSwitchField.exists()).toBeTruthy();
+        expect(showFilterRatingSwitchField.exists()).toBeTruthy();
+        expect(showFilterPriceSwitchField.exists()).toBeTruthy();
+        expect(showFilterForFreeShippingSwitchField.exists()).toBeTruthy();
+    });
+
+    it('should show use-filter-properties-option when properties available', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // calculate showPropertySelection
+
+        expect(wrapper.vm.showPropertySelection).toBeTruthy();
+
+        await wrapper.vm.$nextTick(); // re-render view
+
+        const showUseFilterByPropteriesSwitchField = wrapper
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]');
+        const showPropterySearchField = wrapper
+            .find('sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search');
+        const showPropteryStatusGrid = wrapper
+            .find('sw-cms-el-config-product-listing-config-filter-properties-grid-stub');
+
+        expect(showUseFilterByPropteriesSwitchField.exists()).toBeTruthy();
+        expect(showPropterySearchField.exists()).toBeTruthy();
+        expect(showPropteryStatusGrid.exists()).toBeTruthy();
+    });
+
+    it('should sort properties by status', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        // enable filterByProperties otherwise any property is active
+        wrapper.vm.filterByProperties = true;
+
+        expect(wrapper.vm.showPropertySelection).toBeTruthy();
+
+        const expectedOrderWhenNoPropertiesAreActive = ['foo', 'bar', 'baz'];
+        const propertiesOrderByAPI = wrapper.vm.properties.map(item => item.name);
+
+        expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
+
+        wrapper.vm.element.config.propertyWhitelist.value = ['x03']; // activate proptery_group 'baz'
+        wrapper.vm.loadFilterableProperties();
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        const expectedOrderWhenPropertyBazIsActive = ['baz', 'foo', 'bar'];
+        const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map(item => item.name);
+
+        expect(expectedOrderWhenPropertyBazIsActive).toEqual(propertiesOrderBySortingViaActiveState);
+    });
+
+    it('should filter properties by term', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        expect(wrapper.vm.showPropertySelection).toBeTruthy();
+
+        const expectedToDiplayProperties = ['foo', 'bar', 'baz'];
+        const displayedProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayProperties).toEqual(displayedProperties);
+
+        wrapper.vm.filterPropertiesTerm = 'bar';
+
+        const expectedToDiplayFilteredProperties = ['bar'];
+        const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+
+        await wrapper.vm.$nextTick(); // await template re-render
+
+        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
+        expect(emptyStateElement.element).not.toBeTruthy();
+    });
+
+    it('should show an empty-state when filtered properties have no result', async () => {
+        const wrapper = createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
+        expect(wrapper.vm.showPropertySelection).toBeTruthy();
+
+        const expectedToDiplayProperties = ['foo', 'bar', 'baz'];
+        const displayedProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayProperties).toEqual(displayedProperties);
+
+        wrapper.vm.filterPropertiesTerm = 'notinlist';
+
+        const expectedToDiplayFilteredProperties = [];
+        const displayedFilteredProperties = wrapper.vm.displayedProperties.map(item => item.name);
+        expect(expectedToDiplayFilteredProperties).toEqual(displayedFilteredProperties);
+
+        await wrapper.vm.$nextTick(); // await template re-render
+
+        const emptyStateElement = wrapper.find('.sw-cms-element-product-listing-config-filter__empty-state');
+        expect(emptyStateElement.element).toBeTruthy();
     });
 });

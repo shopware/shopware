@@ -1,0 +1,165 @@
+{% block sw_promotion_v2_detail_base %}
+    <div class="sw-promotion-v2-detail-base">
+
+        {% block sw_promotion_v2_detail_base_general_card %}
+            <sw-card
+                v-if="promotion"
+                class="sw-promotion-v2-detail-base__card-general"
+                :isLoading="isLoading"
+                :title="$tc('sw-promotion-v2.detail.base.general.cardTitle')">
+
+                {% block sw_promotion_v2_detail_base_general_name %}
+                    <sw-text-field
+                        v-model="promotion.name"
+                        class="sw-promotion-v2-detail-base__field-name"
+                        :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
+                        :disabled="!acl.can('promotion.editor')"
+                        :error="promotionNameError">
+                    </sw-text-field>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_valid_container %}
+                    <sw-container columns="1fr 1fr" gap="0 32px">
+
+                        {% block sw_promotion_v2_detail_base_general_valid_from %}
+                            <sw-datepicker
+                                v-model="promotion.validFrom"
+                                class="sw-promotion-v2-detail-base__field-valid-from"
+                                dateType="datetime-local"
+                                :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
+                                :placeholderText="$tc('sw-promotion-v2.detail.base.general.validFromPlaceholder')"
+                                :disabled="!acl.can('promotion.editor')">
+                            </sw-datepicker>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_detail_base_general_valid_until %}
+                            <sw-datepicker
+                                v-model="promotion.validUntil"
+                                class="sw-promotion-v2-detail-base__field-valid-until"
+                                dateType="datetime-local"
+                                :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
+                                :placeholderText="$tc('sw-promotion-v2.detail.base.general.validUntilPlaceholder')"
+                                :disabled="!acl.can('promotion.editor')"
+                                :error="promotionValidUntilError">
+                            </sw-datepicker>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_max_uses %}
+                    <sw-container columns="1fr 1fr" gap="0 32px">
+
+                        {% block sw_promotion_v2_detail_base_general_max_uses_global %}
+                            <sw-number-field
+                                v-model="promotion.maxRedemptionsGlobal"
+                                class="sw-promotion-v2-detail-base__field-max-uses-global"
+                                numberType="int"
+                                :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
+                                :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalPlaceholder')"
+                                :disabled="!acl.can('promotion.editor')"
+                                allowEmpty>
+                            </sw-number-field>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_detail_base_general_max_uses_customer %}
+                            <sw-number-field
+                                v-model="promotion.maxRedemptionsPerCustomer"
+                                class="sw-promotion-v2-detail-base__field-max-uses-per-customer"
+                                numberType="int"
+                                :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
+                                :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerPlaceholder')"
+                                :disabled="!acl.can('promotion.editor')"
+                                allowEmpty>
+                            </sw-number-field>
+                        {% endblock %}
+
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_general_active %}
+                    <sw-switch-field
+                        v-model="promotion.active"
+                        class="sw-promotion-v2-detail-base__field-active"
+                        :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
+                        :disabled="!acl.can('promotion.editor')"
+                        bordered>
+                    </sw-switch-field>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_v2_detail_base_codes_card %}
+            <sw-card
+                v-if="promotion && !isCreateMode"
+                class="sw-promotion-v2-detail-base__card-codes"
+                :isLoading="isLoading"
+                :title="$tc('sw-promotion-v2.detail.base.codes.cardTitle')">
+
+                {% block sw_promotion_v2_detail_base_codes_select %}
+                    <sw-select-field
+                        v-model="selectedCodeType"
+                        class="sw-promotion-v2-detail-base__field-code-type"
+                        :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
+                        :disabled="!acl.can('promotion.editor')"
+                        @change="onChangeCodeType">
+
+                        {% block sw_promotion_v2_detail_base_codes_select_options %}
+                            <option
+                                v-for="option in codeTypeOptions"
+                                :value="option.value"
+                                :selected="option.value === selectedCodeType">
+                                {{ option.label }}
+                            </option>
+                        {% endblock %}
+
+                    </sw-select-field>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_codes_type_fixed %}
+                    <template v-if="selectedCodeType === CODE_TYPES.FIXED">
+
+                        {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
+                            <sw-text-field
+                                v-model="promotion.code"
+                                class="sw-promotion-v2-detail-base__fixed-field-code"
+                                :disabled="!acl.can('promotion.editor')"
+                                :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
+                                :placeholder="$tc('sw-promotion-v2.detail.base.codes.fixed.codePlaceholder')"
+                                copyable>
+                            </sw-text-field>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_detail_base_codes_type_fixed_generate %}
+                            <sw-button-process
+                                class="sw-promotion-v2-detail-base__fixed-generate-button"
+                                :isLoading="isGenerating"
+                                :disabled="!acl.can('promotion.editor')"
+                                :processSuccess="isGenerateSuccessful"
+                                @process-finish="generateFinish"
+                                @click.prevent="onGenerateCodeFixed">
+                                {{ $tc('sw-promotion-v2.detail.base.codes.fixed.generateButton') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+                {% block sw_promotion_v2_detail_base_codes_type_individual %}
+                    <template v-if="selectedCodeType === CODE_TYPES.INDIVIDUAL">
+
+                        {% block sw_promotion_v2_detail_base_codes_type_individual_codes_behavior %}
+                            <sw-promotion-v2-individual-codes-behavior
+                                :codes="promotion.individualCodes">
+                            </sw-promotion-v2-individual-codes-behavior>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+    </div>
+{% endblock %}

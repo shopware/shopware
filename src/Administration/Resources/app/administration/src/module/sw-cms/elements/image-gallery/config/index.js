@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 
@@ -12,14 +12,15 @@ Component.register('sw-cms-el-config-image-gallery', {
         Mixin.getByName('cms-element')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
             enitiy: this.element,
-            mediaItems: []
+            mediaItems: [],
+            columnWidth: '100px'
         };
     },
 
@@ -42,6 +43,42 @@ Component.register('sw-cms-el-config-image-gallery', {
             }
 
             return [];
+        },
+
+        sliderItemsConfigValue() {
+            return Utils.get(this.element, 'config.sliderItems.value');
+        },
+
+        gridAutoRows() {
+            return `grid-auto-rows: ${this.columnWidth}`;
+        }
+    },
+
+    watch: {
+        sliderItems() {
+            this.updateColumnWidth();
+        },
+
+        sliderItemsConfigValue(value) {
+            const isSourceMapped = Utils.get(this.element, 'config.sliderItems.source') === 'mapped';
+            const isSliderLengthValid = value && value.length === this.sliderItems.length;
+
+            if (isSourceMapped || isSliderLengthValid) {
+                return;
+            }
+
+            this.mediaItems = this.sliderItems.map((item) => {
+                return item.media;
+            });
+
+            this.element.config.sliderItems.value = this.sliderItems.map(item => {
+                return {
+                    mediaId: item.media.id,
+                    mediaUrl: item.media.url,
+                    newTab: item.newTab,
+                    url: item.url
+                };
+            });
         }
     },
 
@@ -49,12 +86,18 @@ Component.register('sw-cms-el-config-image-gallery', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         async createdComponent() {
             this.initElementConfig('image-gallery');
 
-            if (this.element.config.sliderItems.value.length > 0) {
-                const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
+            const { source: sliderItemsSource, value: sliderItemsValue } = this.element.config.sliderItems;
+
+            if (sliderItemsSource === 'static' && sliderItemsValue && sliderItemsValue.length > 0) {
+                const mediaIds = sliderItemsValue.map((configElement) => {
                     return configElement.mediaId;
                 });
 
@@ -66,6 +109,23 @@ Component.register('sw-cms-el-config-image-gallery', {
                     return searchResult.get(mediaId);
                 });
             }
+        },
+
+        mountedComponent() {
+            this.updateColumnWidth();
+        },
+
+        updateColumnWidth() {
+            if (!this.$refs.demoMediaGrid) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const cssColumns = window.getComputedStyle(this.$refs.demoMediaGrid, null)
+                    .getPropertyValue('grid-template-columns')
+                    .split(' ');
+                this.columnWidth = cssColumns[0];
+            });
         },
 
         onOpenMediaModal() {

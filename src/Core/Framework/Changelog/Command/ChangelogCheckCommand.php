@@ -48,7 +48,7 @@ class ChangelogCheckCommand extends Command
         }
 
         $output = $this->validator->check($path);
-        if (count($output)) {
+        if (\count($output)) {
             foreach ($output as $file => $violations) {
                 $IOHelper->writeln((string) $file);
                 $IOHelper->writeln(array_map(function ($message) {

@@ -141,7 +141,8 @@ export default function conditionService() {
             'prices',
             'createdAt',
             'updatedAt',
-            'customFields'
+            'customFields',
+            'id'
         ],
         property_group_option: [
             'colorHexCode',
@@ -149,7 +150,8 @@ export default function conditionService() {
             'productServices',
             'productProperties',
             'productOptions',
-            'customFields'
+            'customFields',
+            'productConfiguratorSettings'
         ],
         property_group: [
             'description',
@@ -202,7 +204,6 @@ export default function conditionService() {
             'metaTitle',
             'prices',
             'services',
-            'properties',
             'searchKeywords',
             'categories',
             'canonicalUrl',
@@ -346,6 +347,8 @@ export default function conditionService() {
         isPropertyInBlacklist,
         addToGeneralBlacklist,
         addToEntityBlacklist,
+        removeFromGeneralBlacklist,
+        removeFromEntityBlacklist,
         getConditions,
         getAndContainerData,
         isAndContainer,
@@ -360,15 +363,27 @@ export default function conditionService() {
         isRangeType
     };
 
+    /**
+     * @param {?string} definition
+     * @param {string} property
+     * @returns {boolean}
+     */
     function isPropertyInBlacklist(definition, property) {
         return blacklist.includes(property)
-            || (entityBlacklist[definition] && entityBlacklist[definition].includes(property));
+            || (entityBlacklist.hasOwnProperty(definition) && entityBlacklist[definition].includes(property));
     }
 
+    /**
+     * @param {string[]} properties
+     */
     function addToGeneralBlacklist(properties) {
         blacklist.push(...properties);
     }
 
+    /**
+     * @param {string} entity
+     * @param {string[]} properties
+     */
     function addToEntityBlacklist(entity, properties) {
         if (entityBlacklist[entity]) {
             entityBlacklist[entity].push(...properties);
@@ -376,6 +391,29 @@ export default function conditionService() {
         }
 
         entityBlacklist[entity] = properties;
+    }
+
+    /**
+     * @param {string[]} properties
+     */
+    function removeFromGeneralBlacklist(properties) {
+        properties.forEach(entry => {
+            blacklist.splice(blacklist.indexOf(entry), 1);
+        });
+    }
+
+    /**
+     * @param {string} entity
+     * @param {string[]} properties
+     */
+    function removeFromEntityBlacklist(entity, properties) {
+        if (!entityBlacklist[entity]) {
+            return;
+        }
+
+        properties.forEach(entry => {
+            entityBlacklist[entity].splice(entityBlacklist[entity].indexOf(entry), 1);
+        });
     }
 
     function getConditions() {

@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 
 Component.register('sw-cms-el-image-gallery', {
     template,
@@ -27,7 +27,11 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         currentDeviceViewClass() {
-            return `is--${this.currentDeviceView}`;
+            if (this.currentDeviceView) {
+                return `is--${this.currentDeviceView}`;
+            }
+
+            return null;
         },
 
         verticalAlignStyle() {
@@ -35,7 +39,19 @@ Component.register('sw-cms-el-image-gallery', {
                 return null;
             }
 
-            return `justify-content: ${this.element.config.verticalAlign.value};`;
+            return `align-content: ${this.element.config.verticalAlign.value};`;
+        },
+
+        mediaUrls() {
+            if (Utils.get(this.element, 'config.sliderItems.source') === 'mapped') {
+                return this.getDemoValue(this.element.config.sliderItems.value) || [];
+            }
+
+            return Utils.get(this.element, 'data.sliderItems') || [];
+        },
+
+        isProductPage() {
+            return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
         }
     },
 
@@ -81,6 +97,11 @@ Component.register('sw-cms-el-image-gallery', {
         createdComponent() {
             this.initElementConfig('image-gallery');
             this.initElementData('image-gallery');
+
+            if (this.isProductPage) {
+                this.element.config.sliderItems.source = 'mapped';
+                this.element.config.sliderItems.value = 'product.media';
+            }
         },
 
         mountedComponent() {
@@ -131,5 +152,4 @@ Component.register('sw-cms-el-image-gallery', {
             this.galleryLimit = Math.floor(boxSpace / (elSpace + elGap));
         }
     }
-
 });

@@ -262,7 +262,7 @@ class DoctrineExtension extends AbstractExtension
         foreach ($parameters as $key => $value) {
             $isLarger = false;
 
-            if (\mb_strlen($value) > $maxLength) {
+            if (mb_strlen($value) > $maxLength) {
                 $value = wordwrap($value, $maxLength, "\n", true);
                 $value = explode("\n", $value);
                 $value = $value[0];

@@ -79,7 +79,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $columns = array_filter(
             $this->connection->getSchemaManager()->listTableColumns('product'),
             static function (Column $column): bool {
-                return in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
+                return \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
             }
         );
 
@@ -102,11 +102,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $actual = $this->fetchDefaultFeatureSet();
         $actualFeatures = json_decode($actual['features'], true);
 
-        static::assertCount(count($expectedFeatures), $actualFeatures);
+        static::assertCount(\count($expectedFeatures), $actualFeatures);
 
         $actualFeature = array_pop($actualFeatures);
 
-        static::assertCount(count($expectedFeature), $actualFeature);
+        static::assertCount(\count($expectedFeature), $actualFeature);
 
         static::assertEquals($expectedFeature['type'], $actualFeature['type']);
         static::assertEquals($expectedFeature['id'], $actualFeature['id']);
@@ -220,7 +220,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     private function hasColumn(Connection $connection, string $table, string $columnName): bool
     {
-        return count(array_filter(
+        return \count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
             static function (Column $column) use ($columnName): bool {
                 return $column->getName() === $columnName;

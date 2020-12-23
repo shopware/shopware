@@ -161,7 +161,8 @@
                                                  v-model="item.quantity"
                                                  :min="1"
                                                  size="small"
-                                                 placeholder="0">
+                                                 placeholder="0"
+                                                 @change="updateItemQuantity(item)">
                                 </sw-number-field>
                             {% endblock %}
 

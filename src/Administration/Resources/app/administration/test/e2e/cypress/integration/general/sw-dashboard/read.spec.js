@@ -43,7 +43,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
             });
     });
 
-    it('@general: read dashboard', () => {
+    it('@base @general: read dashboard', () => {
         // Check today stats
         cy.get('.sw-dashboard-index__intro-content').contains('Welcome to Shopware 6');
         cy.get('.sw-dashboard-index__intro-image img')

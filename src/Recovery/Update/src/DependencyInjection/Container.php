@@ -31,12 +31,12 @@ class Container extends BaseContainer
 {
     public function setup(\Pimple\Container $container): void
     {
-        $backupDir = SW_PATH . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'backup' . DIRECTORY_SEPARATOR . 'auto_update';
+        $backupDir = SW_PATH . \DIRECTORY_SEPARATOR . 'files' . \DIRECTORY_SEPARATOR . 'backup' . \DIRECTORY_SEPARATOR . 'auto_update';
 
         $me = $this;
 
         $container['shopware.version'] = function () use ($me) {
-            $version = trim(file_get_contents(UPDATE_ASSET_PATH . DIRECTORY_SEPARATOR . 'version'));
+            $version = trim(file_get_contents(UPDATE_ASSET_PATH . \DIRECTORY_SEPARATOR . 'version'));
 
             return $version;
         };
@@ -117,7 +117,7 @@ class Container extends BaseContainer
 
         $container['system.locker'] = function () {
             return new SystemLocker(
-                SW_PATH . DIRECTORY_SEPARATOR . 'recovery' . DIRECTORY_SEPARATOR . 'install' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'install.lock'
+                SW_PATH . \DIRECTORY_SEPARATOR . 'recovery' . \DIRECTORY_SEPARATOR . 'install' . \DIRECTORY_SEPARATOR . 'data' . \DIRECTORY_SEPARATOR . 'install.lock'
             );
         };
 

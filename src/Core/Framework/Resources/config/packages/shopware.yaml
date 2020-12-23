@@ -55,22 +55,81 @@ shopware:
 
     feature:
         flags:
-            - FEATURE_NEXT_1797
-            - FEATURE_NEXT_3722
-            - FEATURE_NEXT_5983
-            - FEATURE_NEXT_10286
-            - FEATURE_NEXT_9351
-            - FEATURE_NEXT_10058
-            - FEATURE_NEXT_10077
-            - FEATURE_NEXT_10555
-            - FEATURE_NEXT_10537
-            - FEATURE_NEXT_10075
-            - FEATURE_NEXT_15049
-            - FEATURE_NEXT_9825
-            - FEATURE_NEXT_6995
-            - FEATURE_NEXT_10549
-            - FEATURE_NEXT_10078
-            - FEATURE_NEXT_10559
-            - FEATURE_NEXT_11389
-            - FEATURE_NEXT_10536
-            - FEATURE_NEXT_7453
+            - name: FEATURE_NEXT_1797
+              default: false
+              major: true
+              description: "composer require for plugins"
+            - name: FEATURE_NEXT_7453
+              major: true
+              description: "use custom name prefix for nested routes"
+            - name: FEATURE_NEXT_8172
+              major: true
+              description: "prevent plugins to extend the first level menu entries"
+            - name: FEATURE_NEXT_12009
+              major: true
+              description: "remove countries from sales channel object inside context"
+            - name: FEATURE_NEXT_10549
+              major: false
+              description: "save cart or products on wishlist"
+            - name: FEATURE_NEXT_10559
+              major: false
+              description: "vat handling for companies"
+            - name: FEATURE_NEXT_10078
+              major: false
+              description: "cms product page layouts"
+            - name: FEATURE_NEXT_10536
+              major: false
+              description: "filter settings per category"
+            - name: FEATURE_NEXT_10539
+              major: false
+              description: "prevent deletion of used rules"
+            - name: FEATURE_NEXT_12092
+              default: false
+              major: true
+              description: "correct spelling of a config key"
+            - name: FEATURE_NEXT_11253
+              default: false
+              major: true
+              description: "reduce request payload of cms listing"
+            - name: FEATURE_NEXT_12016
+              default: false
+              major: false
+              description: "improve promotions UX"
+            - name: FEATURE_NEXT_11917
+              major: false
+              description: "dynamic plugin acl privileges"
+            - name: FEATURE_NEXT_12108
+              default: false
+              major: true
+              description: "show property group in rule builder and dpg"
+            - name: FEATURE_NEXT_10552
+              default: false
+              major: true
+              description: "custom search index and ranking"
+            - name: FEATURE_NEXT_10820
+              default: false
+              major: true
+              description: "add same canonical url for variants"
+            - name: FEATURE_NEXT_12553
+              default: false
+              major: true
+              description: "Improve template hierarchy resolving"
+            - name: FEATURE_NEXT_12608
+              default: false
+              major: false
+              description: "App System Store"
+            - name: FEATURE_NEXT_7365
+              default: false
+              major: true
+              description: "single SCSS entry file for plugins"
+            - name: FEATURE_NEXT_12289
+              default: false
+              major: true
+              description: "Rule detail page assignments tab"
+            - name: FEATURE_NEXT_12942
+              default: false
+              major: true
+              description: "Add maximum width for logo"
+
+    logger:
+        file_rotation_count: 14

@@ -64,7 +64,8 @@
                             :isLoading="isLoading"
                             identifier="sw-customer-list"
                             @selection-change="updateSelection"
-                            @inline-edit-save="onInlineEditSave">
+                            @inline-edit-save="onInlineEditSave"
+                            @column-sort="onSortColumn">
 
                             {% block sw_customer_list_grid_columns %}
 
@@ -102,7 +103,7 @@
 
                                         {% block sw_customer_list_grid_columns_name_link %}
                                             <router-link v-else :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
-                                                {{ item.firstName }} {{ item.lastName }}
+                                                {{ item.lastName }}, {{ item.firstName }}
                                             </router-link>
                                         {% endblock %}
 

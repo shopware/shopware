@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
@@ -29,7 +29,7 @@ describe('Category: Test ACL privileges', () => {
             .contains('Vierte Wand');
     });
 
-    it('@base @catalogue: can view shopping experiences detail page', () => {
+    it('@catalogue: can view shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -51,7 +51,7 @@ describe('Category: Test ACL privileges', () => {
             .contains('Vierte Wand');
     });
 
-    it('@base @catalogue: can edit shopping experiences detail page', () => {
+    it('@catalogue: can edit shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -100,7 +100,7 @@ describe('Category: Test ACL privileges', () => {
         });
     });
 
-    it('@base @catalogue: can edit shopping experiences detail page', () => {
+    it('@catalogue: can edit shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -152,6 +152,14 @@ describe('Category: Test ACL privileges', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        // Shows layout assignment modal the first time saving after the wizard
+        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+
+        // Confirm without layout
+        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
+
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');

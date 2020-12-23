@@ -47,7 +47,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('Change password and log in', () => {
+    it('@base @customer: Change password and log in', () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');

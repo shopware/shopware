@@ -28,14 +28,14 @@ class CartExtension extends Struct
             return;
         }
 
-        if (!in_array($code, $this->addedCodes, true)) {
+        if (!\in_array($code, $this->addedCodes, true)) {
             $this->addedCodes[] = $code;
         }
     }
 
     public function hasCode(string $code): bool
     {
-        return in_array($code, $this->addedCodes, true);
+        return \in_array($code, $this->addedCodes, true);
     }
 
     public function removeCode(string $code): void
@@ -44,7 +44,7 @@ class CartExtension extends Struct
             return;
         }
 
-        if (in_array($code, $this->addedCodes, true)) {
+        if (\in_array($code, $this->addedCodes, true)) {
             $newList = [];
             foreach ($this->addedCodes as $existingCode) {
                 if ($existingCode !== $code) {
@@ -69,13 +69,13 @@ class CartExtension extends Struct
             return;
         }
 
-        if (!in_array($id, $this->blockedPromotionIds, true)) {
+        if (!\in_array($id, $this->blockedPromotionIds, true)) {
             $this->blockedPromotionIds[] = $id;
         }
     }
 
     public function isPromotionBlocked(string $id): bool
     {
-        return in_array($id, $this->blockedPromotionIds, true);
+        return \in_array($id, $this->blockedPromotionIds, true);
     }
 }

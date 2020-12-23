@@ -18,7 +18,7 @@
                 {% endblock %}
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
-                        v-if="cmsPage"
+                        v-show="cmsPage"
                         :disabled="!acl.can('category.editor')"
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),

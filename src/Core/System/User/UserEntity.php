@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -116,6 +117,16 @@ class UserEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $createdOrders;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $updatedOrders;
 
     public function getStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
@@ -315,5 +326,25 @@ class UserEntity extends Entity
     public function setTitle(?string $title): void
     {
         $this->title = $title;
+    }
+
+    public function getCreatedOrders(): ?OrderCollection
+    {
+        return $this->createdOrders;
+    }
+
+    public function setCreatedOrders(OrderCollection $createdOrders): void
+    {
+        $this->createdOrders = $createdOrders;
+    }
+
+    public function getUpdatedOrders(): ?OrderCollection
+    {
+        return $this->updatedOrders;
+    }
+
+    public function setUpdatedOrders(OrderCollection $updatedOrders): void
+    {
+        $this->updatedOrders = $updatedOrders;
     }
 }

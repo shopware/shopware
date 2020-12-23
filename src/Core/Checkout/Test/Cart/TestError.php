@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class TestError extends Error
 {
-    public const LEVEL_UNKNOWN = PHP_INT_MAX;
+    public const LEVEL_UNKNOWN = \PHP_INT_MAX;
 
     /**
      * @var int

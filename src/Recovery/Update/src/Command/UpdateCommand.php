@@ -133,7 +133,7 @@ class UpdateCommand extends Command
             $this->IOHelper->writeln('Apply database destructive migrations...');
         }
 
-        $progress = $this->IOHelper->createProgressBar(count($versions));
+        $progress = $this->IOHelper->createProgressBar(\count($versions));
         $progress->start();
 
         $step = new MigrationStep($coreCollection);

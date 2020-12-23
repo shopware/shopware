@@ -65,7 +65,7 @@ class ElasticsearchCleanIndicesCommand extends Command
         }, $indices));
 
         if (!$input->getOption('force')) {
-            if (!$this->io->confirm(sprintf('Delete these %d indices?', count($indices)), false)) {
+            if (!$this->io->confirm(sprintf('Delete these %d indices?', \count($indices)), false)) {
                 $this->io->writeln('Deletion aborted.');
 
                 return 1;

@@ -158,7 +158,7 @@ Component.register('sw-system-config', {
         hasMapInheritanceSupport(element) {
             const componentName = element.config ? element.config.componentName : undefined;
 
-            if (componentName === 'sw-switch-field') {
+            if (componentName === 'sw-switch-field' || componentName === 'sw-snippet-field') {
                 return true;
             }
 

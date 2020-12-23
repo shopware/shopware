@@ -15,6 +15,8 @@ class CustomFieldTypeFactory
         'datetime' => DateTimeField::class,
         'single-select' => SingleSelectField::class,
         'multi-select' => MultiSelectField::class,
+        'single-entity-select' => SingleEntitySelectField::class,
+        'multi-entity-select' => MultiEntitySelectField::class,
         'color-picker' => ColorPickerField::class,
         'media-selection' => MediaSelectionField::class,
     ];

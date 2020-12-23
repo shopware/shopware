@@ -36,7 +36,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
             $diff = $this->createDiff($stateResult);
 
             if (!empty($diff)) {
-                echo PHP_EOL . $test . PHP_EOL;
+                echo \PHP_EOL . $test . \PHP_EOL;
                 print_r($diff);
             }
         }
@@ -77,7 +77,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
         $changed = [];
         foreach ($commonTables as $table) {
             $countDiff = $state[$table] - $this->lastDataPoint[$table];
-            if ($countDiff > 0 && !in_array($table, self::IGNORED, true)) {
+            if ($countDiff > 0 && !\in_array($table, self::IGNORED, true)) {
                 $changed[$table] = $countDiff;
             }
         }

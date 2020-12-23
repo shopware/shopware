@@ -7,6 +7,7 @@
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
+      "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
       "buttonDelete": "Löschen"
     },
@@ -26,6 +27,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
+      "gridHeaderAssignments": "Zuordnungen",
       "gridHeaderCreated": "Erstellt"
     },
     "section": {
@@ -47,6 +49,11 @@
         "settings": "Einstellungen",
         "layoutSettings": "Layout",
         "duplicate": "Duplizieren"
+      },
+      "layoutAssignment": {
+        "headline": "Verwalte wo dieses Layout zu sehen ist",
+        "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
+        "actionAssignLayout": "Layout zuweisen"
       }
     },
     "createWizard": {
@@ -138,6 +145,7 @@
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Sektion-Einstellungen",
+        "titleLayoutAssignment": "Layout-Zuweisung",
         "mobile": "Mobiles Sidebar-Verhalten",
         "mobileOptionHidden": "Nicht angezeigt",
         "mobileOptionWrap": "Umbrechen"
@@ -245,7 +253,8 @@
         "label": "Produkt-Listing",
         "config": {
           "tab": {
-            "sorting": "Sortierungen"
+            "sorting": "Sortierungen",
+            "filter": "Filter"
           },
           "sorting": {
             "labelShowSorting": "Produkt-Sortierung anzeigen",
@@ -264,6 +273,20 @@
             },
             "defaultSortingInUse": "Diese Produkt-Sortierung ist bereits als Standardsortierung ausgewählt.",
             "defaultSortingCantBeDisabled": "Diese Product-Sortierung ist die Standardsortierung. Sie muss aktiviert bleiben, um keine Probleme mit Deinen Produkt-Listings zu verursachen."
+          },
+          "filter": {
+            "infoText": "Stelle sicher, dass ein Filter Block zu Deinem Layout hinzugefügt ist, um diese Einstellung in Aktion zu sehen.",
+            "labelFilterByManufacturer": "Nach Hersteller filtern",
+            "labelFilterByRating": "Nach Bewertung filtern",
+            "labelFilterByPrice": "Nach Preis filtern",
+            "labelFilterForFreeShipping": "Nach kostenlosem Versand filtern",
+            "labelUseFilterByProperties": "Filterbare Produkteigenschaften konfigurieren",
+            "helpTextUseFilterByProperties": "Wenn deaktiviert, werden in diesem Layout Filter für alle vorhandenen Eigenschaften angezeigt.",
+            "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
+            "gridHeaderStatus": "Status",
+            "gridHeaderName": "Name",
+            "gridEmptyStateLabel": "Keine Eigenschaften gefunden.",
+            "gridEmptyStateHint": "Versuche es mit einem anderen Suchbegriff"
           }
         }
       },
@@ -325,7 +348,7 @@
       "sidebarFilter": {
         "label": "Produkt-Filter",
         "infoText": {
-          "filterElement": "Die Filterdaten für dieses Element werden automatisiert befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+          "filterElement": "Die angezeigten Filter können über das Listingelement konfiguriert werden."
         }
       },
       "text": {
@@ -460,7 +483,25 @@
         }
       },
       "crossSelling": {
-        "label": "Cross Selling"
+        "label": "Cross Selling",
+        "preview": {
+          "label": {
+            "crossSellingTitle": "Cross-Selling-Titel"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt",
+            "minWidth": "Mindestbreite"
+          },
+          "placeholder": {
+            "selection": "Produkt auswählen ...",
+            "minWidth": "Mindestbreite eingeben ..."
+          },
+          "infoText": {
+            "productDetailElement": "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+          }
+        }
       }
     },
     "blocks": {
@@ -485,6 +526,12 @@
               "reviews": "Bewertungen"
             }
           }
+        },
+        "galleryBuyBox": {
+          "label": "Galerie und Buybox"
+        },
+        "crossSelling": {
+          "label": "Cross Selling"
         }
       },
       "image": {
@@ -598,6 +645,39 @@
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
+      },
+      "cmsLayoutAssignmentModal": {
+        "infoText": "Das Layout ist erst in Deinem Shop zu sehen, wenn Du es einer aktiven Kategorie zugewiesen hast.",
+        "infoTextShopPages": "Du kannst dieses Layout sowohl für Kategorien verwenden als auch für Shopseiten wie AGB, Impressum, Fehlerseiten etc.",
+        "labelCategories": "Kategorien",
+        "placeholderCategories": "Wähle Kategorien aus...",
+        "labelSalesChannel": "Verkaufskanal",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal...",
+        "resetOptionSalesChannel": "Alle Verkaufskanäle",
+        "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
+        "labelShopPages": "Shopseiten",
+        "confirmChangesConfirm": "Übernehmen",
+        "confirmChangesRestorePrev": "Verwerfen",
+        "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
+        "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
+        "confirmChangesTextShopPages": "Du hast Layout-Zuweisungen von Shopseiten entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Shopseiten kein Layout mehr zugewiesen.",
+        "confirmChangesText": "Möchtest Du Deine Änderungen übernehmen?",
+        "confirmChangesTitle": "Änderungen bestätigen",
+        "shopPagesLoadError": "Shopseiten konnten nicht geladen werden",
+        "shopPagesSaveError": "Shopseiten konnten nicht gespeichert werden",
+        "tabCategories": "Kategorien",
+        "tabShopPages": "Shopseiten",
+        "shopPages": {
+          "tosPage": "AGB-Seiten",
+          "revocationPage": "Widerrufsbelehrungen",
+          "shippingPaymentInfoPage": "Versand- und Zahlungsarten",
+          "privacyPage": "Datenschutz-Seiten",
+          "imprintPage": "Impressum",
+          "404Page": "404-Seiten",
+          "maintenancePage": "Wartungsseiten",
+          "contactPage": "Kontaktformulare",
+          "newsletterPage": "Newsletterseiten"
+        }
       },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",

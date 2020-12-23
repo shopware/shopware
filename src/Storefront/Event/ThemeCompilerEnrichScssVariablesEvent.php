@@ -25,7 +25,7 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event
     public function addVariable(string $name, string $value, bool $sanitize = false): void
     {
         if ($sanitize) {
-            $this->variables[$name] = '\'' . filter_var($value, FILTER_SANITIZE_STRING) . '\'';
+            $this->variables[$name] = '\'' . filter_var($value, \FILTER_SANITIZE_STRING) . '\'';
         } else {
             $this->variables[$name] = $value;
         }

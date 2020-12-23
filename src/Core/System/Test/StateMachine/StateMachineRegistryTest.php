@@ -4,17 +4,28 @@ namespace Shopware\Core\System\Test\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 
 class StateMachineRegistryTest extends TestCase
 {
     use KernelTestBehaviour;
+    use BasicTestDataBehaviour;
 
     /**
      * @var Connection
@@ -134,6 +145,151 @@ EOF;
         static::assertEquals(4, $stateMachine->getTransitions()->count());
     }
 
+    public function testStateMachineAvailableTransitionShouldIncludeReOpenAndReTourTransition(): void
+    {
+        $this->createOrderWithPartiallyReturnedDeliveryState();
+        $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions('order_delivery', $this->fetchFirstIdFromTable('order_delivery'), 'stateId', Context::createDefaultContext());
+
+        static::assertNotEmpty($availableTransitions);
+        static::assertCount(2, $availableTransitions);
+
+        $reopenActionExisted = false;
+        $retourActionExisted = false;
+
+        /** @var StateMachineTransitionEntity $transition */
+        foreach ($availableTransitions as $transition) {
+            if ($transition->getActionName() === 'reopen') {
+                $reopenActionExisted = true;
+                static::assertEquals('open', $transition->getToStateMachineState()->getTechnicalName());
+            }
+
+            if ($transition->getActionName() === 'retour') {
+                $retourActionExisted = true;
+                static::assertEquals('returned', $transition->getToStateMachineState()->getTechnicalName());
+            }
+        }
+
+        static::assertTrue($reopenActionExisted);
+        static::assertTrue($retourActionExisted);
+    }
+
+    public function testStateMachineStateRetourTransitionFromReturnedPartially(): void
+    {
+        $orderDeliveryId = $this->createOrderWithPartiallyReturnedDeliveryState();
+        $transition = new Transition('order_delivery', $orderDeliveryId, 'retour', 'stateId');
+        $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
+
+        static::assertNotEmpty($stateCollection);
+        static::assertNotEmpty($stateCollection->get('fromPlace'));
+        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
+        static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
+        static::assertEquals('returned_partially', $fromPlace->getTechnicalName());
+        static::assertEquals('returned', $toPlace->getTechnicalName());
+    }
+
+    private function createOrderWithPartiallyReturnedDeliveryState(): string
+    {
+        $orderId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+        $orderLineItemId = Uuid::randomHex();
+
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $stateMachineId = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        /** @var string $returnedPartially */
+        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned_partially', 'id' => $stateMachineId]);
+        $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
+
+        $orderDeliveryId = Uuid::randomHex();
+
+        $order = [
+            'id' => $orderId,
+            'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'price' => new CartPrice(
+                10,
+                10,
+                10,
+                new CalculatedTaxCollection(),
+                new TaxRuleCollection(),
+                CartPrice::TAX_STATE_NET
+            ),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'orderCustomer' => [
+                'customerId' => $this->createCustomer(),
+                'email' => 'test@example.com',
+                'salutationId' => $this->fetchFirstIdFromTable('salutation'),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+            ],
+            'stateId' => Uuid::fromBytesToHex($stateMachineId),
+            'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1.0,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'billingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'salutationId' => $this->fetchFirstIdFromTable('salutation'),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                    'countryId' => $this->fetchFirstIdFromTable('country'),
+                ],
+            ],
+            'lineItems' => [
+                [
+                    'id' => $orderLineItemId,
+                    'identifier' => 'test',
+                    'quantity' => 1,
+                    'type' => 'test',
+                    'label' => 'test',
+                    'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+                    'good' => true,
+                ],
+            ],
+            'deliveries' => [
+                [
+                    'id' => $orderDeliveryId,
+                    'shippingMethodId' => $this->getValidShippingMethodId(),
+                    'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'shippingDateEarliest' => date(\DATE_ISO8601),
+                    'shippingDateLatest' => date(\DATE_ISO8601),
+                    'stateId' => $returnedPartially,
+                    'shippingOrderAddress' => [
+                        'salutationId' => $this->getValidSalutationId(),
+                        'firstName' => 'Floy',
+                        'lastName' => 'Glover',
+                        'zipcode' => '59438-0403',
+                        'city' => 'Stellaberg',
+                        'street' => 'street',
+                        'country' => [
+                            'name' => 'kasachstan',
+                            'id' => $this->getValidCountryId(),
+                        ],
+                    ],
+                    'positions' => [
+                        [
+                            'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                            'orderLineItemId' => $orderLineItemId,
+                        ],
+                    ],
+                ],
+            ],
+            'context' => '{}',
+            'payload' => '{}',
+        ];
+
+        $this->getContainer()->get('order.repository')->upsert([$order], Context::createDefaultContext());
+
+        return $orderDeliveryId;
+    }
+
     private function createStateMachine(Context $context): void
     {
         $this->stateMachineRepository->upsert([
@@ -173,5 +329,51 @@ EOF;
                 ],
             ],
         ], $context);
+    }
+
+    private function fetchFirstIdFromTable(string $table): string
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        return Uuid::fromBytesToHex((string) $connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 }

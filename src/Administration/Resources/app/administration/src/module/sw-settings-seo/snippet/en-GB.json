@@ -32,10 +32,10 @@
     }
   },
   "sw-seo-url": {
-    "titleCard": "Canonical URLs",
+    "titleCard": "SEO URLs",
     "labelSalesChannelSelect": "Sales Channel",
     "labelSeoPathInfo": "SEO path",
-    "textEmptySeoUrls": "There are no canonical URLs yet.",
+    "textEmptySeoUrls": "There are no SEO URLs yet.",
     "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to a headless Sales Channel.",
     "labelMainCategory": "Main category",
     "placeholderMainCategory": "Choose a main category..."

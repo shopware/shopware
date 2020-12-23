@@ -2139,7 +2139,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
         static::assertSame($cmsPageId, $product->getCmsPageId());
-        static::assertEquals(CmsPageEntity::class, get_class($product->getCmsPage()));
+        static::assertEquals(CmsPageEntity::class, \get_class($product->getCmsPage()));
         static::assertEquals('product_detail', $product->getCmsPage()->getType());
     }
 

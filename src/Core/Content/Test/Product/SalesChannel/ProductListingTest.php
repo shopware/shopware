@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -15,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -26,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductListingTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     /**
      * @var string
@@ -58,16 +57,21 @@ class ProductListingTest extends TestCase
      */
     private $productIdWidth150;
 
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
 
-        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
-            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
-        );
+        $salesChannel = $this->createSalesChannel();
+        $this->salesChannelId = $salesChannel['id'];
+
+        $parent = $salesChannel['navigationCategoryId'];
 
         $this->categoryId = Uuid::randomHex();
 
@@ -88,7 +92,7 @@ class ProductListingTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
@@ -177,7 +181,7 @@ class ProductListingTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
@@ -195,7 +199,7 @@ class ProductListingTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $criteria = new Criteria();
         $criteria->addFilter(new ContainsFilter('name', 'Foo Bar'));
@@ -216,7 +220,7 @@ class ProductListingTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), $this->salesChannelId);
 
         $request->attributes->set('_route_params', [
             'navigationId' => $this->categoryId,
@@ -276,7 +280,7 @@ class ProductListingTest extends TestCase
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
             $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+                return mb_strpos($productNumber, $item) === 0;
             });
             if ($productShouldBeGroup) {
                 static::assertTrue($product->isGrouped());
@@ -293,7 +297,7 @@ class ProductListingTest extends TestCase
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
             $productShouldNotBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+                return mb_strpos($productNumber, $item) === 0;
             });
 
             if ($productShouldNotBeGroup) {
@@ -381,7 +385,7 @@ class ProductListingTest extends TestCase
                 'configuratorSettings' => $configurator,
                 'visibilities' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => $this->salesChannelId,
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],
@@ -518,7 +522,7 @@ class ProductListingTest extends TestCase
         $ids->create('taxId');
 
         $productRepository = $this->getContainer()->get('product.repository');
-        $salesChannelId = Defaults::SALES_CHANNEL;
+        $salesChannelId = $this->salesChannelId;
         $products = [];
 
         $widths = [

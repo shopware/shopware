@@ -104,7 +104,7 @@ class SnippetService
 
         $total = 0;
         foreach ($snippets as $setId => &$set) {
-            $total = $total > 0 ? $total : count($set['snippets']);
+            $total = $total > 0 ? $total : \count($set['snippets']);
             $set['snippets'] = array_chunk($set['snippets'], $limit, true)[$page] ?? [];
         }
 
@@ -158,7 +158,7 @@ class SnippetService
         foreach ($snippetFiles as $files) {
             foreach ($this->getSnippetsFromFiles($files, '') as $namespace => $_value) {
                 $region = explode('.', $namespace)[0];
-                if (in_array($region, $result, true)) {
+                if (\in_array($region, $result, true)) {
                     continue;
                 }
 
@@ -168,7 +168,7 @@ class SnippetService
 
         foreach ($dbSnippets as $snippet) {
             $region = explode('.', $snippet->getTranslationKey())[0];
-            if (in_array($region, $result, true)) {
+            if (\in_array($region, $result, true)) {
                 continue;
             }
 

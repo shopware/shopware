@@ -398,7 +398,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
     $statement->execute();
 
     // formatting string e.g. "en-GB" to "GB"
-    $localeIsoCode = substr($localeForLanguage($_SESSION['language']), -2, 2);
+    $localeIsoCode = mb_substr($localeForLanguage($_SESSION['language']), -2, 2);
 
     // flattening array
     $countryIsos = array_map(function ($country) use ($localeIsoCode) {
@@ -597,7 +597,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     }
 
     if (!$total) {
-        $total = \count($coreMigrations->getExecutableMigrations()) * 2;
+        $total = count($coreMigrations->getExecutableMigrations()) * 2;
     }
 
     try {

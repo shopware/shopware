@@ -80,7 +80,7 @@ abstract class KernelPluginLoader extends Bundle
         }
 
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            if (!in_array($plugin->getName(), $loadedBundles, true)) {
+            if (!\in_array($plugin->getName(), $loadedBundles, true)) {
                 yield $plugin;
                 $loadedBundles[] = $plugin->getName();
             }
@@ -90,14 +90,14 @@ abstract class KernelPluginLoader extends Bundle
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
 
             foreach ($additionalBundles as $bundle) {
-                if (!in_array($bundle->getName(), $loadedBundles, true)) {
+                if (!\in_array($bundle->getName(), $loadedBundles, true)) {
                     yield $bundle;
                     $loadedBundles[] = $bundle->getName();
                 }
             }
         }
 
-        if (!in_array($this->getName(), $loadedBundles, true)) {
+        if (!\in_array($this->getName(), $loadedBundles, true)) {
             yield $this;
         }
     }

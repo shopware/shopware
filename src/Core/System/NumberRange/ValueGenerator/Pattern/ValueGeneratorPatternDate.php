@@ -15,7 +15,7 @@ class ValueGeneratorPatternDate implements ValueGeneratorPatternInterface
 
     public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
-        if ($args === null || count($args) === 0) {
+        if ($args === null || \count($args) === 0) {
             $args[] = self::STANDARD_FORMAT;
         }
 

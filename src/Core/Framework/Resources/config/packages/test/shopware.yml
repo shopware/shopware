@@ -15,3 +15,10 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+
+    feature:
+        flags:
+            - name: FEATURE_NEXT_12345
+              default: false
+              major: false
+              description: "test feature flag"

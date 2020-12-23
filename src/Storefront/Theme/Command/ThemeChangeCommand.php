@@ -160,7 +160,7 @@ class ThemeChangeCommand extends Command
     private function parseSalesChannelAnswer($answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
     {
         $parts = explode('|', $answer);
-        $salesChannelId = trim(array_pop($parts));
+        $salesChannelId = trim((string) array_pop($parts));
         $salesChannel = $salesChannels->get($salesChannelId);
 
         if (!$salesChannelId) {

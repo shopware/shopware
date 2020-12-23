@@ -26,7 +26,8 @@ Component.register('sw-plugin-list', {
     },
 
     inject: [
-        'licenseViolationService'
+        'licenseViolationService',
+        'repositoryFactory'
     ],
 
     mixins: [
@@ -54,7 +55,7 @@ Component.register('sw-plugin-list', {
         ]),
 
         pluginRepository() {
-            return Shopware.Service('repositoryFactory').create('plugin');
+            return this.repositoryFactory.create('plugin');
         },
 
         pluginCriteria() {
@@ -350,6 +351,10 @@ Component.register('sw-plugin-list', {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        setPlugins(plugins) {
+            State.commit('swPlugin/commitPlugins', plugins);
         },
 
         sortPluginList(sorting) {

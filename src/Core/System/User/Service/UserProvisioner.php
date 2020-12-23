@@ -33,7 +33,7 @@ class UserProvisioner
             'last_name' => $additionalData['lastName'] ?? $username,
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,

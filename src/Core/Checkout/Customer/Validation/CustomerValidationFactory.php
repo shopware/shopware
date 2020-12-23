@@ -70,7 +70,7 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
             $parameters[] = $key;
             $parameters = array_merge($parameters, $constraints);
 
-            call_user_func_array([$definition, 'add'], $parameters);
+            \call_user_func_array([$definition, 'add'], $parameters);
         }
     }
 }

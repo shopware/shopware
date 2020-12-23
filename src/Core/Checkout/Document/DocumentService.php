@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -295,6 +296,11 @@ class DocumentService
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10559')) {
+            $criteria->addAssociation('deliveries.shippingOrderAddress.country');
+            $criteria->addAssociation('orderCustomer.customer');
         }
 
         $versionContext = $context->createWithVersionId($versionId);

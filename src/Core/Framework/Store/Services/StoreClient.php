@@ -82,7 +82,7 @@ class StoreClient
         $response = $this->getClient()->post(
             self::SBP_API_URL_LOGIN,
             [
-                'body' => \json_encode([
+                'body' => json_encode([
                     'shopwareId' => $shopwareId,
                     'password' => $password,
                     'shopwareUserId' => $context->getSource()->getUserId(),
@@ -132,7 +132,7 @@ class StoreClient
             $licenseStruct = new StoreLicenseStruct();
             $licenseStruct->assign($license);
 
-            $licenseStruct->setInstalled(array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
+            $licenseStruct->setInstalled(\array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
             if (isset($license['availableVersion'])) {
                 if ($licenseStruct->getInstalled()) {
                     $installedVersion = $installedPlugins[$licenseStruct->getTechnicalPluginName()];

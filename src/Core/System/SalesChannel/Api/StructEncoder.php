@@ -78,6 +78,7 @@ class StructEncoder
 
     private function encodeStruct(Struct $struct, ResponseFields $fields)
     {
+        /** @var array<string, mixed> $data */
         $data = $this->serializer->normalize($struct);
 
         $alias = $struct->getApiAlias();
@@ -99,12 +100,12 @@ class StructEncoder
                 continue;
             }
 
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 continue;
             }
 
             $object = $value;
-            if (array_key_exists($property, $struct->getVars())) {
+            if (\array_key_exists($property, $struct->getVars())) {
                 $object = $struct->getVars()[$property];
             }
 
@@ -149,7 +150,7 @@ class StructEncoder
                 continue;
             }
 
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 continue;
             }
 
@@ -216,7 +217,7 @@ class StructEncoder
 
     private function isStructArray($object): bool
     {
-        if (!is_array($object)) {
+        if (!\is_array($object)) {
             return false;
         }
 

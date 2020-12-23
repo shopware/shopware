@@ -2,29 +2,14 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class HookableEventFactory
 {
-    private const HOOKABLE_ENTITIES = [
-        ProductDefinition::ENTITY_NAME,
-        ProductPriceDefinition::ENTITY_NAME,
-        CategoryDefinition::ENTITY_NAME,
-        SalesChannelDefinition::ENTITY_NAME,
-        CustomerDefinition::ENTITY_NAME,
-        CustomerAddressDefinition::ENTITY_NAME,
-    ];
-
     /**
      * @var BusinessEventEncoder
      */
@@ -75,7 +60,7 @@ class HookableEventFactory
     private function wrapEntityWrittenEvent(EntityWrittenContainerEvent $event): array
     {
         $hookables = [];
-        foreach (self::HOOKABLE_ENTITIES as $entity) {
+        foreach (HookableEventCollector::HOOKABLE_ENTITIES as $entity) {
             $writtenEvent = $event->getEventByEntityName($entity);
 
             if (!$writtenEvent) {

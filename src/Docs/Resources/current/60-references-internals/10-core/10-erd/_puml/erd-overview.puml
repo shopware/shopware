@@ -387,6 +387,7 @@ ShopwareCoreContentMedia --> ShopwareCoreSystemUser
 ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
 ShopwareCoreContentImportExport --> ShopwareCoreSystemUser
+ShopwareCoreCheckoutOrder --> ShopwareCoreSystemUser
 ShopwareCoreSystemIntegration --> ShopwareCoreSystemIntegration
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine

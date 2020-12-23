@@ -248,7 +248,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 break;
 
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', get_class($aggregation)));
+                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
         }
     }
 
@@ -470,7 +470,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 /* @var EntityAggregation $aggregation */
                 return $this->hydrateEntityAggregation($aggregation, $rows, $context);
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', get_class($aggregation)));
+                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
         }
     }
 

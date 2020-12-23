@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -119,9 +120,33 @@ class PromotionPercentageCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
+        /**
+         * Tax rate: 20%
+         *
+         * 100€ product (gross)
+         *          => included taxes: 16.6666666667 => 16.67€
+         *          => net price: 83.33€
+         *
+         * -50% discount promotion
+         *      gross: 50€
+         *      included taxes: 8.33333333333 => 8.33€
+         *      net price: 41.67€
+         *
+         * Total price:
+         *      gross: 50€
+         *      included taxes: 8.34
+         *      net price: 41.66€
+         */
         static::assertEquals(50, $cart->getPrice()->getTotalPrice());
         static::assertEquals(50, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(41.67, $cart->getPrice()->getNetPrice());
+        static::assertEquals(41.66, $cart->getPrice()->getNetPrice());
+
+        $promotion = $cart->getLineItems()->getElements();
+        $promotion = array_values($promotion)[1];
+
+        static::assertInstanceOf(LineItem::class, $promotion);
+        static::assertEquals(-50, $promotion->getPrice()->getTotalPrice());
+        static::assertEquals(-8.33, $promotion->getPrice()->getCalculatedTaxes()->first()->getTax());
     }
 
     /**

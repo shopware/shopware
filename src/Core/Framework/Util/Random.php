@@ -80,7 +80,7 @@ class Random
 
     public static function getAlphanumericString(int $length): string
     {
-        $charlist = implode(range('a', 'z')) . implode(range('A', 'Z')) . implode(range(0, 9));
+        $charlist = implode('', range('a', 'z')) . implode('', range('A', 'Z')) . implode('', range(0, 9));
 
         return static::getString($length, $charlist);
     }

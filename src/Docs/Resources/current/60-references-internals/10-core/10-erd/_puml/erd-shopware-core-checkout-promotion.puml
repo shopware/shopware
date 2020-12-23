@@ -28,8 +28,8 @@ Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts w
    not_null(active) bool
    validFrom dateTime
    validUntil dateTime
-   not_null(maxRedemptionsGlobal) int
-   not_null(maxRedemptionsPerCustomer) int
+   maxRedemptionsGlobal int
+   maxRedemptionsPerCustomer int
    not_null(exclusive) bool
    code string
    not_null(useCodes) bool

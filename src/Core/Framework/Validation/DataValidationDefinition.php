@@ -46,7 +46,7 @@ class DataValidationDefinition
 
     public function set(string $name, Constraint ...$constraints): self
     {
-        if (array_key_exists($name, $this->properties)) {
+        if (\array_key_exists($name, $this->properties)) {
             unset($this->properties[$name]);
         }
 

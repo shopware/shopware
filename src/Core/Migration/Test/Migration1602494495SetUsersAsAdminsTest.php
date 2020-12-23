@@ -15,6 +15,6 @@ class Migration1602494495SetUsersAsAdminsTest extends TestCase
         /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $adminUsers = $conn->fetchAssoc('SELECT * FROM `user`');
-        static::assertTrue(count($adminUsers) >= 1, 'Minimum one user admin user should be registered, non found');
+        static::assertTrue(\count($adminUsers) >= 1, 'Minimum one user admin user should be registered, non found');
     }
 }

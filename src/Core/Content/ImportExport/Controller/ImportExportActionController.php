@@ -157,7 +157,7 @@ class ImportExportActionController extends AbstractController
         $definition->add('offset', new NotBlank(), new Type('int'));
         $this->dataValidator->validate($params, $definition);
 
-        $logId = strtolower($params['logId']);
+        $logId = mb_strtolower($params['logId']);
         $offset = $params['offset'];
 
         $importExport = $this->importExportFactory->create($logId, 50, 50);

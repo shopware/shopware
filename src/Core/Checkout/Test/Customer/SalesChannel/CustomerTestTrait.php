@@ -11,7 +11,7 @@ trait CustomerTestTrait
 {
     use SalesChannelApiTestBehaviour;
 
-    private function createCustomer(string $password, ?string $email = null): string
+    private function createCustomer(string $password, ?string $email = null, ?bool $guest = false): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -61,6 +61,7 @@ trait CustomerTestTrait
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'guest' => $guest,
                 'salutationId' => $this->getValidSalutationId(),
                 'customerNumber' => '12345',
             ],

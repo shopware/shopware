@@ -66,9 +66,13 @@
             <template #content>
                 <sw-card-view>
                     {% block sw_mail_template_list_content_card %}
-                        <sw-mail-template-list ref="mailTemplateList"></sw-mail-template-list>
+                        <sw-mail-template-list :searchTerm="term"
+                            ref="mailTemplateList">
+                        </sw-mail-template-list>
 
-                        <sw-mail-header-footer-list ref="mailHeaderFooterList"></sw-mail-header-footer-list>
+                        <sw-mail-header-footer-list :searchTerm="term"
+                            ref="mailHeaderFooterList">
+                        </sw-mail-header-footer-list>
                     {% endblock %}
                 </sw-card-view>
             </template>

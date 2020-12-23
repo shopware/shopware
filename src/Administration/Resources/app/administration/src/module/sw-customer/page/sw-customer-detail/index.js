@@ -13,7 +13,8 @@ Component.register('sw-customer-detail', {
         'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     mixins: [
@@ -140,6 +141,9 @@ Component.register('sw-customer-detail', {
                 this.defaultCriteria
             ).then((customer) => {
                 this.customer = customer;
+                if (this.feature.isActive('FEATURE_NEXT_10559')) {
+                    this.customer.vatIds = this.customer.vatIds || [];
+                }
                 this.isLoading = false;
             });
         },

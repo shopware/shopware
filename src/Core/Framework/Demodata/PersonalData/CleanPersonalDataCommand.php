@@ -69,7 +69,7 @@ class CleanPersonalDataCommand extends Command
         $type = $input->getArgument('type');
         $all = $input->getOption('all');
 
-        if (!$all && !in_array($type, self::VALID_TYPES, true)) {
+        if (!$all && !\in_array($type, self::VALID_TYPES, true)) {
             throw new \InvalidArgumentException(
                 'Please add the argument "guests" to remove guests without orders or the argument "carts" to remove canceled carts. Use --all to clean both.'
             );

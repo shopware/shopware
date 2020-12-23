@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
@@ -51,7 +52,7 @@ class OrderLineItemCollection extends EntityCollection
     public function getPayloadsProperty(string $property): array
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
-            if (array_key_exists($property, $lineItem->getPayload())) {
+            if (\array_key_exists($property, $lineItem->getPayload())) {
                 return $lineItem->getPayload()[$property];
             }
 
@@ -69,6 +70,15 @@ class OrderLineItemCollection extends EntityCollection
     public function getApiAlias(): string
     {
         return 'order_line_item_collection';
+    }
+
+    public function getPrices(): PriceCollection
+    {
+        return new PriceCollection(
+            array_filter(array_map(static function (OrderLineItemEntity $orderLineItem) {
+                return $orderLineItem->getPrice();
+            }, array_values($this->getElements())))
+        );
     }
 
     protected function getExpectedClass(): string

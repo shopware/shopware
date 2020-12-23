@@ -161,7 +161,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     private function getDomainUrls(SalesChannelContext $context): array
     {
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return $domainEntity->getUrl();
+            return rtrim($domainEntity->getUrl(), '/');
         }, $context->getSalesChannel()->getDomains()->getElements());
     }
 
@@ -178,7 +178,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 

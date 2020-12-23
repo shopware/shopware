@@ -12,7 +12,7 @@ class AddressTransformer
     {
         $output = [];
         foreach ($addresses as $address) {
-            if (array_key_exists($address->getId(), $output)) {
+            if (\array_key_exists($address->getId(), $output)) {
                 continue;
             }
             $output[$address->getId()] = self::transform($address);

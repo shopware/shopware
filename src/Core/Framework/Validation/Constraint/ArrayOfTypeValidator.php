@@ -22,7 +22,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
             return;
         }
 
-        if (!is_array($values)) {
+        if (!\is_array($values)) {
             $this->context->buildViolation($constraint::INVALID_TYPE_MESSAGE)
                 ->addViolation();
 
@@ -47,7 +47,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
                 continue;
             }
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = print_r($value, true);
             }
 

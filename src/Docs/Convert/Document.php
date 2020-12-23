@@ -100,7 +100,7 @@ class Document
         $metadata = [];
 
         $matches = [];
-        if (!preg_match_all(self::METATAG_REGEX, $fileContents, $matches, PREG_SET_ORDER)) {
+        if (!preg_match_all(self::METATAG_REGEX, $fileContents, $matches, \PREG_SET_ORDER)) {
             throw new \InvalidArgumentException(sprintf('Missing metadata in %s', $this->file));
         }
 
@@ -110,7 +110,7 @@ class Document
 
         $metadata = array_filter($metadata, static function (string $key): bool {
             return !\in_array($key, self::IGNORE_TAGS, true);
-        }, ARRAY_FILTER_USE_KEY);
+        }, \ARRAY_FILTER_USE_KEY);
 
         if (!$metadata) {
             throw new \InvalidArgumentException(sprintf('Missing metadata in %s', $this->file));
@@ -155,11 +155,11 @@ class Document
 
         if ($this->isCategory()) {
             $path = \dirname($path);
-            $self = pathinfo(\dirname($this->getFile()->getRealPath()), PATHINFO_BASENAME);
+            $self = pathinfo(\dirname($this->getFile()->getRealPath()), \PATHINFO_BASENAME);
         }
 
         $files = [];
-        foreach (scandir($path, SCANDIR_SORT_ASCENDING) as $file) {
+        foreach (scandir($path, \SCANDIR_SORT_ASCENDING) as $file) {
             $files[] = $file;
         }
 

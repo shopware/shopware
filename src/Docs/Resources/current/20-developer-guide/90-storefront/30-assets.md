@@ -91,11 +91,11 @@ If you want to use custom assets, please put those assets here:
     └── YourPlugin.php
 ```
 ​
-Next, please run `bin/console asset:install` command. This will copy your plugin assets over to the 
+Next, please run `bin/console assets:install` command. This will copy your plugin assets over to the 
 `public/bundles` folder:
 ​
 ```
-# shopware-root/public
+# shopware-root/public/bundles
 .
 ├── administration
 ├── framework

@@ -43,7 +43,7 @@ class Requirements
             $check = [];
 
             $name = (string) $requirement['name'];
-            if ($name === 'mod_rewrite' && PHP_SAPI === 'cli') {
+            if ($name === 'mod_rewrite' && \PHP_SAPI === 'cli') {
                 continue;
             }
 
@@ -109,11 +109,11 @@ class Requirements
             return $this->$m();
         }
 
-        if (extension_loaded($name)) {
+        if (\extension_loaded($name)) {
             return true;
         }
 
-        if (function_exists($name)) {
+        if (\function_exists($name)) {
             return true;
         }
 
@@ -177,7 +177,7 @@ class Requirements
             return $this->$m($value, $requiredValue);
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return (string) $requiredValue === (string) $value;
         }
 
@@ -203,11 +203,11 @@ class Requirements
      */
     private function checkPhp()
     {
-        if (mb_strpos(PHP_VERSION, '-')) {
-            return mb_substr(PHP_VERSION, 0, mb_strpos(PHP_VERSION, '-'));
+        if (mb_strpos(\PHP_VERSION, '-')) {
+            return mb_substr(\PHP_VERSION, 0, mb_strpos(\PHP_VERSION, '-'));
         }
 
-        return PHP_VERSION;
+        return \PHP_VERSION;
     }
 
     /**
@@ -225,7 +225,7 @@ class Requirements
      */
     private function checkOpcache()
     {
-        if (!extension_loaded('Zend OPcache')) {
+        if (!\extension_loaded('Zend OPcache')) {
             return [];
         }
 
@@ -265,11 +265,11 @@ class Requirements
      */
     private function checkCurl()
     {
-        if (function_exists('curl_version')) {
+        if (\function_exists('curl_version')) {
             $curl = curl_version();
 
             return $curl['version'];
-        } elseif (function_exists('curl_init')) {
+        } elseif (\function_exists('curl_init')) {
             return true;
         }
 
@@ -283,8 +283,8 @@ class Requirements
      */
     private function checkLibXml()
     {
-        if (defined('LIBXML_DOTTED_VERSION')) {
-            return LIBXML_DOTTED_VERSION;
+        if (\defined('LIBXML_DOTTED_VERSION')) {
+            return \LIBXML_DOTTED_VERSION;
         }
 
         return false;
@@ -297,7 +297,7 @@ class Requirements
      */
     private function checkGd()
     {
-        if (function_exists('gd_info')) {
+        if (\function_exists('gd_info')) {
             $gd = gd_info();
             if (preg_match('#[0-9.]+#', $gd['GD Version'], $match)) {
                 if (mb_substr_count($match[0], '.') === 1) {
@@ -320,7 +320,7 @@ class Requirements
      */
     private function checkGdJpg()
     {
-        if (function_exists('gd_info')) {
+        if (\function_exists('gd_info')) {
             $gd = gd_info();
 
             return !empty($gd['JPEG Support']) || !empty($gd['JPG Support']);
@@ -336,7 +336,7 @@ class Requirements
      */
     private function checkFreetype()
     {
-        if (function_exists('gd_info')) {
+        if (\function_exists('gd_info')) {
             $gd = gd_info();
 
             return !empty($gd['FreeType Support']);
@@ -352,7 +352,7 @@ class Requirements
      */
     private function checkSessionSavePath()
     {
-        if (function_exists('session_save_path')) {
+        if (\function_exists('session_save_path')) {
             return (bool) session_save_path();
         } elseif (ini_get('session.save_path')) {
             return true;
@@ -383,7 +383,7 @@ class Requirements
      */
     private function checkIncludePath()
     {
-        $old = set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . DIRECTORY_SEPARATOR);
+        $old = set_include_path(get_include_path() . \PATH_SEPARATOR . __DIR__ . \DIRECTORY_SEPARATOR);
 
         return $old && get_include_path() !== $old;
     }
@@ -477,7 +477,7 @@ class Requirements
     private function encodeSize($bytes)
     {
         $types = ['B', 'KB', 'MB', 'GB', 'TB'];
-        for ($i = 0; $bytes >= 1024 && $i < (count($types) - 1); $bytes /= 1024, $i++);
+        for ($i = 0; $bytes >= 1024 && $i < (\count($types) - 1); $bytes /= 1024, $i++);
 
         return round($bytes, 2) . ' ' . $types[$i];
     }

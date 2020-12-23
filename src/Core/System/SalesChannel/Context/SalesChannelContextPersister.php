@@ -74,7 +74,7 @@ class SalesChannelContextPersister
             ]
         );
 
-        if ($affected === 0 && func_num_args() === 2) {
+        if ($affected === 0 && \func_num_args() === 2) {
             /** @var SalesChannelContext $context */
             $context = func_get_arg(1);
 
@@ -104,7 +104,7 @@ class SalesChannelContextPersister
         );
 
         // @deprecated tag:v6.4.0.0 - $context will be required
-        if (func_num_args() === 2) {
+        if (\func_num_args() === 2) {
             $context = func_get_arg(1);
             $context->assign(['token' => $newToken]);
             $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));

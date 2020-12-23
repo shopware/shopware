@@ -2,12 +2,18 @@ import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 
 /**
  * @private
  */
 Shopware.Component.register('sw-import-export-edit-profile-modal', {
     template,
+
+    inject: ['repositoryFactory'],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         profile: {
@@ -115,22 +121,53 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         showValidationError() {
             return this.missingRequiredFields.length > 0;
+        },
+
+        profileRepository() {
+            return this.repositoryFactory.create('import_export_profile');
         }
     },
 
     methods: {
         saveProfile() {
+            this.getParentProfileSelected().then((parentProfile) => {
+                this.checkValidation(parentProfile);
+
+                if (this.missingRequiredFields.length === 0) {
+                    this.$emit('profile-save');
+                }
+            });
+        },
+
+        getParentProfileSelected() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
+
+            return this.profileRepository.search(criteria, Shopware.Context.api).then((results) => {
+                if (results.total > 0) {
+                    return results[0];
+                }
+
+                return null;
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError')
+                });
+            });
+        },
+
+        checkValidation(parentProfile) {
+            const parentMapping = parentProfile ? parentProfile.mapping : [];
+
             const validationErrors = Shopware.Service('importExportProfileMapping').validate(
                 this.profile.sourceEntity,
-                this.profile.mapping
+                this.profile.mapping,
+                parentMapping
             );
 
             if (validationErrors.missingRequiredFields.length > 0) {
                 this.missingRequiredFields = validationErrors.missingRequiredFields;
-                return;
             }
-
-            this.$emit('profile-save');
         },
 
         resetViolations() {

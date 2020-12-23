@@ -84,7 +84,7 @@ class IdSearchResult extends Struct
 
     public function getDataOfId(string $id): array
     {
-        if (!array_key_exists($id, $this->data)) {
+        if (!\array_key_exists($id, $this->data)) {
             return [];
         }
 
@@ -95,7 +95,7 @@ class IdSearchResult extends Struct
     {
         $data = $this->getDataOfId($id);
 
-        if (array_key_exists($field, $data)) {
+        if (\array_key_exists($field, $data)) {
             return $data[$field];
         }
 
@@ -107,8 +107,8 @@ class IdSearchResult extends Struct
      */
     public function has($primaryKey): bool
     {
-        if (!is_array($primaryKey)) {
-            return in_array($primaryKey, $this->ids, true);
+        if (!\is_array($primaryKey)) {
+            return \in_array($primaryKey, $this->ids, true);
         }
 
         foreach ($this->ids as $id) {

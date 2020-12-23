@@ -7,6 +7,8 @@ import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/base/sw-inheritance-switch';
+import Vue from 'vue';
 
 describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     let wrapper;
@@ -22,7 +24,8 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         formContainer: 'sw-product-feature-set-form__form',
         formInheritWrapper: 'sw-inherit-wrapper',
         templateSingleSelect: 'sw-entity-single-select',
-        singleSelectSelection: 'sw-entity-single-select__selection'
+        singleSelectSelection: 'sw-entity-single-select__selection',
+        inheritanceSwitch: 'sw-inheritance-switch'
     };
 
     const text = {
@@ -49,7 +52,12 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         ]
     };
 
-    const productMock = (additionalProperties) => ({ featureSet: featureSetMock, ...additionalProperties });
+    const productMock = (additionalProperties) => {
+        return Vue.observable({
+            featureSet: featureSetMock,
+            ...additionalProperties
+        });
+    };
 
     const featureSetFormComponent = () => {
         const localVue = createLocalVue();
@@ -62,8 +70,10 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
             stubs: {
                 'sw-container': Shopware.Component.build('sw-container'),
                 'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-inheritance-switch': true,
-                'sw-icon': true,
+                'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch'),
+                'sw-icon': {
+                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+                },
                 'sw-icons-custom-inherited': true,
                 'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
                 'sw-loader': true,
@@ -94,6 +104,9 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                     search() {
                         return {};
                     }
+                },
+                feature: {
+                    isActive: () => {}
                 }
             },
             computed: {
@@ -183,5 +196,31 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         const selection = findSecure(singleSelect, `.${classes.singleSelectSelection}`);
 
         expect(selection.text()).toEqual(featureSetMock.name);
+    });
+
+    it('show not the inherit value', async () => {
+        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
+    });
+
+    it('show switch to inherit value', async () => {
+        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+
+        await inheritanceSwitch.find('.sw-icon').trigger('click');
+
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+    });
+
+    it('show remove inheritance', async () => {
+        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+
+        await inheritanceSwitch.find('.sw-icon').trigger('click');
+
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+
+        await inheritanceSwitch.find('.sw-icon').trigger('click');
+
+        expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
     });
 });

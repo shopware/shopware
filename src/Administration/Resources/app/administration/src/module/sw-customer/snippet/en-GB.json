@@ -40,7 +40,9 @@
       "labelCompany": "Company",
       "labelEmail": "Email",
       "labelTags": "Tags",
-      "labelGuest": "Guest account"
+      "labelGuest": "Guest account",
+      "labelVatId": "VAT-ID",
+      "placeholderVatId": "Enter VAT-ID..."
     },
     "list": {
       "textCustomers": "Customers",

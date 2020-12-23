@@ -173,7 +173,7 @@ class DocumentTypeDetectorTest extends TestCase
         return new MediaFile(
             $filePath,
             mime_content_type($filePath),
-            pathinfo($filePath, PATHINFO_EXTENSION),
+            pathinfo($filePath, \PATHINFO_EXTENSION),
             filesize($filePath)
         );
     }

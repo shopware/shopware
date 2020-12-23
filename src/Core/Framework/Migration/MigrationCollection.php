@@ -119,7 +119,7 @@ class MigrationCollection
 
         $this->migrationSteps = [];
         foreach ($this->loadMigrationSteps() as $step) {
-            $this->migrationSteps[get_class($step)] = $step;
+            $this->migrationSteps[\get_class($step)] = $step;
         }
     }
 
@@ -133,11 +133,11 @@ class MigrationCollection
         $migrations = [];
 
         foreach ($this->migrationSource->getSourceDirectories() as $directory => $namespace) {
-            foreach (scandir($directory, SCANDIR_SORT_ASCENDING) as $classFileName) {
+            foreach (scandir($directory, \SCANDIR_SORT_ASCENDING) as $classFileName) {
                 $path = $directory . '/' . $classFileName;
-                $className = $namespace . '\\' . pathinfo($classFileName, PATHINFO_FILENAME);
+                $className = $namespace . '\\' . pathinfo($classFileName, \PATHINFO_FILENAME);
 
-                if (pathinfo($path, PATHINFO_EXTENSION) !== 'php') {
+                if (pathinfo($path, \PATHINFO_EXTENSION) !== 'php') {
                     continue;
                 }
 

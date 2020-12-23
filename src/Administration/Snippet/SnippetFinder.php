@@ -21,7 +21,7 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $snippetFiles = $this->findSnippetFiles($locale);
 
-        if (!count($snippetFiles)) {
+        if (!\count($snippetFiles)) {
             return [];
         }
 

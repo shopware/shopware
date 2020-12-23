@@ -4,7 +4,18 @@
         {% block sw_order_detail_header %}
             <template #smart-bar-header>
                 {% block sw_order_detail_header_title %}
-                    <h2 v-if="identifier">{{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}</h2>
+                    <h2 v-if="identifier">
+                        {{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}
+
+                        {% block sw_order_detail_header_label_manual_order %}
+                            <sw-label v-if="createdById"
+                                      appearance="pill"
+                                      size="small"
+                                      class="sw-order-detail__manual-order-label">
+                                {{ $tc('sw-order.detail.labelManualOrder') }}
+                            </sw-label>
+                        {% endblock %}
+                    </h2>
                 {% endblock %}
 
                 {% block sw_order_detail_header_title_new %}
@@ -84,6 +95,7 @@
                             :isLoading="isLoading"
                             :isSaveSuccessful="isSaveSuccessful"
                             @identifier-change="updateIdentifier"
+                            @created-by-id-change="updateCreatedById"
                             @loading-change="onUpdateLoading"
                             @editing-change="onUpdateEditing"
                             @error="onError">

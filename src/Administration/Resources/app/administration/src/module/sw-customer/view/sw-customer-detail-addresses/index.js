@@ -200,9 +200,11 @@ Component.register('sw-customer-detail-addresses', {
 
             Object.assign(address, this.currentAddress);
 
-            if (!this.customer.addresses.has(address.id)) {
-                this.customer.addresses.push(address);
+            if (this.customer.addresses.has(address.id)) {
+                this.customer.addresses.remove(address.id);
             }
+
+            this.customer.addresses.push(address);
 
             this.currentAddress = null;
         },
@@ -259,6 +261,7 @@ Component.register('sw-customer-detail-addresses', {
             // the slot does not exist anymore and the modal stays open
             this.$nextTick(() => {
                 this.customer.addresses.remove(id);
+                this.activeCustomer.addresses.remove(id);
             });
         },
 
@@ -273,10 +276,12 @@ Component.register('sw-customer-detail-addresses', {
 
         onChangeDefaultBillingAddress(billingAddressId) {
             this.activeCustomer.defaultBillingAddressId = billingAddressId;
+            this.customer.defaultBillingAddressId = billingAddressId;
         },
 
         onChangeDefaultShippingAddress(shippingAddressId) {
             this.activeCustomer.defaultShippingAddressId = shippingAddressId;
+            this.customer.defaultShippingAddressId = shippingAddressId;
         },
 
         onDuplicateAddress(addressId) {
@@ -297,6 +302,7 @@ Component.register('sw-customer-detail-addresses', {
 
             this[name] = this.activeCustomer[name];
             this.activeCustomer[name] = data.id;
+            this.customer[name] = data.id;
         },
 
         onChange(term) {

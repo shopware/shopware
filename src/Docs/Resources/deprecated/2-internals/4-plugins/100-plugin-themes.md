@@ -67,6 +67,7 @@ Basic example for `theme.json`:
     "app/storefront/dist/storefront/js/just-another-theme.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ]
 }
@@ -205,6 +206,7 @@ This entry point is called `overrides.scss`:
     "app/storefront/dist/storefront/js/just-another-theme.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ]
 }
@@ -393,6 +395,7 @@ or
     "app/storefront/dist/storefront/js/select-example.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ],
   "config": {
@@ -482,6 +485,7 @@ or
     "app/storefront/dist/storefront/js/select-example.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ],
   "config": {

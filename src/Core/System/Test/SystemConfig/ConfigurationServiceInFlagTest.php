@@ -56,10 +56,8 @@ class ConfigurationServiceInFlagTest extends TestCase
         unset($_SERVER['FEATURE_NEXT_101']);
         unset($_SERVER['FEATURE_NEXT_102']);
 
-        Feature::setRegisteredFeatures(
-            $this->getContainer()->getParameter('shopware.feature.flags'),
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures($this->getContainer()->getParameter('shopware.feature.flags'));
 
         $this->configurationService = $this->getConfigurationService();
     }
@@ -198,9 +196,6 @@ class ConfigurationServiceInFlagTest extends TestCase
         $registeredFlags = array_keys(Feature::getAll());
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
-        Feature::setRegisteredFeatures(
-            $registeredFlags,
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+        Feature::registerFeatures($registeredFlags);
     }
 }

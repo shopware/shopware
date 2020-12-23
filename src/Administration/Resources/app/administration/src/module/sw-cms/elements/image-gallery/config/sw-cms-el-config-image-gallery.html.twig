@@ -22,8 +22,57 @@
                 <template slot="content" slot-scope="{ active }">
                     {% block sw_cms_element_image_gallery_config_content %}
                         <sw-container v-if="active === 'content'" class="sw-cms-el-config-image-gallery__tab-content">
+
                             {% block sw_cms_element_image_gallery_config_media_selection %}
+                                <sw-cms-mapping-field
+                                    v-if="feature.isActive('FEATURE_NEXT_10078')"
+                                    v-model="element.config.sliderItems"
+                                    entity="product_media"
+                                    valueTypes="entity"
+                                    :label="$tc('sw-cms.elements.imageGallery.label')">
+
+                                    {% block sw_cms_element_image_gallery_config_media_list_selection %}
+                                        <sw-media-list-selection-v2
+                                            :entityMediaItems="mediaItems"
+                                            :entity="enitiy"
+                                            :uploadTag="uploadTag"
+                                            :defaultFolder="defaultFolderName"
+                                            @upload-finish="onImageUpload"
+                                            @item-remove="onItemRemove"
+                                            @open-sidebar="onOpenMediaModal">
+                                        </sw-media-list-selection-v2>
+                                    {% endblock %}
+
+                                    {% block sw_cms_element_image_gallery_config_media_mapping_preview %}
+                                        <template #preview="{ demoValue }">
+
+                                            {% block sw_cms_element_image_gallery_config_media_preview_list %}
+                                                <div v-if="demoValue && demoValue.length"
+                                                     class="sw-cms-el-config-image-gallery__mapping-preview"
+                                                     ref="demoMediaGrid"
+                                                     :style="gridAutoRows">
+
+                                                    {% block sw_cms_element_image_gallery_config_media_preview_item %}
+                                                        <div v-for="demo in demoValue"
+                                                             class="sw-cms-el-config-image-gallery__preview-image"
+                                                             :key="demo.id">
+                                                            <img :src="demo.media.url">
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+
+                                            {% block sw_cms_element_image_gallery_config_media_preview_info %}
+                                                <sw-alert v-else class="sw-cms-el-config-image__preview-info" variant="info">
+                                                    {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                                                </sw-alert>
+                                            {% endblock %}
+                                        </template>
+                                    {% endblock %}
+                                </sw-cms-mapping-field>
+
                                 <sw-media-list-selection-v2
+                                    v-else
                                     :entityMediaItems="mediaItems"
                                     :entity="enitiy"
                                     :uploadTag="uploadTag"

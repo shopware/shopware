@@ -35,77 +35,124 @@
         {% block sw_settings_rule_detail_content %}
             <template #content>
                 <sw-card-view>
-                    {% block sw_settings_rule_detail_content_card %}
-                        <sw-card :large="true" :title="$tc('sw-settings-rule.detail.titleCard')">
-                            <template v-if="rule">
-                                <sw-container columns="2fr 1fr" gap="0px 32px">
-                                    {% block sw_settings_rule_detail_content_card_field_name %}
-                                        <sw-field type="text"
-                                                  :label="$tc('sw-settings-rule.detail.labelName')"
-                                                  :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
-                                                  :error="ruleNameError"
-                                                  :disabled="!acl.can('rule.editor')"
-                                                  required
-                                                  v-model="rule.name">
-                                        </sw-field>
-                                    {% endblock %}
 
-                                    {% block sw_settings_rule_detail_content_card_field_priority %}
-                                        <sw-field type="number"
-                                                  :label="$tc('sw-settings-rule.detail.labelPriority')"
-                                                  :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
-                                                  :error="rulePriorityError"
-                                                  :disabled="!acl.can('rule.editor')"
-                                                  required
-                                                  v-model="rule.priority">
-                                        </sw-field>
-                                    {% endblock %}
-                                </sw-container>
-                                {% block sw_settings_rule_detail_content_card_field_description %}
-                                    <sw-field type="textarea"
-                                              :label="$tc('sw-settings-rule.detail.labelDescription')"
-                                              :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
-                                              :disabled="!acl.can('rule.editor')"
-                                              v-model="rule.description">
-                                    </sw-field>
+                    <template v-if="feature.isActive('FEATURE_NEXT_12289')">
+                        {% block sw_settings_rule_detail_tabs %}
+                            <sw-tabs
+                                v-if="rule && !rule.isNew()"
+                                class="sw-settings-rule-detail__tabs">
+                                {% block sw_settings_rule_detail_tab_items %}
+                                    <sw-tabs-item
+                                        v-for="tab in tabItems"
+                                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
+                                        :key="tab.route.name"
+                                        :route="tab.route"
+                                        :title="tab.title">
+                                        {{ tab.title }}
+                                    </sw-tabs-item>
                                 {% endblock %}
-                                {% block sw_settings_rule_detail_content_card_field_type %}
-                                    <sw-multi-select
-                                            v-if="rule"
-                                            valueProperty="id"
-                                            labelProperty="name"
-                                            :label="$tc('sw-settings-rule.detail.labelType')"
-                                            :disabled="!acl.can('rule.editor')"
-                                            :options="availableModuleTypes"
-                                            v-model="moduleTypes">
-                                        <template #selection-label-property="{ item }">
-                                            {{ $tc(item.name) }}
-                                        </template>
+                            </sw-tabs>
+                        {% endblock %}
 
-                                        <template #result-label-property="{ item }">
-                                            {{ $tc(item.name) }}
-                                        </template>
-                                    </sw-multi-select>
-                                {% endblock %}
-                            </template>
-                            <sw-loader v-else></sw-loader>
-                        </sw-card>
-                    {% endblock %}
-
-                    {% block sw_settings_rule_detail_conditions_card %}
-                        <sw-card class="sw-settings-rule-detail__condition_container" :large="true" :title="$tc('sw-settings-rule.detail.ruleCard')">
-                            <sw-condition-tree
-                                :initialConditions="conditions"
+                        {% block sw_settings_rule_detail_content_view %}
+                            <router-view
+                                v-if="rule !== null"
+                                :rule="rule"
+                                :conditions="conditions"
                                 :conditionRepository="conditionRepository"
-                                :conditionDataProviderService="ruleConditionDataProviderService"
-                                associationField="ruleId"
-                                :associationValue="ruleId || rule.id"
-                                :rootCondition="null"
-                                :disabled="!acl.can('rule.editor')"
-                                @conditions-changed="conditionsChanged">
-                            </sw-condition-tree>
-                        </sw-card>
-                    {% endblock %}
+                                @conditions-changed="conditionsChanged"
+                                :key="$route.path">
+                            </router-view>
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_content_card" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                        {% block sw_settings_rule_detail_content_card %}
+                            <sw-card
+                                :large="true"
+                                :title="$tc('sw-settings-rule.detail.titleCard')">
+                                <template v-if="rule">
+                                    <sw-container columns="2fr 1fr" gap="0px 32px">
+
+                                        {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_content_card_field_name" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                                        {% block sw_settings_rule_detail_content_card_field_name %}
+                                            <sw-field type="text"
+                                                      :label="$tc('sw-settings-rule.detail.labelName')"
+                                                      :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                                                      :error="ruleNameError"
+                                                      :disabled="!acl.can('rule.editor')"
+                                                      required
+                                                      v-model="rule.name">
+                                            </sw-field>
+                                        {% endblock %}
+
+                                        {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_content_card_field_priority" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                                        {% block sw_settings_rule_detail_content_card_field_priority %}
+                                            <sw-field type="number"
+                                                      :label="$tc('sw-settings-rule.detail.labelPriority')"
+                                                      :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                                                      :error="rulePriorityError"
+                                                      :disabled="!acl.can('rule.editor')"
+                                                      required
+                                                      v-model="rule.priority">
+                                            </sw-field>
+                                        {% endblock %}
+                                    </sw-container>
+
+                                    {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_content_card_field_description" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                                    {% block sw_settings_rule_detail_content_card_field_description %}
+                                        <sw-field type="textarea"
+                                                  :label="$tc('sw-settings-rule.detail.labelDescription')"
+                                                  :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                                                  :disabled="!acl.can('rule.editor')"
+                                                  v-model="rule.description">
+                                        </sw-field>
+                                    {% endblock %}
+
+                                    {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_content_card_field_type" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                                    {% block sw_settings_rule_detail_content_card_field_type %}
+                                        <sw-multi-select
+                                                v-if="rule"
+                                                valueProperty="id"
+                                                labelProperty="name"
+                                                :label="$tc('sw-settings-rule.detail.labelType')"
+                                                :disabled="!acl.can('rule.editor')"
+                                                :options="availableModuleTypes"
+                                                v-model="moduleTypes">
+                                            <template #selection-label-property="{ item }">
+                                                {{ $tc(item.name) }}
+                                            </template>
+
+                                            <template #result-label-property="{ item }">
+                                                {{ $tc(item.name) }}
+                                            </template>
+                                        </sw-multi-select>
+                                    {% endblock %}
+                                </template>
+                                <sw-loader v-else></sw-loader>
+                            </sw-card>
+                        {% endblock %}
+
+                        {# @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be renamed to "sw_settings_rule_detail_base_conditions_card" and moved to "sw-settings-rule-detail-base.html.twig" #}
+                        {% block sw_settings_rule_detail_conditions_card %}
+                            <sw-card
+                                class="sw-settings-rule-detail__condition_container"
+                                :large="true"
+                                :title="$tc('sw-settings-rule.detail.ruleCard')">
+                                <sw-condition-tree
+                                    :initialConditions="conditions"
+                                    :conditionRepository="conditionRepository"
+                                    :conditionDataProviderService="ruleConditionDataProviderService"
+                                    associationField="ruleId"
+                                    :associationValue="rule.id"
+                                    :rootCondition="null"
+                                    :disabled="!acl.can('rule.editor')"
+                                    @conditions-changed="conditionsChanged">
+                                </sw-condition-tree>
+                            </sw-card>
+                        {% endblock %}
+                    </template>
                 </sw-card-view>
             </template>
         {% endblock %}

@@ -45,12 +45,12 @@ class PromotionEntity extends Entity
     protected $validUntil;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $maxRedemptionsGlobal;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $maxRedemptionsPerCustomer;
 
@@ -193,22 +193,22 @@ class PromotionEntity extends Entity
         $this->validUntil = $validUntil;
     }
 
-    public function getMaxRedemptionsGlobal(): int
+    public function getMaxRedemptionsGlobal(): ?int
     {
         return $this->maxRedemptionsGlobal;
     }
 
-    public function setMaxRedemptionsGlobal(int $maxRedemptionsGlobal): void
+    public function setMaxRedemptionsGlobal(?int $maxRedemptionsGlobal): void
     {
         $this->maxRedemptionsGlobal = $maxRedemptionsGlobal;
     }
 
-    public function getMaxRedemptionsPerCustomer(): int
+    public function getMaxRedemptionsPerCustomer(): ?int
     {
         return $this->maxRedemptionsPerCustomer;
     }
 
-    public function setMaxRedemptionsPerCustomer(int $maxRedemptionsPerCustomer): void
+    public function setMaxRedemptionsPerCustomer(?int $maxRedemptionsPerCustomer): void
     {
         $this->maxRedemptionsPerCustomer = $maxRedemptionsPerCustomer;
     }
@@ -531,7 +531,7 @@ class PromotionEntity extends Entity
             // we use persona rules.
             // check if we have persona rules and add them
             // to our persona OR as a separate OR rule with all configured rules
-            if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
+            if ($this->getPersonaRules() !== null && \count($this->getPersonaRules()->getElements()) > 0) {
                 $personaRuleOR = new OrRule();
 
                 foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
@@ -542,7 +542,7 @@ class PromotionEntity extends Entity
             }
         }
 
-        if ($this->getCartRules() !== null && count($this->getCartRules()->getElements()) > 0) {
+        if ($this->getCartRules() !== null && \count($this->getCartRules()->getElements()) > 0) {
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
@@ -577,7 +577,7 @@ class PromotionEntity extends Entity
             $requirements->addRule($groupsRootRule);
         }
 
-        if ($this->getOrderRules() !== null && count($this->getOrderRules()->getElements()) > 0) {
+        if ($this->getOrderRules() !== null && \count($this->getOrderRules()->getElements()) > 0) {
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
@@ -600,7 +600,8 @@ class PromotionEntity extends Entity
 
     public function isOrderCountValid(): bool
     {
-        return $this->getMaxRedemptionsGlobal() <= 0
+        return $this->getMaxRedemptionsGlobal() === null
+            || $this->getMaxRedemptionsGlobal() <= 0
             || $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
     }
 
@@ -608,9 +609,10 @@ class PromotionEntity extends Entity
     {
         $customerId = mb_strtolower($customerId);
 
-        return $this->getMaxRedemptionsPerCustomer() <= 0
+        return $this->getMaxRedemptionsPerCustomer() === null
+            || $this->getMaxRedemptionsPerCustomer() <= 0
             || $this->getOrdersPerCustomerCount() === null
-            || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
+            || !\array_key_exists($customerId, $this->getOrdersPerCustomerCount())
             || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }
 }

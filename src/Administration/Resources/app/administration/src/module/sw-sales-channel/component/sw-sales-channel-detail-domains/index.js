@@ -36,7 +36,10 @@ Component.register('sw-sales-channel-detail-domains', {
             if (this.currentDomain.isNew()) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
-            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, { name: this.currentDomainBackup.url });
+
+            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
+                name: this.$options.filters.unicodeUri(this.currentDomainBackup.url)
+            });
         },
 
         currentDomainModalButtonText() {

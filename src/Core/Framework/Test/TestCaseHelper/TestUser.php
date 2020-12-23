@@ -59,7 +59,7 @@ class TestUser
             'last_name' => '',
             'email' => "{$email}@example.com",
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => self::getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'admin' => 0,
@@ -95,13 +95,13 @@ class TestUser
 
         $data = json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
                 'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
-        if (!array_key_exists('refresh_token', $data)) {
+        if (!\array_key_exists('refresh_token', $data)) {
             throw new \RuntimeException(
                 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
             );

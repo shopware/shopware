@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -13,8 +15,5 @@ abstract class AbstractChangePasswordRoute
 {
     abstract public function getDecorated(): AbstractChangePasswordRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Return typehint will be set to ContextTokenResponse in v6.4.0
-     */
-    abstract public function change(RequestDataBag $requestDataBag, SalesChannelContext $context);
+    abstract public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse;
 }

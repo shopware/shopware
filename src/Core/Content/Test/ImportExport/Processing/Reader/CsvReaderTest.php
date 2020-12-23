@@ -12,7 +12,7 @@ class CsvReaderTest extends TestCase
 
     public function testSimpleCsv(): void
     {
-        $content = implode(PHP_EOL, [
+        $content = implode(\PHP_EOL, [
             'foo;bar',
             '1;2',
             '"asdf";"zxcv"',
@@ -29,9 +29,9 @@ class CsvReaderTest extends TestCase
 
     public function testIncremental(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= '"asdf";"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
@@ -54,7 +54,7 @@ class CsvReaderTest extends TestCase
 
     public function testHeader(): void
     {
-        $content = implode(PHP_EOL, [
+        $content = implode(\PHP_EOL, [
             'foo;bar',
             '1;2',
             '"asdf";"zxcv"',
@@ -112,9 +112,9 @@ class CsvReaderTest extends TestCase
 
     public function testUtf8BOMIsRemoved(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= '"asdf";"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
 
         $bomContent = self::BOM_UTF8 . $content;
 
@@ -129,9 +129,9 @@ class CsvReaderTest extends TestCase
 
     public function testUf8BomOnlyRemovedAtBeginning(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= self::BOM_UTF8 . 'asdf;"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= self::BOM_UTF8 . 'asdf;"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');

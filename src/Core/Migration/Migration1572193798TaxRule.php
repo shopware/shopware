@@ -135,7 +135,7 @@ class Migration1572193798TaxRule extends MigrationStep
             ];
             $connection->insert(TaxRuleTypeDefinition::ENTITY_NAME, $typeData);
 
-            if (!in_array($languageSystem, [$languageIdDe, $languageIdEn], true)) {
+            if (!\in_array($languageSystem, [$languageIdDe, $languageIdEn], true)) {
                 $this->insertTranslation($connection, $dataEn[$technicalName], $typeId, $languageSystem);
             }
 

@@ -55,7 +55,7 @@ class ReplaceDecoratedInterface
 {
     public function __construct(array $info)
     {
-        if (!array_key_exists('deprecatedInterface', $info) || !array_key_exists('replacedBy', $info)) {
+        if (!\array_key_exists('deprecatedInterface', $info) || !\array_key_exists('replacedBy', $info)) {
             throw new \Exception('ReplaceDecoratedInterface annotation must be created with a hint on the "deprecatedInterface" and the interface it is "replacedBy".');
         }
     }

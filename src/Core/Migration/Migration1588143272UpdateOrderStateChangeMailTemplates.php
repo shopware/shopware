@@ -288,7 +288,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
         ', ['typeId' => $templateTypeId])->fetchColumn();
 
-        if ($templateId === false || !is_string($templateId)) {
+        if ($templateId === false || !\is_string($templateId)) {
             return null;
         }
 
@@ -301,7 +301,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;
         ', ['mailTemplateType' => $mailTemplateType])->fetchColumn();
 
-        if ($availableEntities === false || !is_string($availableEntities) || json_decode($availableEntities, true) === null) {
+        if ($availableEntities === false || !\is_string($availableEntities) || json_decode($availableEntities, true) === null) {
             return [];
         }
 

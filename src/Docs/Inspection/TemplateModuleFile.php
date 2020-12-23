@@ -74,8 +74,8 @@ EOD;
             $this->targetFile,
             sprintf(
                 self::TEMPLATE_MODULE_PAGE,
-                implode(PHP_EOL, $renderedTags),
-                implode(PHP_EOL, $renderedModules)
+                implode(\PHP_EOL, $renderedTags),
+                implode(\PHP_EOL, $renderedModules)
             )
         );
     }
@@ -100,7 +100,7 @@ EOD;
             }, $tagNames);
 
             $moduleDescriptions->ensure($modulePathName);
-            $markdown[$bundleName] = sprintf(self::TEMPLATE_MODULE_BUNDLE_NAME . PHP_EOL, $bundleName);
+            $markdown[$bundleName] = sprintf(self::TEMPLATE_MODULE_BUNDLE_NAME . \PHP_EOL, $bundleName);
 
             $markdown[$modulePathName] = sprintf(
                 self::TEMPLATE_MODULE_MODULE,
@@ -110,7 +110,7 @@ EOD;
                 $moduleDescriptions->get($modulePathName)
             );
 
-            $io->write(' * ' . $modulePathName . ': ' . implode(', ', $tagNames) . PHP_EOL);
+            $io->write(' * ' . $modulePathName . ': ' . implode(', ', $tagNames) . \PHP_EOL);
         }
 
         $moduleDescriptions->dump(true);

@@ -279,7 +279,7 @@ class ImportExportFileApiTest extends TestCase
         static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -288,7 +288,7 @@ class ImportExportFileApiTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
-        static::assertEquals($num - 1, count($records));
+        static::assertEquals($num - 1, \count($records));
     }
 
     protected function prepareRoute(bool $search = false): string

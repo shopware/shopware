@@ -20,8 +20,8 @@ class SerializerRegistry
 
     public function __construct(iterable $entitySerializers, iterable $fieldSerializers)
     {
-        $this->entitySerializers = is_array($entitySerializers) ? $entitySerializers : iterator_to_array($entitySerializers);
-        $this->fieldSerializers = is_array($fieldSerializers) ? $fieldSerializers : iterator_to_array($fieldSerializers);
+        $this->entitySerializers = \is_array($entitySerializers) ? $entitySerializers : iterator_to_array($entitySerializers);
+        $this->fieldSerializers = \is_array($fieldSerializers) ? $fieldSerializers : iterator_to_array($fieldSerializers);
     }
 
     public function getEntity(string $entity): AbstractEntitySerializer

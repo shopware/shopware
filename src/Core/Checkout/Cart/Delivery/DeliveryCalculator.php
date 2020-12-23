@@ -150,7 +150,7 @@ class DeliveryCalculator
     private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
     {
         if ($shippingMethodPrice->getCalculationRuleId()) {
-            return in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true);
+            return \in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true);
         }
 
         $start = $shippingMethodPrice->getQuantityStart();

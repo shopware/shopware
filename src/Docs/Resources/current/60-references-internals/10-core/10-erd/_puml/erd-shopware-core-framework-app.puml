@@ -37,6 +37,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
    icon string
    appSecret string
    modules list
+   cookies list
    label translated
    description translated
    privacyPolicyExtensions translated

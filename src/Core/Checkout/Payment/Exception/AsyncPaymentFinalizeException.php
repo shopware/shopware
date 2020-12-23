@@ -8,7 +8,7 @@ class AsyncPaymentFinalizeException extends PaymentProcessException
     {
         parent::__construct(
             $orderTransactionId,
-            'The asynchronous payment finalize was interrupted due to the following error:' . PHP_EOL . '{{ errorMessage }}',
+            'The asynchronous payment finalize was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage]
         );
     }

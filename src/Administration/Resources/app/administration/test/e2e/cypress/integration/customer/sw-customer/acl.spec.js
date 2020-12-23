@@ -4,7 +4,10 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
+    country: 'Germany',
+    company: 'Test Company',
+    department: 'Test Department',
+    vatId: 'TEST-VAT-ID'
 };
 
 describe('Customer: Test ACL privileges', () => {
@@ -32,7 +35,7 @@ describe('Customer: Test ACL privileges', () => {
             });
     });
 
-    it('@customer: has no access to property module', () => {
+    it('@customer: has no access to customer module', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',

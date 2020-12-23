@@ -1,6 +1,6 @@
 {% block sw_cms_el_buy_box %}
     <div class="sw-cms-el-buy-box" :style="alignStyle">
-        <div v-if="product && !isProductPageType" class="sw-cms-el-buy-box__content">
+        <div v-if="(product && !isProductPageType) || currentDemoEntity" class="sw-cms-el-buy-box__content">
 
             {% block sw_cms_el_buy_box_product_info %}
                 {% block sw_cms_el_buy_box_product_price %}

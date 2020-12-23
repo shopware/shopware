@@ -62,6 +62,11 @@ class AppEntity extends Entity
     protected $modules;
 
     /**
+     * @var array|null
+     */
+    protected $cookies;
+
+    /**
      * @var string|null
      */
     protected $iconRaw;
@@ -247,6 +252,16 @@ class AppEntity extends Entity
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
+    }
+
+    public function getCookies(): ?array
+    {
+        return $this->cookies;
+    }
+
+    public function setCookies(?array $cookies): void
+    {
+        $this->cookies = $cookies;
     }
 
     public function getIconRaw(): ?string

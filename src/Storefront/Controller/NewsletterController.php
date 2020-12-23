@@ -7,6 +7,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -84,12 +85,16 @@ class NewsletterController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
-    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
+    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
 
         $subscribed = $request->get('option', false) === 'direct';
 
@@ -105,12 +110,12 @@ class NewsletterController extends StorefrontController
         if ($subscribed) {
             try {
                 $this->newsletterSubscribeRoute->subscribe(
-                    $this->hydrateFromCustomer($dataBag, $context->getCustomer()),
+                    $this->hydrateFromCustomer($dataBag, $customer),
                     $context,
                     false
                 );
 
-                $this->setNewsletterFlag($context->getCustomer(), true, $context);
+                $this->setNewsletterFlag($customer, true, $context);
 
                 $success = true;
                 $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionConfirmationSuccess')];
@@ -120,7 +125,7 @@ class NewsletterController extends StorefrontController
             }
 
             return $this->renderStorefront('@Storefront/storefront/page/account/newsletter.html.twig', [
-                'customer' => $context->getCustomer(),
+                'customer' => $customer,
                 'messages' => $messages,
                 'success' => $success,
             ]);
@@ -128,10 +133,10 @@ class NewsletterController extends StorefrontController
 
         try {
             $this->newsletterUnsubscribeRoute->unsubscribe(
-                $this->hydrateFromCustomer($dataBag, $context->getCustomer()),
+                $this->hydrateFromCustomer($dataBag, $customer),
                 $context
             );
-            $this->setNewsletterFlag($context->getCustomer(), false, $context);
+            $this->setNewsletterFlag($customer, false, $context);
 
             $success = true;
             $messages[] = ['type' => 'success', 'text' => $this->trans('newsletter.subscriptionRevokeSuccess')];
@@ -141,7 +146,7 @@ class NewsletterController extends StorefrontController
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/account/newsletter.html.twig', [
-            'customer' => $context->getCustomer(),
+            'customer' => $customer,
             'messages' => $messages,
             'success' => $success,
         ]);

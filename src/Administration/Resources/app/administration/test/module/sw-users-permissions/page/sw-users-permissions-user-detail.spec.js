@@ -1,5 +1,13 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import 'src/app/component/form/sw-password-field';
+import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/base/sw-button';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
+import 'src/app/component/base/sw-button-process';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -65,7 +73,8 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
-            }
+            },
+            validationService: {}
         },
         mocks: {
             $tc: v => v,
@@ -73,11 +82,18 @@ function createWrapper(privileges = []) {
                 params: {
                     id: '1a2b3c4d'
                 }
+            },
+            $device: {
+                getSystemKey: () => 'STRG'
             }
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot></div>'
+                template: `
+<div>
+    <slot name="smart-bar-actions"></slot>
+    <slot name="content"></slot>
+</div>`
             },
             'sw-card-view': true,
             'sw-card': {
@@ -88,13 +104,20 @@ function createWrapper(privileges = []) {
     </div>
     `
             },
-            'sw-text-field': true,
+            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
-            'sw-password-field': true,
+            'sw-password-field': Shopware.Component.build('sw-text-field'),
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
+            'sw-icon': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
@@ -144,12 +167,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('');
-        expect(fieldLastName.attributes('value')).toBe('admin');
-        expect(fieldEmail.attributes('value')).toBe('info@shopware.com');
-        expect(fieldUsername.attributes('value')).toBe('admin');
-        expect(fieldProfilePicture.attributes('value')).toBe(undefined);
-        expect(fieldPassword.attributes('value')).toBe(undefined);
+        expect(fieldFirstName.props('value')).toBe('');
+        expect(fieldLastName.props('value')).toBe('admin');
+        expect(fieldEmail.props('value')).toBe('info@shopware.com');
+        expect(fieldUsername.props('value')).toBe('admin');
+        expect(fieldProfilePicture.props('value')).toBe(undefined);
+        expect(fieldPassword.props('value')).toBe(undefined);
         expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
@@ -180,12 +203,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.attributes('value')).toBe('Max');
-        expect(fieldLastName.attributes('value')).toBe('Mustermann');
-        expect(fieldEmail.attributes('value')).toBe('max@mustermann.com');
-        expect(fieldUsername.attributes('value')).toBe('maxmuster');
-        expect(fieldProfilePicture.attributes('value')).toBe(undefined);
-        expect(fieldPassword.attributes('value')).toBe(undefined);
+        expect(fieldFirstName.props('value')).toBe('Max');
+        expect(fieldLastName.props('value')).toBe('Mustermann');
+        expect(fieldEmail.props('value')).toBe('max@mustermann.com');
+        expect(fieldUsername.props('value')).toBe('maxmuster');
+        expect(fieldProfilePicture.props('value')).toBe(undefined);
+        expect(fieldPassword.props('value')).toBe(undefined);
         expect(fieldLanguage.attributes('value')).toBe('12345');
     });
 
@@ -254,12 +277,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const contextMenuItemEdit = wrapper.find('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.find('.sw-settings-user-detail__grid-context-menu-delete');
 
-        expect(fieldFirstName.attributes().disabled).toBe('true');
-        expect(fieldLastName.attributes().disabled).toBe('true');
-        expect(fieldEmail.attributes().disabled).toBe('true');
-        expect(fieldUsername.attributes().disabled).toBe('true');
+        expect(fieldFirstName.classes()).toContain('is--disabled');
+        expect(fieldLastName.classes()).toContain('is--disabled');
+        expect(fieldEmail.classes()).toContain('is--disabled');
+        expect(fieldUsername.classes()).toContain('is--disabled');
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.attributes().disabled).toBe('true');
+        expect(fieldPassword.classes()).toContain('is--disabled');
         expect(fieldLanguage.attributes().disabled).toBe('true');
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
@@ -302,5 +325,75 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldLanguage.attributes().disabled).toBeUndefined();
         expect(contextMenuItemEdit.attributes().disabled).toBeUndefined();
         expect(contextMenuItemDelete.attributes().disabled).toBeUndefined();
+    });
+
+    it('should change the password', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.user.password).toBe(undefined);
+
+        const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
+        expect(fieldPasswordInput.element.value).toBe('');
+
+        await fieldPasswordInput.setValue('fooBar');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe('fooBar');
+    });
+
+    it('should delete the password when input is empty', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.user.password).toBe(undefined);
+
+        const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
+        expect(fieldPasswordInput.element.value).toBe('');
+
+        await fieldPasswordInput.setValue('fooBar');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe('fooBar');
+
+        await fieldPasswordInput.setValue('');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe(undefined);
+    });
+
+    it('should send a request with the new password', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.user.password).toBe(undefined);
+
+        const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
+        expect(fieldPasswordInput.element.value).toBe('');
+
+        await fieldPasswordInput.setValue('fooBar');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe('fooBar');
+    });
+
+    it('should not send a request when user clears the password field', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.user.password).toBe(undefined);
+
+        const fieldPasswordInput = wrapper.find('.sw-settings-user-detail__grid-password input');
+        expect(fieldPasswordInput.element.value).toBe('');
+
+        await fieldPasswordInput.setValue('fooBar');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe('fooBar');
+
+        await fieldPasswordInput.setValue('');
+        await fieldPasswordInput.trigger('change');
+
+        expect(wrapper.vm.user.password).toBe(undefined);
     });
 });

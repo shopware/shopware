@@ -18,7 +18,7 @@ class UuidTest extends TestCase
     public function testRandomBytes(): void
     {
         static::assertNotEquals(Uuid::randomBytes(), Uuid::randomBytes());
-        static::assertSame(16, \mb_strlen(Uuid::randomBytes(), '8bit'));
+        static::assertSame(16, mb_strlen(Uuid::randomBytes(), '8bit'));
     }
 
     public function testHexRoundtrip(): void

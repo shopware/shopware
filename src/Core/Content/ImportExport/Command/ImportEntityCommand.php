@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,8 +36,11 @@ class ImportEntityCommand extends Command
      */
     private $importExportFactory;
 
-    public function __construct(ImportExportService $initiationService, EntityRepositoryInterface $profileRepository, ImportExportFactory $importExportFactory)
-    {
+    public function __construct(
+        ImportExportService $initiationService,
+        EntityRepositoryInterface $profileRepository,
+        ImportExportFactory $importExportFactory
+    ) {
         parent::__construct();
         $this->initiationService = $initiationService;
         $this->profileRepository = $profileRepository;
@@ -47,7 +51,12 @@ class ImportEntityCommand extends Command
     {
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
-            ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string');
+            ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string')
+            ->addArgument(
+                'profile',
+                InputArgument::OPTIONAL,
+                'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -55,7 +64,15 @@ class ImportEntityCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
 
-        $profile = $this->chooseProfile($context, $io);
+        $profileName = $input->getArgument('profile');
+        if (\is_array($profileName)) {
+            throw new \InvalidArgumentException(
+                sprintf('Profile name: Found array, expected string')
+            );
+        }
+        $profile = empty($profileName)
+            ? $this->chooseProfile($context, $io)
+            : $this->profileByName($profileName, $context);
         $filePath = $input->getArgument('file');
 
         $expireDateString = $input->getArgument('expireDate');
@@ -122,5 +139,21 @@ class ImportEntityCommand extends Command
         $answer = $io->choice('Please choose a profile', array_keys($byName));
 
         return $byName[$answer];
+    }
+
+    private function profileByName(string $profileName, Context $context): ImportExportProfileEntity
+    {
+        $result = $this->profileRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('name', $profileName)),
+            $context
+        );
+
+        if ($result->count() === 0) {
+            throw new \InvalidArgumentException(
+                sprintf('Can\'t find Import Profile by name "%s".', $profileName)
+            );
+        }
+
+        return $result->first();
     }
 }

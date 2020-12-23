@@ -13,7 +13,7 @@ class WeekdayRuleTest extends TestCase
         $rule = new WeekdayRule();
         $rule->assign([
             'operator' => WeekdayRule::OPERATOR_EQ,
-            'dayOfWeek' => \date('N'),
+            'dayOfWeek' => date('N'),
         ]);
         $match = $rule->match($this->createMock(RuleScope::class));
 
@@ -38,7 +38,7 @@ class WeekdayRuleTest extends TestCase
         $rule = new WeekdayRule();
         $rule->assign([
             'operator' => WeekdayRule::OPERATOR_NEQ,
-            'dayOfWeek' => \date('N'),
+            'dayOfWeek' => date('N'),
         ]);
 
         $match = $rule->match($this->createMock(RuleScope::class));

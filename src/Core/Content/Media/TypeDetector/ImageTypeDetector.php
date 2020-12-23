@@ -24,7 +24,7 @@ class ImageTypeDetector implements TypeDetectorInterface
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
     {
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
-        if (!array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
+        if (!\array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
             return $previouslyDetectedType;
         }
 
@@ -91,7 +91,7 @@ class ImageTypeDetector implements TypeDetectorInterface
         fread($fh, 12);
         if (fread($fh, 4) === 'VP8X') {
             $animationByte = fread($fh, 1);
-            $result = (ord($animationByte) >> 1) & 1 ? true : false;
+            $result = (\ord($animationByte) >> 1) & 1 ? true : false;
         }
         fclose($fh);
 

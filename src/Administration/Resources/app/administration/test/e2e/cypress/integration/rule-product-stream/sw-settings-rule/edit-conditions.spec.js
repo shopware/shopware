@@ -2,6 +2,33 @@
 
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
+const resultCases = [
+    {
+        value: 'Red',
+        length: 3
+    },
+    {
+        value: 'Redhouse',
+        length: 2
+    },
+    {
+        value: 'Green',
+        length: 1
+    },
+    {
+        value: 'Test',
+        length: 2
+    },
+    {
+        value: 'Redhouse: Test',
+        length: 2
+    },
+    {
+        value: 'Color: green',
+        length: 1
+    }
+];
+
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -10,6 +37,31 @@ describe('Rule builder: Test crud operations', () => {
             })
             .then(() => {
                 return cy.createDefaultFixture('rule');
+            })
+            .then(() => {
+                return cy.createPropertyFixture({
+                    options: [
+                        {
+                            name: 'Red'
+                        },
+                        {
+                            name: 'Green'
+                        },
+                    ]
+                });
+            })
+            .then(() => {
+                return cy.createPropertyFixture({
+                    name: 'Redhouse',
+                    options: [
+                        {
+                            name: 'Test 1'
+                        },
+                        {
+                            name: 'Test 2'
+                        },
+                    ]
+                });
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
@@ -144,5 +196,51 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-condition .sw-condition__container').should('have.class', 'has--error');
         cy.get('.sw-condition')
             .contains('You must choose a type for this rule.').should('be.visible');
+    });
+
+    resultCases.forEach(resultCase => {
+        context(`Search property with term ${resultCase.value}`, () => {
+            it('@rule: search property', () => {
+                cy.window().then((win) => {
+                    if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12108')) {
+                        return;
+                    }
+
+                    const page = new RulePageObject();
+
+                    cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
+
+                    cy.get(page.elements.loader).should('not.exist');
+                    cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Ruler');
+                    cy.clickContextMenuItem(
+                        '.sw-entity-listing__context-menu-edit-action',
+                        page.elements.contextMenuButton,
+                        `${page.elements.dataGridRow}--0`
+                    );
+
+                    cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
+                        .first()
+                        .as('first-and-container');
+                    cy.get('@first-and-container').should('be.visible');
+
+                    cy.get('@first-and-container').within(() => {
+                        cy.get('.sw-condition').as('condition-general');
+
+                        page.selectTypeAndOperator('@condition-general', 'Line item property', 'Is one of');
+
+                        cy.get('@condition-general').within(() => {
+                            cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);
+
+                            const selectResultList = cy.window().then(() => {
+                                return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
+                            });
+
+                            selectResultList.should('be.visible');
+                            selectResultList.find('.sw-select-result').should('have.length', resultCase.length);
+                        });
+                    });
+                });
+            });
+        });
     });
 });

@@ -129,7 +129,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(count($languageIds), $urls->count());
+        static::assertSame(\count($languageIds), $urls->count());
 
         foreach ($languageIds as $languageId) {
             $foundUrl = false;

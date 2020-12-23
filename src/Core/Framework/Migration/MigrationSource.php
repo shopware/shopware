@@ -48,7 +48,7 @@ class MigrationSource
             $patterns[] = '^' . str_ireplace('\\', '\\\\', $namespace) . '\\\\' . self::PHP_CLASS_NAME_REGEX;
         }
 
-        if (count($patterns) === 1) {
+        if (\count($patterns) === 1) {
             return $patterns[0];
         }
 

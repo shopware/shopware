@@ -17,7 +17,7 @@ Component.register('sw-entity-single-select', {
         Mixin.getByName('remove-api-error')
     ],
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: { repositoryFactory: 'repositoryFactory', feature: 'feature' },
 
     props: {
         value: {
@@ -39,7 +39,7 @@ Component.register('sw-entity-single-select', {
             default: ''
         },
         labelProperty: {
-            type: String,
+            type: [String, Array],
             required: false,
             default: 'name'
         },
@@ -104,21 +104,9 @@ Component.register('sw-entity-single-select', {
         },
 
         /**
-         * Returns the resultCollection with the actual selection as first entry
          * @returns {EntityCollection}
          */
         results() {
-            if (this.singleSelection && this.resultCollection) {
-                const collection = this.createCollection(this.resultCollection);
-                collection.push(this.singleSelection);
-                this.resultCollection.forEach((item) => {
-                    if (item.id !== this.singleSelection.id) {
-                        collection.add(item);
-                    }
-                });
-                return collection;
-            }
-
             return this.resultCollection;
         }
     },
@@ -250,6 +238,20 @@ Component.register('sw-entity-single-select', {
             }
         },
 
+        displayLabelProperty(item) {
+            const labelProperties = [];
+
+            if (Array.isArray(this.labelProperty)) {
+                labelProperties.push(...this.labelProperty);
+            } else {
+                labelProperties.push(this.labelProperty);
+            }
+
+            return labelProperties.map(labelProperty => {
+                return this.getKey(item, labelProperty) || this.getKey(item, `translated.${labelProperty}`);
+            }).join(' ');
+        },
+
         onSelectExpanded() {
             this.isExpanded = true;
             // Always start with a fresh list when opening the result list
@@ -329,7 +331,12 @@ Component.register('sw-entity-single-select', {
             this.$refs.resultsList.setActiveItemIndex(pos);
         },
 
-        onInputSearchTerm() {
+        onInputSearchTerm(event) {
+            if (this.feature.isActive('FEATURE_NEXT_12108')) {
+                const value = event.target.value;
+
+                this.$emit('search-term-change', value);
+            }
             this.debouncedSearch();
         },
 

@@ -14,7 +14,7 @@ describe('Snippets: Test acl privileges', () => {
             });
     });
 
-    it('@base @settings: Read snippets', () => {
+    it('@settings: Read snippets', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -54,8 +54,7 @@ describe('Snippets: Test acl privileges', () => {
             .then(content => cy.expect(content).to.contain(''));
     });
 
-
-    it('@base @settings: Edit snippets', () => {
+    it('@settings: Edit snippets', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -94,7 +93,7 @@ describe('Snippets: Test acl privileges', () => {
         });
     });
 
-    it.skip('@base @settings: Create snippets', () => {
+    it.skip('@settings: Create snippets', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -138,7 +137,7 @@ describe('Snippets: Test acl privileges', () => {
         });
     });
 
-    it('@base @settings: Create snippet set', () => {
+    it('@settings: Create snippet set', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',

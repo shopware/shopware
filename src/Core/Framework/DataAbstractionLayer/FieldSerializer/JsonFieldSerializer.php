@@ -32,9 +32,9 @@ class JsonFieldSerializer extends AbstractFieldSerializer
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
      */
-    public static function encodeJson($value, int $options = JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION): string
+    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION): string
     {
-        return \json_encode($value, $options);
+        return json_encode($value, $options);
     }
 
     public function encode(
@@ -90,7 +90,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             $embedded->compile($this->definitionRegistry);
             $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
-                $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : DATE_ATOM;
+                $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : \DATE_ATOM;
                 $decodedValue = $decodedValue->format($format);
             }
 
@@ -113,7 +113,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         array $data,
         WriteParameterBag $parameters
     ): array {
-        if (array_key_exists('_class', $data)) {
+        if (\array_key_exists('_class', $data)) {
             unset($data['_class']);
         }
 

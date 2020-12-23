@@ -44,7 +44,7 @@ class AdminOrderCartService
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);
 
-        if (!array_key_exists(SalesChannelContextService::PERMISSIONS, $payload)) {
+        if (!\array_key_exists(SalesChannelContextService::PERMISSIONS, $payload)) {
             $payload[SalesChannelContextService::PERMISSIONS] = [];
         }
 

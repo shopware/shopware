@@ -249,7 +249,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
             return $catalog;
         }
 
-        if (array_key_exists($snippetSetId, $this->isCustomized)) {
+        if (\array_key_exists($snippetSetId, $this->isCustomized)) {
             return $this->isCustomized[$snippetSetId];
         }
 

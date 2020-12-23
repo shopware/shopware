@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Csrf;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfPlaceholderHandler
@@ -35,6 +36,10 @@ class CsrfPlaceholderHandler
 
     public function replaceCsrfToken(Response $response, Request $request): Response
     {
+        if ($response instanceof StreamedResponse) {
+            return $response;
+        }
+
         if (!$this->csrfEnabled || $this->csrfMode !== CsrfModes::MODE_TWIG) {
             return $response;
         }

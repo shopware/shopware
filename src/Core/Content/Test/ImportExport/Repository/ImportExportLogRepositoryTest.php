@@ -98,7 +98,7 @@ class ImportExportLogRepositoryTest extends TestCase
     public function testImportExportLogSingleCreateMissingRequired(): void
     {
         $requiredProperties = ['activity', 'state', 'records'];
-        $num = count($requiredProperties);
+        $num = \count($requiredProperties);
         $data = $this->prepareImportExportLogTestData($num);
 
         foreach ($requiredProperties as $property) {
@@ -144,7 +144,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $data = $this->prepareImportExportLogTestData(2);
 
         $requiredProperties = ['activity', 'state', 'records'];
-        $incompleteData = $this->prepareImportExportLogTestData(count($requiredProperties));
+        $incompleteData = $this->prepareImportExportLogTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
@@ -156,7 +156,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
-            static::assertCount(count($requiredProperties), $e->getExceptions());
+            static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
             /** @var WriteConstraintViolationException $violations */
@@ -226,7 +226,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
 
-        static::assertSame($num, count($records));
+        static::assertSame($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -256,7 +256,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $origDate = $data = $this->prepareImportExportLogTestData();
         $properties = array_keys(array_pop($data));
 
-        $num = count($properties);
+        $num = \count($properties);
         $data = $this->prepareImportExportLogTestData($num, 'x');
 
         $this->logRepository->create(array_values($data), $this->context);

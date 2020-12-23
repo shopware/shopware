@@ -37,6 +37,6 @@ describe('Customer:  Edit in various ways', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.get('.sw-data-grid__cell--firstName').contains('Woody Ech');
+        cy.get('.sw-data-grid__cell--firstName').contains('Ech, Woody');
     });
 });

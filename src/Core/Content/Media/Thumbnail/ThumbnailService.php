@@ -204,7 +204,7 @@ class ThumbnailService
                 $this->mediaRepository->update([$mediaData], $context);
             });
 
-            return count($savedThumbnails);
+            return \count($savedThumbnails);
         }
     }
 
@@ -234,15 +234,24 @@ class ThumbnailService
     private function getImageResource(MediaEntity $media)
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        /** @var string $file */
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
             throw new FileTypeNotSupportedException($media->getId());
         }
 
-        if (function_exists('exif_read_data')) {
+        if (\function_exists('exif_read_data')) {
+            /** @var resource $stream */
+            $stream = fopen('php://memory', 'r+b');
+
             try {
-                $exif = exif_read_data($filePath);
+                // use in-memory stream to read the EXIF-metadata,
+                // to avoid downloading the image twice from a remote filesystem
+                fwrite($stream, $file);
+                rewind($stream);
+
+                $exif = exif_read_data($stream);
 
                 if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
                     $image = imagerotate($image, 90, 0);
@@ -253,6 +262,8 @@ class ThumbnailService
                 }
             } catch (\Exception $e) {
                 // Ignore.
+            } finally {
+                fclose($stream);
             }
         }
 
@@ -333,7 +344,7 @@ class ThumbnailService
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
         if (!$type->is(ImageType::TRANSPARENT)) {
-            $colorWhite = imagecolorallocate($thumbnail, 255, 255, 255);
+            $colorWhite = (int) imagecolorallocate($thumbnail, 255, 255, 255);
             imagefill($thumbnail, 0, 0, $colorWhite);
         } else {
             imagealphablending($thumbnail, false);

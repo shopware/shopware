@@ -13,11 +13,11 @@ class ThemeAssignmentException extends ShopwareHttpException
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
         $assignments = '';
-        if (count($themeSalesChannel) > 0) {
+        if (\count($themeSalesChannel) > 0) {
             $assignments .= $this->formatAssignments($themeSalesChannel);
         }
 
-        if (count($childThemeSalesChannel) > 0) {
+        if (\count($childThemeSalesChannel) > 0) {
             $assignments .= $this->formatAssignments($childThemeSalesChannel);
         }
         $parameters['assignments'] = $assignments;

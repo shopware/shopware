@@ -36,7 +36,7 @@ class ThemeFileResolverTest extends TestCase
             false
         );
 
-        $actual = json_encode($resolvedFiles, JSON_PRETTY_PRINT);
+        $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $expected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
         static::assertStringContainsString($expected, $actual);
@@ -62,7 +62,7 @@ class ThemeFileResolverTest extends TestCase
             false
         );
 
-        $actual = json_encode($resolvedFiles, JSON_PRETTY_PRINT);
+        $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $notExpected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
         static::assertStringNotContainsString($notExpected, $actual);
@@ -127,7 +127,7 @@ class ThemeFileResolverTest extends TestCase
         $pluginScriptIncluded = false;
 
         foreach ($scriptFiles->getFilepaths() as $path) {
-            if (stripos($path, $pluginScriptFile) !== false) {
+            if (mb_stripos($path, $pluginScriptFile) !== false) {
                 $pluginScriptIncluded = true;
             }
         }
@@ -136,11 +136,11 @@ class ThemeFileResolverTest extends TestCase
 
         /** @var FileCollection $styleFiles */
         $styleFiles = $resolvedFiles['style'];
-        $pluginStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/example.scss';
+        $pluginEntryStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/base.scss';
         $pluginStyleIncluded = false;
 
         foreach ($styleFiles->getFilepaths() as $path) {
-            if (stripos($path, $pluginStyleFile) !== false) {
+            if (mb_stripos($path, $pluginEntryStyleFile) !== false) {
                 $pluginStyleIncluded = true;
             }
         }

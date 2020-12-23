@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -12,5 +13,5 @@ abstract class AbstractDeleteCustomerRoute
 {
     abstract public function getDecorated(): AbstractDeleteCustomerRoute;
 
-    abstract public function delete(SalesChannelContext $context): NoContentResponse;
+    abstract public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse;
 }

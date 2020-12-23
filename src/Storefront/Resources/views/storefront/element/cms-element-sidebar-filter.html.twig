@@ -2,30 +2,32 @@
     {% set config = element.fieldConfig.elements %}
     {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
 
-    <div class="cms-element-sidebar-filter">
-        {% block element_product_listing_filter_button %}
-            <button class="btn header-actions-btn filter-panel-wrapper-toggle"
-                    type="button"
-                    data-offcanvas-filter="true"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    aria-label="{{ "general.menuLink"|trans }}">
-                {% block element_product_listing_filter_button_icon %}
-                    {% sw_icon 'sliders-horizontal' %}
-                {% endblock %}
-                {{ "listing.filterTitleText"|trans }}
-            </button>
-        {% endblock %}
+    {% if slot.data.listing.aggregations.elements|length > 0 %}
+        <div class="cms-element-sidebar-filter">
+            {% block element_product_listing_filter_button %}
+                <button class="btn header-actions-btn filter-panel-wrapper-toggle"
+                        type="button"
+                        data-offcanvas-filter="true"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-label="{{ "general.menuLink"|trans }}">
+                    {% block element_product_listing_filter_button_icon %}
+                        {% sw_icon 'sliders-horizontal' %}
+                    {% endblock %}
+                    {{ "listing.filterTitleText"|trans }}
+                </button>
+            {% endblock %}
 
-        {% block element_sidebar_filter_panel %}
-            <div id="filter-panel-wrapper"
-                 class="filter-panel-wrapper"
-                 data-offcanvas-filter-content="true">
-                {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
-                    listing: slot.data.listing,
-                    sidebar: block.sectionPosition == 'sidebar'
-                } %}
-            </div>
-        {% endblock %}
-    </div>
+            {% block element_sidebar_filter_panel %}
+                <div id="filter-panel-wrapper"
+                     class="filter-panel-wrapper"
+                     data-offcanvas-filter-content="true">
+                    {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
+                        listing: slot.data.listing,
+                        sidebar: block.sectionPosition == 'sidebar'
+                    } %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}

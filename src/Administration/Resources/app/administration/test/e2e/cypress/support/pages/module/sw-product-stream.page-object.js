@@ -78,7 +78,7 @@ export default class ProductStreamPageObject {
     selectFieldAndOperator(selector, fieldPath, operator) {
         if (typeof fieldPath === 'string' && fieldPath !== '') {
             cy.wrap(fieldPath.split('.')).each((field) => {
-                cy.get(`.sw-product-stream-field-select`).last().within(($singleSelect) => {
+                 cy.get('.sw-product-stream-field-select').last().within(($singleSelect) => {
                     cy.wrap($singleSelect).click();
                     cy.get('.sw-select-result-list').should('be.visible');
                     selectResultList().find('li.sw-select-result').contains(field).click();

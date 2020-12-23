@@ -111,7 +111,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <select name="c_config_shop_country" id="c_config_shop_country">
                     <?php foreach ($countryIsos as $country): ?>
                         <option value="<?= $country['iso3']; ?>" <?= $country['default'] === true ? 'selected' : null; ?>>
-                            <?= $t->t('select_country_' . strtolower($country['iso3'])); ?>
+                            <?= $t->t('select_country_' . mb_strtolower($country['iso3'])); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -133,7 +133,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="eur"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('EUR'); ?>"/>
+                       value="<?= mb_strtoupper('EUR'); ?>"/>
                 <label for="eur"><?= $t->t('configuration_admin_currency_eur'); ?></label>
             </div>
 
@@ -141,14 +141,14 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="usd"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('USD'); ?>"/>
+                       value="<?= mb_strtoupper('USD'); ?>"/>
                 <label for="usd"><?= $t->t('configuration_admin_currency_usd'); ?></label>
             </div>
             <div class="custom-checkbox">
                 <input type="checkbox"
                        id="gbp"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('GBP'); ?>"/>
+                       value="<?= mb_strtoupper('GBP'); ?>"/>
                 <label for="gbp"><?= $t->t('configuration_admin_currency_gbp'); ?></label>
             </div>
 
@@ -156,7 +156,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="pln"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('PLN'); ?>"/>
+                       value="<?= mb_strtoupper('PLN'); ?>"/>
                 <label for="pln"><?= $t->t('configuration_admin_currency_pln'); ?></label>
             </div>
 
@@ -164,7 +164,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="chf"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('CHF'); ?>"/>
+                       value="<?= mb_strtoupper('CHF'); ?>"/>
                 <label for="chf"><?= $t->t('configuration_admin_currency_chf'); ?></label>
             </div>
 
@@ -172,7 +172,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="sek"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('SEK'); ?>"/>
+                       value="<?= mb_strtoupper('SEK'); ?>"/>
                 <label for="sek"><?= $t->t('configuration_admin_currency_sek'); ?></label>
             </div>
 
@@ -180,7 +180,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="dkk"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('DKK'); ?>"/>
+                       value="<?= mb_strtoupper('DKK'); ?>"/>
                 <label for="dkk"><?= $t->t('configuration_admin_currency_dkk'); ?></label>
             </div>
 
@@ -188,7 +188,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                 <input type="checkbox"
                        id="nok"
                        name="c_available_currencies[]"
-                       value="<?= strtoupper('NOK'); ?>"/>
+                       value="<?= mb_strtoupper('NOK'); ?>"/>
                 <label for="nok"><?= $t->t('configuration_admin_currency_nok'); ?></label>
             </div>
 

@@ -99,7 +99,7 @@ abstract class CustomFieldType extends XmlElement
             }
 
             // translated
-            if (in_array($child->tagName, $translatableFields, true)) {
+            if (\in_array($child->tagName, $translatableFields, true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

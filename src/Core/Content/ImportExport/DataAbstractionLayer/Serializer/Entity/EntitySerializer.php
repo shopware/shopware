@@ -53,7 +53,7 @@ class EntitySerializer extends AbstractEntitySerializer
                 continue;
             }
 
-            if (is_iterable($value) && !is_array($value)) {
+            if (is_iterable($value) && !\is_array($value)) {
                 $value = iterator_to_array($value);
             }
 

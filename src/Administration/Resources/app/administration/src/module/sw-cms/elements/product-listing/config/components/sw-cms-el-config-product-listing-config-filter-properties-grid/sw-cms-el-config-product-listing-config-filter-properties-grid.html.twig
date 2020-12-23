@@ -1,0 +1,40 @@
+{% block sw_cms_el_config_product_listing_config_filter_properties_grid %}
+    <div class="sw-cms-el-config-product-listing-config-filter-properties-grid" :class="componentClasses">
+
+    {% block sw_cms_el_config_product_listing_config_filter_properties_grid_grid %}
+        <sw-data-grid class="sw-cms-el-config-product-listing-config-filter-properties-grid__grid"
+            :dataSource="visibleProperties"
+            :columns="gridColumns"
+            :compactMode="true"
+            :allowInlineEdit="false"
+            :showActions="false"
+            :showSelection="false"
+            plainAppearance>
+
+            <template #column-status="{ item, column }">
+                {% block sw_cms_el_config_product_listing_config_filter_properties_grid_column_status %}
+                    <sw-switch-field class="sw-cms-el-config-product-listing-config-filter-properties-grid__switch"
+                                     :disabled="column.disabled"
+                                     :value="item.active"
+                                     @change="onChangePropertyStatus(item)">
+                    </sw-switch-field>
+                {% endblock %}
+            </template>
+
+            <template #pagination>
+                {% block sw_cms_el_config_product_listing_config_filter_properties_grid_pagination %}
+                    <sw-pagination
+                        v-if="!disabled"
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :autoHide="false"
+                        :steps="[]"
+                        @page-change="onPageChange">
+                    </sw-pagination>
+                {% endblock %}
+            </template>
+        </sw-data-grid>
+    {% endblock %}
+    </div>
+{% endblock %}

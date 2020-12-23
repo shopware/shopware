@@ -10,7 +10,7 @@ Component.register('sw-settings-snippet-detail', {
 
     inject: [
         'snippetSetService',
-        'userService',
+        'userService', // @deprecated tag:v6.4.0.0
         'repositoryFactory',
         'acl'
     ],
@@ -85,6 +85,17 @@ Component.register('sw-settings-snippet-detail', {
                 return new ShopwareError({ code: 'DUPLICATED_SNIPPET_KEY', parameters: { key: this.translationKey } });
             }
             return null;
+        },
+
+        /* @deprecated tag:v6.4.0 will be read only in v.6.4.0 */
+        currentAuthor: {
+            get() {
+                return this._currentAuthor ||
+                    `user/${Shopware.State.get('session').currentUser.username}`;
+            },
+            set(currentAuthor) {
+                this._currentAuthor = currentAuthor;
+            }
         }
     },
 
@@ -100,9 +111,6 @@ Component.register('sw-settings-snippet-detail', {
 
         prepareContent() {
             this.isLoading = true;
-            this.userService.getUser().then((response) => {
-                this.currentAuthor = `user/${response.data.username}`;
-            });
 
             if (!this.$route.params.key && !this.isCreate) {
                 this.onNewKeyRedirect();

@@ -4,7 +4,10 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
+    country: 'Germany',
+    company: 'Test Company',
+    department: 'Test Department',
+    vatId: 'TEST-VAT-ID'
 };
 const newAddress = {
     salutation: 'Mr.',
@@ -15,7 +18,9 @@ const newAddress = {
         zipcode: '333333',
         city: 'Little Whinging'
     }],
-    country: 'United Kingdom'
+    country: 'United Kingdom',
+    company: 'Test Company',
+    department: 'Test Department'
 };
 
 describe('Customer: Edit customer\'s addresses', () => {
@@ -98,6 +103,52 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
+    it('@base @customer: go to edit mode, save and edit again and then remove address', () => {
+        const page = new CustomerPageObject();
+
+        // Open customer
+        cy.clickContextMenuItem(
+            '.sw-customer-list__view-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get(`${page.elements.customerMetaData}-customer-name`)
+            .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
+
+        // Go to addresses tab
+        cy.get('.sw-customer-detail__tab-addresses').click();
+
+        // Activate edit mode
+        cy.get('.sw-customer-detail__open-edit-mode-action').click();
+
+        // Save
+        cy.get('.sw-customer-detail__save-action').click();
+
+        // Activate edit mode again
+
+        // Remove address
+        cy.get('.sw-customer-detail__open-edit-mode-action').click();
+        cy.get(`${page.elements.dataGridRow}--1`).then(($btn) => {
+            if ($btn.text().includes(customer.lastName)) {
+                cy.get('.sw-data-grid__cell--2').click();
+                cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
+                    .should('be.visible');
+            }
+        });
+
+        cy.clickContextMenuItem(
+            '.sw-context-menu-item--danger',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--1`
+        );
+        cy.get(`${page.elements.modal} p`).contains(
+            'Are you sure you want to delete this address?'
+        );
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
+
+        // Verify updated customer
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
+    });
 
     it('@customer: swap default billing and shipping address', () => {
         const page = new CustomerPageObject();

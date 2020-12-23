@@ -106,11 +106,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     /**
      * @dataProvider sendMailWithDomainAndLeadingSlashProvider
      */
-    public function testSendMailWithDomainAndLeadingSlash(string $url): void
+    public function testSendMailWithDomainAndLeadingSlash(array $domainUrlTest): void
     {
         $this->createCustomer('shopware1234', 'foo-test@test.de');
 
-        $this->addDomain($url);
+        $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
         $this->getContainer()->get('event_dispatcher')->addListener(
@@ -123,10 +123,10 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/account/recovery-password?validateStorefrontUrl=false',
+                '/store-api/account/recovery-password',
                 [
                     'email' => 'foo-test@test.de',
-                    'storefrontUrl' => $url,
+                    'storefrontUrl' => $domainUrlTest['expectDomain'],
                 ]
             );
 
@@ -139,9 +139,20 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function sendMailWithDomainAndLeadingSlashProvider()
     {
-        yield 'test-without-leading-slash' => ['http://my-evil-page'];
-        yield 'test-with-leading-slash' => ['http://my-evil-page/'];
-        yield 'test-with-double-leading-slash' => ['http://my-evil-page//'];
+        return [
+            // test without leading slash
+            [
+                ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
+            ],
+            // test with leading slash
+            [
+                ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
+            ],
+            // test with double leading slash
+            [
+                ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
+            ],
+        ];
     }
 
     private function addDomain(string $url): void

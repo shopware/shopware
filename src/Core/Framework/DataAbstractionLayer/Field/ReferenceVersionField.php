@@ -41,7 +41,7 @@ class ReferenceVersionField extends FkField
 
         $propertyName = explode('_', $storageName);
         $propertyName = array_map('ucfirst', $propertyName);
-        $propertyName = lcfirst(implode($propertyName));
+        $propertyName = lcfirst(implode('', $propertyName));
 
         $this->storageName = $storageName;
         $this->propertyName = $propertyName;

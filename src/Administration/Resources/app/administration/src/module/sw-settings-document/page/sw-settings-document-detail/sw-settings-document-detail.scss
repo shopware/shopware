@@ -24,5 +24,15 @@
 
     .sw-settings-document-detail__company-address-checkbox {
         margin-top: 22px;
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+
+    .sw-settings-document-detail__field_delivery_countries {
+        grid-column: auto / span 2;
+
+        .sw-select-selection-list > li:only-child {
+            width: 100%;
+        }
     }
 }

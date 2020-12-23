@@ -50,7 +50,8 @@
       "modalTextResetAssigned": "This will change the visualization of your shop.",
       "buttonSave": "Save",
       "modalTitleSave": "Save theme",
-      "textSaveInfo": "Do you really want to save the changes? This will change the visualization of your shop."
+      "textSaveInfo": "Do you really want to save the changes? This will change the visualization of your shop.",
+      "addToMediaLabel": "Add to {name}"
     },
     "list": {
       "titleSidebarItemRefresh": "Refresh",

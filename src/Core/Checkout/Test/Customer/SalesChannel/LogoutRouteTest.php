@@ -234,7 +234,7 @@ class LogoutRouteTest extends TestCase
             'customer' => new CustomerEntity(),
         ]);
 
-        $logoutResponse = $this->getContainer()->get(LogoutRoute::class)->logout($salesChannelContext);
+        $logoutResponse = $this->getContainer()->get(LogoutRoute::class)->logout($salesChannelContext, new RequestDataBag());
 
         static::assertInstanceOf(ContextTokenResponse::class, $logoutResponse);
         static::assertNotEquals($loginResponse->getToken(), $logoutResponse->getToken());

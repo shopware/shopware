@@ -35,7 +35,7 @@ class CurrencyValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
             if ($id !== Defaults::CURRENCY) {
                 continue;
             }

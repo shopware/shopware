@@ -84,6 +84,7 @@ import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugi
 import WishlistPersistStoragePlugin from 'src/plugin/wishlist/persist-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
 import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
+import WishlistGuestPagePlugin from 'src/plugin/wishlist/wishlist-guest-page.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -112,6 +113,7 @@ if (Feature.isActive('FEATURE_NEXT_10549') && window.wishlistEnabled) {
         PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
     } else {
         PluginManager.register('WishlistStorage', WishlistLocalStoragePlugin, '[data-wishlist-storage]');
+        PluginManager.register('WishlistGuestPage', WishlistGuestPagePlugin, '[data-wishlist-guest-page]');
     }
 
     PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');

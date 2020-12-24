@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\Wishlist\WishlistGuestPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,36 +55,57 @@ class WishlistController extends StorefrontController
      */
     private $mergeWishlistProductRoute;
 
+    /**
+     * @var WishlistGuestPageLoader
+     */
+    private $guestPageLoader;
+
     public function __construct(
         WishlistPageLoader $wishlistPageLoader,
         AbstractLoadWishlistRoute $wishlistLoadRoute,
         AbstractAddWishlistProductRoute $addWishlistRoute,
         AbstractRemoveWishlistProductRoute $removeWishlistProductRoute,
-        AbstractMergeWishlistProductRoute $mergeWishlistProductRoute
+        AbstractMergeWishlistProductRoute $mergeWishlistProductRoute,
+        WishlistGuestPageLoader $guestPageLoader
     ) {
         $this->wishlistPageLoader = $wishlistPageLoader;
         $this->wishlistLoadRoute = $wishlistLoadRoute;
         $this->addWishlistRoute = $addWishlistRoute;
         $this->removeWishlistProductRoute = $removeWishlistProductRoute;
         $this->mergeWishlistProductRoute = $mergeWishlistProductRoute;
+        $this->guestPageLoader = $guestPageLoader;
     }
 
     /**
      * @Since("6.3.4.0")
-     * @LoginRequired()
-     * @Route("/wishlist", name="frontend.wishlist.page", methods={"GET"})
+     * @Route("/wishlist", name="frontend.wishlist.page", options={"seo"="false"}, methods={"GET"})
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
-        $page = $this->wishlistPageLoader->load($request, $context);
+        if ($context->getCustomer()) {
+            $page = $this->wishlistPageLoader->load($request, $context);
+        } else {
+            $page = $this->guestPageLoader->load($request, $context);
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
     }
 
     /**
+     * @Since("6.3.5.0")
+     * @Route("/wishlist/guest-pagelet", name="frontend.wishlist.guestPage.pagelet", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function guestPagelet(Request $request, SalesChannelContext $context): Response
+    {
+        $pagelet = $this->guestPageLoader->loadPagelet($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['searchResult' => $pagelet->getSearchResult()->getResult()]);
+    }
+
+    /**
      * @Since("6.3.4.0")
      * @LoginRequired()
-     * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxPagination(Request $request, SalesChannelContext $context): Response
     {

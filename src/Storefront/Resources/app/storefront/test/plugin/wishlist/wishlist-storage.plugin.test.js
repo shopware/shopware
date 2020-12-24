@@ -13,7 +13,6 @@ describe('WishlistStorage tests', () => {
         // create mocks
         window.wishlistEnabled = true;
 
-        // mock search plugin
         const mockElement = document.createElement('div');
 
         window.PluginManager = {
@@ -39,7 +38,7 @@ describe('WishlistStorage tests', () => {
         expect(typeof wishlistStoragePlugin).toBe('object');
     });
 
-    test('Wishlist base storage add/remove/has/getCurrentCounter methods test', () => {
+    test('Wishlist base storage add/remove/has/getCurrentCounter/getProducts methods test', () => {
         const products = {
             'PRODUCT_1': 'product 1',
             'PRODUCT_2': 'product 2',
@@ -88,6 +87,8 @@ describe('WishlistStorage tests', () => {
         expect(loadedEventFired).toEqual(true);
         expect(removedProductEventFired).toEqual(true);
         expect(addedProductEventFired).toEqual(true);
+
+        expect(wishlistStoragePlugin.getProducts()).toEqual(products)
     });
 });
 

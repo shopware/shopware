@@ -498,5 +498,12 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
+
+        <service id="Shopware\Storefront\Page\Wishlist\WishlistGuestPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoadGuestWishlistRoute"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
     </services>
 </container>

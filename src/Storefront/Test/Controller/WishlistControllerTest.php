@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Wishlist\WishlistGuestPage;
+use Shopware\Storefront\Page\Wishlist\WishlistPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
@@ -61,8 +64,41 @@ class WishlistControllerTest extends TestCase
         $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertInstanceOf(WishlistPage::class, $response->getData()['page']);
+    }
+
+    public function testWishlistGuestIndex(): void
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist');
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertInstanceOf(WishlistGuestPage::class, $response->getData()['page']);
+    }
+
+    public function testWishlistGuestPagelet(): void
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+
+        $browser->request('GET', $_SERVER['APP_URL']);
+
+        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertInstanceOf(EntitySearchResult::class, $result = $response->getData()['searchResult']);
+        static::assertCount(1, $result);
+        static::assertEquals($productId, $result->first()->get('id'));
     }
 
     public function testDeleteProductInWishlistPage(): void

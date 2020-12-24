@@ -1,0 +1,106 @@
+{% block element_product_desciption_reviews %}
+    {%  set config = element.fieldConfig.elements %}
+
+    <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
+        {% if config.alignment.value %}
+            <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+        {% endif %}
+            <div class="card card-tabs">
+                {% block element_product_desciption_reviews_tabs_navigation %}
+                    <div class="card-header product-detail-tab-navigation product-description-reviews-tab-navigation">
+                        {% block element_product_desciption_reviews_tabs_navigation_container %}
+                            <ul class="nav nav-tabs product-detail-tab-navigation-list"
+                                id="product-detail-tabs"
+                                role="tablist">
+                                {% block element_product_desciption_reviews_tabs_navigation_description %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
+                                           id="description-tab"
+                                           data-toggle="tab"
+                                           data-offcanvas-tabs="true"
+                                           href="#description-tab-pane"
+                                           role="tab"
+                                           aria-controls="description-tab-pane"
+                                           aria-selected="true">
+                                            <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
+                                            <span class="product-detail-tab-navigation-icon">
+                                                    {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                </span>
+                                            {% if element.data.product.translated.description|length > 0 %}
+                                                <span class="product-detail-tab-preview">
+                                                        {{ page.product.translated.description|raw|striptags|sw_sanitize|u.truncate(125, '…') }}
+
+                                                    {# truncate always cuts down the length to 125 characters.
+                                                           So it will only shorten the string if it exceeds 125 chars.
+                                                           Therefor, only show the button when the length of the text is
+                                                           greater or equal then 126 characters. #}
+                                                    {% if element.data.product.translated.description|length >= 126 %}
+                                                        <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans|sw_sanitize }}</span>
+                                                    {% endif %}
+                                                    </span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endblock %}
+                                {% block element_product_desciption_reviews_tabs_navigation_review %}
+                                    {% if shopware.config.core.listing.showReview %}
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
+                                               id="review-tab"
+                                               data-toggle="tab"
+                                               data-offcanvas-tabs="true"
+                                               href="#review-tab-pane"
+                                               role="tab"
+                                               aria-controls="review-tab-pane"
+                                               aria-selected="true">
+                                                {{ "detail.tabsReview"|trans|sw_sanitize }}
+                                                <span class="product-detail-tab-navigation-icon">
+                                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                    </span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endblock %}
+                            </ul>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block element_product_desciption_reviews_tabs_content %}
+                    <div class="product-detail-tabs-content card-body">
+                        {% block element_product_desciption_reviews_tabs_content_container %}
+                            <div class="tab-content">
+                                {% block element_product_desciption_reviews_tabs_content_description %}
+                                    <div class="tab-pane fade show {% if (element.data.ratingSuccess != 1) and (element.data.ratingSuccess != -1) %}active{% endif %}"
+                                         id="description-tab-pane"
+                                         role="tabpanel"
+                                         aria-labelledby="description-tab">
+                                        {% sw_include '@Storefront/storefront/component/product/description.html.twig' with {
+                                            product: element.data.product
+                                        } %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block element_product_desciption_reviews_tabs_content_review %}
+                                    {% if shopware.config.core.listing.showReview %}
+                                        <div class="tab-pane fade show {% if (element.data.ratingSuccess == 1) or (element.data.ratingSuccess == -1) %}active{% endif %}"
+                                             id="review-tab-pane"
+                                             role="tabpanel"
+                                             aria-labelledby="review-tab">
+                                            {% sw_include '@Storefront/storefront/component/review/review.html.twig' with {
+                                                reviews: element.data.reviews,
+                                                product: element.data.product
+                                            } %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% if config.verticalAlign.value %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

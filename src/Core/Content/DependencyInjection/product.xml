@@ -185,6 +185,13 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <tag name="shopware.cms.data_resolver"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"
                  class="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder">
         </service>

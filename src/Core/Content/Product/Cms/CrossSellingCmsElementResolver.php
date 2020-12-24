@@ -38,8 +38,24 @@ class CrossSellingCmsElementResolver extends AbstractCmsElementResolver
         $config = $slot->getFieldConfig();
         $productConfig = $config->get('product');
 
-        if (!$productConfig || $productConfig->getValue() === null) {
+        if (!$productConfig) {
             return null;
+        }
+
+        if (!$productConfig->getValue()) {
+            $request = $resolverContext->getRequest();
+            if ($request->get('_route') !== 'frontend.detail.page') {
+                return null;
+            }
+
+            $productId = $request->get('productId');
+            if (!$productId) {
+                return null;
+            }
+
+            $productConfig->assign([
+                'value' => $productId,
+            ]);
         }
 
         $criteria = new Criteria([$productConfig->getValue()]);

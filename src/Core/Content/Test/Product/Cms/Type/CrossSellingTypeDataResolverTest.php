@@ -82,6 +82,28 @@ class CrossSellingTypeDataResolverTest extends TestCase
         static::assertCount(1, $criteriaCollection->all());
     }
 
+    public function testCollectWithRequest(): void
+    {
+        $requests = [
+            '_route' => 'frontend.detail.page',
+            'productId' => '123',
+        ];
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request($requests));
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('cross-selling');
+        $slot->setFieldConfig($fieldConfig);
+
+        $criteriaCollection = $this->crossSellingResolver->collect($slot, $resolverContext);
+
+        static::assertNotNull($criteriaCollection);
+        static::assertCount(1, $criteriaCollection->all());
+    }
+
     public function testEnrichWithEmptyConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());

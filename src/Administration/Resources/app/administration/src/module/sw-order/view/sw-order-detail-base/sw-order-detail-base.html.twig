@@ -125,7 +125,11 @@
                                                     <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
                                                     <dd>
                                                         <sw-order-saveable-field type="number"
-                                                                                 v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
+                                                                                 v-tooltip="{
+                                                                                    showDelay: 300,
+                                                                                    message: shippingCostsDetail,
+                                                                                    disabled: taxStatus === 'tax-free'
+                                                                                 }"
                                                                                  :editable="isEditing"
                                                                                  :value="delivery.shippingCosts.totalPrice"
                                                                                  @value-change="onShippingChargeEdited">
@@ -159,18 +163,15 @@
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_amount_total %}
-                                                <template v-if="taxStatus !== 'tax-free'">
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
-                                                </template>
+                                                <dt>
+                                                    <strong v-if="taxStatus === 'tax-free'">{{ $tc('sw-order.detailBase.summaryLabelAmountGrandTotal') }}</strong>
+                                                    <strong v-else>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong>
+                                                </dt>
+                                                <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
                                             {% endblock %}
 
-                                            {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
-                                                <template v-if="taxStatus === 'tax-free'">
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                                                    <dd><strong>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</strong></dd>
-                                                </template>
-                                            {% endblock %}
+                                            {# @deprecated tag:v6.4.0 #}
+                                            {% block sw_order_detail_base_line_items_summary_amount_free_tax %}{% endblock %}
                                         {% endblock %}
                                     </sw-description-list>
                                 </sw-container>

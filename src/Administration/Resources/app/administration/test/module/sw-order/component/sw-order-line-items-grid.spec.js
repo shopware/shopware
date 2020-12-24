@@ -370,9 +370,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnTotalPrice = header.find('.sw-data-grid__cell--1');
+        const columnPrice = header.find('.sw-data-grid__cell--1');
         expect(columnVat.exists()).toBe(true);
-        expect(columnTotalPrice.text()).not.toEqual('sw-order.createBase.columnPriceTaxFree');
+        expect(columnPrice.text()).not.toEqual('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -387,9 +387,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnTotalPrice = header.find('.sw-data-grid__cell--1');
+        const columnPrice = header.find('.sw-data-grid__cell--1');
         expect(columnVat.exists()).toBe(false);
-        expect(columnTotalPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
+        expect(columnPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
     });
 
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
@@ -415,5 +415,48 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         wrapper.vm.updateItemQuantity(customItem);
 
         expect(customItem.priceDefinition.quantity === customItem.quantity).toEqual(true);
+    });
+
+    it('should show total price title based on tax status correctly', async () => {
+        const wrapper = createWrapper({});
+
+        let header;
+        let columnTotal;
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'tax-free'
+            }
+        });
+
+        header = wrapper.find('.sw-data-grid__header');
+        columnTotal = header.find('.sw-data-grid__cell--3');
+        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'gross'
+            }
+        });
+
+        header = wrapper.find('.sw-data-grid__header');
+        columnTotal = header.find('.sw-data-grid__cell--3');
+        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceGross');
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'net'
+            }
+        });
+
+        header = wrapper.find('.sw-data-grid__header');
+        columnTotal = header.find('.sw-data-grid__cell--3');
+        expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
     });
 });

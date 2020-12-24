@@ -38,9 +38,11 @@ class BuyBoxTypeDataResolverTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
 
         $mockProductDetailRoute = $this->createMock(ProductDetailRoute::class);
+        $saleChannelProductEntity = new SalesChannelProductEntity();
+        $saleChannelProductEntity->setId('product123');
         $mockProductDetailRoute->method('load')->willReturn(
             new ProductDetailRouteResponse(
-                new SalesChannelProductEntity(),
+                $saleChannelProductEntity,
                 new PropertyGroupCollection()
             )
         );
@@ -140,7 +142,6 @@ class BuyBoxTypeDataResolverTest extends TestCase
         $buyBoxStruct = $slot->getData();
         static::assertInstanceOf(BuyBoxStruct::class, $buyBoxStruct);
         static::assertSame($product->getId(), $buyBoxStruct->getProductId());
-        static::assertSame($product, $buyBoxStruct->getProduct());
     }
 
     public function testCollectWithEmptyProductId(): void

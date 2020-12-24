@@ -57,8 +57,8 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
 
     private function shouldCheckVatIdFormat(CustomerVatIdentification $constraint): bool
     {
-        if (!$constraint->getShouldCheck()) {
-            return false;
+        if ($constraint->getShouldCheck()) {
+            return true;
         }
 
         return (bool) $this->connection->fetchColumn(

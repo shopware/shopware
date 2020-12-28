@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -452,5 +454,40 @@ class AuthControllerTest extends TestCase
         $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+    }
+
+    public function testUnauthorizedWithPasswordGrantTypeWhenTokenExpired(): void
+    {
+        $browser = $this->getBrowser();
+
+        /** @var Connection $connection */
+        $connection = $browser->getContainer()->get(Connection::class);
+        $admin = TestUser::createNewTestUser($connection, ['product:read']);
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => $admin->getName(),
+            'password' => $admin->getPassword(),
+        ];
+
+        $browser->request('POST', '/api/oauth/token', $authPayload);
+
+        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+        $token = \json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($accessToken = $token['access_token']);
+
+        $userRepository = $this->getContainer()->get('user.repository');
+
+        // Change user password
+        $userRepository->update([[
+            'id' => $admin->getUserId(),
+            'password' => Uuid::randomHex(),
+        ]], Context::createDefaultContext());
+
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
     }
 }

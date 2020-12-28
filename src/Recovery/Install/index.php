@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+if (\function_exists('opcache_reset')) {
+    opcache_reset();
+}
+
 $parent = dirname(__DIR__, 2);
 // root/platform/src/Recovery and root/vendor/shopware/recovery
 $rootDir = dirname($parent, 2);

@@ -58,6 +58,7 @@
             <argument>%elasticsearch.enabled%</argument>
             <argument>%elasticsearch.indexing_enabled%</argument>
             <argument>%elasticsearch.index_prefix%</argument>
+            <argument>%elasticsearch.throw_exception%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
@@ -211,6 +212,7 @@
             <argument>%env(bool:default:default_whitespace:SHOPWARE_ES_INDEXING_ENABLED)%</argument>
             <argument>%env(string:default:default_whitespace:SHOPWARE_ES_HOSTS)%</argument>
             <argument>%env(string:default:default_elasticsearch_prefix:SHOPWARE_ES_INDEX_PREFIX)%</argument>
+            <argument>%env(bool:default:default_whitespace:SHOPWARE_ES_THROW_EXCEPTION)%</argument>
         </service>
     </services>
 </container>

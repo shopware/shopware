@@ -90,11 +90,6 @@ describe(`Checkout as Guest`, () => {
         cy.visit('/account/login');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
-
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
 

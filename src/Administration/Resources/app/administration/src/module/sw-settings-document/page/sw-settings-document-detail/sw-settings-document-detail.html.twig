@@ -92,40 +92,38 @@
                                 </template>
                             {% endblock %}
 
-                            <template v-if="feature.isActive('FEATURE_NEXT_10559')">
-                                {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
-                                    <sw-checkbox-field
-                                        v-if="isShowDivergentDeliveryAddress"
-                                        v-model="documentConfig.config.displayDivergentDeliveryAddress"
-                                        class="sw-settings-document-detail__field_divergent_delivery_address"
-                                        :disabled="!acl.can('document.editor')"
-                                        :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')">
-                                    </sw-checkbox-field>
-                                {% endblock %}
+                            {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
+                                <sw-checkbox-field
+                                    v-if="isShowDivergentDeliveryAddress"
+                                    v-model="documentConfig.config.displayDivergentDeliveryAddress"
+                                    class="sw-settings-document-detail__field_divergent_delivery_address"
+                                    :disabled="!acl.can('document.editor')"
+                                    :label="$tc('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')">
+                                </sw-checkbox-field>
+                            {% endblock %}
 
-                                {% block sw_settings_document_detail_content_field_additional_note_delivery %}
-                                    <sw-checkbox-field
-                                        v-if="isShowDisplayNoteDelivery"
-                                        v-model="documentConfig.config.displayAdditionalNoteDelivery"
-                                        class="sw-settings-document-detail__field_additional_note_delivery"
-                                        :disabled="!acl.can('document.editor')"
-                                        :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')">
-                                    </sw-checkbox-field>
-                                {% endblock %}
+                            {% block sw_settings_document_detail_content_field_additional_note_delivery %}
+                                <sw-checkbox-field
+                                    v-if="isShowDisplayNoteDelivery"
+                                    v-model="documentConfig.config.displayAdditionalNoteDelivery"
+                                    class="sw-settings-document-detail__field_additional_note_delivery"
+                                    :disabled="!acl.can('document.editor')"
+                                    :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')">
+                                </sw-checkbox-field>
+                            {% endblock %}
 
-                                {% block sw_settings_document_detail_content_field_delivery_countries %}
-                                    <sw-entity-multi-id-select
-                                        v-if="showCountriesSelect"
-                                        v-model="documentConfig.config.deliveryCountries"
-                                        class="sw-settings-document-detail__field_delivery_countries"
-                                        :repository="countryRepository"
-                                        :disabled="!acl.can('document.editor')"
-                                        :helpText="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
-                                        :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
-                                        :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')">
-                                    </sw-entity-multi-id-select>
-                                {% endblock %}
-                            </template>
+                            {% block sw_settings_document_detail_content_field_delivery_countries %}
+                                <sw-entity-multi-id-select
+                                    v-if="showCountriesSelect"
+                                    v-model="documentConfig.config.deliveryCountries"
+                                    class="sw-settings-document-detail__field_delivery_countries"
+                                    :repository="countryRepository"
+                                    :disabled="!acl.can('document.editor')"
+                                    :helpText="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
+                                    :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
+                                    :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')">
+                                </sw-entity-multi-id-select>
+                            {% endblock %}
                         </sw-container>
                     </sw-card>
                 {% endblock %}
@@ -137,7 +135,7 @@
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
                             {% block sw_settings_document_detail_company_form_field_renderer_content %}
                                 <template v-if="documentConfig.config">
-                                    <template v-for="formField in getCompanyFormFields">
+                                    <template v-for="formField in companyFormFields">
                                         {% block sw_settings_document_detail_company_form_field_renderer %}
                                             <sw-form-field-renderer
                                                     :disabled="!acl.can('document.editor')"

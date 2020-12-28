@@ -1,7 +1,6 @@
 ---
 title: Show additional information on invoice documents
 issue: NEXT-11783
-flag: FEATURE_NEXT_10559
 ---
 # Core
 * Added new block `document_shipping_address` in `src/Core/Framework/Resources/views/documents/base.html.twig`

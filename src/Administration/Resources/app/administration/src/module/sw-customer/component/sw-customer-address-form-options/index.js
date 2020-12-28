@@ -5,8 +5,6 @@ const { Component } = Shopware;
 Component.register('sw-customer-address-form-options', {
     template,
 
-    inject: ['feature'],
-
     props: {
         customer: {
             type: Object,

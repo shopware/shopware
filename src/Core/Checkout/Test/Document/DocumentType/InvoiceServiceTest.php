@@ -25,7 +25,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -154,8 +153,6 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateWithShippingAddress(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         /** @var InvoiceGenerator $invoiceService */
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
 
@@ -416,12 +413,9 @@ class InvoiceServiceTest extends TestCase
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('language.locale')
-            ->addAssociation('transactions');
-
-        if (Feature::isActive('FEATURE_NEXT_10559')) {
-            $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-            $criteria->addAssociation('orderCustomer.customer');
-        }
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('orderCustomer.customer');
 
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)

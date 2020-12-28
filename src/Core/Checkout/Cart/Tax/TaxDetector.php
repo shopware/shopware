@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class TaxDetector
@@ -16,9 +15,6 @@ class TaxDetector
     public function isNetDelivery(SalesChannelContext $context): bool
     {
         $shippingLocationCountry = $context->getShippingLocation()->getCountry();
-        if (!Feature::isActive('FEATURE_NEXT_10559')) {
-            return $shippingLocationCountry->getTaxFree();
-        }
         if ($shippingLocationCountry->getTaxFree()) {
             return true;
         }

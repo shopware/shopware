@@ -127,7 +127,6 @@
             <name>vatIdFieldRequired</name>
             <label>VAT ID field required</label>
             <label lang="de-DE">Umsatzsteuer-ID als Pflichtfeld behandeln</label>
-            <flag>FEATURE_NEXT_10559</flag>
         </input-field>
     </card>
 </config>

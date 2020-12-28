@@ -40,6 +40,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    password password
    not_null(email) email
    title string
+   vatIds list
    affiliateCode string
    campaignCode string
    active bool

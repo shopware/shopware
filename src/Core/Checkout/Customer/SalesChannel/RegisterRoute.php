@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -179,7 +178,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
             $customer['company'] = $billingAddress['company'];
 
-            if (Feature::isActive('FEATURE_NEXT_10559') && $data->get('vatIds')) {
+            if ($data->get('vatIds')) {
                 /* @var array $vatIds */
                 $vatIds = $data->get('vatIds');
                 $customer['vatIds'] = empty($vatIds) ? null : $vatIds;
@@ -296,23 +295,21 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($accountType, false, $context));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10559')) {
-            $billingAddress = $addressData->all();
+        $billingAddress = $addressData->all();
 
-            if ($data->get('vatIds') instanceof DataBag) {
-                $vatIds = array_filter($data->get('vatIds')->all());
-                $data->set('vatIds', $vatIds);
+        if ($data->get('vatIds') instanceof DataBag) {
+            $vatIds = array_filter($data->get('vatIds')->all());
+            $data->set('vatIds', $vatIds);
+        }
+
+        if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
+                $definition->add('vatIds', new NotBlank());
             }
 
-            if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-                if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
-                    $definition->add('vatIds', new NotBlank());
-                }
-
-                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    ['countryId' => $billingAddress['countryId']]
-                ));
-            }
+            $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                ['countryId' => $billingAddress['countryId']]
+            ));
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);

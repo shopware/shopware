@@ -7,7 +7,6 @@ import 'src/app/component/base/sw-container';
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    Shopware.Feature.flags.FEATURE_NEXT_10559 = true;
 
     return shallowMount(Shopware.Component.build('sw-settings-country-detail'), {
         localVue,
@@ -63,9 +62,6 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
 

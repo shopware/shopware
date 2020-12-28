@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-order-new-customer-modal', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService', 'feature'],
+    inject: ['repositoryFactory', 'numberRangeService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -86,9 +86,7 @@ Component.register('sw-order-new-customer-modal', {
             this.customer.defaultShippingAddressId = billingAddress.id;
             this.customer.defaultBillingAddressId = billingAddress.id;
 
-            if (this.feature.isActive('FEATURE_NEXT_10559')) {
-                this.customer.vatIds = [];
-            }
+            this.customer.vatIds = [];
         },
 
         onSave() {

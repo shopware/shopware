@@ -1,7 +1,6 @@
 ---
 title: VAT handling for companies
 issue: NEXT-10559
-flag: FEATURE_NEXT_10559
 ---
 # Core
 * Added `vat_ids` column and moved `vat_id` data from `customer_address` to `customer` table.

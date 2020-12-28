@@ -177,18 +177,6 @@
                     </sw-text-field>
                 {% endblock %}
 
-                {% block sw_customer_address_form_vat_id_field %}
-                    <sw-text-field
-                        v-if="!feature.isActive('FEATURE_NEXT_10559')"
-                        :label="$tc('sw-customer.addressForm.labelVatId')"
-                        :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
-                        name="vatId"
-                        :error="addressVatIdError"
-                        :disabled="disabled"
-                        v-model="address.vatId">
-                    </sw-text-field>
-                {% endblock %}
-
                 <slot v-bind="{ disabled }">
                     {% block sw_customer_address_form_extension_slot %} {% endblock %}
                 </slot>

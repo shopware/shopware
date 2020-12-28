@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -117,8 +116,6 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileDataWithCommercialAccount(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $changeData = [
             'salutationId' => $this->getValidSalutationId(),
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
@@ -152,8 +149,6 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileDataWithCommercialAccountAndVatIdsIsEmpty(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $changeData = [
             'salutationId' => $this->getValidSalutationId(),
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
@@ -185,8 +180,6 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileDataWithPrivateAccount(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $changeData = [
             'salutationId' => $this->getValidSalutationId(),
             'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,

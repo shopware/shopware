@@ -1,7 +1,6 @@
 ---
 title: Validate VAT ID
 issue: NEXT-11196
-flag: FEATURE_NEXT_10559
 ---
 # Core
 * Added `vatIds` from the request data into `customer` when register a customer in `src/Core/Checkout/Customer/SalesChannel/RegisterRoute`.

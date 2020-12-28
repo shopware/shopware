@@ -1,7 +1,6 @@
 ---
 title: Show the intra community delivery on receipts
 issue: NEXT-11782
-flag: FEATURE_NEXT_10559
 ---
 # Administration
 *  Changed `onChangeType` method in `sw-settings-document-detail` for toggle the `DisplayNoteDelivery` checkbox.

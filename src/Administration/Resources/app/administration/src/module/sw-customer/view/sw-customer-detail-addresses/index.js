@@ -14,8 +14,7 @@ Component.register('sw-customer-detail-addresses', {
 
     inject: [
         'repositoryFactory',
-        'customerAddressService', // @deprecated tag:v6.4.0.0
-        'feature'
+        'customerAddressService' // @deprecated tag:v6.4.0.0
     ],
 
     props: {

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block document_footer_fourth_column %}
-    {% if feature('FEATURE_NEXT_10559') and config.executiveDirector %}
+    {% if config.executiveDirector %}
         <ul>
             {{ block('document_footer_ceo') }}
             {{ block('document_footer_ceo_name') }}
@@ -23,57 +23,45 @@
 {% endblock %}
 
 {% block document_recipient %}
-    {% if feature('FEATURE_NEXT_10559') %}
-        {{ parent() }}
+    {{ parent() }}
 
-        {% if customer.customer.vatIds %}
-            {{ customer.customer.vatIds[0] }}
-        {% endif %}
-    {% else %}
-        {{ parent() }}
+    {% if customer.customer.vatIds %}
+        {{ customer.customer.vatIds[0] }}
     {% endif %}
 {% endblock %}
 
 {% block document_side_info %}
-    {% if feature('FEATURE_NEXT_10559') %}
-        <table>
-            {% block document_side_info_contents %}
-                {{ block('document_side_info_date') }}
-                {{ block('document_side_info_customer_number') }}
-                {{ block('document_side_info_order_number') }}
-                {% if config.companyPhone %}
-                    {% block document_side_info_phone_number %}
-                        <tr>
-                            <td>
-                                {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
-                            </td>
-                        </tr>
-                    {% endblock %}
-                {% endif %}
-                {{ block('document_side_info_order_date') }}
-            {% endblock %}
-        </table><br/>
-    {% else %}
-        {{ parent() }}
-    {% endif %}
+    <table>
+        {% block document_side_info_contents %}
+            {{ block('document_side_info_date') }}
+            {{ block('document_side_info_customer_number') }}
+            {{ block('document_side_info_order_number') }}
+            {% if config.companyPhone %}
+                {% block document_side_info_phone_number %}
+                    <tr>
+                        <td>
+                            {{'document.phoneNumber'|trans({'%phoneNumber%': config.companyPhone })|sw_sanitize }}
+                        </td>
+                    </tr>
+                {% endblock %}
+            {% endif %}
+            {{ block('document_side_info_order_date') }}
+        {% endblock %}
+    </table><br/>
 {% endblock %}
 
 {% block document_payment_shipping_inner %}
-    {% if feature('FEATURE_NEXT_10559') %}
-        {{ parent() }}
+    {{ parent() }}
 
-        {% block document_intra_community %}
-            {% if config.intraCommunityDelivery %}
-                {{ 'document.intraCommunity'|trans|sw_sanitize }}
-            {% endif %}
-        {% endblock %}
-    {% else %}
-        {{ parent() }}
-    {% endif %}
+    {% block document_intra_community %}
+        {% if config.intraCommunityDelivery %}
+            {{ 'document.intraCommunity'|trans|sw_sanitize }}
+        {% endif %}
+    {% endblock %}
 {% endblock %}
 
 {% block document_shipping_address %}
-    {% if feature('FEATURE_NEXT_10559') and config.displayDivergentDeliveryAddress %}
+    {% if config.displayDivergentDeliveryAddress %}
         <div class="shipping-address-container">
             <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>
             {{ shippingAddress.company }}

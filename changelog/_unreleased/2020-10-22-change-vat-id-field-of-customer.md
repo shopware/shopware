@@ -1,7 +1,6 @@
 ---
 title: Change VAT ID field of customer
 issue: NEXT-11193
-flag:  FEATURE_NEXT_10559
 ---
 # Storefront
 * Added template `src/Storefront/Resources/views/storefront/component/address/address-personal-company.html.twig`.

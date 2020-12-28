@@ -64,7 +64,7 @@ describe('Account: Register via account menu', () => {
         cy.get(page.elements.registerCard).should('be.visible');
 
         const accountTypeSelector = 'select[name="accountType"]';
-        
+
         cy.get(accountTypeSelector).should('be.visible');
         cy.get(accountTypeSelector).typeAndSelect('Commercial');
 
@@ -82,9 +82,9 @@ describe('Account: Register via account menu', () => {
         cy.get('#billingAddressAddressCity').type('Wallenhorst');
         cy.get('#billingAddressAddressCountry').select('Germany');
         cy.get('#billingAddressAddressCountryState').select('Berlin');
-        
+
         cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
-        
+
         cy.get('#shippingAddresspersonalSalutation').select('Mr.');
         cy.get('#shippingAddresspersonalFirstName').type('John');
         cy.get('#shippingAddresspersonalLastName').type('Doe');
@@ -92,7 +92,7 @@ describe('Account: Register via account menu', () => {
         cy.get('#shippingAddressAddressZipcode').type('12345');
         cy.get('#shippingAddressAddressCity').type('Newland');
         cy.get('#shippingAddressAddressCountry').select('Germany');
-        
+
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
 
         cy.url().should('not.include', '/register');
@@ -207,11 +207,6 @@ describe('Account: Register via account menu', () => {
 
     it('@registration: Trigger validation error with account type selection', () => {
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
-
             cy.authenticate().then((result) => {
                 const requestConfig = {
                     headers: {
@@ -225,26 +220,26 @@ describe('Account: Register via account menu', () => {
                         }
                     }
                 };
-    
+
                 return cy.request(requestConfig);
             });
-    
+
             cy.createCustomerFixtureStorefront();
-    
+
             const page = new AccountPageObject();
             cy.visit('/account/login');
             cy.get(page.elements.registerCard).should('be.visible');
-    
+
             const accountTypeSelector = `${page.elements.registerForm} select[name="accountType"]`;
             cy.get(accountTypeSelector).should('be.visible');
             cy.get(accountTypeSelector).typeAndSelect('Commercial');
-    
+
             cy.get(`${page.elements.registerForm} select[name="salutationId"]`).select('Mr.');
             cy.get(`${page.elements.registerForm} input[name="firstName"]`).type('John');
             cy.get(`${page.elements.registerForm} input[name="lastName"]`).type('Doe');
             cy.get(`${page.elements.registerForm} input[name="email"]`).type('test@example.com');
             cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
-    
+
             cy.get('#billingAddresscompany').type('ABC Company');
             cy.get('#billingAddressdepartment').type('ABC Department');
             cy.get('#vatIds').type('ABC-VAT-ID');
@@ -253,7 +248,7 @@ describe('Account: Register via account menu', () => {
             cy.get('#billingAddressAddressCity').type('Wallenhorst');
             cy.get('#billingAddressAddressCountry').select('Germany');
             cy.get('#billingAddressAddressCountryState').select('Berlin');
-    
+
             cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
         });
     });

@@ -2,7 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
-export default class WishlistGuestPagePlugin extends Plugin {
+export default class GuestWishlistPagePlugin extends Plugin {
     init() {
         ElementLoadingIndicatorUtil.create(this.el);
 

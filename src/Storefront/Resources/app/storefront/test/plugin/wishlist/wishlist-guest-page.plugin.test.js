@@ -4,11 +4,11 @@
 
 /* eslint-disable */
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
-import WishlistGuestPagePlugin from 'src/plugin/wishlist/wishlist-guest-page.plugin';
+import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
-describe('WishlistGuestPagePlugin tests', () => {
-    let wishlistGuestPagePlugin = undefined;
+describe('GuestWishlistPagePlugin tests', () => {
+    let guestWishlistPagePlugin = undefined;
     let spyInitializePlugins = jest.fn();
 
     beforeEach(() => {
@@ -41,32 +41,32 @@ describe('WishlistGuestPagePlugin tests', () => {
         document.body.appendChild(wishlistBasket);
 
         // Mock the function which should be called on load
-        jest.spyOn(WishlistGuestPagePlugin.prototype, '_loadProductListForGuest').mockImplementation(jest.fn());
-        wishlistGuestPagePlugin = new WishlistGuestPagePlugin(mockElement);
+        jest.spyOn(GuestWishlistPagePlugin.prototype, '_loadProductListForGuest').mockImplementation(jest.fn());
+        guestWishlistPagePlugin = new GuestWishlistPagePlugin(mockElement);
     });
 
     afterEach(() => {
-        wishlistGuestPagePlugin = undefined;
+        guestWishlistPagePlugin = undefined;
         spyInitializePlugins.mockClear();
     });
 
-    test('WishlistGuestPage plugin exists', () => {
-        expect(typeof wishlistGuestPagePlugin).toBe('object');
+    test('GuestWishlistPage plugin exists', () => {
+        expect(typeof guestWishlistPagePlugin).toBe('object');
     });
 
     test('_loadProductListForGuest get called on click', () => {
         const _loadProductListForGuestShouldBeCalled = jest.fn();
 
         // Mock the function which should be called on load
-        jest.spyOn(WishlistGuestPagePlugin.prototype, '_loadProductListForGuest').mockImplementation(_loadProductListForGuestShouldBeCalled);
+        jest.spyOn(GuestWishlistPagePlugin.prototype, '_loadProductListForGuest').mockImplementation(_loadProductListForGuestShouldBeCalled);
 
         const mockClickableDomElement = document.createElement('div');
-        new WishlistGuestPagePlugin(mockClickableDomElement);
+        new GuestWishlistPagePlugin(mockClickableDomElement);
 
         expect(_loadProductListForGuestShouldBeCalled).toHaveBeenCalled();
 
         // Reset mock
-        WishlistGuestPagePlugin.prototype._loadProductListForGuest.mockRestore();
+        GuestWishlistPagePlugin.prototype._loadProductListForGuest.mockRestore();
     });
 
     test('_cleanInvalidGuestProductIds method test', () => {
@@ -75,7 +75,7 @@ describe('WishlistGuestPagePlugin tests', () => {
         const validProductIds = ['product_1', 'product_2', 'product_3'];
 
         validProductIds.forEach(productId => {
-            wishlistGuestPagePlugin._wishlistStorage.add(productId)
+            guestWishlistPagePlugin._wishlistStorage.add(productId)
         });
 
         const responseProductIds = ['product_2', 'product_3'];
@@ -86,12 +86,12 @@ describe('WishlistGuestPagePlugin tests', () => {
             return form;
         })
 
-        const localStorageProductIds = wishlistGuestPagePlugin._wishlistStorage.getProducts();
+        const localStorageProductIds = guestWishlistPagePlugin._wishlistStorage.getProducts();
 
-        wishlistGuestPagePlugin._cleanInvalidGuestProductIds(Object.keys(localStorageProductIds), responseProductForms);
+        guestWishlistPagePlugin._cleanInvalidGuestProductIds(Object.keys(localStorageProductIds), responseProductForms);
         const expectNewStorageProducts = ['product_2', 'product_3'];
 
-        expect(Object.keys(wishlistGuestPagePlugin._wishlistStorage.getProducts())).toEqual(expectNewStorageProducts);
+        expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts())).toEqual(expectNewStorageProducts);
     });
 });
 

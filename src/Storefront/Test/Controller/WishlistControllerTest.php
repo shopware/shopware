@@ -17,10 +17,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Page\Wishlist\WishlistGuestPage;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class WishlistControllerTest extends TestCase
@@ -79,7 +80,20 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(WishlistGuestPage::class, $response->getData()['page']);
+        static::assertInstanceOf(GuestWishlistPage::class, $response->getData()['page']);
+    }
+
+    public function testWishlistGuestPageletShouldThrowExceptionWhenLoggedIn(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', $_SERVER['APP_URL']);
+
+        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
     public function testWishlistGuestPagelet(): void

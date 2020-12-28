@@ -17,8 +17,9 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Wishlist\WishlistGuestPageLoader;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,9 +57,14 @@ class WishlistController extends StorefrontController
     private $mergeWishlistProductRoute;
 
     /**
-     * @var WishlistGuestPageLoader
+     * @var GuestWishlistPageLoader
      */
     private $guestPageLoader;
+
+    /**
+     * @var GuestWishlistPageletLoader
+     */
+    private $guestPageletLoader;
 
     public function __construct(
         WishlistPageLoader $wishlistPageLoader,
@@ -66,7 +72,8 @@ class WishlistController extends StorefrontController
         AbstractAddWishlistProductRoute $addWishlistRoute,
         AbstractRemoveWishlistProductRoute $removeWishlistProductRoute,
         AbstractMergeWishlistProductRoute $mergeWishlistProductRoute,
-        WishlistGuestPageLoader $guestPageLoader
+        GuestWishlistPageLoader $guestPageLoader,
+        GuestWishlistPageletLoader $guestPageletLoader
     ) {
         $this->wishlistPageLoader = $wishlistPageLoader;
         $this->wishlistLoadRoute = $wishlistLoadRoute;
@@ -74,6 +81,7 @@ class WishlistController extends StorefrontController
         $this->removeWishlistProductRoute = $removeWishlistProductRoute;
         $this->mergeWishlistProductRoute = $mergeWishlistProductRoute;
         $this->guestPageLoader = $guestPageLoader;
+        $this->guestPageletLoader = $guestPageletLoader;
     }
 
     /**
@@ -97,9 +105,13 @@ class WishlistController extends StorefrontController
      */
     public function guestPagelet(Request $request, SalesChannelContext $context): Response
     {
-        $pagelet = $this->guestPageLoader->loadPagelet($request, $context);
+        if ($context->getCustomer()) {
+            throw new NotFoundHttpException();
+        }
 
-        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['searchResult' => $pagelet->getSearchResult()->getResult()]);
+        $pagelet = $this->guestPageletLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['searchResult' => $pagelet->getSearchResult()->getObject()]);
     }
 
     /**

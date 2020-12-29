@@ -1,7 +1,6 @@
 ---
 title: hide filters according to CMS slot_config
 issue: NEXT-11358
-flag: FEATURE_NEXT_10536
 author: Markus Velt
 author_email: m.velt@shopware.com 
 author_github: @raknison

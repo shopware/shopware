@@ -225,6 +225,9 @@ class ProductBuilder
         return $this;
     }
 
+    /**
+     * @param array|object|string|float|int|bool|null $value
+     */
     public function customField(string $key, $value): ProductBuilder
     {
         $this->customFields[$key] = $value;
@@ -232,6 +235,9 @@ class ProductBuilder
         return $this;
     }
 
+    /**
+     * @param array|object|string|float|int|bool|null $value
+     */
     public function add(string $key, $value): ProductBuilder
     {
         $this->_dynamic[$key] = $value;

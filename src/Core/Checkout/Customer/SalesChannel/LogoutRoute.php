@@ -83,7 +83,7 @@ class LogoutRoute extends AbstractLogoutRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/logout", name="store-api.account.logout", methods={"POST"})
      */
-    public function logout(SalesChannelContext $context, ?RequestDataBag $data = null)
+    public function logout(SalesChannelContext $context, ?RequestDataBag $data = null): ContextTokenResponse
     {
         $salesChannelId = $context->getSalesChannel()->getId();
         if ($this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {

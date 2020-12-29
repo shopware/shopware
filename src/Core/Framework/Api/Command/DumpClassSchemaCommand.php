@@ -60,6 +60,9 @@ class DumpClassSchemaCommand extends Command
     private function getCollectionEntity(string $className): ?string
     {
         $extends = class_parents($className);
+        if ($extends === false) {
+            return null;
+        }
 
         if (!isset($extends[Collection::class])) {
             return null;

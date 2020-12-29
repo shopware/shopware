@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Content\Test\Seo;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -48,6 +52,11 @@ class SeoUrlGeneratorTest extends TestCase
      */
     private $deLanguageId;
 
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -61,6 +70,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', $salesChannel['id']);
+        $this->salesChannelId = $salesChannel['id'];
 
         $this->seoUrlGenerator = new SeoUrlGenerator(
             $this->getContainer()->get(DefinitionInstanceRegistry::class),
@@ -181,6 +191,55 @@ class SeoUrlGeneratorTest extends TestCase
                 'pathInfo' => '',
             ],
         ];
+    }
+
+    public function testVariantInheritance(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(Defaults::CURRENCY, 100)
+            ->variant(
+                (new ProductBuilder($ids, 'red'))
+                    ->tax(null)
+                    ->name('red')
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($ids, 'green'))
+                    ->name(null)
+                    ->build()
+            );
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $urls = $this->getContainer()
+            ->get(Connection::class)
+            ->fetchAll(
+                'SELECT LOWER(HEX(foreign_key)) as foreign_key, seo_path_info FROM seo_url WHERE route_name = :route AND foreign_key IN (:ids) AND sales_channel_id = :channel',
+                [
+                    'route' => 'frontend.detail.page',
+                    'ids' => Uuid::fromHexToBytesList($ids->getList(['parent', 'red', 'green'])),
+                    'channel' => Uuid::fromHexToBytes($this->salesChannelId),
+                ],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+
+        $urls = FetchModeHelper::keyPair($urls);
+
+        static::assertCount(3, $urls);
+        static::assertArrayHasKey($ids->get('parent'), $urls);
+        static::assertArrayHasKey($ids->get('green'), $urls);
+        static::assertArrayHasKey($ids->get('red'), $urls);
+
+        // name = parent | number = parent
+        static::assertEquals('parent/parent', $urls[$ids->get('parent')]);
+
+        // name = red | number = red
+        static::assertEquals('red/red', $urls[$ids->get('red')]);
+
+        // name = parent | number = green
+        static::assertEquals('parent/green', $urls[$ids->get('green')]);
     }
 
     private function createBreadcrumData(): void

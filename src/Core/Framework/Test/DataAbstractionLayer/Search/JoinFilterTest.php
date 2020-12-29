@@ -52,7 +52,7 @@ class JoinFilterTest extends TestCase
         $ids = new IdsCollection();
 
         $products = [
-            (new ProductBuilder($ids, 'product-1', 'tax', 10))
+            (new ProductBuilder($ids, 'product-1', 10, 'tax'))
                 ->price(Defaults::CURRENCY, 15, 10)
                 ->manufacturer('manufacturer-1')
                 ->property('red', 'color')
@@ -65,11 +65,11 @@ class JoinFilterTest extends TestCase
                 ->prices(Defaults::CURRENCY, 'rule-2', 150)
                 ->build(),
 
-            (new ProductBuilder($ids, 'product-1-variant', 'tax', 10))
+            (new ProductBuilder($ids, 'product-1-variant', 10, 'tax'))
                 ->parent('product-1')
                 ->build(),
 
-            (new ProductBuilder($ids, 'product-2', 'tax', 3))
+            (new ProductBuilder($ids, 'product-2', 3, 'tax'))
                 ->price(Defaults::CURRENCY, 15, 10)
                 ->manufacturer('manufacturer-2')
                 ->property('red', 'color')
@@ -78,7 +78,7 @@ class JoinFilterTest extends TestCase
                 ->prices(Defaults::CURRENCY, 'rule-1', 150)
                 ->build(),
 
-            (new ProductBuilder($ids, 'product-3', 'tax', 3))
+            (new ProductBuilder($ids, 'product-3', 3, 'tax'))
                 ->price(Defaults::CURRENCY, 15, 10)
                 ->build(),
         ];

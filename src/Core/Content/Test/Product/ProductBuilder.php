@@ -20,94 +20,99 @@ class ProductBuilder
     /**
      * @var IdsCollection
      */
-    public $ids;
+    protected $ids;
 
     /**
      * @var string
      */
-    public $productNumber;
+    protected $productNumber;
 
     /**
      * @var string
      */
-    public $id;
+    protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $name;
+    protected $name;
 
     /**
      * @var array|null
      */
-    public $manufacturer;
+    protected $manufacturer;
 
     /**
      * @var array|null
      */
-    public $tax;
+    protected $tax;
 
     /**
      * @var array
      */
-    public $price = [];
+    protected $price = [];
 
     /**
      * @var array
      */
-    public $prices = [];
+    protected $prices = [];
 
     /**
      * @var array
      */
-    public $categories = [];
+    protected $categories = [];
 
     /**
      * @var array
      */
-    public $properties = [];
+    protected $properties = [];
 
     /**
      * @var int
      */
-    public $stock;
+    protected $stock;
 
     /**
      * @var string|null
      */
-    public $releaseDate;
+    protected $releaseDate;
 
     /**
      * @var array
      */
-    public $customFields = [];
+    protected $customFields = [];
 
     /**
      * @var array
      */
-    public $visibilities = [];
+    protected $visibilities = [];
 
     /**
      * @var array|null
      */
-    public $purchasePrices;
+    protected $purchasePrices;
 
     /**
      * @var float|null
      */
-    public $purchasePrice;
+    protected $purchasePrice;
 
     /**
      * @var string|null
      */
-    public $parentId;
+    protected $parentId;
 
     /**
      * @var array
      */
-    public $_dynamic = [];
+    protected $_dynamic = [];
 
-    public function __construct(IdsCollection $ids, string $number, string $taxKey, int $stock)
+    /**
+     * @var array[]
+     */
+    protected $children = [];
+
+    public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
         $this->productNumber = $number;
@@ -124,20 +129,33 @@ class ProductBuilder
         return $this;
     }
 
-    public function name(string $name): self
+    public function name(?string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function tax(string $key, int $rate = 15): self
+    public function tax(?string $key, int $rate = 15): self
     {
+        if ($key === null) {
+            $this->tax = null;
+
+            return $this;
+        }
+
         $this->tax = [
             'id' => $this->ids->create($key),
             'name' => 'test',
             'taxRate' => $rate,
         ];
+
+        return $this;
+    }
+
+    public function variant(array $data): ProductBuilder
+    {
+        $this->children[] = $data;
 
         return $this;
     }

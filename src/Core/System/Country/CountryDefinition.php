@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
@@ -54,7 +53,7 @@ class CountryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('iso', 'iso'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
@@ -65,6 +64,9 @@ class CountryDefinition extends EntityDefinition
             (new StringField('iso3', 'iso3'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),
+            new BoolField('company_tax_free', 'companyTaxFree'),
+            new BoolField('check_vat_id_pattern', 'checkVatIdPattern'),
+            new StringField('vat_id_pattern', 'vatIdPattern'),
             new TranslatedField('customFields'),
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(CountryTranslationDefinition::class, 'country_id'))->addFlags(new Required()),
@@ -75,19 +77,5 @@ class CountryDefinition extends EntityDefinition
             (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('taxRules', TaxRuleDefinition::class, 'country_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_10559')) {
-            $fields->add(
-                new BoolField('company_tax_free', 'companyTaxFree')
-            );
-            $fields->add(
-                new BoolField('check_vat_id_pattern', 'checkVatIdPattern')
-            );
-            $fields->add(
-                new StringField('vat_id_pattern', 'vatIdPattern')
-            );
-        }
-
-        return $fields;
     }
 }

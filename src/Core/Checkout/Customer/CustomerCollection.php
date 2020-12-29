@@ -157,9 +157,6 @@ class CustomerCollection extends EntityCollection
         );
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function getListVatIds(): array
     {
         return $this->fmap(function (CustomerEntity $customer) {
@@ -167,9 +164,6 @@ class CustomerCollection extends EntityCollection
         });
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function filterByVatId(string $id): self
     {
         return $this->filter(function (CustomerEntity $customer) use ($id) {

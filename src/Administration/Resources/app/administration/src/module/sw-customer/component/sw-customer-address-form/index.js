@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-address-form', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -118,10 +118,6 @@ Component.register('sw-customer-address-form', {
         },
 
         'address.company'(newVal) {
-            if (!this.feature.isActive('FEATURE_NEXT_10559')) {
-                return;
-            }
-
             if (!newVal) {
                 return;
             }

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 class InvoiceGenerator implements DocumentGeneratorInterface
@@ -51,9 +50,7 @@ class InvoiceGenerator implements DocumentGeneratorInterface
 
         $config = DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize();
 
-        if (Feature::isActive('FEATURE_NEXT_10559')) {
-            $config['intraCommunityDelivery'] = $this->isAllowIntraCommunityDelivery($config, $order);
-        }
+        $config['intraCommunityDelivery'] = $this->isAllowIntraCommunityDelivery($config, $order);
 
         return $this->documentTemplateRenderer->render(
             $templatePath,

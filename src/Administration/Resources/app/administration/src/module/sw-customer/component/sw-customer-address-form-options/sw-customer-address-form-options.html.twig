@@ -1,5 +1,5 @@
 {% block sw_customer_address_form_options %}
-    <div :class="{ 'sw-customer-address-form__options': feature.isActive('FEATURE_NEXT_10559') }">
+    <div class="sw-customer-address-form__options">
         {% block sw_customer_address_form_options_default_shipping_address %}
             <sw-field type="checkbox"
                     v-model="isDefaultShippingAddressId"

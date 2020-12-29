@@ -71,9 +71,6 @@ shopware:
             - name: FEATURE_NEXT_10549
               major: false
               description: "save cart or products on wishlist"
-            - name: FEATURE_NEXT_10559
-              major: false
-              description: "vat handling for companies"
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"

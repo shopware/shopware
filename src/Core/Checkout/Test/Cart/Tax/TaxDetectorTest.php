@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,8 +57,6 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNetDeliveryWithCompanyFreeTax(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $context = $this->createMock(SalesChannelContext::class);
 
         $countryRepository = $this->getContainer()->get('country.repository');
@@ -97,8 +94,6 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNotNetDeliveryWithCompanyFreeTax(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $context = $this->createMock(SalesChannelContext::class);
 
         $countryRepository = $this->getContainer()->get('country.repository');
@@ -128,8 +123,6 @@ class TaxDetectorTest extends TestCase
 
     public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdPattern(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $context = $this->createMock(SalesChannelContext::class);
 
         $countryRepository = $this->getContainer()->get('country.repository');

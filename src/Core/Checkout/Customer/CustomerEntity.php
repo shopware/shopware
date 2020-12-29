@@ -101,8 +101,6 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     *
      * @var array|null
      */
     protected $vatIds;
@@ -479,17 +477,11 @@ class CustomerEntity extends Entity
         $this->title = $title;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function setVatIds(?array $vatIds): void
     {
         $this->vatIds = $vatIds;

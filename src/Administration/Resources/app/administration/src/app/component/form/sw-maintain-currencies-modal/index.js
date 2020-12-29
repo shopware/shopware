@@ -135,6 +135,13 @@ Component.register('sw-maintain-currencies-modal', {
                     linked: this.defaultPrice.listPrice.linked,
                     net: this.convertPrice(this.defaultPrice.listPrice.net, currency)
                 };
+            } else {
+                price.listPrice = {
+                    currencyId: currency.id,
+                    gross: 0,
+                    linked: true,
+                    net: 0
+                };
             }
 
             // create new entry for currency in prices

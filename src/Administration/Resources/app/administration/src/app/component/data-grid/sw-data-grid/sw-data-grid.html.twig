@@ -144,6 +144,13 @@
                                                                 @change-preview-images="onChangePreviews"
                                                                 @change-column-visibility="onChangeColumnVisibility"
                                                                 @change-column-order="onChangeColumnOrder">
+                                                                {% block sw_data_grid_settings_additional_settings %}
+                                                                    <template #additionalSettings>
+                                                                        {% block sw_data_grid_settings_additional_settings_inner %}
+                                                                            <slot name="additionalSettings"></slot>
+                                                                        {% endblock %}
+                                                                    </template>
+                                                                {% endblock %}
                                                             </sw-data-grid-settings>
                                                         {% endblock %}
                                                     </div>

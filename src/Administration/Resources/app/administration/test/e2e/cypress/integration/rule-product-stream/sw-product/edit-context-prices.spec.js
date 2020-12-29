@@ -16,7 +16,7 @@ describe('Product: Editing context prices', () => {
             });
     });
 
-    it('@base @rule: creates context price rules', () => {
+    it('@base @rule @product: creates context price rules', () => {
         const page = new ProductPageObject();
         const priceGroup = '.context-price-group';
         const priceCell = '.sw-data-grid__cell--price';

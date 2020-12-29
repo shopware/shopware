@@ -166,6 +166,7 @@
       "columnPrice": "Preis (brutto / netto)",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
+      "settingShowListPrices": "Zeige Streichpreise",
       "toolbarLabel": "Regeln"
     },
     "list": {
@@ -234,11 +235,14 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
+      "columnType": "Typ",
       "selectRule": "Bedingungsregel auswählen ...",
       "advancedPricesInherited": "Dieses Produkt hat vererbte Preise vom Hauptprodukt.",
       "linkAdvancedPricesOfParent": "Zeige die Preise des Hauptprodukts",
       "inheritSwitchLabel": "Nutze die erweiterten Preise des Hauptprodukts",
-      "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden."
+      "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden.",
+      "advancedListPricePriceLabel": "Preis",
+      "advancedListPriceLabel": "Streichpreis"
 
     },
     "properties": {

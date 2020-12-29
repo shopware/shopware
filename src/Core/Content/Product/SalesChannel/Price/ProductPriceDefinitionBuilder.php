@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -43,6 +44,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         $definitions = [];
 
+        /** @var ProductPriceEntity $price */
         foreach ($prices as $price) {
             $quantity = $price->getQuantityEnd() ?? $price->getQuantityStart();
 
@@ -52,7 +54,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $context->getContext()->getCurrencyPrecision(),
                 $quantity,
                 true,
-                $this->buildReferencePriceDefinition($product)
+                $this->buildReferencePriceDefinition($product),
+                $this->getListPrice($price->getPrice(), $context)
             );
         }
 
@@ -70,7 +73,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             1,
             true,
             $this->buildReferencePriceDefinition($product),
-            $this->getListPrice($product, $context)
+            $this->getListPrice($product->getPrice(), $context)
         );
     }
 
@@ -144,7 +147,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $quantity,
                 true,
                 $this->buildReferencePriceDefinition($product),
-                $this->getListPrice($product, $context)
+                $this->getListPrice($product->getPrice(), $context)
             );
         }
 
@@ -156,7 +159,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             $context->getContext()->getCurrencyPrecision(),
             $quantity,
             true,
-            $this->buildReferencePriceDefinition($product)
+            $this->buildReferencePriceDefinition($product),
+            $this->getListPrice($prices[0]->getPrice(), $context)
         );
     }
 
@@ -252,14 +256,16 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         return $referencePrice;
     }
 
-    private function getListPrice(ProductEntity $product, SalesChannelContext $context): float
+    private function getListPrice(?PriceCollection $prices, SalesChannelContext $context): ?float
     {
-        $price = $product->getPrice()->getCurrencyPrice($context->getCurrency()->getId());
-
-        if (!$price || !$price->getListPrice()) {
-            return 0.0;
+        if (!$prices) {
+            return null;
         }
 
+        $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
+        if (!$price || !$price->getListPrice()) {
+            return null;
+        }
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $value = $price->getListPrice()->getGross();
         } else {

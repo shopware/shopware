@@ -200,7 +200,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl')));
+            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl'), $data->get('redirectTo')));
         } elseif (!$customerEntity->getGuest()) {
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customerEntity));
         } else {
@@ -234,9 +234,13 @@ class RegisterRoute extends AbstractRegisterRoute
         return $response;
     }
 
-    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url): Event
+    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
     {
         $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+
+        if ($redirectTo) {
+            $url .= '&redirectTo=' . $redirectTo;
+        }
 
         if ($customer->getGuest()) {
             $event = new DoubleOptInGuestOrderEvent($customer, $context, $url);

@@ -4,6 +4,6 @@ namespace Shopware\Storefront\Page\Wishlist;
 
 use Shopware\Storefront\Page\Page;
 
-class WishlistGuestPage extends Page
+class GuestWishlistPage extends Page
 {
 }

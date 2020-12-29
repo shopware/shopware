@@ -156,6 +156,29 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should toggle placeholder', async () => {
+        wrapper = await createWrapper();
+        const placeholder = 'Enter description...';
+        await wrapper.setProps({ placeholder: placeholder });
+
+        // replace placeholder with value
+        const editorPlaceholder = wrapper.find('.sw-text-editor__content .sw-text-editor__content-placeholder');
+        expect(editorPlaceholder.element.innerText).toEqual(placeholder);
+
+        const content = wrapper.find('.sw-text-editor__content .sw-text-editor__content-editor');
+        const expectedValue = 'I am not the Placeholder';
+        await wrapper.setProps({ value: expectedValue });
+
+        expect(content.element.innerText).toEqual(expectedValue);
+        expect(wrapper.find('.sw-text-editor__content .sw-text-editor__content-placeholder').exists()).toBeFalsy();
+
+        // replace value with placeholder
+        await wrapper.setProps({ value: null });
+        expect(wrapper.find('.sw-text-editor__content .sw-text-editor__content-placeholder').exists()).toBeTruthy();
+        expect(editorPlaceholder.element.innerText).toEqual(placeholder);
+        expect(content.element.innerText).toEqual('');
+    });
+
     it('should insert the link correctly', async () => {
         wrapper = await createWrapper();
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');

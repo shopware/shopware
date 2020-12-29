@@ -58,4 +58,14 @@ describe('module/sw-cms/elements/product-name/component', () => {
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('product.name');
     });
+
+    it('should display skeleton on product name block if entity demo is null', async () => {
+        await wrapper.setData({
+            cmsPageState: {
+                currentDemoEntity: null
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-el-product-name__skeleton').exists()).toBeTruthy();
+    });
 });

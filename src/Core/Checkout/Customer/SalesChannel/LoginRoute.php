@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,13 +44,6 @@ class LoginRoute extends AbstractLoginRoute
     private $customerRepository;
 
     /**
-     * @deprecated tag:v6.4.0 $contextPersister will no longer be used
-     *
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
      * @var LegacyPasswordVerifier
      */
     private $legacyPasswordVerifier;
@@ -63,13 +55,11 @@ class LoginRoute extends AbstractLoginRoute
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextPersister $contextPersister,
         EntityRepositoryInterface $customerRepository,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         SalesChannelContextRestorer $contextRestorer
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->contextPersister = $contextPersister;
         $this->customerRepository = $customerRepository;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->contextRestorer = $contextRestorer;

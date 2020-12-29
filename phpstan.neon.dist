@@ -62,6 +62,12 @@ parameters:
         -
             message: '#PHPDoc tag @param references unknown parameter: \$behavior#'
             path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
+        # For BC in Store-API routes
+        -
+            message: '#Method Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Abstract.*Route::.*\(\) has no return typehint specified#'
+            paths:
+                - src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
+                - src/Core/Checkout/Customer/SalesChannel/AbstractLogoutRoute.php
 
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773

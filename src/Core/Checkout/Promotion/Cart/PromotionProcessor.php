@@ -48,6 +48,17 @@ class PromotionProcessor implements CartProcessorInterface
         // line item group rule inside the cart data
         $calculated->getData()->set(LineItemGroupBuilder::class, $this->groupBuilder);
 
+        // if we are in recalculation,
+        // we must not re-add any promotions. just leave it as it is.
+        if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
+            $items = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
+            foreach ($items as $item) {
+                $calculated->add($item);
+            }
+
+            return;
+        }
+
         // if there is no collected promotion we may return - nothing to calculate!
         if (!$data->has(self::DATA_KEY)) {
             $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
@@ -59,12 +70,6 @@ class PromotionProcessor implements CartProcessorInterface
                 }
             }
 
-            return;
-        }
-
-        // if we are in recalculation,
-        // we must not re-add any promotions. just leave it as it is.
-        if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
             return;
         }
 

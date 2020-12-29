@@ -1,0 +1,63 @@
+{% block sw_settings_search_index %}
+    <sw-page class="sw-settings-search">
+        {% block sw_settings_search_smart_bar_header %}
+            <template #smart-bar-header>
+                <h2>
+                    {% block sw_settings_search_smart_bar_header_title_text %}
+                        {{ $tc('sw-settings.index.title') }}
+                        <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                        {{ $tc('sw-settings-search.general.mainMenuItemGeneral') }}
+                    {% endblock %}
+                </h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_search_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_search_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_settings_search_smart_bar_actions_save %}
+                    <sw-button
+                        class="sw-settings-search__button-save"
+                        variant="primary"
+                        @click="onSaveSearchSettings">
+                        {{ $tc('global.default.save') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_search_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_settings_search_tabs_header %}
+                        <sw-tabs>
+                            {% block sw_setting_search_tabs_general %}
+                                <sw-tabs-item :route="{ name: 'sw.settings.search.index.general' }">
+                                    {{ $tc('sw-settings-search.page.generalTab') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block sw_setting_search_tabs_live_search %}
+                                <sw-tabs-item :route="{ name: 'sw.settings.search.index.liveSearch' }">
+                                    {{ $tc('sw-settings-search.page.liveSearchTab') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
+
+                    {% block sw_settings_search_tabs_content %}
+                        <router-view
+                            :isLoading="isLoading"
+                            :productSearchConfigs="productSearchConfigs">
+                        </router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

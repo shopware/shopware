@@ -1,0 +1,18 @@
+.sw-settings-search {
+    &__search-behaviour-title {
+        display: block;
+        width: 100%;
+        margin-bottom: 32px;
+    }
+
+    &__search-behaviour-condition {
+        .sw-field__radio-option-description {
+            white-space: pre-line;
+            display: inline;
+        }
+    }
+
+    &__search-behaviour-term-length.sw-field {
+        width: 50%;
+    }
+}

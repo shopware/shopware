@@ -103,10 +103,6 @@ class ThemeLifecycleService
 
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
     {
-        if ($configuration->getTechnicalName() === null) {
-            throw new \LogicException('Bundle can not exist without technical name');
-        }
-
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();

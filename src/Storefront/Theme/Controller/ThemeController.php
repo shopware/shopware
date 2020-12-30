@@ -76,19 +76,6 @@ class ThemeController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0.0")
-     *
-     * @deprecated tag:v6.4.0 - use structuredFields instead
-     * @Route("/api/_action/theme/{themeId}/fields", name="api.action.theme.fields", methods={"GET"})
-     */
-    public function fields(string $themeId, Context $context): JsonResponse
-    {
-        $themeConfiguration = $this->themeService->getThemeConfigurationFields($themeId, true, $context);
-
-        return new JsonResponse($themeConfiguration);
-    }
-
-    /**
      * @Since("6.2.0.0")
      * @Route("/api/_action/theme/{themeId}/structured-fields", name="api.action.theme.structuredFields", methods={"GET"})
      */

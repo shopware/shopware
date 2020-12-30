@@ -46,10 +46,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $this->createPluginConfig($appName, $absolutePath);
     }
 
-    /**
-     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
-     */
-    public function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
+    private function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $config = new StorefrontPluginConfiguration($name);
         $config->setIsTheme(false);
@@ -69,10 +66,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $config;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
-     */
-    public function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
+    private function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 

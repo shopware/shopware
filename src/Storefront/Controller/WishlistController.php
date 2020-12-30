@@ -73,9 +73,9 @@ class WishlistController extends StorefrontController
      * @LoginRequired()
      * @Route("/wishlist", name="frontend.wishlist.page", methods={"GET"})
      */
-    public function index(Request $request, SalesChannelContext $context): Response
+    public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        $page = $this->wishlistPageLoader->load($request, $context);
+        $page = $this->wishlistPageLoader->load($request, $context, $customer);
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
     }
@@ -85,27 +85,28 @@ class WishlistController extends StorefrontController
      * @LoginRequired()
      * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      */
-    public function ajaxPagination(Request $request, SalesChannelContext $context): Response
+    public function ajaxPagination(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $request->request->set('no-aggregations', true);
 
-        $page = $this->wishlistPageLoader->load($request, $context);
+        $page = $this->wishlistPageLoader->load($request, $context, $customer);
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
     }
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/wishlist/list", name="frontend.wishlist.product.list", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
-    public function ajaxList(Request $request, SalesChannelContext $context): Response
+    public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         if (!Feature::isActive('FEATURE_NEXT_10549')) {
             throw new NotFoundHttpException();
         }
 
         try {
-            $res = $this->wishlistLoadRoute->load($request, $context, new Criteria());
+            $res = $this->wishlistLoadRoute->load($request, $context, new Criteria(), $customer);
         } catch (CustomerWishlistNotFoundException $exception) {
             return new JsonResponse([]);
         }
@@ -224,11 +225,11 @@ class WishlistController extends StorefrontController
      * @LoginRequired()
      * @Route("/wishlist/merge/pagelet", name="frontend.wishlist.product.merge.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      */
-    public function ajaxPagelet(Request $request, SalesChannelContext $context): Response
+    public function ajaxPagelet(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $request->request->set('no-aggregations', true);
 
-        $page = $this->wishlistPageLoader->load($request, $context);
+        $page = $this->wishlistPageLoader->load($request, $context, $customer);
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['page' => $page]);
     }

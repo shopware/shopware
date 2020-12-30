@@ -265,15 +265,12 @@
                                             {% if feature('FEATURE_NEXT_10559') %}
                                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                                     'prefix': 'billingAddress',
-                                                    'data': data.get('billingAddress'),
-                                                    'hasSelectedBusiness': data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')
+                                                    'data': data.get('billingAddress')
                                                 } %}
                                             {% else %}
-                                                {# @deprecated tag:v6.4.0 hasSelectedBusiness variable will be removed #}
                                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                                     'prefix': 'billingAddress',
                                                     'data': data.get('billingAddress'),
-                                                    'hasSelectedBusiness': false,
                                                     'showFormCompany': true,
                                                     'showVatIdField': true
                                                 } %}

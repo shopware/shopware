@@ -3,19 +3,16 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 
@@ -104,38 +101,6 @@ abstract class StorefrontController extends AbstractController
         );
 
         return $this->forward($route['_controller'], $attributes, $routeParameters);
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - use annotation `LoginRequired` instead
-     *
-     * @throws CustomerNotLoggedInException
-     */
-    protected function denyAccessUnlessLoggedIn(bool $allowGuest = false): void
-    {
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->get('request_stack');
-        $request = $requestStack->getCurrentRequest();
-
-        if (!$request) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        /** @var SalesChannelContext|null $context */
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        if (
-            $context
-            && $context->getCustomer()
-            && (
-                $allowGuest === true
-                || $context->getCustomer()->getGuest() === false
-            )
-        ) {
-            return;
-        }
-
-        throw new CustomerNotLoggedInException();
     }
 
     protected function decodeParam(Request $request, string $param): array

@@ -103,7 +103,7 @@ class AddressControllerTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         $this->getContainer()->get('request_stack')->push($request);
 
-        $controller->deleteAddress($id2, $context);
+        $controller->deleteAddress($id2, $context, $context->getCustomer());
 
         $criteria = new Criteria([$id2]);
 
@@ -114,7 +114,7 @@ class AddressControllerTest extends TestCase
 
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
 
-        $controller->deleteAddress($id1, $context);
+        $controller->deleteAddress($id1, $context, $context->getCustomer());
 
         $criteria = new Criteria([$id1]);
 

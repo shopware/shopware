@@ -104,7 +104,7 @@ class CartLineItemController extends StorefrontController
                 throw new \InvalidArgumentException('Code is required');
             }
 
-            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, $salesChannelContext->getContext()->getCurrencyPrecision());
+            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, 2);
 
             $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
 

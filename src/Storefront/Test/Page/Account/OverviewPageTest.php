@@ -15,11 +15,6 @@ class OverviewPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    public function testLoginRequirement(): void
-    {
-        $this->assertLoginRequirement();
-    }
-
     public function testItLoadsTheOverview(): void
     {
         $request = new Request();
@@ -29,7 +24,7 @@ class OverviewPageTest extends TestCase
         $event = null;
         $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $page = $this->getPageLoader()->load($request, $context, $this->createCustomer());
 
         static::assertInstanceOf(AccountOverviewPage::class, $page);
         self::assertPageEvent(AccountOverviewPageLoadedEvent::class, $event, $context, $request, $page);
@@ -53,7 +48,7 @@ class OverviewPageTest extends TestCase
         $event = null;
         $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $page = $this->getPageLoader()->load($request, $context, $this->createCustomer());
 
         static::assertInstanceOf(AccountOverviewPage::class, $page);
         static::assertNull($page->getNewestOrder());

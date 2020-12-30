@@ -48,19 +48,6 @@ class Vector {
     set w(w) { if (this.dimension > 3) this.entries[3] = w; }
 
     /**
-     * creates a new vector from a given vector or vector entries
-     *
-     * @param {Vector|Array<number>|...number} args
-     * @returns {Vector}
-     * @deprecated tag:v6.4.0 use constructor instead
-     */
-    set(...args) {
-        const other = argsToVector(args);
-        this.validateDimensions(other);
-        return new this.constructor(...other.entries);
-    }
-
-    /**
      * returns the euclid length of a vector
      *
      * @returns {number}

@@ -57,14 +57,7 @@ class MaintenanceModeResolver
             return true;
         }
 
-        $route = $request->attributes->get('_route');
-
-        if (!$route) {
-            return false;
-        }
-
-        // @deprecated tag:v6.4.0 - Use defaults={"allow_maintenance"=true} in Route definition instead
-        return mb_strpos($route, 'frontend.maintenance') !== false;
+        return false;
     }
 
     private function isXmlHttpRequest(Request $request): bool

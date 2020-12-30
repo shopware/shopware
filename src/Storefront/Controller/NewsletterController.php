@@ -89,13 +89,8 @@ class NewsletterController extends StorefrontController
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
-    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {

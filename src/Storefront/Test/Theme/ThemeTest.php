@@ -113,14 +113,6 @@ class ThemeTest extends TestCase
         }
     }
 
-    public function testDefaultThemeConfigFields(): void
-    {
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
-
-        $theme = $this->themeService->getThemeConfigurationFields($theme->getId(), false, $this->context);
-        static::assertEquals(ThemeFixtures::getThemeFields(), $theme);
-    }
-
     public function testDefaultThemeConfigStructuredFields(): void
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();

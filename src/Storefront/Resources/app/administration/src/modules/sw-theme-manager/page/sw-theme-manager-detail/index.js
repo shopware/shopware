@@ -1,10 +1,7 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-/** @deprecated tag:v6.4.0 - use Shopware.Application instead */
-// eslint-disable-next-line no-unused-vars
-const { Application } = Shopware;
+const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
@@ -150,11 +147,6 @@ Component.register('sw-theme-manager-detail', {
 
             this.themeService.getStructuredFields(this.themeId).then((fields) => {
                 this.structuredThemeFields = fields;
-            });
-
-            /** @deprecated tag:v6.4.0 */
-            this.themeService.getFields(this.themeId).then((fields) => {
-                this.themeFields = fields;
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {

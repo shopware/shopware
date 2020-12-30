@@ -602,7 +602,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$customer of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerLogoutEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null given\\.$#"
-			count: 1
+			count: 2
 			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
 
 		-

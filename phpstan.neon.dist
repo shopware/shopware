@@ -6,11 +6,10 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
     tmpDir: ../var/cache/phpstan
     paths:
         - src
-        - ../src
     symfony:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
@@ -22,6 +21,10 @@ parameters:
     excludes_analyse:
         - src/Recovery/*
         - src/Storefront/Framework/Cache/CacheDecorator.php
+        - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
+        - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+
+        # should be fixed
         - src/Elasticsearch/Product/ElasticsearchProductDefinition.php
         - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
         - src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
@@ -30,13 +33,9 @@ parameters:
         - src/Core/Framework/Routing/ApiRequestContextResolver.php
         - src/Core/Framework/Api/Sync/SyncService.php
         - src/Elasticsearch/Test/Product/ElasticsearchProductDefinitionExtension.php
-        - ../src/Command/ConfigDebugCommand.php
-        - ../src/Command/DatabaseDebugViewGenerator.php
         - src/Core/Checkout/Cart/Order/OrderConverter.php
         - src/Core/Framework/DataAbstractionLayer/FieldSerializer/CashRoundingConfigFieldSerializer.php
         - src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/ListingPriceFieldAccessorBuilder.php
-        - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
-        - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Symfony Patches, can be removed with next patch version
         - src/Core/Framework/Adapter/Cache/CacheCollectorPass.php
@@ -72,11 +71,25 @@ parameters:
         -
              message: '#Strict comparison using#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        -
+             message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
+             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
 
         - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
         -
             message: '#Cannot call method fetchAll\(\) on Doctrine\\DBAL\\Driver\\Statement\|int.#'
             path: src/Core/Migration/Migration1599822061MigrateOrderMails.php
+        # Remove after PHPStan Update to 0.12.64
+        -
+            message: '#Strict comparison using === between array<string, class-string> and false will always evaluate to false#'
+            paths:
+                - src/Core/Content/Media/Thumbnail/ThumbnailService.php
+                - src/Core/Framework/Adapter/Twig/TemplateIterator.php
+                - src/Core/Framework/Api/Command/DumpClassSchemaCommand.php
+                - src/Core/Framework/MessageQueue/ScheduledTask/Scheduler/TaskScheduler.php
+        -
+           message: '#Strict comparison using === between resource and false will always evaluate to false#'
+           path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 services:
     -

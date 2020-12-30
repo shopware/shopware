@@ -5351,6 +5351,11 @@ parameters:
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
 
 		-
+			message: "#^Parameter \\#1 \\$data of method Symfony\\\\Component\\\\Serializer\\\\Encoder\\\\JsonDecode\\:\\:decode\\(\\) expects string, bool\\|float\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
+
+		-
 			message: "#^Cannot call method getParameters\\(\\) on ReflectionMethod\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php

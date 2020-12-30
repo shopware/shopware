@@ -18,7 +18,7 @@ class ReferenceVersionFieldSerializerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $product = (new ProductBuilder($ids, 'p1', 't1', 10))
+        $product = (new ProductBuilder($ids, 'p1'))
             ->price(Defaults::CURRENCY, 100)
             ->manufacturer('m1')
             ->build();

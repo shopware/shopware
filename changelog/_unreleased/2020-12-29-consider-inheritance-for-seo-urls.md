@@ -1,7 +1,7 @@
 ---
 title: Consider inheritance when generating seo urls
 issue: NEXT-12340
-author: OliverSkroblin
+author: Oliver Skroblin
 author_email: o.skroblin@shopware.com 
 author_github: OliverSkroblin
 ---

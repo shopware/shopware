@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 /**
  * How to use:
  *
- * $x = (new ProductBuilder(new IdsCollection(), 'p1', 't1', 2))
+ * $x = (new ProductBuilder(new IdsCollection(), 'p1'))
  *          ->price(Defaults::CURRENCY, 100)
  *          ->prices(Defaults::CURRENCY, 'rule-1', 100)
  *          ->manufacturer('m1')

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -190,10 +191,12 @@ class SalesChannelContextFactory
 
         $shippingLocation = null;
         if ($customer) {
-            $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
+            /** @var CustomerAddressEntity $activeShippingAddress */
+            $activeShippingAddress = $customer->getActiveShippingAddress();
+            $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
         }
 
-        if (!$shippingLocation) {
+        if ($shippingLocation === null) {
             //load not logged in customer with default shop configuration or with provided checkout scopes
             $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
         }
@@ -284,7 +287,12 @@ class SalesChannelContextFactory
 
         /** @var TaxEntity $tax */
         foreach ($taxes as $tax) {
-            $taxRules = $tax->getRules()->filter(function (TaxRuleEntity $taxRule) use ($customer, $shippingLocation) {
+            $taxRules = $tax->getRules();
+            if ($taxRules === null) {
+                continue;
+            }
+
+            $taxRules = $taxRules->filter(function (TaxRuleEntity $taxRule) use ($customer, $shippingLocation) {
                 foreach ($this->taxRuleTypeFilter as $ruleTypeFilter) {
                     if ($ruleTypeFilter->match($taxRule, $customer, $shippingLocation)) {
                         return true;
@@ -362,6 +370,9 @@ class SalesChannelContextFactory
         $data = $this->connection->fetchAssoc($sql, [
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
+        if ($data === false) {
+            throw new \RuntimeException(sprintf('No context data found for SalesChannel "%s"', $salesChannelId));
+        }
 
         $origin = new SalesChannelApiSource($salesChannelId);
 
@@ -392,9 +403,10 @@ class SalesChannelContextFactory
 
     private function getParentLanguageId(string $languageId): ?string
     {
-        if (!$languageId || !Uuid::isValid($languageId)) {
+        if (!Uuid::isValid($languageId)) {
             throw new LanguageNotFoundException($languageId);
         }
+
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.parent_id))'])
             ->from('language')

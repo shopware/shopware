@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -106,45 +107,22 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $query = parent::buildTermQuery($context, $criteria);
 
         $query->add(
-            new MatchQuery('description', $criteria->getTerm()),
+            new MatchQuery('description', (string) $criteria->getTerm()),
             BoolQuery::SHOULD
         );
 
         return $query;
     }
 
-    private function getCurrencyPrice(ProductEntity $entity, CurrencyEntity $currency)
+    private function getCurrencyPrice(ProductEntity $entity, CurrencyEntity $currency): array
     {
         $origin = $entity->getCurrencyPrice($currency->getId());
 
         if (!$origin) {
             throw new \RuntimeException(sprintf('Missing default price for product %s', $entity->getProductNumber()));
         }
-        $price = clone $origin;
 
-        // fallback price returned?
-        if ($price->getCurrencyId() !== $currency->getId()) {
-            $price->setGross($price->getGross() * $currency->getFactor());
-            $price->setNet($price->getNet() * $currency->getFactor());
-        }
-
-        $config = $currency->getItemRounding();
-
-        if (!$config) {
-            return json_decode(JsonFieldSerializer::encodeJson($price), true);
-        }
-
-        $price->setGross(
-            $this->rounding->cashRound($price->getGross(), $config)
-        );
-
-        if ($config->roundForNet()) {
-            $price->setNet(
-                $this->rounding->cashRound($price->getNet(), $config)
-            );
-        }
-
-        return json_decode(JsonFieldSerializer::encodeJson($price), true);
+        return $this->getPrice($origin, $currency);
     }
 
     private function getCurrencyPurchasePrice(ProductEntity $entity, CurrencyEntity $currency): array
@@ -161,6 +139,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             return [];
         }
 
+        return $this->getPrice(clone $origin, $currency);
+    }
+
+    private function getPrice(Price $origin, CurrencyEntity $currency): array
+    {
         $price = clone $origin;
 
         // fallback price returned?
@@ -170,10 +153,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         }
 
         $config = $currency->getItemRounding();
-
-        if (!$config) {
-            return json_decode(JsonFieldSerializer::encodeJson($price), true);
-        }
 
         $price->setGross(
             $this->rounding->cashRound($price->getGross(), $config)

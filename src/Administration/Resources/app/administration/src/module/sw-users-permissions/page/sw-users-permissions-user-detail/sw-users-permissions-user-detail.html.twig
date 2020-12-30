@@ -117,9 +117,6 @@
                                             </sw-password-field>
                                         {% endblock %}
 
-                                        {# @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic #}
-                                        {% block sw_settings_user_detail_grid_change_password %}{% endblock %}
-
                                         {% block sw_settings_user_detail_grid_content_language %}
                                             <sw-select-field
                                                     class="sw-settings-user-detail__grid-language"
@@ -172,9 +169,6 @@
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
-
-                                {# @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic #}
-                                {% block sw_settings_user_detail_content_password_modal %}{% endblock %}
 
                                 {% block sw_settings_user_detail_content_confirm_password_modal %}
                                     <sw-verify-user-modal v-if="confirmPasswordModal" @verified="saveUser" @close="onCloseConfirmPasswordModal">

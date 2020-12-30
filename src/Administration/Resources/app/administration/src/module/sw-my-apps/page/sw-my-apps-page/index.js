@@ -93,11 +93,6 @@ Component.register('sw-my-apps-page', {
             return this.$refs.innerFrame;
         },
 
-        /* @deprecated tag:v6.4.0.0 */
-        legacyLoadedMessage() {
-            return 'connect-app-loaded';
-        },
-
         loadedMessage() {
             return 'sw-app-loaded';
         }

@@ -13,10 +13,6 @@ describe('app/service/map-errors.service.js', () => {
         expect(type).toEqual('object');
     });
 
-    it('all: should contain mapApiErrors function', async () => {
-        expect(mapErrors).toHaveProperty('mapApiErrors');
-    });
-
     it('all: should contain mapPropertyErrors function', async () => {
         expect(mapErrors).toHaveProperty('mapPropertyErrors');
     });
@@ -27,25 +23,6 @@ describe('app/service/map-errors.service.js', () => {
 
     it('all: should contain mapPageErrors function', async () => {
         expect(mapErrors).toHaveProperty('mapPageErrors');
-    });
-
-    it('mapApiErrors: should reference the mapApiErrors function to mapPropertyErrors', async () => {
-        const spy = jest.spyOn(mapErrors, 'mapPropertyErrors');
-
-        mapErrors.mapApiErrors('testEntity', []);
-
-        expect(spy).toHaveBeenCalledTimes(1);
-
-        spy.mockRestore();
-    });
-
-    it('mapApiErrors: should create a console warning for deprecation', async () => {
-        mapErrors.mapApiErrors('testEntity', []);
-
-        expect(Shopware.Utils.debug.warn).toHaveBeenCalledWith(
-            'mapApiErrors',
-            'The componentHelper "mapApiErrors" is deprecated and will be removed in 6.4.0 - use "mapPropertyErrors" instead'
-        );
     });
 
     it('mapPropertyErrors: should return an object with properties in camel case', async () => {

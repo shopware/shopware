@@ -119,6 +119,15 @@
         "labelAccessKey": "Access key",
         "labelPermissions": "Permissions",
         "disabledRoleSelectWarning": "Roles are only available for users who are not \"administrator\".",
+        "passwordConfirmation": {
+          "titleConfirmPasswordModal": "Enter your current password to confirm",
+          "labelConfirmPassword": "Password",
+          "placeholderConfirmPassword": "Please enter your current password...",
+          "labelButtonCancel": "Cancel",
+          "labelButtonConfirm": "Confirm",
+          "notificationPasswordErrorTitle": "Error",
+          "notificationPasswordErrorMessage": "Please submit your current password correctly."
+        },
         "modal": {
           "detailModalTitle": "Create integration",
           "detailModalTitleEdit": "Edit",

@@ -119,6 +119,15 @@
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
         "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die kein \"Administrator\" sind.",
+        "passwordConfirmation": {
+          "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+          "labelConfirmPassword": "Passwort",
+          "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
+          "labelButtonCancel": "Abbrechen",
+          "labelButtonConfirm": "Bestätigen",
+          "notificationPasswordErrorTitle": "Fehler",
+          "notificationPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein."
+        },
         "modal": {
           "detailModalTitle": "Integration anlegen",
           "detailModalTitleEdit": "Bearbeiten",

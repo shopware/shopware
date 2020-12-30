@@ -82,13 +82,7 @@ Component.register('sw-custom-field-set-detail-base', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        // @deprecated tag:v6.4.0
-        createdComponent() {},
 
         onAddRelation(relation) {
             this.set.relations.push(relation);

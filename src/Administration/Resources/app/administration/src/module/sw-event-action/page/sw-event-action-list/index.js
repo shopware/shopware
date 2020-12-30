@@ -152,23 +152,6 @@ Component.register('sw-event-action-list', {
                 });
         },
 
-        /**
-         * @deprecated tag:v6.4.0 - Will be removed
-         */
-        renderMailTemplate(eventAction) {
-            const id = eventAction.config.mail_template_id;
-
-            const mailTemplate = this.mailTemplates.find((item) => {
-                return item.id === id;
-            });
-
-            if (!mailTemplate) {
-                return '';
-            }
-
-            return mailTemplate;
-        },
-
         mailTemplateDescription(eventAction) {
             const id = eventAction.config.mail_template_id;
 

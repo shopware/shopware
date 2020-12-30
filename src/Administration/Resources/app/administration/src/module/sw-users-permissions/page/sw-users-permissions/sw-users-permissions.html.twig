@@ -16,8 +16,7 @@
             <template #content>
                 <sw-card-view>
                     {% block sw_users_permissions_content_user_list %}
-                        {# @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-listing' instead#}
-                        <sw-settings-user-list ref="userListing"/>
+                        <sw-users-permissions-user-listing ref="userListing"/>
                         <sw-users-permissions-role-listing
                             ref="roleListing"
                             @get-list="reloadUserListing"

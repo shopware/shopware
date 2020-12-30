@@ -1,6 +1,6 @@
 {% block sw_settings_user_detail_content_confirm_password_modal %}
     <sw-modal @modal-close="onCloseConfirmPasswordModal"
-              :title="$tc('sw-settings-user.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+              :title="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
               variant="small">
 
         {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
@@ -11,8 +11,8 @@
                 :passwordToggleAble="true"
                 :copyAble="false"
                 @keypress.enter="onSubmitConfirmPassword"
-                :label="$tc('sw-settings-user.user-detail.passwordConfirmation.labelConfirmPassword')"
-                :placeholder="$tc('sw-settings-user.user-detail.passwordConfirmation.placeholderConfirmPassword')">
+                :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+                :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')">
             </sw-password-field>
         {% endblock %}
 
@@ -21,7 +21,7 @@
                 {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
                     <sw-button @click="onCloseConfirmPasswordModal"
                                size="small">
-                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonCancel') }}
+                        {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonCancel') }}
                     </sw-button>
                 {% endblock %}
 
@@ -30,7 +30,7 @@
                                variant="primary"
                                :disabled="!confirmPassword"
                                size="small">
-                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonConfirm') }}
+                        {{ $tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelButtonConfirm') }}
                     </sw-button>
                 {% endblock %}
             </template>

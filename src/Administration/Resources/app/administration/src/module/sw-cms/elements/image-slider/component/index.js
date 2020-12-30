@@ -103,11 +103,6 @@ Component.register('sw-cms-el-image-slider', {
             return `align-self: ${this.element.config.verticalAlign.value};`;
         },
 
-        /** @deprecated tag:v6.4.0 use assetFilter instead */
-        contextAssetPath() {
-            return Shopware.Context.api.assetsPath;
-        },
-
         assetFilter() {
             return Filter.getByName('asset');
         }

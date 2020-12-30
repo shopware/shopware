@@ -116,25 +116,7 @@ Component.register('sw-language-info', {
         }
     },
 
-    destroyed() {
-        this.destroyedComponent();
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /**
-         * @deprecated tag:v6.4.0 - use computed isDefaultLanguage instead
-         */
-        createdComponent() {},
-
-        /**
-         * @deprecated tag:v6.4.0 - use computed isDefaultLanguage instead
-         */
-        destroyedComponent() {},
-
         async refreshParentLanguage() {
             if (this.language.id.length < 1 || this.isDefaultLanguage) {
                 this.parentLanguage = { name: '' };

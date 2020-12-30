@@ -350,14 +350,6 @@ Component.register('sw-data-grid', {
             });
         },
 
-        // @deprecated tag:v6.4.0
-        saveGridColumns() {
-            if (!this.identifier) {
-                return;
-            }
-            window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
-        },
-
         saveUserSettings() {
             if (!this.identifier) {
                 return;
@@ -411,17 +403,11 @@ Component.register('sw-data-grid', {
         onChangeColumnVisibility(value, index) {
             this.currentColumns[index].visible = value;
 
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
-
             this.saveUserSettings();
         },
 
         onChangeColumnOrder(currentColumnIndex, newColumnIndex) {
             this.currentColumns = this.orderColumns(this.currentColumns, currentColumnIndex, newColumnIndex);
-
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
 
             this.saveUserSettings();
         },
@@ -454,9 +440,6 @@ Component.register('sw-data-grid', {
 
         hideColumn(columnIndex) {
             this.currentColumns[columnIndex].visible = false;
-
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
 
             this.saveUserSettings();
         },

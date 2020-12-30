@@ -16,7 +16,7 @@ describe('Unit: Test acl privileges', () => {
             });
     });
 
-    it.skip('@settings @unit: has no access to scale unit module', () => {
+    it('@settings @unit: has no access to scale unit module', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -547,8 +546,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      */
     public function testFilterAggregations(array $expectedAggregations, array $expectedRequestFilters, Request $request): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10536', $this);
-
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
@@ -800,8 +797,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      */
     public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10536', $this);
-
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]

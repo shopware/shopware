@@ -74,9 +74,6 @@ shopware:
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_10536
-              major: false
-              description: "filter settings per category"
             - name: FEATURE_NEXT_10539
               major: false
               description: "prevent deletion of used rules"

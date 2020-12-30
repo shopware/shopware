@@ -64,11 +64,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private $systemConfigService;
 
     /**
-     * @var ProductListingSortingRegistry
-     */
-    private $sortingRegistry;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $dispatcher;
@@ -78,14 +73,12 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         EntityRepositoryInterface $optionRepository,
         EntityRepositoryInterface $productSortingRepository,
         SystemConfigService $systemConfigService,
-        ProductListingSortingRegistry $sortingRegistry,
         EventDispatcherInterface $dispatcher
     ) {
         $this->optionRepository = $optionRepository;
         $this->sortingRepository = $productSortingRepository;
         $this->connection = $connection;
         $this->systemConfigService = $systemConfigService;
-        $this->sortingRegistry = $sortingRegistry;
         $this->dispatcher = $dispatcher;
     }
 
@@ -323,7 +316,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         /** @var ProductSortingCollection $sortings */
         $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
-        $sortings->merge($this->sortingRegistry->getProductSortingEntities($availableSortings));
 
         if ($availableSortings) {
             $sortings->sortByKeyArray($availableSortingsFilter);

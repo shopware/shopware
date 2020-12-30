@@ -69,9 +69,6 @@ class SwagTestSkipRebuild extends Plugin
 
     public function uninstall(UninstallContext $uninstallContext): void
     {
-        if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
-            $uninstallContext->enableKeepMigrations();
-        }
     }
 
     public function update(UpdateContext $updateContext): void

@@ -33,13 +33,6 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesC
     private $mailRecipientStruct;
 
     /**
-     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
-     *
-     * @var string
-     */
-    private $url = '';
-
-    /**
      * @var string
      */
     private $salesChannelId;
@@ -70,14 +63,6 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesC
     public function getNewsletterRecipient(): NewsletterRecipientEntity
     {
         return $this->newsletterRecipient;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
-     */
-    public function getUrl(): string
-    {
-        return $this->url;
     }
 
     public function getMailStruct(): MailRecipientStruct

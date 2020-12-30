@@ -32,13 +32,6 @@ class IntegrationEntity extends Entity
     protected $admin;
 
     /**
-     * @deprecated tag:v6.4.0 will be removed in 6.4.0
-     *
-     * @var bool
-     */
-    protected $writeAccess;
-
-    /**
      * @var \DateTimeInterface|null
      */
     protected $lastUsageAt;
@@ -86,22 +79,6 @@ class IntegrationEntity extends Entity
     public function setSecretAccessKey(string $secretAccessKey): void
     {
         $this->secretAccessKey = $secretAccessKey;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 will be removed in 6.4.0
-     */
-    public function getWriteAccess(): bool
-    {
-        return $this->writeAccess;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 will be removed in 6.4.0
-     */
-    public function setWriteAccess(bool $writeAccess): void
-    {
-        $this->writeAccess = $writeAccess;
     }
 
     public function getLastUsageAt(): ?\DateTimeInterface

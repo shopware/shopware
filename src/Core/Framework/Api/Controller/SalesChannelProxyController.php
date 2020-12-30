@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
@@ -169,19 +170,20 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.3.4.0")
-     * @Route("/api/v{version}/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
+     * @Route("/api/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
      *
      * @throws InvalidSalesChannelIdException
      * @throws InconsistentCriteriaIdsException
      */
-    public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context): Response
+    public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
-        $order = $this->orderRoute->order($cart, $salesChannelContext)->getOrder();
+        $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
 
         $orderId = $order->getId();
         $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;

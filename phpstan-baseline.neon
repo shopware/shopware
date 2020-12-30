@@ -686,11 +686,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderRouteResponseStruct\\:\\:__construct\\(\\) has parameter \\$paymentChangeable with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponseStruct.php
-
-		-
 			message: "#^Cannot access offset \\(int\\|string\\) on array\\<Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\AsynchronousPaymentHandlerInterface\\>\\|Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\SynchronousPaymentHandlerInterface\\.$#"
 			count: 2
 			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
@@ -824,11 +819,6 @@ parameters:
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
 			count: 3
 			path: src/Core/Checkout/Promotion/Validator/PromotionValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\DataAbstractionLayer\\\\ShippingMethodIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Shipping/DataAbstractionLayer/ShippingMethodIndexer.php
 
 		-
 			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceCollection given\\.$#"
@@ -1459,11 +1449,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Progress\\:\\:__construct\\(\\) has parameter \\$total with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Struct/Progress.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Aggregate\\\\MailTemplateSalesChannel\\\\MailTemplateSalesChannelCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Commands/AssignAllTemplatesToAllSalesChannelsCommand.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\MailService\\:\\:getSender\\(\\) has parameter \\$data with no typehint specified\\.$#"
@@ -4626,7 +4611,7 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
 		-
-			message: "#^Cannot call method integerNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
+			message: "#^Cannot call method arrayNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
@@ -4639,11 +4624,6 @@ parameters:
 			message: "#^Cannot call method booleanNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/DependencyInjection/Configuration.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:\\$rawEventData has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventRegistry.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:ifActiveCall\\(\\) has parameter \\$arguments with no typehint specified\\.$#"
@@ -5721,11 +5701,6 @@ parameters:
 			path: src/Core/System/Country/CountryCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyFormatter\\:\\:formatCurrencyByLanguage\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Currency/CurrencyFormatter.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Currency/CurrencyFormatter.php
@@ -6601,16 +6576,6 @@ parameters:
 			path: src/Storefront/Controller/CountryStateController.php
 
 		-
-			message: "#^Parameter \\#2 \\$customer of method Shopware\\\\Storefront\\\\Controller\\\\NewsletterController\\:\\:hydrateFromCustomer\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^Parameter \\#1 \\$customer of method Shopware\\\\Storefront\\\\Controller\\\\NewsletterController\\:\\:setNewsletterFlag\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Controller/NewsletterController.php
-
-		-
 			message: "#^Cannot call method getZipCode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/NewsletterController.php
@@ -6642,11 +6607,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$sourceRequest of method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\RequestTransformer\\:\\:extractInheritableAttributes\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Cannot call method getGuest\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/StorefrontController.php
 
@@ -6841,11 +6801,6 @@ parameters:
 			path: src/Storefront/Page/Product/Configurator/ProductCombinationFinder.php
 
 		-
-			message: "#^Parameter \\#1 \\$configurator of method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity\\:\\:setConfigurator\\(\\) expects Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupCollection\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/ProductLoader.php
-
-		-
 			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/ProductPageLoader.php
@@ -6981,11 +6936,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeCompiler.php
 
 		-
-			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeCompileException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:\\$value has no typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigField.php
@@ -7006,16 +6956,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeConfigField.php
 
 		-
-			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeCompileException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeFileImporter.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeFileImporter.php
-
-		-
 			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"
 			count: 2
 			path: src/Storefront/Theme/ThemeFileResolver.php
@@ -7024,21 +6964,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$filepath of class Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File constructor expects string, string\\|null given\\.$#"
 			count: 2
 			path: src/Storefront/Theme/ThemeFileResolver.php
-
-		-
-			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeCompileException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeFileResolver.php
-
-		-
-			message: "#^Parameter \\#1 \\$technicalName of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:changeThemeActive\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
-
-		-
-			message: "#^Parameter \\#1 \\$technicalName of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleHandler\\:\\:validateThemeAssignment\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeLifecycleHandler.php
 
 		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelCollection\\|null\\.$#"
@@ -7156,17 +7081,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AccountService\\:\\:\\$contextPersister is never read\\, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LoginRoute\\:\\:\\$contextPersister is never read\\, only written\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
-
-		-
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductRoute.php
-

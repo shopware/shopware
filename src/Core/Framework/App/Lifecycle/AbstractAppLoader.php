@@ -16,13 +16,5 @@ abstract class AbstractAppLoader
 
     abstract public function getIcon(Manifest $app): ?string;
 
-    /**
-     * @deprecated tag:v6.4.0 will be made abstract and extending classes will need to provide an implementation
-     */
-    public function getConfiguration(AppEntity $app): ?array
-    {
-        $decorated = $this->getDecorated();
-
-        return $decorated->getConfiguration($app);
-    }
+    abstract public function getConfiguration(AppEntity $app): ?array;
 }

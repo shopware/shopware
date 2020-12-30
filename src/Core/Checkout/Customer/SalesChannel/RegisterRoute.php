@@ -211,6 +211,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if (!$customerEntity->getDoubleOptInRegistration()) {
             $newToken = $this->contextPersister->replace($context->getToken(), $context);
+
             $this->contextPersister->save(
                 $newToken,
                 [

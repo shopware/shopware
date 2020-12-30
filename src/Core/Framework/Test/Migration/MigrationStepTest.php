@@ -77,52 +77,6 @@ class MigrationStepTest extends TestCase
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
     }
 
-    public function testUpdateBackwardTriggerIsSkippedIfMigrationIsNotActive(): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = TRUE');
-
-        $migration = new MigrationWithBackwardTrigger();
-        $migration->update($connection);
-
-        $this->addMigrationToTable($migration);
-
-        $inserted = $connection->executeQuery(
-            'SELECT * FROM `migration` WHERE `class` = :class',
-            [
-                'class' => MigrationWithBackwardTrigger::class,
-            ]
-        )->fetch();
-
-        //the trigger should not add 1 to creation_timestamp
-        static::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
-
-        $this->removeTrigger(MigrationWithBackwardTrigger::TRIGGER_NAME);
-    }
-
-    public function testUpdateBackwardTriggerIsExecutedIfMigrationIsActive(): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate('SET @MIGRATION_2_IS_ACTIVE = NULL');
-
-        $migration = new MigrationWithBackwardTrigger();
-        $migration->update($connection);
-
-        $this->addMigrationToTable($migration);
-
-        $inserted = $connection->executeQuery(
-            'SELECT * FROM `migration` WHERE `class` = :class',
-            [
-                'class' => MigrationWithBackwardTrigger::class,
-            ]
-        )->fetch();
-
-        //the trigger adds 1 to creation_timestamp
-        static::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
-
-        $this->removeTrigger(MigrationWithBackwardTrigger::TRIGGER_NAME);
-    }
-
     private function addMigrationToTable(MigrationStep $migration): void
     {
         $connection = $this->getContainer()->get(Connection::class);
@@ -130,7 +84,7 @@ class MigrationStepTest extends TestCase
         $this->removeMigrationFromTable($migration);
         $now = date('Y-m-d H:i:s');
         $connection->executeUpdate(
-            'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`) 
+            'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`)
                 VALUES (:class, :creationTimestamp, :update, :updateDestructive);',
             [
                 'class' => \get_class($migration),

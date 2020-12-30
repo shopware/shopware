@@ -78,7 +78,6 @@ class CategoryRouteTest extends TestCase
 
         $listing = $slot['data']['listing'];
 
-        static::assertArrayHasKey('sortings', $listing);
         static::assertArrayHasKey('aggregations', $listing);
         static::assertArrayHasKey('elements', $listing);
     }
@@ -152,7 +151,6 @@ class CategoryRouteTest extends TestCase
 
         $listing = $slot['data']['listing'];
 
-        static::assertArrayHasKey('sortings', $listing);
         static::assertArrayHasKey('aggregations', $listing);
         static::assertArrayHasKey('elements', $listing);
     }

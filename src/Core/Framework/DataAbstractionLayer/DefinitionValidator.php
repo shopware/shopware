@@ -47,6 +47,7 @@ class DefinitionValidator
         'order.billingAddress',
         'order.createdBy',
         'order.updatedBy',
+        'integration.writeAccess',
     ];
 
     private const PLURAL_EXCEPTIONS = [

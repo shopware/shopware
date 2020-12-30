@@ -33,14 +33,6 @@ class ListingPriceFieldSerializerTest extends TestCase
 
     public function decodeProvider(): iterable
     {
-        // Deprecated values
-        yield [
-            [
-                'structs' => 'test',
-            ],
-            [],
-        ];
-
         // String as int
         yield [
             [

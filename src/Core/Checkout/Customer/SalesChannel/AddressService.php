@@ -74,18 +74,8 @@ class AddressService
      * @throws InvalidUuidException
      * @throws ConstraintViolationException
      */
-    public function upsert(DataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): string
+    public function upsert(DataBag $data, SalesChannelContext $context, CustomerEntity $customer): string
     {
-        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
-        if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         return $this->updateAddressRoute
             ->upsert($data->get('id'), $data->toRequestDataBag(), $context, $customer)
             ->getAddress()
@@ -98,18 +88,8 @@ class AddressService
      * @throws AddressNotFoundException
      * @throws CannotDeleteDefaultAddressException
      */
-    public function delete(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
+    public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
-        if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $this->deleteAddressRoute->delete($addressId, $context, $customer);
     }
 

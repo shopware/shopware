@@ -83,7 +83,7 @@ class CurrencyFormatterTest extends TestCase
 
         $languageId = $this->getDeDeLanguageId();
 
-        $formatted = $formatter->formatCurrencyByLanguage($price, 'EUR', $languageId, $context);
+        $formatted = $formatter->formatCurrencyByLanguage($price, 'EUR', $languageId, $context, $digits);
 
         static::assertEquals($expected, $formatted);
     }

@@ -33,7 +33,7 @@ class VersionTest extends TestCase
             ['POST', '/api/_action/sync'],
             ['GET', '/api/_info/swagger.html'],
             ['GET', '/api/_info/entity-schema.json'],
-            ['GET', '/api/_info/business-events.json'],
+            ['GET', '/api/_info/events.json'],
         ];
     }
 

@@ -38,52 +38,23 @@ class CurrencyFormatter
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
     {
-        $decimals = $decimals ?? $context->getCurrencyPrecision();
-
-        return $this->formatCurrency(
-            $price,
-            $this->getLocale($languageId, $context),
-            $currency,
-            \NumberFormatter::CURRENCY,
-            null,
-            $decimals
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed, use `formatCurrencyByLanguage` instead
-     */
-    public function formatCurrency(
-        float $price,
-        string $locale,
-        string $currency,
-        int $format = \NumberFormatter::CURRENCY,
-        ?string $pattern = null,
-        ?int $digits = null
-    ): ?string {
-        $formatter = $this->getFormatter($locale, $format, $pattern);
-
-        if ($digits !== null) {
-            $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $digits);
-        }
+        $locale = $this->getLocale($languageId, $context);
+        $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
+        $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals ?? 2);
 
         return $formatter->formatCurrency($price, $currency);
     }
 
-    private function getFormatter(string $locale, int $format, ?string $pattern, ?int $digits = null): \NumberFormatter
+    // TODO: @Oli review
+    private function getFormatter(string $locale, int $format): \NumberFormatter
     {
-        // @deprecated tag:v6.4.0 - As soon as only the function 'formatCurrencyByLanguage' is left we can minimize the internal caches. Here we can remove the pattern and digits from the hash.
-        $hash = md5(json_encode([$locale, $format, $pattern, $digits]));
+        $hash = md5(json_encode([$locale, $format]));
 
         if (isset($this->formatter[$hash])) {
             return $this->formatter[$hash];
         }
 
-        if ($pattern === null) {
-            return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
-        }
-
-        return $this->formatter[$hash] = new \NumberFormatter($locale, $format, $pattern);
+        return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
     }
 
     private function getLocale(string $languageId, Context $context): string

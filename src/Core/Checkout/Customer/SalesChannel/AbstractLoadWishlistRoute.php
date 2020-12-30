@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,5 +11,5 @@ abstract class AbstractLoadWishlistRoute
 {
     abstract public function getDecorated(): AbstractLoadWishlistRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LoadWishlistRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse;
 }

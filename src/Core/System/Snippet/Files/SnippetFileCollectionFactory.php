@@ -5,6 +5,8 @@ namespace Shopware\Core\System\Snippet\Files;
 class SnippetFileCollectionFactory
 {
     /**
+     * ??? not possible without breaking all snippet tests
+     *
      * @deprecated tag:v6.4 not necessary anymore, snippets files will be loaded by snippetFileLoader
      *
      * @var iterable|SnippetFileInterface[]

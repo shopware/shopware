@@ -184,7 +184,7 @@ class CartService
      * @throws InvalidOrderException
      * @throws InconsistentCriteriaIdsException
      */
-    public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): string
+    public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): string
     {
         $orderId = $this->orderRoute->order($cart, $context, $data)->getOrder()->getId();
 

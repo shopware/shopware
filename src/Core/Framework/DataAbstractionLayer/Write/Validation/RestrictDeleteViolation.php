@@ -5,13 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 class RestrictDeleteViolation
 {
     /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     *
-     * @var string
-     */
-    private $id;
-
-    /**
      * Contains an array which indexed by definition class.
      * Each value represents a single restricted identity
      *
@@ -31,18 +24,9 @@ class RestrictDeleteViolation
      */
     private $restrictions;
 
-    public function __construct(string $id, array $restrictions)
+    public function __construct(array $restrictions)
     {
-        $this->id = $id;
         $this->restrictions = $restrictions;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function getId(): string
-    {
-        return $this->id;
     }
 
     public function getRestrictions(): array

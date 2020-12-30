@@ -13,8 +13,5 @@ abstract class AbstractCartOrderRoute
 {
     abstract public function getDecorated(): AbstractCartOrderRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $data will be mandatory in future implementation
-     */
-    abstract public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): CartOrderRouteResponse;
+    abstract public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse;
 }

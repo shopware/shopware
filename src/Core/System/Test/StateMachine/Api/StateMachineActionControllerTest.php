@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -216,7 +217,7 @@ class StateMachineActionControllerTest extends TestCase
 
         static::assertTrue($cart->has($productId));
 
-        $orderId = $cartService->order($cart, $salesChannelContext);
+        $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
         /** @var EntityRepositoryInterface $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
@@ -282,7 +283,7 @@ class StateMachineActionControllerTest extends TestCase
 
         static::assertTrue($cart->has($productId));
 
-        $orderId = $cartService->order($cart, $salesChannelContext);
+        $orderId = $cartService->order($cart, $salesChannelContext, new RequestDataBag());
 
         /** @var EntityRepositoryInterface $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');

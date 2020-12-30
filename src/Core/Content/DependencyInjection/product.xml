@@ -150,11 +150,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry">
-            <argument type="tagged" tag="shopware.sales_channel.product_listing.sorting" />
-            <argument type="service" id="translator" />
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
@@ -195,7 +190,6 @@
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="product_sorting.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

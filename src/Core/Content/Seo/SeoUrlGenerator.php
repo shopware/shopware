@@ -70,8 +70,10 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        $entities = $context->disableCache(static function (Context $context) use ($repository, $criteria) {
-            return $repository->search($criteria, $context)->getEntities();
+        $entities = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
+            return $context->disableCache(static function (Context $context) use ($repository, $criteria) {
+                return $repository->search($criteria, $context)->getEntities();
+            });
         });
 
         $this->setTwigTemplate($config, $template);

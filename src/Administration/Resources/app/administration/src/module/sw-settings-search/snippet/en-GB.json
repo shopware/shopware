@@ -21,5 +21,12 @@
       "labelMinimalSearchTerm": "Minimal search term length"
     },
     "liveSearchTab": {}
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_search_config": {
+        "label": "Product Search"
+      }
+    }
   }
 }

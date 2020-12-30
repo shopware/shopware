@@ -2,13 +2,14 @@ import './page/sw-settings-search';
 import './view/sw-settings-search-view-general';
 import './view/sw-settings-search-view-live-search';
 import './component/sw-settings-search-search-behaviour';
+import './acl';
 
 const { Module } = Shopware;
 
 Module.register('sw-settings-search', {
     flag: 'FEATURE_NEXT_10552',
     type: 'core',
-    name: 'settings-search',
+    name: 'settings-product-search-config',
     title: 'sw-settings-search.general.mainMenuItemGeneral',
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
@@ -23,7 +24,8 @@ Module.register('sw-settings-search', {
             component: 'sw-settings-search',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'product_search_config.viewer'
             },
 
             redirect: {
@@ -35,7 +37,8 @@ Module.register('sw-settings-search', {
                     component: 'sw-settings-search-view-general',
                     path: 'general',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'product_search_config.viewer'
                     }
                 },
 
@@ -43,7 +46,8 @@ Module.register('sw-settings-search', {
                     component: 'sw-settings-search-view-live-search',
                     path: 'live-search',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'product_search_config.viewer'
                     }
                 }
             }
@@ -53,6 +57,7 @@ Module.register('sw-settings-search', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.search.index',
-        icon: 'default-action-search'
+        icon: 'default-action-search',
+        privilege: 'product_search_config.viewer'
     }
 });

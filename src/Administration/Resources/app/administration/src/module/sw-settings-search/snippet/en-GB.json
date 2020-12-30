@@ -20,6 +20,10 @@
       "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
       "labelMinimalSearchTerm": "Minimal search term length"
     },
+    "notification": {
+      "saveSuccess": "The configuration has been saved.",
+      "saveError": "An error occured while saving your configuration."
+    },
     "liveSearchTab": {}
   },
   "sw-privileges": {

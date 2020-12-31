@@ -41,8 +41,8 @@
       "labelEmail": "Email",
       "labelTags": "Tags",
       "labelGuest": "Guest account",
-      "labelVatId": "VAT-ID",
-      "placeholderVatId": "Enter VAT-ID..."
+      "labelVatId": "VAT Reg.No.",
+      "placeholderVatId": "Enter VAT Reg.No..."
     },
     "list": {
       "textCustomers": "Customers",
@@ -88,7 +88,7 @@
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
-      "labelSalesChannel": "Sales channel",
+      "labelSalesChannel": "Sales Channel",
       "labelPaymentMethod": "Payment method",
       "labelCustomerNumber": "Customer number",
       "labelBirthday": "Date of birth",
@@ -194,7 +194,7 @@
       "labelAdditionalAddressLine1": "Additional address line 1",
       "labelAdditionalAddressLine2": "Additional address line 2",
       "labelPhoneNumber": "Phone number",
-      "labelVatId": "VAT-ID",
+      "labelVatId": "VAT Reg.No.",
       "labelSameBillingAddress": "Same as billing address",
       "placeholderCompany": "Enter company...",
       "placeholderDepartment": "Enter department...",
@@ -210,7 +210,7 @@
       "placeholderAdditionalAddressLine1": "Enter a first additional address line...",
       "placeholderAdditionalAddressLine2": "Enter a second additional address line...",
       "placeholderPhoneNumber": "Enter phone number...",
-      "placeholderVatId": "Enter VAT-ID..."
+      "placeholderVatId": "Enter VAT Reg.No..."
     },
     "detail": {
       "buttonSave": "Save",

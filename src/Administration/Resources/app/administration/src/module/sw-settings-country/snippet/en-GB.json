@@ -32,9 +32,9 @@
       "labelShippingAvailable": "Shipping available",
       "labelTaxFree": "Tax free",
       "labelCompanyTaxFree": "Tax free for companies",
-      "labelCheckVatIdFormat": "Validate VAT ID format",
-      "helpTextCheckVatIdFormat": "Provides VAT validation for all EU member states.",
-      "labelForceStateInRegistration": "State is required on registration",
+      "labelCheckVatIdFormat": "Validate VAT Reg.No. format",
+      "helpTextCheckVatIdFormat": "Validates VAT Reg.No. format for EU member states.",
+      "labelForceStateInRegistration": "State/province is required on registration",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",
       "placeholderIso": "Enter alpha-2 ISO code...",
@@ -55,7 +55,7 @@
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO code",
-    "tooltipPosition": "Controls positioning of the state/province in lists etc."
+    "tooltipPosition": "Changes positioning of states/provinces in listings."
   },
   "sw-privileges": {
     "permissions": {

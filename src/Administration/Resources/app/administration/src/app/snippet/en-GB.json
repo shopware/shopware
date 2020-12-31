@@ -876,7 +876,7 @@
         }
     },
     "sw-sales-channel-switch": {
-        "messageModalUnsavedChanges": "There are unsaved changes regarding the current sales channel. Do you want to save them now?",
+        "messageModalUnsavedChanges": "There are unsaved changes for the current Sales Channel. Do you want to save changes now?",
         "placeholderSelect": "Search for...",
         "titleModalUnsavedChanges": "Unsaved changes",
         "titleModalButtonRevertUnsavedChanges": "Discard changes",

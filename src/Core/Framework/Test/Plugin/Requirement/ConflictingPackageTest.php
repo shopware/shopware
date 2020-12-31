@@ -68,6 +68,7 @@ class ConflictingPackageTest extends TestCase
         $plugin->setPath($path);
         $plugin->setManagedByComposer(false);
         $plugin->setComposerName($kebab);
+        $plugin->setVersion('1.0.0');
 
         return $plugin;
     }

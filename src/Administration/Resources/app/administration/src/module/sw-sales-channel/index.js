@@ -26,7 +26,7 @@ Module.register('sw-sales-channel', {
     type: 'core',
     name: 'sales-channel',
     title: 'sw-sales-channel.general.titleMenuItems',
-    description: 'The module for managing sales channels.',
+    description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#14D7A5',

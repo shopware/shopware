@@ -362,10 +362,6 @@ Different mail template types.
 EOD
     ,
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition::class => '',
-    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition::class => <<<'EOD'
-__EMPTY__
-EOD
-    ,
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition::class => <<<'EOD'
 A log of rendered and sent header or footer content.

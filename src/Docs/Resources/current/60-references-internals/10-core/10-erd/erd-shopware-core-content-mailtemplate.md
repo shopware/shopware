@@ -18,11 +18,6 @@ A log of rendered and sent mails.
 Different mail template types.
 
 
-### Table `mail_template_sales_channel`
-
-__EMPTY__
-
-
 ### Table `mail_header_footer`
 
 A log of rendered and sent header or footer content.

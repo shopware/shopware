@@ -224,7 +224,6 @@ Table(ShopwareCoreContentMailTemplate, "Shopware\Core\Content\MailTemplate\n(Mai
    mail_template_translation Table
    mail_template_type Table
    mail_template_type_translation Table
-   mail_template_sales_channel Table
    mail_template_media Table
    mail_header_footer Table
    mail_header_footer_translation Table

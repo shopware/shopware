@@ -143,6 +143,7 @@ namespace ExampleGetDeliveries {
 
 namespace ExampleOrder {
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+    use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
     use Symfony\Component\Routing\Annotation\Route;
 
@@ -158,7 +159,7 @@ namespace ExampleOrder {
         {
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $this->cartService->order($cart, $context);
+            $this->cartService->order($cart, $context, new RequestDataBag());
         }
     }
 } // code-example-end

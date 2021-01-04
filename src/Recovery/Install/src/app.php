@@ -25,12 +25,18 @@ use Shopware\Recovery\Install\Struct\AdminUser;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Install\Struct\Shop;
 use Slim\Container;
+use Symfony\Component\Dotenv\Dotenv;
 
 if (empty($_SESSION)) {
     $sessionPath = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
-    session_set_cookie_params(600, $sessionPath);
-    session_start();
+    if (!headers_sent()) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_cookie_params(600, $sessionPath);
+        }
+
+        @session_start();
+    }
 }
 
 $config = require __DIR__ . '/../config/production.php';
@@ -131,6 +137,10 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
                 $_SESSION['parameters'][$key] = $value;
             }
         }
+    }
+
+    if (is_readable($container->offsetGet('env.path'))) {
+        (new Dotenv())->load($container->offsetGet('env.path'));
     }
 
     $allowedLanguages = $container->offsetGet('config')['languages'];

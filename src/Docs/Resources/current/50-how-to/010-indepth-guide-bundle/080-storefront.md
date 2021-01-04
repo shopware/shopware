@@ -39,17 +39,17 @@ class ProductPageCriteriaSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onProductCriteriaLoaded(ProductLoaderCriteriaEvent $event): void
+    public function onProductCriteriaLoaded(ProductPageCriteriaEvent $event): void
     {
     }
 }
 ```
 
-This example also already knows the method `onProductCriteriaLoaded`. Each event comes with its own event parameter, `ProductLoaderCriteriaEvent` in this case.
+This example also already knows the method `onProductCriteriaLoaded`. Each event comes with its own event parameter, `ProductPageCriteriaEvent` in this case.
 It grants access to the criteria object before it has been used for a search, so time to add your new association in there.
 
 ```php
-public function onProductCriteriaLoaded(ProductLoaderCriteriaEvent $event): void
+public function onProductCriteriaLoaded(ProductPageCriteriaEvent $event): void
 {
     $event->getCriteria()->addAssociation('bundles.products.cover');
 }

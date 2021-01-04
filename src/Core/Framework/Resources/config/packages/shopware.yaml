@@ -96,6 +96,10 @@ shopware:
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"
+            - name: FEATURE_NEXT_10553
+              default: false
+              major: false
+              description: "From prices for variant products"
             - name: FEATURE_NEXT_12108
               default: false
               major: true

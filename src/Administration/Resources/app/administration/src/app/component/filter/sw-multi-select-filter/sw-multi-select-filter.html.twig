@@ -1,0 +1,30 @@
+<div>
+    <h3>Multi Select filter example:</h3>
+
+    <p v-if="values.length <= 0">
+        Filter is not active
+    </p>
+    <p v-else>
+        Filter value is:
+        <template v-for="value in values">
+            {{ value.translated.name }}
+        </template>
+    </p>
+
+    <sw-entity-multi-select
+        :label="filter.label"
+        :entityName="filter.schema.entity"
+        :entityCollection="values"
+        @change="changeValue">
+    </sw-entity-multi-select>
+
+    <sw-button size="small"
+               @click="resetFilter"
+    >
+        Reset filter {{ filter.label }}
+    </sw-button>
+
+    <p>
+        ########################################################
+    </p>
+</div>

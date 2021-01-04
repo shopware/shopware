@@ -17,6 +17,7 @@ import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
 import initStateDeprecated from 'src/app/init/state-deprecated.init';
+import initFilterFactory from 'src/app/init/filter-factory.init';
 
 export default {
     coreMixin: initMixin,
@@ -33,5 +34,6 @@ export default {
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
     entity: initEntity,
-    stateDeprecated: initStateDeprecated
+    stateDeprecated: initStateDeprecated,
+    filterFactory: initFilterFactory
 };

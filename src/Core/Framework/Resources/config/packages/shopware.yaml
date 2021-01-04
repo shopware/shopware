@@ -132,6 +132,10 @@ shopware:
               default: false
               major: true
               description: "Separate plugin download and update action"
+            - name: FEATURE_NEXT_9831
+              default: false
+              major: false
+              description: "Filters & Search for Admin Grids"
 
     logger:
         file_rotation_count: 14

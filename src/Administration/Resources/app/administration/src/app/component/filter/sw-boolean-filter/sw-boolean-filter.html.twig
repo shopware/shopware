@@ -1,0 +1,26 @@
+<div>
+    <h3>Boolean filter example:</h3>
+
+    <p v-if="value === null">
+        Filter is not active
+    </p>
+    <p v-else>
+        Filter value is: "{{ value }}"
+    </p>
+
+    <sw-switch-field
+        :value="value"
+        :label="filter.label"
+        @change="changeValue">
+    </sw-switch-field>
+
+    <sw-button size="small"
+               @click="resetFilter"
+    >
+        Reset filter {{ filter.label }}
+    </sw-button>
+
+    <p>
+        ########################################################
+    </p>
+</div>

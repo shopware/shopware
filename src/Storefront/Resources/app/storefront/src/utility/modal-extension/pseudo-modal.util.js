@@ -4,18 +4,21 @@ import { REMOVE_BACKDROP_DELAY } from 'src/utility/backdrop/backdrop.util';
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
 const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
 const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
+const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-element';
 
 export default class PseudoModalUtil {
     constructor(
         content,
         useBackdrop = true,
         templateSelector = `.${PSEUDO_MODAL_TEMPLATE_CLASS}`,
-        templateContentSelector = `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`
+        templateContentSelector = `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`,
+        templateTitleSelector = `.${PSEUDO_MODAL_TEMPLATE_TITLE_CLASS}`,
     ) {
         this._content = content;
         this._useBackdrop = useBackdrop;
         this._templateSelector = templateSelector;
         this._templateContentSelector = templateContentSelector;
+        this._templateTitleSelector = templateTitleSelector;
     }
 
     /**
@@ -141,6 +144,21 @@ export default class PseudoModalUtil {
     }
 
     /**
+     * This method is used to set the modal element's title.
+     *
+     * @param {string} title
+     * @private
+     */
+    _setModalTitle(title = '') {
+        try {
+            const titleElement = DomAccess.querySelector(this._modalWrapper, this._templateTitleSelector);
+            titleElement.innerHTML = title;
+        } catch (err) {
+            // do nothing
+        }
+    }
+
+    /**
      * This method is used to set the modal element's content.
      *
      * @private
@@ -148,5 +166,15 @@ export default class PseudoModalUtil {
     _setModalContent(content) {
         const contentElement = DomAccess.querySelector(this._modalWrapper, this._templateContentSelector);
         contentElement.innerHTML = content;
+
+        try {
+            const titleElement = DomAccess.querySelector(contentElement, this._templateTitleSelector);
+            if (titleElement) {
+                this._setModalTitle(titleElement.innerHTML);
+                titleElement.parentNode.removeChild(titleElement)
+            }
+        } catch (err) {
+            // do nothing
+        }
     }
 }

@@ -14,7 +14,12 @@ class ElasticsearchProductDefinitionExtension extends ElasticsearchProductDefini
 
         $definition = $this->definition;
 
-        $origin['properties']['toOne'] = $this->mapper->mapField($definition, $definition->getField('toOne'), $context);
+        $toOneField = $definition->getField('toOne');
+        if ($toOneField === null) {
+            return $origin;
+        }
+
+        $origin['properties']['toOne'] = $this->mapper->mapField($definition, $toOneField, $context);
 
         return $origin;
     }

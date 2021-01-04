@@ -219,7 +219,7 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function convertToApiVersion(array $record, EntityDefinition $definition, int $writeIndex)
+    private function convertToApiVersion(array $record, EntityDefinition $definition, int $writeIndex): array
     {
         $exception = new ApiConversionException();
 
@@ -234,7 +234,10 @@ class SyncService implements SyncServiceInterface
         if ($exception instanceof WriteException) {
             foreach ($exception->getExceptions() as $innerException) {
                 if ($innerException instanceof WriteConstraintViolationException) {
-                    $innerException->setPath(preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath()));
+                    $path = preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath());
+                    if ($path !== null) {
+                        $innerException->setPath($path);
+                    }
                 }
             }
 
@@ -246,14 +249,19 @@ class SyncService implements SyncServiceInterface
 
     private function getWrittenEntities(?EntityWrittenContainerEvent $result): array
     {
-        if (!$result) {
+        if ($result === null) {
             return [];
         }
 
         $entities = [];
 
+        $events = $result->getEvents();
+        if ($events === null) {
+            return [];
+        }
+
         /** @var EntityWrittenEvent $event */
-        foreach ($result->getEvents() as $event) {
+        foreach ($events as $event) {
             $entity = $event->getEntityName();
 
             if (!isset($entities[$entity])) {

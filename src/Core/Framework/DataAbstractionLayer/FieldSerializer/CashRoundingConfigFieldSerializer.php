@@ -26,6 +26,11 @@ class CashRoundingConfigFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
+    /**
+     * @param string|null $value
+     *
+     * @return CashRoundingConfig|null
+     */
     public function decode(Field $field, $value)
     {
         if ($value === null) {

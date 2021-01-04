@@ -75,19 +75,24 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
     private function fetchMails(Connection $connection, array $ids): array
     {
-        $query = $connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(mail_template.id)) as mail_template_id',
-            'NULL as sales_channel_id',
-            'mail_template_type.technical_name',
-            'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
-        ]);
-        $query->from('mail_template');
-        $query->innerJoin('mail_template', 'mail_template_type', 'mail_template_type', 'mail_template.mail_template_type_id = mail_template_type.id');
-        $query->andWhere('mail_template_type.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-
-        $mails = $query->execute()->fetchAll();
+        $mails = $connection->createQueryBuilder()
+            ->select([
+                'LOWER(HEX(mail_template.id)) as mail_template_id',
+                'NULL as sales_channel_id',
+                'mail_template_type.technical_name',
+                'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
+            ])
+            ->from('mail_template')
+            ->innerJoin(
+                'mail_template',
+                'mail_template_type',
+                'mail_template_type',
+                'mail_template.mail_template_type_id = mail_template_type.id'
+            )
+            ->andWhere('mail_template_type.id IN (:ids)')
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
+            ->execute()
+            ->fetchAll();
 
         $mapping = [];
         foreach ($mails as $mail) {
@@ -95,22 +100,26 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             $mapping[$key] = $mail;
         }
 
-        $query = $connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(mail_template_sales_channel.mail_template_id)) as mail_template_id',
-            'mail_template_sales_channel.sales_channel_id',
-            'mail_template_type.technical_name',
-            'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
-        ]);
+        $mails = $connection->createQueryBuilder()
+            ->select([
+                'LOWER(HEX(mail_template_sales_channel.mail_template_id)) as mail_template_id',
+                'mail_template_sales_channel.sales_channel_id',
+                'mail_template_type.technical_name',
+                'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
+            ])
+            ->from('mail_template_sales_channel')
+            ->innerJoin(
+                'mail_template_sales_channel',
+                'mail_template_type',
+                'mail_template_type',
+                'mail_template_sales_channel.mail_template_type_id = mail_template_type.id'
+            )
+            ->andWhere('mail_template_type.id IN (:ids)')
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
+            ->execute()
+            ->fetchAll();
 
-        $query->from('mail_template_sales_channel');
-        $query->innerJoin('mail_template_sales_channel', 'mail_template_type', 'mail_template_type', 'mail_template_sales_channel.mail_template_type_id = mail_template_type.id');
-        $query->andWhere('mail_template_type.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
-
-        $temp = $query->execute()->fetchAll();
-
-        foreach ($temp as $mail) {
+        foreach ($mails as $mail) {
             $key = $mail['mail_template_id'] . '.' . $mail['technical_name'];
 
             $mapping[$key] = $mail;
@@ -177,13 +186,14 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         foreach ($events as $event) {
             $typeId = $event['typeId'];
 
-            $typeMails = array_filter($mails, function ($mail) use ($typeId) {
+            $typeMails = array_filter($mails, static function ($mail) use ($typeId) {
                 return $mail['mail_template_type_id'] === $typeId;
             });
 
             foreach ($typeMails as &$mail) {
                 $mail['technical_name'] = $event['event_name'];
             }
+            unset($mail);
 
             $exploded = array_filter(array_merge($exploded, $typeMails));
         }

@@ -76,7 +76,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $this->routeScopeRegistry;
     }
 
-    private function getContextParameters(Request $request)
+    private function getContextParameters(Request $request): array
     {
         $params = [
             'currencyId' => Defaults::CURRENCY,
@@ -172,9 +172,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $chain;
     }
 
-    private function getParentLanguageId($languageId): ?string
+    private function getParentLanguageId(?string $languageId): ?string
     {
-        if (!$languageId || !Uuid::isValid($languageId)) {
+        if ($languageId === null || !Uuid::isValid($languageId)) {
             throw new LanguageNotFoundException($languageId);
         }
         $data = $this->connection->createQueryBuilder()
@@ -297,12 +297,15 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return array_unique(array_filter($list));
     }
 
-    private function getCashRounding($currencyId): CashRoundingConfig
+    private function getCashRounding(string $currencyId): CashRoundingConfig
     {
         $rounding = $this->connection->fetchAssoc(
             'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
+        if ($rounding === false) {
+            throw new \RuntimeException(sprintf('No cash rounding for currency "%s" found', $currencyId));
+        }
 
         $rounding = json_decode($rounding['item_rounding'], true);
 

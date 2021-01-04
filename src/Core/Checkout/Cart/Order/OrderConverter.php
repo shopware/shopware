@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -24,6 +25,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
@@ -137,12 +139,17 @@ class OrderConverter
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {
-            $data['orderCustomer'] = CustomerTransformer::transform($context->getCustomer());
+            $customer = $context->getCustomer();
+            if ($customer === null) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            $data['orderCustomer'] = CustomerTransformer::transform($customer);
         }
 
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
-        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null);
+        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {
@@ -157,12 +164,21 @@ class OrderConverter
         }
 
         if ($conversionContext->shouldIncludeBillingAddress()) {
-            $customerAddressId = $context->getCustomer()->getActiveBillingAddress()->getId();
+            $customer = $context->getCustomer();
+            if ($customer === null) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            $activeBillingAddress = $customer->getActiveBillingAddress();
+            if ($activeBillingAddress === null) {
+                throw new AddressNotFoundException('');
+            }
+            $customerAddressId = $activeBillingAddress->getId();
 
             if (\array_key_exists($customerAddressId, $shippingAddresses)) {
                 $billingAddressId = $shippingAddresses[$customerAddressId]['id'];
             } else {
-                $billingAddress = AddressTransformer::transform($context->getCustomer()->getActiveBillingAddress());
+                $billingAddress = AddressTransformer::transform($activeBillingAddress);
                 $data['addresses'] = [$billingAddress];
                 $billingAddressId = $billingAddress['id'];
             }
@@ -267,11 +283,17 @@ class OrderConverter
         if ($customerId) {
             /** @var CustomerEntity|null $customer */
             $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
-            $customerGroupId = $customer->getGroupId() ?? null;
+            if ($customer !== null) {
+                $customerGroupId = $customer->getGroupId();
+            }
         }
 
+        $billingAddressId = $order->getBillingAddressId();
         /** @var OrderAddressEntity|null $billingAddress */
-        $billingAddress = $this->orderAddressRepository->search(new Criteria([$order->getBillingAddressId()]), $context)->get($order->getBillingAddressId());
+        $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->get($billingAddressId);
+        if ($billingAddress === null) {
+            throw new AddressNotFoundException($billingAddressId);
+        }
 
         $options = [
             SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
@@ -299,12 +321,14 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
-        if ($order->getItemRounding()) {
-            $salesChannelContext->setItemRounding($order->getItemRounding());
+        $itemRounding = $order->getItemRounding();
+        if ($itemRounding !== null) {
+            $salesChannelContext->setItemRounding($itemRounding);
         }
 
-        if ($order->getTotalRounding()) {
-            $salesChannelContext->setTotalRounding($order->getTotalRounding());
+        $totalRounding = $order->getTotalRounding();
+        if ($totalRounding !== null) {
+            $salesChannelContext->setTotalRounding($totalRounding);
         }
 
         return $salesChannelContext;

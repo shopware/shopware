@@ -88,6 +88,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $search = $this->convertSearch($criteria, $definition, $context, $search);
 
         try {
+            /** @var array $result */
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
                 'type' => $definition->getEntityName(),
@@ -114,11 +115,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $this->helper->addSortings($definition, $criteria, $search, $context);
         $this->helper->addTerm($criteria, $search, $context, $definition);
 
-        $search->setSize($criteria->getLimit());
-        if ($criteria->getLimit() === null) {
-            $search->setSize(self::MAX_LIMIT);
+        $search->setSize(self::MAX_LIMIT);
+        $limit = $criteria->getLimit();
+        if ($limit !== null) {
+            $search->setSize($limit);
         }
-        $search->setFrom($criteria->getOffset());
+        $search->setFrom((int) $criteria->getOffset());
 
         return $search;
     }

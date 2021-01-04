@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -626,5 +627,15 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-1')));
         static::assertTrue($result->has($ids->get('product-3')));
         static::assertTrue($result->has($ids->get('product-1-variant')));
+    }
+
+    public function testEqualsNullWithUnmappedField(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('unmappedField', null));
+
+        static::expectException(UnmappedFieldException::class);
+        $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
     }
 }

@@ -136,6 +136,10 @@ shopware:
               default: false
               major: false
               description: "Advanced list prices"
+            - name: FEATURE_NEXT_12957
+              default: false
+              major: true
+              description: "Separate plugin download and update action"
 
     logger:
         file_rotation_count: 14

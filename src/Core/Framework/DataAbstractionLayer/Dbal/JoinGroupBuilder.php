@@ -121,6 +121,10 @@ class JoinGroupBuilder
 
         $fields = array_filter($fields);
 
+        if (\count($fields) === 0) {
+            return null;
+        }
+
         // contains later the path to the first to many association
         $path = [$definition->getEntityName()];
 

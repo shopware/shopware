@@ -47,27 +47,11 @@ class UpsertAddressRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->addressRepository = $this->getContainer()->get('customer_address.repository');
-
-        $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
-                [
-                    'email' => $email,
-                    'password' => 'shopware',
-                ]
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     public function testCreateAddress(): void
     {
+        $this->loginAccount();
         $data = [
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Test',
@@ -104,6 +88,7 @@ class UpsertAddressRouteTest extends TestCase
 
     public function testRequestWithNoParameters(): void
     {
+        $this->loginAccount();
         $this->browser
             ->request(
                 'POST',
@@ -118,6 +103,7 @@ class UpsertAddressRouteTest extends TestCase
 
     public function testUpdateExistingAddress(): void
     {
+        $this->loginAccount();
         // Fetch address
         $this->browser
             ->request(
@@ -164,5 +150,101 @@ class UpsertAddressRouteTest extends TestCase
         unset($address['updatedAt'], $updatedAddress['updatedAt']);
 
         static::assertSame($address, $updatedAddress);
+    }
+
+    public function testUpdateExistingAddressOfGuestAccount(): void
+    {
+        $this->registerAccount();
+
+        // Fetch customer from context
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/context',
+                []
+            );
+
+        list('customer' => $customer) = json_decode($this->browser->getResponse()->getContent(), true);
+        list('defaultBillingAddressId' => $addressId, 'defaultBillingAddress' => $address) = $customer;
+        $address['firstName'] = __FUNCTION__;
+
+        // Update
+        $this->browser
+            ->request(
+                'PATCH',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address/' . $addressId,
+                $address
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        // Verify
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/context',
+                []
+            );
+
+        list('customer' => $customer) = json_decode($this->browser->getResponse()->getContent(), true);
+        unset($address['updatedAt'], $customer['defaultBillingAddress']['updatedAt']);
+
+        static::assertSame($address, $customer['defaultBillingAddress']);
+    }
+
+    private function loginAccount()
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $this->createCustomer('shopware', $email);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                [
+                    'email' => $email,
+                    'password' => 'shopware',
+                ]
+            );
+
+        list('contextToken' => $contextToken) = json_decode($this->browser->getResponse()->getContent(), true);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+    }
+
+    private function registerAccount()
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                [
+                    'guest' => true,
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'email' => Uuid::randomHex() . '@example.com',
+                    'storefrontUrl' => 'http://localhost',
+                    'billingAddress' => [
+                        'countryId' => $this->getValidCountryId(),
+                        'street' => 'Examplestreet 11',
+                        'zipcode' => '48441',
+                        'city' => 'Cologne',
+                    ],
+                    'shippingAddress' => [
+                        'countryId' => $this->getValidCountryId(),
+                        'salutationId' => $this->getValidSalutationId(),
+                        'firstName' => 'Test 2',
+                        'lastName' => 'Example 2',
+                        'street' => 'Examplestreet 111',
+                        'zipcode' => '12341',
+                        'city' => 'Berlin',
+                    ],
+                ]
+            );
+
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 }

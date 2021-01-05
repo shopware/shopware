@@ -6,7 +6,8 @@
   },
   "sw-sales-channel": {
     "general": {
-      "titleMenuItems": "Verkaufskanäle"
+      "titleMenuItems": "Verkaufskanäle",
+      "tooltipOpenStorefront": "Öffne Storefront"
     },
     "modal": {
       "title": "Verkaufskanal anlegen",

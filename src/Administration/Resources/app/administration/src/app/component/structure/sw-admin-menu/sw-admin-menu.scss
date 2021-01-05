@@ -8,10 +8,10 @@ $sw-admin-menu-width-collapsed: 80px;
 $sw-admin-menu-width-flyout: 220px;
 $sw-admin-menu-z-index-flyout: $z-index-flyout;
 $sw-admin-menu-z-index-off-canvas: $z-index-off-canvas;
-$sw-admin-menu-transition: .4s cubic-bezier(.50, .32, .01, 1);
-$sw-admin-menu-off-canvas-transition: .4s cubic-bezier(0.3, 0, 0.15, 1);
-$sw-admin-menu-sub-menu-transition: .35s cubic-bezier(.50, .32, .01, 1);
-$sw-admin-menu-flyout-transition: .2s cubic-bezier(.50, .32, .01, 1);
+$sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
+$sw-admin-menu-off-canvas-transition: 0.4s cubic-bezier(0.3, 0, 0.15, 1);
+$sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
+$sw-admin-menu-flyout-transition: 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-color-active: lighten($color-gradient-dark-gray-start, 3%);
 $sw-admin-menu-color-hover: lighten($color-gradient-dark-gray-start, 6%);
 $sw-admin-menu-shop-status-ok: $color-emerald;
@@ -40,8 +40,9 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
     }
 
     .collapsible-text {
-        transition: opacity $sw-admin-menu-transition,
-                    transform $sw-admin-menu-transition;
+        transition:
+            opacity $sw-admin-menu-transition,
+            transform $sw-admin-menu-transition;
         transform: translateX(-50px);
         opacity: 0;
         display: inline-block;
@@ -68,6 +69,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
     .sw-admin-menu__user-name,
     .sw-admin-menu__user-type {
         @include truncate();
+
         max-width: 200px;
     }
 
@@ -161,7 +163,8 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
 
     .sw-admin-menu__navigation-link {
         color: $sw-admin-menu-color-text-primary;
-        display: block;
+        display: flex;
+        align-items: baseline;
         padding: 12px 30px;
         text-decoration: none;
         font-size: 14px;
@@ -172,6 +175,16 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
         &:hover,
         &.router-link-active {
             background: $sw-admin-menu-color-active;
+        }
+
+        .sw-icon {
+            flex-shrink: 0;
+        }
+
+        .sw-admin-menu__navigation-link-label {
+            @include truncate();
+
+            flex-grow: 1;
         }
 
         &.router-link-active + .sw-admin-menu__sub-navigation-list {
@@ -250,8 +263,6 @@ $sw-admin-menu-shop-status-ok: $color-emerald;
                 }
             }
         }
-
-
     }
 
     .sw-admin-menu__flyout-list {

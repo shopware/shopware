@@ -34,6 +34,9 @@ parameters:
         - src/Core/TestBootstrap.php
 
     ignoreErrors:
+        # Needs a PHPStan extension to be recognised properly. See https://jira.shopware.com/browse/NEXT-13038
+        - '#Cannot call method fetch.*\(\) on Doctrine\\DBAL\\Driver\\Statement\|int#'
+        - '#Cannot call method rowCount\(\) on Doctrine\\DBAL\\Driver\\Statement\|int#'
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
@@ -90,9 +93,6 @@ parameters:
         - '#Method Shopware\\Core\\System\\SalesChannel\\Context\\SalesChannelContextServiceInterface::get\(\) invoked with 4 parameters, 3 required\.#'
 
         - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
-        -
-            message: '#Cannot call method fetchAll\(\) on Doctrine\\DBAL\\Driver\\Statement\|int.#'
-            path: src/Core/Migration/Migration1599822061MigrateOrderMails.php
 
 services:
     -

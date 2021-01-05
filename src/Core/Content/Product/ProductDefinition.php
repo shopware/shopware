@@ -291,6 +291,10 @@ class ProductDefinition extends EntityDefinition
             $collection->add(
                 (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new Inherited())
             );
+            $collection->add(
+                (new TranslatedField('slotConfig'))
+                    ->addFlags(new Inherited())
+            );
         }
 
         $collection->add(

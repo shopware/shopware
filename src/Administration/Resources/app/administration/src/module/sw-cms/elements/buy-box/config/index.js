@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-buy-box.html.twig';
 import './sw-cms-el-config-buy-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-el-config-buy-box', {
@@ -37,6 +37,10 @@ Component.register('sw-cms-el-config-buy-box', {
             criteria.addAssociation('deliveryTime');
 
             return criteria;
+        },
+
+        isProductPage() {
+            return Utils.get(this.cmsPageState, 'currentPage.type') === 'product_detail';
         }
     },
 

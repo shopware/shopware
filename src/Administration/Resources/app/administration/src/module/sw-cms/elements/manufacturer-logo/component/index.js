@@ -27,7 +27,7 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
             this.initElementConfig('manufacturer-logo');
             this.initElementData('manufacturer-logo');
 
-            if (this.isProductPage && !this.element.data.media) {
+            if (this.isProductPage && !Utils.get(this.element, 'data.media')) {
                 this.element.config.media.source = 'mapped';
                 this.element.config.media.value = 'product.manufacturer.media';
             }

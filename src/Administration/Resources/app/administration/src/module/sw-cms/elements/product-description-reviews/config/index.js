@@ -2,7 +2,7 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-el-config-product-description-reviews.html.twig';
 import './sw-cms-el-config-product-description-reviews.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 
 Component.register('sw-cms-el-config-product-description-reviews', {
     template,
@@ -37,6 +37,10 @@ Component.register('sw-cms-el-config-product-description-reviews', {
             criteria.addAssociation('properties');
 
             return criteria;
+        },
+
+        isProductPage() {
+            return Utils.get(this.cmsPageState, 'currentPage.type') === 'product_detail';
         }
     },
 

@@ -98,7 +98,7 @@
                                     </div>
                                 {% endblock %}
 
-                                <sw-cms-page-form :page="page"></sw-cms-page-form>
+                                <sw-cms-page-form v-if="!isLoading" :page="page"></sw-cms-page-form>
                             </div>
                         {% endblock %}
 

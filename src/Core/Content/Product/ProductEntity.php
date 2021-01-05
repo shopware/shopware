@@ -342,6 +342,13 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var array|null
+     */
+    protected $slotConfig;
+
+    /**
      * @var ProductSearchKeywordCollection|null
      */
     protected $searchKeywords;
@@ -988,6 +995,22 @@ class ProductEntity extends Entity
     public function setCmsPageId(string $cmsPageId): void
     {
         $this->cmsPageId = $cmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setSlotConfig(array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 
     public function getParent(): ?ProductEntity

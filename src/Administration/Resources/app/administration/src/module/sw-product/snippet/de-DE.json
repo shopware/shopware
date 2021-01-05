@@ -357,7 +357,9 @@
     },
     "layout": {
       "title": "Layout-Zuweisung",
-      "subtitle": "Du kannst die Anzeige der Produkt-Detailseite mit eigenen Layouts anpassen.  Wenn Du kein eigenes Layout zuweisen möchtest, wird das Standard-Layout für Produkt-Detailseiten verwendet."
+      "subtitle": "Du kannst die Anzeige der Produkt-Detailseite mit eigenen Layouts anpassen.  Wenn Du kein eigenes Layout zuweisen möchtest, wird das Standard-Layout für Produkt-Detailseiten verwendet.",
+      "textNoConfig": "Das aktuell ausgewählte Layout hat keine bearbeitbaren Elemente.",
+      "textContentInfo": "Standard-Produktblöcke werden automatisch mit Produktdaten befüllt. Diese Inhalte werden daher hier nicht aufgelistet."
     },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",

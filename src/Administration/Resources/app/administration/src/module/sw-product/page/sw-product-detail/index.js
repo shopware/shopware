@@ -4,9 +4,10 @@ import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { hasOwnProperty } = Shopware.Utils.object;
+const { Criteria, ChangesetGenerator } = Shopware.Data;
+const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const type = Shopware.Utils.types;
 
 Component.register('sw-product-detail', {
     template,
@@ -66,6 +67,10 @@ Component.register('sw-product-detail', {
         ]),
 
         ...mapPageErrors(errorConfiguration),
+
+        ...mapState('cmsPageState', [
+            'currentPage'
+        ]),
 
         identifier() {
             return this.productTitle;
@@ -462,6 +467,12 @@ Component.register('sw-product-detail', {
 
             this.isSaveSuccessful = false;
 
+            const pageOverrides = this.getCmsPageOverrides();
+
+            if (type.isPlainObject(pageOverrides)) {
+                this.product.slotConfig = cloneDeep(pageOverrides);
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
         },
 
@@ -698,6 +709,54 @@ Component.register('sw-product-detail', {
             }
 
             return true;
+        },
+
+        getCmsPageOverrides() {
+            if (this.currentPage === null) {
+                return null;
+            }
+
+            const changesetGenerator = new ChangesetGenerator();
+            const { changes } = changesetGenerator.generate(this.currentPage);
+
+            const slotOverrides = {};
+            if (changes === null || !type.isArray(changes.sections)) {
+                return slotOverrides;
+            }
+
+            changes.sections.forEach((section) => {
+                if (!type.isArray(section.blocks)) {
+                    return;
+                }
+
+                section.blocks.forEach((block) => {
+                    if (!type.isArray(block.slots)) {
+                        return;
+                    }
+
+                    block.slots.forEach((slot) => {
+                        if (!type.isPlainObject(slot.config)) {
+                            return;
+                        }
+
+                        const slotConfig = {};
+
+                        Object.keys(slot.config).forEach((key) => {
+                            if (!slot.config[key].value) {
+                                return;
+                            }
+
+                            slotConfig[key] = slot.config[key];
+                        });
+
+                        if (Object.keys(slotConfig).length > 0) {
+                            slotOverrides[slot.id] = slotConfig;
+                        }
+                    });
+                });
+            });
+
+            return slotOverrides;
         }
     }
 });

@@ -15,7 +15,7 @@
 
                     {% block sw_cms_element_buy_box_config_tab_option %}
                         <sw-tabs-item name="options"
-                                      :title="$tc('sw-cms.elements.buyBox.config.tab.options')"
+                                      :title="$tc('sw-cms.elements.general.config.tab.options')"
                                       :activeTab="active">
                             {{ $tc('sw-cms.elements.general.config.tab.options') }}
                         </sw-tabs-item>
@@ -24,9 +24,17 @@
 
                 <template #content="{ active }">
                     <div v-if="active === 'content'" class="sw-cms-el-config-buy-box__tab-content">
+                        {% block sw_cms_element_buy_box_config_content_warning %}
+                            <sw-alert
+                                v-if="isProductPage"
+                                class="sw-cms-el-config-buy-box__warning" variant="info">
+                                {{ $tc('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
+                            </sw-alert>
+                        {% endblock %}
 
                         {% block sw_cms_element_buy_box_config_product_select %}
                             <sw-entity-single-select
+                                v-if="!isProductPage"
                                 v-model="element.config.product.value"
                                 ref="cmsProductSelection"
                                 entity="product"

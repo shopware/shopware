@@ -79,7 +79,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     })()
                 }
             });
-        }).then(response => {
+        }).then(() => {
             // save user
             cy.request({
                 url: `/api/${Cypress.env('apiVersion')}/user`,
@@ -143,12 +143,12 @@ Cypress.Commands.add('openInitialPage', (url) => {
  */
 Cypress.Commands.add('loginViaApi', () => {
     return cy.authenticate().then((result) => {
-        return cy.window().then((win) => {
+        return cy.window().then(() => {
             cy.setCookie('bearerAuth', JSON.stringify(result));
 
             // Return bearer token
             return cy.getCookie('bearerAuth');
-        }).then((win) => {
+        }).then(() => {
             cy.log('Now, fixtures are created - if necessary...');
         });
     });
@@ -357,17 +357,21 @@ Cypress.Commands.add('sortListingViaColumn', (
  * @param {('ASC'|'DESC')} sorting.sortDirection - the sort direction
  * @param {Number} page - the page to be checked
  * @param {Number} limit - the limit to be checked
+ * @param {boolean} changesUrl - wheter changing the sorting or page updates the URL
+
  */
-Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefinded, sortDirection: undefined }, page, limit }) => {
+Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefinded, sortDirection: undefined }, page, limit, changesUrl = true }) => {
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-data-grid__skeleton').should('not.exist');
 
-    // check searchterm
-    cy.url().should('contain', `term=${searchTerm}`);
-    cy.get('.sw-search-bar__input').should('have.value', searchTerm);
+    // check searchterm if supplied
+    if (searchTerm) {
+        cy.url().should('contain', `term=${searchTerm}`);
+        cy.get('.sw-search-bar__input').should('have.value', searchTerm);
+    }
 
-    // check sorting
-    let iconClass = undefined;
+    // determine what icon class should be displayed
+    let iconClass;
     switch (sorting.sortDirection) {
         case 'ASC':
             iconClass = '.icon--small-arrow-small-up';
@@ -375,21 +379,26 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefin
         case 'DESC':
             iconClass = '.icon--small-arrow-small-down';
             break;
-        default: 
-        throw new Error(`${sorting.sortDirection} is not a valid sorting direction`)
+        default:
+            throw new Error(`${sorting.sortDirection} is not a valid sorting direction`);
     }
-    cy.url().should('contain', `sortBy=${sorting.propertyName}`);
-    cy.url().should('contain', `sortDirection=${sorting.sortDirection}`);
-    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).contains(sorting.text);
-    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).get(iconClass).should('be.visible')
 
-    // check page  
-    cy.url().should('contain', `page=${page}`);
+    if (changesUrl) {
+        cy.url().should('contain', `sortBy=${sorting.propertyName}`);
+        cy.url().should('contain', `sortDirection=${sorting.sortDirection}`);
+        cy.url().should('contain', `page=${page}`);
+        cy.url().should('contain', `limit=${limit}`);
+    }
+
+    // check sorting
+    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).contains(sorting.text);
+    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).get(iconClass).should('be.visible');
+
+    // check page
     cy.get(`:nth-child(${page}) > .sw-pagination__list-button`).should('have.class', 'is-active');
 
     // check limit
     cy.get('#perPage').contains(limit);
-    cy.url().should('contain', `limit=${limit}`);
-    // the following needs a plus 1 because the 'select all' checkbox is counted too
-    cy.get('.sw-data-grid__cell-content > .sw-field--checkbox').should('have.length', (limit + 1));
-})
+    // here we have to add 1 because the <th> has the same class
+    cy.get('.sw-data-grid__row').should('have.length', (limit + 1));
+});

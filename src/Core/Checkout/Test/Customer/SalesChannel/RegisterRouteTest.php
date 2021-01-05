@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -618,6 +619,49 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('contextToken', $response);
     }
 
+    public function testRegistrationWithActiveCart(): void
+    {
+        $this->createProductTestData();
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        $additionalData = [
+            'guest' => true,
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $registrationData
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertCount(1, $newContextToken);
+        static::assertNotEquals($contextToken, $newContextToken);
+    }
+
     private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [
@@ -697,5 +741,41 @@ class RegisterRouteTest extends TestCase
             ->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function createProductTestData(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create([
+            [
+                'id' => $this->ids->create('p1'),
+                'productNumber' => $this->ids->get('p1'),
+                'stock' => 10,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
+                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], $this->ids->context);
+
+        $productRepository->create([
+            [
+                'id' => $this->ids->create('p2'),
+                'productNumber' => $this->ids->get('p2'),
+                'stock' => 10,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $this->ids->get('manufacturerId'), 'name' => 'test'],
+                'tax' => ['id' => $this->ids->get('tax'), 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], $this->ids->context);
     }
 }

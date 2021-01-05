@@ -58,7 +58,7 @@
         {% endblock %}
 
         {% block sw_product_seo_form_canonical_url %}
-            <template v-if="feature.isActive('FEATURE_NEXT_10820') && !hasParent && hasVariants">
+            <template v-if="!hasParent && hasVariants">
 
                 {% block sw_product_seo_form_canonical_url_switch %}
                     <sw-switch-field v-model="canonicalProductSwitchEnabled"

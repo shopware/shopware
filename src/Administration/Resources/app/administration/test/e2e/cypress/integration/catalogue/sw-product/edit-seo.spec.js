@@ -22,58 +22,52 @@ describe('Product: Edit in various ways', () => {
     });
 
     it('@catalogue: set list price', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10820')) {
-                return;
-            }
+        const page = new ProductPageObject();
 
-            const page = new ProductPageObject();
+        // go to product detail page
+        cy.get('.sw-data-grid__cell-content :nth-child(2) a').click();
 
-            // go to product detail page
-            cy.get('.sw-data-grid__cell-content :nth-child(2) a').click();
+        // go to variant tab
+        cy.get('.sw-product-detail__tab-variants').click();
 
-            // go to variant tab
-            cy.get('.sw-product-detail__tab-variants').click();
+        // open variant generation modal
+        cy.get('.sw-product-detail-variants__generated-variants__empty-state .sw-button').click();
 
-            // open variant generation modal
-            cy.get('.sw-product-detail-variants__generated-variants__empty-state .sw-button').click();
+        // generate variants
+        page.generateVariants('Color', [0, 1], 2);
 
-            // generate variants
-            page.generateVariants('Color', [0, 1], 2);
+        cy.reload();
 
-            cy.reload();
+        // go back to detail tab
+        cy.get('.sw-product-detail__tab-general').click();
 
-            // go back to detail tab
-            cy.get('.sw-product-detail__tab-general').click();
+        // scroll to switch and click it
+        cy.get('.sw-product-seo-form .sw-field--switch input')
+            .scrollIntoView()
+            .check();
 
-            // scroll to switch and click it
-            cy.get('.sw-product-seo-form .sw-field--switch input')
-                .scrollIntoView()
-                .check();
+        cy.get('.sw-product-seo-form .sw-select')
+            .typeSingleSelectAndCheck('Green', '.sw-product-seo-form .sw-select');
 
-            cy.get('.sw-product-seo-form .sw-select')
-                .typeSingleSelectAndCheck('Green', '.sw-product-seo-form .sw-select');
-
-            cy.wait('@searchCall').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-
-            cy.get('.sw-button-process').click();
-
-            // checking if product got saved. 'product call' alias comes from the product.generateVariants method
-            cy.wait('@productCall').then(xhr => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.2`);
-
-            cy.get('link[rel="canonical"]')
-                .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
-
-            cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
-
-            cy.get('link[rel="canonical"]')
-                .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
+        cy.wait('@searchCall').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get('.sw-button-process').click();
+
+        // checking if product got saved. 'product call' alias comes from the product.generateVariants method
+        cy.wait('@productCall').then(xhr => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.2`);
+
+        cy.get('link[rel="canonical"]')
+            .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
+
+        cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
+
+        cy.get('link[rel="canonical"]')
+            .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
     });
 });

@@ -477,15 +477,11 @@ class ProductEntity extends Entity
     protected $wishlists;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     *
      * @var string|null
      */
     protected $canonicalProductId;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     *
      * @var ProductEntity|null
      */
     protected $canonicalProduct;
@@ -1424,33 +1420,21 @@ class ProductEntity extends Entity
         $this->wishlists = $wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function getCanonicalProductId(): ?string
     {
         return $this->canonicalProductId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function setCanonicalProductId(string $canonicalProductId): void
     {
         $this->canonicalProductId = $canonicalProductId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function getCanonicalProduct(): ?ProductEntity
     {
         return $this->canonicalProduct;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function setCanonicalProduct(ProductEntity $product): void
     {
         $this->canonicalProduct = $product;

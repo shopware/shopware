@@ -447,6 +447,10 @@ Component.register('sw-product-detail-context-prices', {
 
         removeInheritance() {
             this.isInherited = false;
+        },
+
+        onChangeShowListPrices(value, ruleId) {
+            this.$set(this.showListPrices, ruleId, value);
         }
     }
 });

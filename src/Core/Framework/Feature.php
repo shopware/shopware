@@ -38,7 +38,7 @@ class Feature
         $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
         $feature = self::normalizeName($feature);
 
-        if (self::$registeredFeatures !== null
+        if (self::$registeredFeatures !== []
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
@@ -46,13 +46,13 @@ class Feature
         }
 
         $featureAll = $_SERVER['FEATURE_ALL'] ?? '';
-        if (self::isTrue((string) $featureAll) && \array_key_exists($feature, self::$registeredFeatures ?? [])) {
+        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures ?? []))) {
             if ($featureAll === Feature::ALL_MAJOR) {
                 return true;
             }
 
             // return true if it's registered and not a major feature
-            if (self::$registeredFeatures[$feature]['major'] === false) {
+            if ((self::$registeredFeatures[$feature]['major'] ?? false) === false) {
                 return true;
             }
         }

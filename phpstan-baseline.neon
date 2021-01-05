@@ -7139,3 +7139,8 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerInterface\\:\\:analyze\\(\\) invoked with 3 parameters, 2 required\\.$#"
+			count: 1
+			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php

@@ -4,5 +4,4 @@ issue: NEXT-12664
 flag: FEATURE_NEXT_10552
 ---
 # Core
-* Added new function `analyzeBaseOnSearchConfig` in interfaces `ProductSearchKeywordAnalyzerInterface` which used to analyzer the product keyword base on the config from the database.
-* Added new function `addAll` in class `AnalyzedKeywordCollection` which used to add multiple `AnalyzedKeyword` into `AnalyzedKeywordCollection`.
+* Added new a parameter `$configFields` in `analyze` in interfaces `ProductSearchKeywordAnalyzerInterface` this parameter is storage the config data got from the database.

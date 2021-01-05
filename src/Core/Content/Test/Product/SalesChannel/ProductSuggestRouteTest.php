@@ -63,6 +63,8 @@ class ProductSuggestRouteTest extends TestCase
             $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
             $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
             $this->productSearchConfigId = $this->getProductSearchConfigId();
+
+            $this->resetSearchKeywordUpdaterConfig();
         }
 
         $this->createData();
@@ -478,5 +480,24 @@ class ProductSuggestRouteTest extends TestCase
         );
 
         return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function resetSearchKeywordUpdaterConfig(): void
+    {
+        $class = new \ReflectionClass($this->searchKeywordUpdater);
+        $property = $class->getProperty('decorated');
+        $property->setAccessible(true);
+        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+
+        $class = new \ReflectionClass($searchKeywordUpdaterInner);
+        $property = $class->getProperty('config');
+        $property->setAccessible(true);
+        $property->setValue(
+            $searchKeywordUpdaterInner,
+            []
+        );
     }
 }

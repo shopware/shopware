@@ -4,18 +4,19 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -47,7 +48,12 @@ class SearchKeywordUpdater
      *
      * @var EntityRepositoryInterface|null
      */
-    private $productSearchConfigRepository;
+    private $productSearchConfigFieldRepository;
+
+    /**
+     * @var array[]
+     */
+    private $config = [];
 
     public function __construct(
         Connection $connection,
@@ -60,7 +66,7 @@ class SearchKeywordUpdater
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
         $this->analyzer = $analyzer;
-        $this->productSearchConfigRepository = $productSearchConfigRepository;
+        $this->productSearchConfigFieldRepository = $productSearchConfigRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -87,15 +93,20 @@ class SearchKeywordUpdater
 
     private function updateLanguage(array $ids, Context $context): void
     {
-        $products = $context->disableCache(function (Context $context) use ($ids) {
-            return $context->enableInheritance(function (Context $context) use ($ids) {
+        $configFields = [];
+        if (Feature::isActive('FEATURE_NEXT_10552') && $this->productSearchConfigFieldRepository !== null) {
+            $configFields = $this->getConfigFields($context->getLanguageId());
+        }
+
+        $products = $context->disableCache(function (Context $context) use ($ids, $configFields) {
+            return $context->enableInheritance(function (Context $context) use ($ids, $configFields) {
                 $criteria = new Criteria($ids);
-                $criteria->addAssociation('manufacturer');
+
                 if (Feature::isActive('FEATURE_NEXT_10552')) {
-                    $criteria->addAssociation('categories');
-                    $criteria->addAssociation('tags');
-                    $criteria->addAssociation('properties');
-                    $criteria->addAssociation('options');
+                    $fields = $this->getAssociationFields(array_column($configFields, 'field'));
+                    $criteria->addAssociations(array_filter(array_unique($fields)));
+                } else {
+                    $criteria->addAssociation('manufacturer');
                 }
 
                 return $this->productRepository->search($criteria, $context);
@@ -112,30 +123,9 @@ class SearchKeywordUpdater
         $keywords = [];
         $dictionary = [];
 
-        $configFields = new ProductSearchConfigFieldCollection();
-
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
-            $criteria->addAssociation('configFields');
-
-            if ($this->productSearchConfigRepository !== null) {
-                $configData = $this->productSearchConfigRepository->search($criteria, $context);
-
-                if ($configData->getEntities()->first() !== null) {
-                    /** @var ProductSearchConfigFieldCollection $configFields */
-                    $configFields = $configData->getEntities()->first()->getConfigFields();
-                }
-            }
-        }
-
         /** @var ProductEntity $product */
         foreach ($products as $product) {
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $analyzed = $this->analyzer->analyzeBaseOnSearchConfig($product, $context, $configFields);
-            } else {
-                $analyzed = $this->analyzer->analyze($product, $context);
-            }
+            $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
             $productId = Uuid::fromHexToBytes($product->getId());
 
@@ -150,7 +140,8 @@ class SearchKeywordUpdater
                     'ranking' => $keyword->getRanking(),
                     'created_at' => $now,
                 ];
-                $dictionary[] = [
+                $key = $keyword->getKeyword() . $languageId;
+                $dictionary[$key] = [
                     'id' => Uuid::randomBytes(),
                     'language_id' => $languageId,
                     'keyword' => $keyword->getKeyword(),
@@ -227,5 +218,68 @@ class SearchKeywordUpdater
                 $query->execute($insert);
             }
         }
+    }
+
+    private function getAssociationFields(array $accessors): array
+    {
+        $definition = $this->productRepository->getDefinition();
+
+        $associations = [];
+
+        foreach ($accessors as $accessor) {
+            $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor);
+
+            $fields = array_filter($fields);
+
+            $path = array_map(function (Field $field) {
+                if ($field instanceof AssociationField) {
+                    return $field->getPropertyName();
+                }
+
+                return null;
+            }, $fields);
+
+            $path = array_filter($path);
+
+            if (empty($path)) {
+                continue;
+            }
+
+            $associations[] = implode('.', $path);
+        }
+
+        return $associations;
+    }
+
+    private function getConfigFields(string $languageId): array
+    {
+        if (isset($this->config[$languageId])) {
+            return $this->config[$languageId];
+        }
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select('configField.field', 'configField.tokenize', 'configField.ranking', 'LOWER(HEX(config.language_id)) as language_id');
+        $query->from('product_search_config', 'config');
+        $query->join('config', 'product_search_config_field', 'configField', 'config.id = configField.product_search_config_id');
+        $query->andWhere('config.language_id IN (:languageIds)');
+        $query->andWhere('configField.searchable = 1');
+
+        $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), Connection::PARAM_STR_ARRAY);
+
+        $all = $query->execute()->fetchAll();
+
+        $fields = array_filter($all, function (array $field) use ($languageId) {
+            return $field['language_id'] === $languageId;
+        });
+
+        if (!empty($fields)) {
+            return $this->config[$languageId] = $fields;
+        }
+
+        $fields = array_filter($all, function (array $field) {
+            return $field['language_id'] === Defaults::LANGUAGE_SYSTEM;
+        });
+
+        return $this->config[$languageId] = $fields;
     }
 }

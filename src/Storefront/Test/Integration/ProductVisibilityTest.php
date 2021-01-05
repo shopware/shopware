@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Integration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
@@ -85,6 +86,13 @@ class ProductVisibilityTest extends TestCase
      */
     private $categoryId;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var SearchKeywordUpdater
+     */
+    private $searchKeywordUpdater;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -95,6 +103,11 @@ class ProductVisibilityTest extends TestCase
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+            $this->resetSearchKeywordUpdaterConfig();
+        }
 
         $this->insertData();
     }
@@ -127,7 +140,6 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSearch(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);
@@ -186,7 +198,6 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSuggest(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);
@@ -304,5 +315,24 @@ class ProductVisibilityTest extends TestCase
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
 
         return $id;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function resetSearchKeywordUpdaterConfig(): void
+    {
+        $class = new \ReflectionClass($this->searchKeywordUpdater);
+        $property = $class->getProperty('decorated');
+        $property->setAccessible(true);
+        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+
+        $class = new \ReflectionClass($searchKeywordUpdaterInner);
+        $property = $class->getProperty('config');
+        $property->setAccessible(true);
+        $property->setValue(
+            $searchKeywordUpdaterInner,
+            []
+        );
     }
 }

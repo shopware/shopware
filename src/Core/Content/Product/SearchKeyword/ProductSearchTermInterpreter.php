@@ -57,6 +57,9 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         if (Feature::isActive('FEATURE_NEXT_10552') && $this->tokenFilter) {
             $tokens = $this->tokenFilter->filter($tokens, $context);
+            if (empty($tokens)) {
+                return new SearchPattern(new SearchTerm(''));
+            }
             $tokenSlops = $this->slop($tokens);
             if (!$this->checkSlops(array_values($tokenSlops))) {
                 return new SearchPattern(new SearchTerm($word));

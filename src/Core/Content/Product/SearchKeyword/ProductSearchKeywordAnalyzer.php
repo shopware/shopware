@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
-use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -13,8 +12,6 @@ use Shopware\Core\Framework\Feature;
 
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
-    public const CUSTOM_FIELDS = 'customFields';
-
     /**
      * @var TokenizerInterface
      */
@@ -31,19 +28,43 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         $this->tokenFilter = $tokenFilter;
     }
 
-    public function analyze(ProductEntity $product, Context $context): AnalyzedKeywordCollection
+    /**@feature-deprecated (flag:FEATURE_NEXT_10552) tag:v6.4.0 - Parameter $configFields will be mandatory in future implementation */
+    public function analyze(ProductEntity $product, Context $context /*, ?array $configFields */): AnalyzedKeywordCollection
     {
         $keywords = new AnalyzedKeywordCollection();
+
+        if (Feature::isActive('FEATURE_NEXT_10552') && \func_num_args() === 3) {
+            $configFields = func_get_arg(2);
+
+            foreach ($configFields as $configField) {
+                $path = $configField['field'];
+                $isTokenize = (bool) $configField['tokenize'];
+                $ranking = (int) $configField['ranking'];
+
+                $values = array_filter($this->resolveEntityValue($product, $path));
+
+                if ($isTokenize) {
+                    $fieldValue = implode(' ', $values);
+                    $values = $this->tokenizer->tokenize((string) $fieldValue);
+
+                    if ($this->tokenFilter) {
+                        $values = $this->tokenFilter->filter($values, $context);
+                    }
+                }
+
+                foreach ($values as $value) {
+                    $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
+                }
+            }
+
+            return $keywords;
+        }
 
         $keywords->add(new AnalyzedKeyword($product->getProductNumber(), 1000));
 
         $name = $product->getTranslation('name');
         if ($name) {
             $tokens = $this->tokenizer->tokenize((string) $name);
-
-            if (Feature::isActive('FEATURE_NEXT_10552') && $this->tokenFilter) {
-                $tokens = $this->tokenFilter->filter($tokens, $context);
-            }
 
             foreach ($tokens as $token) {
                 $keywords->add(new AnalyzedKeyword((string) $token, 700));
@@ -68,132 +89,58 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         return $keywords;
     }
 
-    public function analyzeBaseOnSearchConfig(ProductEntity $product, Context $context, ProductSearchConfigFieldCollection $configFields): AnalyzedKeywordCollection
+    private function resolveEntityValue(Entity $entity, string $path): array
     {
-        $keywords = new AnalyzedKeywordCollection();
-        foreach ($configFields as $configField) {
-            if (!$configField->getSearchable()) {
-                continue;
+        $value = $entity;
+        $parts = explode('.', $path);
+
+        // if property does not exist, try to omit the first key as it may contains the entity name.
+        // E.g. `product.description` does not exist, but will be found if the first part is omitted.
+        $smartDetect = true;
+
+        while (\count($parts) > 0) {
+            $part = array_shift($parts);
+
+            if ($value === null) {
+                break;
             }
 
-            $field = $configField->getField();
-            $isTokenize = $configField->getTokenize();
-            $ranking = $configField->getRanking();
-
-            if (strpos($field, '.') === false) {
-                $keywords->addAll($this->buildKeyWords(
-                    $isTokenize,
-                    $this->getFieldValue($product, $field),
-                    $ranking
-                ));
-
-                continue;
-            }
-
-            $field = explode('.', $field);
-
-            $associationName = $field[0];
-            $propertyName = $field[1];
-
-            if ($product->get($associationName) === null) {
-                continue;
-            }
-
-            $keywords = $this->buildKeywordsBaseOnFieldFromConfig(
-                $associationName,
-                $propertyName,
-                $ranking,
-                $isTokenize,
-                $product,
-                $keywords
-            );
-        }
-
-        return $keywords;
-    }
-
-    private function buildKeywordsBaseOnFieldFromConfig(
-        string $associationName,
-        string $propertyName,
-        int $ranking,
-        bool $isTokenize,
-        ProductEntity $product,
-        AnalyzedKeywordCollection $keywords
-    ): AnalyzedKeywordCollection {
-        if ($associationName === self::CUSTOM_FIELDS) {
-            /** @var array $associationData */
-            $associationData = $product->get($associationName);
-
-            $keywords->addAll($this->buildKeyWords(
-                $isTokenize,
-                $associationData[$propertyName],
-                $ranking
-            ));
-
-            return $keywords;
-        }
-
-        $associationData = $product->get($associationName);
-
-        if ($associationData instanceof EntityCollection) {
-            foreach ($associationData as $data) {
-                $keywords->addAll($this->buildKeyWords(
-                    $isTokenize,
-                    $this->getFieldValue($data, $propertyName),
-                    $ranking
-                ));
-            }
-
-            return $keywords;
-        }
-
-        $keywords->addAll($this->buildKeyWords(
-            $isTokenize,
-            $this->getFieldValue($associationData, $propertyName),
-            $ranking
-        ));
-
-        return $keywords;
-    }
-
-    /**
-     * @param string|array $fieldValues
-     */
-    private function buildKeyWords(bool $isTokenize, $fieldValues, int $ranking): AnalyzedKeywordCollection
-    {
-        $keywords = new AnalyzedKeywordCollection();
-
-        if (!\is_array($fieldValues)) {
-            $fieldValues = [$fieldValues];
-        }
-
-        foreach ($fieldValues as $fieldValue) {
-            if ($isTokenize) {
-                $tokens = $this->tokenizer->tokenize((string) $fieldValue);
-                foreach ($tokens as $token) {
-                    $keywords->add(new AnalyzedKeyword((string) $token, $ranking));
+            try {
+                if ($value instanceof EntityCollection) {
+                    $values = [];
+                    if (!empty($parts)) {
+                        $part = $part . '.' . implode('.', $parts);
+                    }
+                    foreach ($value as $item) {
+                        $values = array_merge($values, $this->resolveEntityValue($item, $part));
+                    }
+                    $value = $values;
+                } else {
+                    $value = $value->get($part);
                 }
 
-                continue;
+                if (\is_array($value)) {
+                    return $value;
+                }
+
+                // if we are at the destination entity and it does not have a value for the field
+                // on it's on, then try to get the translation fallback
+                if ($value === null) {
+                    $value = $entity->getTranslation((string) $part);
+                }
+            } catch (\InvalidArgumentException $ex) {
+                if (!$smartDetect) {
+                    throw $ex;
+                }
             }
 
-            if ($fieldValue) {
-                $keywords->add(new AnalyzedKeyword((string) $fieldValue, $ranking));
+            if ($value === null && !$smartDetect) {
+                break;
             }
+
+            $smartDetect = false;
         }
 
-        return $keywords;
-    }
-
-    /**
-     * @return array|mixed
-     */
-    private function getFieldValue(Entity $entity, string $field)
-    {
-        if (!\array_key_exists($field, $entity->getTranslated()) || empty($entity->getTranslated()[$field])) {
-            return [$entity->get($field)];
-        }
-
-        return $entity->getTranslated()[$field];
+        return (array) $value;
     }
 }

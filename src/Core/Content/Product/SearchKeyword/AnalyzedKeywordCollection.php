@@ -40,16 +40,6 @@ class AnalyzedKeywordCollection extends Collection
         return 'product_search_keyword_analyzed_collection';
     }
 
-    /**
-     * @param AnalyzedKeywordCollection $elements
-     */
-    public function addAll($elements): void
-    {
-        foreach ($elements as $element) {
-            $this->add($element);
-        }
-    }
-
     protected function getExpectedClass(): ?string
     {
         return AnalyzedKeyword::class;

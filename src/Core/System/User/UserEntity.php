@@ -114,6 +114,11 @@ class UserEntity extends Entity
     protected $storeToken;
 
     /**
+     * @var \DateTimeInterface|null
+     */
+    protected $lastUpdatedPasswordAt;
+
+    /**
      * @var array|null
      */
     protected $customFields;
@@ -346,5 +351,15 @@ class UserEntity extends Entity
     public function setUpdatedOrders(OrderCollection $updatedOrders): void
     {
         $this->updatedOrders = $updatedOrders;
+    }
+
+    public function getLastUpdatedPasswordAt(): ?\DateTimeInterface
+    {
+        return $this->lastUpdatedPasswordAt;
+    }
+
+    public function setLastUpdatedPasswordAt(\DateTimeInterface $lastUpdatedPasswordAt): void
+    {
+        $this->lastUpdatedPasswordAt = $lastUpdatedPasswordAt;
     }
 }

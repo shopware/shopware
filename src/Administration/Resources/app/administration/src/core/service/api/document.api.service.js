@@ -11,15 +11,14 @@ class DocumentApiService extends ApiService {
         this.name = 'documentService';
     }
 
-    createDocument(orderId,
+    async createDocument(orderId,
         documentTypeName,
         documentConfig = {},
         referencedDocumentId = null,
         additionalParams = {},
         additionalHeaders = {},
         file = null) {
-        let route = `/_action/order/${orderId}/document/${documentTypeName}`;
-        const headers = this.getBasicHeaders(additionalHeaders);
+        const route = `/_action/order/${orderId}/document/${documentTypeName}`;
 
         const params = {
             config: documentConfig,
@@ -30,24 +29,29 @@ class DocumentApiService extends ApiService {
             params.static = true;
         }
 
-        let docCreated = this.httpClient
-            .post(route, params, {
+        const createResponse = await this.httpClient.post(route, params, {
+            additionalParams,
+            headers: this.getBasicHeaders(additionalHeaders)
+        });
+
+        if (file && createResponse.data.documentId) {
+            const fileName = file.name.split('.').shift();
+            const fileExtension = file.name.split('.').pop();
+            // eslint-disable-next-line max-len
+            const uploadRoute = `/_action/document/${createResponse.data.documentId}/upload?fileName=${documentConfig.documentNumber}_${fileName}&extension=${fileExtension}`;
+
+            const uploadResponse = await this.httpClient.post(uploadRoute, file, {
                 additionalParams,
-                headers
-            }).then((response) => {
-                if (file && response.data.documentId) {
-                    const fileName = file.name.split('.').shift();
-                    const fileExtension = file.name.split('.').pop();
-                    // eslint-disable-next-line max-len
-                    route = `/_action/document/${response.data.documentId}/upload?fileName=${documentConfig.documentNumber}_${fileName}&extension=${fileExtension}`;
-                    headers['Content-Type'] = file.type;
-                    docCreated = this.httpClient.post(route, file, {
-                        additionalParams,
-                        headers
-                    });
+                headers: {
+                    ...this.getBasicHeaders(additionalHeaders),
+                    'Content-Type': file.type
                 }
-                return docCreated;
             });
+
+            return uploadResponse;
+        }
+
+        return createResponse;
     }
 
     generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {

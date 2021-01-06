@@ -221,32 +221,32 @@ Component.register('sw-order-document-card', {
             this.showModal = true;
         },
 
-        onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
-            this.showModal = false;
-            this.$nextTick().then(() => {
-                return this.createDocument(
-                    this.order.id,
-                    this.currentDocumentType.technicalName,
-                    params,
-                    referencedDocumentId,
-                    file
-                );
-            }).then((response) => {
-                this.getList();
-                this.$emit('document-save');
+        async onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+            const response = await this.createDocument(
+                this.order.id,
+                this.currentDocumentType.technicalName,
+                params,
+                referencedDocumentId,
+                file
+            );
 
-                if (additionalAction === 'download') {
-                    window.open(
-                        this.documentService.generateDocumentLink(
-                            response.data.documentId,
-                            response.data.documentDeepLink,
-                            Shopware.Context.api,
-                            true
-                        ),
-                        '_blank'
-                    );
-                }
-            });
+            this.showModal = false;
+            await this.$nextTick();
+
+            this.getList();
+            this.$emit('document-save');
+
+            if (additionalAction === 'download') {
+                window.open(
+                    this.documentService.generateDocumentLink(
+                        response.data.documentId,
+                        response.data.documentDeepLink,
+                        Shopware.Context.api,
+                        true
+                    ),
+                    '_blank'
+                );
+            }
         },
 
         onPreview(params) {

@@ -122,10 +122,10 @@ Component.register('sw-list-price-field', {
                 }
 
                 return [{
-                    gross: 0,
+                    gross: null,
                     currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
                     linked: true,
-                    net: 0
+                    net: null
                 }];
             },
 
@@ -156,6 +156,10 @@ Component.register('sw-list-price-field', {
 
     methods: {
         listPriceChanged(value) {
+            if (Number.isNaN(value.gross) || Number.isNaN(value.net)) {
+                value = null;
+            }
+
             this.listPrice = value;
         },
 

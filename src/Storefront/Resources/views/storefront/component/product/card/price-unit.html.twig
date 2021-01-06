@@ -42,6 +42,10 @@
                 {% set advancedPricesFlag = false %}
             {% endif %}
 
+            {% if listPrice is null and product.calculatedPrices|length == 1 %}
+                {% set listPrice = product.calculatedPrices|first.listPrice %}
+            {% endif %}
+
             {% if advancedPricesFlag and listPrice is null %}
                 {% block component_product_box_block_list_price_wrapper %}
                     {% set cheapestPrice = product.calculatedPrices|first %}
@@ -63,13 +67,18 @@
                         {{ listingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                     {% elseif product.calculatedPrices|length == 1 %}
                         {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                        {% if listPrice.percentage > 0 %}
+                            <span class="list-price{% if "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0  %} list-price-no-line-through{% endif %}">
+                                    {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
+                                </span>
+                        {% endif %}
                     {% else %}
                         {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                             {% if listPrice.percentage > 0 %}
                                 <span class="list-price{% if "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0  %} list-price-no-line-through{% endif %}">
-                                {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
-                            </span>
-                        {% endif %}
+                                    {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
+                                </span>
+                            {% endif %}
                     {% endif %}
                 </p>
             {% endif %}

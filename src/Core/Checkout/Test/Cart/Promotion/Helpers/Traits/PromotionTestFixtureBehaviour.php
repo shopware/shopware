@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -248,7 +250,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * function creates a promotion
      */
-    private function createPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): void
+    private function createPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
     {
         $data = [
             'id' => $promotionId,
@@ -266,7 +268,21 @@ trait PromotionTestFixtureBehaviour
             $data['useCodes'] = true;
         }
 
-        $promotionRepository->create([$data], $context->getContext());
+        return $promotionRepository->create([$data], $context->getContext());
+    }
+
+    /**
+     * function creates an individual promotion code
+     */
+    private function createIndividualCode(string $promotionId, string $code, EntityRepositoryInterface $promotionIndividualRepository, Context $context): EntityWrittenContainerEvent
+    {
+        $data = [
+            'id' => Uuid::randomHex(),
+            'promotionId' => $promotionId,
+            'code' => $code,
+        ];
+
+        return $promotionIndividualRepository->create([$data], $context);
     }
 
     private function createSetGroupPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): void

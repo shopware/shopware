@@ -18,7 +18,7 @@ describe('filter/currency.filter', () => {
     });
 
     it('should handle floats', async () => {
-        expect(currencyFilter(42.25, currency, precision)).toBe('€42,25');
+        expect(currencyFilter(42.20, currency, 2)).toBe('€42,20');
     });
 
     it('should handle strings', async () => {
@@ -39,7 +39,7 @@ describe('filter/currency.filter', () => {
     });
 
     it('should handle null', async () => {
-        expect(currencyFilter(undefined, currency, precision)).toBe('-');
+        expect(currencyFilter(null, currency, precision)).toBe('-');
     });
 
     it('should handle boolean', async () => {

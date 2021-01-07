@@ -11,5 +11,5 @@ Filter.register('currency', (value, format, decimalPlaces) => {
         return value;
     }
 
-    return currency(value, format, decimalPlaces);
+    return currency(parseFloat(value), format, decimalPlaces);
 });

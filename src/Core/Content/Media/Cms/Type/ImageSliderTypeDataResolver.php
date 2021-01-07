@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
@@ -57,9 +58,29 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             $imageSlider->setNavigation($navigation->getValue());
         }
 
-        if ($sliderItems = $config->get('sliderItems')) {
-            foreach ($sliderItems->getValue() as $sliderItem) {
+        $sliderItemsConfig = $config->get('sliderItems');
+
+        if (!$sliderItemsConfig) {
+            return;
+        }
+
+        if ($sliderItemsConfig->isStatic()) {
+            foreach ($sliderItemsConfig->getValue() as $sliderItem) {
                 $this->addMedia($slot, $imageSlider, $result, $sliderItem);
+            }
+        }
+
+        if ($sliderItemsConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            $sliderItems = $this->resolveEntityValue($resolverContext->getEntity(), $sliderItemsConfig->getValue());
+
+            if (!$sliderItems) {
+                return;
+            }
+
+            foreach ($sliderItems->getMedia() as $media) {
+                $imageSliderItem = new ImageSliderItemStruct();
+                $imageSliderItem->setMedia($media);
+                $imageSlider->addSliderItem($imageSliderItem);
             }
         }
     }

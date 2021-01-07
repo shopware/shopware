@@ -98,7 +98,7 @@ Component.register('sw-cms-el-image-gallery', {
             this.initElementConfig('image-gallery');
             this.initElementData('image-gallery');
 
-            if (this.isProductPage) {
+            if (this.isProductPage && !this.element.data.sliderItems) {
                 this.element.config.sliderItems.source = 'mapped';
                 this.element.config.sliderItems.value = 'product.media';
             }

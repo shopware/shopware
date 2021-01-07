@@ -44,6 +44,7 @@ class StringTemplateRenderer
             $coreExtensionInternal = $this->twig->getExtension(CoreExtension::class);
             /** @var CoreExtension $coreExtensionGlobal */
             $coreExtensionGlobal = $this->platformTwig->getExtension(CoreExtension::class);
+
             $coreExtensionInternal->setTimezone($coreExtensionGlobal->getTimezone());
             $coreExtensionInternal->setDateFormat(...$coreExtensionGlobal->getDateFormat());
             $coreExtensionInternal->setNumberFormat(...$coreExtensionGlobal->getNumberFormat());

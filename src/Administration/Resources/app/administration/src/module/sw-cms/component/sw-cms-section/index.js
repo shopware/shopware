@@ -124,7 +124,7 @@ Component.register('sw-cms-section', {
         },
 
         blockTypes() {
-            return Object.keys(this.cmsService.getCmsBlockRegistry())
+            return Object.keys(this.cmsService.getCmsBlockRegistry());
         }
     },
 
@@ -181,7 +181,7 @@ Component.register('sw-cms-section', {
         },
 
         blockTypeExists(type) {
-            return this.blockTypes.includes(type)
+            return this.blockTypes.includes(type);
         }
     }
 });

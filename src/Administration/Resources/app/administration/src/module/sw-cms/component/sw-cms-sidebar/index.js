@@ -401,7 +401,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         getSidebarContentBlocks(sectionBlocks) {
-            return sectionBlocks.filter((block) => this.blockTypeExists(block.type) &&  block.sectionPosition === 'sidebar');
+            return sectionBlocks.filter((block) => this.blockTypeExists(block.type) && block.sectionPosition === 'sidebar');
         },
 
         pageUpdate() {
@@ -413,7 +413,7 @@ Component.register('sw-cms-sidebar', {
         },
 
         blockTypeExists(type) {
-            return this.blockTypes.includes(type)
+            return this.blockTypes.includes(type);
         }
     }
 });

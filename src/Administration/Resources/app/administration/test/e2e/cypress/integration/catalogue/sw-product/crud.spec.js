@@ -78,6 +78,18 @@ describe('Product: Test crud operations', () => {
         cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input')
             .type('{esc}');
 
+        // Check whether the default feature set has been assigned
+        cy.get('.sw-product-feature-set-form__form .sw-entity-single-select__selection')
+            .scrollIntoView()
+            .within(() => {
+                // There should be no placeholder
+                cy.get('.sw-entity-single-select__selection-text.is--placeholder')
+                    .should('not.exist');
+                // The default value should be already set instead
+                cy.get('.sw-entity-single-select__selection-text')
+                    .should('contain', 'Default');
+            });
+
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {

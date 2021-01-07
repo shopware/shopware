@@ -323,7 +323,9 @@ Component.register('sw-product-detail', {
                     gross: 0
                 }];
 
-                this.product.featureSet = this.defaultFeatureSet;
+                if (this.defaultFeatureSet && this.defaultFeatureSet.length > 0) {
+                    this.product.featureSetId = this.defaultFeatureSet[0].id;
+                }
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });

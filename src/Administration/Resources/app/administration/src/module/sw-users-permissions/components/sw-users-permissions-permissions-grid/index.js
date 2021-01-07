@@ -149,12 +149,17 @@ Component.register('sw-users-permissions-permissions-grid', {
         },
 
         changeAllPermissionsForKey(permissionKey) {
-            const isAllSelected = this.allPermissionsForKeySelected(permissionKey);
+            const areAllSelected = this.allPermissionsForKeySelected(permissionKey);
 
             this.roles.forEach(role => {
                 const identifier = `${permissionKey}.${role}`;
+                const privilegeExists = this.privileges.existsPrivilege(identifier);
 
-                if (isAllSelected) {
+                if (!privilegeExists) {
+                    return;
+                }
+
+                if (areAllSelected) {
                     this.removePermission(identifier);
                 } else {
                     this.addPermission(identifier);
@@ -164,6 +169,12 @@ Component.register('sw-users-permissions-permissions-grid', {
 
         allPermissionsForKeySelected(permissionKey) {
             const containsUnselected = this.roles.some(permissionRole => {
+                const doesExist = this.privileges.existsPrivilege(`${permissionKey}.${permissionRole}`);
+
+                if (!doesExist) {
+                    return false;
+                }
+
                 return !this.isPermissionSelected(permissionKey, permissionRole);
             });
 
@@ -196,17 +207,25 @@ Component.register('sw-users-permissions-permissions-grid', {
             });
         },
 
-        areSomeChildrenRolesSelected(parentKey, roleKey) {
+        areSomeChildrenRolesSelected(parentKey, roleKey, ignoreMissingPrivilege = true) {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
 
             return permissionsForParent.some(permission => {
+                if (!ignoreMissingPrivilege) {
+                    const privilegeExists = this.privileges.existsPrivilege(`${permission.key}.${roleKey}`);
+
+                    if (!privilegeExists) {
+                        return true;
+                    }
+                }
+
                 return this.isPermissionSelected(permission.key, roleKey);
             });
         },
 
         areSomeChildrenWithAllRolesSelected(parentKey) {
             return this.roles.every(roleKey => {
-                return this.areSomeChildrenRolesSelected(parentKey, roleKey);
+                return this.areSomeChildrenRolesSelected(parentKey, roleKey, false);
             });
         },
 
@@ -255,6 +274,12 @@ Component.register('sw-users-permissions-permissions-grid', {
                         this.addPermission(identifier);
                     }
                 });
+            });
+        },
+
+        parentRoleHasChildRoles(parentKey, roleKey) {
+            return this.getPermissionsForParent(parentKey).some(currentRole => {
+                return currentRole.roles[roleKey] !== undefined;
             });
         }
     }

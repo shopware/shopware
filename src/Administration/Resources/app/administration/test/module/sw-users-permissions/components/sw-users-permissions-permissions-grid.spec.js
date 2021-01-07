@@ -871,6 +871,53 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productAll.props().value).toBe(true);
     });
 
+    it('should select all roles each and the checkbox all have to be checked (privilege has only two roles)', async () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+
+        // prove that creator and deleter checkbox do not exist
+        expect(productCreator.exists()).toBe(false);
+        expect(productDeleter.exists()).toBe(false);
+
+        // verify that all checkboxes are not checked
+        expect(productViewer.props('value')).toBe(false);
+        expect(productEditor.props('value')).toBe(false);
+        expect(productAll.props('value')).toBe(false);
+
+        // check viewer and editor role
+        await productViewer.find('input[type="checkbox"]').setChecked();
+        await productEditor.find('input[type="checkbox"]').setChecked();
+
+        // check state of viewer, editor and all checkbox
+        expect(productViewer.props('value')).toBe(true);
+        expect(productEditor.props('value')).toBe(true);
+        expect(productAll.props('value')).toBe(true);
+    });
+
     it('should unselect all roles with the checkbox all', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
@@ -2740,5 +2787,218 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         checkboxes.wrappers.forEach(checkbox => {
             expect(checkbox.props().disabled).toBe(true);
         });
+    });
+
+    it('should not exist in the DOM if it has no child roles', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogue',
+                    roles: {
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        // get product viewer checkbox
+        const catalogueRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogue');
+        const catalogueViewer = catalogueRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // get product viewer checkbox
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // assert that catalogue parent does not exist
+        expect(catalogueViewer.exists()).toBe(false);
+
+        // assert that child does not exist
+        expect(productViewer.exists()).toBe(false);
+    });
+
+    it('should exist in the DOM if it has at least one child role', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogue',
+                    roles: {
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'property',
+                    parent: 'catalogue',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        // get product viewer checkbox
+        const catalogueRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogue');
+        const catalogueViewer = catalogueRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // get product viewer checkbox
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // get property viewer checkbox
+        const propertyRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_property');
+        const propertyViewer = propertyRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // assert that catalogue parent does exist
+        expect(catalogueViewer.exists()).toBe(true);
+
+        // assert that product child does not exist
+        expect(productViewer.exists()).toBe(false);
+
+        // assert that property child does exist
+        expect(propertyViewer.exists()).toBe(true);
+    });
+
+    /*
+     * Write test that checks the select all roles button and prove that the header role that has one missing role
+     * has no ghost value and is not checked. but all the others are.
+     *
+     * also check that the select all header checkbox has a ghost value
+     */
+    it('should only add permissions that exist using the check all box', async () => {
+        /** @type Wrapper */
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogue',
+                    roles: {
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'property',
+                    parent: 'catalogue',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+
+        // check that product viewer box does not exist
+        expect(productViewer.exists()).toBe(false);
+
+        // assert that every checkbox has a state of false
+        expect(productEditor.props('value')).toBe(false);
+        expect(productCreator.props('value')).toBe(false);
+        expect(productDeleter.props('value')).toBe(false);
+        expect(productAll.props('value')).toBe(false);
+
+        await productAll.find('input[type="checkbox"]').trigger('click');
+
+        expect(productEditor.props('value')).toBe(true);
+        expect(productCreator.props('value')).toBe(true);
+        expect(productDeleter.props('value')).toBe(true);
+        expect(productAll.props('value')).toBe(true);
+
+        const headerRow = wrapper.find('.sw-users-permissions-permissions-grid__parent');
+        const headerViewer = headerRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const headerEditor = headerRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const headerCreator = headerRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const headerDeleter = headerRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const headerAll = headerRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+
+        // assert that viewer header checkbox as not value and no ghost value
+        expect(headerViewer.props('ghostValue')).toBe(false);
+        expect(headerViewer.props('value')).toBe(false);
+
+        // check that every other header checkbox has a ghost value of true and a value of false
+        expect(headerEditor.props('ghostValue')).toBe(true);
+        expect(headerEditor.props('value')).toBe(false);
+
+        expect(headerCreator.props('ghostValue')).toBe(true);
+        expect(headerCreator.props('value')).toBe(false);
+
+        expect(headerDeleter.props('ghostValue')).toBe(true);
+        expect(headerDeleter.props('value')).toBe(false);
+
+        expect(headerAll.props('ghostValue')).toBe(true);
+        expect(headerAll.props('value')).toBe(false);
     });
 });

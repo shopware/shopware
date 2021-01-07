@@ -31,7 +31,16 @@
       "placeholderName": "Gib einen Produktnamen ein ...",
       "placeholderDescriptionLong": "Gib eine Produktbeschreibung ein ...",
       "placeholderId": "Gib eine Produktnummer ein ...",
-      "placeholderManufacturer": "Gib einen Produkthersteller ein ..."
+      "placeholderManufacturer": "Gib einen Produkthersteller ein ...",
+      "productNumberHelpText": {
+        "label": "Produktnummern können helfen, Deine Produkte zu identifizieren und zu verwalten. Dazu solltest Du eine durchgängige Struktur für Deine Produktnummern verwenden. Du kannst Produktnummer-Templates in den {link} definieren.",
+        "linkText": "Einstellungen"
+      },
+      "highlightHelpText": {
+        "label": "Hervorgehobene Produkte werden in Produktlisten mit einem farbigen Etikett und der Aufschrift \"Tipp\" markiert. Du kannst die Farbe des Etiketts mit der Einstellung \"Notice\" in den {themesLink} Einstellungen ändern. Die Aufschrift kannst Du über den entsprechenden {snippetLink} anpassen.",
+        "themeLinkText": "Themes",
+        "snippetLinkText": "Textbaustein"
+      }
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
@@ -41,7 +50,8 @@
       "placeholderSearchKeywords": "Gib Schlagwörter ein, die diese Produkt finden ...",
       "textAddSearchKeyword": "Hier klicken, um Schlagwörter hinzuzufügen",
       "textEnterValidSearchKeyword": "Suchbare Schlagwörter",
-      "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden."
+      "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden.",
+      "helpTextTags": "Tags sind nur für den internen Gebrauch gedacht. Sie helfen dabei, Produkte zu gruppieren, Regeln anzuwenden oder dienen als individuelle Suchbegriffe."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -62,7 +72,11 @@
       "placeholderPackUnitPlural": "Verpackungseinheit Mehrzahl eingeben ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
-      "optionMetre": "Meter"
+      "optionMetre": "Meter",
+      "taxRateHelpText": {
+        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
+        "linkText": "Einstellungen"
+      }
     },
     "seoForm": {
       "labelMetaTitle": "Meta-Titel",

@@ -101,7 +101,13 @@
         "productAssignmentTypeStreamPlaceholder": "Durchsuche dynamische Produktgruppen ...",
         "alertManualAssignedProductsOnAssignmentTypeStream": "Es sind noch manuell zugewiesene Produkte in dieser Kategorie. Diese Produkte sind in dieser Kategorie nicht sichtbar, können jedoch in übergeordneten Kategorien sichtbar sein.",
         "dynamicProductGroupDetailLinkText": "Dynamische Produktgruppe Details",
-        "dynamicProductGroupInvalidMessage": "Die ausgewählte dynamische Produktgruppe ist nicht gültig. Bitte überprüfe die Details der dynamischen Produktgruppe."
+        "dynamicProductGroupInvalidMessage": "Die ausgewählte dynamische Produktgruppe ist nicht gültig. Bitte überprüfe die Details der dynamischen Produktgruppe.",
+        "dynamicProductGroupHelpText": {
+          "label": "Produkte gehören einer dynamischen Produktgruppe an, wenn sie den definierten Bedingungen der Produktgruppe entsprechen. Die Bedingungen kannst Du im Modul {link} selbst definieren.",
+          "linkText": "Dynamische Produktgruppen",
+          "videoUrl": "https://www.youtube.com/watch?v=T3-OOqAVsXY",
+          "videoLink": "Sieh dir dazu ein kurzes Video an"
+        }
       }
     },
     "modal": {

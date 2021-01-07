@@ -31,7 +31,16 @@
       "placeholderName": "Enter product title...",
       "placeholderDescriptionLong": "Enter product description...",
       "placeholderId": "Enter product number...",
-      "placeholderManufacturer": "Enter product manufacturer..."
+      "placeholderManufacturer": "Enter product manufacturer...",
+      "productNumberHelpText": {
+        "label": "Product numbers help you identify and manage your products. To achieve this, try and keep a consistent structure in your product numbers. You can define product number templates in {link}.",
+        "linkText": "settings"
+      },
+      "highlightHelpText": {
+        "label": "Highlighted products are marked with a brightly coloured label and the word \"Tip\" in all product listings. You can adjust the label's colour by changing the option \"Notice\" in {themeLink} settings. You can also alter the label's text by editing the corresponding {snippetLink}.",
+        "themeLinkText": "themes",
+        "snippetLinkText": "text snippet"
+      }
     },
     "categoryForm": {
       "labelCategory": "Categories",
@@ -41,7 +50,8 @@
       "placeholderSearchKeywords": "Enter keywords that find this product...",
       "textAddSearchKeyword": "Click here to add search keyword",
       "textEnterValidSearchKeyword": "Searchable keywords",
-      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords."
+      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords.",
+      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -62,7 +72,11 @@
       "placeholderPackUnitPlural": "Enter packaging unit in plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
-      "optionMetre": "Metre"
+      "optionMetre": "Metre",
+      "taxRateHelpText": {
+        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
+        "linkText": "settings"
+      }
     },
     "seoForm": {
       "labelMetaTitle": "Meta title",

@@ -40,7 +40,21 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices'])
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
+
+        taxRateHelpText() {
+            const link = {
+                name: 'sw.settings.tax.index'
+            };
+
+            return this.$tc('sw-product.priceForm.taxRateHelpText.label', 0, {
+                link: `<sw-internal-link
+                           :router-link=${JSON.stringify(link)}
+                           :inline="true">
+                           ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
+                      </sw-internal-link>`
+            });
+        }
     },
 
     methods: {

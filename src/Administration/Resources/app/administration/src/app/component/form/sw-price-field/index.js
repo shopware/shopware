@@ -113,6 +113,18 @@ Component.register('sw-price-field', {
             type: Boolean,
             required: false,
             default: undefined
+        },
+
+        grossHelpText: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        netHelpText: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 

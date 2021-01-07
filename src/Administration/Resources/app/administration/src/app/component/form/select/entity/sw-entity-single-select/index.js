@@ -155,7 +155,7 @@ Component.register('sw-entity-single-select', {
 
             this.isLoading = true;
 
-            return this.repository.get(this.value, this.context, this.criteria).then((item) => {
+            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
                 this.criteria.setIds([]);
 
                 this.singleSelection = item;
@@ -207,7 +207,7 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, this.context).then((result) => {
+            return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 this.displaySearch(result);
 
                 this.isLoading = false;

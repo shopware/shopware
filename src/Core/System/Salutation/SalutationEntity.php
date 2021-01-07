@@ -60,6 +60,11 @@ class SalutationEntity extends Entity
      */
     protected $newsletterRecipients;
 
+    /**
+     * @var array|null
+     */
+    protected $customFields;
+
     public function getSalutationKey(): string
     {
         return $this->salutationKey;
@@ -148,5 +153,15 @@ class SalutationEntity extends Entity
     public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
         $this->newsletterRecipients = $newsletterRecipients;
+    }
+
+    public function getCustomFields(): ?array
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?array $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

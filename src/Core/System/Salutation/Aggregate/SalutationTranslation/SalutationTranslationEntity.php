@@ -23,6 +23,11 @@ class SalutationTranslationEntity extends TranslationEntity
     protected $letterName;
 
     /**
+     * @var array|null
+     */
+    protected $customFields;
+
+    /**
      * @var SalutationEntity|null
      */
     protected $salutation;
@@ -55,6 +60,16 @@ class SalutationTranslationEntity extends TranslationEntity
     public function setLetterName(?string $letterName): void
     {
         $this->letterName = $letterName;
+    }
+
+    public function getCustomFields(): ?array
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?array $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 
     public function getSalutation(): ?SalutationEntity

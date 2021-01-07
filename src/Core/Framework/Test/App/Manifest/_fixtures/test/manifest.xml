@@ -2,7 +2,7 @@
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
     <meta>
-        <name>SwagApp</name>
+        <name>test</name>
         <label>Swag App Test</label>
         <label lang="de-DE">Swag App Test</label>
         <description>Test for App System</description>
@@ -29,7 +29,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
         </privacyPolicyExtensions>
     </meta>
     <setup>
-        <registrationUrl>https://my.app.com/SwagApp/registration</registrationUrl>
+        <registrationUrl>https://my.app.com/test/registration</registrationUrl>
         <secret>s3cr3t</secret>
     </setup>
     <admin>
@@ -48,6 +48,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             view="list"
             url="https://swag-test.com/do-stuff">
             <label>Do Stuff</label>
+            <label lang="de-DE">Mache Dinge</label>
         </action-button>
         <module name="first-module" source="https://test.com">
             <label>My first own module</label>

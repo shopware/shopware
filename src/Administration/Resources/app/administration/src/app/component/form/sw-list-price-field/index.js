@@ -122,10 +122,10 @@ Component.register('sw-list-price-field', {
                 }
 
                 return [{
-                    gross: 0,
-                    currencyId: this.currency.id,
+                    gross: null,
+                    currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
                     linked: true,
-                    net: 0
+                    net: null
                 }];
             },
 
@@ -136,11 +136,30 @@ Component.register('sw-list-price-field', {
                     this.$set(price, 'listPrice', newValue);
                 }
             }
+        },
+
+        defaultListPrice() {
+            const price = this.defaultPrice.listPrice;
+
+            if (price) {
+                return price;
+            }
+
+            return {
+                currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
+                gross: 0,
+                net: 0,
+                linked: true
+            };
         }
     },
 
     methods: {
         listPriceChanged(value) {
+            if (Number.isNaN(value.gross) || Number.isNaN(value.net)) {
+                value = null;
+            }
+
             this.listPrice = value;
         },
 

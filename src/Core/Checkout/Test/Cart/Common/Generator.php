@@ -93,6 +93,7 @@ class Generator extends TestCase
             $country = new CountryEntity();
             $country->setId('5cff02b1029741a4891c430bcd9e3603');
             $country->setTaxFree(false);
+            $country->setCompanyTaxFree(false);
             $country->setName('Germany');
         }
         if (!$state) {

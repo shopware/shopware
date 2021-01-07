@@ -6,13 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - class will be removed in 6.4.0
+ * @deprecated tag:v6.4.0 - class will be removed in 6.4.0
  */
 class VatIdWriteDeprecationTest extends TestCase
 {
@@ -35,8 +34,6 @@ class VatIdWriteDeprecationTest extends TestCase
      */
     public function testInsertNewFieldCustomerVatIds(array $vatId): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer($vatId);
 
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');
@@ -69,8 +66,6 @@ class VatIdWriteDeprecationTest extends TestCase
      */
     public function testUpdateNewFieldCustomerVatIds(array $vatId): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer($vatId);
 
         $customerRepository = $this->getContainer()->get('customer.repository');
@@ -95,8 +90,6 @@ class VatIdWriteDeprecationTest extends TestCase
 
     public function testUpdateNewFieldCustomerVatIdsToEmpty(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer(['vatIds' => ['AU123123123']]);
 
         $customerRepository = $this->getContainer()->get('customer.repository');

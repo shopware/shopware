@@ -290,6 +290,11 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator" decorates="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator">
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator.inner"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <!-- Events -->
         <service id="Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener">
             <tag name="kernel.event_subscriber"/>
@@ -314,6 +319,7 @@
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">

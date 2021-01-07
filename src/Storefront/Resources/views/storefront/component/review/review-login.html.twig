@@ -1,0 +1,43 @@
+{% sw_extends '@Storefront/storefront/component/account/login.html.twig' %}
+
+{% block component_account_login_header %}
+    <h2 class="card-title">
+        {{ "detail.reviewLoginHeader"|trans|sw_sanitize }}
+    </h2>
+{% endblock %}
+
+{% block component_account_login_form_description %}
+    <p class="login-form-description">
+        {{ "detail.reviewLoginDescription"|trans|sw_sanitize }}
+        <a href="{{ path('frontend.account.login.page') }}"
+           title="{{ "detail.reviewRegisterLink"|trans|striptags }}">
+            {{ "detail.reviewRegisterLink"|trans|sw_sanitize }}
+        </a>
+    </p>
+{% endblock %}
+
+{% block component_account_login_form_redirect %}
+    <input type="hidden"
+           name="redirectTo"
+           value="{{ activeRoute }}">
+
+    {#TODO: NEXT-12067 - Adding redirectParameters if component is used in product detail or something else#}
+{% endblock %}
+
+{% block component_account_login_submit %}
+    <div class="float-left">
+        {{ parent() }}
+    </div>
+    <div class="login-cancel">
+        {% block page_product_detail_review_form_cancel %}
+            <a href="#"
+               class="btn btn-outline-secondary ml-1"
+               data-toggle="collapse"
+               data-target=".multi-collapse"
+               aria-expanded="false"
+               aria-controls="review-form review-list">
+                {{ "detail.reviewLoginCancelButton"|trans|sw_sanitize }}
+            </a>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -4,8 +4,13 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class Module extends XmlElement
 {
+    public const TRANSLATABLE_FIELDS = ['label'];
+
     /**
      * @var array
      */
@@ -61,7 +66,8 @@ class Module extends XmlElement
                 continue;
             }
 
-            if ($child->tagName === 'label') {
+            // translated
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
@@ -103,14 +104,17 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      * @LoginRequired()
      * @Route("/store-api/v{version}/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
      */
-    public function merge(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
+    public function merge(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            /** @var CustomerEntity $customer */
+            $customer = $context->getCustomer();
+        }
+
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw new CustomerWishlistNotActivatedException();
         }
-
-        /** @var CustomerEntity $customer */
-        $customer = $context->getCustomer();
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
 
@@ -187,7 +191,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
+        /** @var Statement $stmt */
+        $stmt = $query->execute();
 
-        return $query->execute()->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
 }

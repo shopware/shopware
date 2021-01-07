@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,13 +29,6 @@ class AccountService
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
-
-    /**
-     * @deprecated tag:v6.4.0 $contextRestorer will no longer be used
-     *
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
 
     /**
      * @var EventDispatcherInterface
@@ -60,14 +52,12 @@ class AccountService
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
-        SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
         SalesChannelContextRestorer $contextRestorer
     ) {
         $this->customerRepository = $customerRepository;
-        $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
@@ -79,9 +69,18 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context): void
+    public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
     {
-        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context);
+        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
+        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context, $customer);
     }
 
     /**
@@ -89,9 +88,18 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context): void
+    public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
     {
-        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context);
+        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
+        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
     }
 
     /**

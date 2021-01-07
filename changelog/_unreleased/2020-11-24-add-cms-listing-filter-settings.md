@@ -1,7 +1,6 @@
 ---
 title: add cms listing filter settings
 issue: NEXT-11355
-flag: FEATURE_NEXT_10536
 author: Markus Velt
 author_email: m.velt@shopware.com 
 author_github: @raknison

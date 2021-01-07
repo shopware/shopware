@@ -29,8 +29,36 @@
                     </div>
                 {% endblock %}
 
+                {% block sw_cms_element_product_box_info_skeleton %}
+                    <div v-if="displaySkeleton && feature.isActive('FEATURE_NEXT_10078')" class="sw-cms-el-product-box__info">
+
+                        {% block sw_cms_element_product_box_name_skeleton %}
+                            <div class="sw-cms-el-product-box__skeleton-name"></div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_description_skeleton %}
+                            <div class="sw-cms-el-product-box__skeleton-description"></div>
+                            <div class="sw-cms-el-product-box__skeleton-description"></div>
+                            <div class="sw-cms-el-product-box__skeleton-description"></div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_price_skeleton %}
+                            <div class="sw-cms-el-product-box__skeleton-price"></div>
+                        {% endblock %}
+
+                        {% block sw_cms_element_product_box_actions_skeleton %}
+                            <div class="sw-cms-el-product-box__actions">
+                                <a href="#" class="sw-cms-el-product-box__buy-action">
+                                    {{ $tc('sw-cms.elements.productBox.component.label.actionBuy') }}
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
                 {% block sw_cms_element_product_box_info %}
-                    <div class="sw-cms-el-product-box__info">
+                    <div v-else class="sw-cms-el-product-box__info">
 
                         {% block sw_cms_element_product_box_name %}
                             <a href="#" class="sw-cms-el-product-box__name" :title="placeholder(product, 'name')">
@@ -66,6 +94,7 @@
                                         {{ product.price[0].gross | currency('EUR') }}
                                     </div>
                                 {% endblock %}
+
                             </div>
                         {% endblock %}
 
@@ -76,9 +105,12 @@
                                 </a>
                             </div>
                         {% endblock %}
+
                     </div>
                 {% endblock %}
+
             </div>
         {% endblock %}
+
     </div>
 {% endblock %}

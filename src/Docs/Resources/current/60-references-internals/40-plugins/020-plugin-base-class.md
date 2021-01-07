@@ -213,10 +213,11 @@ These are executed with each request, so be careful with them, due to performanc
 
 | Method                                                                              | Arguments                                   | Usage                                                                                                            | Container available |
 |-------------------------------------------------------------------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------|---------------------|
-| [build](./020-plugin-base-class.md#build)                                           | ContainerBuilder                            | Called while Symfony builds the [DI container](https://symfony.com/doc/current/service_container.html)           |      Partially      |
-| [configureRoutes](./020-plugin-base-class.md#configureRoutes)                       | RouteCollectionBuilder, string $environment | Called on each kernel boot to register your controller routes                                                    |         No          |
-| [getMigrationNamespace](./020-plugin-base-class.md#getMigrationNamespace)           | N/A                                         | Called whenever migrations get executed to add your migration namespace to the migration collection              |         Yes         |
-| [getActionEvents](./020-plugin-base-class.md#getActionEvents)                       | N/A                                         | Registers action events for your plugin                                                                          |      Partially      |
+| [build](./020-plugin-base-class.md#build)                                           | ContainerBuilder                            | Called while Symfony builds the [DI container](https://symfony.com/doc/current/service_container.html)           | Partially           |
+| [configureRoutes](./020-plugin-base-class.md#configureRoutes)                       | RouteCollectionBuilder, string $environment | Called on each kernel boot to register your controller routes                                                    | No                  |
+| [getMigrationNamespace](./020-plugin-base-class.md#getMigrationNamespace)           | N/A                                         | Called whenever migrations get executed to add your migration namespace to the migration collection              | Yes                 |
+| [getActionEvents](./020-plugin-base-class.md#getActionEvents)                       | N/A                                         | Registers action events for your plugin                                                                          | Partially           |
+| [executeComposerCommands](./020-plugin-base-class.md#executeComposerCommands)       | N/A                                         | Switch for composer commands during plugin install/update/uninstall                                              | No                  |
 
 ### build
 
@@ -287,6 +288,20 @@ class BaseClass extends Plugin
 }
 ```
 *Please note, if your code fails or throws an exception, your plugin migrations will no longer work.*
+
+### executeComposerCommands
+
+__Please note, that this feature is behind the feature flag `FEATURE_NEXT_1797`, which will be available with Shopware 6.4.0.0.__
+
+Switch for executing composer commands during the installation, update and uninstallation of a plugin.
+
+If your plugin provides 3rd party dependencies, override the `executeComposerCommands` method in your plugin base class and return true.
+
+Now on plugin installation and update of the plugin a `composer require` of your plugin will also be executed.
+This will also install your plugin dependencies to the root vendor directory of Shopware.
+
+On plugin uninstallation a `composer remove` of your plugin will be executed.
+This will remove your plugin dependencies from the root vendor again.
 
 ## Plugin boot process
 

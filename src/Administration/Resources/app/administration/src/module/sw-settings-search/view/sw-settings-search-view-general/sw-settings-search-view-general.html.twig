@@ -1,0 +1,22 @@
+{% block sw_settings_search_view_general %}
+    <div class="sw-settings-search__view-general">
+        {% block sw_settings_search_search_behaviour_card %}
+            <sw-settings-search-search-behaviour
+                :isLoading="isLoading"
+                :search-behaviour-configs="productSearchConfigs">
+            </sw-settings-search-search-behaviour>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_card %}
+            {#TODO: NEXT-11990 - Implement Searchable content in new Search settings module #}
+        {% endblock %}
+
+        {% block sw_settings_search_excluded_search_terms_card %}
+            {#TODO: NEXT-11993 - Implement Excluded search temrs in new Search settings module #}
+        {% endblock %}
+
+        {% block sw_settings_search_search_index_card %}
+            {#TODO: NEXT-11994 - Implement Search index in new Search settings module #}
+        {% endblock %}
+    </div>
+{% endblock %}

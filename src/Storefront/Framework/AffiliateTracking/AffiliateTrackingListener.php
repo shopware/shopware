@@ -38,9 +38,11 @@ class AffiliateTrackingListener implements EventSubscriberInterface
         $session = $request->getSession();
         $affiliateCode = $request->query->get(self::AFFILIATE_CODE_KEY);
         $campaignCode = $request->query->get(self::CAMPAIGN_CODE_KEY);
-
-        if ($affiliateCode && $campaignCode) {
+        if ($affiliateCode) {
             $session->set(self::AFFILIATE_CODE_KEY, $affiliateCode);
+        }
+
+        if ($campaignCode) {
             $session->set(self::CAMPAIGN_CODE_KEY, $campaignCode);
         }
     }

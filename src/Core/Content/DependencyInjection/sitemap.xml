@@ -31,6 +31,10 @@
         </service>
 
         <!-- UrlProviders -->
+        <service id="Shopware\Core\Content\Sitemap\Provider\HomeUrlProvider">
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>

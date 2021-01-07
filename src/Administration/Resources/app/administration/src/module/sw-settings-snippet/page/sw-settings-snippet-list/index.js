@@ -78,7 +78,7 @@ Component.register('sw-settings-snippet-list', {
             );
 
             if (this.term) {
-                this.criteria.setTerm(this.term);
+                criteria.setTerm(this.term);
             }
 
             return criteria;
@@ -278,7 +278,13 @@ Component.register('sw-settings-snippet-list', {
         onSearch(term) {
             this.term = term;
             this.page = 1;
-            this.initializeSnippetSet();
+
+            this.updateRoute({
+                term: term,
+                page: 1
+            }, {
+                ids: this.queryIds
+            });
         },
 
         backRoutingError() {
@@ -484,7 +490,6 @@ Component.register('sw-settings-snippet-list', {
             if (column.dataIndex !== this.sortBy) {
                 this.sortBy = column.dataIndex;
                 this.sortDirection = 'ASC';
-                this.getList();
                 return;
             }
 
@@ -493,17 +498,22 @@ Component.register('sw-settings-snippet-list', {
             } else {
                 this.sortDirection = 'ASC';
             }
-
-            this.getList();
+            this.updateRoute({
+                sortDirection: this.sortDirection,
+                sortBy: this.sortBy
+            }, {
+                ids: this.queryIds
+            });
         },
 
         onPageChange(opts) {
             this.page = opts.page;
             this.limit = opts.limit;
             this.updateRoute({
-                page: this.page
+                page: this.page,
+                limit: this.limit
             }, {
-                ids: this.$route.query.ids
+                ids: this.queryIds
             });
         },
 

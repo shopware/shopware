@@ -68,6 +68,10 @@ default:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - mkdir -p build/artifacts/
+        # run all code in test env
+        - ./psh.phar cache --APP_ENV=test
+        - chown -R application:application .
+        - curl http://docker.vm:8000/admin
         - failed="0"
         - echo -e
             '<?xml version="1.0" encoding="UTF-8"?>
@@ -167,9 +171,10 @@ Javascript analysis:
 PHP analysis:
     image: shopware/development:7.2
     cache:
-        key: ${CI_JOB_NAME}
+        key: "${CI_JOB_NAME}_2"
         paths:
-            - development/var/cache/cs_fixer/
+            # disabled due to possible cache issue NEXT-12933
+            #- development/var/cache/cs_fixer/
             - development/var/cache/phpstan/
             - development/var/cache/psalm/
     only:

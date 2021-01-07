@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed
+ */
 class OneToManyJoinBuilder implements JoinBuilderInterface
 {
     /**

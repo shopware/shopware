@@ -43,6 +43,8 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $request = $resolverContext->getRequest();
         $context = $resolverContext->getSalesChannelContext();
 
+        $this->restrictFilters($slot, $request);
+
         if ($this->isCustomSorting($slot)) {
             $this->restrictSortings($request, $slot);
             $this->addDefaultSorting($request, $slot);
@@ -118,5 +120,34 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
 
         $request->request->set('availableSortings', $config['availableSortings']['value']);
+    }
+
+    private function restrictFilters(CmsSlotEntity $slot, Request $request): void
+    {
+        // setup the default behavior
+        $defaults = ['manufacturer-filter', 'rating-filter', 'shipping-free-filter', 'price-filter', 'property-filter'];
+
+        $request->request->set('property-whitelist', null);
+
+        $config = $slot->get('config');
+
+        if (isset($config['propertyWhitelist']['value']) && \count($config['propertyWhitelist']['value']) > 0) {
+            $request->request->set('property-whitelist', $config['propertyWhitelist']['value']);
+        }
+
+        if (!isset($config['filters']['value'])) {
+            return;
+        }
+
+        // apply config settings
+        $config = explode(',', $config['filters']['value']);
+
+        foreach ($defaults as $filter) {
+            if (\in_array($filter, $config, true)) {
+                continue;
+            }
+
+            $request->request->set($filter, false);
+        }
     }
 }

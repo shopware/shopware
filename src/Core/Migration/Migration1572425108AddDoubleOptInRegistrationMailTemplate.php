@@ -123,9 +123,9 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Please confirm your registration at {{ salesChannel.name }}',
+                    'subject' => 'Please confirm your sign-up with {{ salesChannel.translated.name }}',
                     'description' => 'Registration confirmation',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -139,9 +139,9 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Please confirm your registration at {{ salesChannel.name }}',
+                    'subject' => 'Please confirm your sign-up with {{ salesChannel.translated.name }}',
                     'description' => 'Registration confirmation',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateEn(),
                     'content_plain' => $this->getPlainTemplateEn(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -155,9 +155,9 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Bitte bestätigen Sie Ihre Anmeldung bei {{ salesChannel.name }}',
+                    'subject' => 'Bitte bestätigen Sie Ihre Anmeldung bei {{ salesChannel.translated.name }}',
                     'description' => 'Anmeldebestätigung',
-                    'sender_name' => '{{ salesChannel.name }}',
+                    'sender_name' => '{{ salesChannel.translated.name }}',
                     'content_html' => $this->getHtmlTemplateDe(),
                     'content_plain' => $this->getPlainTemplateDe(),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -189,9 +189,9 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
         return '
             <div style="font-family:arial; font-size:12px;">
                 <p>
-                    Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+                    Hallo {{ customer.salutation.translated.displayName }} {{ customer.lastName }},<br/>
                     <br/>
-                    vielen Dank für Ihre Anmeldung bei {{ salesChannel.name }}.<br/>
+                    vielen Dank für Ihre Anmeldung bei {{ salesChannel.translated.name }}.<br/>
                     Bitte bestätigen Sie die Registrierung über den nachfolgenden Link:<br/>
                     <br/>
                     <a href="{{ confirmUrl }}">Anmeldung abschließen</a><br/>
@@ -205,13 +205,13 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
     private function getPlainTemplateDe(): string
     {
         return '
-            Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},
-            
-            vielen Dank für Ihre Anmeldung bei {{ salesChannel.name }}.
+            Hallo {{ customer.salutation.translated.displayName }} {{ customer.lastName }},
+
+            vielen Dank für Ihre Anmeldung bei {{ salesChannel.translated.name }}.
             Bitte bestätigen Sie die Registrierung über den nachfolgenden Link:
-            
+
             {{ confirmUrl }}
-            
+
             Durch diese Bestätigung erklären Sie sich ebenso damit einverstanden, dass wir Ihnen im Rahmen der Vertragserfüllung weitere E-Mails senden dürfen.
         ';
     }
@@ -221,10 +221,10 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
         return '
             <div style="font-family:arial; font-size:12px;">
                 <p>
-                    Hello {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+                    Hello {{ customer.salutation.translated.displayName }} {{ customer.lastName }},<br/>
                     <br/>
-                    thank you for your registration at {{ salesChannel.name }}.<br/>
-                    Please confirm the registration via the following link:<br/>
+                    thank you for your signing up with {{ salesChannel.translated.name }}.<br/>
+                    Please confirm the sign-up via the following link:<br/>
                     <br/>
                     <a href="{{ confirmUrl }}">Completing registration</a><br/>
                     <br/>
@@ -237,13 +237,13 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
     private function getPlainTemplateEn(): string
     {
         return '
-            Hello {{ customer.salutation.displayName }} {{ customer.lastName }},
-            
-            thank you for your registration at {{ salesChannel.name }}.
-            Please confirm the registration via the following link:
-            
+            Hello {{ customer.salutation.translated.displayName }} {{ customer.lastName }},
+
+            thank you for your signing up with {{ salesChannel.translated.name }}.
+            Please confirm the sign-up via the following link:
+
             {{ confirmUrl }}
-            
+
             By this confirmation, you also agree that we may send you further emails as part of the fulfillment of the contract.
         ';
     }

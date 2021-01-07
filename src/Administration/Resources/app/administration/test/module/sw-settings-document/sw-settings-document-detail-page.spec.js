@@ -295,7 +295,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await wrapper.vm.$nextTick();
 
-        const companyFormFields = wrapper.vm.getCompanyFormFields;
+        const companyFormFields = wrapper.vm.companyFormFields;
 
         expect(
             companyFormFields.map(item => item && item.name).includes('companyPhone')

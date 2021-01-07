@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
  * Resolver used when shop is moved from one URL to another
  * and the shopId (and the data in the app backends associated with it) should be kept
  *

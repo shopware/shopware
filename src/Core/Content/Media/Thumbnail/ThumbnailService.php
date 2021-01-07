@@ -237,7 +237,7 @@ class ThumbnailService
         /** @var string $file */
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
-        if (!$image) {
+        if ($image === false) {
             throw new FileTypeNotSupportedException($media->getId());
         }
 
@@ -259,6 +259,10 @@ class ThumbnailService
                     $image = imagerotate($image, 180, 0);
                 } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
                     $image = imagerotate($image, -90, 0);
+                }
+
+                if ($image === false) {
+                    throw new FileTypeNotSupportedException($media->getId());
                 }
             } catch (\Exception $e) {
                 // Ignore.

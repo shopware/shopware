@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -173,6 +174,38 @@ class ProductPageTest extends TestCase
         $matrix = $page->getReviews()->getMatrix();
         static::assertEquals(3.4285714285714, $matrix->getAverageRating());
         static::assertEquals(7, $matrix->getTotalReviewCount());
+    }
+
+    public function testItDoesLoadACmsProductDetailPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $cmsPageId = Uuid::randomHex();
+        $productCmsPageData = [
+            'cmsPage' => [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [],
+            ],
+        ];
+
+        $product = $this->getRandomProduct($context, 10, false, $productCmsPageData);
+
+        static::assertEquals($cmsPageId, $product->getCmsPageId());
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ProductPage::class, $page);
+        static::assertEquals($cmsPageId, $page->getCmsPage()->getId());
+
+        static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
+        self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
     /**

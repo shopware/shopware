@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField;
 
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
@@ -39,6 +40,13 @@ class CustomFieldEntity extends Entity
      * @var CustomFieldSetEntity|null
      */
     protected $customFieldSet;
+
+    /**
+     * @internal (FEATURE_NEXT_10552)
+     *
+     * @var ProductSearchConfigFieldCollection |null
+     */
+    protected $productSearchConfigFields;
 
     public function getName(): string
     {
@@ -98,5 +106,21 @@ class CustomFieldEntity extends Entity
     public function setCustomFieldSet(?CustomFieldSetEntity $attributeSet): void
     {
         $this->customFieldSet = $attributeSet;
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_10552)
+     */
+    public function getProductSearchConfigFields(): ?ProductSearchConfigFieldCollection
+    {
+        return $this->productSearchConfigFields;
+    }
+
+    /**
+     * @internal (FEATURE_NEXT_10552)
+     */
+    public function setProductSearchConfigFields(ProductSearchConfigFieldCollection $productSearchConfigFields): void
+    {
+        $this->productSearchConfigFields = $productSearchConfigFields;
     }
 }

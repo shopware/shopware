@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -1718,8 +1719,10 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($categoryId, $categories->getIds());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('category.products.price', $parentPrice['gross']));
-        $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
+        $criteria->addFilter(new AndFilter([
+            new EqualsFilter('category.products.price', $parentPrice['gross']),
+            new EqualsFilter('category.products.parentId', null),
+        ]));
 
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);

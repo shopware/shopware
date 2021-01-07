@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -61,15 +62,17 @@ class AccountPaymentController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context): Response
+    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
     {
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
 
+            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changePaymentMethodRoute->change(
                 $paymentMethodId,
                 $requestDataBag,
-                $context
+                $context,
+                $customer
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
             $this->addFlash('danger', $this->trans('error.' . $exception->getErrorCode()));

@@ -13,6 +13,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class RefreshAppCommand extends Command
 {
     protected static $defaultName = 'app:refresh';
@@ -27,12 +30,18 @@ class RefreshAppCommand extends Command
      */
     private $appPrinter;
 
-    public function __construct(AppService $appService, AppPrinter $appPrinter)
+    /**
+     * @var ValidateAppCommand
+     */
+    private $validateAppCommand;
+
+    public function __construct(AppService $appService, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
     {
         parent::__construct();
 
         $this->appService = $appService;
         $this->appPrinter = $appPrinter;
+        $this->validateAppCommand = $validateAppCommand;
     }
 
     protected function configure(): void
@@ -48,6 +57,11 @@ class RefreshAppCommand extends Command
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
+            )->addOption(
+                'no-validate',
+                null,
+                InputOption::VALUE_NONE,
+                'Skip app validation.'
             );
     }
 
@@ -74,6 +88,14 @@ class RefreshAppCommand extends Command
             }
         }
 
+        if (!$input->getOption('no-validate')) {
+            $hasViolations = $this->validateRefreshableApps($refreshableApps, $io);
+
+            if ($hasViolations === 1) {
+                return 1;
+            }
+        }
+
         $fails = $this->appService->doRefreshApps((bool) $input->getOption('activate'), $context);
 
         $this->appPrinter->printInstalledApps($io, $context);
@@ -82,12 +104,43 @@ class RefreshAppCommand extends Command
         return 0;
     }
 
+    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): int
+    {
+        $refreshableManifests = array_merge(
+            $refreshableApps->getToBeInstalled(),
+            $refreshableApps->getToBeUpdated()
+        );
+
+        // validate refreshable apps
+        $invalids = [];
+        foreach ($refreshableManifests as $refreshableManifest) {
+            $validation = $this->validateAppCommand->validate($refreshableManifest->getPath());
+
+            if (!$validation) {
+                continue;
+            }
+
+            $invalids[] = $validation;
+        }
+
+        if (\count($invalids) > 0) {
+            foreach ($invalids as $invalid) {
+                $io->error($invalid);
+            }
+
+            return 1;
+        }
+
+        $io->success('all refreshable apps are valid');
+
+        return 0;
+    }
+
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
         if (!$io->confirm(
             sprintf(
-                '%d apps will be installed, %d apps will be updated and
-                    %d apps will be deleted. Do you want to continue?',
+                "%d apps will be installed, %d apps will be updated and %d apps will be deleted.\nDo you want to continue?",
                 \count($refreshableApps->getToBeInstalled()),
                 \count($refreshableApps->getToBeUpdated()),
                 \count($refreshableApps->getToBeDeleted())

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,7 +26,7 @@ class ProductGatewayTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $repository = $this->createMock(SalesChannelRepositoryInterface::class);
-        $repository->method('search')->willReturn(new ProductCollection());
+        $repository->method('search')->willReturn(new EntitySearchResult(0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext()));
 
         $validator = static::callback(static function ($subject) {
             return $subject instanceof ProductGatewayCriteriaEvent;

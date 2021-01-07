@@ -38,9 +38,16 @@ describe('Checkout: Visual tests', () => {
         cy.get('.product-detail-buy .btn-buy').click();
 
         // Off canvas
-
-        cy.get('.cart-item').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
         cy.get('.cart-item-price').contains('64');
+
+        const continueShopping = Cypress.env('locale') === 'en-GB' ?
+            'Continue shopping' : 'Weiter einkaufen';
+        cy.contains(continueShopping).should('be.visible');
+        cy.contains(continueShopping).click();
+        cy.get('.header-cart-total').contains('64');
+        cy.get('.header-cart-total').click();
+        cy.get('.offcanvas').should('be.visible');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,

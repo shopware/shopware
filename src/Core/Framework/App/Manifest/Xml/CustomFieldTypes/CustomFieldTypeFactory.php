@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class CustomFieldTypeFactory
 {
     private const TAG_TO_CLASS_MAPPING = [
@@ -15,6 +18,8 @@ class CustomFieldTypeFactory
         'datetime' => DateTimeField::class,
         'single-select' => SingleSelectField::class,
         'multi-select' => MultiSelectField::class,
+        'single-entity-select' => SingleEntitySelectField::class,
+        'multi-entity-select' => MultiEntitySelectField::class,
         'color-picker' => ColorPickerField::class,
         'media-selection' => MediaSelectionField::class,
     ];

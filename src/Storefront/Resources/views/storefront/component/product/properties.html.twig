@@ -1,0 +1,36 @@
+{% block component_product_properties_inner %}
+    <div class="product-detail-properties">
+        {% block component_product_properties_container %}
+            <div class="row product-detail-properties-container">
+                <div class="col-md-10 col-lg-6">
+                    {% block component_product_properties_table %}
+                        <table class="table table-striped product-detail-properties-table">
+                            <tbody>
+                            {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+                            {% for group in product.sortedProperties %}
+                                {% block component_product_properties_table_row %}
+                                    <tr class="properties-row">
+                                        {% block component_product_properties_item_label %}
+                                            <th class="properties-label">{{ group.translated.name|e }}:</th>
+                                        {% endblock %}
+                                        {% block component_product_properties_item_value %}
+                                            <td class="properties-value">
+                                                {% apply spaceless %}
+                                                    {% for option in group.options %}
+                                                        {% set i = ( i | default(0) ) + 1 %}
+                                                        <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
+                                                    {% endfor %}
+                                                {% endapply %}
+                                            </td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

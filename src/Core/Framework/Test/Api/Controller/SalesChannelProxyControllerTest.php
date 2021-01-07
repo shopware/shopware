@@ -897,6 +897,42 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
     }
 
+    public function testProxyCreateOrderWithInvalidSalesChannelId(): void
+    {
+        $this->getBrowser()->request('POST', $this->getCreateOrderApiUrl(Uuid::randomHex()));
+
+        $response = $this->getBrowser()->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
+    }
+
+    public function testProxyCreateOrderWithHeadersAreCopied(): void
+    {
+        $salesChannel = $this->createSalesChannel();
+        $uuid = Uuid::randomHex();
+
+        $this->getBrowser()->request(
+            'GET',
+            $this->getUrl($salesChannel['id'], '/product'),
+            [],
+            [],
+            [
+                'HTTP_SW_CONTEXT_TOKEN' => $uuid,
+                'HTTP_SW_LANGUAGE_ID' => $uuid,
+                'HTTP_SW_VERSION_ID' => $uuid,
+            ]
+        );
+
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
+        static::assertEquals($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
+    }
+
     private function getLangHeaderName(): string
     {
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID));
@@ -1000,6 +1036,15 @@ class SalesChannelProxyControllerTest extends TestCase
             PlatformRequest::API_VERSION,
             $salesChannelId,
             ltrim($url, '/')
+        );
+    }
+
+    private function getCreateOrderApiUrl(string $salesChannelId): string
+    {
+        return sprintf(
+            '/api/v%d/_proxy-order/%s',
+            PlatformRequest::API_VERSION,
+            $salesChannelId
         );
     }
 

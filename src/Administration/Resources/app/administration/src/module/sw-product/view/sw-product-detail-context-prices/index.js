@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-context-prices', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -18,7 +18,8 @@ Component.register('sw-product-detail-context-prices', {
         return {
             rules: [],
             totalRules: 0,
-            isInherited: false
+            isInherited: false,
+            showListPrices: {}
         };
     },
 
@@ -128,13 +129,14 @@ Component.register('sw-product-detail-context-prices', {
                     allowResize: true,
                     primary: false,
                     rawData: false,
-                    width: '250px'
+                    width: '250px',
+                    multiLine: true
                 };
             });
         },
 
         pricesColumns() {
-            return [
+            const priceColumns = [
                 {
                     property: 'quantityStart',
                     label: 'sw-product.advancedPrices.columnFrom',
@@ -151,9 +153,22 @@ Component.register('sw-product-detail-context-prices', {
                     primary: true,
                     rawData: false,
                     width: '95px'
-                },
-                ...this.currencyColumns
+                }
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_10541')) {
+                priceColumns.push({
+                    property: 'type',
+                    label: 'sw-product.advancedPrices.columnType',
+                    visible: true,
+                    // visible: false,
+                    allowResize: true,
+                    width: '95px',
+                    multiLine: true
+                });
+            }
+
+            return [...priceColumns, ...this.currencyColumns];
         }
     },
 
@@ -224,7 +239,13 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: this.defaultCurrency.id,
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net
+                net: this.defaultPrice.net,
+                listPrice: {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : 0,
+                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
+                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : 0
+                }
             }];
 
             this.product.prices.add(newPriceRule);
@@ -317,6 +338,13 @@ Component.register('sw-product-detail-context-prices', {
                 net: this.convertPrice(defaultPrice.net, currency)
             };
 
+            newPrice.listPrice = {
+                currencyId: currency.id,
+                gross: defaultPrice.listPrice.gross ? this.convertPrice(defaultPrice.listPrice.gross, currency) : 0,
+                linked: defaultPrice.listPrice.linked ? defaultPrice.listPrice.linked : true,
+                net: defaultPrice.listPrice.net ? this.convertPrice(defaultPrice.listPrice.net, currency) : 0
+            };
+
             // add price to rule.price
             this.$set(rule.price, rule.price.length, newPrice);
         },
@@ -369,7 +397,13 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: this.defaultCurrency.id,
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net
+                net: this.defaultPrice.net,
+                listPrice: {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : 0,
+                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
+                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : 0
+                }
             }];
 
             this.product.prices.add(newPriceRule);

@@ -71,6 +71,11 @@
                                     :showSelection="false"
                                     :allowInlineEdit="acl.can('payment.editor')"
                                     :isLoading="isLoading"
+                                    @column-sort="onSortColumn"
+                                    @page-change="onPageChange"
+                                    :disableDataFetching=true
+                                    :sortBy="sortBy"
+                                    :sortDirection="sortDirection"
                                     @inline-edit-save="onInlineEditSave">
 
                                     {% block sw_settings_payment_list_column_active %}

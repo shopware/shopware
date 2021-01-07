@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-card', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('salutation')

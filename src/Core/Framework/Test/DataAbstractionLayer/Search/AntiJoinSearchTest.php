@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -56,7 +57,6 @@ class AntiJoinSearchTest extends TestCase
             ->addFilter($notGreenFilter);
 
         $notGreenIds = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
         static::assertContains($noTagsId, $notGreenIds);
         static::assertContains($redId, $notGreenIds);
         static::assertContains($blueId, $notGreenIds);
@@ -67,7 +67,9 @@ class AntiJoinSearchTest extends TestCase
             $notGreenFilter,
         ]);
 
-        $notGreenExtendedIds = $productRepository->searchIds((new Criteria($ids))->addFilter($extendedNotGreenFilter), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria($ids))->addFilter($extendedNotGreenFilter);
+
+        $notGreenExtendedIds = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($noTagsId, $notGreenExtendedIds);
         static::assertCount(1, $notGreenExtendedIds);
@@ -76,7 +78,9 @@ class AntiJoinSearchTest extends TestCase
             new EqualsFilter('product.tags.name', 'green'),
             new EqualsFilter('product.tags.name', 'red'),
         ]);
-        $notGreenOrRedIds = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
+
+        $notGreenOrRedIds = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($noTagsId, $notGreenOrRedIds);
         static::assertContains($blueId, $notGreenOrRedIds);
@@ -109,7 +113,8 @@ class AntiJoinSearchTest extends TestCase
             new NotFilter('OR', [new EqualsFilter('product.tags.name', 'green'), new EqualsFilter('product.tags.name', 'yellow')]),
             new NotFilter('AND', [new EqualsFilter('product.tags.name', 'red')]),
         ]);
-        $notGreenOrRedIds = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenOrRed), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenOrRed);
+        $notGreenOrRedIds = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($noTagsId, $notGreenOrRedIds);
         static::assertContains($blueId, $notGreenOrRedIds);
@@ -144,7 +149,9 @@ class AntiJoinSearchTest extends TestCase
             new NotFilter('AND', [new EqualsFilter('product.tags.name', 'red')]),
         ]);
 
-        $greenButNotRedIds = $productRepository->searchIds((new Criteria())->addFilter($greenButNotRed), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria())->addFilter($greenButNotRed);
+
+        $greenButNotRedIds = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($greenId, $greenButNotRedIds);
         static::assertContains($greenBlueId, $greenButNotRedIds);
@@ -153,27 +160,22 @@ class AntiJoinSearchTest extends TestCase
 
     public function testManyToManyToMany(): void
     {
-        $noProductsId = Uuid::randomHex();
-        $noTagsId = Uuid::randomHex();
-        $greenId = Uuid::randomHex();
-        $redId = Uuid::randomHex();
-
-        $ids = [$noProductsId, $noTagsId, $greenId, $redId];
+        $ids = new IdsCollection();
 
         $categories = [
             [
-                'id' => $noProductsId,
+                'id' => $ids->get('no-products'),
                 'name' => 'no products',
             ],
             [
-                'id' => $noTagsId,
+                'id' => $ids->get('no-tags'),
                 'name' => 'not tags',
                 'products' => [
                     $this->getTaggedProduct(Uuid::randomHex(), 'no tags'),
                 ],
             ],
             [
-                'id' => $greenId,
+                'id' => $ids->get('with-green'),
                 'name' => 'green',
                 'products' => [
                     $this->getTaggedProduct(Uuid::randomHex(), 'not green'),
@@ -181,7 +183,7 @@ class AntiJoinSearchTest extends TestCase
                 ],
             ],
             [
-                'id' => $redId,
+                'id' => $ids->get('with-red'),
                 'name' => 'red',
                 'products' => [
                     $this->getTaggedProduct(Uuid::randomHex(), 'red', ['red']),
@@ -196,12 +198,14 @@ class AntiJoinSearchTest extends TestCase
         $nonGreen = new NotFilter('AND', [
             new EqualsFilter('category.products.tags.name', 'green'),
         ]);
-        $nonGreenIds = $categoryRepository->searchIds((new Criteria($ids))->addFilter($nonGreen), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria($ids->all()))->addFilter($nonGreen);
 
-        static::assertContains($noProductsId, $nonGreenIds);
-        static::assertContains($noTagsId, $nonGreenIds);
-        static::assertContains($redId, $nonGreenIds);
-        static::assertCount(3, $nonGreenIds);
+        $matches = $categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        static::assertContains($ids->get('no-products'), $matches);
+        static::assertContains($ids->get('no-tags'), $matches);
+        static::assertContains($ids->get('with-red'), $matches);
+        static::assertCount(3, $matches);
     }
 
     public function testOneToMany(): void
@@ -268,7 +272,9 @@ class AntiJoinSearchTest extends TestCase
         $notGreenFilter = new NotFilter('AND', [
             new ContainsFilter('product_manufacturer.products.productNumber', 'green'),
         ]);
-        $notGreenIds = $manufacturerRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
+
+        $notGreenIds = $manufacturerRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
         static::assertContains($noProductsId, $notGreenIds);
         static::assertContains($redId, $notGreenIds);
         static::assertCount(2, $notGreenIds);
@@ -319,32 +325,44 @@ class AntiJoinSearchTest extends TestCase
         $notGreenFilter = new NotFilter('AND', [new EqualsFilter('product.name', 'green')]);
 
         $enGbContext = Context::createDefaultContext();
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $enGbContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertEmpty($ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $rawDeContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $deContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
         $notGruenFilter = new NotFilter('AND', [new EqualsFilter('product.name', 'grün')]);
 
         $enGbContext = Context::createDefaultContext();
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $enGbContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $rawDeContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertEmpty($ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
-        $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $deContext)->getIds();
+        $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
+
+        $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($onlyGreenId, $ids);
         static::assertCount(1, $ids);
     }
@@ -364,14 +382,18 @@ class AntiJoinSearchTest extends TestCase
         $productRepository->create($products, Context::createDefaultContext());
 
         $tagsNullFilters = new EqualsFilter('product.tags.id', null);
-        $result = $productRepository->searchIds((new Criteria())->addFilter($tagsNullFilters), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria())->addFilter($tagsNullFilters);
+
+        $result = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($withoutTagId, $result);
         static::assertNotContains($withTagId, $result);
         static::assertCount(1, $result);
 
         $notTagsNullFilters = new NotFilter('AND', [$tagsNullFilters]);
-        $result = $productRepository->searchIds((new Criteria())->addFilter($notTagsNullFilters), Context::createDefaultContext())->getIds();
+        $criteria = (new Criteria())->addFilter($notTagsNullFilters);
+
+        $result = $productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         static::assertContains($withTagId, $result);
         static::assertNotContains($withoutTagId, $result);

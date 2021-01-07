@@ -1,7 +1,12 @@
+import './component/sw-promotion-v2-individual-codes-behavior';
+
+import './init/services.init';
+
 import './page/sw-promotion-v2-detail';
 import './page/sw-promotion-v2-list';
 
 import './view/sw-promotion-v2-detail-base';
+import './view/sw-promotion-v2-discounts';
 
 const { Module } = Shopware;
 
@@ -14,7 +19,7 @@ Module.register('sw-promotion-v2', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'default-package-gift',
+    icon: 'default-object-marketing',
     favicon: 'default-object-marketing',
     entity: 'promotion',
 
@@ -74,6 +79,14 @@ Module.register('sw-promotion-v2', {
                         parentPath: 'sw.promotion.v2.index',
                         privilege: 'promotion.viewer'
                     }
+                },
+                discounts: {
+                    component: 'sw-promotion-v2-discounts',
+                    path: 'discounts',
+                    meta: {
+                        parentPath: 'sw.promotion.v2.index',
+                        privilege: 'promotion.viewer'
+                    }
                 }
             },
             props: {
@@ -98,7 +111,7 @@ Module.register('sw-promotion-v2', {
         path: 'sw.promotion.v2.index',
         label: 'sw-promotion-v2.general.mainMenuItemGeneral',
         color: '#FFD700',
-        icon: 'default-package-gift',
+        icon: 'default-object-marketing',
         position: 100,
         parent: 'sw-marketing',
         privilege: 'promotion.viewer'

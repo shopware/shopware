@@ -13,6 +13,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
  * Resolver used when apps should be uninstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
  * apps in the current installation will be uninstalled without informing them about that (as they still run on the old installation)

@@ -14,7 +14,7 @@ use Symfony\Component\Finder\Finder;
 
 class PluginFinder
 {
-    private const COMPOSER_TYPE = 'shopware-platform-plugin';
+    public const COMPOSER_TYPE = 'shopware-platform-plugin';
     private const SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER = 'shopware-plugin-class';
 
     /**
@@ -37,8 +37,8 @@ class PluginFinder
         IOInterface $composerIO
     ): array {
         return array_merge(
-            $this->loadLocalPlugins($pluginDir, $composerIO, $errors),
-            $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors)
+            $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors),
+            $this->loadLocalPlugins($pluginDir, $composerIO, $errors)
         );
     }
 

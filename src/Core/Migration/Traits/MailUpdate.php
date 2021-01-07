@@ -29,7 +29,7 @@ class MailUpdate
      */
     protected $deHtml;
 
-    public function __construct(string $type, ?string $enPlain, ?string $enHtml, ?string $dePlain, ?string $deHtml)
+    public function __construct(string $type, ?string $enPlain = null, ?string $enHtml = null, ?string $dePlain = null, ?string $deHtml = null)
     {
         $this->type = $type;
         $this->enPlain = $enPlain;

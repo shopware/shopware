@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
 describe('Order: Create order', () => {
@@ -31,7 +31,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -134,7 +134,7 @@ describe('Order: Create order', () => {
         }).as('modifyShippingCostsCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -480,7 +480,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 
@@ -565,7 +565,7 @@ describe('Order: Create order', () => {
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
             method: 'post'
         }).as('saveOrder');
 

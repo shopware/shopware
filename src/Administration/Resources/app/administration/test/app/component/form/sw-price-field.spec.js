@@ -100,4 +100,28 @@ describe('components/form/sw-price-field', () => {
         await wrapper.setProps({ price: [dollarPrice, euroPrice] });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
+
+    it('should set gross value null when the net value is not a number and allow empty is true', () => {
+        const wrapper = setup({ allowEmpty: true });
+        wrapper.vm.convertNetToGross(parseFloat(''));
+        expect(wrapper.vm.priceForCurrency.gross).toBe(null);
+    });
+
+    it('should set gross value 0 when the net value is not a number and allow empty is false', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.vm.convertNetToGross(parseFloat(''));
+        expect(wrapper.vm.priceForCurrency.gross).toBe(0);
+    });
+
+    it('should set net value null when the gross value is not a number and allow empty is true', () => {
+        const wrapper = setup({ allowEmpty: true });
+        wrapper.vm.convertGrossToNet(parseFloat(''));
+        expect(wrapper.vm.priceForCurrency.net).toBe(null);
+    });
+
+    it('should set net value 0 when the gross value is not a number and allow empty is false', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.vm.convertGrossToNet(parseFloat(''));
+        expect(wrapper.vm.priceForCurrency.net).toBe(0);
+    });
 });

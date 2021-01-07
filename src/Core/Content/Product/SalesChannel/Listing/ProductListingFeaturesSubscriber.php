@@ -524,6 +524,30 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $filters->add($this->getShippingFreeFilter($request));
         $filters->add($this->getPropertyFilter($request));
 
+        if (!$request->request->get('manufacturer-filter', true)) {
+            $filters->remove('manufacturer');
+        }
+
+        if (!$request->request->get('price-filter', true)) {
+            $filters->remove('price');
+        }
+
+        if (!$request->request->get('rating-filter', true)) {
+            $filters->remove('rating');
+        }
+
+        if (!$request->request->get('shipping-free-filter', true)) {
+            $filters->remove('shipping-free');
+        }
+
+        if (!$request->request->get('property-filter', true)) {
+            $filters->remove('properties');
+
+            if ($request->request->get('property-whitelist', null)) {
+                $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
+            }
+        }
+
         $event = new ProductListingCollectFilterEvent($request, $filters, $context);
         $this->dispatcher->dispatch($event);
 
@@ -543,18 +567,33 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getPropertyFilter(Request $request): Filter
+    private function getPropertyFilter(Request $request, ?array $groupIds = null): Filter
     {
         $ids = $this->getPropertyIds($request);
+
+        $propertyAggregation = new TermsAggregation('properties', 'product.properties.id');
+
+        $optionAggregation = new TermsAggregation('options', 'product.options.id');
+
+        if ($groupIds) {
+            $propertyAggregation = new FilterAggregation(
+                'properties-filter',
+                $propertyAggregation,
+                [new EqualsAnyFilter('product.properties.groupId', $groupIds)]
+            );
+
+            $optionAggregation = new FilterAggregation(
+                'options-filter',
+                $optionAggregation,
+                [new EqualsAnyFilter('product.options.groupId', $groupIds)]
+            );
+        }
 
         if (empty($ids)) {
             return new Filter(
                 'properties',
                 false,
-                [
-                    new TermsAggregation('properties', 'product.properties.id'),
-                    new TermsAggregation('options', 'product.options.id'),
-                ],
+                [$propertyAggregation, $optionAggregation],
                 new MultiFilter(MultiFilter::CONNECTION_OR, []),
                 [],
                 false
@@ -587,10 +626,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return new Filter(
             'properties',
             true,
-            [
-                new TermsAggregation('properties', 'product.properties.id'),
-                new TermsAggregation('options', 'product.options.id'),
-            ],
+            [$propertyAggregation, $optionAggregation],
             new MultiFilter(MultiFilter::CONNECTION_AND, $filters),
             $ids,
             false

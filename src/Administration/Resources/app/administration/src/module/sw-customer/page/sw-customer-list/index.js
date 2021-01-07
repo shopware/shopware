@@ -19,8 +19,8 @@ Component.register('sw-customer-list', {
         return {
             customers: null,
             sortBy: 'customerNumber',
-            sortDirection: 'DESC',
             naturalSorting: true,
+            sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false,
             filterLoading: false,
@@ -64,7 +64,7 @@ Component.register('sw-customer-list', {
             }
 
             this.sortBy.split(',').forEach(sortBy => {
-                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
+                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
             });
 
             criteria

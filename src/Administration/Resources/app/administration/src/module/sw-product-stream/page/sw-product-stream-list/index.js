@@ -59,10 +59,12 @@ Component.register('sw-product-stream-list', {
 
         getList() {
             this.isLoading = true;
+
             const criteria = new Criteria(this.page, this.limit);
+
             criteria.setTerm(this.term);
-            const naturalSort = this.sortBy === 'createdAt';
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
+            this.naturalSorting = this.sortBy === 'createdAt';
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             return this.productStreamRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;

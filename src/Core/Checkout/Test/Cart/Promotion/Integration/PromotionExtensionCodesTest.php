@@ -3,7 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -12,6 +15,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -258,6 +262,62 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService->remove($cart, $discountId, $context);
 
         static::assertEmpty($extension->getCodes());
+    }
+
+    public function testRecalculatePromotionsWithSkippedPrivilege(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $promotionCode = 'BF19';
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
+            );
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $context);
+
+        // add a new promotion black friday
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
+
+        // add promotion to cart
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $context);
+
+        $orderId = $this->cartService->order($cart, $context);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+        /* @var OrderEntity|null $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $context->getContext())
+            ->get($orderId);
+
+        $cart = $this->getContainer()->get(OrderConverter::class)
+            ->convertToCart($order, $context->getContext());
+
+        $context->setPermissions([
+            PromotionProcessor::SKIP_PROMOTION => true,
+        ]);
+
+        $cart = $this->cartService->recalculate($cart, $context);
+
+        static::assertCount(2, $cart->getLineItems());
+        $promotion = $cart->getLineItems()->filterType(LineItem::PROMOTION_LINE_ITEM_TYPE);
+        static::assertCount(1, $promotion, 'Promotion was removed');
     }
 
     /**

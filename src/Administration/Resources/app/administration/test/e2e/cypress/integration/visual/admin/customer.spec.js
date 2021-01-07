@@ -1,21 +1,12 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany'
-};
-const newAddress = {
-    salutation: 'Mr.',
-    firstName: 'Harry',
-    lastName: 'Potter',
-    addresses: [{
-        street: 'Ligusterweg 4',
-        zipcode: '333333',
-        city: 'Little Whinging'
-    }],
-    country: 'United Kingdom'
+    country: 'Germany',
+    company: 'Company',
+    department: 'Department'
 };
 
 describe('Customer:  Visual test', () => {
@@ -90,6 +81,7 @@ describe('Customer:  Visual test', () => {
         });
 
         // Take snapshot for visual testing
+        cy.get('.sw-card-section--secondary').contains('English');
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 
@@ -107,7 +99,7 @@ describe('Customer:  Visual test', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
-        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName')
+        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');

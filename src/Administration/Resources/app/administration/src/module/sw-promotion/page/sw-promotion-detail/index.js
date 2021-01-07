@@ -152,6 +152,7 @@ Component.register('sw-promotion-detail', {
     methods: {
         createdComponent() {
             this.isLoading = true;
+            this.$root.$on('promotion-save-start', this.onShouldSave);
             if (!this.promotionId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
                 Shopware.State.commit('shopwareApps/setSelectedIds', []);
@@ -165,8 +166,6 @@ Component.register('sw-promotion-detail', {
 
             Shopware.State.commit('shopwareApps/setSelectedIds', [this.promotionId]);
             this.loadEntityData();
-
-            this.$root.$on('promotion-save-start', this.onShouldSave);
         },
 
         destroyedComponent() {

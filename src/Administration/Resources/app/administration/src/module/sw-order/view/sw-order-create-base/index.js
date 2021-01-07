@@ -8,10 +8,6 @@ const { mapGetters } = Component.getComponentHelper();
 Component.register('sw-order-create-base', {
     template,
 
-    inject: [
-        'feature'
-    ],
-
     mixins: [
         Mixin.getByName('notification')
     ],

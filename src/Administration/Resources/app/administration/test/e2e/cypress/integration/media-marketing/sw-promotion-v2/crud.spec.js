@@ -3,10 +3,12 @@
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Promotion v2: Test crud operations', () => {
+    before(() => {
+        cy.onlyOnFeature('FEATURE_NEXT_12016');
+    });
+
     beforeEach(() => {
         cy.setToInitialState().then(() => {
-            cy.onlyOnFeature('FEATURE_NEXT_12016');
-        }).then(() => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('promotion');
@@ -16,7 +18,6 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it('@base @marketing: create, update and read promotion', () => {
-        // Request we want to wait for later
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/promotion`,
@@ -76,7 +77,6 @@ describe('Promotion v2: Test crud operations', () => {
     it('@base @marketing: delete promotion', () => {
         const page = new ProductPageObject();
 
-        // Request we want to wait for later
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/promotion/*`,

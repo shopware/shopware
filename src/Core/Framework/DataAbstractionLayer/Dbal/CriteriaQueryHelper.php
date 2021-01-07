@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
+/**
+ * @deprecated tag:v6.4.0 - Use CriteriaQueryBuilder instead
+ */
 trait CriteriaQueryHelper
 {
     abstract protected function getParser(): SqlQueryParser;

@@ -166,6 +166,7 @@
       "columnPrice": "Price (gross / net)",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete",
+      "settingShowListPrices": "Show list prices",
       "toolbarLabel": "Rules"
     },
     "list": {
@@ -234,11 +235,14 @@
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
+      "columnType": "Type",
       "selectRule": "Select a conditional rule...",
       "advancedPricesInherited": "This product has inherited prices from its parent.",
       "linkAdvancedPricesOfParent": "Show prices of parent product",
       "inheritSwitchLabel": "Use advanced prices from parent product",
-      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant."
+      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
+      "advancedListPricePriceLabel": "Price",
+      "advancedListPriceLabel": "List price"
     },
     "properties": {
       "cardTitleProperties": "Available properties",

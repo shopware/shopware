@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
@@ -14,8 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
@@ -118,28 +121,10 @@ class WriteCommandExtractor
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
-            $kvPair = $stack->pop($field->getPropertyName());
+            $kvPair = $this->getKeyValuePair($field, $stack, $existence);
 
-            // not in data stack?
             if ($kvPair === null) {
-                if ($field->is(Inherited::class) && $existence->isChild()) {
-                    //inherited field of a child is never required
-                    continue;
-                }
-
-                $create = !$existence->exists() || $existence->childChangedToParent();
-
-                if (!$create && !$field instanceof UpdatedAtField) {
-                    //update statement
-                    continue;
-                }
-
-                if (!$field->is(Required::class) && !$field instanceof UpdatedAtField) {
-                    //not required and childhood not changed
-                    continue;
-                }
-
-                $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
+                continue;
             }
 
             try {
@@ -158,6 +143,75 @@ class WriteCommandExtractor
         }
 
         return $stack->getResultAsArray();
+    }
+
+    private function getKeyValuePair(Field $field, DataStack $stack, EntityExistence $existence): ?KeyValuePair
+    {
+        $kvPair = $stack->pop($field->getPropertyName());
+
+        // not in data stack?
+        if ($kvPair !== null) {
+            return $kvPair;
+        }
+
+        if ($field instanceof ReferenceVersionField && $field->is(Required::class)) {
+            return new KeyValuePair($field->getPropertyName(), null, true);
+        }
+
+        if ($field->is(Inherited::class) && $existence->isChild()) {
+            //inherited field of a child is never required
+            return null;
+        }
+
+        $create = !$existence->exists() || $existence->childChangedToParent();
+
+        if ($this->isUpdateAtFieldCase($create, $field)) {
+            //update statement
+            return null;
+        }
+
+        if ($this->isCreatedAtFieldCase($field)) {
+            //not required and childhood not changed
+            return null;
+        }
+
+        return new KeyValuePair($field->getPropertyName(), null, true);
+    }
+
+    private function isUpdateAtFieldCase(bool $create, Field $field): bool
+    {
+        if ($create) {
+            return false;
+        }
+        if ($field instanceof UpdatedAtField) {
+            return false;
+        }
+        if ($field instanceof CreatedByField) {
+            return false;
+        }
+        if ($field instanceof UpdatedByField) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isCreatedAtFieldCase(Field $field): bool
+    {
+        if ($field->is(Required::class)) {
+            return false;
+        }
+        if ($field instanceof UpdatedAtField) {
+            return false;
+        }
+        if ($field instanceof CreatedByField) {
+            return false;
+        }
+        if ($field instanceof UpdatedByField) {
+            return false;
+        }
+
+        return true;
     }
 
     private function integrateDefaults(EntityDefinition $definition, array $rawData): array

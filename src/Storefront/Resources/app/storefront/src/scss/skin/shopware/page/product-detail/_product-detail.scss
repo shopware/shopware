@@ -23,6 +23,12 @@
         font-size: $font-size-base;
         display: inline-block;
     }
+
+    &.with-advanced-list-price {
+        color: #e52427;
+        font-size: $font-size-base;
+        display: inline-block;
+    }
 }
 
 .list-price-badge {

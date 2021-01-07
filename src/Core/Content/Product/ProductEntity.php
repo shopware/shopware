@@ -128,7 +128,7 @@ class ProductEntity extends Entity
     protected $deliveryTime;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $restockTime;
 
@@ -897,12 +897,12 @@ class ProductEntity extends Entity
         $this->listingPrices = $listingPrices;
     }
 
-    public function getRestockTime(): int
+    public function getRestockTime(): ?int
     {
         return $this->restockTime;
     }
 
-    public function setRestockTime(int $restockTime): void
+    public function setRestockTime(?int $restockTime): void
     {
         $this->restockTime = $restockTime;
     }

@@ -32,10 +32,6 @@ describe('Country: Test crud operations', () => {
         cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
 
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
-                return;
-            }
-
             // Check tax free companies field exists and clicks
             cy.get('.sw-settings-country-detail__field-tax-free-companies input').should('be.visible');
             cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();

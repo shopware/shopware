@@ -31,7 +31,8 @@
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
-      "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?"
+      "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
+      "labelManualOrder": "Manual order"
     },
     "detail": {
       "buttonCancel": "Discard changes",
@@ -44,7 +45,8 @@
       "tabGeneral": "General",
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
       "messageSaveError": "An error occurred during saving",
-      "messageShippingNotAvailable": "Delivery to the selected country not possible."
+      "messageShippingNotAvailable": "Delivery to the selected country not possible.",
+      "labelManualOrder": "Manual order"
     },
     "create": {
       "textNewOrder": "New order",
@@ -104,6 +106,7 @@
       "buttonAddBlankProduct": "Add custom item",
       "buttonAddCredit": "Add credit",
       "summaryLabelAmount": "Total",
+      "summaryLabelAmountGrandTotal": "Grand total",
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelShippingCosts": "plus shipping costs",
@@ -156,6 +159,7 @@
       "columnTax": "VAT",
       "contextMenuShowProduct": "Show product",
       "summaryLabelAmount": "Total",
+      "summaryLabelAmountGrandTotal": "Grand total",
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelShippingCosts": "plus shipping costs",

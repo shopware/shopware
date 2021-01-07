@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -69,13 +70,19 @@ class CustomerRoute extends AbstractCustomerRoute
      * @LoginRequired()
      * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): CustomerResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null, ?CustomerEntity $customer = null): CustomerResponse
     {
         // @deprecated tag:v6.4.0 - Criteria will be required
         if (!$criteria) {
             $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->customerDefinition, $context->getContext());
         }
-        $criteria->setIds([$context->getCustomer()->getId()]);
+
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
+        $criteria->setIds([$customer->getId()]);
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
 

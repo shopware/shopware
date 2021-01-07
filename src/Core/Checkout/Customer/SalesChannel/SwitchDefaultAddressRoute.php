@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -80,21 +81,26 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      * @Route(path="/store-api/v{version}/account/address/default-shipping/{addressId}", name="store-api.account.address.change.default.shipping", methods={"PATCH"}, defaults={"type" = "shipping"})
      * @Route(path="/store-api/v{version}/account/address/default-billing/{addressId}", name="store-api.account.address.change.default.billing", methods={"PATCH"}, defaults={"type" = "billing"})
      */
-    public function swap(string $addressId, string $type, SalesChannelContext $context): NoContentResponse
+    public function swap(string $addressId, string $type, SalesChannelContext $context, ?CustomerEntity $customer = null): NoContentResponse
     {
+        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
+        if (!$customer) {
+            $customer = $context->getCustomer();
+        }
+
         $this->validateAddress($addressId, $context);
 
         switch ($type) {
             case 'billing':
                 $data = [
-                    'id' => $context->getCustomer()->getId(),
+                    'id' => $customer->getId(),
                     'defaultBillingAddressId' => $addressId,
                 ];
 
                 break;
             default:
                 $data = [
-                    'id' => $context->getCustomer()->getId(),
+                    'id' => $customer->getId(),
                     'defaultShippingAddressId' => $addressId,
                 ];
 

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';

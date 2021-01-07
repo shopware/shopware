@@ -1,100 +1,165 @@
 {% block sw_cms_slot %}
     <div class="sw-cms-slot" :class="componentClasses">
 
-        {% block sw_cms_slot_component %}
-            <component :is="elementConfig.component" v-model="element" :disabled="disabled"></component>
-        {% endblock %}
+        {% block sw_cms_slot_content %}
 
-        {% block sw_cms_slot_preview_overlay %}
-            <div class="sw-cms-slot__preview-overlay" v-if="!active"></div>
-        {% endblock %}
-
-        {% block sw_cms_slot_overlay %}
-            <div class="sw-cms-slot__overlay" v-if="active">
-                {% block sw_cms_slot_overlay_content %}
-                    <div class="sw-cms-slot__actions">
-                        {% block sw_cms_slot_overlay_action_settings %}
-                            <div
-                                class="sw-cms-slot__settings-action"
-                                :class="cmsSlotSettingsClasses"
-                                @click="onSettingsButtonClick"
-                                v-tooltip.bottom="tooltipDisabled">
-                                <sw-icon name="default-action-settings" size="16"></sw-icon>
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_cms_slot_overlay_action_swap %}
-                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick" v-if="elementConfig.removable !== false">
-                                <sw-icon name="default-arrow-switch" size="16"></sw-icon>
-                            </div>
-                        {% endblock %}
-                    </div>
+            {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_component" instead #}
+            {% block sw_cms_slot_component %}
+                {% block sw_cms_slot_content_component %}
+                    <component :is="elementConfig.component" v-model="element" :disabled="disabled"></component>
                 {% endblock %}
-            </div>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_cms_slot_settings_modal %}
-            <sw-modal class="sw-cms-slot__config-modal"
-                      v-if="showElementSettings"
-                      :title="$tc('sw-cms.detail.title.elementSettingsModal')"
-                      @modal-close="onCloseSettingsModal">
-                {% block sw_cms_slot_settings_modal_component %}
-                    <component :is="elementConfig.configComponent" v-model="element"></component>
+            {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_preview_overlay" instead #}
+            {% block sw_cms_slot_preview_overlay %}
+                {% block sw_cms_slot_content_preview_overlay %}
+                    <div class="sw-cms-slot__preview-overlay" v-if="!active"></div>
                 {% endblock %}
+            {% endblock %}
 
-                {% block sw_cms_slot_settings_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_cms_slot_settings_modal_action_confirm %}
-                            <sw-button variant="primary" @click="onCloseSettingsModal">
-                                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
-        {% endblock %}
+            {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_overlay" instead #}
+            {% block sw_cms_slot_overlay %}
+                {% block sw_cms_slot_content_overlay %}
+                    <div class="sw-cms-slot__overlay" v-if="active">
 
-        {% block sw_cms_slot_element_modal %}
-            <sw-modal :title="$tc('sw-cms.detail.title.elementChangeModal')"
-                      v-if="showElementSelection"
-                      @modal-close="onCloseElementModal">
-                {% block sw_cms_slot_element_modal_selection %}
-                    <div class="sw-cms-slot__element-selection">
-                        {% block sw_cms_slot_element_modal_selection_element %}
-                            <div class="element-selection__element-wrapper"
-                                 v-for="element in cmsElements"
-                                 v-if="!element.hidden && element.previewComponent"
-                                 @click="onSelectElement(element.name)">
-                                 <div class="element-selection__element">
-                                    {% block sw_cms_slot_element_modal_selection_element_component %}
-                                        <component :is="element.previewComponent"
-                                                   class="sw-cms-slot__element-preview">
-                                        </component>
+                        {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_overlay_content" instead #}
+                        {% block sw_cms_slot_overlay_content %}
+                            {% block sw_cms_slot_content_overlay_content %}
+                                <div class="sw-cms-slot__actions">
+
+                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_overlay_action_settings" instead #}
+                                    {% block sw_cms_slot_overlay_action_settings %}
+                                        {% block sw_cms_slot_content_overlay_action_settings %}
+                                            <div
+                                                class="sw-cms-slot__settings-action"
+                                                :class="cmsSlotSettingsClasses"
+                                                @click="onSettingsButtonClick"
+                                                v-tooltip.bottom="tooltipDisabled">
+                                                <sw-icon name="default-action-settings" size="16"></sw-icon>
+                                            </div>
+                                        {% endblock %}
                                     {% endblock %}
 
-                                    {% block sw_cms_slot_element_modal_selection_element_overlay %}
-                                        <div class="element-selection__overlay">
-                                            <sw-icon name="default-arrow-switch" size="28"></sw-icon>
-                                        </div>
+                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_overlay_action_swap" instead #}
+                                    {% block sw_cms_slot_overlay_action_swap %}
+                                        {% block sw_cms_slot_content_overlay_action_swap %}
+                                            <div class="sw-cms-slot__element-action" @click="onElementButtonClick" v-if="elementConfig.removable !== false">
+                                                <sw-icon name="default-arrow-switch" size="16"></sw-icon>
+                                            </div>
+                                        {% endblock %}
                                     {% endblock %}
                                 </div>
-
-                                {% block sw_cms_slot_element_modal_selection_element_label %}
-                                    <span class="element-selection__label">{{ $tc(element.label) }}</span>
-                                {% endblock %}
-                            </div>
+                            {% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}
+            {% endblock %}
 
-                {% block sw_cms_slot_element_modal_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_cms_slot_element_modal_action_abort %}
-                            <sw-button @click="onCloseElementModal">{{ $tc('sw-cms.detail.label.buttonElementChangeAbort') }}</sw-button>
+            {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_settings_modal" instead #}
+            {% block sw_cms_slot_settings_modal %}
+                {% block sw_cms_slot_content_settings_modal %}
+                    <sw-modal class="sw-cms-slot__config-modal"
+                    v-if="showElementSettings"
+                    :title="$tc('sw-cms.detail.title.elementSettingsModal')"
+                    @modal-close="onCloseSettingsModal">
+
+                        {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_settings_modal_component" instead #}
+                        {% block sw_cms_slot_settings_modal_component %}
+                            {% block sw_cms_slot_content_settings_modal_component %}
+                                <component :is="elementConfig.configComponent" v-model="element"></component>
+                            {% endblock %}
                         {% endblock %}
-                    </template>
+
+                        {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_settings_modal_footer" instead #}
+                        {% block sw_cms_slot_settings_modal_footer %}
+                            {% block sw_cms_slot_content_settings_modal_footer %}
+                                <template slot="modal-footer">
+
+                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_settings_modal_action_confirm" instead #}
+                                    {% block sw_cms_slot_settings_modal_action_confirm %}
+                                        {% block sw_cms_slot_content_settings_modal_action_confirm %}
+                                            <sw-button variant="primary" @click="onCloseSettingsModal">
+                                                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+                                            </sw-button>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-modal>
                 {% endblock %}
-            </sw-modal>
+            {% endblock %}
+
+            {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal" instead #}
+            {% block sw_cms_slot_element_modal %}
+                {% block sw_cms_slot_content_element_modal %}
+                    <sw-modal :title="$tc('sw-cms.detail.title.elementChangeModal')"
+                    v-if="showElementSelection"
+                    @modal-close="onCloseElementModal">
+
+                        {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_selection" instead #}
+                        {% block sw_cms_slot_element_modal_selection %}
+                            {% block sw_cms_slot_content_element_modal_selection %}
+                                <div class="sw-cms-slot__element-selection">
+
+                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_selection_element" instead #}
+                                    {% block sw_cms_slot_element_modal_selection_element %}
+                                        {% block sw_cms_slot_content_element_modal_selection_element %}
+                                            <div class="element-selection__element-wrapper"
+                                            v-for="element in cmsElements"
+                                            v-if="!element.hidden && element.previewComponent"
+                                            @click="onSelectElement(element.name)">
+                                                <div class="element-selection__element">
+
+                                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_selection_element_component" instead #}
+                                                    {% block sw_cms_slot_element_modal_selection_element_component %}
+                                                        {% block sw_cms_slot_content_element_modal_selection_element_component %}
+                                                            <component :is="element.previewComponent"
+                                                                       class="sw-cms-slot__element-preview">
+                                                            </component>
+                                                        {% endblock %}
+                                                    {% endblock %}
+
+                                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_selection_element_overlay" instead #}
+                                                    {% block sw_cms_slot_element_modal_selection_element_overlay %}
+                                                        {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
+                                                            <div class="element-selection__overlay">
+                                                                <sw-icon name="default-arrow-switch" size="28"></sw-icon>
+                                                            </div>
+                                                        {% endblock %}
+                                                    {% endblock %}
+                                                </div>
+
+                                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_selection_element_label" instead #}
+                                                    {% block sw_cms_slot_element_modal_selection_element_label %}
+                                                        {% block sw_cms_slot_content_element_modal_selection_element_label %}
+                                                            <span class="element-selection__label">{{ $tc(element.label) }}</span>
+                                                        {% endblock %}
+                                                    {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        {% endblock %}
+
+                        {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_footer" instead #}
+                        {% block sw_cms_slot_element_modal_footer %}
+                            {% block sw_cms_slot_content_element_modal_footer %}
+                                <template slot="modal-footer">
+
+                                    {# @deprecated tag:v6.4.0 - use "sw_cms_slot_content_element_modal_action_abort" instead #}
+                                    {% block sw_cms_slot_element_modal_action_abort %}
+                                        {% block sw_cms_slot_content_element_modal_action_abort %}
+                                            <sw-button @click="onCloseElementModal">{{ $tc('sw-cms.detail.label.buttonElementChangeAbort') }}</sw-button>
+                                        {% endblock %}
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-modal>
+                {% endblock %}
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

@@ -5,6 +5,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
+use Symfony\Component\Dotenv\Dotenv;
 
 date_default_timezone_set('Europe/Berlin');
 ini_set('display_errors', '1');
@@ -34,10 +35,14 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
         $lang = $updateConfig['locale'] ? mb_substr($updateConfig['locale'], 0, 2) : null;
     }
 
-    session_set_cookie_params(7200, $baseUrl);
+    if (!headers_sent()) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_set_cookie_params(7200, $baseUrl);
+        }
 
-    // Silence errors during session start, Work around session_start(): ps_files_cleanup_dir: opendir(/var/lib/php5) failed: Permission denied (13)
-    @session_start();
+        // Silence errors during session start, Work around session_start(): ps_files_cleanup_dir: opendir(/var/lib/php5) failed: Permission denied (13)
+        @session_start();
+    }
     @set_time_limit(0);
 
     // load 'en' as fallback translation
@@ -60,6 +65,10 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     $viewVars['baseUrl'] = $baseUrl;
     $viewVars['language'] = $language;
     $viewVars['selectedLanguage'] = $selectedLanguage;
+
+    if (is_readable((string) $container->get('env.path'))) {
+        (new Dotenv())->load((string) $container->get('env.path'));
+    }
 
     $container->get('renderer')->setAttributes($viewVars);
 

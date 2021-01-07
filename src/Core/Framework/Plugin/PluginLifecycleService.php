@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Composer\Composer;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
@@ -150,9 +150,16 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (Feature::isActive('FEATURE_NEXT_1797') && version_compare(Composer::getVersion(), '2', 'ge')) {
-            $this->executor->require($plugin->getComposerName());
+        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+            $pluginComposerName = $plugin->getComposerName();
+            if ($pluginComposerName === null) {
+                throw new PluginComposerJsonInvalidException(
+                    $pluginBaseClass->getPath() . '/composer.json',
+                    ['No name defined in composer.json']
+                );
+            }
+
+            $this->executor->require($pluginComposerName, $plugin->getName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
@@ -210,6 +217,17 @@ class PluginLifecycleService
 
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
+
+        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+            $pluginComposerName = $plugin->getComposerName();
+            if ($pluginComposerName === null) {
+                throw new PluginComposerJsonInvalidException(
+                    $pluginBaseClass->getPath() . '/composer.json',
+                    ['No name defined in composer.json']
+                );
+            }
+            $this->executor->remove($pluginComposerName, $plugin->getName());
+        }
 
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
@@ -273,9 +291,15 @@ class PluginLifecycleService
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
 
-        // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (Feature::isActive('FEATURE_NEXT_1797') && version_compare(Composer::getVersion(), '2', 'ge')) {
-            $this->executor->require($plugin->getComposerName());
+        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+            $pluginComposerName = $plugin->getComposerName();
+            if ($pluginComposerName === null) {
+                throw new PluginComposerJsonInvalidException(
+                    $pluginBaseClass->getPath() . '/composer.json',
+                    ['No name defined in composer.json']
+                );
+            }
+            $this->executor->require($pluginComposerName, $plugin->getName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }

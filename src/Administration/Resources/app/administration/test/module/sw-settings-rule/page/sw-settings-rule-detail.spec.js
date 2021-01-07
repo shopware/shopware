@@ -1,7 +1,18 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
 
-function createWrapper(privileges = []) {
+function createRuleMock(isNew) {
+    return {
+        name: 'Test rule',
+        isNew: () => isNew,
+        conditions: {
+            entity: 'rule',
+            source: 'foo/rule'
+        }
+    };
+}
+
+function createWrapper(privileges = [], isNewRule = false) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -22,21 +33,27 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-field': true,
             'sw-multi-select': true,
-            'sw-condition-tree': true
+            'sw-condition-tree': true,
+            'sw-tabs': true,
+            'sw-tabs-item': true,
+            'router-view': true
+        },
+        propsData: {
+            ruleId: isNewRule ? null : 'uuid1'
         },
         provide: {
             ruleConditionDataProviderService: {
                 getModuleTypes: () => []
             },
             repositoryFactory: {
-                create: () => ({
-                    create: () => ({
-                        conditions: {
-                            entity: 'rule',
-                            source: 'foo/rule'
-                        }
-                    })
-                })
+                create: () => {
+                    return {
+                        create: () => {
+                            return createRuleMock(true);
+                        },
+                        get: () => Promise.resolve(createRuleMock(false))
+                    };
+                }
             },
             acl: {
                 can: (identifier) => {
@@ -44,12 +61,22 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {
             $tc: v => v,
             $device: {
                 getSystemKey: () => {}
+            },
+            $route: {
+                meta: {
+                },
+                params: {
+                    id: ''
+                }
             }
         }
     });
@@ -66,18 +93,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = createWrapper();
 
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
-        const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');
-        const rulePriorityField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-        const ruleDescriptionField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelDescription"]');
-        const moduleTypesField = wrapper.find('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
-        const conditionTree = wrapper.find('sw-condition-tree-stub');
 
         expect(buttonSave.attributes().disabled).toBe('true');
-        expect(ruleNameField.attributes().disabled).toBe('true');
-        expect(rulePriorityField.attributes().disabled).toBe('true');
-        expect(ruleDescriptionField.attributes().disabled).toBe('true');
-        expect(moduleTypesField.attributes().disabled).toBe('true');
-        expect(conditionTree.attributes().disabled).toBe('true');
     });
 
     it('should have enabled fields', async () => {
@@ -86,17 +103,27 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         ]);
 
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
-        const ruleNameField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelName"]');
-        const rulePriorityField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-        const ruleDescriptionField = wrapper.find('sw-field-stub[label="sw-settings-rule.detail.labelDescription"]');
-        const moduleTypesField = wrapper.find('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
-        const conditionTree = wrapper.find('sw-condition-tree-stub');
 
         expect(buttonSave.attributes().disabled).toBeUndefined();
-        expect(ruleNameField.attributes().disabled).toBeUndefined();
-        expect(rulePriorityField.attributes().disabled).toBeUndefined();
-        expect(ruleDescriptionField.attributes().disabled).toBeUndefined();
-        expect(moduleTypesField.attributes().disabled).toBeUndefined();
-        expect(conditionTree.attributes().disabled).toBeUndefined();
+    });
+
+    it('should render tabs in existing rule', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeTruthy();
+    });
+
+    it('should not render tabs in new rule', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ], true);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeFalsy();
     });
 });

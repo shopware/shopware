@@ -14,11 +14,6 @@ describe('Documents: Test crud operations', () => {
 
     it('@settings: Create invoice document', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
-
             cy.get('.sw-settings-document-list__add-document').click();
 
             // fill data into general field.

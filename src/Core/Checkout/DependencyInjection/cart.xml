@@ -119,6 +119,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
@@ -202,9 +203,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="country.repository"/>
             <tag name="shopware.cart.validator"/>
         </service>
 

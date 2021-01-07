@@ -103,6 +103,7 @@ class CacheClearer extends AbstractMessageHandler
 
         $this->cacheClearer->clear($this->cacheDir);
         $this->filesystem->remove($this->cacheDir . '/twig');
+        $this->cleanupUrlGeneratorCacheFiles();
 
         $this->cleanupOldCacheDirectories();
     }
@@ -172,6 +173,26 @@ class CacheClearer extends AbstractMessageHandler
 
         if ($remove !== []) {
             $this->filesystem->remove($remove);
+        }
+    }
+
+    private function cleanupUrlGeneratorCacheFiles(): void
+    {
+        $finder = (new Finder())
+            ->in($this->cacheDir)
+            ->files()
+            ->name(['UrlGenerator.php', 'UrlGenerator.php.meta']);
+
+        if (!$finder->hasResults()) {
+            return;
+        }
+
+        $files = iterator_to_array($finder->getIterator());
+
+        if (\count($files) > 0) {
+            $this->filesystem->remove(array_map(static function (\SplFileInfo $file): string {
+                return $file->getPathname();
+            }, $files));
         }
     }
 }

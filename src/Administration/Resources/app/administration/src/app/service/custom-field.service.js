@@ -17,6 +17,11 @@ export default function createCustomFieldService() {
             configRenderComponent: 'sw-custom-field-type-select',
             config: {}
         },
+        entity: {
+            configRenderComponent: 'sw-custom-field-type-entity',
+            type: 'select',
+            config: {}
+        },
         text: {
             configRenderComponent: 'sw-custom-field-type-text',
             type: 'text',

@@ -34,6 +34,8 @@ const { Component } = Shopware;
 Component.register('sw-text-editor', {
     template,
 
+    inject: ['feature'],
+
     props: {
         value: {
             type: String,
@@ -282,7 +284,8 @@ Component.register('sw-text-editor', {
                 curColWidth: null,
                 nextColWidth: null
             },
-            isTableEdit: false
+            isTableEdit: false,
+            cmsPageState: Shopware.State.get('cmsPageState')
         };
     },
 
@@ -305,6 +308,20 @@ Component.register('sw-text-editor', {
             return {
                 'justify-content': this.verticalAlign
             };
+        },
+
+        availableDataMappings() {
+            let mappings = [];
+
+            Object.entries(this.cmsPageState.currentMappingTypes).forEach(entry => {
+                const [type, value] = entry;
+
+                if (type === 'string') {
+                    mappings = [...mappings, ...value];
+                }
+            });
+
+            return mappings;
         }
     },
 
@@ -369,6 +386,27 @@ Component.register('sw-text-editor', {
                         position: 'right'
                     });
                 }
+
+                if (this.feature.isActive('FEATURE_NEXT_10550') && this.availableDataMappings.length > 0) {
+                    const dataMappingButton = {
+                        type: 'data-mapping',
+                        title: 'Data mapping',
+                        icon: 'default-text-editor-variables',
+                        position: 'left'
+                    };
+
+                    const buttonConfigs = this.availableDataMappings.map(mapping => (
+                        {
+                            type: mapping,
+                            name: mapping,
+                            handler: this.handleInsertDataMapping
+                        }
+                    ));
+
+                    dataMappingButton.children = buttonConfigs;
+
+                    this.buttonConfig.push(dataMappingButton);
+                }
             }
 
             document.addEventListener('mouseup', this.onSelectionChange);
@@ -379,6 +417,12 @@ Component.register('sw-text-editor', {
         toggleCodeEditor(buttonConf) {
             this.isCodeEdit = !this.isCodeEdit;
             buttonConf.expanded = !buttonConf.expanded;
+        },
+
+        handleInsertDataMapping({ name }) {
+            this.onTextStyleChange('insertText', `{{ ${name} }}`);
+
+            this.selection = document.getSelection();
         },
 
         mountedComponent() {
@@ -454,8 +498,131 @@ Component.register('sw-text-editor', {
         },
 
         onTextStyleChange(type, value) {
+            const selectedText = document.getSelection().toString();
+
+            if (this.feature.isActive('FEATURE_NEXT_10550') && selectedText.length > 0) {
+                const selectionContainsStartBracket = this.containsStartBracket(selectedText);
+                const selectionContainsEndBracket = this.containsEndBracket(selectedText);
+                const isInsideInlineMapping = this.isInsideInlineMapping();
+
+                if (selectionContainsStartBracket && !selectionContainsEndBracket) {
+                    this.expandSelectionToNearestEndBracket();
+                }
+
+                if (!selectionContainsStartBracket && selectionContainsEndBracket) {
+                    this.expandSelectionToNearestStartBracket();
+                }
+
+                if (isInsideInlineMapping) {
+                    this.expandSelectionToNearestStartBracket();
+                    this.expandSelectionToNearestEndBracket();
+                }
+            }
+
             document.execCommand(type, false, value);
             this.emitContent();
+        },
+
+        expandSelectionToNearestEndBracket() {
+            const {
+                anchorNode,
+                anchorOffset,
+                focusNode,
+                focusNode: { nodeValue: focusNodeText }
+            } = this.selection;
+
+            const positionOfEndBracket = focusNodeText.lastIndexOf('}');
+            const containsBothStartBrackets = /\{\{/.test(this.selection.toString());
+
+            this.setSelection(
+                anchorNode,
+                focusNode,
+                containsBothStartBrackets ? anchorOffset : anchorOffset - 1,
+                positionOfEndBracket + 1
+            );
+        },
+
+        expandSelectionToNearestStartBracket() {
+            const {
+                anchorNode,
+                anchorNode: { nodeValue: anchorNodeText },
+                focusNode,
+                focusOffset
+            } = this.selection;
+
+            const positionOfStartBracket = anchorNodeText.indexOf('{');
+            const containsBothEndBrackets = /}}/.test(this.selection.toString());
+
+            this.setSelection(
+                anchorNode,
+                focusNode,
+                positionOfStartBracket,
+                containsBothEndBrackets ? focusOffset : focusOffset + 1
+            );
+        },
+
+        setSelection(anchorNode, focusNode, start, end) {
+            const range = new Range();
+            range.setStart(anchorNode, start);
+            range.setEnd(focusNode, end);
+
+            this.selection.empty();
+            this.selection.addRange(range);
+        },
+
+        containsStartBracket(selection) {
+            const regex = /\{{1,2}/;
+
+            return regex.test(selection);
+        },
+
+        containsEndBracket(selection) {
+            const regex = /}{1,2}/;
+
+            return regex.test(selection);
+        },
+
+        isInsideInlineMapping() {
+            /* go to the right and check if there is a '}'. And if there's one it should be before and '{'
+             * go to the left and do the same just swap the chars.
+             */
+            const selectedText = this.selection.toString();
+            const containsStartBracket = selectedText.includes('{');
+            const containsEndBracket = selectedText.includes('}');
+
+            if (containsStartBracket || containsEndBracket) {
+                return false;
+            }
+
+            const {
+                anchorOffset,
+                anchorNode: { nodeValue: anchorNodeText },
+                focusOffset,
+                focusNode: { nodeValue: focusNodeText }
+            } = this.selection;
+
+            const startBracketFound = Array.from(anchorNodeText)
+                .splice(0, anchorOffset)
+                .reverse()
+                .reduce((accumulator, char) => {
+                    if (char === '{') {
+                        accumulator = true;
+                    }
+
+                    return accumulator;
+                }, false);
+
+            const endBracketFound = Array.from(focusNodeText)
+                .splice(focusOffset, focusNodeText.length)
+                .reduce((accumulator, char) => {
+                    if (char === '}') {
+                        accumulator = true;
+                    }
+
+                    return accumulator;
+                }, false);
+
+            return startBracketFound && endBracketFound;
         },
 
         handleInsertTable(button) {

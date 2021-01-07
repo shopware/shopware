@@ -55,6 +55,11 @@
                                            :columns="getProductFeatureSetsColumns()"
                                            :repository="productFeatureSetsRepository"
                                            detailRoute="sw.settings.product.feature.sets.detail"
+                                           disableDataFetching=true
+                                           @page-change="onPageChange"
+                                           @column-sort="onSortColumn"
+                                           :sortBy="sortBy"
+                                           :sortDirection="sortDirection"
                                            :allowInlineEdit="acl.can('product_feature_sets.editor')"
                                            :allowEdit="acl.can('product_feature_sets.editor')"
                                            :allowView="acl.can('product_feature_sets.viewer')"

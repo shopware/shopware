@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class Permissions extends XmlElement
 {
     private const PRIVILEGE_DEPENDENCE = [

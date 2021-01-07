@@ -13,9 +13,10 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
+import 'src/app/component/base/sw-product-variant-info';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry' }
+    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] }
 ];
 
 const propertyFixture = [
@@ -69,6 +70,7 @@ function getPropertyCollection() {
 const createEntityMultiSelect = (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
+    localVue.directive('tooltip', {});
 
     const options = {
         localVue,
@@ -86,7 +88,8 @@ const createEntityMultiSelect = (customOptions) => {
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
             'sw-select-result': Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': Shopware.Component.build('sw-highlight-text')
+            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
         },
         mocks: { $tc: key => key },
         propsData: {
@@ -97,7 +100,8 @@ const createEntityMultiSelect = (customOptions) => {
             repositoryFactory: {
                 create: () => {
                     return {
-                        get: (value) => Promise.resolve({ id: value, name: value })
+                        get: (value) => Promise.resolve({ id: value, name: value }),
+                        search: () => Promise.resolve(getCollection())
                     };
                 }
             },
@@ -150,5 +154,36 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.vm.$nextTick();
 
         expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
+    });
+
+    it('should not display variations', () => {
+        const swEntityMultiSelect = createEntityMultiSelect();
+        const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
+
+        expect(productVariantInfo.exists()).toBeFalsy();
+    });
+
+    it('should display variations', () => {
+        const swEntityMultiSelect = createEntityMultiSelect({
+            propsData: {
+                value: fixture[0].id,
+                entity: 'test',
+                entityCollection: getCollection(),
+                displayVariants: true
+            }
+        });
+
+        const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
+
+        expect(productVariantInfo.exists()).toBeTruthy();
+
+        expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
+            .toContain(fixture[0].name);
+
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
+            .toContain(fixture[0].variation[0].group);
+
+        expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
+            .toContain(fixture[0].variation[0].option);
     });
 });

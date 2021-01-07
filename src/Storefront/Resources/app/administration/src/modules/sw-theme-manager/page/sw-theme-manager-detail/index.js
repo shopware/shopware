@@ -184,6 +184,10 @@ Component.register('sw-theme-manager-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
+        onAddMediaToTheme(mediaItem, context) {
+            this.setMediaItem(mediaItem, context);
+        },
+
         onDropMedia(dragData, context) {
             this.setMediaItem(dragData, context);
         },

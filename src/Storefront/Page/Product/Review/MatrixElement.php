@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10078) tag:v6.4.0 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement instead
+ */
 class MatrixElement
 {
     /**

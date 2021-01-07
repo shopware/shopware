@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -112,10 +113,14 @@ class ProductPageLoader
             $this->crossSellingLoader->load($product->getId(), $salesChannelContext)
         );
 
-        if ($cmsPage = $this->getCmsPage($salesChannelContext)) {
-            $this->loadSlotData($cmsPage, $salesChannelContext, $product);
+        /** @var string $cmsPageId */
+        $cmsPageId = $product->getCmsPageId();
+
+        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $salesChannelContext)) {
+            $this->loadSlotData($cmsPage, $salesChannelContext, $product, $request);
             $page->setCmsPage($cmsPage);
         }
+
         $this->loadOptions($page);
         $this->loadMetaData($page);
 
@@ -176,14 +181,12 @@ class ProductPageLoader
     private function loadSlotData(
         CmsPageEntity $page,
         SalesChannelContext $salesChannelContext,
-        SalesChannelProductEntity $product
+        SalesChannelProductEntity $product,
+        Request $request
     ): void {
         if (!$page->getSections()) {
             return;
         }
-
-        // replace actual request in NEXT-1539
-        $request = new Request();
 
         $resolverContext = new EntityResolverContext($salesChannelContext, $request, $this->productDefinition, $product);
 
@@ -193,9 +196,9 @@ class ProductPageLoader
         }
     }
 
-    private function getCmsPage(SalesChannelContext $context): ?CmsPageEntity
+    private function getCmsPage(string $cmsPageId, SalesChannelContext $context): ?CmsPageEntity
     {
-        $pages = $this->cmsPageRepository->getPagesByType('product_detail', $context);
+        $pages = $this->cmsPageRepository->read([$cmsPageId], $context);
 
         if ($pages->count() === 0) {
             return null;

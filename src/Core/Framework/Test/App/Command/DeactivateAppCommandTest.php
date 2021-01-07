@@ -30,7 +30,7 @@ class DeactivateAppCommandTest extends TestCase
     public function testDeactivateApp(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/withoutPermissions');
-        $appName = 'SwagApp';
+        $appName = 'withoutPermissions';
         $commandTester = new CommandTester($this->getContainer()->get(DeactivateAppCommand::class));
 
         $commandTester->execute(['name' => $appName]);

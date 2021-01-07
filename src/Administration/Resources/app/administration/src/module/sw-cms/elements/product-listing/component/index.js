@@ -6,6 +6,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-cms-el-product-listing', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('cms-element')
     ],
@@ -29,7 +31,7 @@ Component.register('sw-cms-el-product-listing', {
                         value: 'standard'
                     }
                 },
-                data: {
+                data: this.feature.isActive('FEATURE_NEXT_10078') ? null : {
                     product: {
                         name: 'Lorem Ipsum dolor',
                         description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
@@ -46,7 +48,6 @@ Component.register('sw-cms-el-product-listing', {
                         }
                     }
                 }
-
             };
         }
     },

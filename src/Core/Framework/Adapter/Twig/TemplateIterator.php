@@ -31,6 +31,9 @@ class TemplateIterator implements \IteratorAggregate
 
         foreach ($this->kernelBundles as $bundleName => $bundle) {
             $parents = class_parents($bundle);
+            if ($parents === false) {
+                continue;
+            }
 
             if (!isset($parents[Bundle::class])) {
                 continue;

@@ -48,9 +48,10 @@ Component.register('sw-settings-country-list', {
     methods: {
         getList() {
             const criteria = new Criteria(this.page, this.limit);
-            this.isLoading = true;
-            this.naturalSorting = this.sortBy === 'name';
 
+            this.isLoading = true;
+
+            this.naturalSorting = this.sortBy === 'name';
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 

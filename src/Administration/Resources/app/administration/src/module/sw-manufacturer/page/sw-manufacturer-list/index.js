@@ -15,7 +15,10 @@ Component.register('sw-manufacturer-list', {
     data() {
         return {
             manufacturers: null,
-            isLoading: true
+            isLoading: true,
+            sortBy: 'name',
+            sortDirection: 'ASC',
+            total: 0
         };
     },
 
@@ -47,17 +50,12 @@ Component.register('sw-manufacturer-list', {
         },
 
         manufacturerCriteria() {
-            const criteria = new Criteria();
-            const params = this.getListingParams();
+            const manufacturerCriteria = new Criteria(this.page, this.limit);
 
-            // Default sorting
-            params.sortBy = params.sortBy || 'name';
-            params.sortDirection = params.sortDirection || 'ASC';
+            manufacturerCriteria.setTerm(this.term);
+            manufacturerCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(params.sortBy, params.sortDirection));
-
-            return criteria;
+            return manufacturerCriteria;
         }
     },
 

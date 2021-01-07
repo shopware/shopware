@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\ConflictingPackageExcep
 use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 class RequirementsValidator
 {
@@ -150,6 +151,11 @@ class RequirementsValidator
         $packages = array_merge($packages, (new PlatformRepository())->getPackages());
 
         foreach ($packages as $package) {
+            // Ignore Shopware plugins. They are checked separately in `validateInstalledPlugins`
+            if ($package->getType() === PluginFinder::COMPOSER_TYPE) {
+                continue;
+            }
+
             $pluginDependencies['require'] = $this->checkRequirement(
                 $pluginDependencies['require'],
                 $package->getName(),
@@ -256,7 +262,7 @@ class RequirementsValidator
     private function checkRequirement(
         array $pluginRequirements,
         string $installedName,
-        ?ConstraintInterface $installedVersion,
+        ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginRequirements[$installedName])) {
@@ -264,11 +270,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginRequirements[$installedName]->getConstraint();
-
-        if ($constraint === null || $installedVersion === null) {
-            return $pluginRequirements;
-        }
-
         if ($constraint->matches($installedVersion) === false) {
             $exceptionStack->add(
                 new VersionMismatchException($installedName, $constraint->getPrettyString(), $installedVersion->getPrettyString())
@@ -289,7 +290,7 @@ class RequirementsValidator
         array $pluginConflicts,
         string $sourceName,
         string $targetName,
-        ?ConstraintInterface $installedVersion,
+        ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginConflicts[$targetName])) {
@@ -297,11 +298,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginConflicts[$targetName]->getConstraint();
-
-        if ($constraint === null || $installedVersion === null) {
-            return $pluginConflicts;
-        }
-
         if ($constraint->matches($installedVersion) === true) {
             $exceptionStack->add(
                 new ConflictingPackageException($sourceName, $targetName, $installedVersion->getPrettyString())

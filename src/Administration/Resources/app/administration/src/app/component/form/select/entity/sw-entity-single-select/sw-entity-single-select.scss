@@ -20,6 +20,10 @@
         &.is--placeholder {
             color: lighten($color-gutenberg, 25%);
         }
+
+        .sw-product-variant-info {
+            display: inline;
+        }
     }
 
     &.sw-field--medium {

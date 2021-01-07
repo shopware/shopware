@@ -2038,6 +2038,36 @@ EOF;
         static::assertEquals($ids->get('address'), $response['data'][0]['id']);
     }
 
+    public function testAccessDeniedAfterChangingUserPassword(): void
+    {
+        $browser = $this->getBrowser();
+
+        /** @var Connection $connection */
+        $connection = $browser->getContainer()->get(Connection::class);
+        $admin = TestUser::createNewTestUser($connection, ['product:read']);
+
+        $admin->authorizeBrowser($browser);
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', []);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $userRepository = $this->getContainer()->get('user.repository');
+
+        // Change user password
+        $userRepository->update([[
+            'id' => $admin->getUserId(),
+            'password' => Uuid::randomHex(),
+        ]], Context::createDefaultContext());
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', []);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), $response->getContent());
+        $jsonResponse = \json_decode($response->getContent(), true);
+        static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
+    }
+
     private function createSalesChannel(string $id): void
     {
         $data = [

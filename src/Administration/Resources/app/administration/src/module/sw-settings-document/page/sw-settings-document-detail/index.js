@@ -178,6 +178,14 @@ Component.register('sw-settings-document-detail', {
                     }
                 },
                 {
+                    name: 'companyPhone',
+                    type: 'text',
+                    config: {
+                        type: 'text',
+                        label: this.$tc('sw-settings-document.detail.labelCompanyPhone')
+                    }
+                },
+                {
                     name: 'companyUrl',
                     type: 'text',
                     config: {
@@ -335,25 +343,6 @@ Component.register('sw-settings-document-detail', {
             this.onChangeDisplayNoteDelivery();
 
             return documentConfig.config && documentConfig.config.displayAdditionalNoteDelivery;
-        },
-        getCompanyFormFields() {
-            if (!this.feature.isActive('FEATURE_NEXT_10559')) {
-                return this.companyFormFields;
-            }
-
-            const newCompanyFormFields = [...this.companyFormFields];
-            const companyEmailIndex = this.companyFormFields.findIndex(field => field.name === 'companyEmail');
-
-            newCompanyFormFields.splice(companyEmailIndex + 1, 0, {
-                name: 'companyPhone',
-                type: 'text',
-                config: {
-                    type: 'text',
-                    label: this.$tc('sw-settings-document.detail.labelCompanyPhone')
-                }
-            });
-
-            return newCompanyFormFields;
         }
     },
 

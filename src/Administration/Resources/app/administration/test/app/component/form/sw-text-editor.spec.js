@@ -49,12 +49,66 @@ function createWrapper() {
                 getViewportWidth: () => 1920
             }
         },
+        data() {
+            return {
+                cmsPageState: {
+                    currentMappingTypes: {
+                        string: [
+                            'category.type'
+                        ]
+                    }
+                }
+            };
+        },
         provide: {
-            validationService: {}
+            validationService: {},
+            feature: {
+                isActive: () => true
+            }
         }
     });
 }
 
+async function addTextToEditor(wrapper, content) {
+    const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+    // click in editable content
+    await wrapper.trigger('click');
+
+    // write something in the editor
+    contentEditor.element.innerHTML = content;
+
+    await contentEditor.trigger('input');
+}
+
+async function addAndCheckSelection(wrapper, element, start, end, text) {
+    // set cursor range
+    const range = document.createRange();
+    range.setStart(element.firstChild, start);
+    range.setEnd(element.firstChild, end);
+
+    // check if range selects "foo-bar"
+    expect(range.toString()).toBe(text);
+
+    // check if nothing was selected
+    expect(wrapper.vm.selection).toBe(null);
+
+    // add range to selection
+    const selection = document.getSelection();
+    selection.addRange(range);
+
+    // check if range and selection fits
+    expect(range.toString()).toEqual(text);
+    expect(selection.toString()).toEqual(text);
+    expect(selection.rangeCount).toEqual(1);
+
+    // add mouseup event to get selection
+    document.dispatchEvent(new Event('mouseup'));
+    await wrapper.vm.$nextTick();
+
+    // check if selection was set
+    expect(wrapper.vm.selection).toBe(selection);
+}
 
 describe('src/app/component/form/sw-text-editor', () => {
     /** @type Wrapper */
@@ -80,6 +134,13 @@ describe('src/app/component/form/sw-text-editor', () => {
                 range.deleteContents();
                 range.insertNode(newNode.content.firstChild);
             }
+
+            if (command === 'insertText') {
+                const newTextNode = document.createTextNode(value.trim());
+
+                range.deleteContents();
+                range.insertNode(newTextNode);
+            }
         };
     });
 
@@ -97,45 +158,13 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should insert the link correctly', async () => {
         wrapper = await createWrapper();
-
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
         const buttonLink = wrapper.find('.sw-text-editor-toolbar-button__type-link');
 
-        // click in editable content
-        await wrapper.trigger('click');
+        await addTextToEditor(wrapper, '<p id="fooBarTest">Go to foo-bar</p>');
 
-        // write something in the editor
-        contentEditor.element.innerHTML = '<p id="fooBarTest">Go to foo-bar</p>';
         const paragraph = document.getElementById('fooBarTest');
-
-        await contentEditor.trigger('input');
-
-        // set cursor range
-        const range = document.createRange();
-        range.setStart(paragraph.firstChild, 6);
-        range.setEnd(paragraph.firstChild, 13);
-
-        // check if range selects "foo-bar"
-        expect(range.toString()).toBe('foo-bar');
-
-        // check if nothing was selected
-        expect(wrapper.vm.selection).toBe(null);
-
-        // add range to selection
-        const selection = document.getSelection();
-        selection.addRange(range);
-
-        // check if range and selection fits
-        expect(range.toString()).toEqual('foo-bar');
-        expect(selection.toString()).toEqual('foo-bar');
-        expect(selection.rangeCount).toEqual(1);
-
-        // add mouseup event to get selection
-        document.dispatchEvent(new Event('mouseup'));
-        await wrapper.vm.$nextTick();
-
-        // check if selection was set
-        expect(wrapper.vm.selection).toBe(selection);
+        await addAndCheckSelection(wrapper, paragraph, 6, 13, 'foo-bar');
 
         // click on button for link generation
         await buttonLink.find('.sw-text-editor-toolbar-button__icon').trigger('click');
@@ -161,5 +190,168 @@ describe('src/app/component/form/sw-text-editor', () => {
         // check if content value was emitted right
         const emittedValue = wrapper.emitted().input[0];
         expect(emittedValue[0]).toEqual(expectedValue);
+    });
+
+    it('should handle inserting inline mapping', async () => {
+        wrapper = createWrapper('first second third');
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, '<p id="text-editor-content">some random text</p>');
+        const paragraph = document.getElementById('text-editor-content');
+
+        await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
+
+        // eslint-disable-next-line max-len
+        const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon');
+        await inlineMappingButton.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        // insert inline data mapping
+        wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        // check if newly edited content is correct
+        const expectedTextContent = '<p id="text-editor-content">some random {{ category.type }}</p>';
+        expect(contentEditor.element.innerHTML).toBe(expectedTextContent);
+
+        // check emitted events
+        const event = wrapper.emitted('input')[0];
+        expect(event[0]).toBe(expectedTextContent);
+    });
+
+    it('should return true if selection contains one or two opening brackets', () => {
+        wrapper = createWrapper();
+
+        const containsOneBracket = wrapper.vm.containsStartBracket('{');
+        expect(containsOneBracket).toBe(true);
+
+        const containsTwoBrackets = wrapper.vm.containsStartBracket('{{');
+        expect(containsTwoBrackets).toBe(true);
+    });
+
+    it('should return false if selection contains no opening brackets', () => {
+        wrapper = createWrapper();
+
+        const containsStartBracket = wrapper.vm.containsStartBracket('no start bracket');
+        expect(containsStartBracket).toBe(false);
+    });
+
+    it('should return true if selection contains one or two closing brackets', () => {
+        wrapper = createWrapper();
+
+        const containsOneBracket = wrapper.vm.containsEndBracket('}');
+        expect(containsOneBracket).toBe(true);
+
+        const containsTwoBrackets = wrapper.vm.containsEndBracket('}}');
+        expect(containsTwoBrackets).toBe(true);
+    });
+
+    it('should return false if selection contains no closing brackets', () => {
+        wrapper = createWrapper();
+
+        const containsEndBracket = wrapper.vm.containsStartBracket('no start bracket');
+        expect(containsEndBracket).toBe(false);
+    });
+
+    it('should return true if selection is inside inline mapping', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 3, 11, 'category');
+
+        const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
+        expect(isInsideInlineMapping).toBe(true);
+    });
+
+    it('should return false if selection is not inside inline mapping', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">not inside inline mapping</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 4, 10, 'inside');
+
+        const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
+        expect(isInsideInlineMapping).toBe(false);
+    });
+
+    it('should expand selection to nearest closing bracket', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 5, '{{ ca');
+
+        wrapper.vm.expandSelectionToNearestEndBracket();
+
+        const expandedSelection = document.getSelection();
+        expect(expandedSelection.toString()).toBe('{{ category.name }}');
+    });
+
+    it('should expand selection to nearest opening bracket', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 15, 19, 'e }}');
+
+        wrapper.vm.expandSelectionToNearestStartBracket();
+
+        const expandedSelection = document.getSelection();
+        expect(expandedSelection.toString()).toBe('{{ category.name }}');
+    });
+
+    it('should set the selection correctly when using the setSelection method', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">random text</p>');
+        const paragraph = document.getElementById('paragraph');
+
+        // add empty selection
+        wrapper.vm.selection = document.getSelection();
+
+        // check that nothing is selected
+        const emptySelection = document.getSelection().toString();
+        expect(emptySelection).toBe('');
+
+        // add selection
+        wrapper.vm.setSelection(paragraph.firstChild, paragraph.firstChild, 3, 6);
+
+        const newSelection = document.getSelection().toString();
+        expect(newSelection).toBe('dom');
+    });
+
+    it('should expand selection one to the left if only one opening bracket is selected', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
+        const paragraph = document.getElementById('paragraph');
+
+        await addAndCheckSelection(wrapper, paragraph, 1, 4, '{ c');
+
+        wrapper.vm.expandSelectionToNearestEndBracket();
+
+        const newSelection = document.getSelection().toString();
+        expect(newSelection).toBe('{{ category.name }}');
+    });
+
+    it('should expand selection one to the right if only one closing bracket is selected', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ category.name }}</p>');
+        const paragraph = document.getElementById('paragraph');
+
+        await addAndCheckSelection(wrapper, paragraph, 15, 18, 'e }');
+
+        wrapper.vm.expandSelectionToNearestStartBracket();
+
+        const newSelection = document.getSelection().toString();
+        expect(newSelection).toBe('{{ category.name }}');
     });
 });

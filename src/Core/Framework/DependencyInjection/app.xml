@@ -28,8 +28,28 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Manifest\ManifestValidator">
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableValidator"/>
+        <service id="Shopware\Core\Framework\App\Validation\TranslationValidator">
+            <tag name="shopware.app_manifest.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\AppNameValidator">
+            <tag name="shopware.app_manifest.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\ManifestValidator">
+            <argument type="tagged" tag="shopware.app_manifest.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\ConfigValidator">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+
+            <tag name="shopware.app_manifest.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\HookableValidator">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector"/>
+
+            <tag name="shopware.app_manifest.validator"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
@@ -103,6 +123,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 
@@ -153,6 +174,7 @@
         <service id="Shopware\Core\Framework\App\Command\RefreshAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\ValidateAppCommand"/>
 
             <tag name="console.command"/>
         </service>
@@ -161,6 +183,7 @@
             <argument>%shopware.app_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\ValidateAppCommand"/>
 
             <tag name="console.command"/>
         </service>
@@ -187,8 +210,15 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\VerifyManifestCommand">
-            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
             <argument>%shopware.app_dir%</argument>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\ValidateAppCommand">
+            <argument>%shopware.app_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
 
             <tag name="console.command"/>
         </service>

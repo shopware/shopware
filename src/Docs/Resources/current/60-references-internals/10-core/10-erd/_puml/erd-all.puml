@@ -404,6 +404,9 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    iso3 string
    displayStateInRegistration bool
    forceStateInRegistration bool
+   companyTaxFree bool
+   checkVatIdPattern bool
+   vatIdPattern string
    customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -580,6 +583,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(email) string
    active bool
    admin bool
+   lastUpdatedPasswordAt dateTime
    customFields customFields
    storeToken string
    not_null(createdAt) createdAt
@@ -1404,7 +1408,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    translated json
 }
 TranslationTable(ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition, "cms_slot_translation\n((Translations))") {
-   not_null(config) configurationValue
+   config configurationValue
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -1569,6 +1573,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    password password
    not_null(email) email
    title string
+   vatIds list
    affiliateCode string
    campaignCode string
    active bool
@@ -1738,6 +1743,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(stateId) stateMachineState
    ruleIds list
    customFields customFields
+   createdById createdBy
+   updatedById updatedBy
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -2217,6 +2224,7 @@ ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> Shopware
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition

@@ -60,7 +60,7 @@ class HandshakeFactoryTest extends TestCase
 
     public function testManifestWithoutSecretProducesAStoreHandshake(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/public/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/private/manifest.xml');
 
         $shopUrl = 'test.shop.com';
 

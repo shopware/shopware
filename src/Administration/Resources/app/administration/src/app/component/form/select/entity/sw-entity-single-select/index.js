@@ -39,7 +39,7 @@ Component.register('sw-entity-single-select', {
             default: ''
         },
         labelProperty: {
-            type: String,
+            type: [String, Array],
             required: false,
             default: 'name'
         },
@@ -236,6 +236,20 @@ Component.register('sw-entity-single-select', {
                     });
                 }
             }
+        },
+
+        displayLabelProperty(item) {
+            const labelProperties = [];
+
+            if (Array.isArray(this.labelProperty)) {
+                labelProperties.push(...this.labelProperty);
+            } else {
+                labelProperties.push(this.labelProperty);
+            }
+
+            return labelProperties.map(labelProperty => {
+                return this.getKey(item, labelProperty) || this.getKey(item, `translated.${labelProperty}`);
+            }).join(' ');
         },
 
         onSelectExpanded() {

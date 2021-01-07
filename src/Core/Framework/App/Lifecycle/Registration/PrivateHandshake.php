@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 class PrivateHandshake implements AppHandshakeInterface
 {

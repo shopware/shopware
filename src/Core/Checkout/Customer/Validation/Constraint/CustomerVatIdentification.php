@@ -22,7 +22,7 @@ class CustomerVatIdentification extends Constraint
     /**
      * @var bool
      */
-    public $shouldCheck = true;
+    public $shouldCheck = false;
 
     /**
      * @var Context

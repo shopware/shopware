@@ -391,6 +391,9 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Administration\Service\AdminOrderCartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -512,6 +515,7 @@ base-uri 'self';
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
+            <argument>%shopware.logger.file_rotation_count%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">

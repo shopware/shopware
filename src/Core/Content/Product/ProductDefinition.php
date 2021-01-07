@@ -103,7 +103,7 @@ class ProductDefinition extends EntityDefinition
             'minPurchase' => 1,
             'purchaseSteps' => 1,
             'shippingFree' => false,
-            'restockTime' => 3,
+            'restockTime' => null,
             'active' => true,
         ];
     }

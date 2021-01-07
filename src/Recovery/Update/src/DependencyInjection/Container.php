@@ -41,6 +41,10 @@ class Container extends BaseContainer
             return $version;
         };
 
+        $container['env.path'] = static function () {
+            return SW_PATH . '/.env';
+        };
+
         $container['db'] = function () {
             return Utils::getConnection(SW_PATH);
         };

@@ -62,11 +62,17 @@ class ElasticsearchHelper
      */
     private $prefix;
 
+    /**
+     * @var bool
+     */
+    private $throwException;
+
     public function __construct(
         string $environment,
         bool $searchEnabled,
         bool $indexingEnabled,
         string $prefix,
+        bool $throwException,
         Client $client,
         ElasticsearchRegistry $registry,
         CriteriaParser $parser,
@@ -80,6 +86,7 @@ class ElasticsearchHelper
         $this->environment = $environment;
         $this->logger = $logger;
         $this->prefix = $prefix;
+        $this->throwException = $throwException;
     }
 
     public function logOrThrowException(\Throwable $exception): bool
@@ -87,9 +94,16 @@ class ElasticsearchHelper
         if ($this->environment === 'test') {
             throw $exception;
         }
-        if ($this->environment === 'dev') {
-            $this->logger->critical($exception->getMessage());
+
+        if ($this->environment !== 'dev') {
+            return false;
         }
+
+        if ($this->throwException) {
+            throw $exception;
+        }
+
+        $this->logger->critical($exception->getMessage());
 
         return false;
     }

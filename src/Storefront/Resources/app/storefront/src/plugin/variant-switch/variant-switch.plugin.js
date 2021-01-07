@@ -13,12 +13,14 @@ export default class VariantSwitchPlugin extends Plugin {
 
     static options = {
         url: '',
+        elementId: '',
         radioFieldSelector: '.product-detail-configurator-option-input'
     };
 
     init() {
         this._httpClient = new HttpClient();
         this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector);
+        this._elementId = this.options.elementId;
 
         this._ensureFormElement();
         this._preserveCurrentValues();
@@ -74,10 +76,19 @@ export default class VariantSwitchPlugin extends Plugin {
 
         this.$emitter.publish('onChange');
 
-        this._redirectToVariant({
+        const query = {
             switched: switchedOptionId,
-            options: selectedOptions
-        });
+            options: JSON.stringify(selectedOptions)
+        };
+
+        if (this._elementId) {
+            const url = this.options.url + '?' + queryString.stringify({ ...query, elementId: this._elementId });
+            document.$emitter.publish('updateBuyWidget', { url, elementId: this._elementId });
+
+            return;
+        }
+
+        this._redirectToVariant(query);
     }
 
     /**
@@ -149,8 +160,6 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
-
-        data.options = JSON.stringify(data.options);
 
         const url = this.options.url + '?' + queryString.stringify(data);
 

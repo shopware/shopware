@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
+use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -43,6 +44,20 @@ trait StorefrontPageTestBehaviour
         TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPage());
+    }
+
+    public static function assertPageletEvent(
+        string $expectedClass,
+        PageletLoadedEvent $event,
+        SalesChannelContext $salesChannelContext,
+        Request $request,
+        Struct $page
+    ): void {
+        TestCase::assertInstanceOf($expectedClass, $event);
+        TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
+        TestCase::assertSame($request, $event->getRequest());
+        TestCase::assertSame($page, $event->getPagelet());
     }
 
     abstract protected function getPageLoader();
@@ -76,7 +91,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context);
     }
 
-    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, ?array $config = []): ProductEntity
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
@@ -99,6 +114,8 @@ trait StorefrontPageTestBehaviour
                 ['salesChannelId' => $context->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+
+        $data = array_merge_recursive($data, $config);
 
         $productRepository->create([$data], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $data['tax']);

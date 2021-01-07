@@ -31,7 +31,8 @@
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
-      "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?"
+      "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
+      "labelManualOrder": "Manuelle Bestellung"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
@@ -44,7 +45,8 @@
       "tabGeneral": "Allgemein",
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
-      "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich."
+      "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
+      "labelManualOrder": "Manuelle Bestellung"
     },
     "create": {
       "textNewOrder": "Neue Bestellung",
@@ -104,6 +106,7 @@
       "buttonAddBlankProduct": "Leere Position hinzufügen",
       "buttonAddCredit": "Gutschrift hinzufügen",
       "summaryLabelAmount": "Summe",
+      "summaryLabelAmountGrandTotal": "Gesamtsumme",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
@@ -156,6 +159,7 @@
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",
       "summaryLabelAmount": "Summe",
+      "summaryLabelAmountGrandTotal": "Gesamtsumme",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",

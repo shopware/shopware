@@ -162,7 +162,7 @@ describe('Order: Test order state', () => {
             method: 'post'
         }).as('orderCall');
 
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
 
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',

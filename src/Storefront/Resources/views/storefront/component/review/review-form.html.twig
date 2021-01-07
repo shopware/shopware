@@ -1,0 +1,173 @@
+{% block component_review_form %}
+
+    {% if data is not defined and reviews.customerReview is defined %}
+        {% set data = reviews.customerReview %}
+    {% endif %}
+
+    {% set formAjaxSubmitOptions = {
+        replaceSelectors: '.js-review-container'
+    } %}
+
+    {% block component_review_form_form %}
+        <form class="review-form"
+              action="{{ path('frontend.detail.review.save', { productId: reviews.productId }) }}"
+              method="post"
+              data-form-validation="true"
+              data-form-ajax-submit="true"
+              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+
+            {% block component_review_form_csrf %}
+                {{ sw_csrf('frontend.detail.review.save') }}
+            {% endblock %}
+
+            {% block component_review_form_forward %}
+                <input type="hidden"
+                       name="forwardTo"
+                       value="frontend.product.reviews">
+
+                <input type="hidden"
+                       name="parentId"
+                       value="{{ reviews.parentId }}">
+
+                <input type="hidden"
+                       name="forwardParameters"
+                       value='{"productId": "{{ reviews.productId }}"}'>
+            {% endblock %}
+
+            {% if reviews.customerReview %}
+                <input type="hidden" value="{{ reviews.customerReview.id }}" name="id"/>
+            {% endif %}
+
+            {% block component_review_form_details %}
+                <div class="form-row">
+                    {% block component_review_form_rating %}
+                        <div class="form-group col-md-4 product-detail-review-form-rating">
+                            <label for="#review-form-rating">
+                                {{ "detail.reviewFormRatingLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            </label>
+
+                            <div id="review-form-rating"
+                                 class="product-detail-review-form-rating-input"
+                                 data-rating-system="true">
+                                {% if data.get('points') is not empty %}
+                                    {% set currentPoints = data.get('points')|number_format %}
+                                {% else %}
+                                    {% set currentPoints = reviews.matrix.maxPoints %}
+                                {% endif %}
+
+                                {% set maxPoints = reviews.matrix.maxPoints %}
+
+                                {% for point in 1..maxPoints %}
+                                    <label data-review-form-point="{{ point }}"
+                                           class="product-detail-review-form-star{% if currentPoints >= point %} is-active{% endif %}">
+                                        <input class="product-detail-review-form-radio"
+                                               type="radio"
+                                               name="points"
+                                               value="{{ point }}"
+                                            {% if currentPoints >= point %} checked="checked"{% endif %}>
+
+                                        {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                                            type: 'blank'
+                                        } %}
+                                    </label>
+                                {% endfor %}
+                                {% for matrix in reviews.matrix.matrix %}
+                                    <p class="h6 product-detail-review-form-rating-text {% if currentPoints != matrix.points %} d-none{% endif %}"
+                                       data-rating-text="{{ matrix.points }}">
+                                        {{ "detail.review#{matrix.points}PointRatingText"|trans|sw_sanitize }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block component_review_form_title %}
+                        <div class="form-group col-12 product-detail-review-form-title">
+                            {% block component_review_form_title_label %}
+                                <label class="form-label" for="reviewTitle">
+                                    {{ "detail.reviewFormTitleLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                </label>
+                            {% endblock %}
+
+                            {% block component_review_form_title_input %}
+                                <input type="text"
+                                       class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
+                                       id="reviewTitle"
+                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                       name="title"
+                                       value="{{ data.get('title') }}"
+                                       required="required"
+                                       minlength="5">
+                            {% endblock %}
+
+                            {% block component_review_form_title_violation %}
+                                {% if formViolations.getViolations('/title') is not empty %}
+                                    {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                        violationPath: '/title'
+                                    } %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block component_review_form_content %}
+                <div class="form-group product-detail-review-form-content">
+                    {% block component_review_form_content_label %}
+                        <label for="reviewContent">
+                            {{ "detail.reviewFormContentLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_review_form_content_textarea %}
+                        <textarea class="form-control{% if formViolations.getViolations('/content') %} is-invalid{% endif %}"
+                                  id="reviewContent"
+                                  name="content"
+                                  required="required"
+                                  minlength="40"
+                                  rows="8">{% if data.get('content') is not empty %}{{ data.get('content') }}{% endif %}</textarea>
+                    {% endblock %}
+
+                    {% block component_review_form_content_violation %}
+                        {% if formViolations.getViolations('/content') is not empty %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                                violationPath: '/content'
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block component_review_form_footer %}
+                <div class="product-detail-review-form-footer">
+                    {% block component_review_form_required %}
+                        <p class="required-fields">
+                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                        </p>
+                    {% endblock %}
+
+                    <div class="product-detail-review-form-actions">
+                        {% block component_review_form_cancel %}
+                            <a href="#"
+                               class="btn btn-outline-secondary product-detail-review-cancel"
+                               data-toggle="collapse"
+                               data-target=".multi-collapse"
+                               aria-expanded="false"
+                               aria-controls="review-form review-list">
+                                {{ "detail.reviewFormCancelText"|trans|sw_sanitize }}
+                            </a>
+                        {% endblock %}
+
+                        {% block component_review_form_submit %}
+                            <button type="submit"
+                                    class="btn btn-primary btn-review-submit">
+                                {{ "detail.reviewFormSubmitText"|trans|sw_sanitize }}
+                            </button>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+{% endblock %}

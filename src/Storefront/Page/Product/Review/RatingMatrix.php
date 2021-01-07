@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Product\Review;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10078) tag:v6.4.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
+ */
 class RatingMatrix extends Struct
 {
     private const MAX_POINTS = 5;

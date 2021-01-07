@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 {
     /**

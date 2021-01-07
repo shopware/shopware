@@ -41,6 +41,9 @@ Component.register('sw-promotion-v2-detail', {
         return {
             isLoading: false,
             promotion: null,
+            cleanUpIndividualCodes: false,
+            cleanUpFixedCode: false,
+            showCodeTypeChangeModal: false,
             isSaveSuccessful: false,
             saveCallbacks: []
         };
@@ -66,7 +69,8 @@ Component.register('sw-promotion-v2-detail', {
         },
 
         promotionCriteria() {
-            return (new Criteria(1, 1));
+            return (new Criteria(1, 1))
+                .addAssociation('individualCodes');
         },
 
         tooltipSave() {
@@ -133,13 +137,28 @@ Component.register('sw-promotion-v2-detail', {
         },
 
         onSave() {
-            this.isLoading = true;
-
             if (!this.promotionId) {
-                return this.createPromotion();
+                this.createPromotion();
+
+                return;
             }
 
-            return this.savePromotion();
+            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some(check => check)) {
+                this.savePromotion();
+
+                return;
+            }
+
+            this.showCodeTypeChangeModal = true;
+        },
+
+        onConfirmSave() {
+            this.onCloseCodeTypeChangeModal();
+            this.savePromotion();
+        },
+
+        onCloseCodeTypeChangeModal() {
+            this.showCodeTypeChangeModal = false;
         },
 
         createPromotion() {
@@ -149,8 +168,18 @@ Component.register('sw-promotion-v2-detail', {
         },
 
         savePromotion() {
+            this.isLoading = true;
+
+            if (this.cleanUpIndividualCodes === true) {
+                this.promotion.individualCodes = this.promotion.individualCodes.filter(() => false);
+            }
+
+            if (this.cleanUpFixedCode === true) {
+                this.promotion.code = '';
+            }
+
             return this.promotionRepository.save(this.promotion, Shopware.Context.api).then(() => {
-                this.loadEntityData();
+                this.isSaveSuccessful = true;
             }).catch(() => {
                 this.isLoading = false;
                 this.createNotificationError({
@@ -158,11 +187,27 @@ Component.register('sw-promotion-v2-detail', {
                         entityName: this.promotion.name
                     })
                 });
+            }).finally(() => {
+                this.loadEntityData();
+                this.cleanUpCodes(false, false);
             });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.promotion.v2.index' });
+        },
+
+        onCleanUpCodes(cleanUpIndividual, cleanUpFixed) {
+            this.cleanUpCodes(cleanUpIndividual, cleanUpFixed);
+        },
+
+        cleanUpCodes(cleanUpIndividual, cleanUpFixed) {
+            this.cleanUpIndividualCodes = cleanUpIndividual;
+            this.cleanUpFixedCode = cleanUpFixed;
         }
     }
 });

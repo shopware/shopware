@@ -11,8 +11,7 @@
         }
     ],
     "conflict": {
-        "shopware/storefront": "< 6.1.0",
-        "does-not-exist-json": "*"
+        "shopware/storefront": "< 6.1.0"
     },
     "extra": {
         "shopware-plugin-class": "SwagTestValidateConflictsValid\\SwagTestValidateConflictsValid",

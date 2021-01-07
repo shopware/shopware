@@ -172,7 +172,7 @@ class CartOrderRouteTest extends TestCase
         static::assertSame('test comment', $response['customerComment']);
     }
 
-    public function testOrderWithAffiliateTracking(): void
+    public function testOrderWithAffiliateAndCampaignTracking(): void
     {
         $this->login();
 
@@ -215,6 +215,96 @@ class CartOrderRouteTest extends TestCase
 
         static::assertSame('order', $response['apiAlias']);
         static::assertSame('test affiliate code', $response['affiliateCode']);
+        static::assertSame('test campaign code', $response['campaignCode']);
+    }
+
+    public function testOrderWithAffiliateTrackingOnly(): void
+    {
+        $this->login();
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                [
+                    'affiliateCode' => 'test affiliate code',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('order', $response['apiAlias']);
+        static::assertSame('test affiliate code', $response['affiliateCode']);
+        static::assertNull($response['campaignCode']);
+    }
+
+    public function testOrderWithCampaignTrackingOnly(): void
+    {
+        $this->login();
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                [
+                    'campaignCode' => 'test campaign code',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('order', $response['apiAlias']);
+        static::assertNull($response['affiliateCode']);
         static::assertSame('test campaign code', $response['campaignCode']);
     }
 

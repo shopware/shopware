@@ -108,7 +108,7 @@
             "individual": {
               "title": "Individuelle Aktionscodes",
               "labelPattern": "Muster",
-              "helpTextPattern": "Geben Sie hier Ihr gewünschtes Code-Muster an. Benutzen Sie dabei Platzhalter wie %s für Buchstaben oder %d für Zahlen. Beispiel: code-%s%s%d",
+              "helpTextPattern": "Gib hier das gewünschte Code-Muster an. Nutze dabei die Platzhalter \"%s\" für Buchstaben oder \"%d\" für Ziffern. Beispiel: code-%s%s%d.",
               "labelCount": "Anzahl",
               "buttonGenerate": "Speichern und Codes generieren",
               "labelNoCodesExist": "Keine individuellen Codes vorhanden",
@@ -123,9 +123,12 @@
                 "successGeneratedTitle": "Code-Erstellung abgeschlossen.",
                 "successGeneratedMessage": "{count} neue Codes wurden generiert.",
                 "successDeletedTitle": "Code gelöscht",
-                "errorDeletedTitle": "Fehler beim Löschen."
+                "errorDeletedTitle": "Fehler beim Löschen.",
+                "warningFormatCodes": "Ungültiges Code-Muster. Passe Dein Muster an und verwende \"%s\" als Platzhalter für Buchstaben und/oder \"%d\" als Platzhalter für Ziffern.",
+                "warningNotAllowPattern": "Mit dem eingegebenen Muster ist es nicht möglich {generateCount} Codes zu generieren. Passe das Muster an um die gewünschte Anzahl an Codes erstellen zu können."
               }
-            }
+            },
+            "warningEmptyPromotionName": "Diese Rabattaktion hat noch keinen Namen. Bitte gib einen Namen ein, bevor Du Rabatt-Codes generierst."
           }
         },
         "preconditions": {

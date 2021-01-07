@@ -54,6 +54,10 @@ class ContainerProvider implements ServiceProviderInterface
             return trim($version ?? '9999999-dev');
         };
 
+        $container['env.path'] = static function () {
+            return SW_PATH . '/.env';
+        };
+
         $container['slim.app'] = static function ($c) {
             foreach ($c['config']['slim'] as $k => $v) {
                 $c[$k] = $v;

@@ -101,6 +101,12 @@ Component.register('sw-price-field', {
             type: String,
             required: false,
             default: null
+        },
+
+        allowEmpty: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -230,7 +236,12 @@ Component.register('sw-price-field', {
         }, 500),
 
         convertNetToGross(value) {
-            if (!value || typeof value !== 'number') {
+            if (Number.isNaN(value)) {
+                this.priceForCurrency.gross = this.allowEmpty ? null : 0;
+                return false;
+            }
+
+            if (!value) {
                 this.priceForCurrency.gross = 0;
                 return false;
             }
@@ -243,7 +254,13 @@ Component.register('sw-price-field', {
         },
 
         convertGrossToNet(value) {
-            if (!value || typeof value !== 'number') {
+            if (Number.isNaN(value)) {
+                this.priceForCurrency.net = this.allowEmpty ? null : 0;
+                this.$emit('calculating', false);
+                return false;
+            }
+
+            if (!value) {
                 this.priceForCurrency.net = 0;
                 this.$emit('calculating', false);
                 return false;

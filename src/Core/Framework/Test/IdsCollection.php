@@ -34,9 +34,14 @@ class IdsCollection
         return $this->ids[$key] = Uuid::randomHex();
     }
 
-    public function get(string $key): ?string
+    public function get(string $key): string
     {
         return $this->create($key);
+    }
+
+    public function getBytes(string $key): string
+    {
+        return Uuid::fromHexToBytes($this->get($key));
     }
 
     public function getList(array $keys): array
@@ -64,6 +69,11 @@ class IdsCollection
         }
 
         return $ids;
+    }
+
+    public function set(string $key, string $value): void
+    {
+        $this->ids[$key] = $value;
     }
 
     public function getContext(): Context

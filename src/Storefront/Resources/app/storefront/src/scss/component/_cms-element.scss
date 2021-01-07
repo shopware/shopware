@@ -169,6 +169,7 @@ General styling for cms elements
     }
 }
 
+.cms-element-buy-box,
 .cms-element-product-box {
     width: 100%;
 }
@@ -190,8 +191,10 @@ General styling for cms elements
 .cms-element-text,
 .cms-element-image,
 .cms-element-product-box,
+.cms-element-buy-box,
 .cms-element-product-slider,
 .cms-element-image-slider,
+.cms-element-product-description-reviews,
 .cms-element-image-gallery {
     &.has-vertical-alignment {
         display: flex;

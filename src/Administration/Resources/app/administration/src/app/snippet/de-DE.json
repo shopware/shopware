@@ -788,6 +788,7 @@
       "blockquote": "Zitat",
       "text-color": "Textfarbe",
       "bold": "Fett",
+      "data-mapping": "Datenzuordnung",
       "italic": "Kursiv",
       "underline": "Unterstrichen",
       "strikethrough": "Durchgestrichen",

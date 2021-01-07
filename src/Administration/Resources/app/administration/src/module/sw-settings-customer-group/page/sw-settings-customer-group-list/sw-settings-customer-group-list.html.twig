@@ -75,6 +75,8 @@
                                             :items="customerGroups"
                                             :columns="columns"
                                             :sortBy="sortBy"
+                                            @column-sort="onSortColumn"
+                                            @page-change="onPageChange"
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
                                             :allowView="acl.can('customer_groups.viewer')"

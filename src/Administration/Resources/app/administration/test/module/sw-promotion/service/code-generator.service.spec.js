@@ -61,4 +61,24 @@ describe('module/sw-promotion/service/code-generator.service.js', () => {
         const count = generator.getPermutationCount('code-%s%s%s');
         expect(count).toBe(140608);
     });
+
+    it('should have get characters', async () => {
+        const characters = generator.getCharacters();
+        expect(characters).toBe('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+    });
+
+    it('should have get digit', async () => {
+        const characters = generator.getDigit();
+        expect(characters).toBe('0123456789');
+    });
+
+    it('should only generate 1 random character', async () => {
+        const characters = generator.getRandomCharacter();
+        expect(characters).toMatch(/[a-zA-Z]{1}/);
+    });
+
+    it('should only generate 1 random number', async () => {
+        const characters = generator.getRandomNumber();
+        expect(characters).toMatch(/[0-9]{1}/);
+    });
 });

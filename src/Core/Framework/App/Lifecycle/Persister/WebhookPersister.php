@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class WebhookPersister
 {
     /**

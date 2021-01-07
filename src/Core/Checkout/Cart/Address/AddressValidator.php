@@ -2,120 +2,66 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
-use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
-use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressBlockedError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Framework\Validation\BuildValidationEvent;
-use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AddressValidator implements CartValidatorInterface
 {
     /**
-     * @var DataValidationFactoryInterface
+     * @var EntityRepositoryInterface
      */
-    private $addressValidationFactory;
+    private $repository;
 
     /**
-     * @var EventDispatcherInterface
+     * @var bool[]
      */
-    private $eventDispatcher;
+    private $available = [];
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    public function __construct(
-        DataValidationFactoryInterface $addressValidationFactory,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
-    ) {
-        $this->addressValidationFactory = $addressValidationFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
+    public function __construct(EntityRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
     }
 
-    public function validate(
-        Cart $cart,
-        ErrorCollection $errors,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $salesChannelCountries = $salesChannelContext->getSalesChannel()->getCountries();
-        $this->validateShippingCountry($salesChannelCountries, $errors, $salesChannelContext);
+    public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
+    {
+        $country = $context->getShippingLocation()->getCountry();
 
-        $customer = $salesChannelContext->getCustomer();
-        if ($customer === null) {
+        if (!$country->getActive()) {
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+
             return;
         }
 
-        $billingAddress = $customer->getActiveBillingAddress();
-        $shippingAddress = $customer->getActiveShippingAddress();
+        if (!$country->getShippingAvailable()) {
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
-        $this->validateBillingAddress($billingAddress, $salesChannelCountries, $errors, $salesChannelContext);
-        $this->validateShippingAddress($shippingAddress, $billingAddress, $errors, $salesChannelContext);
-    }
+            return;
+        }
 
-    private function validateShippingCountry(
-        ?CountryCollection $salesChannelCountries,
-        ErrorCollection $errors,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $shippingCountry = $salesChannelContext->getShippingLocation()->getCountry();
-        if (!$shippingCountry->getActive()
-            || !$shippingCountry->getShippingAvailable()
-            || ($salesChannelCountries !== null && !$salesChannelCountries->has($shippingCountry->getId()))
-        ) {
-            $errors->add(new ShippingAddressBlockedError($shippingCountry->getTranslation('name')));
+        if (!$this->isSalesChannelCountry($country->getId(), $context)) {
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+
+            return;
         }
     }
 
-    private function validateBillingAddress(
-        ?CustomerAddressEntity $billingAddress,
-        ?CountryCollection $salesChannelCountries,
-        ErrorCollection $errors,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $validation = $this->addressValidationFactory->create($salesChannelContext);
-        $validationEvent = new BuildValidationEvent($validation, $salesChannelContext->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
-
-        if ($billingAddress !== null) {
-            $violations = $this->validator->getViolations($billingAddress->jsonSerialize(), $validation);
-            $billingCountry = $billingAddress->getCountry();
-
-            if ($violations->count()) {
-                $errors->add(new AddressValidationError(true, $violations));
-            }
-
-            if ($billingCountry !== null && (!$billingCountry->getActive() || ($salesChannelCountries !== null && !$salesChannelCountries->has($billingAddress->getCountryId())))) {
-                $errors->add(new BillingAddressBlockedError($billingCountry->getTranslation('name')));
-            }
+    private function isSalesChannelCountry(string $countryId, SalesChannelContext $context): bool
+    {
+        if (isset($this->available[$countryId])) {
+            return $this->available[$countryId];
         }
-    }
 
-    private function validateShippingAddress(
-        ?CustomerAddressEntity $shippingAddress,
-        ?CustomerAddressEntity $billingAddress,
-        ErrorCollection $errors,
-        SalesChannelContext $salesChannelContext
-    ): void {
-        $validation = $this->addressValidationFactory->create($salesChannelContext);
-        $validationEvent = new BuildValidationEvent($validation, $salesChannelContext->getContext());
-        $this->eventDispatcher->dispatch($validationEvent);
+        $criteria = new Criteria([$countryId]);
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
-        if ($shippingAddress !== null && ($billingAddress === null || $shippingAddress->getId() !== $billingAddress->getId())) {
-            $violations = $this->validator->getViolations($shippingAddress->jsonSerialize(), $validation);
-            if ($violations->count()) {
-                $errors->add(new AddressValidationError(false, $violations));
-            }
-        }
+        $available = $this->repository->searchIds($criteria, $context->getContext());
+
+        return $this->available[$countryId] = $available->has($countryId);
     }
 }

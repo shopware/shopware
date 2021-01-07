@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
@@ -44,23 +43,16 @@ class LogoutRoute extends AbstractLogoutRoute
      */
     private $cartService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     public function __construct(
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
-        CartService $cartService,
-        Connection $connection
+        CartService $cartService
     ) {
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfig = $systemConfig;
         $this->cartService = $cartService;
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractLogoutRoute
@@ -83,23 +75,26 @@ class LogoutRoute extends AbstractLogoutRoute
      * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/logout", name="store-api.account.logout", methods={"POST"})
      */
-    public function logout(SalesChannelContext $context, ?RequestDataBag $data = null)
+    public function logout(SalesChannelContext $context, ?RequestDataBag $data = null): ContextTokenResponse
     {
-        $salesChannelId = $context->getSalesChannel()->getId();
-        if ($this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
+        if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
-            $this->deleteContextToken($context->getToken());
-        } else {
-            $newToken = Random::getAlphanumericString(32);
+            $this->contextPersister->delete($context->getToken());
 
-            if ($data && (bool) $data->get('replace-token')) {
-                $newToken = $this->contextPersister->replace($context->getToken(), $context);
-            }
+            $event = new CustomerLogoutEvent($context, $context->getCustomer());
+            $this->eventDispatcher->dispatch($event);
 
-            $context->assign([
-                'token' => $newToken,
-            ]);
+            return new ContextTokenResponse($context->getToken());
         }
+
+        $newToken = Random::getAlphanumericString(32);
+        if ($data && (bool) $data->get('replace-token')) {
+            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        }
+
+        $context->assign([
+            'token' => $newToken,
+        ]);
 
         $event = new CustomerLogoutEvent($context, $context->getCustomer());
         $this->eventDispatcher->dispatch($event);
@@ -107,16 +102,18 @@ class LogoutRoute extends AbstractLogoutRoute
         return new ContextTokenResponse($context->getToken());
     }
 
-    /**
-     * @deprecated tag:v6.4.0 use \Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete
-     */
-    private function deleteContextToken(string $token): void
+    private function shouldDelete(SalesChannelContext $context): bool
     {
-        $this->connection->executeUpdate(
-            'DELETE FROM sales_channel_api_context WHERE token = :token',
-            [
-                'token' => $token,
-            ]
-        );
+        $config = $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
+
+        if ($config) {
+            return true;
+        }
+
+        if ($context->getCustomer() === null) {
+            return true;
+        }
+
+        return $context->getCustomer()->getGuest();
     }
 }

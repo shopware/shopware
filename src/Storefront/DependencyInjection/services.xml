@@ -118,6 +118,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -494,6 +495,18 @@
         <service id="Shopware\Storefront\Page\Wishlist\WishlistPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>

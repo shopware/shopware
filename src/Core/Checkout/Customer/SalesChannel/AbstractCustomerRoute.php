@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ abstract class AbstractCustomerRoute
 
     /**
      * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
+     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
      */
-    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): CustomerResponse;
+    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria, CustomerEntity $customer*/): CustomerResponse;
 }

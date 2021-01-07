@@ -103,7 +103,7 @@
                                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
                                         <sw-switch-field
                                             size="medium"
-                                            :value="showListPrices[priceGroup.ruleId] === false ? false : true"
+                                            :value="showListPrices[priceGroup.ruleId] !== false"
                                             @change="onChangeShowListPrices($event, priceGroup.ruleId)"
                                             noMarginTop
                                             :label="$tc('sw-product.prices.settingShowListPrices')">
@@ -117,7 +117,9 @@
                                 <template slot="column-type" slot-scope="{ item, itemIndex, compact }">
                                     <div class="sw-product-detail-context-prices__type-label">
                                         <label>{{ $tc('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
-                                        <label v-if="showListPrices[priceGroup.ruleId]">{{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}</label>
+                                        <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                                            {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
+                                        </label>
                                     </div>
                                 </template>
                             {% endblock %}
@@ -185,7 +187,7 @@
                                         </div>
                                     </template>
 
-                                    <template v-if="showListPrices[priceGroup.ruleId] === true || showListPrices[priceGroup.ruleId] === undefined && feature.isActive('FEATURE_NEXT_10541')">
+                                    <template v-if="showListPrices[priceGroup.ruleId] !== false && feature.isActive('FEATURE_NEXT_10541')">
                                         <div class="product-detail-context-prices__price-field-wrapper">
                                             <sw-inheritance-switch
                                                 v-if="!currency.isSystemDefault"

@@ -161,7 +161,6 @@ Component.register('sw-product-detail-context-prices', {
                     property: 'type',
                     label: 'sw-product.advancedPrices.columnType',
                     visible: true,
-                    // visible: false,
                     allowResize: true,
                     width: '95px',
                     multiLine: true

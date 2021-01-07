@@ -8,6 +8,9 @@ import './page/sw-promotion-v2-list';
 import './view/sw-promotion-v2-detail-base';
 import './view/sw-promotion-v2-discounts';
 
+import './component/sw-promotion-v2-wizard-discount-selection';
+import './component/sw-promotion-v2-wizard-description';
+
 const { Module } = Shopware;
 
 Module.register('sw-promotion-v2', {

@@ -28,8 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_10549)
- *
  * @RouteScope(scopes={"store-api"})
  */
 class LoadWishlistRoute extends AbstractLoadWishlistRoute

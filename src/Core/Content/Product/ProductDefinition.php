@@ -280,11 +280,9 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
         );
 
-        if (Feature::isActive('FEATURE_NEXT_10549')) {
-            $collection->add(
-                (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
-            );
-        }
+        $collection->add(
+            (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
+        );
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(

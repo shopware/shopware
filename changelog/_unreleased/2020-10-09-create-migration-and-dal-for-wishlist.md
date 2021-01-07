@@ -1,7 +1,6 @@
 ---
 title: Create DAL and migration database for wishlist.
 issue: NEXT-10549
-flag:  FEATURE_NEXT_10549
 ---
 # Core
 * Added a new table `customer_wishlist` and a mapping table `customer_wishlist_product` to stored wishlist data.

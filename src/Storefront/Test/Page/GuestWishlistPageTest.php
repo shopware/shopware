@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedEvent;
@@ -14,11 +13,6 @@ class GuestWishlistPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-    }
 
     public function testItLoadsWishlistGuestPage(): void
     {

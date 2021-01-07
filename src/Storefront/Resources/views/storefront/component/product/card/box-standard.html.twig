@@ -59,7 +59,7 @@
                                 {% endif %}
                             </a>
 
-                            {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
+                            {% if shopware.config.core.cart.wishlistEnabled %}
                                 {% block component_product_box_wishlist_action %}
                                     {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                         appearance: 'circle',

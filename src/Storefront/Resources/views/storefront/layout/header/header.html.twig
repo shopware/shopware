@@ -73,7 +73,7 @@
                             </div>
                         {% endblock %}
 
-                        {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
+                        {% if shopware.config.core.cart.wishlistEnabled %}
                             {% block layout_header_actions_wishlist %}
                                 <div class="col-auto">
                                     <div class="header-wishlist">

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractMergeWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -134,10 +133,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxList(Request $request, SalesChannelContext $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             $res = $this->wishlistLoadRoute->load($request, $context, new Criteria());
         } catch (CustomerWishlistNotFoundException $exception) {
@@ -177,10 +172,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxAdd(string $productId, SalesChannelContext $context, ?CustomerEntity $customer = null): JsonResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
         $this->addWishlistRoute->add($productId, $context, $customer);
 
@@ -196,10 +187,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxRemove(string $productId, SalesChannelContext $context, ?CustomerEntity $customer = null): JsonResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
         $this->removeWishlistProductRoute->delete($productId, $context, $customer);
 
@@ -215,10 +202,6 @@ class WishlistController extends StorefrontController
      */
     public function addAfterLogin(string $productId, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->addWishlistRoute->add($productId, $context, $customer);
@@ -240,10 +223,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxMerge(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->mergeWishlistProductRoute->merge($requestDataBag, $context, $customer);

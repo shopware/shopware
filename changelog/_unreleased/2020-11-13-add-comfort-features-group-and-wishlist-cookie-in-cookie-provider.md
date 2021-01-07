@@ -1,7 +1,6 @@
 ---
 title: Add Comfort Features Group and Wishlist Cookie in Cookie Provider
 issue: NEXT-11785
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 *  Added a cookie group `groupComfortFeatures` in `\Shopware\Storefront\Framework\Cookie\CookieProvider`;

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
@@ -51,8 +50,6 @@ class LoadWishlistRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -106,8 +103,6 @@ class LoadWishlistRouteTest extends TestCase
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
         $this->browser
@@ -125,8 +120,6 @@ class LoadWishlistRouteTest extends TestCase
 
     public function testLoadShouldThrowCustomerNotLoggedInException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', Random::getAlphanumericString(12));
 
         $this->browser
@@ -144,7 +137,6 @@ class LoadWishlistRouteTest extends TestCase
 
     public function testLoadShouldThrowCustomerWishlistNotFoundException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->browser
             ->request(
                 'POST',

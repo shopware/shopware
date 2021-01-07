@@ -35,10 +35,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.server();
             cy.route({
                 url: '/wishlist/merge',
@@ -90,10 +86,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.server();
             cy.route({
                 url: '/wishlist/add/**',
@@ -137,7 +129,7 @@ describe('Wishlist: for wishlist', () => {
             lastHeartIcon.first().click(1, 1);
 
             // Login
-            cy.visit('/wishlist');
+            cy.visit('/account/login');
             cy.get('.login-card').should('be.visible');
             cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
             cy.get('#loginPassword').typeAndCheckStorefront('shopware');
@@ -156,10 +148,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.server();
             cy.route({
                 url: '/wishlist/add/**',
@@ -222,7 +210,7 @@ describe('Wishlist: for wishlist', () => {
                 lastHeartIcon.first().click(1, 1);
 
                 // Login
-                cy.visit('/wishlist');
+                cy.visit('/account/login');
                 cy.get('.login-card').should('be.visible');
                 cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
                 cy.get('#loginPassword').typeAndCheckStorefront('shopware');

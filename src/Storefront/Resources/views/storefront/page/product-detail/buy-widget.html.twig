@@ -173,7 +173,7 @@
             </div>
         {% endblock %}
 
-        {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
+        {% if shopware.config.core.cart.wishlistEnabled %}
             {% block page_product_detail_wishlist %}
                 {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                     showText: true,

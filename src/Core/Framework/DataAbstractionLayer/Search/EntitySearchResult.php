@@ -34,15 +34,11 @@ class EntitySearchResult extends EntityCollection
     protected $context;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var int
      */
     protected $page;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var int|null
      */
     protected $limit;
@@ -134,33 +130,21 @@ class EntitySearchResult extends EntityCollection
         return 'dal_entity_search_result';
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getPage(): ?int
     {
         return $this->page;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setPage(int $page): void
     {
         $this->page = $page;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getLimit(): ?int
     {
         return $this->limit;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setLimit(int $limit): void
     {
         $this->limit = $limit;

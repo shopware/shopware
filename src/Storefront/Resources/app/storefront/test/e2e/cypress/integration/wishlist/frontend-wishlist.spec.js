@@ -32,8 +32,6 @@ const product = {
 
 describe('Wishlist: for wishlist page', () => {
     beforeEach(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -109,9 +107,6 @@ describe('Wishlist: for wishlist page', () => {
 
     it.skip('@wishlist remove product of wishlist', () => {
         // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549')
-
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();

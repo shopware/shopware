@@ -242,6 +242,8 @@ Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)
    customer_group Table
    customer_group_registration_sales_channels Table
    customer_tag Table
+   customer_wishlist Table
+   customer_wishlist_product Table
 }
 Table(ShopwareCoreCheckoutDocument, "Shopware\Core\Checkout\Document\n(Printed works)") {
    document Table
@@ -415,9 +417,9 @@ ShopwareStorefront --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutOrder --> ShopwareCoreContentProduct
+ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
-ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
 ShopwareCoreContentProductStream --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemDeliveryTime
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreSystemDeliveryTime

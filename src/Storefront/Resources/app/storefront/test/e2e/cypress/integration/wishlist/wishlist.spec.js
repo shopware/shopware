@@ -36,10 +36,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.expect(win.customerLoggedInState).to.equal(0);
             cy.expect(win.wishlistEnabled).to.equal(1);
 
@@ -61,10 +57,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('be.visible');
         })
     });
@@ -73,10 +65,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             let heartIcon = cy.get('.product-box .product-wishlist-action-circle').first();
 
             heartIcon.first().should('be.visible');
@@ -98,10 +86,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.get('.product-image-wrapper').click();
 
             cy.get('.product-wishlist-action').first().should('be.visible');
@@ -122,10 +106,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.get('#wishlist-basket').should('not.be.visible');
             cy.get('.product-box .product-wishlist-action-circle').first().click();
 
@@ -141,10 +121,6 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return;
-            }
-
             cy.clearCookie('wishlist-enabled');
 
             cy.get('#wishlist-basket').should('not.be.visible');

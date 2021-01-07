@@ -355,8 +355,6 @@ class SalesChannelEntity extends Entity
     protected $boundCustomers;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
@@ -987,17 +985,11 @@ class SalesChannelEntity extends Entity
         $this->boundCustomers = $boundCustomers;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;

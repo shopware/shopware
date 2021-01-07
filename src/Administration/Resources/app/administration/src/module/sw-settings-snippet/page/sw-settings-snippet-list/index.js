@@ -368,8 +368,7 @@ Component.register('sw-settings-snippet-list', {
 
         onSelectionChanged(selection) {
             this.snippetSelection = selection;
-            this.selectionCount = Object.keys(selection).length;
-            this.hasResetableItems = this.selectionCount === 0;
+            this.hasResetableItems = Object.keys(selection).length === 0;
         },
 
         onConfirmReset(fullSelection) {
@@ -487,32 +486,21 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onSortColumn(column) {
-            if (column.dataIndex !== this.sortBy) {
-                this.sortBy = column.dataIndex;
-                this.sortDirection = 'ASC';
-                return;
-            }
-
-            if (this.sortDirection === 'ASC') {
+            if (this.sortDirection === 'ASC' && column.dataIndex === this.sortBy) {
                 this.sortDirection = 'DESC';
             } else {
                 this.sortDirection = 'ASC';
             }
             this.updateRoute({
                 sortDirection: this.sortDirection,
-                sortBy: this.sortBy
+                sortBy: column.dataIndex
             }, {
                 ids: this.queryIds
             });
         },
 
-        onPageChange(opts) {
-            this.page = opts.page;
-            this.limit = opts.limit;
-            this.updateRoute({
-                page: this.page,
-                limit: this.limit
-            }, {
+        onPageChange({ page, limit }) {
+            this.updateRoute({ page, limit }, {
                 ids: this.queryIds
             });
         },

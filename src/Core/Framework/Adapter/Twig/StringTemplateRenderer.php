@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingExcept
 use Shopware\Core\Framework\Context;
 use Twig\Environment;
 use Twig\Error\Error;
+use Twig\Extension\CoreExtension;
 use Twig\Loader\ArrayLoader;
 
 class StringTemplateRenderer
@@ -15,18 +16,37 @@ class StringTemplateRenderer
      */
     private $twig;
 
+    /**
+     * @var Environment
+     */
+    private $platformTwig;
+
     public function __construct(Environment $environment)
+    {
+        $this->platformTwig = $environment;
+        $this->initialize();
+    }
+
+    public function initialize(): void
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new Environment(new ArrayLoader());
         $this->twig->setCache(false);
         $this->disableTestMode();
-
-        foreach ($environment->getExtensions() as $extension) {
+        foreach ($this->platformTwig->getExtensions() as $extension) {
             if ($this->twig->hasExtension(\get_class($extension))) {
                 continue;
             }
             $this->twig->addExtension($extension);
+        }
+        if ($this->twig->hasExtension(CoreExtension::class) && $this->platformTwig->hasExtension(CoreExtension::class)) {
+            /** @var CoreExtension $coreExtensionInternal */
+            $coreExtensionInternal = $this->twig->getExtension(CoreExtension::class);
+            /** @var CoreExtension $coreExtensionGlobal */
+            $coreExtensionGlobal = $this->platformTwig->getExtension(CoreExtension::class);
+            $coreExtensionInternal->setTimezone($coreExtensionGlobal->getTimezone());
+            $coreExtensionInternal->setDateFormat(...$coreExtensionGlobal->getDateFormat());
+            $coreExtensionInternal->setNumberFormat(...$coreExtensionGlobal->getNumberFormat());
         }
     }
 

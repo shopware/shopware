@@ -59,6 +59,7 @@
         flex-wrap: nowrap;
         align-items: center;
         margin-bottom: 5px;
+
         .sw-product-detail-context-prices__inherited-icon {
             margin-right: 10px;
         }
@@ -69,9 +70,13 @@
     }
 
     .sw-product-detail-context-prices__type-label {
-        display:flex;
+        display: flex;
         flex-direction: column;
         gap: 34px;
+    }
+
+    input[name="sw-field--item-quantityEnd"] {
+        text-align: center;
     }
 
     .sw-data-grid.is--compact .sw-product-detail-context-prices__type-label {

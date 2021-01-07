@@ -2,9 +2,8 @@
     <sw-container rows="auto" columns="1fr" class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
-            <sw-card
+            <sw-card v-if="isLoading"
                 class="context-prices__empty-state"
-                v-if="isLoading"
                 :large="true">
                 <sw-loader></sw-loader>
             </sw-card>
@@ -90,8 +89,7 @@
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_price_group_grid %}
-                        <sw-data-grid
-                            v-if="priceGroup.ruleId"
+                        <sw-data-grid v-if="priceGroup.ruleId"
                             :dataSource="priceGroup.prices"
                             :columns="pricesColumns"
                             showSettings
@@ -125,14 +123,14 @@
                             {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                                 <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
                                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
-                                        <sw-field
-                                            type="number"
+                                        <sw-field type="number"
                                             v-model="item.quantityStart"
                                             validation="required"
+                                            v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                                             :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
                                             :max="item.quantityEnd ? item.quantityEnd : null"
                                             :size="compact ? 'small' : 'default'"
-                                            :disabled="!acl.can('product.editor')">
+                                            :disabled="(feature.isActive('FEATURE_NEXT_10553') && itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')">
                                         </sw-field>
                                     {% endblock %}
                                 </template>

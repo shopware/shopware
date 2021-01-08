@@ -153,19 +153,16 @@ Component.register('sw-product-detail-context-prices', {
                     primary: true,
                     rawData: false,
                     width: '95px'
-                }
-            ];
-
-            if (this.feature.isActive('FEATURE_NEXT_10541')) {
-                priceColumns.push({
+                },
+                {
                     property: 'type',
                     label: 'sw-product.advancedPrices.columnType',
                     visible: true,
                     allowResize: true,
                     width: '95px',
                     multiLine: true
-                });
-            }
+                }
+            ];
 
             return [...priceColumns, ...this.currencyColumns];
         }

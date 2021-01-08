@@ -17,7 +17,7 @@ describe('Product: Editing context prices', () => {
     });
 
     it('@base @rule @product: creates context price rules', () => {
-        cy.window().then((win) => {
+        cy.window().then(() => {
             const page = new ProductPageObject();
             const priceGroup = '.context-price-group';
             const priceCell = '.sw-data-grid__cell--price';
@@ -55,14 +55,12 @@ describe('Product: Editing context prices', () => {
             cy.get(`${emptySelectRule}`)
                 .typeSingleSelect('All customers', `${emptySelectRule}`);
 
-            if (win.Shopware.Feature.isActive('FEATURE_NEXT_10541')) {
-                // Disable list prices
-                cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
-                cy.get('.sw-context-menu__content > :nth-child(1)').should('be.visible');
-                cy.contains('Show list prices').should('be.visible');
-                cy.contains('Show list prices').click();
-                cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
-            }
+            // Disable list prices
+            cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
+            cy.get('.sw-context-menu__content > :nth-child(1)').should('be.visible');
+            cy.contains('Show list prices').should('be.visible');
+            cy.contains('Show list prices').click();
+            cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
 
             // change quantityEnd of first rule
             cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)

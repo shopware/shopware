@@ -132,10 +132,6 @@ shopware:
               default: false
               major: true
               description: "Add maximum width for logo"
-            - name: FEATURE_NEXT_10541
-              default: false
-              major: false
-              description: "Advanced list prices"
             - name: FEATURE_NEXT_12957
               default: false
               major: true

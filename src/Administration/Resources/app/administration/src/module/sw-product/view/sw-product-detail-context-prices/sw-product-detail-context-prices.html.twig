@@ -99,7 +99,6 @@
                             :compactMode="true">
                             {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
                                 <template #additionalSettings>
-                                    <template v-if="feature.isActive('FEATURE_NEXT_10541')">
                                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
                                         <sw-switch-field
                                             size="medium"
@@ -109,7 +108,6 @@
                                             :label="$tc('sw-product.prices.settingShowListPrices')">
                                         </sw-switch-field>
                                     {% endblock %}
-                                    </template>
                                 </template>
                             {% endblock %}
 
@@ -187,7 +185,7 @@
                                         </div>
                                     </template>
 
-                                    <template v-if="showListPrices[priceGroup.ruleId] !== false && feature.isActive('FEATURE_NEXT_10541')">
+                                    <template v-if="showListPrices[priceGroup.ruleId] !== false">
                                         <div class="product-detail-context-prices__price-field-wrapper">
                                             <sw-inheritance-switch
                                                 v-if="!currency.isSystemDefault"

@@ -147,7 +147,8 @@ class LoginRoute extends AbstractLoginRoute
             return $customer;
         }
 
-        if (!password_verify($password, $customer->getPassword())) {
+        if ($customer->getPassword() === null
+            || !password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
         }
 

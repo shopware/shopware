@@ -1,5 +1,5 @@
 {% block cms_form_privacy_opt_in %}
-    {# @deprecated tag:v6.4.0.0 - This condition will be removed and the correctly spelled id prefix 'form-privacy-opt-in-' will become the default #}
+    {# @feature-deprecated tag:v6.4.0.0 - This condition will be removed and the correctly spelled id prefix 'form-privacy-opt-in-' will become the default #}
     {% set identifierTemplate = feature('FEATURE_NEXT_12092') ? 'form-privacy-opt-in-%s' : 'form-pvivacy-opt-in-%s' %}
 
     {% block cms_form_privacy_opt_in_title %}

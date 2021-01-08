@@ -59,7 +59,15 @@
                     "individual": {
                         "description": "Individuelle Aktionscodes",
                         "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
-                        "generateButton": "Erstelle Aktionscodes"
+                        "generateButton": "Erstelle Aktionscodes",
+                        "searchPlaceholder": "Durchsuche Aktionscodes ...",
+                        "addButton": "Füge Aktionscodes hinzu",
+                        "columnCode": "Code",
+                        "columnRedeemed": "Eingelöst",
+                        "columnCustomer": "Kunde",
+                        "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
+                        "openCustomer": "Kunde öffnen",
+                        "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden."
                     }
                 }
             },

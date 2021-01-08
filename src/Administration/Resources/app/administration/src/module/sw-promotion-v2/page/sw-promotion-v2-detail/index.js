@@ -33,7 +33,9 @@ Component.register('sw-promotion-v2-detail', {
         promotionId: {
             type: String,
             required: false,
-            default: null
+            default() {
+                return null;
+            }
         }
     },
 

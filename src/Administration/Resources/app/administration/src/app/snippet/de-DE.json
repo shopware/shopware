@@ -894,6 +894,9 @@
   "sw-image-slider": {
     "imageAlt": "Bild {index} / {total}"
   },
+  "sw-confirm-modal": {
+    "defaultText": "Möchtest Du wirklich fortfahren?"
+  },
   "sw-rule-modal": {
     "modalTitleNew": "Neue globale Regel erstellen",
     "labelDescription": "Beschreibung",

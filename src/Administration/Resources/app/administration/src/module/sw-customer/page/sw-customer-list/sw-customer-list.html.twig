@@ -55,22 +55,21 @@
                             ref="swCustomerGrid"
                             v-if="customers"
                             class="sw-customer-list-grid"
+                            identifier="sw-customer-list"
                             :items="customers"
                             :columns="customerColumns"
                             :repository="customerRepository"
                             :sortBy="sortBy"
                             :sortDirection="sortDirection"
-                            @column-sort="onSortColumn"
-                            @page-change="onPageChange"
                             detailRoute="sw.customer.detail"
                             :showSelection="acl.can('customer.deleter')"
                             :allowInlineEdit="acl.can('customer.editor')"
                             :isLoading="isLoading"
-                            identifier="sw-customer-list"
+                            :disableDataFetching="true"
                             @selection-change="updateSelection"
                             @inline-edit-save="onInlineEditSave"
-                            @column-sort="onSortColumn"
-                            :disableDataFetching=true>
+                            @page-change="onPageChange"
+                            @column-sort="onSortColumn">
 
                             {% block sw_customer_list_grid_columns %}
 

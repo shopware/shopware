@@ -82,6 +82,11 @@
                   "name": "Shipping discount",
                   "description": "Discount shipping costs or provide free shipping using optional product triggers."
                 }
+            },
+            "shipping-discount-trigger": {
+                "modalTitle": "Shipping discount - Trigger (optional)",
+                "description": "You may use the Rule Builder to create individual discount triggers. Define thresholds, e.g. a certain number of products or a certain shopping cart value that trigger discounts. You may even create nested trigger cascades.",
+                "labelUseTrigger": "Use trigger"
             }
         }
     }

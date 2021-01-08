@@ -82,6 +82,11 @@
                     "name": "Versand-Rabatt",
                     "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
                 }
+            },
+            "shipping-discount-trigger": {
+                "modalTitle": "Versand-Rabatt - Trigger (optional)",
+                "description": "Sie können den Rule Builder verwenden, um individuelle Rabattauslöser zu erstellen. Definieren Sie Schwellenwerte, z. B. eine bestimmte Anzahl von Produkten oder einen bestimmten Warenkorbwert, die Rabatte auslösen. Sie können sogar verschachtelte Trigger-Kaskaden erstellen.",
+                "labelUseTrigger": "Verwende Trigger"
             }
         }
     }

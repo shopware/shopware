@@ -10,6 +10,7 @@ import './view/sw-promotion-v2-discounts';
 
 import './component/sw-promotion-v2-wizard-discount-selection';
 import './component/sw-promotion-v2-wizard-description';
+import './component/sw-promotion-v2-wizard-shipping-discount-trigger';
 
 const { Module } = Shopware;
 

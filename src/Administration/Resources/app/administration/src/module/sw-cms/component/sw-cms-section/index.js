@@ -6,7 +6,10 @@ const { Component, Mixin, Filter } = Shopware;
 Component.register('sw-cms-section', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'cmsService',
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('cms-state')
@@ -107,17 +110,21 @@ Component.register('sw-cms-section', {
         },
 
         sideBarBlocks() {
-            const sideBarBlocks = this.section.blocks.filter((block => block.sectionPosition === 'sidebar'));
+            const sideBarBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type) && block.sectionPosition === 'sidebar'));
             return sideBarBlocks.sort((a, b) => a.position - b.position);
         },
 
         mainContentBlocks() {
-            const mainContentBlocks = this.section.blocks.filter((block => block.sectionPosition !== 'sidebar'));
+            const mainContentBlocks = this.section.blocks.filter((block => this.blockTypeExists(block.type) && block.sectionPosition !== 'sidebar'));
             return mainContentBlocks.sort((a, b) => a.position - b.position);
         },
 
         assetFilter() {
             return Filter.getByName('asset');
+        },
+
+        blockTypes() {
+            return Object.keys(this.cmsService.getCmsBlockRegistry());
         }
     },
 
@@ -171,6 +178,10 @@ Component.register('sw-cms-section', {
 
         getDropData(index, sectionPosition = 'main') {
             return { dropIndex: index, section: this.section, sectionPosition };
+        },
+
+        blockTypeExists(type) {
+            return this.blockTypes.includes(type);
         }
     }
 });

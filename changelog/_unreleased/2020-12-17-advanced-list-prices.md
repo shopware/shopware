@@ -1,7 +1,6 @@
 ---
 title: Advanced list prices
 issue: NEXT-11859
-flag: FEATURE_NEXT_10541
 author: Timo Altholtmann
 ---
 # Administration

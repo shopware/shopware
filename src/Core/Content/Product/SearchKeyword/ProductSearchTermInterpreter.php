@@ -7,9 +7,11 @@ use Doctrine\DBAL\FetchMode;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
@@ -29,16 +31,30 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
      */
     private $logger;
 
-    public function __construct(Connection $connection, TokenizerInterface $tokenizer, LoggerInterface $logger)
-    {
+    /**
+     * @var AbstractTokenFilter|null
+     */
+    private $tokenFilter;
+
+    public function __construct(
+        Connection $connection,
+        TokenizerInterface $tokenizer,
+        LoggerInterface $logger,
+        ?AbstractTokenFilter $tokenFilter = null
+    ) {
         $this->connection = $connection;
         $this->tokenizer = $tokenizer;
         $this->logger = $logger;
+        $this->tokenFilter = $tokenFilter;
     }
 
     public function interpret(string $word, Context $context): SearchPattern
     {
         $tokens = $this->tokenizer->tokenize($word);
+
+        if (Feature::isActive('FEATURE_NEXT_10552') && $this->tokenFilter) {
+            $tokens = $this->tokenFilter->filter($tokens, $context);
+        }
 
         $slops = $this->slop($tokens);
 

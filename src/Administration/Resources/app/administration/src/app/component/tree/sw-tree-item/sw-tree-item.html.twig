@@ -62,7 +62,11 @@
 
                             {% block sw_tree_items_item_content_default %}
                                 <template v-else>
-                                    <a v-if="onChangeRoute" class="tree-link" :href="showItemUrl(item)" @click="onChangeRoute(item)">
+                                    <a
+                                        v-if="onChangeRoute"
+                                        class="tree-link"
+                                        :href="showItemUrl(item)"
+                                        @click.prevent="onChangeRoute(item)">
                                         <span class="sw-tree-item__label">{{ getName(item) }}</span>
                                     </a>
                                     <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>
@@ -171,7 +175,11 @@
 
                                                     {% block sw_tree_item_children_items_slot_content_default %}
                                                         <template v-else>
-                                                            <a v-if="onChangeRoute" class="tree-link" :href="showItemUrl(item)" @click="onChangeRoute(item)">
+                                                            <a
+                                                                v-if="onChangeRoute"
+                                                                class="tree-link"
+                                                                :href="showItemUrl(item)"
+                                                                @click.prevent="onChangeRoute(item)">
                                                                 <span class="sw-tree-item__label">{{ getName(item) }}</span>
                                                             </a>
                                                             <span v-else class="sw-tree-item__label">{{ getName(item) }}</span>

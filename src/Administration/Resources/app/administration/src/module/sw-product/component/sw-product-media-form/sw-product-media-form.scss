@@ -71,18 +71,18 @@
     &.is--disabled {
         .sw-button {
             background-color: $color-gray-100;
-            color: lighten($color-kashmir, 25%);
+            color: lighten($color-darkgray-200, 25%);
         }
 
         .sw-button--ghost {
             background-color: transparent;
             border-color: lighten($color-shopware-brand-500, 20%);
-            color: lighten($color-kashmir, 20%);
+            color: lighten($color-darkgray-200, 20%);
         }
 
         .sw-button--primary {
             background: lighten($color-shopware-brand-500, 20%);
-            color: lighten($color-kashmir, 60%);
+            color: lighten($color-darkgray-200, 60%);
         }
 
         &::after {

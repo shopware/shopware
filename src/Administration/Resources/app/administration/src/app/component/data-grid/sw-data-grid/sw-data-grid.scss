@@ -28,8 +28,8 @@
         padding: 0;
         margin: 0;
         font-size: 14px;
-        color: $color-gutenberg;
-        border-right: 1px solid $color-steam-cloud;
+        color: $color-darkgray-200;
+        border-right: 1px solid $color-gray-300;
         overflow: hidden;
         background-color: $color-white;
 
@@ -39,7 +39,7 @@
     }
 
     &.sw-data-grid--actions .sw-data-grid__cell {
-        border-right: 1px solid $color-steam-cloud;
+        border-right: 1px solid $color-gray-300;
 
         &:last-child,
         &:nth-last-child(2) {
@@ -86,7 +86,7 @@
         }
 
         a {
-            color: $color-gutenberg;
+            color: $color-darkgray-200;
             text-decoration: none;
 
             &:hover {
@@ -150,13 +150,13 @@
         bottom: 0;
         width: 0;
         height: 100%;
-        background-color: $color-steam-cloud;
+        background-color: $color-gray-300;
         cursor: ew-resize;
         opacity: 0;
         transition: all 0.2s ease-in-out;
 
         &.is--column-resizing {
-            background-color: darken($color-steam-cloud, 10%);
+            background-color: darken($color-gray-300, 10%);
         }
     }
 
@@ -164,7 +164,7 @@
         margin-left: 5px;
 
         .sw-icon {
-            color: $color-steam-cloud;
+            color: $color-gray-300;
         }
     }
 
@@ -182,14 +182,14 @@
         position: -webkit-sticky;
         top: 0;
         background-clip: padding-box;
-        box-shadow: inset 0 -1px 0 $color-steam-cloud;
+        box-shadow: inset 0 -1px 0 $color-gray-300;
         background-color: $color-white;
         z-index: 6;
         overflow: visible;
 
         &.sw-data-grid__cell--selection {
             z-index: 7;
-            box-shadow: inset -1px -1px 0 0 $color-steam-cloud;
+            box-shadow: inset -1px -1px 0 0 $color-gray-300;
         }
 
         .sw-data-grid__cell-content {
@@ -200,7 +200,7 @@
 
     .sw-data-grid__cell--sortable:hover {
         cursor: pointer;
-        background-color: $color-light-gray;
+        background-color: $color-gray-100;
     }
 
     .sw-data-grid__cell--property {
@@ -209,12 +209,12 @@
         }
 
         &.is--column-resizing {
-            background-color: $color-cadet-blue;
+            background-color: $color-shopware-brand-50;
         }
 
         &:hover {
             .sw-data-grid__action-edit-column .sw-icon {
-                color: $color-gutenberg;
+                color: $color-darkgray-200;
             }
         }
     }
@@ -232,7 +232,7 @@
         min-width: 88px;
         max-width: 88px;
         border-right: 0;
-        box-shadow: inset -1px 0 0 $color-steam-cloud;
+        box-shadow: inset -1px 0 0 $color-gray-300;
         overflow: visible;
         z-index: 5;
 
@@ -253,14 +253,14 @@
         position: absolute;
         white-space: nowrap;
         overflow: hidden;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         background: $color-white;
         font-size: 14px;
         left: 0;
         right: 0;
         height: 64px;
         z-index: 7;
-        border-bottom: 1px inset $color-steam-cloud;
+        border-bottom: 1px inset $color-gray-300;
         padding: 20px 12px 20px 100px;
     }
 
@@ -284,33 +284,33 @@
 
     .sw-data-grid__body .sw-data-grid__row {
         &:nth-child(even) .sw-data-grid__cell {
-            background-color: $color-light-gray;
+            background-color: $color-gray-100;
         }
 
         &:hover .sw-data-grid__cell {
-            background-color: $color-cadet-blue;
+            background-color: $color-shopware-brand-50;
 
             a {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
 
         &.is--inline-edit {
             .sw-data-grid__cell {
-                background-color: $color-cadet-blue;
-                border-top: 1px solid $color-shopware-blue;
-                border-bottom: 1px solid $color-shopware-blue;
+                background-color: $color-shopware-brand-50;
+                border-top: 1px solid $color-shopware-brand-500;
+                border-bottom: 1px solid $color-shopware-brand-500;
             }
 
             .sw-data-grid__cell-content {
                 padding: 10px;
-                color: darken($color-steam-cloud, 10%);
+                color: darken($color-gray-300, 10%);
             }
 
             .sw-data-grid__cell-value {
                 display: inline-block;
                 margin: 0 10px;
-                color: darken($color-steam-cloud, 10%);
+                color: darken($color-gray-300, 10%);
                 user-select: none;
                 cursor: default;
             }
@@ -318,7 +318,7 @@
 
         &.is--selected {
             .sw-data-grid__cell {
-                background-color: $color-cadet-blue;
+                background-color: $color-shopware-brand-50;
             }
         }
     }
@@ -330,7 +330,7 @@
         width: 88px;
         min-width: 88px;
         max-width: 88px;
-        box-shadow: inset 1px 0 0 $color-steam-cloud;
+        box-shadow: inset 1px 0 0 $color-gray-300;
         overflow: visible;
         z-index: 4;
 
@@ -403,7 +403,7 @@
         line-height: 18px;
         padding: 4px 12px;
         text-decoration: none;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         cursor: pointer;
 
         &:hover {
@@ -411,7 +411,7 @@
         }
 
         &.link-danger {
-            color: $color-crimson;
+            color: $color-crimson-500;
         }
     }
 
@@ -420,7 +420,7 @@
         position: relative;
         width: 48px;
         height: 48px;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         border-radius: $border-radius-default;
         background-color: $color-white;
         margin-right: 15px;
@@ -444,7 +444,7 @@
     }
 
     .sw-data-grid__cell-settings {
-        box-shadow: inset 1px -1px 0 $color-steam-cloud;
+        box-shadow: inset 1px -1px 0 $color-gray-300;
         z-index: 7;
     }
 

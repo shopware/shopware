@@ -98,13 +98,13 @@
     &.is--dragging {
         box-shadow: none;
         border: 1px dashed $color-gray-300;
-        background-color: $color-iron;
+        background-color: $color-gray-50;
     }
 
     &.is--drag-element,
     &.is--drag-element.is--valid-drag {
-        border: 1px solid $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+        border: 1px solid $color-shopware-brand-500;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
     }
 
     h1,

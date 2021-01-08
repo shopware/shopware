@@ -13,16 +13,16 @@
 
     .sw-tree-actions__headline {
         display: grid;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-size: 18px;
         padding: 21px 40px;
         grid-template-columns: 1fr auto;
         align-items: center;
         line-height: 32px;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-tree__batch-delete {
-            color: $color-crimson;
+            color: $color-crimson-500;
             font-size: 14px;
             cursor: pointer;
         }
@@ -52,7 +52,7 @@
 
             &::before {
                 content: '';
-                background: $color-steam-cloud;
+                background: $color-gray-300;
                 position: absolute;
                 left: 16px;
                 height: 100%;

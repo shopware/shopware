@@ -21,12 +21,12 @@
         position: absolute;
         top: 1px;
         left: 0;
-        background: $color-light-gray;
-        border: 1px solid $color-steam-cloud;
+        background: $color-gray-100;
+        border: 1px solid $color-gray-300;
 
         button {
             padding: 6px 8px;
-            color: $color-gutenberg;
+            color: $color-darkgray-200;
             background: none;
             border: 0 none;
             text-align: center;
@@ -37,7 +37,7 @@
             -webkit-appearance: none;
 
             &:hover {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
     }
@@ -45,7 +45,7 @@
     &.has--focus {
         .content-editor,
         .content-editor:hover {
-            border: 1px solid $color-steam-cloud;
+            border: 1px solid $color-gray-300;
         }
     }
 

@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
+$sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
 
 .sw-sales-channel-detail-base {
     .sw-sales-channel-detail-base__secret-help-text-alert {
@@ -31,7 +31,7 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
     .sw-sales-channel-detail-base__delete {
         margin-top: 30px;
         padding-top: 30px;
-        border-top: 1px solid $color-steam-cloud;
+        border-top: 1px solid $color-gray-300;
     }
 
     .sw-sales-channel-detail-base__headline {

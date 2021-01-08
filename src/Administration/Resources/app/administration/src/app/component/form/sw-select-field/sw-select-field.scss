@@ -1,12 +1,12 @@
 @import "~scss/variables";
 
-$sw-select-field-color-text: $color-gutenberg;
-$sw-select-field-color-text-disabled: $color-steam-cloud;
-$sw-select-field-color-focus: $color-shopware-blue;
+$sw-select-field-color-text: $color-darkgray-200;
+$sw-select-field-color-text-disabled: $color-gray-300;
+$sw-select-field-color-focus: $color-shopware-brand-500;
 $sw-select-field-border-radius: $border-radius-default;
 $sw-select-field-color-background: $color-white;
-$sw-select-field-color-border: $color-steam-cloud;
-$sw-select-field-color-error: $color-crimson;
+$sw-select-field-color-border: $color-gray-300;
+$sw-select-field-color-error: $color-crimson-500;
 
 .sw-field.sw-field--select {
 

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-product-stream-modal-color-error: $color-crimson;
-$sw-product-stream-modal-color-success: $color-emerald;
+$sw-product-stream-modal-color-error: $color-crimson-500;
+$sw-product-stream-modal-color-success: $color-emerald-500;
 
 .sw-product-stream-modal-preview {
     .sw-modal__dialog {
@@ -31,15 +31,15 @@ $sw-product-stream-modal-color-success: $color-emerald;
         width: 100%;
         height: 100%;
         grid-row: search-field;
-        background: $color-light-gray;
+        background: $color-gray-100;
         -webkit-border-radius: 0;
         -moz-border-radius: 0;
         border-radius: 0;
         padding: 0;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         &:hover {
-            background: $color-light-gray;
+            background: $color-gray-100;
         }
 
         .sw-product-stream-modal-preview__search-field {

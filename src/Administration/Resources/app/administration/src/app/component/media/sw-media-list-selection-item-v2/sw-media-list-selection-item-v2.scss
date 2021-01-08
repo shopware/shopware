@@ -2,9 +2,9 @@
 
 $sw-media-list-selection-item-v2-color-white:       $color-white;
 $sw-media-list-selection-item-v2-color-hover:       $color-black;
-$sw-media-list-selection-item-v2-color-border:      $color-steam-cloud;
+$sw-media-list-selection-item-v2-color-border:      $color-gray-300;
 $sw-media-list-selection-item-v2-border-radius:     $border-radius-default;
-$sw-media-list-selection-item-v2-placeholder-color: lighten($color-steam-cloud, 5%);
+$sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%);
 
 .sw-media-list-selection-item-v2 {
     position: relative;

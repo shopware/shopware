@@ -13,7 +13,7 @@
         min-height: 16px;
         font-size: 14px;
         margin-bottom: 8px;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-weight: normal;
         user-select: none;
     }
@@ -24,9 +24,9 @@
         flex-direction: column;
         padding: 24px;
         min-height: 148px;
-        border: 2px dashed $color-steam-cloud;
+        border: 2px dashed $color-gray-300;
         border-radius: $border-radius-default;
-        background-color: $color-light-gray;
+        background-color: $color-gray-100;
     }
 
     .sw-file-input__upload-caption {
@@ -35,7 +35,7 @@
 
         .sw-icon {
             margin-right: 8px;
-            color: $color-steam-cloud;
+            color: $color-gray-300;
         }
     }
 

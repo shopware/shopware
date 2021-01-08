@@ -9,8 +9,8 @@
 body {
     font-family: $font-family-default;
     font-size: $font-size-default;
-    color: $color-deep-cove;
-    background: $color-iron;
+    color: $color-menu-start;
+    background: $color-gray-50;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -30,5 +30,5 @@ body,
 
 .link {
     display: inline-block;
-    color: $color-shopware-blue;
+    color: $color-shopware-brand-500;
 }

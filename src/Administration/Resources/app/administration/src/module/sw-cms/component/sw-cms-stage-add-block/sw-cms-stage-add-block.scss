@@ -19,8 +19,8 @@
     }
 
     &.is--valid-drop {
-        background: rgba($color-shopware-blue, 0.2);
-        border: 2px dashed $color-shopware-blue;
+        background: rgba($color-shopware-brand-500, 0.2);
+        border: 2px dashed $color-shopware-brand-500;
 
         .sw-cms-stage-add-block__handle,
         .sw-cms-stage-add-block__button {
@@ -32,8 +32,8 @@
         display: none;
         height: 2px;
         width: 100%;
-        background-color: $color-shopware-blue;
-        box-shadow: 0 0 10px 0 rgba($color-shopware-blue, 0.6);
+        background-color: $color-shopware-brand-500;
+        box-shadow: 0 0 10px 0 rgba($color-shopware-brand-500, 0.6);
         position: relative;
     }
 
@@ -44,7 +44,7 @@
         border-radius: 15px;
         justify-content: center;
         align-items: center;
-        background-color: $color-shopware-blue;
+        background-color: $color-shopware-brand-500;
         color: $color-white;
         position: absolute;
     }

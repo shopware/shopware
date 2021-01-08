@@ -6,7 +6,7 @@
  * 2. Status colors
  * 3. Module colors
  * 4. Generic colors
- * 5. Legacy colors
+ * 5. Gradients
  * 6. Typography
  * 7. Miscellaneous
  * 8. z-index
@@ -200,33 +200,9 @@ $color-black: #000;
 $color-drag-select-box: rgba(0, 162, 255, 0.4);
 
 /* ------------------------------------
- * 5. Legacy colors
- * ??? still used in many places
- * @deprecated tag:v6.4.0 - Will be removed
+ * 5. Gradients
  * ------------------------------------ */
 
-// Base colors
-$color-shopware-blue: $color-shopware-brand-500;
-$color-biscay: $color-menu-end;
-$color-kashmir: $color-darkgray-200; // Old color #54698d
-$color-deep-cove: $color-menu-start;
-$color-iron: $color-gray-50; // Old color: #fafbfc
-$color-crimson: $color-crimson-500;
-$color-pumpkin-spice: $color-pumpkin-spice-500;
-$color-contrast: $color-module-yellow-500;
-$color-emerald: $color-emerald-500;
-$color-cadet-blue: $color-shopware-brand-50; // Old color: #e8f6ff
-$color-gutenberg: $color-darkgray-200; // Old color #607182
-$color-steam-cloud: $color-gray-300; // Old color #d8dde6
-$color-link-water: $color-gray-50; // Old color #fcfcfc
-$color-light-gray: $color-gray-100; // Old color #f4f7fa
-$color-gray: $color-gray-700; // Old color #9aa7be
-$color-purple: $color-module-purple-900;
-
-// Gradients
-$color-gradient-dark-gray-start: $color-menu-start;
-$color-gradient-dark-gray-end: $color-menu-end;
-$gradient-dark-gray: linear-gradient(to bottom, $color-gradient-dark-gray-start, $color-gradient-dark-gray-end);
 $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
 
 /* ------------------------------------

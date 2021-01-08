@@ -15,7 +15,7 @@
     .sw-cms-mapping-field__label {
         font-size: 14px;
         line-height: 16px;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-weight: normal;
         user-select: none;
     }
@@ -33,7 +33,7 @@
         justify-content: end;
         justify-items: end;
         font-size: 14px;
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
         cursor: pointer;
 
         &:hover .sw-cms-mapping-field__action-label {
@@ -56,21 +56,21 @@
         cursor: pointer;
 
         &:hover {
-            color: $color-crimson;
+            color: $color-crimson-500;
         }
     }
 
     .sw-cms-mapping-field__mapping-value {
         padding: 30px;
         text-align: center;
-        background: $color-light-gray;
-        border: 1px dashed $color-steam-cloud;
+        background: $color-gray-100;
+        border: 1px dashed $color-gray-300;
         border-radius: 4px;
     }
 
     .sw-cms-mapping-field__preview {
         padding: 20px;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         margin-top: 10px;
         margin-bottom: 22px;
     }

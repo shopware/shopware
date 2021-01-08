@@ -1,3 +1,4 @@
+import './component/sw-promotion-v2-generate-codes-modal';
 import './component/sw-promotion-v2-individual-codes-behavior';
 
 import './init/services.init';

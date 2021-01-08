@@ -276,6 +276,9 @@ class FileFetcherTest extends TestCase
         );
     }
 
+    /**
+     * @group needsWebserver
+     */
     public function testFetchFileDoesNotRedirect(): void
     {
         $appUrl = trim($_SERVER['APP_URL'] ?? '');

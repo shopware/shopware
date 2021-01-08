@@ -1,0 +1,99 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-extension-card-base {
+    &.is--deactivated {
+        background: $color-gray-50;
+
+        .sw-extension-card-base__extension-activation-switch {
+            background: $color-gray-50;
+        }
+    }
+
+    .sw-loader {
+        border-radius: 8px;
+    }
+
+    .sw-extension-card-base__switch {
+        .sw-field--switch {
+            margin: 0;
+
+            .sw-field--switch__content {
+                background: unset;
+            }
+
+            .sw-field--switch__input {
+                padding: 8px 0;
+            }
+
+            .sw-field__switch-state {
+                top: 0;
+            }
+        }
+    }
+
+    .sw-meteor-card__content .sw-meteor-card__content-wrapper {
+        display: grid;
+        grid-column-gap: 32px;
+        grid-template-columns: 26px 60px 4fr 2fr minmax(min-content, 1fr) auto;
+        align-items: center;
+        padding: 10px 32px;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .sw-extension-card-base__icon {
+        max-width: 60px;
+        max-height: 60px;
+    }
+
+    .sw-extension-card-base__info {
+        margin-left: -16px;
+        overflow: hidden;
+        font-size: $font-size-extra-small;
+
+        .sw-extension-card-base__info-name {
+            @include truncate();
+
+            font-size: $font-size-small;
+            color: $color-darkgray-200;
+            font-weight: $font-weight-semi-bold;
+        }
+
+        .sw-extension-card-base__info-inactive {
+            color: $color-gray-500;
+        }
+
+        .sw-extension-card-base__info-description {
+            @include truncate();
+
+            color: $color-gray-500;
+        }
+    }
+
+    .sw-extension-card-base__main-action {
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .sw-extension-card-base__meta-info {
+        color: $color-gray-500;
+        text-align: right;
+    }
+
+    .sw-extension-card-base__open-extension {
+        cursor: pointer;
+        text-decoration: underline;
+        color: $color-shopware-brand-500;
+    }
+}
+
+.sw-extension-card-base__context-menu-privacy-link {
+    display: flex;
+    align-items: center;
+
+    .sw-icon {
+        margin-left: 4px;
+    }
+}

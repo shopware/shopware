@@ -1,0 +1,144 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$padding-summary-card: 24px;
+
+.sw-extension-buy-modal {
+    .is--hidden {
+        visibility: hidden;
+    }
+
+    .sw-extension-buy-modal__variants-selection {
+        padding: $padding-summary-card;
+        border: 1px solid $color-gray-300;
+        border-bottom: 0 none;
+        border-radius: $border-radius-default $border-radius-default 0 0;
+
+        .sw-extension-buy-modal__variants-card:not(:last-child) {
+            margin-bottom: 16px;
+        }
+    }
+
+    .sw-extension-buy-modal__extension-summary {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        grid-column-gap: 12px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .sw-extension-buy-modal__extension-summary-icon {
+        width: 72px;
+        height: 72px;
+    }
+
+    .sw-extension-buy-modal__extension-summary-name {
+        margin-bottom: 0;
+        font-weight: $font-weight-semi-bold;
+        font-size: 24px;
+    }
+
+    .sw-extension-buy-modal__variants-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-column-gap: 12px;
+        grid-row-gap: 5px;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        padding: 16px;
+        cursor: pointer;
+
+        &.is--selected {
+            border: 1px solid $color-shopware-brand-500;
+            background: $color-module-blue-50;
+        }
+
+        label {
+            cursor: pointer;
+        }
+
+        & > * {
+            font-size: $font-size-small;
+            grid-column: 2;
+        }
+    }
+
+    .sw-extension-buy-modal__variants-card-input {
+        align-self: center;
+        grid-column: 1;
+    }
+
+    .sw-extension-buy-modal__variant-description {
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-default;
+    }
+
+    .sw-extension-buy-modal__variant-summary {
+        margin-bottom: 16px;
+        padding: $padding-summary-card;
+        background: $color-module-blue-50;
+        border: 1px solid $color-shopware-brand-500;
+        border-radius: 0 0 $border-radius-default $border-radius-default;
+        color: $color-gray-500;
+        font-size: $font-size-small;
+        text-align: right;
+    }
+
+    .sw-extension-buy-modal__variant-summary-price {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        color: $color-darkgray-500;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-extension-buy-modal__variant-summary-actual-price {
+        font-size: 22px;
+    }
+
+    .sw-extension-buy-modal__content-installed {
+        text-align: center;
+
+        .saas-rufus-circle-icon {
+            margin: 16px auto;
+        }
+
+        h3 {
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            color: $color-gray-500;
+        }
+
+        .sw-button {
+            margin-top: 16px;
+        }
+    }
+
+    .sw-field--checkbox {
+        margin-bottom: 16px;
+    }
+
+    .sw-extension-buy-modal__checkbox {
+        font-size: $font-size-small;
+
+        .sw-field--checkbox__content {
+            align-items: inherit;
+
+            .sw-field__label {
+                display: block;
+
+                .sw-button {
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    color: $color-shopware-brand-500;
+                    font-weight: $font-weight-regular;
+                    text-decoration: underline;
+                    line-height: inherit;
+                }
+            }
+        }
+    }
+}

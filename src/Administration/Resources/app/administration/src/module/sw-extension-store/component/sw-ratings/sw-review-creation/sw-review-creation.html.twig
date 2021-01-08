@@ -1,0 +1,44 @@
+{% block sw_review_creation %}
+    <div class="sw-review-creation">
+        {% block sw_review_creation_form %}
+            {% block sw_review_creation_inputs %}
+                <sw-review-creation-inputs
+                    @changed="onChange"
+                    :errors="errors">
+                </sw-review-creation-inputs>
+            {% endblock %}
+
+            {% block sw_review_creation_buttons %}
+                <div class="sw-review-creation__buttons">
+                    {% block sw_review_creation_buttons_inner %}
+                        {% block sw_review_creation_gtc_checkbox %}
+                            <saas-rufus-gtc-checkbox v-model="tocAccepted"></saas-rufus-gtc-checkbox>
+                        {% endblock %}
+
+                        {% block sw_review_creation_cancel_btn %}
+                            <sw-button @click="clearData" size="small" :disabled="isLoading">
+                                {% block sw_review_creation_cancel_btn_text %}
+                                    {{ $tc('global.default.cancel') }}
+                                {% endblock %}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_review_creation_submit_btn %}
+                            <sw-button-process variant="primary"
+                                       size="small"
+                                       :isLoading="isLoading"
+                                       :processSuccess="isCreatedSuccessful"
+                                       :disabled="disabled"
+                                       @process-finish="emitCreated"
+                                       @click="handleCreateReview">
+                                {% block sw_review_creation_submit_btn_text %}
+                                    {{ $tc('sw-extension-store.component.sw-ratings.sw-review-creation.submitBtn') }}
+                                {% endblock %}
+                            </sw-button-process>
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

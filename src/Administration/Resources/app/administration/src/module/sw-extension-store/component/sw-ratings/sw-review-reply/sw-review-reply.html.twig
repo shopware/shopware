@@ -1,0 +1,32 @@
+{% block sw_review_reply %}
+    <div class="sw-review-reply">
+        {% block sw_review_reply_head %}
+            <div class="sw-review-reply__head">
+                {% block sw_review_reply_producer_name %}
+                    <span class="sw-review-reply__producer-name">
+                        {% block sw_review_reply_producer_name_inner %}
+                            {{ producerName }}
+                        {% endblock %}
+                    </span>
+                {% endblock %}
+
+                {% block sw_review_reply_date %}
+                    <span v-if="creationDate" class="sw-review-reply__date">
+                        {% block sw_review_reply_date_inner %}
+                            {{ $tc('sw-extension-store.component.sw-ratings.sw-review-reply.labelCreationDate',
+                            0, { creationDate: creationDate }) }}
+                        {% endblock %}
+                    </span>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_review_reply_text %}
+            <p v-if="reply.text" class="sw-review-reply__text">
+                {% block sw_review_reply_text_inner %}
+                    {{ reply.text }}
+                {% endblock %}
+            </p>
+        {% endblock %}
+    </div>
+{% endblock %}

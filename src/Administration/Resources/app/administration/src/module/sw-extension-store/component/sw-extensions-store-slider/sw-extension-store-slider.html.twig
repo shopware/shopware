@@ -1,0 +1,48 @@
+{% block sw_extension_store_slider %}
+    <div class="sw-extension-store-slider sw-meteor-card"
+         :class="[
+             cardClasses,
+             `sw-extension-store-slider__slides-count-${usedSlideCount}`
+         ]">
+        {% block sw_extension_store_slider_slides %}
+            <div class="sw-extension-store-slider__slides" ref="movingImageWrapper">
+                {% block sw_extension_store_slider_loader %}
+                    <div v-if="!images" class="sw-extension-store-slider__loader">
+                        <sw-loader></sw-loader>
+                    </div>
+                {% endblock %}
+
+                <template v-else>
+                    {% block sw_extension_store_slider_slide_item %}
+                        <div v-for="img, key in images"
+                             class="sw-extension-store-slider__slide-item"
+                             :class="slideClasses(key)"
+                             :data-key="key"
+                             :style="getActiveStyle(key)"
+                             :key="key">
+                            <img :src="img">
+                        </div>
+                    {% endblock %}
+                </template>
+            </div>
+        {% endblock %}
+
+        {% block sw_extension_store_slider_navigation %}
+            <div class="sw-extension-store-slider__navigation" v-if="images.length > usedSlideCount">
+                {% block sw_extension_store_slider_navigation_inner %}
+                    <button class="sw-extension-store-slider__btn-back" @click="previous()" :disabled="isDisabledPrevious">
+                        {% block sw_extension_store_slider_navigation_inner_icon_left %}
+                            <sw-icon name="default-arrow-head-left" size="20"></sw-icon>
+                        {% endblock %}
+                    </button>
+
+                    <button class="sw-extension-store-slider__btn-next" @click="next()" :disabled="isDisabledNext">
+                        {% block sw_extension_store_slider_navigation_inner_icon_right %}
+                            <sw-icon name="default-arrow-head-right" size="20"></sw-icon>
+                        {% endblock %}
+                    </button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

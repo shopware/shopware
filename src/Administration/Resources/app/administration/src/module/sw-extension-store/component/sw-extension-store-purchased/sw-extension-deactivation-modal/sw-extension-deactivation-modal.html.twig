@@ -1,0 +1,48 @@
+{% block sw_extension_deactivation_modal %}
+    <sw-modal
+        class="sw-extension-deactivation-modal"
+        :title="$t('sw-extension-store.component.sw-extension-deactivation-modal.deactivateExtensionLabel', { extensionName })"
+        variant="small"
+        @modal-close="emitClose">
+        {% block sw_extension_deactivation_modal_content %}
+            <template #default>
+                {% block sw_installed_extension_card_deactivation_content_modal_body %}
+                    <p class="sw-extension-deactivation-modal__description"
+                        v-html="$t('sw-extension-store.component.sw-extension-deactivation-modal.description', { extensionName })">
+                    </p>
+
+                    <p class="sw-extension-deactivation-modal__bold-paragraph">
+                        {{ $tc('sw-extension-store.component.sw-extension-deactivation-modal.alertDeactivate') }}
+                    </p>
+
+                    <p class="sw-extension-deactivation-modal__hint-paragraph">
+                        {{ removeHint }}
+                    </p>
+                {% endblock %}
+            </template>
+
+            <template #modal-footer>
+                {% block sw_extension_deactivation_modal_footer %}
+                    {% block sw_extension_deactivation_modal_footer_cancel %}
+                        <sw-button
+                            size="small"
+                            :disabled="isLoading"
+                            @click="emitClose">
+                            {{ $tc('global.default.cancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_extension_deactivation_modal_footer_deactivate %}
+                        <sw-button
+                            variant="primary"
+                            size="small"
+                            :isLoading="isLoading"
+                            @click="emitDeactivate">
+                            {{ $tc('sw-extension-store.component.sw-extension-deactivation-modal.deactivateLabel') }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

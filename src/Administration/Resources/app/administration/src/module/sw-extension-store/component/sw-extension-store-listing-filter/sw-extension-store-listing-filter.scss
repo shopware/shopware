@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+.sw-extension-store-listing-filter {
+    display: grid;
+    grid-gap: 24px;
+    grid-template-columns: repeat(4, minmax(max-content, 1fr));
+    margin-bottom: 40px;
+
+    .sw-extension-store-listing-filter__category-filter {
+        grid-column: span 2;
+    }
+
+    @media only screen and (max-width: 800px) {
+        grid-template-columns: repeat(2, minmax(max-content, 1fr));
+    }
+
+    @media only screen and (max-width: 500px) {
+        grid-template-columns: 1fr;
+
+        .sw-extension-store-listing-filter__category-filter {
+            grid-column: span 1;
+        }
+    }
+}
+
+.sw-extension-store-listing-filter__ratings-result-item {
+    display: flex;
+    align-items: center;
+
+    .sw-extension-rating-stars {
+        margin-left: 12px;
+    }
+
+    .sw-icon {
+        color: inherit;
+        margin-left: unset;
+    }
+}
+
+.sw-extension-store-listing-filter__category-filter {
+    .sw-select-result {
+        padding: 8px 25px;
+        border-bottom: 0 none;
+    }
+
+    .is--root-category {
+        font-weight: $font-weight-semi-bold;
+    }
+}

@@ -1,0 +1,59 @@
+{% block sw_ratings_card %}
+    <sw-meteor-card class="sw-ratings-card"
+                    :isLoading="isLoading"
+                    :title="$tc('sw-extension-store.component.sw-ratings.sw-ratings-card.cardTitle')">
+        {% block sw_ratings_card_inner %}
+            <template v-if="reviews.length > 0">
+                {% block sw_ratings_card_full_state %}
+                    {% block sw_ratings_card_summary %}
+                        <sw-ratings-summary :summary="summary"></sw-ratings-summary>
+                    {% endblock %}
+
+                    {% block sw_ratings_card_reviews %}
+                        <div class="sw-ratings-card__reviews">
+                            {% block sw_ratings_card_review %}
+                                <sw-extension-review
+                                    v-for="(review, index) in reviews"
+                                    :key="`sw-ratings-card__reviews-review-${index}`"
+                                    :producerName="producerName"
+                                    :review="review">
+                                </sw-extension-review>
+                            {% endblock %}
+
+                            {% block sw_ratings_card_load_more %}
+                                <sw-button v-if="canShowMore" size="small" @click="loadMoreReviews">
+                                    {{ $tc('sw-extension-store.component.sw-ratings.sw-ratings-card.labelMoreReviewsBtn') }}
+                                </sw-button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_ratings_card_empty_state %}
+                    {{ $tc('sw-extension-store.component.sw-ratings.sw-ratings-card.labelNoReviews') }}
+                {% endblock %}
+            </template>
+
+            {% block sw_ratings_card_footer_headline %}
+                <h3 v-if="isInstalledAndLicensed && !isLoading" class="sw-ratings-card__footer-headline">
+                    {% block sw_ratings_card_footer_headline_inner %}
+                        {{ $tc('sw-extension-store.component.sw-ratings.sw-ratings-card.footerHeadline') }}
+                    {% endblock %}
+                </h3>
+            {% endblock %}
+
+            {% block sw_ratings_card_footer %}
+                <template #footer v-if="isInstalledAndLicensed && !isLoading">
+                    {% block sw_ratings_card_footer_inner %}
+                        <sw-review-creation
+                            @created="$emit('update-extension')"
+                            :extension="extension">
+                        </sw-review-creation>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-meteor-card>
+{% endblock %}

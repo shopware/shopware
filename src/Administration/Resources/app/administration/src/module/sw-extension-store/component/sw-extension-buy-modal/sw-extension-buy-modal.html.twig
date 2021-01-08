@@ -1,0 +1,232 @@
+{% block sw_extension_buy_modal %}
+    <sw-modal
+        class="sw-extension-buy-modal"
+        :title="$tc('sw-extension-store.component.sw-extension-buy-modal.title')"
+        size="404px"
+        :isLoading="isLoading"
+        @modal-close="emitClose">
+
+        {% block sw_extension_buy_modal_content %}
+            <template v-if="!hasSuccessfullyInstalledExtension">
+                {% block sw_extension_buy_modal_content_not_installed %}
+                    {% block sw_extension_buy_modal_variant_selection %}
+                        <div class="sw-extension-buy-modal__variants-selection">
+                            {% block sw_extension_buy_modal_variant_selection_content %}
+                                {% block sw_extension_buy_modal_variant_selection_extension_preview %}
+                                    <div class="sw-extension-buy-modal__extension-summary">
+                                        {% block sw_extension_buy_modal_variant_selection_extension_preview_content %}
+                                            {% block sw_extension_buy_modal_variant_selection_extension_icon %}
+                                                <img :src="extension.icon" class="sw-extension-buy-modal__extension-summary-icon">
+                                            {% endblock %}
+
+                                            {% block sw_extension_buy_modal_variant_selection_extension_name %}
+                                                <h4 class="sw-extension-buy-modal__extension-summary-name">
+                                                    {{ extension.label }}
+                                                </h4>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block sw_extension_buy_modal_variant_selection_variant_list %}
+                                    <ul>
+                                        {% block sw_extension_buy_modal_variant_selection_variant_list_item %}
+                                            <li v-for="variant in recommendedVariants"
+                                                :key="variant.id"
+                                                class="sw-extension-buy-modal__variants-card"
+                                                :class="variantCardClass(variant)"
+                                                @click="onChangeVariantSelection(variant)">
+
+                                                {% block sw_extension_buy_modal_variant_selection_variant_list_item_radio_button %}
+                                                    <div class="sw-extension-buy-modal__variants-card-input sw-field--radio">
+                                                        <div class="sw-field__radio-input">
+                                                            <input type="radio"
+                                                                   name="variant-selection"
+                                                                   :id="`sw-extension-buy-modal__variant-${variant.type}`"
+                                                                   :value="variant.id"
+                                                                   :checked="variant.id === selectedVariantId"
+                                                                   :disabled="isLoading"/>
+                                                            <div class="sw-field__radio-state"></div>
+                                                        </div>
+                                                    </div>
+                                                {% endblock %}
+
+                                                {% block sw_extension_buy_modal_variant_selection_variant_list_item_variant_label %}
+                                                    <label :for="`sw-extension-buy-modal__variant-${variant.type}`"
+                                                           class="sw-extension-buy-modal__variant-description">
+                                                        {{ variantsCardLabel(variant) }}
+                                                    </label>
+
+                                                    <span v-if="variant.trialPhaseIncluded">
+                                                        {{ $tc('sw-extension-store.component.sw-extension-buy-modal.variantCard.hasTrialPhase') }}
+                                                    </span>
+                                                {% endblock %}
+                                            </li>
+                                        {% endblock %}
+                                    </ul>
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_summary %}
+                        <div class="sw-extension-buy-modal__variant-summary">
+                            {% block sw_extension_buy_modal_summary_content %}
+                                {% block sw_extension_buy_modal_summary_label_plus_vat %}
+                                    <p :class="vatIncludedClasses">
+                                        {{ $tc('sw-extension-store.component.sw-extension-buy-modal.variantSummary.labelVat') }}
+                                    </p>
+                                {% endblock %}
+
+                                {% block sw_extension_buy_modal_summary_price %}
+                                    <p class="sw-extension-buy-modal__variant-summary-price">
+                                        {% block sw_extension_buy_modal_summary_price_content %}
+                                            {% block sw_extension_buy_modal_summary_label_price %}
+                                                <span>
+                                                {{ $tc('sw-extension-store.component.sw-extension-buy-modal.variantSummary.labelPrice') }}
+                                            </span>
+                                            {% endblock %}
+
+                                            {% block sw_extension_buy_modal_summary_actual_price %}
+                                                <span class="sw-extension-buy-modal__variant-summary-actual-price">
+                                                {{ $tc('sw-extension-store.general.labelPrice', variantRecommendation(selectedVariant), { price: formattedPrice }) }}
+                                            </span>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </p>
+                                {% endblock %}
+
+                                {% block sw_extension_buy_modal_summary_renewal_date %}
+                                    <p :class="renewalDateClasses">
+                                        {{ $tc('sw-extension-store.component.sw-extension-buy-modal.variantSummary.renewal', 0, { renewalDate: dateFilter(todayPlusOneMonth) }) }}
+                                    </p>
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_accept_toc %}
+                        <sw-extension-gtc-checkbox v-model="tocAccepted"></sw-extension-gtc-checkbox>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_accept_extension_permissions %}
+                        <div v-if="extensionHasPermissions" class="sw-extension-buy-modal__checkbox sw-field sw-field--checkbox">
+                            <div class="sw-field--checkbox__content">
+                                <div class="sw-field__checkbox">
+                                    <input type="checkbox"
+                                           :id="`permissions-checkbox--${extension.name}`"
+                                           :name="`permissions-checkbox--${extension.name}`"
+                                           v-model="permissionsAccepted">
+
+                                    <div class="sw-field__checkbox-state">
+                                        <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+                                    </div>
+                                </div>
+
+                                <div class="sw-field__label">
+                                    <label :for="`permissions-checkbox--${extension.name}`" class="is--required">
+                                        <span>{{ $t('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPermissions') }}</span>
+                                    </label>
+                                    <sw-button @click="openPermissionsModal">
+                                        {{ $t('sw-extension-store.detail.labelButtonShowPermissions') }}
+                                    </sw-button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_accept_extension_privacy_policy_extensions %}
+                        <div v-if="extension.privacyPolicyExtensions" class="sw-extension-buy-modal__checkbox sw-field sw-field--checkbox">
+                            <div class="sw-field--checkbox__content">
+                                <div class="sw-field__checkbox">
+                                    <input type="checkbox"
+                                           :id="`privacy-extensions-checkbox--${extension.name}`"
+                                           :name="`privacy-extensions-checkbox--${extension.name}`"
+                                           v-model="privacyExtensionsAccepted">
+
+                                    <div class="sw-field__checkbox-state">
+                                        <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+                                    </div>
+                                </div>
+
+                                <div class="sw-field__label">
+                                    <label :for="`privacy-extensions-checkbox--${extension.name}`" class="is--required">
+                                        <span>{{ $t('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPrivacyExtensions') }}</span>
+                                    </label>
+                                    <sw-button @click="openPrivacyModal">
+                                        {{ $t('sw-extension-store.component.sw-extension-buy-modal.buttonShowPrivacyExtensions') }}
+                                    </sw-button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_alert_can_not_buy %}
+                        <sw-alert v-if="!userCanBuyFromStore" variant="info">
+                            {% block sw_extension_buy_modal_alert_can_not_buy_content %}
+                                {{ $tc('sw-extension-store.component.sw-extension-buy-modal.alertCanNotBuy.text') }}
+                            {% endblock %}
+                        </sw-alert>
+                    {% endblock %}
+
+                    {% block sw_extension_buy_modal_button_purchase %}
+                        <sw-button variant="primary"
+                                   block
+                                   :disabled="!canPurchaseExtension"
+                                   @click="purchaseExtension">
+                            {{ purchaseButtonLabel }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_extension_buy_modal_permissions_modal %}
+                    <sw-extension-permissions-modal
+                        v-if="showPermissionsModal"
+                        :extensionLabel="extension.label"
+                        :permissions="extension.permissions"
+                        @modal-close="closePermissionsModal">
+                    </sw-extension-permissions-modal>
+                {% endblock %}
+
+                {% block sw_extension_buy_modal_privacy_extensions_modal %}
+                    <sw-extension-privacy-policy-extensions-modal
+                        v-if="showPrivacyModal"
+                        :extensionName="extension.label"
+                        :privacyPolicyExtensions="extension.privacyPolicyExtensions"
+                        @modal-close="closePrivacyModal">
+                    </sw-extension-privacy-policy-extensions-modal>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_extension_buy_modal_content_installed %}
+                    <div class="sw-extension-buy-modal__content-installed">
+                        {% block sw_extension_buy_modal_content_installed_icon_success %}
+                            <saas-rufus-circle-icon
+                                size="72"
+                                iconName="default-basic-checkmark-line"
+                                variant="success">
+                            </saas-rufus-circle-icon>
+                        {% endblock %}
+
+                        {% block sw_extension_buy_modal_content_installed_headline_success %}
+                            <h3>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.titleSuccess') }}</h3>
+                        {% endblock %}
+
+                        {% block sw_extension_buy_modal_content_installed_subheadline_success %}
+                            <p>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.subtitleSuccess') }}</p>
+                        {% endblock %}
+
+                        {% block sw_extension_buy_modal_content_installed_button_back %}
+                            <sw-button variant="primary"
+                                       block
+                                       @click="emitClose">
+                                {{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.labelButtonBack') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

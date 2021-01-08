@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 final class FirstRunWizardClient
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';

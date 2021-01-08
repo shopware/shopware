@@ -1,0 +1,26 @@
+@import "~scss/variables";
+
+.sw-extension-rating-modal {
+    font-size: $font-size-small;
+    line-height: 22px;
+
+    .sw-review-creation-inputs__review,
+    .sw-field--textarea {
+        margin-bottom: 0;
+    }
+
+    .sw-modal__footer {
+        grid-auto-columns: initial;
+        justify-content: unset;
+
+        .saas-rufus-gtc-checkbox {
+            margin-bottom: 0;
+        }
+
+        .sw-extension-rating-modal__buttons {
+            justify-self: end;
+            grid-column-gap: 8px;
+            display: flex;
+        }
+    }
+}

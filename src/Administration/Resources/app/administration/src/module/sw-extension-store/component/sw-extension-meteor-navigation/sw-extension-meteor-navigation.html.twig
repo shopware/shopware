@@ -1,0 +1,6 @@
+<div v-if="hasParentRoute" class="saas-rufus-meteor-navigation">
+    <router-link :to="{ name: parentRoute.name }" class="saas-rufus-meteor-navigation__link">
+        <sw-icon class="saas-rufus-meteor-navigation__back-arrow" name="default-arrow-simple-left" size="14px"></sw-icon>
+        {{ parentRoute.label }}
+    </router-link>
+</div>

@@ -1,0 +1,63 @@
+{% block sw_extension_card_base_activation_switch %}
+    {% parent %}
+
+    {% block sw_bought_extension_card_deactivation_modal %}
+        <sw-extension-deactivation-modal
+            v-if="showDeactivationModal"
+            :extensionName="label"
+            :isLicensed="license !== null"
+            :isLoading="isLoading"
+            @modal-close="closeDeactivationModal"
+            @extension-deactivate="closeModalAndDeactivateExtension">
+        </sw-extension-deactivation-modal>
+    {% endblock %}
+{% endblock %}
+
+{% block sw_extension_card_base_info_content %}
+    {% parent %}
+
+    {% block sw_extension_card_base_calculated_price %}
+        <section v-if="calculatedPrice && license.variant === 'rent'">
+            {% block sw_bought_extension_card_calculated_price_subscription %}
+                <span class="sw-bought-extension-card__info-price-subscription">
+                    {{ $tc('sw-extension-store.component.sw-extension-card-base.subscriptionLabel') }}
+                </span>
+            {% endblock %}
+
+            {% block sw_bought_extension_card_calculated_price_per_month %}
+                <span class="sw-bought-extension-card__info-price-per-month">
+                    {{ $tc('sw-extension-store.general.labelPrice', 1, { price: calculatedPrice }) }}
+                </span>
+            {% endblock %}
+        </section>
+    {% endblock %}
+{% endblock %}
+
+{% block sw_extension_card_base_context_menu_actions %}
+
+    {% block sw_bought_extension_card_context_menu_open_detail %}
+        <sw-context-menu-item v-if="detailLink" :routerLink="detailLink">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
+
+    {% block sw_bought_extension_card_context_menu_rate %}
+        <sw-context-menu-item v-if="isInstalled" @click="openRatingModal">
+            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
+        </sw-context-menu-item>
+    {% endblock %}
+
+    {% parent %}
+{% endblock %}
+
+{% block sw_extension_card_base_modals %}
+    {% parent %}
+
+    {% block sw_bought_extension_card_rating_modal %}
+        <sw-extension-rating-modal
+            v-if="showRatingModal"
+            :extension="licensedExtension"
+            @modal-close="closeRatingModal">
+        </sw-extension-rating-modal>
+    {% endblock %}
+{% endblock %}

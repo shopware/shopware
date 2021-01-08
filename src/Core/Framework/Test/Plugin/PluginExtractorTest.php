@@ -32,7 +32,7 @@ class PluginExtractorTest extends TestCase
     {
         $this->container = $this->getContainer();
         $this->filesystem = $this->container->get(Filesystem::class);
-        $this->extractor = new PluginExtractor(__DIR__ . '/_fixture/plugins', $this->filesystem);
+        $this->extractor = new PluginExtractor(['plugin' => __DIR__ . '/_fixture/plugins'], $this->filesystem);
 
         $this->filesystem->copy(__DIR__ . '/_fixture/archives/SwagFashionTheme.zip', __DIR__ . '/_fixture/SwagFashionTheme.zip');
     }
@@ -46,7 +46,7 @@ class PluginExtractorTest extends TestCase
     {
         $archive = ZipUtils::openZip(__DIR__ . '/_fixture/SwagFashionTheme.zip');
 
-        $this->extractor->extract($archive);
+        $this->extractor->extract($archive, false, 'plugin');
 
         $extractedPlugin = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
         $extractedPluginBaseClass = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/SwagFashionTheme.php');

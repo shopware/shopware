@@ -1,0 +1,24 @@
+<div class="sw-extension-gtc-checkbox sw-field sw-field--checkbox">
+    <div class="sw-field--checkbox__content">
+        <div class="sw-field__checkbox">
+            <input type="checkbox"
+                   :id="identification"
+                   :name="identification"
+                   :checked="checked"
+                   :disabled="disabled"
+                   required
+                   @change="onChange">
+
+            <div class="sw-field__checkbox-state">
+                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+            </div>
+        </div>
+
+        <div class="sw-field__label">
+            <label :for="identification">
+                <span v-html="$tc('sw-saas-rufus.component.saas-rufus-gtc-checkbox.labelTerms')"></span>
+                <sw-icon name="small-arrow-small-external" size="8px"></sw-icon>
+            </label>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+.sw-extension-store-listing {
+    margin: 0 auto;
+    max-width: 960px;
+
+    .sw-extension-store-listing__banner {
+        margin-bottom: 40px;
+        cursor: pointer;
+        border-radius: 8px;
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    .sw-extension-store-listing__listing-grid {
+        display: grid;
+        grid-gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        justify-content: space-between;
+        margin-bottom: 40px;
+    }
+
+    .sw-pagination {
+        border: none;
+        background: none;
+
+        .sw-pagination__per-page {
+            display: none;
+        }
+    }
+}

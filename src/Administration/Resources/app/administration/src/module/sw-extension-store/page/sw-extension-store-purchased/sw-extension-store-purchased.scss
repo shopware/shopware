@@ -1,0 +1,26 @@
+.sw-extension-store-purchased {
+    .sw-extension-store-purchased__listing-grid {
+        margin-bottom: 48px;
+
+        .sw-meteor-card {
+            margin: 0 auto 8px auto;
+        }
+
+        .sw-extension-store-purchased__empty-state .sw-meteor-card__content-wrapper {
+            text-align: center;
+            padding: 56px 32px;
+
+            h3 {
+                margin-bottom: 8px;
+            }
+
+            .sw-button {
+                margin-block-start: 1em;
+            }
+
+            img {
+                margin: 0 auto 24px auto;
+            }
+        }
+    }
+}

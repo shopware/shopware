@@ -1,0 +1,82 @@
+{% block sw_page %}
+<div class="sw-page" :class="pageClasses">
+    <div class="sw-page__body" ref="pageBody">
+        <header class="head-area" :class="{ 'is--scrolled': isScrolled }" ref="pageHeader">
+            <div v-if="!isScrolled" class="head-area__top-bar-content">
+                <slot name="search-bar">
+                    <sw-search-bar></sw-search-bar>
+                </slot>
+            </div>
+
+            <div class="head-area__global-actions">
+                <sw-notification-center></sw-notification-center>
+            </div>
+
+            <div class="meteor-smart-bar" :class="smartBarClasses">
+                <div class="meteor-smart-bar__navigation">
+                    <slot name="smart-bar-back">
+                        <sw-extension-meteor-navigation></sw-extension-meteor-navigation>
+                    </slot>
+                </div>
+
+                <div class="meteor-smart-bar__content">
+                    <div class="meteor-smart-bar__module-info">
+                        <div v-if="!hideIcon && hasIconOrIconSlot" class="meteor-smart-bar__module-icon">
+                            <slot name="smart-bar-icon">
+                                <sw-icon v-if="hasIcon" :name="module.icon" :color="pageColor"></sw-icon>
+                            </slot>
+                        </div>
+
+                        <div class="meteor-smart-bar__header">
+                            <h2 class="meteor-smart-bar__title">
+                                <slot name="smart-bar-header">
+                                    <template v-if="module && module.title">
+                                        {{ $tc(module.title) }}
+                                    </template>
+                                </slot>
+                            </h2>
+
+                            <div class="meteor-smart-bar__meta">
+                                <slot name="smart-bar-header-meta"></slot>
+                            </div>
+                        </div>
+
+                        <div class="meteor-smart-bar__description">
+                            <slot name="smart-bar-description"></slot>
+                        </div>
+                    </div>
+
+                    <div class="meteor-smart-bar__actions">
+                        <slot name="smart-bar-actions"></slot>
+                    </div>
+
+                    <div class="meteor-smart-bar__context-buttons">
+                        <sw-extension-meteor-page-context>
+                            <template>
+                                <slot name="smart-bar-context-buttons"></slot>
+                            </template>
+                        </sw-extension-meteor-page-context>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="hasTabs" class="meteor-smart-bar__tabs">
+                <sw-tabs @new-item-active="emitNewTab" :small="false">
+                    <template #default>
+                        <slot name="page-tabs"></slot>
+                    </template>
+                </sw-tabs>
+            </div>
+        </header>
+        <main class="sw-page__content">
+            <div v-if="fullWidth" class="sw-page__scrollable-content">
+                <slot></slot>
+            </div>
+
+            <template v-else>
+                <slot></slot>
+            </template>
+        </main>
+    </div>
+</div>
+{% endblock %}

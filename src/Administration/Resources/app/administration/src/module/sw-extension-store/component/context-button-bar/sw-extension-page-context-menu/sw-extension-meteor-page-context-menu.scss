@@ -1,0 +1,19 @@
+.sw-extension-page-context-menu {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    .sw-context-menu-item__text {
+        display: flex;
+        justify-content: space-between;
+        align-content: space-around;
+    }
+}
+
+.sw-extension-page-context-menu__menu-popover {
+    transform: translate(-100%, 0);
+
+    .sw-extension-page-context-menu__menu {
+        position: relative;
+    }
+}

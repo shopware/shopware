@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
  * @RouteScope(scopes={"api"})
  */
 class StoreController extends AbstractStoreController
@@ -328,5 +329,10 @@ class StoreController extends AbstractStoreController
             'total' => $searchResult->count(),
             'items' => $plugins,
         ]);
+    }
+
+    public function categoriesAction(Context $context): Response
+    {
+        return new JsonResponse($this->storeClient->getCategories($context));
     }
 }

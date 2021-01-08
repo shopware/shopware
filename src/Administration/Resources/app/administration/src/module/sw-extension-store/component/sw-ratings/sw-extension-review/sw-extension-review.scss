@@ -1,0 +1,20 @@
+@import "~scss/variables";
+
+.sw-extension-review {
+    margin-bottom: 20px;
+
+    .sw-extension-review__headline {
+        font-weight: $font-weight-semi-bold;
+        margin-bottom: 0;
+    }
+
+    .sw-extension-review__meta-data {
+        color: $color-gray-500;
+        margin-top: 8px;
+
+        .sw-extension-review__comma:not(:last-child)::after {
+            content: ",";
+            margin-left: -3px;
+        }
+    }
+}

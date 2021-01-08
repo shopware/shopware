@@ -1,0 +1,56 @@
+{% block sw_extension_store_listing_filter %}
+    <div class="sw-extension-store-listing-filter">
+        {% block sw_extension_store_listing_filter_content %}
+            {% block sw_extension_store_listing_filter_category_filter %}
+                <sw-single-select class="sw-extension-store-listing-filter__category-filter"
+                                  size="small"
+                                  :placeholder="$tc('sw-extension-store.listing.placeHolderCategories')"
+                                  :options="categories"
+                                  :popoverClasses="['sw-extension-store-listing-filter__category-filter']"
+                                  valueProperty="name"
+                                  labelProperty="details.name"
+                                  v-model="category">
+                    {% block sw_extension_store_listing_filter_category_filter_result %}
+                        <template #result-label-property="{ item, valueProperty }">
+                            <div v-if="item[valueProperty] !== null"
+                                 :class="{ 'is--root-category': isRootCategory(item) }"
+                                 :style="{ 'padding-left': isRootCategory(item) ? '0': `${categoryDepth(item)}em` }">
+                                {{ item.details.name }}
+                            </div>
+                        </template>
+                    {% endblock %}
+                </sw-single-select>
+            {% endblock %}
+
+            {% block sw_extension_store_listing_filter_rating_filter %}
+                <sw-single-select size="small"
+                                  :placeholder="$tc('sw-extension-store.listing.placeholderRatings')"
+                                  :options="ratings"
+                                  v-model="rating">
+                    {% block sw_extension_store_listing_filter_rating_filter_selection %}
+                        <template #selection-label-property="{ item }">
+                            <div v-if="item.value !== null" class="sw-extension-store-listing-filter__ratings-result-item">
+                                <span>{{ item.value }}</span><span v-if="item.value !== maxRating"> +</span>
+                                <sw-extension-rating-stars :size="12" :rating="item.value"></sw-extension-rating-stars>
+                            </div>
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_extension_store_listing_filter_rating_filter_result %}
+                        <template #result-label-property="{ item }">
+                            <div v-if="item.value !== null" class="sw-extension-store-listing-filter__ratings-result-item">
+                                <span>{{ item.value }}</span><span v-if="item.value !== maxRating"> +</span>
+                                <sw-extension-rating-stars :size="10" :rating="item.value"></sw-extension-rating-stars>
+                            </div>
+                        </template>
+                    {% endblock %}
+                </sw-single-select>
+            {% endblock %}
+
+            {% block sw_extension_store_listing_filter_sorting %}
+                <sw-single-select size="small" :options="sortings" v-model="sorting">
+                </sw-single-select>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

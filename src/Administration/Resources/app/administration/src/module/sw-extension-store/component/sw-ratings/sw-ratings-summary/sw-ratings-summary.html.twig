@@ -1,0 +1,63 @@
+{% block sw_ratings_summary %}
+    <div class="sw-ratings-summary">
+        {% block sw_ratings_summary_grid %}
+            <div class="sw-ratings-summary__grid">
+                {% block sw_ratings_summary_average %}
+                    <h3 class="sw-ratings-summary__average">
+                        {{ summary.averageRating }}
+                    </h3>
+                {% endblock %}
+
+                {% block sw_ratings_summary_given_ratings %}
+                    <p>
+                        {{ $tc('sw-extension-store.component.sw-ratings.sw-ratings-summary.labelRating',
+                        summary.numberOfRatings, { numberOfRatings: summary.numberOfRatings }) }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_ratings_summary_rating_star_rows %}
+                    <div class="sw-ratings-summary__rows">
+                        {% block sw_ratings_summary_ratings %}
+                            <template v-for="ratingGroup in summary.ratingAssignment">
+                                {% block sw_ratings_summary_rating_stars %}
+                                    <sw-extension-rating-stars :rating="Number(ratingGroup.rating)"></sw-extension-rating-stars>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_ratings_summary_progress_bars %}
+                    <div class="sw-ratings-summary__progress-bars">
+                        {% block sw_ratings_summary_ratings_count %}
+                            <div class="sw-ratings-summary__rows">
+                                {% block sw_ratings_summary_ratings_count_inner %}
+                                    <template v-for="ratingGroup in summary.ratingAssignment">
+                                        {% block sw_ratings_summary_rating_count %}
+                                            <span>{{ ratingGroup.count }}</span>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_ratings_summary_progress_bars_inner %}
+                            <div class="sw-ratings-summary__rows">
+                                {% block sw_ratings_summary_progress_ratings %}
+                                    <template v-for="ratingGroup in summary.ratingAssignment">
+                                        {% block sw_ratings_summary_progress_bar %}
+                                            <sw-progress-bar
+                                                :value="ratingGroup.count"
+                                                :maxValue="maxProgressValue">
+                                            </sw-progress-bar>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

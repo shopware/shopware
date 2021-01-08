@@ -1,0 +1,67 @@
+{% block sw_extension_store_purchased %}
+    <sw-extension-meteor-page class="sw-extension-store-purchased" hideIcon>
+        <template #smart-bar-header>
+            {{ $tc('sw-extension-store.mainMenu.purchased') }}
+        </template>
+
+        {% block sw_extension_store_index_slot_tabs %}
+            <template #page-tabs>
+                {% block sw_extension_store_purchased_tabs %}
+                    {% block sw_extension_store_purchased_tabs_extensions %}
+                        {% block sw_extension_store_purchased_tabs_extensions_app %}
+                            <sw-tabs-item :route="{ name: 'sw.extension.store.purchased.app' }">
+                                {{ $tc('sw-extension-store.component.sw-extension-store-purchased.tabs.app') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_extension_store_purchased_tabs_extensions_themes %}
+                            <sw-tabs-item :route="{ name: 'sw.extension.store.purchased.theme' }">
+                                {{ $tc('sw-extension-store.component.sw-extension-store-purchased.tabs.theme') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_extension_store_purchased_body %}
+            <template #default>
+                {% block sw_extension_store_purchased_body_content %}
+                    {% block sw_extension_store_purchased_body_loader %}
+                        <sw-loader v-if="isLoading"></sw-loader>
+                    {% endblock %}
+
+                    {% block sw_extension_store_purchased_body_listing_grid %}
+                        <div v-if="!isLoading" class="sw-extension-store-purchased__listing-grid">
+                            {% block sw_extension_store_purchased_body_listing_card %}
+                                {% block sw_extension_store_purchased_body_listing_card_empty_state %}
+                                    <sw-meteor-card v-if="!extensionList.length" class="sw-extension-store-purchased__empty-state">
+                                        <img :src="'saasrufus/static/img/empty-states/extensions-empty-state.svg' | asset" />
+                                        <h3>{{ $tc('sw-extension-store.component.sw-extension-store-purchased.titleEmptyState') }}</h3>
+                                        <p>{{ $tc('sw-extension-store.component.sw-extension-store-purchased.textEmptyState') }}</p>
+                                        <sw-button @click="openStore" variant="ghost">
+                                            {{ $tc('sw-extension-store.component.sw-extension-store-purchased.btnOpenStore') }}
+                                        </sw-button>
+                                    </sw-meteor-card>
+                                {% endblock %}
+
+                                {% block sw_extension_store_purchased_body_listing_card_cards %}
+                                    <template v-for="entry in extensionList">
+                                        <component
+                                            :is="entry.license ? 'sw-bought-extension-card' : 'sw-self-maintained-extension-card'"
+                                            :key="entry.key"
+                                            :extension="entry.extension"
+                                            :license="entry.license"
+                                            :isLocalAvailable="entry.isLocalAvailable"
+                                            @updateList="updateList">
+                                        </component>
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-extension-meteor-page>
+{% endblock %}

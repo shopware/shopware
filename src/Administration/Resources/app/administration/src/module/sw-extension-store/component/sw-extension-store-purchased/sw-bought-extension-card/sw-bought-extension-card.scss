@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-bought-extension-card {
+    .sw-bought-extension-card__info-price-subscription {
+        color: $color-darkgray-200;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-bought-extension-card__info-price-per-month {
+        margin-top: 2px;
+        color: $color-darkgray-200;
+    }
+}

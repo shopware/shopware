@@ -143,6 +143,7 @@ class MailService implements MailServiceInterface
         if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
             $this->templateRenderer->enableTestMode();
         }
+        $this->templateRenderer->initialize();
 
         $template = $data['subject'];
 

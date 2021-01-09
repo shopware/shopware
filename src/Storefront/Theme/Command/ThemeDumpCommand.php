@@ -87,7 +87,7 @@ class ThemeDumpCommand extends Command
                 $criteria->setIds([$id]);
             }
         }
-        
+
         if ($id === null && $input->getOption('sales-channel-domain-url') !== null) {
             $criteria->addFilter(new EqualsFilter('theme.salesChannels.domains.url', $input->getOption('sales-channel-domain-url')));
         }

@@ -283,6 +283,11 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
+        $delivery = $order->getDeliveries() !== null ? $order->getDeliveries()->first() : null;
+        if ($delivery !== null) {
+            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
+        }
+
         //get the first not paid transaction or, if all paid, the last transaction
         if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {

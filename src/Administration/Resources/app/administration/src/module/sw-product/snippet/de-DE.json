@@ -242,8 +242,8 @@
       "inheritSwitchLabel": "Nutze die erweiterten Preise des Hauptprodukts",
       "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden.",
       "advancedListPricePriceLabel": "Preis",
-      "advancedListPriceLabel": "Streichpreis"
-
+      "advancedListPriceLabel": "Streichpreis",
+      "advancedPriceDisabledTooltip": "Der Start-Wert bei der ersten Preisstaffel muss den Wert 1 haben."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",

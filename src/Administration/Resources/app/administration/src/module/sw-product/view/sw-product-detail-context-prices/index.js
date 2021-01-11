@@ -447,6 +447,15 @@ Component.register('sw-product-detail-context-prices', {
 
         onChangeShowListPrices(value, ruleId) {
             this.$set(this.showListPrices, ruleId, value);
+        },
+
+        getStartQuantityTooltip(itemIndex, quantity) {
+            return {
+                message: this.$tc('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
+                width: 275,
+                showDelay: 200,
+                disabled: !this.feature.isActive('FEATURE_NEXT_10553') || (itemIndex !== 0 || quantity !== 1)
+            };
         }
     }
 });

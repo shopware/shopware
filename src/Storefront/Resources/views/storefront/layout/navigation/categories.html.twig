@@ -6,6 +6,12 @@
     {% endif %}
     {% set activeId = page.header.navigation.active.id %}
 
+    {% if page.product is defined %}
+        {% set activePath = page.product.categoryTree %}
+    {% else %}
+        {% set activePath = page.header.navigation.active.path %}
+    {% endif %}
+
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
             {% set id = treeItem.category.id %}
@@ -21,7 +27,7 @@
                                 <span itemprop="name">{{ name }}</span>
                             </div>
                         {% else %}
-                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id is same as(activeId) %} active{% endif %}"
+                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
                                href="{% if treeItem.category.type == 'link' %}{{ link }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: id }) }}{% endif %}"
                                itemprop="url"
                                title="{{ name }}">

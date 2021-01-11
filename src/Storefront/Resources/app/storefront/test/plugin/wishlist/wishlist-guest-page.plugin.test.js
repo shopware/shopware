@@ -93,6 +93,25 @@ describe('GuestWishlistPagePlugin tests', () => {
 
         expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts())).toEqual(expectNewStorageProducts);
     });
+
+    test('_getWishlistStorage method with test', () => {
+        CookieStorageHelper.setItem('wishlist-enabled', true);
+
+        const validProductIds = ['product_1', 'product_2', 'product_3'];
+
+        validProductIds.forEach(productId => {
+            guestWishlistPagePlugin._wishlistStorage.add(productId)
+        });
+
+        expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts()).length).toBe(3);
+
+        CookieStorageHelper.removeItem('wishlist-enabled');
+
+        // init guest wishlist page plugin
+        guestWishlistPagePlugin._getWishlistStorage();
+
+        expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts()).length).toBe(0);
+    });
 });
 
 

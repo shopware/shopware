@@ -212,6 +212,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
         expect(wrapper.find('#sw-media-field').props().disabled).toEqual(false);

@@ -39,17 +39,6 @@ class StoreApiException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
-        [
-            [
-                // installed apps & extension
-                // plugin updates call mit allen und latestVersion setzen fuer updates
-                // status
-            ],
-            [
-                // license call
-            ],
-        ];
-
         $error = [
             'code' => $this->getErrorCode(),
             'status' => (string) $this->getStatusCode(),

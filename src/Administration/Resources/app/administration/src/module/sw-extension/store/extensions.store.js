@@ -73,6 +73,11 @@ export default {
             state.loginStatus = loginStatus;
         },
 
+        commitPlugins(state, searchResult) {
+            state.plugins = searchResult;
+            state.totalPlugins = searchResult.total;
+        },
+
         pluginErrorsMapped() { /* nth */ }
     },
 

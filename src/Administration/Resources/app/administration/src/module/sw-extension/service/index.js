@@ -4,8 +4,16 @@ import ExtensionStoreDataService from './extension-store-data.service';
 import ExtensionLicenseService from './extension-store-licenses.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ShopwareDiscountCampaignService from './discount-campaign.service';
+import ExtensionApiService from './extension.api.service';
 
 const { Application } = Shopware;
+
+Application.addServiceProvider('extensionApiService', () => {
+    return new ExtensionApiService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service('loginService')
+    );
+});
 
 Application.addServiceProvider('extensionStoreActionService', () => {
     return new ExtensionStoreActionService(

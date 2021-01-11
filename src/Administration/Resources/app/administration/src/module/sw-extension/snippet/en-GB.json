@@ -1,0 +1,319 @@
+{
+  "sw-extension": {
+    "store": {
+      "tabs": {
+        "apps": "Apps",
+        "themes": "Themes"
+      }
+    },
+    "my-extensions": {
+      "account": {
+        "headline": "Shopware Account",
+        "isLoggedIn": "Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Showare Account and make sure the correct domain for extensions has been set.",
+        "login": "Login",
+        "logout": "Logout",
+        "loginMessage": "Login with you Shopware Account to access the extensions you bought on store.shopware.com",
+        "register": "Register and become part of the Shopware community!",
+        "registerNow": "Register now",
+        "registerUrl": "https://account.shopware.com/register?lang=en",
+        "mailLabel": "Email address",
+        "mailPlaceholder": "Enter your Email address…",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password…",
+        "recoveryUrl": "https://account.shopware.com/recovery?lang=en",
+        "passwordForgot": "Did you forgot your password?",
+        "loginNotificationMessage": "You are logged in to the Shopware Account."
+      },
+      "tabs": {
+        "app": "App",
+        "theme": "Theme",
+        "shopwareAccount": "Shopware Account"
+      }
+    },
+    "errors": {
+      "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Open Shopware Documentation</a>",
+      "messageGenericFailure": "That didn't work.",
+      "messageUploadFailureNotAZipFile": "Uploaded file is not a ZIP file.",
+      "messageUploadFailureUnzipFailed": "Unable to extract ZIP file.",
+      "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in ZIP file.",
+      "messageLoginDataInvalid": "Login data incomplete.",
+      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
+      "messageStoreNotAvailable": "Shopware Store is not available.",
+      "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading",
+      "messagePluginInstallationFailed": "Plugin could not be installed due to error message \"{message}\"",
+      "messagePluginUninstallationFailed": "Plugin could not be uninstalled due to error message \"{message}\"",
+      "messagePluginActivationFailed": "Plugin could not be activated due to error message \"{message}\"",
+      "messagePluginDeactivationFailed": "Plugin could not be deactivated due to error message \"{message}\"",
+      "messageDeactivationFailedDependencies": "The plugin \"{dependency}\" cannot be deactivated, because there are other plugins depending on it. Please deactivate the following plugins before restarting the update: {dependantNames}",
+      "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\". {pluginDeactivatedHint}",
+      "pluginDeactivatedHint": "Plugin was deactivated."
+    },
+    "mainMenu": {
+      "mainMenuItemExtensionStore": "Extensions",
+      "store": "Store",
+      "purchased": "My extensions",
+      "support": "Support"
+    }
+  },
+  "sw-extension-store": {
+    "title": "Store",
+    "descriptionTextModule": "Manage your extensions",
+    "general": {
+      "labelPrice": "Free | {price} / month | {price}",
+      "labelDiscountedPrice": "Free | <strong>{discountedPrice}</strong> <s>{price}</s> / month | <strong>{discountedPrice}</strong> <s>{price}</s>",
+      "backBtn": "Back"
+    },
+    "listing": {
+      "tabs": {
+        "extensions": "Extensions",
+        "themes": "Themes"
+      },
+      "placeHolderCategories": "All categories",
+      "placeholderRatings": "All ratings",
+      "sorting": {
+        "releaseDateAsc": "Release date oldest - newest",
+        "releaseDateDesc": "Release date newest - oldest",
+        "nameAsc": "Name A - Z",
+        "nameDesc": "Name Z - A",
+        "ratingAsc": "Rating Low - High",
+        "ratingDesc": "Rating High - Low"
+      }
+    },
+    "detail": {
+      "labelButtonAddExtension": "Add extension",
+      "labelButtonOpenExtension": "Open extension",
+      "labelButtonInstallExtension": "Install extension",
+      "labelBy": "by",
+      "numberOfRatings": "{count} Review | {count} Reviews",
+      "noRatings": "No ratings yet",
+      "cardTitleInformation": "Information",
+      "labelButtonReadMore": "Read more",
+      "cardTitleDetails": "Details",
+      "details": {
+        "labelCategory": "Category | Categories",
+        "labelVersion": "Version",
+        "labelUpdatedAt": "Last updated",
+        "labelLanguages": "Languages",
+        "labelWebsite": "Developer website",
+        "labelPrivacy": "Privacylink"
+      },
+      "cardTitleFAQ": "FAQ",
+      "cardTitleChangelog": "Changelog",
+      "labelButtonShowPermissions": "Show permissions",
+      "labelDiscountInfo": "Offer expires on {endDate}",
+      "labelDiscountPeriod": "*For the first month - | *For the first {months} months - "
+    },
+    "component": {
+      "sw-extension-buy-modal": {
+        "title": "Add extension",
+        "labelAcceptPermissions": "I am aware this extension needs permissions",
+        "labelAcceptPrivacyExtensions": "I am aware that I need to extend my privacy policy",
+        "buttonShowPrivacyExtensions": "Show details",
+        "variantCard": {
+          "free": "Use free version",
+          "rent": "Subscribe for {price} per month",
+          "buy":  "Buy for {price}",
+          "hasTrialPhase": "trial month included"
+        },
+        "variantSummary": {
+          "labelVat": "plus VAT",
+          "labelPrice": "Price",
+          "renewal": "Renewal {renewalDate}"
+        },
+        "purchaseButtonsLabels": {
+          "free": "Add extension for free",
+          "rent": "Subscribe to extension",
+          "buy":  "Buy extension now"
+        },
+        "successNotification": {
+          "titleSuccess": "Extensions successfully added!",
+          "subtitleSuccess": "You can now try out your new extension.",
+          "labelButtonBack": "Back to details"
+        },
+        "alertCanNotBuy": {
+          "text": "You need to be logged-in in the Store to do this",
+          "linkChoosePLan": "Choose a plan"
+        }
+      },
+      "sw-ratings": {
+        "sw-review-reply": {
+          "labelCreationDate": "replied on {creationDate}"
+        },
+        "sw-review-creation": {
+          "submitBtn": "Submit"
+        },
+        "sw-ratings-summary": {
+          "labelRating": "No ratings | {numberOfRatings} Rating | {numberOfRatings} Ratings"
+        },
+        "sw-extension-review": {
+          "labelLastChangeDate": "By {author} on {lastChangeDate}",
+          "labelExtensionVersion": "Extension version {extensionVersion}"
+        },
+        "sw-ratings-card": {
+          "cardTitle": "Ratings and reviews",
+          "labelMoreReviewsBtn": "Read more reviews",
+          "footerHeadline": "Add a review",
+          "labelNoReviews": "This extension hasn't received any ratings or reviews yet."
+        },
+        "sw-review-creation-inputs": {
+          "labelHeadline": "Headline",
+          "placeholderHeadline": "Enter a short headline...",
+          "labelRating": "Rating",
+          "labelText":  "Review (optional)"
+        },
+        "sw-extension-rating-modal": {
+          "title": "Create a review"
+        }
+      },
+      "sw-extension-card-base": {
+        "subscriptionLabel": "Subscription:",
+        "inactiveLabel": "(inactive)",
+        "purchasedLabel": "Purchased: ",
+        "installedLabel": "Installed: ",
+        "openExtensionLabel": "Open app",
+        "installExtensionLabel": "Install app",
+        "labelAcceptAndInstall": "Accept and install",
+        "contextMenu": {
+          "getHelpLabel": "Get help",
+          "seeDetailsLabel": "See details",
+          "config": "Configuration",
+          "privacyAndSafetyLabel": "Privacy & safety",
+          "removeLabel": "Remove",
+          "cancelAndRemoveLabel": "Cancel and remove",
+          "uninstallLabel": "Uninstall",
+          "updateLabel": "Update to {version}",
+          "rateLabel": "Rate",
+          "policyExtensions": "Privacy policy extensions",
+          "permissions": "Permissions"
+        }
+      },
+      "sw-extension-deactivation-modal": {
+        "deactivateExtensionLabel": "Deactivate \"{extensionName}\"",
+        "description": "The \"{extensionName}\" extension has a monthly subscription fee.<br>Deactivating the extension <b>will not</b> cancel the subscription and fees will continue to be collected!",
+        "descriptionCancel": "If you want to cancel the subscription instead, you can remove it in the context menu under \"{removeLabel}\".",
+        "alertDeactivate": "Do you still want to deactivate the extension?",
+        "deactivateLabel": "Deactivate"
+      },
+      "sw-extension-permissions-modal": {
+        "title": "{extensionLabel} permissions",
+        "description": "{extensionLabel} will get access to the following components. Click the link next to the component to show the entity details.",
+        "textEntities": "Show permissions"
+      },
+      "sw-extension-privacy-policy-extensions-modal": {
+        "title": "{extensionLabel}: privacy policy extensions",
+        "intro": "This app processes personal information. The manufacturer gives following advice for the adjustments of your privacy policy:"
+      },
+      "sw-extension-permissions-details-modal": {
+        "operationRead": "View",
+        "operationUpdate": "Edit",
+        "operationCreate": "Create",
+        "operationDelete": "Delete"
+      },
+      "sw-extension-my-extensions-listing": {
+        "titleEmptyState": "No apps installed yet",
+        "textEmptyState": "If you install apps, they will be listed here.",
+        "btnOpenStore": "Open store"
+      },
+      "sw-extension-removal-modal": {
+        "titleCancel": "\"{extensionName}\" cancel and remove",
+        "titleRemove": "\"{extensionName}\" remove",
+        "description": "If you remove the extension, you can no longer use it.",
+        "alertCancel": "Are you sure you want to cancel and remove the extension?",
+        "alertRemove": "Are you sure you want to remove the extension?",
+        "labelCancel": "Cancel and remove",
+        "labelRemove": "Remove"
+      },
+      "sw-extension-uninstall-modal": {
+        "title": "\"{extensionName}\" uninstall",
+        "description": "If you uninstall the extension, you can no longer use it.",
+        "alert": "Are you sure you want to uninstall the extension?",
+        "buttonLabel": "Uninstall",
+        "labelRemovePluginData": "Remove all app data permanently",
+        "helpTextRemovePluginData": "Warning: All data of the app will be removed permanently. This process is irreversible."
+      },
+      "sw-extension-listing-card": {
+        "labelInstalled": "Installed",
+        "labelLicensed": "Purchased"
+      },
+      "sw-extension-config": {
+        "messageSaveSuccess": "Configuration has been saved."
+      }
+    },
+    "errors": {
+      "FRAMEWORK__TOC_NOT_ACCEPTED": {
+        "message": "You have to accept our terms and conditions to proceed."
+      },
+      "FRAMEWORK__EXTENSION_THEME_STILL_IN_USE": {
+        "message": "The theme is currently still used in one or more sales channels."
+      },
+      "FRAMEWORK__INVALID_EXTENSION_ID": {
+        "message": "The extension identification number is invalid."
+      },
+      "FRAMEWORK__INVALID_VARIANT_ID": {
+        "message": "The identification number of the price model of the extension is invalid."
+      },
+      "FRAMEWORK__EXTENSION_PERMISSIONS_NOT_ACCEPTED": {
+        "message": "You have to accept the permissions of the extension to proceed."
+      },
+      "FRAMEWORK__INVALID_EXTENSION_RATING_VALUE": {
+        "message": "The rating value is invalid."
+      },
+      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__EXTENSION": {
+        "message": "The extension could not be found."
+      },
+      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__LICENSE": {
+        "message": "The extension license could not be found."
+      },
+      "SAAS_EXTENSION_RESSOURCE_NOT_FOUND__BINARY": {
+        "message": "The extension files could not be found."
+      },
+      "SAAS_EXTENSION_CANCELLATION__NOT_POSSIBLE": {
+        "message": "The extension cannot be canceled."
+      },
+      "SAAS_EXTENSION_CANCELLATION__STILL_IN_USE": {
+        "message": "The extension cannot be canceled because it is still in use."
+      },
+      "SAAS_EXTENSION_RATING__ALREADY_RATED": {
+        "message": "The extension has already been rated."
+      },
+      "SAAS_EXTENSION_LICENSE__NOT_ALLOWED_TO_REACTIVATE": {
+        "message": "The extension license is not allowed to be reactivated."
+      },
+      "SAAS_EXTENSION_DOWNLOAD__NOT_ALLOWED": {
+        "message": "Your shop is not allowed to download the extension."
+      },
+      "SAAS_EXTENSION_ORDER__NOT_ALLOWED_PRICE_MODEL": {
+        "message": "The selected price model is not allowed for the extension."
+      },
+      "SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN": {
+        "message": "There is no default payment mean available.",
+        "labelLink": "Set up default payment"
+      },
+      "SAAS_EXTENSION_ORDER__INSUFFICIENT_BALANCE": {
+        "message": "There is insufficient balance available."
+      },
+      "SAAS_EXTENSION_REQUEST__INVALID_CONTENT": {
+        "message": "Required request data is missing or invalid."
+      },
+      "SAAS_EXTENSION_INVALID_BASKET__MULTIPLE_LICENSES_OR_LICENSE_ALREADY_OWNED": {
+        "message": "The basket is invalid because it contains multiple licenses or it contains an already owned license."
+      },
+      "SAAS_EXTENSION_INVALID_BASKET__INVALID_ORDER_POSITION": {
+        "message": "The basket is invalid because of an invalid order position."
+      },
+      "SAAS_EXTENSION_INVALID_BASKET__GENERAL": {
+        "message": "The basket is invalid."
+      },
+      "SAAS_EXTENSION_INVALID_BASKET__INVALID_COMPANY": {
+        "message": "The basket is invalid because your company has no country assigned."
+      },
+      "SAAS_EXTENSION_RATING__INVALID_EXTENSION": {
+        "message": "Your rating could not be saved because the related extension is invalid."
+      },
+      "SAAS_COMPANY__MISSING": {
+        "message": "Required company is missing.",
+        "labelLink": "Assign company"
+      }
+    }
+  }
+}

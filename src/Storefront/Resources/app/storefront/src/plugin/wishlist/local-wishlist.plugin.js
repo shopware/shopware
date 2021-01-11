@@ -40,6 +40,10 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
+        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+            this.storage.removeItem(this.key);
+        }
+
         if (this.getCurrentCounter() > 0) {
             return this.products;
         }

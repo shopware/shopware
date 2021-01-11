@@ -48,6 +48,8 @@
                         :isLoading="isLoading"
                         :allowColumnEdit="false"
                         :allowInlineEdit="false"
+                        v-bind="{sortBy, sortDirection}"
+                        @column-sort="onColumnSort"
                         identifier="sw-tax-rule-grid">
                         {% block sw_settings_tax_rule_grid_column_tax_rate %}
                             <template #column-taxRate="{ item, isInlineEdit }">
@@ -133,6 +135,13 @@
                                 {% endblock %}
                             </template>
                         {% endblock %}
+                        
+                        {% block sw_settings_tax_list_grid_pagination %}
+                            <template #pagination>
+                                <sw-pagination v-bind="{ page, limit, total }" :total-visible="7" @page-change="paginate"/>
+                            </template>
+                        {% endblock %}
+
                     </sw-data-grid>
                 {% endblock %}
             </template>

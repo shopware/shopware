@@ -28,6 +28,10 @@
         "app": "App",
         "theme": "Theme",
         "shopwareAccount": "Shopware Account"
+      },
+      "fileUpload": {
+        "buttonFileUpload": "Upload plugin",
+        "messageUploadSuccess": "The plugin has been uploaded."
       }
     },
     "errors": {

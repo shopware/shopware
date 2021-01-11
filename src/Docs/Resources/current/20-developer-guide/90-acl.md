@@ -31,31 +31,44 @@ If your route only makes use of entities and don't need special protection, you 
 ## Add your custom privileges
 
 To make sure your custom privileges are additionally written to existing roles,
-you have to add them in your plugin `activate` method by using the `addPrivileges` method.
-To remove the privilege on deactivation of the plugin use the `removePrivileges` Method in your `deactivate` method. 
+you have to add them by override the `enrichPrivileges` method in the Plugin Class. 
 This is only to ensure that the new privileges are available directly after the activation of the plugin, 
 you still have to add the privileges to the administration as described in [the administration article](./../20-developer-guide/100-administration/70-acl.md).
 
 ```php
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+
 class SwagTestPluginAcl extends Plugin
 {
-    public function activate(ActivateContext $context): void
+    //my_plugin_do_something = a custom route privilege
+    //my_plugin_entity:read/create/update/delete = the privileges for your custom entity
+    public function enrichPrivileges(): array
     {
-        //my_plugin_do_something = a custom route privilege
-        //my_plugin_entity:read/create/update/delete = the privileges for your custom entity
-        $this->addPrivileges('product.viewer', ['my_plugin_do_something', 'my_plugin_entity:read']);
-        $this->addPrivileges('product.editor', ['my_plugin_do_something','my_plugin_entity:read', 'my_plugin_entity:update', 'my_plugin_entity:delete', 'my_plugin_entity:create']);
-    }
-
-    public function deactivate(DeactivateContext $context): void
-    {
-        $this->removePrivileges(['my_plugin_do_something', 'my_plugin_do_something', 'my_plugin_entity:read', 'my_plugin_entity:update', 'my_plugin_entity:delete', 'my_plugin_entity:create']);
+        return [
+            'product.viewer' => [
+                'my_plugin_do_something',
+                'my_plugin_entity:read',
+                'my_plugin_entity:update',
+                'my_plugin_entity:delete',
+                'my_plugin_entity:create'
+            ],
+            'product.editor' => [
+                'my_plugin_do_something',
+                'my_plugin_entity:read',
+                'my_plugin_entity:update',
+                'my_plugin_entity:delete',
+                'my_plugin_entity:create'
+            ],
+            AclRoleDefinition::ALL_ROLE_KEY => [
+                'open_for_everyone:read',
+                'open_for_everyone:update',
+                'open_for_everyone:delete',
+                'open_for_everyone:create'
+            ]
+        ];
     }
 }
 ```
 
-The `addPrivileges` method needs the role for which the privileges should be added and an array of privileges for that role.
-For every role you need to call the `addPrivileges` method once.
-
-The `removePrivileges` method needs an array of privileges to remove. The privileges will be removed from all existing roles.
-Be aware to only remove the privileges your plugin has added!.
+The `enrichPrivileges` method needs to return the roles for which the privileges should be added and an array of privileges for the roles.
+The key ```AclRoleDefinition::ALL_ROLE_KEY``` ('all') is automatically assigned to all users with at least one role. This key should only be used for entities that should be readable for everyone.

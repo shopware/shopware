@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType;
 
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -41,11 +40,6 @@ class MailTemplateTypeEntity extends Entity
      * @var array|null
      */
     protected $customFields;
-
-    /**
-     * @var MailTemplateSalesChannelCollection|null
-     */
-    protected $salesChannels;
 
     /**
      * @var \DateTimeInterface
@@ -115,15 +109,5 @@ class MailTemplateTypeEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getSalesChannels(): ?MailTemplateSalesChannelCollection
-    {
-        return $this->salesChannels;
-    }
-
-    public function setSalesChannels(MailTemplateSalesChannelCollection $salesChannels): void
-    {
-        $this->salesChannels = $salesChannels;
     }
 }

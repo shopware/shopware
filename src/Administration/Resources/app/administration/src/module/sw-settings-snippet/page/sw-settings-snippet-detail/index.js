@@ -10,7 +10,6 @@ Component.register('sw-settings-snippet-detail', {
 
     inject: [
         'snippetSetService',
-        'userService', // @deprecated tag:v6.4.0.0
         'repositoryFactory',
         'acl'
     ],
@@ -87,14 +86,10 @@ Component.register('sw-settings-snippet-detail', {
             return null;
         },
 
-        /* @deprecated tag:v6.4.0 will be read only in v.6.4.0 */
         currentAuthor: {
             get() {
                 return this._currentAuthor ||
                     `user/${Shopware.State.get('session').currentUser.username}`;
-            },
-            set(currentAuthor) {
-                this._currentAuthor = currentAuthor;
             }
         }
     },

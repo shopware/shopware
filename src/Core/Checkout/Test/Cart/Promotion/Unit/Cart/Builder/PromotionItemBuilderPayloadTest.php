@@ -44,7 +44,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
         $this->context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-        $this->context->method('getCurrencyPrecision')->willReturn(3);
 
         $this->salesChannelContext->method('getContext')->willReturn($this->context);
     }

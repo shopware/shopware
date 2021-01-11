@@ -154,7 +154,7 @@ class SalesChannelContextFactory
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
-        // @deprecated tag:v6.4.0 - Will be removed
+        // @feature-deprecated tag:v6.4.0 - Will be removed
         if (!Feature::isActive('FEATURE_NEXT_12009')) {
             $criteria->addAssociation('countries');
         }
@@ -273,10 +273,7 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Will be private
-     */
-    public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
+    private function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
         $criteria->setTitle('context-factory::taxes');

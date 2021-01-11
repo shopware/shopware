@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
@@ -36,11 +35,6 @@ class InfoController extends AbstractController
      * @var ParameterBagInterface
      */
     private $params;
-
-    /**
-     * @var BusinessEventRegistry
-     */
-    private $actionEventRegistry;
 
     /**
      * @var Packages
@@ -70,7 +64,6 @@ class InfoController extends AbstractController
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
-        BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
         Packages $packages,
         BusinessEventCollector $eventCollector,
@@ -79,7 +72,6 @@ class InfoController extends AbstractController
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
-        $this->actionEventRegistry = $actionEventRegistry;
         $this->packages = $packages;
         $this->kernel = $kernel;
         $this->enableUrlFeature = $enableUrlFeature;
@@ -189,22 +181,6 @@ class InfoController extends AbstractController
         return $this->json([
             'version' => $this->params->get('kernel.shopware_version'),
         ]);
-    }
-
-    /**
-     * @Since("6.0.0.0")
-     *
-     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
-     *
-     * @Route("/api/_info/business-events.json", name="api.info.events", methods={"GET"})
-     */
-    public function events(): JsonResponse
-    {
-        $data = [
-            'events' => $this->actionEventRegistry->getEvents(),
-        ];
-
-        return $this->json($data);
     }
 
     private function getBundles(): array

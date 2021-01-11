@@ -7,7 +7,7 @@
     align-items: center;
     align-content: stretch;
     padding: 0;
-    color: $color-gutenberg;
+    color: $color-darkgray-200;
     border-radius: 2px;
 
     &.has--text {
@@ -52,8 +52,8 @@
     }
 
     .sw-cms-product-box-preview__action {
-        background: $color-steam-cloud;
-        color: $color-kashmir;
+        background: $color-gray-300;
+        color: $color-darkgray-200;
         border-radius: 3px;
         text-align: center;
         font-size: 12px;

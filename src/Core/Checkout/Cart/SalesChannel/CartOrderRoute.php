@@ -96,15 +96,12 @@ class CartOrderRoute extends AbstractCartOrderRoute
      * )
      * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"})
      */
-    public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): CartOrderRouteResponse
+    public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
         $calculatedCart = $this->cartCalculator->calculate($cart, $context);
 
-        // @deprecated tag:v6.4.0 - Parameter $data will be mandatory in future implementation
-        if ($data !== null) {
-            $this->addCustomerComment($calculatedCart, $data);
-            $this->addAffiliateTracking($calculatedCart, $data);
-        }
+        $this->addCustomerComment($calculatedCart, $data);
+        $this->addAffiliateTracking($calculatedCart, $data);
 
         $orderId = $this->orderPersister->persist($calculatedCart, $context);
 

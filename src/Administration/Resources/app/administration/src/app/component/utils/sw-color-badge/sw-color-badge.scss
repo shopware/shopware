@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
-$sw-color-badge-color-fallback: $color-steam-cloud;
-$sw-color-badge-color-warning: $color-pumpkin-spice;
-$sw-color-badge-color-error: $color-crimson;
-$sw-color-badge-color-success: $color-emerald;
-$sw-color-badge-color-info: $color-shopware-blue;
+$sw-color-badge-color-fallback: $color-gray-300;
+$sw-color-badge-color-warning: $color-pumpkin-spice-500;
+$sw-color-badge-color-error: $color-crimson-500;
+$sw-color-badge-color-success: $color-emerald-500;
+$sw-color-badge-color-info: $color-shopware-brand-500;
 
 .sw-color-badge {
     display: inline-block;

@@ -53,17 +53,6 @@ Component.register('sw-custom-field-list', {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.4.0.0 - The search is now done via request against the API.
-         */
-        filteredCustomFields() {
-            if (!this.set.customFields) {
-                return [];
-            }
-
-            return this.set.customFields.filter((customField) => customField.name.includes(this.term));
-        },
-
         customFieldRepository() {
             return this.repositoryFactory.create(
                 this.set.customFields.entity,

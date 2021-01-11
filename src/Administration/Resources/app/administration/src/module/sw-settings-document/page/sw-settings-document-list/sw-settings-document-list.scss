@@ -4,7 +4,7 @@ $sw-settings-document-list-font-size-default: $font-size-default;
 
 .sw-settings-document-list {
     .is--default {
-        color: $color-emerald;
+        color: $color-emerald-500;
     }
 
     .sw-list {
@@ -23,7 +23,7 @@ $sw-settings-document-list-font-size-default: $font-size-default;
         cursor: pointer;
         padding-bottom: 16px;
         color: #607182;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-settings-document-list__collapse-indicator {
             margin-right: 25px;

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-settings-item-text-color: $color-gutenberg;
-$sw-settings-item-hover-text-color: $color-shopware-blue;
+$sw-settings-item-text-color: $color-darkgray-200;
+$sw-settings-item-hover-text-color: $color-shopware-brand-500;
 
 .sw-settings-item {
     color: $sw-settings-item-text-color;
@@ -27,11 +27,11 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
         margin-right: 20px;
 
         &.background--enabled {
-            background-color: darken($color-light-gray, 2%);
+            background-color: darken($color-gray-100, 2%);
         }
 
         .sw-icon {
-            color: lighten($color-gutenberg, 15%);
+            color: lighten($color-darkgray-200, 15%);
             margin: auto;
             width: 20px;
             height: 20px;
@@ -48,7 +48,7 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
 
         .sw-settings-item__icon {
             &.background--enabled {
-                background-color: darken($color-light-gray, 4%);
+                background-color: darken($color-gray-100, 4%);
             }
 
             .sw-icon {

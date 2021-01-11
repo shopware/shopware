@@ -30,14 +30,6 @@ class CartScopeDiscountPackager extends DiscountPackager
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 function will be removed
-     */
-    public function getResultContext(): string
-    {
-        return self::RESULT_CONTEXT_LINEITEM;
-    }
-
     public function getDecorated(): DiscountPackager
     {
         throw new DecorationPatternException(self::class);

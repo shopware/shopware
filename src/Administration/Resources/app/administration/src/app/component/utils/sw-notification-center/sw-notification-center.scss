@@ -4,7 +4,7 @@
     cursor: pointer;
 
     &.is--active {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 }
 
@@ -14,7 +14,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: $color-crimson;
+    background-color: $color-crimson-500;
     position: absolute;
     top: 0;
     right: 0;
@@ -28,7 +28,7 @@
 
     .sw-notification-center__content {
         .sw-notification-center__header {
-            border-bottom: 1px solid $color-steam-cloud;
+            border-bottom: 1px solid $color-gray-300;
             padding: 20px 24px 16px;
             display: flex;
             justify-content: space-between;

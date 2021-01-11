@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-payment-list-color-error: $color-crimson;
-$sw-payment-list-color-success: $color-emerald;
+$sw-payment-list-color-error: $color-crimson-500;
+$sw-payment-list-color-success: $color-emerald-500;
 
 .sw-settings-payment-list {
     .is--inactive {

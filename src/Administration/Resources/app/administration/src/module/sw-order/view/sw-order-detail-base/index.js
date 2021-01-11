@@ -163,9 +163,7 @@ Component.register('sw-order-detail-base', {
                 .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
 
             criteria
-                .getAssociation('salesChannel')
-                .getAssociation('mailTemplates')
-                .addAssociation('mailTemplateType');
+                .addAssociation('salesChannel');
 
             criteria
                 .addAssociation('addresses.country')

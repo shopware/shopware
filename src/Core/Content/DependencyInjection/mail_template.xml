@@ -20,10 +20,6 @@
             <tag name="shopware.entity.definition"  entity="mail_template_type_translation"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -89,14 +85,6 @@
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="logger"/>
-        </service>
-
-        <!-- Commands -->
-        <service id="Shopware\Core\Content\MailTemplate\Commands\AssignAllTemplatesToAllSalesChannelsCommand">
-            <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="core_mailer" alias="mailer" />

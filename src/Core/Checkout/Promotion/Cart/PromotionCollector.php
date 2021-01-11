@@ -366,7 +366,8 @@ class PromotionCollector implements CartDataCollectorInterface
                 $code,
                 $promotion,
                 $discount,
-                $context->getContext()->getCurrencyPrecision(),
+                // ??? is unused
+                2,
                 $context->getCurrency()->getId(),
                 $factor
             );

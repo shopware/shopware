@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -73,6 +74,7 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel);
         $salesChannelApiBrowser->setServerParameters([
             'HTTP_ACCEPT' => 'application/json',
+            'HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32),
         ]);
 
         $this->authorizeSalesChannelBrowser($salesChannelApiBrowser, $salesChannelOverride);
@@ -109,6 +111,7 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);
         $salesChannelApiBrowser->setServerParameters([
             'HTTP_ACCEPT' => 'application/json',
+            'HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32),
         ]);
 
         $this->authorizeSalesChannelBrowser($salesChannelApiBrowser);

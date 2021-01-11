@@ -19,58 +19,21 @@ Component.register('sw-settings-index', {
         settingsGroups() {
             const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
             return settingsGroups.reduce((acc, [groupName, groupSettings]) => {
-                acc[groupName] = groupSettings.sort(
-                    (a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label)))
-                );
+                const group = groupSettings
+                    .filter(setting => this.acl.can(setting.privilege))
+                    .sort((a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label))));
+
+                if (group.length > 0) {
+                    acc[groupName] = group;
+                }
 
                 return acc;
             }, {});
-        },
-
-        /*
-           @deprecated tag:v6.4.0
-           we do not need to distinguish between plugin and default setting groups then anymore
-           see ./sw-settings-index.html.twig
-        */
-        defaultSettingsGroups() {
-            return {
-                shop: this.settingsGroups.shop
-                    ? this.settingsGroups.shop.filter(setting => this.acl.can(setting.privilege))
-                    : [],
-                system: this.settingsGroups.system
-                    ? this.settingsGroups.system.filter(setting => this.acl.can(setting.privilege))
-                    : []
-            };
-        },
-
-        /*
-            @deprecated tag:v6.4.0
-            see above
-         */
-        pluginSettingsGroup() {
-            const settingsGroups = this.settingsGroups;
-
-            if (!hasOwnProperty(settingsGroups, 'plugins')) {
-                return [];
-            }
-
-            return settingsGroups.plugins.filter(setting => this.acl.can(setting.privilege));
-        },
-
-        pluginSettingsGroupExist() {
-            return this.pluginSettingsGroup.length > 0;
         }
     },
-
     methods: {
         hasPluginConfig() {
-            return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0)
-                // @deprecated tag:v6.4.0
-                || (this.$refs.pluginConfig && this.$refs.pluginConfig.childElementCount > 0);
-        },
-
-        shouldSettingGroupExist(settingsGroup) {
-            return this.defaultSettingsGroups[settingsGroup] && this.defaultSettingsGroups[settingsGroup].length > 0;
+            return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0);
         }
     }
 });

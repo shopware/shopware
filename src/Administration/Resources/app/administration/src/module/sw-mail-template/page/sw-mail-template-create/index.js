@@ -27,9 +27,6 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             }
 
             this.mailTemplateId = this.mailTemplate.id;
-            this.mailTemplateSalesChannels = [];
-
-            this.getPossibleSalesChannels([]);
         },
 
         saveFinish() {

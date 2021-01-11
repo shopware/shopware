@@ -45,10 +45,7 @@ Component.register('sw-users-permissions-user-listing', {
         currentUser: {
             get() {
                 return State.get('session').currentUser;
-            },
-            /** deprecated tag:v6.4.0 will be read only in v.6.4.0 */
-            set() {}
-
+            }
         },
 
         userCriteria() {
@@ -140,8 +137,8 @@ Component.register('sw-users-permissions-user-listing', {
                 verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
             } catch (e) {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
                 });
             } finally {
                 this.confirmPassword = '';

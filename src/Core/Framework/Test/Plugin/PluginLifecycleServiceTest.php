@@ -210,11 +210,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->deactivatePluginNotActivatedThrowsException($this->context);
     }
 
-    public function testDontRemoveMigrations(): void
-    {
-        $this->dontRemoveMigrations($this->context);
-    }
-
     public function testRemoveMigrationsCannotRemoveShopwareMigrations(): void
     {
         $this->removeMigrationsCannotRemoveShopwareMigrations($this->context);
@@ -284,11 +279,6 @@ class PluginLifecycleServiceTest extends TestCase
     public function testDeactivatePluginNotActivatedThrowsExceptionWithNonStandardLanguage(): void
     {
         $this->deactivatePluginNotActivatedThrowsException($this->createNonStandardLanguageContext());
-    }
-
-    public function testDontRemoveMigrationsWithNonStandardLanguage(): void
-    {
-        $this->dontRemoveMigrations($this->createNonStandardLanguageContext());
     }
 
     public function testRemoveMigrationsCannotRemoveShopwareMigrationsWithNonStandardLanguage(): void

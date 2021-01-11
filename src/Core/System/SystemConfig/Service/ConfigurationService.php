@@ -55,15 +55,9 @@ class ConfigurationService
      * @throws ConfigurationNotFoundException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
-     *
-     * @deprecated tag:v6.4.0 $context param will be required
      */
-    public function getConfiguration(string $domain, ?Context $context = null): array
+    public function getConfiguration(string $domain, Context $context): array
     {
-        if (!$context) {
-            $context = Context::createDefaultContext();
-        }
-
         $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
@@ -113,10 +107,7 @@ class ConfigurationService
         return $config;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 $context param will be required
-     */
-    public function checkConfiguration(string $domain, ?Context $context = null): bool
+    public function checkConfiguration(string $domain, Context $context): bool
     {
         try {
             $this->getConfiguration($domain, $context);

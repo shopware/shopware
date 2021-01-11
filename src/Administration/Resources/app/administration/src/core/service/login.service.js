@@ -22,10 +22,6 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     const onLoginListener = [];
     const cookieStorage = cookieStorageFactory();
 
-    if (typeof removeLocalStorageImplementation === 'function') {
-        removeLocalStorageImplementation();
-    }
-
     return {
         loginByUsername,
         verifyUserByUsername,
@@ -340,17 +336,5 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
                 sameSite: 'Strict' // Should be Strict
             }
         );
-    }
-
-    /**
-     * @deprecated tag:v6.4.0
-     * It resets the old localStorage implementation of the authentication.
-     * Can be removed in 6.3.0 because it is only needed for upgrading from
-     * 6.1 to 6.2
-     */
-    function removeLocalStorageImplementation() {
-        if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem(storageKey);
-        }
     }
 }

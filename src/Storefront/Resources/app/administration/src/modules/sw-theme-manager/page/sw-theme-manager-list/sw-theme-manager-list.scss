@@ -54,15 +54,15 @@
         height: 36px;
         line-height: 33px;
         text-align: center;
-        color: $color-gutenberg;
-        border: 1px solid $color-steam-cloud;
+        color: $color-darkgray-200;
+        border: 1px solid $color-gray-300;
         border-radius: 4px;
         background: $color-white;
         cursor: pointer;
 
         &:hover {
-            color: $color-shopware-blue;
-            border-color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
+            border-color: $color-shopware-brand-500;
         }
     }
 
@@ -79,7 +79,7 @@
 
     .sw-theme-list__icon-lock {
         margin-right: 10px;
-        color: $color-steam-cloud;
+        color: $color-gray-300;
     }
 
     .sw-theme-list__list-pagination {

@@ -31,11 +31,6 @@ class WishlistPageTest extends TestCase
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 
-    public function testLoginRequirement(): void
-    {
-        $this->assertLoginRequirement();
-    }
-
     public function testInActiveWishlist(): void
     {
         $request = new Request();
@@ -44,7 +39,7 @@ class WishlistPageTest extends TestCase
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
         $this->expectException(CustomerWishlistNotActivatedException::class);
-        $this->getPageLoader()->load($request, $context);
+        $this->getPageLoader()->load($request, $context, $context->getCustomer());
     }
 
     public function testWishlistNotFound(): void
@@ -54,7 +49,7 @@ class WishlistPageTest extends TestCase
 
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $page = $this->getPageLoader()->load($request, $context, $this->createCustomer());
 
         static::assertInstanceOf(WishlistPage::class, $page);
         static::assertSame(0, $page->getWishlist()->getProductListing()->getTotal());
@@ -74,7 +69,8 @@ class WishlistPageTest extends TestCase
         $event = null;
         $this->catchEvent(WishlistPageLoadedEvent::class, $event);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
+        dump($page);
 
         static::assertInstanceOf(WishlistPage::class, $page);
         static::assertSame(1, $page->getWishlist()->getProductListing()->getTotal());

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Wishlist;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
@@ -55,19 +56,15 @@ class WishlistPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $context): WishlistPage
+    public function load(Request $request, SalesChannelContext $context, CustomerEntity $customer): WishlistPage
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $criteria = $this->createCriteria($request);
 
         $page = $this->genericLoader->load($request, $context);
         $page = WishlistPage::createFrom($page);
 
         try {
-            $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria));
+            $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria, $customer));
         } catch (CustomerWishlistNotFoundException $exception) {
             $page->setWishlist(
                 new LoadWishlistRouteResponse(

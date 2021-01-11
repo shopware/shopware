@@ -511,7 +511,7 @@ class EntityWriter implements EntityWriterInterface
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
-                throw new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation(Uuid::randomHex(), $restrictions)]);
+                throw new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
             }
         }
 

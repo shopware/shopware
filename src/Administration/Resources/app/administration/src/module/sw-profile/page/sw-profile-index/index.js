@@ -1,11 +1,9 @@
 import { email } from 'src/core/service/validation.service';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-profile-index.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const types = Shopware.Utils.types;
 
 Component.register('sw-profile-index', {
     template,
@@ -21,9 +19,10 @@ Component.register('sw-profile-index', {
             user: { username: '', email: '' },
             languages: [],
             imageSize: 140,
-            oldPassword: null, // @deprecated tag:v6.4.0 use confirmPassword instead
             newPassword: null,
             newPasswordConfirm: null,
+            // ???
+            oldPassword: null, // @deprecated tag:v6.4.0 use confirmPassword instead
             avatarMediaItem: null,
             uploadTag: 'sw-profile-upload-tag',
             isLoading: false,
@@ -66,8 +65,10 @@ Component.register('sw-profile-index', {
 
         userMediaCriteria() {
             if (this.user.id) {
+                // ???
                 // ToDo: If SwSidebarMedia has the new data handling, change this too
-                return CriteriaFactory.equals('userId', this.user.id);
+                // return CriteriaFactory.equals('userId', this.user.id);
+                return null;
             }
 
             return null;
@@ -221,17 +222,6 @@ Component.register('sw-profile-index', {
             }
 
             return null;
-        },
-
-        /**
-         * @deprecated tag:v6.4.0 will be remove because of password confirmation logic change
-         */
-        validateOldPassword() {
-            return this.loginService.loginByUsername(this.user.username, this.oldPassword).then((response) => {
-                return types.isString(response.access);
-            }).catch(() => {
-                return false;
-            });
         },
 
         createErrorMessage(errorMessage) {

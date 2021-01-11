@@ -45,7 +45,6 @@ class PromotionItemBuilderTest extends TestCase
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
         $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-        $context->method('getCurrencyPrecision')->willReturn(3);
 
         $this->salesChannelContext->method('getContext')->willReturn($context);
     }
@@ -157,8 +156,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(10);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 2, 'C1', $currencyFactor);
 
         $expectedPriceDefinition = new PercentagePriceDefinition(-10, null);
 
@@ -189,7 +187,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
         /** @var int $precision */
-        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
+        $precision = 3;
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
 
         $expectedPriceDefinition = new AbsolutePriceDefinition(-50 * $currencyFactor, null);
@@ -338,7 +336,7 @@ class PromotionItemBuilderTest extends TestCase
         $this->salesChannelContext->method('getCurrency')->willReturn($currency);
 
         /** @var int $precision */
-        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
+        $precision = 3;
 
         $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
 
@@ -386,7 +384,7 @@ class PromotionItemBuilderTest extends TestCase
         $this->salesChannelContext->method('getCurrency')->willReturn($currency);
 
         /** @var int $precision */
-        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
+        $precision = 3;
 
         $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'D1', $currencyFactor);
 
@@ -427,7 +425,7 @@ class PromotionItemBuilderTest extends TestCase
             '',
             $this->promotion,
             $discount,
-            $this->salesChannelContext->getContext()->getCurrencyPrecision(),
+            3,
             'C1'
         );
 

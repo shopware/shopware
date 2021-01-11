@@ -243,15 +243,6 @@
                                 </sw-entity-listing>
                             {% endblock %}
 
-                            {# @deprecated tag:v6.4.0 #}
-                            {% block sw_integration_list_grid_inner %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0 - use computed "integrationColumns" instead #}
-                            {% block sw_integration_list_grid_inner_slot_columns %}{% endblock %}
-
-                            {# @deprecated tag:v6.4.0 #}
-                            {% block sw_integration_list_grid_pagination %}{% endblock %}
-
                             {% block sw_product_list_empty_state %}
                                 <sw-empty-state v-if="!integrations"
                                                 :title="$tc('sw-integration.list.messageEmpty')"

@@ -1,11 +1,11 @@
 @import '~scss/variables';
 
-$sw-context-menu-color-background-hover: lighten($color-shopware-blue, 40%);
-$sw-context-menu-color-text:             $color-gutenberg;
-$sw-context-menu-color-active:           $color-shopware-blue;
-$sw-context-menu-color-danger:           $color-crimson;
-$sw-context-menu-color-success:          $color-emerald;
-$sw-context-menu-color-warning:          $color-pumpkin-spice;
+$sw-context-menu-color-background-hover: lighten($color-shopware-brand-500, 40%);
+$sw-context-menu-color-text:             $color-darkgray-200;
+$sw-context-menu-color-active:           $color-shopware-brand-500;
+$sw-context-menu-color-danger:           $color-crimson-500;
+$sw-context-menu-color-success:          $color-emerald-500;
+$sw-context-menu-color-warning:          $color-pumpkin-spice-500;
 
 .sw-context-menu-item {
     display: block;

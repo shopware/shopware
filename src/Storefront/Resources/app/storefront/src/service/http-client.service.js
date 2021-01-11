@@ -2,27 +2,9 @@ export default class HttpClient {
 
     constructor() {
         this._request = null;
-        this._accessKey = '';
-        this._contextToken = '';
         this._csrfEnabled = window.csrf.enabled;
         this._csrfMode = window.csrf.mode;
         this._generateUrl = window.router['frontend.csrf.generateToken'];
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Sales channel access key is no longer available in storefront templates
-     * @returns {string}
-     */
-    get accessKey() {
-        return this._accessKey;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Context token is no longer available in storefront templates
-     * @returns {string}
-     */
-    get contextToken() {
-        return this._contextToken;
     }
 
     /**

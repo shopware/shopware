@@ -106,8 +106,8 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
 
         await wrapper.vm.$nextTick();
 
-        // Order state change modal should always have true mailTemplatesExist prop
-        expect(wrapper.find('.sw-order-state-change-modal').props().mailTemplatesExist).toBe(true);
+        console.log(wrapper.vm.showModal);
+        console.log(wrapper.html());
 
         // Document selection should be visible
         expect(wrapper.find('sw-order-state-change-modal-attach-documents-stub').exists()).toBeTruthy();

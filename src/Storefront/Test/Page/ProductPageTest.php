@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
-use Shopware\Storefront\Page\Product\ProductPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\Review\RatingMatrix;
@@ -53,7 +52,7 @@ class ProductPageTest extends TestCase
         $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
         $this->expectException(ProductNotFoundException::class);
-        $this->getPageLoader()->load($request, $context);
+        $this->getPageLoader()->load($request, $context, $this->createCustomer());
     }
 
     public function testItDoesLoadATestProduct(): void
@@ -81,14 +80,9 @@ class ProductPageTest extends TestCase
 
         $request = new Request([], [], ['productId' => $product->getId()]);
 
-        /** @var ProductPageLoadedEvent $event */
-        $event = null;
-        $this->catchEvent(ProductPageCriteriaEvent::class, $event);
-
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(ProductPage::class, $page);
-        static::assertInstanceOf(ProductPageCriteriaEvent::class, $event);
     }
 
     public function testItDoesLoadACloseProductWithHideCloseEnabled(): void

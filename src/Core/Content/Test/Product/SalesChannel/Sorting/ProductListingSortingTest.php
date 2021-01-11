@@ -4,8 +4,6 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Sorting;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSortingKeyException;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -77,46 +75,5 @@ class ProductListingSortingTest extends TestCase
         $this->expectExceptionMessage('Sorting with key "' . $productSortingKey . '" already exists.');
 
         $this->productSortingRepository->create([$data], Context::createDefaultContext());
-    }
-
-    public function testProductListingSortingConversion(): void
-    {
-        $productListingSortingMock = $this->getProductListingSortingMock();
-
-        $productSortingRegistry = new ProductListingSortingRegistry(
-            [$productListingSortingMock],
-            $this->getContainer()->get('translator')
-        );
-
-        $productSortingEntity = $productSortingRegistry->getProductSortingEntities()->first();
-
-        static::assertEquals('test-conversion', $productSortingEntity->getKey());
-        static::assertCount(2, $productSortingEntity->getFields());
-
-        static::assertEquals([
-            'field' => 'product.name',
-            'order' => 'asc',
-            'priority' => 0,
-            'naturalSorting' => 0,
-        ], $productSortingEntity->getFields()[0]);
-
-        static::assertEquals([
-            'field' => 'product.listingPrices',
-            'order' => 'desc',
-            'priority' => 0,
-            'naturalSorting' => 0,
-        ], $productSortingEntity->getFields()[1]);
-    }
-
-    private function getProductListingSortingMock(): ProductListingSorting
-    {
-        return new ProductListingSorting(
-            'test-conversion',
-            'Test',
-            [
-                'product.name' => 'asc',
-                'product.listingPrices' => 'desc',
-            ]
-        );
     }
 }

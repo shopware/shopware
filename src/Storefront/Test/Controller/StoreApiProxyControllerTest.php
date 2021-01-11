@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StoreApiProxyController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,11 @@ class StoreApiProxyControllerTest extends TestCase
      * @var TestDataCollection
      */
     private $ids;
+
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
     public function setUp(): void
     {
@@ -123,8 +129,9 @@ class StoreApiProxyControllerTest extends TestCase
         static::assertTrue($this->request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $token = $this->request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $tokenData = $this->getContainer()->get(SalesChannelContextPersister::class)
+            ->load($token, $this->salesChannelContext->getSalesChannelId(), $customerId);
 
-        $tokenData = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
         static::assertArrayHasKey('customerId', $tokenData);
         static::assertSame($customerId, $tokenData['customerId']);
     }
@@ -142,13 +149,13 @@ class StoreApiProxyControllerTest extends TestCase
             $query['path'] = $url;
         }
 
-        $context = $this->createSalesChannelContext();
+        $this->salesChannelContext = $this->createSalesChannelContext();
 
         $this->request = new Request($query, $body);
         $this->request->setMethod($method);
         $this->request->server->set('REQUEST_URI', \is_array($urlComponents) ? $urlComponents['path'] : $url);
         $this->request->setSession(new Session(new MockArraySessionStorage()));
 
-        return $this->getContainer()->get(StoreApiProxyController::class)->proxy($this->request, $context);
+        return $this->getContainer()->get(StoreApiProxyController::class)->proxy($this->request, $this->salesChannelContext);
     }
 }

@@ -29,14 +29,6 @@ Component.register('sw-popover', {
             type: [String, Array, Object],
             required: false,
             default: ''
-        },
-        /**
-         * @deprecated tag:v6.4.0
-         */
-        isPopover: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 

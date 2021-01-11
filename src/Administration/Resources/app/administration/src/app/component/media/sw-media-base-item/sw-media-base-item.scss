@@ -1,20 +1,20 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-base-item-color:                   $color-kashmir;
+$sw-media-base-item-color:                   $color-darkgray-200;
 $sw-media-base-item-border-radius:           $border-radius-default;
 $sw-media-base-item-small-font-size:         $font-size-small;
-$sw-media-base-item-color-border:            $color-steam-cloud;
-$sw-media-base-item-color-text-inline-input: $color-gutenberg;
+$sw-media-base-item-color-border:            $color-gray-300;
+$sw-media-base-item-color-text-inline-input: $color-darkgray-200;
 $sw-media-base-item-color-context-button:    $color-white;
-$sw-media-base-item-color-loading-indicator: $color-gutenberg;
-$sw-media-base-item-color-hover:             $color-cadet-blue;
-$sw-media-base-item-color-metadata:          lighten($color-gutenberg, 30);
+$sw-media-base-item-color-loading-indicator: $color-darkgray-200;
+$sw-media-base-item-color-hover:             $color-shopware-brand-50;
+$sw-media-base-item-color-metadata:          lighten($color-darkgray-200, 30);
 $sw-media-base-item-pseudo-padding:          33px;
 $sw-media-base-item-color-input-background:  $color-white;
-$sw-media-base-item-color-input-border:      $color-steam-cloud;
+$sw-media-base-item-color-input-border:      $color-gray-300;
 $sw-media-base-item-border-radius-input:     $border-radius-default;
-$sw-media-base-item-color-selected:          $color-shopware-blue;
+$sw-media-base-item-color-selected:          $color-shopware-brand-500;
 $sw-media-base-item-color-checkmark:         $color-white;
 $sw-media-base-item-color-input:             $color-black;
 $sw-media-base-item-preview-background:      $color-white;
@@ -231,7 +231,7 @@ $sw-media-base-item-preview-background:      $color-white;
             border-color: transparent;
 
             &:hover {
-                border-color: $color-steam-cloud;
+                border-color: $color-gray-300;
             }
         }
 

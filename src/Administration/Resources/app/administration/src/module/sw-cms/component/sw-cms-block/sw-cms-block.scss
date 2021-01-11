@@ -33,14 +33,14 @@
         left: 0;
         right: 0;
         margin: auto;
-        border: 1px dashed rgba($color-shopware-blue, 0.4);
+        border: 1px dashed rgba($color-shopware-brand-500, 0.4);
         cursor: pointer;
         z-index: 50;
 
         &.is--active {
             display: block;
             pointer-events: none;
-            border: 1px solid $color-shopware-blue;
+            border: 1px solid $color-shopware-brand-500;
             z-index: 10;
         }
     }

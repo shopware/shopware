@@ -1,16 +1,16 @@
 @import "~scss/variables";
 
 $sw-media-field-font-size-label: $font-size-small;
-$sw-media-field-color-label: $color-kashmir;
+$sw-media-field-color-label: $color-darkgray-200;
 $sw-media-field-border-radius-input: $border-radius-default;
-$sw-media-field-border-color-input: $color-steam-cloud;
-$sw-media-field-border-color-input-active: $color-shopware-blue;
+$sw-media-field-border-color-input: $color-gray-300;
+$sw-media-field-border-color-input-active: $color-shopware-brand-500;
 $sw-media-field-border-radius-picker: $border-radius-default;
-$sw-media-field-border-color-picker: $color-steam-cloud;
+$sw-media-field-border-color-picker: $color-gray-300;
 $sw-media-field-background-color-picker: $color-white;
-$sw-media-field-background-color-list-item-hover: $color-cadet-blue;
-$sw-media-field-color-picker-toggle: $color-shopware-blue;
-$sw-media-field-color-unlink: $color-crimson;
+$sw-media-field-background-color-list-item-hover: $color-shopware-brand-50;
+$sw-media-field-color-picker-toggle: $color-shopware-brand-500;
+$sw-media-field-color-unlink: $color-crimson-500;
 
 .sw-media-field {
     position: relative;

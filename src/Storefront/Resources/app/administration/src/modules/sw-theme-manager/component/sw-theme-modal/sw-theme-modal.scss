@@ -7,7 +7,7 @@
         grid-template-columns: 1fr 250px;
         align-items: center;
         padding: 24px 30px;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-theme-modal__header-title {
             font-size: 18px;
@@ -31,7 +31,7 @@
 
             &.is--selected {
                 .sw-theme-list-item {
-                    border-color: $color-shopware-blue;
+                    border-color: $color-shopware-brand-500;
                 }
             }
 

@@ -349,4 +349,8 @@ EOD
 __EMPTY__
 EOD
     ,
+    'Migration/v6_4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

@@ -64,9 +64,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
-        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
-            ->select(['user_id', 'secret_access_key', 'write_access'])
+            ->select(['user_id', 'secret_access_key'])
             ->from('user_access_key')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
@@ -86,9 +85,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
-        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
-            ->select(['integration.id AS id', 'label', 'secret_access_key', 'write_access', 'app.active as active'])
+            ->select(['integration.id AS id', 'label', 'secret_access_key', 'app.active as active'])
             ->from('integration')
             ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
             ->where('access_key = :accessKey')

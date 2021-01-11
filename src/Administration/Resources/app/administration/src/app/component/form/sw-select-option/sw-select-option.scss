@@ -1,12 +1,12 @@
 @import "~scss/variables";
 
-$sw-select-option-active-color-background: lighten($color-shopware-blue, 40%);
-$sw-select-option-active-color-text: $color-shopware-blue;
-$sw-select-option-color-border: $color-steam-cloud;
-$sw-select-option-color-icon: darken($color-light-gray, 20%);
+$sw-select-option-active-color-background: lighten($color-shopware-brand-500, 40%);
+$sw-select-option-active-color-text: $color-shopware-brand-500;
+$sw-select-option-color-border: $color-gray-300;
+$sw-select-option-color-icon: darken($color-gray-100, 20%);
 $sw-select-option-transition-item-icon: all ease-in-out 0.15s;
-$sw-select-option-disabled-color-background: $color-light-gray;
-$sw-select-option-disabled-color-text: darken($color-steam-cloud, 15%);
+$sw-select-option-disabled-color-background: $color-gray-100;
+$sw-select-option-disabled-color-text: darken($color-gray-300, 15%);
 
 .sw-select-option {
     padding: 12px 15px;

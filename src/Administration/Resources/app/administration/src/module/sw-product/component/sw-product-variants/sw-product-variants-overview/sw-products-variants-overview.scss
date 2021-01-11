@@ -1,6 +1,6 @@
 @import "~scss/variables";
 $sw-products-variants-generated-variants-toolbar-background: #f8f9fa;
-$sw-products-variants-generated-variants-toolbar-border: $color-steam-cloud;
+$sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
 
 .sw-product-variants-overview {
 
@@ -31,7 +31,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-steam-cloud;
 
             .sw-icon {
                 opacity: 0;
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
                 width: 12px;
                 height: 12px;
                 margin-right: 5px;

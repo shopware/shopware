@@ -135,6 +135,7 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
+            // ???
             // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
             $this->addFlash(
                 'danger',

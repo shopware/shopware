@@ -63,9 +63,6 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_footer_place_of_fulfillment %}
                             {% if config.placeOfFulfillment %}<li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment})|sw_sanitize }}</li>{% endif %}
                         {% endblock %}
-                        {% block document_footer_payment_shipping_additional_info %}
-                            {% deprecated '@deprecated tag:v6.4.0 The "document_footer_payment_shipping_additional_info" block is deprecated, use "document_payment_shipping_additional" instead.' %}
-                        {% endblock %}
                     </ul>
                 {% endblock %}
 

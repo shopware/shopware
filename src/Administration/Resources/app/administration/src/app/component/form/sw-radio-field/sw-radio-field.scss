@@ -1,5 +1,5 @@
 @import '~scss/variables';
-$sw-field--radio-color-border: $color-steam-cloud;
+$sw-field--radio-color-border: $color-gray-300;
 
 .sw-field--radio {
     label ~ .sw-field__radio-group,
@@ -16,7 +16,7 @@ $sw-field--radio-color-border: $color-steam-cloud;
         label {
             font-weight: normal;
             font-size: $font-size-small;
-            color: $color-gutenberg;
+            color: $color-darkgray-200;
 
             .sw-help-text {
                 margin-left: 5px;
@@ -51,20 +51,20 @@ $sw-field--radio-color-border: $color-steam-cloud;
             z-index: 2;
 
             &:disabled ~ .sw-field__radio-state {
-                background: $color-light-gray;
-                border-color: $color-steam-cloud;
-                color: lighten($color-gutenberg, 40%);
+                background: $color-gray-100;
+                border-color: $color-gray-300;
+                color: lighten($color-darkgray-200, 40%);
             }
 
             &:checked ~ .sw-field__radio-state {
-                border: 5px solid $color-shopware-blue;
+                border: 5px solid $color-shopware-brand-500;
             }
 
             &:checked:disabled ~ .sw-field__radio-state {
-                background: $color-steam-cloud;
-                border: 1px solid $color-steam-cloud;
-                box-shadow: inset 0 0 0 4px $color-light-gray;
-                color: lighten($color-gutenberg, 40%);
+                background: $color-gray-300;
+                border: 1px solid $color-gray-300;
+                box-shadow: inset 0 0 0 4px $color-gray-100;
+                color: lighten($color-darkgray-200, 40%);
             }
         }
 
@@ -74,19 +74,19 @@ $sw-field--radio-color-border: $color-steam-cloud;
             height: 100%;
             z-index: 1;
             background: $color-white;
-            color: $color-gutenberg;
-            border: 1px solid $color-steam-cloud;
+            color: $color-darkgray-200;
+            border: 1px solid $color-gray-300;
             border-radius: 8px;
         }
     }
 
     &.has--error {
         .sw-field__radio-state {
-            border-color: $color-crimson;
+            border-color: $color-crimson-500;
         }
 
         input[type="radio"]:checked ~ .sw-field__radio-state {
-            border: 5px solid $color-crimson;
+            border: 5px solid $color-crimson-500;
         }
     }
 

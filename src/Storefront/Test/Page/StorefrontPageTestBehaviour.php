@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -52,7 +53,7 @@ trait StorefrontPageTestBehaviour
         $request = new Request($queryParams);
         $context = $this->createSalesChannelContextWithNavigation();
         $this->expectException(CustomerNotLoggedInException::class);
-        $this->getPageLoader()->load($request, $context);
+        $this->getPageLoader()->load($request, $context, $context->getCustomer());
     }
 
     protected function expectParamMissingException(string $paramName): void
@@ -73,7 +74,7 @@ trait StorefrontPageTestBehaviour
         $cart = $cartService->getCart($context->getToken(), $context);
         $cart->add($lineItem);
 
-        return $cartService->order($cart, $context);
+        return $cartService->order($cart, $context, new RequestDataBag());
     }
 
     protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, ?array $config = []): ProductEntity

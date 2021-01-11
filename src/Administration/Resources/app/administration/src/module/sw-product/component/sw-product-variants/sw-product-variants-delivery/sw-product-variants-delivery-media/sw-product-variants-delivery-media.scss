@@ -10,7 +10,7 @@
         flex-basis: 270px;
         height: 100%;
         overflow: auto;
-        border-right: 1px solid $color-steam-cloud;
+        border-right: 1px solid $color-gray-300;
         padding: 20px 0;
 
         .sw-icon {
@@ -28,7 +28,7 @@
         padding-left: 20px;
 
         &:hover {
-            background-color: lighten($color-cadet-blue, 2.5);
+            background-color: lighten($color-shopware-brand-50, 2.5);
         }
 
         &.is--selected {

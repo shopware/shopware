@@ -29,19 +29,6 @@
             <argument type="service" id="sales_channel.shipping_method.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater">
-        </service>
-
-        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodIndexer">
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="shipping_method.repository" />
-            <argument>%shopware.deployment.blue_green%</argument>
-
-            <tag name="shopware.entity_indexer"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>

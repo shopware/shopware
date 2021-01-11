@@ -391,11 +391,4 @@ export default class VariantsGenerator extends EventEmitter {
             this.processQueue(type, queue, offset + limit, limit, resolve);
         });
     }
-
-    /**
-     * @deprecated tag:v6.4.0
-     */
-    getLanguageId() {
-        return Shopware.Context.api.languageId;
-    }
 }

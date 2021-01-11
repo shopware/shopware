@@ -36,7 +36,6 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
@@ -130,7 +129,6 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>

@@ -1,10 +1,10 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-grid-column-color-action: $color-shopware-blue;
-$sw-grid-column-color-border: $color-steam-cloud;
-$sw-grid-column-content-color-text: $color-gutenberg;
-$sw-grid-column-color-link: $color-shopware-blue;
+$sw-grid-column-color-action: $color-shopware-brand-500;
+$sw-grid-column-color-border: $color-gray-300;
+$sw-grid-column-content-color-text: $color-darkgray-200;
+$sw-grid-column-color-link: $color-shopware-brand-500;
 
 .sw-grid-column {
     cursor: default;

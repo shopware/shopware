@@ -28,7 +28,6 @@ class ActionEventCompilerPass implements CompilerPassInterface
         }
 
         $definition = $container->getDefinition(BusinessEventRegistry::class);
-        $definition->addMethodCall('addMultiple', [$events]);
         $definition->addMethodCall('addClasses', [$classes]);
     }
 

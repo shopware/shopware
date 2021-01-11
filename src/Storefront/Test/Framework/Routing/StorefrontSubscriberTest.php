@@ -45,7 +45,6 @@ class StorefrontSubscriberTest extends TestCase
 
         $eventDispatcher->dispatch($event);
 
-        static::assertArrayHasKey('swagShopId', $event->getParameters());
         static::assertArrayHasKey('appShopId', $event->getParameters());
     }
 

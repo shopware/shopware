@@ -7,57 +7,6 @@
 {% block page_account_order_item_overview %}
     <div class="order-wrapper">
         <div class="order-item-header">
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block page_account_order_item_date %}
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_date_label %}{% endblock %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_date_value %}{% endblock %}
-                {% endblock %}
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block page_account_order_item_number %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_number_label %}{% endblock %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_number_value %}{% endblock %}
-                {% endblock %}
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block page_account_order_item_payment_method %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_payment_method_label %}{% endblock %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_payment_method_value %}{% endblock %}
-                {% endblock %}
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block page_account_order_item_shipping_method %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_shipping_method_label %}{% endblock %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_shipping_method_value %}{% endblock %}
-                {% endblock %}
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block page_account_order_item_actions %}
-
-                    {# @deprecated tag:v6.4.0 #}
-                    {% block page_account_order_item_actions_value %}
-
-                        {# @deprecated tag:v6.4.0 #}
-                        {% block page_account_order_item_actions_value_text %}{% endblock %}
-                    {% endblock %}
-                {% endblock %}
-
                 {% set states = [
                     ORDER_TRANSACTION_STATE_FAILED,
                     ORDER_TRANSACTION_STATE_REMINDED,

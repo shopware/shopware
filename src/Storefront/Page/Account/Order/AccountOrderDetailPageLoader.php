@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -79,10 +78,8 @@ class AccountOrderDetailPageLoader
         $event = new OrderRouteRequestEvent($request, $apiRequest, $salesChannelContext, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        /** @var OrderRouteResponseStruct $result */
         $result = $this->orderRoute
-            ->load($event->getStoreApiRequest(), $salesChannelContext, $criteria)
-            ->getObject();
+            ->load($event->getStoreApiRequest(), $salesChannelContext, $criteria);
 
         $order = $result->getOrders()->first();
 

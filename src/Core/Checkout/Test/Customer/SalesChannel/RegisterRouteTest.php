@@ -196,7 +196,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode($browser->getResponse()->getContent(), true);
 
-        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertEquals(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertArrayNotHasKey('errors', $response);

@@ -21,6 +21,7 @@ Component.register('sw-snippet-field-edit-modal', {
     template,
 
     inject: [
+        // still used wtf?
         'snippetService', // @deprecated tag:v6.4.0.0
         'acl'
     ],

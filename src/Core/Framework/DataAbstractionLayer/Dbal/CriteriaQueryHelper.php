@@ -85,14 +85,6 @@ trait CriteriaQueryHelper
         return $query;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::addIdCondition
-     */
-    protected function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
-    {
-        $this->getDefinitionHelper()->addIdCondition($criteria, $definition, $query);
-    }
-
     protected function addFilter(EntityDefinition $definition, ?Filter $filter, QueryBuilder $query, Context $context): void
     {
         if (!$filter) {

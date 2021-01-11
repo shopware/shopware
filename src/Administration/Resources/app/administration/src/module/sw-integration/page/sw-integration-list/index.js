@@ -30,11 +30,6 @@ Component.register('sw-integration-list', {
     },
 
     computed: {
-        /** @deprecated tag:v6.4.0 */
-        id() {
-            return this.$vnode.tag;
-        },
-
         integrationRepository() {
             return this.repositoryFactory.create('integration');
         },

@@ -9,14 +9,17 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,9 +52,9 @@ class ProductPageLoader
     private $productDefinition;
 
     /**
-     * @var ProductLoader
+     * @var AbstractProductDetailRoute
      */
-    private $productLoader;
+    private $productDetailRoute;
 
     /**
      * @var ProductReviewLoader
@@ -59,9 +62,9 @@ class ProductPageLoader
     private $productReviewLoader;
 
     /**
-     * @var CrossSellingLoader
+     * @var AbstractProductCrossSellingRoute
      */
-    private $crossSellingLoader;
+    private $crossSellingRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
@@ -69,18 +72,18 @@ class ProductPageLoader
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
         ProductDefinition $productDefinition,
-        ProductLoader $productLoader,
+        AbstractProductDetailRoute $productDetailRoute,
         ProductReviewLoader $productReviewLoader,
-        CrossSellingLoader $crossSellingLoader
+        AbstractProductCrossSellingRoute $crossSellingRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
         $this->productDefinition = $productDefinition;
-        $this->productLoader = $productLoader;
+        $this->productDetailRoute = $productDetailRoute;
         $this->productReviewLoader = $productReviewLoader;
-        $this->crossSellingLoader = $crossSellingLoader;
+        $this->crossSellingRoute = $crossSellingRoute;
     }
 
     /**
@@ -99,9 +102,21 @@ class ProductPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $product = $this->productLoader->load($productId, $salesChannelContext, ProductPageCriteriaEvent::class);
+        $criteria = (new Criteria())
+            ->addAssociation('manufacturer.media')
+            ->addAssociation('options.group')
+            ->addAssociation('properties.group')
+            ->addAssociation('mainCategories.category');
+
+        $criteria
+            ->getAssociation('media')
+            ->addSorting(new FieldSorting('position'));
+
+        $result = $this->productDetailRoute->load($productId, $request, $salesChannelContext, $criteria);
+        $product = $result->getProduct();
+
         $page->setProduct($product);
-        $page->setConfiguratorSettings($product->getConfigurator());
+        $page->setConfiguratorSettings($result->getConfigurator());
 
         $request->request->set('parentId', $product->getParentId());
         $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
@@ -109,9 +124,7 @@ class ProductPageLoader
 
         $page->setReviews($reviews);
 
-        $page->setCrossSellings(
-            $this->crossSellingLoader->load($product->getId(), $salesChannelContext)
-        );
+        $page->setCrossSellings($this->crossSellingRoute->load($productId, $salesChannelContext)->getResult());
 
         /** @var string $cmsPageId */
         $cmsPageId = $product->getCmsPageId();

@@ -351,10 +351,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $event->setParameter('appShopId', $shopId);
-        /*
-         * @deprecated tag:v6.4.0 use `appShopId` instead
-         */
-        $event->setParameter('swagShopId', $shopId);
     }
 
     private function setSalesChannelContext(ExceptionEvent $event): void

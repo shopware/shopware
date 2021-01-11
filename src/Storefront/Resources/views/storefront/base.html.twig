@@ -110,10 +110,6 @@
 
     {% block base_body_script %}
         {% block base_script_token %}
-            <script>
-                {# @deprecated tag:v6.4.0 apiAccessUrl will be removed #}
-                window.apiAccessUrl = "{{ url('frontend.api-access') }}";
-            </script>
         {% endblock %}
 
         {% block base_script_router %}

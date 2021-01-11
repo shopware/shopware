@@ -8,6 +8,7 @@ const { Criteria } = Shopware.Data;
  * @status ready
  * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
  * manager. Use the additional properties to filter the shown media.
+ * ??? deprecated/removed
  * Just pass a object created by the CriteriaFactory.
  * @example-type code-only
  * @component-example

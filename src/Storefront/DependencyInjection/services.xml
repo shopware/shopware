@@ -211,24 +211,14 @@
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\ProductLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\ProductLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Product\ProductLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"
@@ -477,11 +467,6 @@
 
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
             <tag name="kernel.event_listener" priority="-10"/>
-        </service>
-
-        <service id="Shopware\Storefront\Event\BackwardSubscriber">
-            <argument type="service" id="event_dispatcher"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Event\CartMergedSubscriber">

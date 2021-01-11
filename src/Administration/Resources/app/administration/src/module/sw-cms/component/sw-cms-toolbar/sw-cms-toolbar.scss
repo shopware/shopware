@@ -13,17 +13,17 @@
         padding: 10px 20px;
 
         .sw-icon {
-            color: $color-steam-cloud;
+            color: $color-gray-300;
             transform: rotate(180deg);
         }
 
         a:hover .sw-icon {
-            color: $color-kashmir;
+            color: $color-darkgray-200;
         }
     }
 
     .sw-cms-toolbar__title h2 {
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         font-size: 18px;
         font-weight: 600;
         white-space: nowrap;

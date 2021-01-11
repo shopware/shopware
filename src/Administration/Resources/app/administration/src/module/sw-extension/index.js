@@ -11,7 +11,7 @@ import './component/sw-extension-store-purchased/sw-bought-extension-card';
 import './component/sw-extension-store-purchased/sw-self-maintained-extension-card';
 import './component/sw-extension-store-purchased/sw-extension-removal-modal';
 import './component/sw-extension-store-purchased/sw-extension-uninstall-modal';
-import './page/sw-extension-my-extensions-extension-config';
+import './page/sw-extension-config';
 import './page/sw-extension-store-index';
 import './page/sw-extension-store-listing';
 import './page/sw-extension-my-extensions-listing';
@@ -132,19 +132,19 @@ Shopware.Module.register('sw-extension', {
                 account: {
                     path: 'account',
                     component: 'sw-extension-my-extensions-account'
-                },
-                settings: {
-                    component: 'sw-extension-my-extensions-extension-config',
-                    path: 'settings/:namespace',
-                    meta: {
-                        parentPath: 'sw.extension.my-extensions'
-                    },
+                }
+            }
+        },
+        config: {
+            component: 'sw-extension-config',
+            path: 'config/:namespace',
+            meta: {
+                parentPath: 'sw.extension.my-extensions'
+            },
 
-                    props: {
-                        default(route) {
-                            return { namespace: route.params.namespace };
-                        }
-                    }
+            props: {
+                default(route) {
+                    return { namespace: route.params.namespace };
                 }
             }
         }

@@ -956,6 +956,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    featureSetId foreignKey
    purchasePrices price
    customSearchKeywords translated
+   canonicalProductId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

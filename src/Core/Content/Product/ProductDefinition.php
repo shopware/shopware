@@ -293,15 +293,13 @@ class ProductDefinition extends EntityDefinition
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10820')) {
-            $collection->add(
-                (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new Inherited())
-            );
+        $collection->add(
+            (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new Inherited())
+        );
 
-            $collection->add(
-                (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new Inherited())
-            );
-        }
+        $collection->add(
+            (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new Inherited())
+        );
 
         return $collection;
     }

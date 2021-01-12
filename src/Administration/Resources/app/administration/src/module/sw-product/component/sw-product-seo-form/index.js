@@ -20,7 +20,6 @@ Component.register('sw-product-seo-form', {
     ],
 
     inject: [
-        'feature',
         'repositoryFactory'
     ],
 

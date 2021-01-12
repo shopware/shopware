@@ -131,8 +131,7 @@
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
-      "cardTitleSeo": "SEO",
-      "cardTitleLayout": "Layout-Zuweisung"
+      "cardTitleSeo": "SEO"
     },
     "reviewForm": {
       "labelStatus": "Sichtbar",
@@ -217,6 +216,7 @@
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",
+      "tabLayout": "Layout",
       "tabCrossSelling": "Cross Selling",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
@@ -336,6 +336,10 @@
         "cancel": "Abbrechen",
         "save": "Speichern"
       }
+    },
+    "layout": {
+      "title": "Layout-Zuweisung",
+      "subtitle": "Du kannst die Anzeige der Produkt-Detailseite mit eigenen Layouts anpassen.  Wenn Du kein eigenes Layout zuweisen möchtest, wird das Standard-Layout für Produkt-Detailseiten verwendet."
     },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",

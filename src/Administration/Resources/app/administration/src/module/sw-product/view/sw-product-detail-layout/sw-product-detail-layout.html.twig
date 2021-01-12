@@ -1,0 +1,28 @@
+{% block sw_product_detail_layout %}
+    <sw-card
+        v-if="feature.isActive('FEATURE_NEXT_10078')"
+        :isLoading="isLoading"
+        :title="$tc('sw-product.layout.title')"
+        :subtitle="$tc('sw-product.layout.subtitle')">
+
+        {% block sw_product_detail_layout_content %}
+            <sw-product-layout-assignment
+                :cmsPage="currentPage"
+                @modal-layout-open="onOpenLayoutModal"
+                @button-edit-click="onOpenInPageBuilder"
+                @button-delete-click="onResetLayout">
+            </sw-product-layout-assignment>
+        {% endblock %}
+
+        {% block sw_product_detail_layout_modal %}
+            <sw-cms-layout-modal
+                v-if="showLayoutModal"
+                :headline="$tc('sw-product.layoutAssignment.subtitle')"
+                :cmsPageTypes="['product_detail']"
+                @modal-layout-select="onSelectLayout"
+                @modal-close="onCloseLayoutModal">
+            </sw-cms-layout-modal>
+        {% endblock %}
+
+    </sw-card>
+{% endblock %}

@@ -341,7 +341,6 @@ Component.register('sw-settings-document-detail', {
             }
 
             const documentConfig = cloneDeep(this.documentConfig);
-            this.onChangeDisplayNoteDelivery();
 
             return documentConfig.config && documentConfig.config.displayAdditionalNoteDelivery;
         },
@@ -487,6 +486,7 @@ Component.register('sw-settings-document-detail', {
             this.$router.push({ name: 'sw.settings.document.index' });
         },
 
+        /** @deprecated tag:v6.4.0 - Will be removed */
         onChangeDisplayNoteDelivery() {
             const documentConfig = cloneDeep(this.documentConfig);
             if (documentConfig.config && !documentConfig.config.displayAdditionalNoteDelivery) {

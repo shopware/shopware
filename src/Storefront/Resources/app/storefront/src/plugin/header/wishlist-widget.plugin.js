@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class WishlistWidgetPlugin extends Plugin {
     init() {
@@ -58,10 +59,9 @@ export default class WishlistWidgetPlugin extends Plugin {
      * @private
      */
     _stopWishlistLoading(productId) {
-        const buttonEl = document.querySelector('.product-wishlist-' + productId);
-
-        if (buttonEl) {
-            buttonEl.classList.remove('product-wishlist-loading');
-        }
+        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId)
+        buttonElements.forEach((el) => {
+            el.classList.remove('product-wishlist-loading');
+        });
     }
 }

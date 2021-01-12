@@ -37,7 +37,6 @@ import './component/context-button-bar/sw-extension-meteor-page-context';
 import './component/context-button-bar/sw-extension-meteor-page-context-item';
 import './component/context-button-bar/sw-extension-meteor-page-context-menu-item';
 import './component/context-button-bar/sw-extension-page-context-menu';
-import './component/sw-meteor-card';
 import './component/sw-extension-gtc-checkbox';
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {

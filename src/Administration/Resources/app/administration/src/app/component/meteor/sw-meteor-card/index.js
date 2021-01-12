@@ -10,31 +10,17 @@ const { Component } = Shopware;
  * @example-type static
  * @example-description This example illustrates the usage of tabs with this component.
  * @component-example
- * <sw-meteor-card title="Card title">
- *      <template #tabs>
- *          <sw-tabs :small="false" @new-item-active="onNewActiveItem">
- *              <sw-tabs-item name="tab1" key="tab1" :active="active">
- *                  Tab 1
- *              </sw-tabs-item>
- *              <sw-tabs-item name="tab2" key="tab2">
- *                  Tab 2
- *              </sw-tabs-item>
- *          </sw-tabs>
- *      </template>
  *
- *      {# use div instead of template tag for the default slot if tab contents use different slots #}
- *      <div v-if="active === 'tab1'">
- *          <p>Tab 1 content</p>
- *      </div>
- *      <template #grid v-if="active === 'tab2'">
- *          <sw-grid :items="['Row 1', 'Row 2']" :selectable="false">
- *              <template #columns="{ item }">
- *                  <sw-grid-column label="Grid label">
- *                      {{ item }}
- *                  </sw-grid-column>
- *              </template>
- *          </sw-grid>
- *      </template>
+ * <sw-meteor-card defaultTab="tab1">
+ *     <template #tabs="{ activeTab }">
+ *         <sw-tabs-item name="tab1" :activeTab="activeTab">Tab 1</sw-tabs-item>
+ *         <sw-tabs-item name="tab2" :activeTab="activeTab">Tab 2</sw-tabs-item>
+ *     </template>
+ *
+ *     <template #default="{ activeTab }">
+ *         <p v-if="activeTab === 'tab1'">Tab 1</p>
+ *         <p v-if="activeTab === 'tab2'">Tab 2</p>
+ *     </template>
  * </sw-meteor-card>
  */
 Component.register('sw-meteor-card', {
@@ -59,7 +45,23 @@ Component.register('sw-meteor-card', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        defaultTab: {
+            type: String,
+            required: false,
+            default: null
         }
+    },
+
+    data() {
+        return {
+            activeTab: null
+        };
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     computed: {
@@ -87,6 +89,16 @@ Component.register('sw-meteor-card', {
                 'sw-meteor-card--large': this.large,
                 'has--header': this.hasHeader && !this.isToolbarLastHeaderElement
             };
+        }
+    },
+
+    methods: {
+        createdComponent() {
+            this.setActiveTab(this.defaultTab);
+        },
+
+        setActiveTab(name) {
+            this.activeTab = name;
         }
     }
 });

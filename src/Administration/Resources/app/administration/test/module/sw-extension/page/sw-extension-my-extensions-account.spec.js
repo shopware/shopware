@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-import 'src/module/sw-extension/component/sw-meteor-card';
+import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-button';
 
 function createWrapper() {

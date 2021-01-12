@@ -30,6 +30,7 @@ describe('Manufacturer: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-data-grid__sort-indicator').should('be.visible');
         cy.takeSnapshot('Manufacturer listing', '.sw-data-grid--full-page');
 
         // Edit base data

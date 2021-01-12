@@ -82,7 +82,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             $productExports = $this->productExportRepository->search($criteria, $salesChannelContext->getContext());
 
             if ($productExports->count() === 0) {
-                return;
+                continue;
             }
 
             /** @var ProductExportEntity $productExport */

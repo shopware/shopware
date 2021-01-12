@@ -7,9 +7,9 @@
 Starting with Shopware version 6.4.0.0, we decided to change our API versioning strategy.
 This article will cover what has been done and changed, how it used to be and how the version strategy looks like now.
 
-## Versioning prior to 6.3.4.0
+## Versioning prior to 6.3.5.0
 
-Prior to Shopware 6.3.4.0, the API version was mainly found in the routes themselves.
+Prior to Shopware 6.3.5.0, the API version was mainly found in the routes themselves.
 
 `/api/v3/example-route`
 
@@ -18,9 +18,9 @@ Yet, versions had to be removed every now and then, which would then still break
 
 More on this can be found on our [ADR regarding the API version removal](https://github.com/shopware/platform/blob/major/adr/2020-12-02-removing-api-version.md).
 
-## Versioning starting with 6.3.4.0
+## Versioning starting with 6.3.5.0
 
-With Shopware 6.3.4.0, we removed the API version from the routes.
+With Shopware 6.3.5.0, we removed the API version from the routes.
 <br />
 <br />
 **Old**: <br />

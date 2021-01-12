@@ -6,6 +6,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Exception\OrderTransactionCaptureAmountExceedsOrderTransactionAmountException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -40,8 +41,10 @@ class OrderTransactionCaptureService
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
-    public function createOrderTransactionCaptureForFullAmount(string $orderTransactionId, Context $context): string
-    {
+    public function createOrderTransactionCaptureForFullAmount(
+        string $orderTransactionId,
+        Context $context
+    ): string {
         $orderTransaction = $this->fetchOrderTransaction($orderTransactionId, $context);
 
         return $this->createOrderTransactionCapture(
@@ -58,21 +61,17 @@ class OrderTransactionCaptureService
     ): string {
         $orderTransaction = $this->fetchOrderTransaction($orderTransactionId, $context);
         if (FloatComparator::greaterThan($customCaptureAmount, $orderTransaction->getAmount()->getTotalPrice())) {
-            throw new \InvalidArgumentException(sprintf(
-                'Capture amount %f exceeds the order transactions amount of %f',
+            throw new OrderTransactionCaptureAmountExceedsOrderTransactionAmountException(
                 $customCaptureAmount,
                 $orderTransaction->getAmount()->getTotalPrice()
-            ));
+            );
         }
 
-        return $this->createOrderTransactionCapture($orderTransactionId, $customCaptureAmount, $context);
-    }
-
-    public function deleteOrderTransactionCapture(string $orderTransactionCaptureId, Context $context): void
-    {
-        $this->orderTransactionRepository->delete([[
-            'id' => $orderTransactionCaptureId,
-        ]], $context);
+        return $this->createOrderTransactionCapture(
+            $orderTransactionId,
+            $customCaptureAmount,
+            $context
+        );
     }
 
     private function fetchOrderTransaction(string $orderTransactionId, Context $context): OrderTransactionEntity

@@ -33,17 +33,26 @@
                 {% endblock %}
 
                 {% block sw_meteor_card_tabs %}
-                    <slot name="tabs"></slot>
+                    <sw-tabs v-if="!!$slots.tabs || !!$scopedSlots.tabs"
+                             :small="false"
+                             :defaultItem="defaultTab"
+                             @new-item-active="setActiveTab($event.name)">
+                        <template>
+                            <slot name="tabs" v-bind="{ activeTab }"></slot>
+                        </template>
+                    </sw-tabs>
                 {% endblock %}
             </div>
         {% endblock %}
 
         {% block sw_meteor_card_content %}
-            <div class="sw-meteor-card__content" v-if="!!$slots.default || !!$slots.grid">
+            <div class="sw-meteor-card__content"
+                 v-if="!!$slots.default || !!$scopedSlots.default || !!$slots.grid">
                 {% block sw_meteor_card_content_wrapper %}
-                    <div class="sw-meteor-card__content-wrapper" v-if="!!$slots.default">
+                    <div class="sw-meteor-card__content-wrapper"
+                         v-if="!!$slots.default || !!$scopedSlots.default">
                         {% block sw_meteor_card_default_inner %}
-                            <slot>
+                            <slot v-bind="{ activeTab }">
                                 {% block sw_meteor_card_slot_default %}{% endblock %}
                             </slot>
                         {% endblock %}

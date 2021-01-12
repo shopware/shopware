@@ -27,7 +27,9 @@ function createWrapper(privileges = []) {
                     return privileges.includes(key);
                 }
             },
-            documentService: {},
+            documentService: {
+                setListener: () => ({})
+            },
             numberRangeService: {},
             repositoryFactory: {
                 create: () => ({
@@ -54,12 +56,12 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-order/component/sw-order-document-card', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        if (wrapper) await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -73,11 +75,114 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should not have an disabled create new button', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'order.editor'
         ]);
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
         expect(createNewButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('should show the error of invoice number is existing', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-fail',
+            payload: {
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                detail: 'error message',
+                meta: {
+                    parameters: []
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should show the error of credit note number is existing', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-fail',
+            payload: {
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                detail: 'error message',
+                meta: {
+                    parameters: []
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should show the error of delivery note number is existing', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-fail',
+            payload: {
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                detail: 'error message',
+                meta: {
+                    parameters: []
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should show the error of storno bill number is existing', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-fail',
+            payload: {
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                detail: 'error message',
+                meta: {
+                    parameters: []
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should save document when the event return finished', async () => {
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-finished'
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showModal).toBeFalsy();
+        expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 });

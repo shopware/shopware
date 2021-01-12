@@ -280,7 +280,13 @@
       "labelDownloadPdf": "PDF herunterladen",
       "labelCreateNew": "Neu erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
-      "messageEmptySubline": "Verwaltung von Dokumenten."
+      "messageEmptySubline": "Verwaltung von Dokumenten.",
+      "error": {
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung."
+      },
+      "info": {
+        "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."
+      }
     },
     "documentModal": {
       "modalTitle": "Dokument anlegen",

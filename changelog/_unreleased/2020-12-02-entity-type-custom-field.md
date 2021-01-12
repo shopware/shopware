@@ -17,3 +17,5 @@ ___
 * Added method `displayLabelProperty` in `src/Administration/Resources/app/administration/src/app/component/form/select/entity/sw-entity-single-select` to allow single as well as multiple properties to display a label.
 * Changed `src/Administration/Resources/app/administration/src/app/component/form/select/entity/sw-entity-multi-select/sw-entity-multi-select.html.twig` to adapt to the new labelProperty display.
 * Changed `src/Administration/Resources/app/administration/src/app/component/form/select/entity/sw-entity-multi-select/sw-entity-single-select.html.twig` to adapt to the new labelProperty display.
+* Changed criteria in `src/Administration/app/administration/src/app/component/form/select/entity/sw-entity-single-select` to correctly fetch inherited data
+* Changed criteria in `src/Administration/app/administration/src/app/component/form/select/entity/sw-entity-multi-select` to correctly fetch inherited data

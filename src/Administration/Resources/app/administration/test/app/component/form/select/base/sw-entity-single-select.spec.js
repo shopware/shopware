@@ -221,6 +221,9 @@ describe('components/sw-entity-single-select', () => {
                             }
                         };
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -248,6 +251,9 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -281,6 +287,9 @@ describe('components/sw-entity-single-select', () => {
                             search: () => Promise.resolve(getCollection())
                         };
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -356,6 +365,9 @@ describe('components/sw-entity-single-select', () => {
                             get: () => Promise.resolve(fixture[0])
                         };
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             }
         });
@@ -368,7 +380,7 @@ describe('components/sw-entity-single-select', () => {
             expect(productVariantInfo.exists()).toBeTruthy();
 
             expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
-                .toContain(fixture[0].name);
+                .toEqual(fixture[0].name);
 
             expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
                 .toContain(fixture[0].variation[0].group);

@@ -207,7 +207,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <tag name="shopware.cms.data_resolver"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
@@ -346,6 +345,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">
@@ -381,7 +382,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
             <tag name="shopware.cms.data_resolver"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>

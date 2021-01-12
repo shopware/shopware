@@ -11,14 +11,14 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,22 +37,14 @@ class BuyBoxTypeDataResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
 
-        $mockProductDetailRoute = $this->createMock(ProductDetailRoute::class);
         $saleChannelProductEntity = new SalesChannelProductEntity();
         $saleChannelProductEntity->setId('product123');
-        $mockProductDetailRoute->method('load')->willReturn(
-            new ProductDetailRouteResponse(
-                $saleChannelProductEntity,
-                new PropertyGroupCollection()
-            )
-        );
-
         $mockConfiguratorLoader = $this->createMock(ProductConfiguratorLoader::class);
         $mockConfiguratorLoader->method('load')->willReturn(
             new PropertyGroupCollection()
         );
 
-        $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockProductDetailRoute, $mockConfiguratorLoader);
+        $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader);
     }
 
     public function testGetType(): void
@@ -91,7 +83,21 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
         static::assertNotNull($criteriaCollection);
         static::assertCount(1, $criteriaCollection->all());
-        static::assertSame(['product123'], $criteriaCollection->all()[ProductDefinition::class]['product_id']->getIds());
+        /** @var Criteria $criteria */
+        $criteria = $criteriaCollection->all()[SalesChannelProductDefinition::class]['product_id'];
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertCount(1, $criteria->getFilters());
+        /** @var OrFilter $orFilter */
+        static::assertInstanceOf(OrFilter::class, $orFilter = $criteria->getFilters()[0]);
+        static::assertCount(2, $queries = $orFilter->getQueries());
+
+        static::assertInstanceOf(EqualsFilter::class, $firstQuery = $queries[0]);
+        static::assertEquals('product.parentId', $firstQuery->getField());
+        static::assertEquals('product123', $firstQuery->getValue());
+        static::assertInstanceOf(EqualsFilter::class, $secondQuery = $queries[1]);
+        static::assertEquals('id', $secondQuery->getField());
+        static::assertEquals('product123', $secondQuery->getValue());
     }
 
     public function testEnrichWithEmptyConfig(): void

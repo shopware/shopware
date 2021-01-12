@@ -1,1 +1,64 @@
-{% sw_extends '@Storefront/storefront/element/cms-element-image.html.twig' %}
+{% block element_manufacturer_logo %}
+    {% set config = element.translated.config %}
+
+    {% if element.data.manufacturer %}
+        {% set manufacturer = {
+            'media': element.data.manufacturer.media,
+            'name': element.data.manufacturer.translated.name,
+            'alt': element.data.manufacturer.translated.name,
+            'link': element.data.manufacturer.link,
+        } %}
+    {% else %}
+        {% set manufacturer = {
+            'media': element.data.media,
+            'name': element.data.media.translated.title,
+            'alt': element.data.media.translated.alt,
+            'link': config.url.value,
+        } %}
+    {% endif %}
+
+    <div class="cms-element-image cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_manufacturer_logo_inner %}
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% endif %}
+
+            {% block element_manufacturer_logo_link %}
+                <a href="{{ manufacturer.link }}"
+                   class="cms-image-link product-detail-manufacturer-link"
+                   {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
+                   title="{{ manufacturer.name }}">
+                    {% if manufacturer.media %}
+                        <div class="cms-image-container is-{{ config.displayMode.value }}"
+                            {% if config.minHeight.value and config.displayMode.value == "cover" %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
+
+                            {% block element_manufacturer_logo_image %}
+                                {% set attributes = {
+                                    'class': 'cms-image product-detail-manufacturer-logo',
+                                    'alt': manufacturer.alt,
+                                    'title': manufacturer.name
+                                } %}
+
+                                {% if config.displayMode.value == 'cover' or config.displayMode.value == 'contain' %}
+                                    {% set attributes = attributes|merge({ 'data-object-fit': config.displayMode.value }) %}
+                                {% endif %}
+
+                                {% sw_thumbnails 'cms-image-thumbnails' with {
+                                    media: manufacturer.media
+                                } %}
+                            {% endblock %}
+                        </div>
+                    {% else %}
+                        {% block element_manufacturer_logo_text %}
+                            {{ manufacturer.name }}
+                        {% endblock %}
+                    {% endif %}
+                </a>
+            {% endblock %}
+
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -89,9 +89,9 @@ class ProductPageLoader
      * @throws MissingRequestParameterException
      * @throws ProductNotFoundException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): ProductPage
+    public function load(Request $request, SalesChannelContext $context): ProductPage
     {
-        $page = $this->genericLoader->load($request, $salesChannelContext);
+        $page = $this->genericLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
 
         $productId = $request->attributes->get('productId');
@@ -99,33 +99,37 @@ class ProductPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $product = $this->productLoader->load($productId, $salesChannelContext, ProductPageCriteriaEvent::class);
+        $product = $this->productLoader->load($productId, $context, ProductPageCriteriaEvent::class);
         $page->setProduct($product);
         $page->setConfiguratorSettings($product->getConfigurator());
 
-        $request->request->set('parentId', $product->getParentId());
-        $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
-        $reviews->setParentId($product->getParentId() ?? $product->getId());
-
-        $page->setReviews($reviews);
-
-        $page->setCrossSellings(
-            $this->crossSellingLoader->load($product->getId(), $salesChannelContext)
-        );
-
-        /** @var string $cmsPageId */
-        $cmsPageId = $product->getCmsPageId();
-
-        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $salesChannelContext)) {
-            $this->loadSlotData($cmsPage, $salesChannelContext, $product, $request);
+        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);
+        } else {
+            $request->request->set('parentId', $product->getParentId());
+            $reviews = $this->productReviewLoader->load($request, $context);
+            $reviews->setParentId($product->getParentId() ?? $product->getId());
+
+            $page->setReviews($reviews);
+
+            $page->setCrossSellings(
+                $this->crossSellingLoader->load($product->getId(), $context)
+            );
+
+            /** @var string $cmsPageId */
+            $cmsPageId = $product->getCmsPageId();
+
+            if ($cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $context)) {
+                $this->loadSlotData($cmsPage, $context, $product, $request);
+                $page->setCmsPage($cmsPage);
+            }
         }
 
         $this->loadOptions($page);
         $this->loadMetaData($page);
 
         $this->eventDispatcher->dispatch(
-            new ProductPageLoadedEvent($page, $salesChannelContext, $request)
+            new ProductPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

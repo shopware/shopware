@@ -7,5 +7,5 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface SitemapHandleFactoryInterface
 {
-    public function create(FilesystemInterface $filesystem, SalesChannelContext $context): SitemapHandleInterface;
+    public function create(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface;
 }

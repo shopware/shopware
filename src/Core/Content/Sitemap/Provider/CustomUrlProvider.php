@@ -5,18 +5,21 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CustomUrlProvider implements UrlProviderInterface
+class CustomUrlProvider extends AbstractUrlProvider
 {
-    /**
-     * @var ConfigHandler
-     */
-    private $configHandler;
+    private ConfigHandler $configHandler;
 
     public function __construct(ConfigHandler $configHandler)
     {
         $this->configHandler = $configHandler;
+    }
+
+    public function getDecorated(): AbstractUrlProvider
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function getName(): string
@@ -27,14 +30,14 @@ class CustomUrlProvider implements UrlProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult
+    public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
         $sitemapCustomUrls = $this->configHandler->get(ConfigHandler::CUSTOM_URLS_KEY);
 
         $urls = [];
         $url = new Url();
         foreach ($sitemapCustomUrls as $sitemapCustomUrl) {
-            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $salesChannelContext->getSalesChannel()->getId())) {
+            if (!$this->isAvailableForSalesChannel($sitemapCustomUrl, $context->getSalesChannel()->getId())) {
                 continue;
             }
 

@@ -5,49 +5,33 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var SalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
+    private SalesChannelContextFactory $salesChannelContextFactory;
 
-    /**
-     * @var SitemapExporterInterface
-     */
-    private $sitemapExporter;
+    private SitemapExporterInterface $sitemapExporter;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
@@ -77,12 +61,43 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        // starts the generation of the sitemap
-        $this->messageBus->dispatch(new SitemapMessage(null, null, null, null, false));
+        $criteria = new Criteria();
+        $criteria->addAssociation('domains');
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [new EqualsFilter('domains.id', null)]
+        ));
+
+        $criteria->addAssociation('type');
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API)]
+        ));
+
+        $salesChannels = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        /** @var SalesChannelEntity $salesChannel */
+        foreach ($salesChannels as $salesChannel) {
+            if ($salesChannel->getDomains() === null) {
+                continue;
+            }
+
+            $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
+                return $salesChannelDomain->getLanguageId();
+            });
+
+            $languageIds = array_unique($languageIds);
+
+            foreach ($languageIds as $languageId) {
+                $this->messageBus->dispatch(new SitemapMessage($salesChannel->getId(), $languageId, null, null, false));
+            }
+        }
     }
 
     /**
      * @param SitemapGenerateTask|SitemapMessage $message
+     *
+     * @throws \Throwable
      */
     public function handle($message): void
     {
@@ -92,98 +107,30 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         }
 
         if ($message instanceof SitemapMessage) {
-            // generate sitemap via message queue
             $this->generate($message);
-        } else {
-            // initial call
-            // call parent which handles the scheduled task logic and executes the run method which triggerst the sitemap generation
+
+            return;
+        }
+
+        if ($message instanceof SitemapGenerateTask) {
             parent::handle($message);
+
+            return;
         }
     }
 
     private function generate(SitemapMessage $message): void
     {
-        $salesChannelContext = $this->getSalesChannelContext($message);
-
-        if (!($salesChannelContext instanceof SalesChannelContext)) {
-            $this->logger->debug('no sale schannel context found');
-
+        if ($message->getLastSalesChannelId() === null || $message->getLastLanguageId() === null) {
             return;
         }
 
+        $context = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+
         try {
-            $result = $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());
-
-            $newMessage = new SitemapMessage($result->getLastSalesChannelId(), $result->getLastLanguageId(), $result->getProvider(), $result->getOffset(), $result->isFinish());
-
-            $this->messageBus->dispatch($newMessage);
+            $this->sitemapExporter->generate($context, true, $message->getLastProvider(), $message->getNextOffset());
         } catch (AlreadyLockedException $exception) {
             $this->logger->error(sprintf('ERROR: %s', $exception->getMessage()));
         }
-    }
-
-    private function getSalesChannelContext(SitemapMessage $message): ?SalesChannelContext
-    {
-        if ($message->isFinished() === false && $message->getLastSalesChannelId() !== null) {
-            $this->logger->debug('continue with last used saleschannel ' . $message->getLastSalesChannelId() . ' ' . $message->getLastLanguageId());
-
-            // continue with last used sales channel
-            return $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
-        }
-
-        $context = Context::createDefaultContext();
-
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('id'));
-        $domainCriteria = $criteria->getAssociation('domains');
-        $domainCriteria->addSorting(new FieldSorting('languageId'));
-
-        /** @var SalesChannelCollection $salesChannels */
-        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-
-        if ($message->getLastSalesChannelId() === null) {
-            // task hasn't been executed, use first saleschannel and its first language
-            $salesChannel = $salesChannels->first();
-
-            return $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $salesChannel->getLanguageId()]);
-        }
-
-        // generation for last sales channel and last language has been finished
-        // case1: task needs to continue with next language.
-        // case2: if there isn't a next language then use first language of next sales channel
-        // case3: if there isn't a next sales channel the task is finished
-        $useNextChannel = false;
-        $useNextLanguage = false;
-        foreach ($salesChannels as $salesChannel) {
-            if ($useNextChannel === true || $useNextLanguage === true) {
-                // case1 or case2
-                return $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $salesChannel->getLanguageId()]);
-            }
-
-            if ($salesChannel->getId() !== $message->getLastSalesChannelId()) {
-                continue;
-            }
-
-            if (\count($salesChannel->getDomains()) === 0) {
-                // last language is only language of sales channel
-                $useNextChannel = true;
-
-                continue;
-            }
-
-            foreach ($salesChannel->getDomains() as $domain) {
-                if ($domain->getLanguageId() !== $message->getLastLanguageId() && $useNextLanguage === true) {
-                    return $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $domain->getLanguageId()]);
-                }
-
-                if ($domain->getLanguageId() !== $message->getLastLanguageId()) {
-                    continue;
-                }
-
-                $useNextLanguage = true;
-            }
-        }
-
-        return null;
     }
 }

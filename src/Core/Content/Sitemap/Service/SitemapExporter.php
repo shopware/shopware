@@ -4,57 +4,44 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
+use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
+     * @deprecated tag:v6.5.0 - The interface will be remove, use AbstractUrlProvider instead
+     *
      * @var UrlProviderInterface[]
      */
     private $urlProvider;
 
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
-    /**
-     * @var int
-     */
-    private $batchSize;
+    private int $batchSize;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private SitemapHandleFactoryInterface $sitemapHandleFactory;
 
-    /**
-     * @var SitemapHandleFactoryInterface
-     */
-    private $sitemapHandleFactory;
+    private array $sitemapHandles;
 
     public function __construct(
         iterable $urlProvider,
         CacheItemPoolInterface $cache,
         int $batchSize,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         FilesystemInterface $filesystem,
         SitemapHandleFactoryInterface $sitemapHandleFactory
     ) {
         $this->urlProvider = $urlProvider;
         $this->cache = $cache;
         $this->batchSize = $batchSize;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
         $this->filesystem = $filesystem;
         $this->sitemapHandleFactory = $sitemapHandleFactory;
     }
@@ -62,40 +49,35 @@ class SitemapExporter implements SitemapExporterInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(SalesChannelContext $salesChannelContext, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
+    public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
     {
-        $this->lock($salesChannelContext, $force);
+        $this->lock($context, $force);
 
         try {
-            $host = $this->getHost($salesChannelContext);
-
-            $sitemapHandle = $this->sitemapHandleFactory->create($this->filesystem, $salesChannelContext);
+            $this->initSitemapHandles($context);
 
             foreach ($this->urlProvider as $urlProvider) {
                 do {
-                    $result = $urlProvider->getUrls($salesChannelContext, $this->batchSize, $offset);
+                    $result = $urlProvider->getUrls($context, $this->batchSize, $offset);
 
-                    foreach ($result->getUrls() as $url) {
-                        $url->setLoc($this->seoUrlPlaceholderHandler->replace($url->getLoc(), $host, $salesChannelContext));
-                    }
+                    $this->processSiteMapHandles($result);
 
-                    $sitemapHandle->write($result->getUrls());
                     $needRun = $result->getNextOffset() !== null;
                     $offset = $result->getNextOffset();
                 } while ($needRun);
             }
 
-            $sitemapHandle->finish();
+            $this->finishSitemapHandles();
         } finally {
-            $this->unlock($salesChannelContext);
+            $this->unlock($context);
         }
 
         return new SitemapGenerationResult(
             true,
             $lastProvider,
             null,
-            $salesChannelContext->getSalesChannel()->getId(),
-            $salesChannelContext->getSalesChannel()->getLanguageId()
+            $context->getSalesChannel()->getId(),
+            $context->getSalesChannel()->getLanguageId()
         );
     }
 
@@ -121,19 +103,55 @@ class SitemapExporter implements SitemapExporterInterface
         return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
     }
 
-    private function getHost(SalesChannelContext $salesChannelContext): string
+    private function initSitemapHandles(SalesChannelContext $context): void
     {
-        $domains = $salesChannelContext->getSalesChannel()->getDomains();
-        $languageId = $salesChannelContext->getSalesChannel()->getLanguageId();
+        $languageId = $context->getSalesChannel()->getLanguageId();
+        $domainsEntity = $context->getSalesChannel()->getDomains();
 
-        if ($domains instanceof SalesChannelDomainCollection) {
-            foreach ($domains as $domain) {
+        $sitemapHandles = [];
+        if ($domainsEntity instanceof SalesChannelDomainCollection) {
+            foreach ($domainsEntity as $domain) {
                 if ($domain->getLanguageId() === $languageId) {
-                    return $domain->getUrl();
+                    $sitemapHandles[$domain->getUrl()] = $this->sitemapHandleFactory->create($this->filesystem, $context, $domain->getUrl());
                 }
             }
         }
 
-        return '';
+        if (empty($sitemapHandles)) {
+            throw new InvalidDomainException('Empty domain');
+        }
+
+        $this->sitemapHandles = $sitemapHandles;
+    }
+
+    private function processSiteMapHandles(UrlResult $result): void
+    {
+        /** @var SitemapHandle $sitemapHandle */
+        foreach ($this->sitemapHandles as $host => $sitemapHandle) {
+            /** @var Url[] $urls */
+            $urls = [];
+
+            foreach ($result->getUrls() as $url) {
+                $newUrl = clone $url;
+                $newUrl->setLoc(empty($newUrl->getLoc()) ? $host : $host . '/' . $newUrl->getLoc());
+                $urls[] = $newUrl;
+            }
+
+            $sitemapHandle->write($urls);
+        }
+    }
+
+    private function finishSitemapHandles(): void
+    {
+        /** @var SitemapHandle $sitemapHandle */
+        foreach ($this->sitemapHandles as $index => $sitemapHandle) {
+            if ($index === array_key_first($this->sitemapHandles)) {
+                $sitemapHandle->finish();
+
+                continue;
+            }
+
+            $sitemapHandle->finish(false);
+        }
     }
 }

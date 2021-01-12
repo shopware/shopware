@@ -7,8 +7,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
-    public function create(FilesystemInterface $filesystem, SalesChannelContext $context): SitemapHandleInterface
+    public function create(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null): SitemapHandleInterface
     {
-        return new SitemapHandle($filesystem, $context);
+        return new SitemapHandle($filesystem, $context, $domain);
     }
 }

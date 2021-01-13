@@ -286,10 +286,10 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
-                new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class)
+                (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new Inherited())
             );
             $collection->add(
-                new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false)
+                (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new Inherited())
             );
         }
 

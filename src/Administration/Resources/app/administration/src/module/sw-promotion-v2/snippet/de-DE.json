@@ -67,7 +67,23 @@
                         "columnCustomer": "Kunde",
                         "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
                         "openCustomer": "Kunde öffnen",
-                        "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden."
+                        "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
+                        "generateModal": {
+                            "title": "Erzeuge neue Aktionscodes",
+                            "buttonGenerate": "Erzeuge Aktionscodes",
+                            "warning": "Durch das Generieren neuer Codes werden alle vorhandenen Codes für diese Aktion gelöscht. Gelöschte Codes sind ungültig und können nicht mehr verwendet werden.",
+                            "description": "Aktionscodes werden aus einer zufälligen Zusammenstellung von Großbuchstaben und Ziffern erzeugt. Du kannst aber individuelle Pre- bzw. Suffixe oder auch ein komplett eigenes Muster verwenden. In der Code-Vorschau kannst Du sehen, wie sich Dein Muster auswirkt.",
+                            "labelPrefix": "Präfix",
+                            "placeholderPrefix": "Gib einen Präfix an ...",
+                            "labelCodeLength": "Zeichenlänge des Aktionscodes",
+                            "labelSuffix": "Suffix",
+                            "placeholderSuffix": "Gib einen Suffix an ...",
+                            "labelCustomPattern": "Eigenes Muster",
+                            "placeholderCustomPattern": "Gib ein eigenes Muster an",
+                            "labelUseCustomPattern": "Eigenes Muster nutzen",
+                            "labelPreview": "Aktionscode-Vorschau",
+                            "labelCodeAmount": "Anzahl der Aktionscodes"
+                        }
                     }
                 }
             },

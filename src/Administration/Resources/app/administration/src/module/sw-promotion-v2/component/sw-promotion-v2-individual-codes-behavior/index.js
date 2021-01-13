@@ -17,12 +17,9 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
     ],
 
     props: {
-        codes: {
-            type: Array,
-            required: false,
-            default() {
-                return [];
-            }
+        promotion: {
+            type: Object,
+            required: true
         }
     },
 
@@ -31,6 +28,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
             isGridLoading: false,
             codeDeleteModal: false,
             codeBulkDeleteModal: false,
+            generateCodesModal: false,
             currentSelection: []
         };
     },
@@ -38,6 +36,14 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
+        },
+
+        deleteConfirmText() {
+            return this.$tc(
+                'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
+                this.currentSelection.length,
+                { code: this.currentSelection[0].code || '' }
+            );
         },
 
         codeColumns() {
@@ -57,14 +63,14 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
     methods: {
         onSearchTermChange(term) {
             this.isGridLoading = true;
-            this.codes.criteria.setTerm(term);
+            this.promotion.individualCodes.criteria.setTerm(term);
 
             this.loadIndividualCodesGrid();
         },
 
         loadIndividualCodesGrid() {
-            this.codes.criteria.setPage(1);
-            this.codes.criteria.addSorting(Criteria.naturalSorting('code'));
+            this.promotion.individualCodes.criteria.setPage(1);
+            this.promotion.individualCodes.criteria.addSorting(Criteria.naturalSorting('code'));
 
             this.$refs.individualCodesGrid.load().then(() => {
                 this.isGridLoading = false;
@@ -103,6 +109,14 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
         onCloseBulkDeleteModal() {
             this.codeBulkDeleteModal = false;
+        },
+
+        onOpenGenerateCodesModal() {
+            this.generateCodesModal = true;
+        },
+
+        onCloseGenerateCodesModal() {
+            this.generateCodesModal = false;
         },
 
         routeToCustomer(redeemedCustomer) {

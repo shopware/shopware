@@ -67,7 +67,23 @@
                         "columnCustomer": "Customer",
                         "textDeleteConfirm": "Are you sure you want to delete the code \"{code}\"? | Are you sure cou want to delete these {count} codes?",
                         "openCustomer": "Open customer",
-                        "routingError": "The customer \"{name}\" has not been found."
+                        "routingError": "The customer \"{name}\" has not been found.",
+                        "generateModal": {
+                            "title": "Generate new promotion codes",
+                            "buttonGenerate": "Generate codes",
+                            "warning": "Generating new codes will delete all existing codes for this promotion. Deleted codes are invalid and can't be used anymore.",
+                            "description": "Promotion codes are generated randomly from capital letters and numbers. You may add fixed individual terms as a prefix and/or suffix or use a completely custom pattern and watch how your code pattern turns out in the promotion code preview.",
+                            "labelPrefix": "Prefix",
+                            "placeholderPrefix": "Enter a prefix...",
+                            "labelCodeLength": "Code length",
+                            "labelSuffix": "Suffix",
+                            "placeholderSuffix": "Enter a suffix...",
+                            "labelCustomPattern": "Custom pattern",
+                            "placeholderCustomPattern": "Enter a custom pattern...",
+                            "labelUseCustomPattern": "Use custom pattern",
+                            "labelPreview": "Promotion code preview",
+                            "labelCodeAmount": "Number of promotion codes"
+                        }
                     }
                 }
             },

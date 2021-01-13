@@ -67,7 +67,7 @@ trait PromotionIntegrationTestBehaviour
         $itemBuilder = new PromotionItemBuilder();
 
         // ??? currencyPrecision is unused
-        $lineItem = $itemBuilder->buildPlaceholderItem($code, 2);
+        $lineItem = $itemBuilder->buildPlaceholderItem($code);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 

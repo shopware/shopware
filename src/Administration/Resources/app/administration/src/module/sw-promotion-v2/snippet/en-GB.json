@@ -103,7 +103,40 @@
             },
             "discounts": {
                 "emptyStateTitle": "No discount yet.",
-                "emptyStateButton": "Add discount"
+                "emptyStateButton": "Add discount",
+                "wizard": {
+                    "basic": {
+                        "prefixTitle": "Basic discount - {title}",
+                        "titleDiscountType": "Discount type",
+                        "description": "Define the type of discount first. You may select triggers that activate this discount in the next step."
+                    }
+                },
+                "settings": {
+                    "discountType": {
+                        "form": {
+                            "labelDiscountType": "Discount type",
+                            "labelPrice": "Price",
+                            "labelMaxDiscountValue": "Max. discount type",
+                            "labelApplyDiscountTo": "Apply discount to",
+                            "labelApplyTo": "Apply to",
+                            "placeholderPrice": "Enter price...",
+                            "discountTypeSelection": {
+                                "displayFixedPrice": "Fixed price",
+                                "displayFixedDiscount": "Fixed discount",
+                                "displayPercentage": "Percentage",
+                                "displayFree": "Free"
+                            },
+                            "applyDiscountTo": {
+                                "displayTotalPrice": "Total price",
+                                "displayProductPrice": "Product price"
+                            },
+                            "applyTo": {
+                                "displayNet": "Net",
+                                "displayGross": "Gross"
+                            }
+                        }
+                    }
+                }
             },
             "discount-selection": {
                 "modalTitle": "New discount",

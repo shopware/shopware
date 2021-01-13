@@ -6,6 +6,10 @@ const { Component } = Shopware;
 Component.register('sw-promotion-v2-discounts', {
     template,
 
+    inject: [
+        'acl'
+    ],
+
     data() {
         return {
             isActive: false,

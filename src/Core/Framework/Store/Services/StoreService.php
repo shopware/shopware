@@ -101,12 +101,15 @@ class StoreService
         return $this->shopwareVersion;
     }
 
-    public function createClient(): Client
+    public function createClient(bool $verifySignature = true): Client
     {
         $stack = HandlerStack::create();
-        $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
-            return $this->verifyResponseSignature($response);
-        }));
+
+        if ($verifySignature) {
+            $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
+                return $this->verifyResponseSignature($response);
+            }));
+        }
 
         $config = $this->getClientBaseConfig();
         $config['handler'] = $stack;

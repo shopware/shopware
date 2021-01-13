@@ -103,7 +103,7 @@ class PluginManagementService
     public function downloadStorePlugin(string $location, Context $context): int
     {
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
-        $client = $this->storeService->createClient();
+        $client = $this->storeService->createClient(false);
 
         $statusCode = $client->request('GET', $location, ['sink' => $tempFileName])->getStatusCode();
 

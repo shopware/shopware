@@ -1,31 +1,35 @@
 {
   "sw-settings-search": {
     "general": {
-      "mainMenuItemGeneral": "Search",
-      "textHeadline": "Search settings",
-      "buttonCancel": "Cancel",
-      "buttonCreate": "Add",
-      "buttonSave": "Save"
+      "mainMenuItemGeneral": "Suche",
+      "textHeadline": "Such-Einstellungen",
+      "buttonCancel": "Abbrechen",
+      "buttonCreate": "Hinzufügen",
+      "buttonSave": "Speichern"
     },
     "page": {
-      "generalTab": "General",
-      "liveSearchTab": "Live search"
+      "generalTab": "Allgemein",
+      "liveSearchTab": "Echtzeit-Suche"
     },
     "generalTab": {
-      "labelSearchBehaviour": "Search behaviour",
-      "textTitleSearchBehaviour": "Predefine your storefront search behaviour.",
-      "labelSearchAndCondition": "“AND” Search",
-      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find products that contain both keywords \"jeans\" and \"summer\".",
-      "labelSearchOrCondition": "“OR” Search",
-      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
-      "labelMinimalSearchTerm": "Minimal search term length"
+      "labelSearchBehaviour": "Such-Verhalten",
+      "textTitleSearchBehaviour": "Lege ein Such-Verhalten für Deine Storefront fest.",
+      "labelSearchAndCondition": "“UND”-Suche",
+      "textSearchAndConditionExplain": "Suchergebnisse beinhalten jeden einzelnen eingegebenen Suchbegriff. \nBeispiel: \"Jeans Sommer\" findet Produkte die beide Schlagwörter \"jeans\" und \"sommer\" enthalten.",
+      "labelSearchOrCondition": "“ODER”-Suche",
+      "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe. \nBeispiel: \"Jeans Sommer\" findet Produkte die entweder das Schlagwort \"jeans\" oder das Schlagwort \"sommer\" enthalten.",
+      "labelMinimalSearchTerm": "Minimale Suchbegrifflänge"
+    },
+    "notification": {
+      "saveSuccess": "Konfiguration gespeichert.",
+      "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten."
     },
     "liveSearchTab": {}
   },
   "sw-privileges": {
     "permissions": {
       "product_search_config": {
-        "label": "Product Search"
+        "label": "Produkt Suche"
       }
     }
   }

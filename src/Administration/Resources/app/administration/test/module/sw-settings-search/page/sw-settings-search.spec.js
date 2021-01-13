@@ -9,7 +9,6 @@ function createWrapper() {
 
     return shallowMount(Shopware.Component.build('sw-settings-search'), {
         localVue,
-
         mocks: {
             $tc: key => key,
             $route: {
@@ -26,7 +25,16 @@ function createWrapper() {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([{}])
+                    search: () => {
+                        return Promise.resolve();
+                    },
+                    save: (productSearchConfigs) => {
+                        if (!productSearchConfigs) {
+                            // eslint-disable-next-line prefer-promise-reject-errors
+                            return Promise.reject({ error: 'Error' });
+                        }
+                        return Promise.resolve();
+                    }
                 })
             }
         },
@@ -49,7 +57,9 @@ function createWrapper() {
             },
             'sw-icon': true,
             'sw-language-switch': true,
-            'sw-button': true,
+            'sw-button': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
@@ -80,5 +90,58 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('onSaveSearchSettings: should call to save function when the save button was clicked', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const onSaveSearchSettingsSpy = jest.spyOn(wrapper.vm, 'onSaveSearchSettings');
+        wrapper.vm.productSearchRepository.save = jest.fn();
+
+        await wrapper.vm.$nextTick();
+        const saveButton = await wrapper.find('.sw-settings-search__button-save');
+
+        await saveButton.trigger('click');
+        expect(onSaveSearchSettingsSpy).toBeCalled();
+        expect(wrapper.vm.productSearchRepository.save).toHaveBeenCalled();
+    });
+
+    it('should be show successful notification when save configuration is succeed', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.getProductSearchConfigs = jest.fn();
+        wrapper.vm.productSearchConfigs = {
+            andLogic: true,
+            minSearchLength: 2
+        };
+
+        await wrapper.vm.onSaveSearchSettings();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.saveSuccess'
+        });
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it('should be show error notification when save configuration is failed', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.productSearchConfigs = null;
+
+        await wrapper.vm.onSaveSearchSettings();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.saveError'
+        });
+        expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
     });
 });

@@ -38,6 +38,10 @@ function registerCmsElement(config) {
                     const entityKey = entity.name;
                     const entityData = getEntityData(elem, configKey);
 
+                    if (criteriaList[`entity-${entityKey}`]) {
+                        entityData.value.push(...criteriaList[`entity-${entityKey}`].value);
+                    }
+
                     entityData.searchCriteria.setIds(entityData.value);
 
                     criteriaList[`entity-${entityKey}`] = entityData;
@@ -103,13 +107,11 @@ function getEntityData(element, configKey) {
 
         entityData = {
             value: entityIds,
-            key: configKey,
             ...entity
         };
     } else {
         entityData = {
             value: [configValue],
-            key: configKey,
             ...entity
         };
     }

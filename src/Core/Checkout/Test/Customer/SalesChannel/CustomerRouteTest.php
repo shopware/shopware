@@ -91,4 +91,63 @@ class CustomerRouteTest extends TestCase
 
         static::assertSame($id, $response['id']);
     }
+
+    public function testValidGuest(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                $this->getGuestRegistrationData()
+            );
+
+        $registerResponse = $this->browser->getResponse();
+        static::assertTrue($registerResponse->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotEmpty($contextToken);
+
+        list('id' => $id, 'email' => $email) = json_decode($registerResponse->getContent(), true);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                [
+                ]
+            );
+
+        $customerResponse = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame($id, $customerResponse['id']);
+        static::assertSame($email, $customerResponse['email']);
+    }
+
+    private function getGuestRegistrationData(string $storefrontUrl = 'http://localhost'): array
+    {
+        return [
+            'guest' => true,
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'email' => 'teg-reg@example.com',
+            'storefrontUrl' => $storefrontUrl,
+            'billingAddress' => [
+                'countryId' => $this->getValidCountryId(),
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48441',
+                'city' => 'Cologne',
+            ],
+            'shippingAddress' => [
+                'countryId' => $this->getValidCountryId(),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Test 2',
+                'lastName' => 'Example 2',
+                'street' => 'Examplestreet 111',
+                'zipcode' => '12341',
+                'city' => 'Berlin',
+            ],
+        ];
+    }
 }

@@ -32,6 +32,7 @@ class AclRoleDefinition extends EntityDefinition
     public const PRIVILEGE_UPDATE = 'update';
     public const PRIVILEGE_DELETE = 'delete';
     public const ENTITY_NAME = 'acl_role';
+    public const ALL_ROLE_KEY = 'all';
 
     public function getEntityName(): string
     {

@@ -127,6 +127,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             /** @var SalesChannelProductEntity $product */
             $product = $data->get('product-' . $lineItem->getReferencedId());
+            
+            if (!$product instanceof SalesChannelProductEntity ) {
+                if($this->isComplete($lineItem) && !$lineItem->isModified()) {
+                    $toCalculate->add($lineItem);
+                } else {
+                    $original->remove($lineItem->getId());
+                }
+                continue;
+            }
 
             // container products can not be bought
             if ($product->getChildCount() > 0) {
@@ -187,6 +196,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
+        // already enriched and not modified? Skip
+        if ($this->isComplete($lineItem) && !$lineItem->isModified()) {
+            return;
+        }
+        
         $id = $lineItem->getReferencedId();
 
         $key = 'product-' . $id;
@@ -197,11 +211,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
             $cart->getLineItems()->remove($lineItem->getId());
 
-            return;
-        }
-
-        // already enriched and not modified? Skip
-        if ($this->isComplete($lineItem) && !$lineItem->isModified()) {
             return;
         }
 
@@ -325,8 +334,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     {
         return $lineItem->getPriceDefinition() !== null
             && $lineItem->getLabel() !== null
-            && $lineItem->getCover() !== null
-            && $lineItem->getDescription() !== null
             && $lineItem->getDeliveryInformation() !== null
             && $lineItem->getQuantityInformation() !== null;
     }

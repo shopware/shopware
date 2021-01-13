@@ -441,6 +441,8 @@ Component.register('sw-product-detail', {
                 return new Promise((res) => res());
             }
 
+            this.validateProductListPrices();
+
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {
@@ -454,6 +456,35 @@ Component.register('sw-product-detail', {
             this.isSaveSuccessful = false;
 
             return this.saveProduct().then(this.onSaveFinished);
+        },
+
+        validateProductListPrices() {
+            this.product.prices.forEach(advancedPrice => {
+                this.validateListPrices(advancedPrice.price);
+            });
+            this.validateListPrices(this.product.price);
+        },
+
+        validateListPrices(prices) {
+            prices.forEach(price => {
+                if (!price.listPrice) {
+                    return;
+                }
+
+                if (!price.listPrice.gross && !price.listPrice.net) {
+                    price.listPrice = null;
+                    return;
+                }
+
+                if (!price.listPrice.gross) {
+                    price.listPrice.gross = 0;
+                    return;
+                }
+
+                if (!price.listPrice.net) {
+                    price.listPrice.net = 0;
+                }
+            });
         },
 
         onSaveFinished(response) {

@@ -90,4 +90,23 @@ describe('components/form/sw-list-price-field', () => {
         await wrapper.vm.listPriceChanged(listPrice);
         expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
     });
+
+    it('should set the correct inherited state when inherited', async () => {
+        const wrapper = setup();
+        wrapper.setProps({
+            price: [euroPrice]
+        });
+
+        expect(wrapper.vm.isInherited).toBeTruthy();
+    });
+
+    it('should set the correct inherited state when not inherited', async () => {
+        const wrapper = setup();
+
+        wrapper.setProps({
+            price: [dollarPrice]
+        });
+
+        expect(wrapper.vm.isInherited).toBeFalsy();
+    });
 });

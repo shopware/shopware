@@ -30,7 +30,10 @@ export default class GuestWishlistPagePlugin extends Plugin {
      * @private
      */
     _loadProductListForGuest() {
-        const productIds = Object.keys(this._wishlistStorage.getProducts());
+        const productIds = Object.entries(this._wishlistStorage.getProducts())
+            .map(([productId, dateTime]) => ({productId, dateTime: new Date(dateTime).getTime()}))
+            .sort((a, b) => b.dateTime - a.dateTime)
+            .map(item => item.productId);
 
         this.httpClient.post(this.options.pageletRouter.path, JSON.stringify({
             _csrf_token: this.options.pageletRouter.token,

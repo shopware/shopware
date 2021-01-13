@@ -152,8 +152,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
 
-        $now = (new \DateTime())->sub(new \DateInterval('PT2H'));
-
         $upsertData = [];
 
         /** @var string $id * */
@@ -170,7 +168,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-                'createdAt' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 

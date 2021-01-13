@@ -33,6 +33,8 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Wishlist state is not set', () => {
         cy.visit('/');
 
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
         cy.window().then((win) => {
             cy.expect(win.customerLoggedInState).to.equal(undefined);
             cy.expect(win.wishlistEnabled).to.equal(undefined);
@@ -42,6 +44,8 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge is not display on header', () => {
         cy.visit('/');
 
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
         cy.window().then((win) => {
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('not.be.visible');
         })
@@ -49,6 +53,8 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Heart icon badge not display on product box in product listing', () => {
         cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.get('.product-box .product-wishlist-action-circle').should('not.be.visible');

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
 class UserEntity extends Entity
@@ -92,6 +93,11 @@ class UserEntity extends Entity
      * @var UserAccessKeyCollection|null
      */
     protected $accessKeys;
+
+    /**
+     * @var UserConfigCollection|null
+     */
+    protected $configs;
 
     /**
      * @var StateMachineHistoryCollection|null
@@ -271,6 +277,16 @@ class UserEntity extends Entity
     public function setAccessKeys(UserAccessKeyCollection $accessKeys): void
     {
         $this->accessKeys = $accessKeys;
+    }
+
+    public function getConfigs(): ?UserConfigCollection
+    {
+        return $this->configs;
+    }
+
+    public function setConfigs(UserConfigCollection $configs): void
+    {
+        $this->configs = $configs;
     }
 
     public function getCustomFields(): ?array

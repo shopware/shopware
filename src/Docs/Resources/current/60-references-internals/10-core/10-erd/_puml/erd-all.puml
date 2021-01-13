@@ -589,6 +589,14 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
+Table(ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition, "user_config\n(User Config)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(key) string
+   value json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
 Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user_access_key\n(oAuth access key)") {
    primary_key(id) id
    not_null(userId) foreignKey
@@ -2239,6 +2247,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefini
 ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreSystemUnitUnitDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition

@@ -1,9 +1,9 @@
-import template from './sw-extension-meteor-page-context-menu.html.twig';
-import './sw-extension-meteor-page-context-menu.scss';
+import template from './sw-meteor-page-context-menu.html.twig';
+import './sw-meteor-page-context-menu.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-extension-meteor-page-context-menu', {
+Component.register('sw-meteor-page-context-menu', {
     template,
 
     props: {

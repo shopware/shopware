@@ -1,6 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/page/sw-extension-config';
-import 'src/module/sw-extension/component/sw-extension-meteor-page';
 import 'src/app/component/base/sw-button';
 
 function createWrapper() {
@@ -15,7 +14,7 @@ function createWrapper() {
             $tc: v => v
         },
         stubs: {
-            'sw-extension-meteor-page': {
+            'sw-meteor-page': {
                 template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
             },
             'sw-button': Shopware.Component.build('sw-button')

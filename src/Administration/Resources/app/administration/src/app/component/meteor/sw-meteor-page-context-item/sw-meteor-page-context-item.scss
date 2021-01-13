@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-extension-meteor-page-context-item {
+.sw-meteor-page-context-item {
     position: relative;
     display: flex;
     font-size: $font-size-extra-small;
@@ -20,15 +20,15 @@
         height: 12px;
     }
 
-    .sw-extension-meteor-page-context-item__icon-action {
+    .sw-meteor-page-context-item__icon-action {
         margin-right: 12px;
     }
 
-    .sw-extension-meteor-page-context-item__icon-collapsed {
+    .sw-meteor-page-context-item__icon-collapsed {
         margin-left: 4px;
     }
 
-    .sw-extension-meteor-page-context-item__menu-position {
+    .sw-meteor-page-context-item__menu-position {
         position: absolute;
         left: 100%;
         bottom: 0;
@@ -36,7 +36,7 @@
     }
 }
 
-.sw-popover__wrapper.sw-extension-meteor-page-context-item__popover {
+.sw-popover__wrapper.sw-meteor-page-context-item__popover {
     transform: translate(-100%, 0);
 
     .sw-context-menu {

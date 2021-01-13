@@ -1,4 +1,4 @@
-export default {
+Shopware.Mixin.register('contextNodeMixin', {
     provide() {
         return {
             registerAtParent: this.registerChild,
@@ -21,4 +21,4 @@ export default {
             this.childNodes = this.childNodes.filter((c) => c !== child);
         }
     }
-};
+});

@@ -1,0 +1,104 @@
+{% block sw_meteor_page %}
+    <div class="sw-meteor-page" :class="pageClasses">
+        <div class="sw-meteor-page__body" ref="pageBody">
+            <header class="sw-meteor-page__head-area" ref="pageHeader">
+                <div class="sw-meteor-page__head-area-top-bar-content">
+                    <slot name="search-bar">
+                        {% block sw_meteor_page_seach_bar %}
+                            <sw-search-bar></sw-search-bar>
+                        {% endblock %}
+                    </slot>
+                </div>
+
+                <div class="sw-meteor-page__head-area-global-actions">
+                    {% block sw_meteor_page_notification_center %}
+                        <sw-notification-center></sw-notification-center>
+                    {% endblock %}
+                </div>
+
+                <div class="sw-meteor-page__smart-bar">
+                    <div class="sw-meteor-page__smart-bar-navigation">
+                        <slot name="smart-bar-back">
+                            {% block sw_meteor_page_navigation %}
+                                <sw-meteor-navigation></sw-meteor-navigation>
+                            {% endblock %}
+                        </slot>
+                    </div>
+
+                    <div class="sw-meteor-page__smart-bar-content">
+                        <div class="sw-meteor-page__smart-bar-module-info">
+                            <div v-if="!hideIcon && hasIconOrIconSlot" class="sw-meteor-page__smart-bar-module-icon">
+                                <slot name="smart-bar-icon">
+                                    {% block sw_meteor_page_smart_bar_icon %}
+                                        <sw-icon v-if="hasIcon" :name="module.icon" :color="pageColor"></sw-icon>
+                                    {% endblock %}
+                                </slot>
+                            </div>
+
+                            <div class="sw-meteor-page__smart-bar-header">
+                                <h2 class="sw-meteor-page__smart-bar-title">
+                                    <slot name="smart-bar-header">
+                                        {% block sw_meteor_page_smart_bar_title %}
+                                            <template v-if="module && module.title">
+                                                {{ $tc(module.title) }}
+                                            </template>
+                                        {% endblock %}
+                                    </slot>
+                                </h2>
+
+                                <div class="sw-meteor-page__smart-bar-meta">
+                                    {% block sw_meteor_page_smart_bar_meta %}
+                                        <slot name="smart-bar-header-meta"></slot>
+                                    {% endblock %}
+                                </div>
+                            </div>
+
+                            <div class="sw-meteor-page__smart-bar-description">
+                                {% block sw_meteor_page_smart_bar_description %}
+                                    <slot name="smart-bar-description"></slot>
+                                {% endblock %}
+                            </div>
+                        </div>
+
+                        <div class="sw-meteor-page__smart-bar-actions">
+                            {% block sw_meteor_page_smart_bar_actions %}
+                                <slot name="smart-bar-actions"></slot>
+                            {% endblock %}
+                        </div>
+
+                        <div class="sw-meteor-page__smart-bar-context-buttons">
+                            {% block sw_meteor_page_smart_bar_context_buttons %}
+                                <sw-meteor-page-context>
+                                    <template>
+                                        <slot name="smart-bar-context-buttons"></slot>
+                                    </template>
+                                </sw-meteor-page-context>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="hasTabs" class="sw-meteor-page__smart-bar-tabs">
+                    {% block sw_meteor_page_smart_bar_tabs %}
+                        <sw-tabs @new-item-active="emitNewTab" :small="false">
+                            <template #default>
+                                <slot name="page-tabs"></slot>
+                            </template>
+                        </sw-tabs>
+                    {% endblock %}
+                </div>
+            </header>
+            <main class="sw-meteor-page__content">
+                {% block sw_meteor_page_content %}
+                    <div v-if="fullWidth" class="sw-meteor-page__scrollable-content">
+                        <slot></slot>
+                    </div>
+
+                    <template v-else>
+                        <slot></slot>
+                    </template>
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+{% endblock %}

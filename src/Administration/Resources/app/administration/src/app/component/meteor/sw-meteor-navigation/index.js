@@ -1,9 +1,9 @@
-import template from './sw-extension-meteor-navigation.html.twig';
-import './sw-extension-meteor-navigation.scss';
+import template from './sw-meteor-navigation.html.twig';
+import './sw-meteor-navigation.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-extension-meteor-navigation', {
+Component.register('sw-meteor-navigation', {
     template,
 
     computed: {

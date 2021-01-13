@@ -236,13 +236,17 @@ Component.register('sw-product-detail-context-prices', {
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
                 net: this.defaultPrice.net,
-                listPrice: {
-                    currencyId: this.defaultCurrency.id,
-                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : 0,
-                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
-                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : 0
-                }
+                listPrice: null
             }];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice.gross,
+                    linked: this.defaultPrice.listPrice.linked,
+                    net: this.defaultPrice.listPrice.net
+                };
+            }
 
             this.product.prices.add(newPriceRule);
 
@@ -331,15 +335,18 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: currency.id,
                 gross: this.convertPrice(defaultPrice.gross, currency),
                 linked: defaultPrice.linked,
-                net: this.convertPrice(defaultPrice.net, currency)
+                net: this.convertPrice(defaultPrice.net, currency),
+                listPrice: null
             };
 
-            newPrice.listPrice = {
-                currencyId: currency.id,
-                gross: defaultPrice.listPrice.gross ? this.convertPrice(defaultPrice.listPrice.gross, currency) : 0,
-                linked: defaultPrice.listPrice.linked ? defaultPrice.listPrice.linked : true,
-                net: defaultPrice.listPrice.net ? this.convertPrice(defaultPrice.listPrice.net, currency) : 0
-            };
+            if (defaultPrice.listPrice) {
+                newPrice.listPrice = {
+                    currencyId: currency.id,
+                    gross: this.convertPrice(defaultPrice.listPrice.gross, currency),
+                    linked: defaultPrice.listPrice.linked,
+                    net: this.convertPrice(defaultPrice.listPrice.net, currency)
+                };
+            }
 
             // add price to rule.price
             this.$set(rule.price, rule.price.length, newPrice);
@@ -394,13 +401,17 @@ Component.register('sw-product-detail-context-prices', {
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
                 net: this.defaultPrice.net,
-                listPrice: {
-                    currencyId: this.defaultCurrency.id,
-                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : 0,
-                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
-                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : 0
-                }
+                listPrice: null
             }];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : null,
+                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
+                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : null
+                };
+            }
 
             this.product.prices.add(newPriceRule);
         },

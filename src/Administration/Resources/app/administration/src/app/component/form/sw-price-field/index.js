@@ -107,6 +107,12 @@ Component.register('sw-price-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        inherited: {
+            type: Boolean,
+            required: false,
+            default: undefined
         }
     },
 
@@ -140,11 +146,21 @@ Component.register('sw-price-field', {
                     return priceForCurrency;
                 }
 
-                // otherwise calculate values
+                // Calculate values if inherited
+                if (this.isInherited) {
+                    return {
+                        currencyId: this.currency.id,
+                        gross: this.defaultPrice.gross ? this.convertPrice(this.defaultPrice.gross) : null,
+                        linked: this.defaultPrice.linked,
+                        net: this.defaultPrice.net ? this.convertPrice(this.defaultPrice.net) : null
+                    };
+                }
+
                 return {
-                    gross: this.convertPrice(this.defaultPrice.gross),
+                    currencyId: this.currency.id,
+                    gross: null,
                     linked: this.defaultPrice.linked,
-                    net: this.convertPrice(this.defaultPrice.net)
+                    net: null
                 };
             },
             set(newValue) {
@@ -155,6 +171,10 @@ Component.register('sw-price-field', {
         },
 
         isInherited() {
+            if (this.inherited !== undefined) {
+                return this.inherited;
+            }
+
             const priceForCurrency = Object.values(this.price).find((price) => {
                 return price.currencyId === this.currency.id;
             });

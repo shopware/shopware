@@ -124,4 +124,25 @@ describe('components/form/sw-price-field', () => {
         wrapper.vm.convertGrossToNet(parseFloat(''));
         expect(wrapper.vm.priceForCurrency.net).toBe(0);
     });
+
+    it('should calculate values if inherited and price is not set', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.setProps({
+            price: [euroPrice]
+        });
+
+        const expectedNetPrice = (euroPrice.net * currency.factor).toFixed(2);
+
+        expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
+    });
+
+    it('should set values to null if not inherited and price is not set', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.setProps({
+            price: [euroPrice],
+            inherited: false
+        });
+
+        expect(wrapper.vm.priceForCurrency.net).toBeNull();
+    });
 });

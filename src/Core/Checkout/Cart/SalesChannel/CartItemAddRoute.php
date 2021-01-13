@@ -86,6 +86,9 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
         foreach ($items as $item) {
             $alreadyExists = $cart->has($item->getId());
+            if($alreadyExists === true) {
+                $cart->get($item->getId())->markModified();
+            }
             $cart->add($item);
             $this->eventDispatcher->dispatch(new LineItemAddedEvent($item, $cart, $context, $alreadyExists));
         }

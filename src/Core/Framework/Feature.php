@@ -52,7 +52,7 @@ class Feature
             }
 
             // return true if it's registered and not a major feature
-            if ((self::$registeredFeatures[$feature]['major'] ?? false) === false) {
+            if (isset(self::$registeredFeatures[$feature]) && (self::$registeredFeatures[$feature]['major'] ?? false) === false) {
                 return true;
             }
         }

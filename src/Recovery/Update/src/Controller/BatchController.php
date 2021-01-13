@@ -46,7 +46,17 @@ class BatchController
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        $coreMigrations = $migrationCollectionLoader->collect('core');
+        $shopwareVersion = (string) $this->container->get('shopware.version');
+        $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
+            // only execute safe destructive migrations
+            ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
+            : MigrationCollectionLoader::VERSION_SELECTION_ALL;
+
+        $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+            $shopwareVersion,
+            // only execute safe destructive migrations
+            $versionSelectionMode
+        );
 
         $result = (new MigrationStep($coreMigrations))
             ->run($modus, $offset, $total);

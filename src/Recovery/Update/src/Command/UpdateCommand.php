@@ -123,7 +123,16 @@ class UpdateCommand extends Command
     {
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
-        $coreCollection = $migrationCollectionLoader->collect('core');
+
+        $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
+            // only execute safe destructive migrations
+            ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
+            : MigrationCollectionLoader::VERSION_SELECTION_ALL;
+
+        $coreCollection = $migrationCollectionLoader->collectAllForVersion(
+            (string) $this->container->get('shopware.version'),
+            $versionSelectionMode
+        );
 
         if ($modus === MigrationStep::UPDATE) {
             $versions = $coreCollection->getExecutableMigrations();

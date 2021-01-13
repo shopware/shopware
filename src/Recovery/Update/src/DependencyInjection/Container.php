@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
@@ -26,6 +27,7 @@ use Shopware\Recovery\Update\StoreApi;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 use Slim\Views\PhpRenderer;
+use Symfony\Component\Dotenv\Dotenv;
 
 class Container extends BaseContainer
 {
@@ -43,6 +45,17 @@ class Container extends BaseContainer
 
         $container['env.path'] = static function () {
             return SW_PATH . '/.env';
+        };
+
+        $container['feature.isActive'] = static function ($c) {
+            // load .env on first call
+            if (is_readable((string) $c['env.path'])) {
+                (new Dotenv(false))->load((string) $c['env.path']);
+            }
+
+            return static function (string $featureName): bool {
+                return Feature::isActive($featureName);
+            };
         };
 
         $container['db'] = function () {
@@ -72,7 +85,7 @@ class Container extends BaseContainer
             return new PathBuilder($baseDir, $updateDir, $backupDir);
         };
 
-        $container['migration.source'] = static function () {
+        $container['migration.source'] = static function ($c) {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBundleMigrations = [
                     SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
@@ -84,8 +97,50 @@ class Container extends BaseContainer
                     SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
                 ];
             }
+            if ($c['feature.isActive']('FEATURE_NEXT_12349')) {
+                // the migrations moved into core.V6_3
+                $coreBundleMigrations = [];
+            }
 
             return new CoreMigrationSource('core', $coreBundleMigrations);
+        };
+
+        $container['migration.sources'] = static function ($c) {
+            if (!$c['feature.isActive']('FEATURE_NEXT_12349')) {
+                return [$c['migration.source']];
+            }
+
+            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+                $coreBasePath = SW_PATH . '/platform/src/Core';
+                $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
+            } else {
+                $coreBasePath = SW_PATH . '/vendor/shopware/src/core';
+                $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
+            }
+
+            $v3 = new CoreMigrationSource('core.V6_3', [
+                $coreBasePath . '/Migration/V6_3' => 'Shopware\\Core\\Migration\\V6_3',
+                $storefrontBasePath . '/Migration/V6_3' => 'Shopware\\Storefront\\Migration\\V6_3',
+            ]);
+            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+
+            $v4 = new CoreMigrationSource('core.V6_4', [
+                $coreBasePath . '/Migration/V6_4' => 'Shopware\\Core\\Migration\\V6_4',
+                $storefrontBasePath . '/Migration/V6_4' => 'Shopware\\Storefront\\Migration\\V6_4',
+            ]);
+            $v4->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+            $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+
+            return [
+                $c['migration.source'],
+                $v3,
+                $v4,
+                new CoreMigrationSource('core.V6_5', [
+                    $coreBasePath . '/Migration/V6_5' => 'Shopware\\Core\\Migration\\V6_5',
+                    $storefrontBasePath . '/Migration/V6_5' => 'Shopware\\Storefront\\Migration\\V6_5',
+                ]),
+            ];
         };
 
         $container['migration.runtime'] = static function ($c) {
@@ -93,7 +148,7 @@ class Container extends BaseContainer
         };
 
         $container['migration.collection.loader'] = static function ($c) {
-            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], [$c['migration.source']]);
+            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], $c['migration.sources']);
         };
 
         $container['app'] = function ($c) {

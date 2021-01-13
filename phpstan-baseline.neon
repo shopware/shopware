@@ -4736,11 +4736,6 @@ parameters:
 			path: src/Core/Framework/Migration/Command/MigrationCommand.php
 
 		-
-			message: "#^Parameter \\#1 \\$identifier of method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\MigrationCommand\\:\\:runMigrationForIdentifier\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/Command/MigrationCommand.php
-
-		-
 			message: "#^Parameter \\#1 \\$path of function basename expects string, array\\<string\\>\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php

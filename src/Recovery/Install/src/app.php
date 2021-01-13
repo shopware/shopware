@@ -572,7 +572,10 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
     $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
-    $coreMigrations = $migrationCollectionLoader->collect('core');
+    $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+        $container->offsetGet('shopware.version'),
+        MigrationCollectionLoader::VERSION_SELECTION_ALL
+    );
 
     $resultMapper = new ResultMapper();
 

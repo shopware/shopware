@@ -24,6 +24,8 @@ class FeatureFlagsTest extends TestCase
 
     public function setUp(): void
     {
+        include_once __DIR__ . '/../autoload.php';
+
         unset(
             $_SERVER['FEATURE_NEXT_101'],
             $_SERVER['FEATURE_ALL']
@@ -68,6 +70,36 @@ class FeatureFlagsTest extends TestCase
         $response = $this->updateApp->run();
 
         static::assertSame($expectedStatusCode, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider containerFeatureActiveDataProvider
+     */
+    public function testContainerFeatureActive(?bool $active): void
+    {
+        $featureName = 'FEATURE_NEXT_123';
+        unset($_SERVER['FEATURE_ALL'], $_ENV['FEATURE_ALL'], $_SERVER[$featureName], $_ENV[$featureName]);
+
+        if ($active !== null) {
+            $this->prepareEnv($this->updateApp, [$featureName => $active ? 'true' : 'false'], true);
+        }
+
+        // test update container
+        $updateContainer = $this->updateApp->getContainer();
+        static::assertSame((bool) $active, $updateContainer->get('feature.isActive')($featureName));
+        static::assertSame(Feature::isActive($featureName), $updateContainer->get('feature.isActive')($featureName));
+
+        // test install container
+        $installContainer = $this->installApp->getContainer();
+        static::assertSame((bool) $active, $installContainer->get('feature.isActive')($featureName));
+        static::assertSame(Feature::isActive($featureName), $installContainer->get('feature.isActive')($featureName));
+    }
+
+    public function containerFeatureActiveDataProvider(): \Generator
+    {
+        yield [true];
+        yield [false];
+        yield [null];
     }
 
     public function featureFlagProvider(): \Generator

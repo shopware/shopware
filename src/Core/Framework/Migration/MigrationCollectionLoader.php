@@ -3,11 +3,44 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
 class MigrationCollectionLoader
 {
+    /**
+     * @internal (flag:FEATURE_NEXT_12349)
+     *
+     * Execute all migrations
+     */
+    public const VERSION_SELECTION_ALL = 'all';
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12349)
+     *
+     * Blue-green safe:
+     * - update from 6.a.* to 6.(a+1).0 -> migrations for major 6.a are NOT executed
+     * - rollback from 6.(a+1).0 to 6.a.* is still possible
+     * - update from 6.(a+1).0 to 6.(a+1).1 or higher -> migrations for major 6.a are executed
+     * - rollback possible from 6.(a+1).1 to 6.(a+1).0 possible
+     * - but rollback to 6.a.* not possible anymore!
+     */
+    public const VERSION_SELECTION_BLUE_GREEN = 'blue-green';
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12349)
+     *
+     * Executing the migrations of the penultimate major. This should always be safe
+     */
+    public const VERSION_SELECTION_SAFE = 'safe';
+
+    private const VALID_VERSION_SELECTION_SAFE_VALUES = [
+        self::VERSION_SELECTION_ALL,
+        self::VERSION_SELECTION_BLUE_GREEN,
+        self::VERSION_SELECTION_SAFE,
+    ];
+
     /**
      * @var Connection
      */
@@ -54,6 +87,63 @@ class MigrationCollectionLoader
     }
 
     /**
+     * @internal (flag:FEATURE_NEXT_12349)
+     */
+    public function collectAllForVersion(string $version, string $mode = self::VERSION_SELECTION_ALL): MigrationCollection
+    {
+        if (!Feature::isActive('FEATURE_NEXT_12349')) {
+            throw new \RuntimeException('FEATURE_NEXT_12349 no active');
+        }
+
+        $safeMajorVersion = $this->getLastSafeMajorVersion($version, $mode);
+
+        $namespaces = [$this->getSource('core')];
+        for ($major = 3; $safeMajorVersion >= 3 && $major <= $safeMajorVersion; ++$major) {
+            $namespaces[] = $this->getSource('core.V6_' . $major);
+        }
+
+        $source = new MigrationSource('allForVersion', $namespaces);
+
+        return new MigrationCollection($source, $this->migrationRuntime, $this->connection);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12349)
+     */
+    public function getLastSafeMajorVersion(string $currentVersion, string $mode = self::VERSION_SELECTION_ALL): int
+    {
+        if (!\in_array($mode, self::VALID_VERSION_SELECTION_SAFE_VALUES, true)) {
+            throw new \RuntimeException(sprintf(
+                'mode needs to be one of these values: "%s"',
+                implode('", "', self::VALID_VERSION_SELECTION_SAFE_VALUES)
+            ));
+        }
+
+        [$_, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
+        $safeMajorVersion = (int) $safeMajorVersion;
+
+        $simulateMajor = ($_ENV['FEATURE_ALL'] ?? $_SERVER['FEATURE_ALL'] ?? null) === 'major';
+        if ($simulateMajor) {
+            ++$safeMajorVersion;
+        }
+
+        if ($mode === self::VERSION_SELECTION_SAFE) {
+            return $safeMajorVersion - 2;
+        }
+
+        if ($mode === self::VERSION_SELECTION_BLUE_GREEN) {
+            --$safeMajorVersion;
+            if ($currentMinor < 1) {
+                --$safeMajorVersion;
+            }
+
+            return $safeMajorVersion;
+        }
+
+        return $safeMajorVersion;
+    }
+
+    /**
      * @throws InvalidMigrationClassException
      * @throws UnknownMigrationSourceException
      *
@@ -68,5 +158,14 @@ class MigrationCollectionLoader
         }
 
         return $collections;
+    }
+
+    private function getSource(string $name): MigrationSource
+    {
+        if (!isset($this->migrationSources[$name])) {
+            throw new UnknownMigrationSourceException($name);
+        }
+
+        return $this->migrationSources[$name];
     }
 }

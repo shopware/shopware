@@ -93,6 +93,28 @@ base-uri 'self';
             <tag name="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_3"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_3</argument>
+
+            <tag name="shopware.migration_source"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_4"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_4</argument>
+            <tag name="shopware.migration_source"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_5"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_5</argument>
+            <tag name="shopware.migration_source"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>
@@ -115,7 +137,7 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.project_dir%</argument>
-
+            <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
 
@@ -126,6 +148,7 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="cache.object"/>
+            <argument type="string">%kernel.shopware_version%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -140,12 +163,14 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="cache.object"/>
+            <argument type="string">%kernel.shopware_version%</argument>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
+            <argument type="string">%kernel.shopware_version%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

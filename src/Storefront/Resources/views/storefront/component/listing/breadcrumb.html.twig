@@ -2,16 +2,21 @@
 {% block component_listing_breadcrumb %}
     {% set breadcrumb = sw_breadcrumb(category) %}
     {% set breadcrumbKeys = breadcrumb|keys %}
+    {% set breadcrumbTypes = sw_breadcrumb_types(breadcrumbKeys, context.context) %}
 
     {% for key, item in breadcrumb %}
         <div class="breadcrumb-container">
             {% block component_listing_breadcrumb_category %}
-                <a class="{% if key is same as(category.id) %} is-active{% endif %}"
-                   href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}">
-                    {% block component_listing_breadcrumb_link_name %}
-                        {{ item }}
-                    {% endblock %}
-                </a>
+                {% if breadcrumbTypes[key] == 'folder' %}
+                    <div>{{ item }}</div>
+                {% else %}
+                    <a class="{% if key is same as(category.id) %} is-active{% endif %}"
+                       href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}">
+                        {% block component_listing_breadcrumb_link_name %}
+                            {{ item }}
+                        {% endblock %}
+                    </a>
+                {% endif %}
             {% endblock %}
             {% block component_listing_breadcrumb_placeholder %}
                 {% if key != breadcrumbKeys|last %}

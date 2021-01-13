@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -76,6 +77,13 @@ class CmsPageEntity extends Entity
      * @var bool
      */
     protected $locked;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     *
+     * @var LandingPageCollection|null
+     */
+    protected $landingPages;
 
     public function getName(): string
     {
@@ -208,6 +216,22 @@ class CmsPageEntity extends Entity
         $elements = $this->getElementsOfType($type);
 
         return array_shift($elements);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function getLandingPages(): ?LandingPageCollection
+    {
+        return $this->landingPages;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function setLandingPages(LandingPageCollection $landingPages): void
+    {
+        $this->landingPages = $landingPages;
     }
 
     public function getElementsOfType(string $type): array

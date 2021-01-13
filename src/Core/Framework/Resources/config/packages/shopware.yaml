@@ -140,6 +140,10 @@ shopware:
               default: false
               major: true
               description: "Improve product UX"
+            - name: FEATURE_NEXT_12032
+              default: false
+              major: true
+              description: "Add landing pages"
 
     logger:
         file_rotation_count: 14

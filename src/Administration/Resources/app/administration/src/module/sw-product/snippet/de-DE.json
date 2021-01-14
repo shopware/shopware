@@ -403,6 +403,16 @@
       "textChangeLayout": "Layout ändern",
       "textCreateNewLayout": "Neues Layout erstellen",
       "textEditInDesigner": "Im Designer bearbeiten"
+    },
+    "filters": {
+      "activeFilter": {
+        "label": "Aktiv",
+        "placeholder": "Wähle einen Status ..."
+      },
+      "imagesFilter": {
+        "label": "Bild",
+        "placeholder": "Wähle einen Bildstatus ..."
+      }
     }
   },
   "sw-privileges": {

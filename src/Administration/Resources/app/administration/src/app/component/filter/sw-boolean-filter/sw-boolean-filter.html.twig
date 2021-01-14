@@ -1,26 +1,18 @@
-<div>
-    <h3>Boolean filter example:</h3>
-
-    <p v-if="value === null">
-        Filter is not active
-    </p>
-    <p v-else>
-        Filter value is: "{{ value }}"
-    </p>
-
-    <sw-switch-field
-        :value="value"
-        :label="filter.label"
-        @change="changeValue">
-    </sw-switch-field>
-
-    <sw-button size="small"
-               @click="resetFilter"
-    >
-        Reset filter {{ filter.label }}
-    </sw-button>
-
-    <p>
-        ########################################################
-    </p>
-</div>
+{% block sw_boolean_filter %}
+    <div class="sw-boolean-filter">
+        <sw-base-filter
+            :title="filter.label"
+            :showResetButton="!!value"
+            @resetFilter="resetFilter">
+            {% block sw_boolean_filter_content %}
+                <sw-select-field :value="value"
+                                 :size="'small'"
+                                 :placeholder="filter.placeholder"
+                                 @change="changeValue">
+                    <option :value="true">{{ $tc('sw-boolean-filter.active') }}</option>
+                    <option :value="false">{{ $tc('sw-boolean-filter.inactive') }}</option>
+                </sw-select-field>
+            {% endblock %}
+        </sw-base-filter>
+    </div>
+{% endblock %}

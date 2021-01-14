@@ -147,11 +147,12 @@
                 {% endblock %}
 
                 {% block sw_promotion_v2_detail_base_codes_type_individual %}
-                    <template v-if="selectedCodeType === CODE_TYPES.INDIVIDUAL">
+                    <template v-else-if="selectedCodeType === CODE_TYPES.INDIVIDUAL">
 
                         {% block sw_promotion_v2_detail_base_codes_type_individual_codes_behavior %}
                             <sw-promotion-v2-individual-codes-behavior
-                                :promotion="promotion">
+                                :promotion="promotion"
+                                @generate-finish="$emit('generate-individual-codes-finish')">
                             </sw-promotion-v2-individual-codes-behavior>
                         {% endblock %}
 

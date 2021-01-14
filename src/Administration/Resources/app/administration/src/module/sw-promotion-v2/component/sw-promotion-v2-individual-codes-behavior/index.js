@@ -3,6 +3,7 @@ import './sw-promotion-v2-individual-codes-behavior.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const createId = Shopware.Utils.createId;
 
 Component.register('sw-promotion-v2-individual-codes-behavior', {
     template,
@@ -29,11 +30,16 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
             codeDeleteModal: false,
             codeBulkDeleteModal: false,
             generateCodesModal: false,
+            cardIdentifier: createId(),
             currentSelection: []
         };
     },
 
     computed: {
+        promotionRepository() {
+            return this.repositoryFactory.create('promotion');
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -60,7 +66,23 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
         }
     },
 
+    watch: {
+        'promotion.individualCodes'() {
+            this.cardIdentifier = createId();
+        }
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            if (this.$refs.individualCodesGrid) {
+                this.loadIndividualCodesGrid();
+            }
+        },
+
         onSearchTermChange(term) {
             this.isGridLoading = true;
             this.promotion.individualCodes.criteria.setTerm(term);
@@ -113,6 +135,11 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
         onOpenGenerateCodesModal() {
             this.generateCodesModal = true;
+        },
+
+        onGenerateFinish() {
+            this.onCloseGenerateCodesModal();
+            this.$emit('generate-finish');
         },
 
         onCloseGenerateCodesModal() {

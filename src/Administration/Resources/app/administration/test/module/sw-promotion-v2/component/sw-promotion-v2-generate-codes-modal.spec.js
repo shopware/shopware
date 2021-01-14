@@ -1,11 +1,13 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-modal';
 
-function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+const swPromotionV2GenerateCodesModal = Shopware.Component.build('sw-promotion-v2-generate-codes-modal');
+const mockCode = 'PREFIX_ABCD_SUFFIX';
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-generate-codes-modal'), {
+function createWrapper(promotionProps = {}) {
+    const localVue = createLocalVue();
+
+    return shallowMount(swPromotionV2GenerateCodesModal, {
         localVue,
         stubs: {
             'sw-card': {
@@ -14,25 +16,23 @@ function createWrapper(privileges = []) {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
+            'sw-text-field': {
+                template: '<div class="sw-text-field"><slot></slot></div>'
+            },
+            'sw-number-field': {
+                template: '<div class="sw-number-field"><slot></slot></div>'
+            },
+            'sw-switch-field': true,
+            'sw-field-error': true,
             'sw-modal': true,
             'sw-alert': true,
-            'sw-button': true,
-            'sw-text-field': true,
-            'sw-number-field': true,
-            'sw-switch-field': true
+            'sw-button': true
         },
         provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+            promotionCodeApiService: {
+                generatePreview() {
+                    return new Promise(resolve => resolve(mockCode));
                 }
-            },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }])
-                })
             }
         },
         mocks: {
@@ -50,7 +50,7 @@ function createWrapper(privileges = []) {
                 code: null,
                 useCodes: true,
                 useIndividualCodes: false,
-                individualCodePattern: 'code-%d',
+                individualCodePattern: 'PREFIX_%s%s%s%s_SUFFIX',
                 useSetGroups: false,
                 customerRestriction: true,
                 orderCount: 0,
@@ -78,7 +78,8 @@ function createWrapper(privileges = []) {
                 orderRules: [],
                 cartRules: [],
                 translations: [],
-                hasOrders: false
+                hasOrders: false,
+                ...promotionProps
             }
         }
     });
@@ -87,8 +88,8 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-modal', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
     afterEach(() => {
@@ -99,5 +100,44 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(wrapper.vm).toBeTruthy();
     });
 
-    // ToDo NEXT-12515 - Implement more, when generation modal is finished
+    it('should generate a correct preview', async () => {
+        const inputPrefix = await wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix');
+        const inputCodeLength = await wrapper.find('.sw-promotion-v2-generate-codes-modal__replacement');
+        const inputSuffix = await wrapper.find('.sw-promotion-v2-generate-codes-modal__suffix');
+        const inputPreview = await wrapper.find('.sw-promotion-v2-generate-codes-modal__preview');
+
+        expect(inputPrefix.isVisible()).toBe(true);
+        expect(inputPrefix.attributes().value).toBe('PREFIX_');
+
+        expect(inputCodeLength.isVisible()).toBe(true);
+        expect(inputCodeLength.attributes().value).toBe('4');
+
+        expect(inputSuffix.isVisible()).toBe(true);
+        expect(inputSuffix.attributes().value).toBe('_SUFFIX');
+
+        await swPromotionV2GenerateCodesModal.methods.updatePreview.flush();
+        await wrapper.vm.$nextTick();
+
+        expect(inputPreview.isVisible()).toBe(true);
+        expect(inputPreview.attributes().value).toBe(mockCode);
+    });
+
+    it('should generate a correct preview in custom mode', async () => {
+        wrapper = await createWrapper({
+            individualCodePattern: '%d%d%d'
+        });
+
+        const inputPrefix = await wrapper.find('.sw-promotion-v2-generate-codes-modal__prefix');
+        const inputCustomPattern = await wrapper.find('.sw-promotion-v2-generate-codes-modal__custom-pattern');
+        const inputPreview = await wrapper.find('.sw-promotion-v2-generate-codes-modal__preview');
+
+        expect(inputPrefix.exists()).toBeFalsy();
+        expect(inputCustomPattern.isVisible()).toBe(true);
+
+        await swPromotionV2GenerateCodesModal.methods.updatePreview.flush();
+        await wrapper.vm.$nextTick();
+
+        expect(inputPreview.isVisible()).toBe(true);
+        expect(inputPreview.attributes().value).toBe(mockCode);
+    });
 });

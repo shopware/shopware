@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -18,10 +17,10 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @deprecated tag:v6.4.0.0 - Use PromotionCodeService instead
  * @RouteScope(scopes={"api"})
  */
 class PromotionActionController extends AbstractController
@@ -52,22 +51,6 @@ class PromotionActionController extends AbstractController
         $this->codesRemover = $codesRemover;
         $this->serviceRegistry = $serviceRegistry;
         $this->filterServiceRegistry = $filterServiceRegistry;
-    }
-
-    /**
-     * @Since("6.3.5.0")
-     * @Route("/api/v{version}/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
-     */
-    public function generateCodeFixed(): Response
-    {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
-        return new JsonResponse($this->codesLoader->generateCodeFixed());
     }
 
     /**

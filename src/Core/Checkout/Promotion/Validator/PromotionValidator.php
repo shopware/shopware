@@ -423,7 +423,7 @@ class PromotionValidator implements EventSubscriberInterface
     }
 
     /**
-     * Gets if the provided pattern is already used in another promotion.
+     * True, if the provided pattern is already used in another promotion.
      */
     private function isCodePatternAlreadyUsed(string $pattern, ?string $promotionId): bool
     {
@@ -450,7 +450,7 @@ class PromotionValidator implements EventSubscriberInterface
     }
 
     /**
-     * Gets if the provided code is already used as global
+     * True, if the provided code is already used as global
      * or individual code in another promotion.
      */
     private function isCodeAlreadyUsed(string $code, ?string $promotionId): bool
@@ -460,7 +460,7 @@ class PromotionValidator implements EventSubscriberInterface
         // check if individual code.
         // if we dont have a promotion Id only
         // check if its existing somewhere,
-        // if we have an Id, verify if its existing in another promotion
+        // if we have an Id, verify if it's existing in another promotion
         $query = $qb
             ->select('id')
             ->from('promotion_individual_code')

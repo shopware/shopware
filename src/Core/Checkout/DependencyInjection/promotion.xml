@@ -7,8 +7,6 @@
     <services>
 
         <!-- DAL DEFINITIONS + SERVICES -->
-        <!-- ==================================================================================================================== -->
-
         <service id="Shopware\Core\Checkout\Promotion\PromotionDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -67,8 +65,6 @@
         </service>
 
         <!-- CART CALCULATORS -->
-        <!-- ==================================================================================================================== -->
-
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCollector">
@@ -113,20 +109,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
         </service>
 
-
         <!-- SUBSCRIBERS -->
-        <!-- ==================================================================================================================== -->
-
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber">
             <argument type="service" id="session"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-
         <!-- API CONTROLLERS -->
-        <!-- ==================================================================================================================== -->
-
         <service id="Shopware\Core\Checkout\Promotion\Api\PromotionActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover"/>
@@ -137,9 +127,11 @@
             </call>
         </service>
 
-        <!-- FILTER SERVICES -->
-        <!-- ==================================================================================================================== -->
+        <service id="Shopware\Core\Checkout\Promotion\Api\PromotionController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodeService"/>
+        </service>
 
+        <!-- FILTER SERVICES -->
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
         </service>
@@ -172,10 +164,7 @@
             <tag name="promotion.filter.picker"/>
         </service>
 
-
         <!-- ADDITIONAL SERVICES -->
-        <!-- ==================================================================================================================== -->
-
         <service id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
@@ -191,6 +180,11 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodeService">
+            <argument type="service" id="promotion.repository"/>
+            <argument type="service" id="promotion_individual_code.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover">

@@ -10,11 +10,10 @@
     {% endif %}
 
     {% set blockBgColor = block.backgroundColor %}
-    {% set blockBgImg = block.backgroundMedia|sw_encode_media_url %}
 
     {% set blockClasses = [block.cssClass, 'pos-' ~ block.position, 'cms-block-' ~ block.type] %}
 
-    {% if blockBgImg %}
+    {% if block.backgroundMedia %}
         {% set blockClasses = ['bg-image']|merge(blockClasses) %}
     {% endif %}
 
@@ -31,7 +30,17 @@
     {% endif %}
 
     <div class="cms-block {{ blockClasses|join(' ') }}"
-         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}{% if blockBgImg %}background-image: url({{ blockBgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
+         style="{% if blockBgColor %} background-color: {{ blockBgColor }};{% endif %}">
+        {% block section_content_block_background_image %}
+            {% if block.backgroundMedia %}
+                {% sw_thumbnails 'cms-block-background' with {
+                    media: block.backgroundMedia,
+                    attributes: {
+                        class: "cms-block-background media-mode--" ~ block.backgroundMediaMode
+                    }
+                    } %}
+            {% endif %}
+        {% endblock %}
 
         {% block section_content_block_container %}
             <div class="cms-block-container"

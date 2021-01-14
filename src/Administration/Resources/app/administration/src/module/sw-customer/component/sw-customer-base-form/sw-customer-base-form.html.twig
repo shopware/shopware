@@ -98,6 +98,7 @@
 
             {% block sw_customer_base_form_sales_channel_field %}
                 <sw-entity-single-select
+                    required
                     class="sw-customer-base-form__sales-channel-select"
                     entity="sales_channel"
                     :label="$tc('sw-customer.baseForm.labelSalesChannel')"
@@ -122,6 +123,7 @@
 
             {% block sw_customer_base_form_customer_number_field %}
                 <sw-text-field
+                    required
                     :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
                     :error="customerCustomerNumberError"

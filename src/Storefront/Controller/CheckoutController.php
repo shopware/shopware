@@ -135,16 +135,12 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
-            // ???
-            // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
-            $this->addFlash(
-                'danger',
-                $this->trans(
-                    'checkout.finishPaymentFailed',
-                    [
-                        '%editOrderUrl%' => $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $request->get('orderId')]),
-                    ]
-                )
+            return $this->redirectToRoute(
+                'frontend.account.edit-order.page',
+                [
+                    'orderId' => $request->get('orderId'),
+                    'error-code' => 'CHECKOUT__UNKNOWN_ERROR',
+                ]
             );
         }
 

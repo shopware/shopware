@@ -207,11 +207,8 @@ This file contains the generic styling for all filter items.
     padding: 25px;
     display: none;
 
-    .filter-panel-offcanvas-only {
+    h3 {
         margin-bottom: 0;
-        font-size: calc(1.275rem + 0.3vw);
-        line-height: 1.2;
-        font-weight: 700;
     }
 }
 

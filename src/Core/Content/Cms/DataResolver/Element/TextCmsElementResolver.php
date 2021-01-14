@@ -37,7 +37,31 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isStatic()) {
-            $text->setContent((string) $config->getValue());
+            if ($resolverContext instanceof EntityResolverContext) {
+                $content = $this->resolveEntityValues($resolverContext, $config->getValue());
+
+                $text->setContent((string) $content);
+            } else {
+                $text->setContent((string) $config->getValue());
+            }
         }
+    }
+
+    private function resolveEntityValues(EntityResolverContext $resolverContext, string $content): ?string
+    {
+        // https://regex101.com/r/idIfbk/1
+        $content = preg_replace_callback(
+            '/{{\s*(?<property>[\w.\d]+)\s*}}/',
+            function ($matches) use ($resolverContext) {
+                try {
+                    return $this->resolveEntityValue($resolverContext->getEntity(), $matches['property']);
+                } catch (\InvalidArgumentException $e) {
+                    return $matches[0];
+                }
+            },
+            $content
+        );
+
+        return $content;
     }
 }

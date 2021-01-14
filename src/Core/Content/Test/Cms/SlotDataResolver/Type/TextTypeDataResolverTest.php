@@ -164,4 +164,54 @@ class TextTypeDataResolverTest extends TestCase
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame($product->getDescription(), $textStruct->getContent());
     }
+
+    public function testWithStaticContentAndMappedVariable(): void
+    {
+        $product = new ProductEntity();
+        $product->setName('TextProduct');
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.name }}</h1>'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('<h1>Title ' . $product->getName() . '</h1>', $textStruct->getContent());
+    }
+
+    public function testWithStaticContentAndMappedVariableNotFound(): void
+    {
+        $product = new ProductEntity();
+        $product->setName('TextProduct');
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.unknownProperty }}</h1>'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('<h1>Title {{ product.unknownProperty }}</h1>', $textStruct->getContent());
+    }
 }

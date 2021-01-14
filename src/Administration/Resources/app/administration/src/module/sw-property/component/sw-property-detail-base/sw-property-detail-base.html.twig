@@ -21,14 +21,28 @@
                 :disabled="!allowEdit"/>
         {% endblock %}
 
-        {% block sw_property_detail_base_filterable %}
-            <sw-switch-field
-                name="propertyGroupFilterable"
-                class="sw-property-detail__filterable"
-                :label="$tc('sw-property.detail.labelFilterable')"
-                :disabled="!allowEdit"
-                v-model="propertyGroup.filterable">
-            </sw-switch-field>
+        {% block sw_property_detail_filter_visible_container %}
+            <sw-container columns="repeat(2, 1fr)" gap="0px 30px">
+                {% block sw_property_detail_base_filterable %}
+                    <sw-switch-field
+                        name="propertyGroupFilterable"
+                        class="sw-property-detail__filterable"
+                        :label="$tc('sw-property.detail.labelFilterable')"
+                        :disabled="!allowEdit"
+                        v-model="propertyGroup.filterable">
+                    </sw-switch-field>
+                {% endblock %}
+
+                {% block sw_property_detail_base_visible_on_detail %}
+                    <sw-switch-field
+                        name="propertyGroupvisibleOnProductDetailPage"
+                        class="sw-property-detail__visible-on-detail"
+                        :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"
+                        :disabled="!allowEdit"
+                        v-model="propertyGroup.visibleOnProductDetailPage">
+                    </sw-switch-field>
+                {% endblock %}
+            </sw-container>
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}

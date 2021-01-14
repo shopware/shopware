@@ -72,6 +72,7 @@ Component.register('sw-promotion-v2-detail', {
 
         promotionCriteria() {
             return (new Criteria(1, 1))
+                .addAssociation('salesChannels')
                 .addAssociation('individualCodes');
         },
 

@@ -24,6 +24,7 @@
             },
             "tabs": {
                 "tabGeneral": "Allgemein",
+                "tabConditions": "Bedingungen",
                 "tabDiscounts": "Rabatte"
             },
             "codeChangeModal": {
@@ -85,6 +86,15 @@
                             "labelCodeAmount": "Anzahl der Aktionscodes"
                         }
                     }
+                }
+            },
+            "conditions": {
+                "preConditions": {
+                    "cardTitle": "Voraussetzungen",
+                    "labelPromotionExclusions": "Nicht kombinieren mit",
+                    "placeholderPromotionExclusions": "Aktion hinzufügen ...",
+                    "labelPromotionSalesChannel": "Verkaufskanäle",
+                    "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ..."
                 }
             },
             "discounts": {

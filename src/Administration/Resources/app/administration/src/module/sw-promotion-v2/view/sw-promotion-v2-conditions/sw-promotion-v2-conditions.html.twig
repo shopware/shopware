@@ -1,0 +1,32 @@
+{% block sw_promotion_v2_conditions %}
+    <div class="sw-promotion-v2-conditions">
+
+        {% block sw_promotion_v2_conditions_pre_conditions_card %}
+            <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitle')">
+
+                {% block sw_promotion_v2_conditions_pre_conditions_sales_channel_selection %}
+                    <sw-promotion-v2-sales-channel-select
+                        :promotion="promotion"
+                        :entityCollection="promotion.salesChannels"
+                        :disabled="!acl.can('promotion.editor')"
+                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
+                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')">
+                    </sw-promotion-v2-sales-channel-select>
+                {% endblock %}
+
+                {% block sw_promotion_v2_conditions_pre_conditions_exclusions %}
+                    <sw-entity-multi-select
+                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionExclusions')"
+                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderPromotionExclusions')"
+                        :criteria="exclusionCriteria"
+                        :entityCollection="excludedPromotions"
+                        :disabled="!acl.can('promotion.editor')"
+                        @change="onChangeExclusions">
+                    </sw-entity-multi-select>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+    </div>
+{% endblock %}

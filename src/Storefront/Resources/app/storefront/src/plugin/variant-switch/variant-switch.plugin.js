@@ -15,12 +15,14 @@ export default class VariantSwitchPlugin extends Plugin {
         url: '',
         elementId: '',
         pageType: '',
-        radioFieldSelector: '.product-detail-configurator-option-input'
+        radioFieldSelector: '.product-detail-configurator-option-input',
+        selectFieldSelector: '.product-detail-configurator-select-input'
     };
 
     init() {
         this._httpClient = new HttpClient();
-        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector);
+        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector, false);
+        this._selectFields = DomAccess.querySelectorAll(this.el, this.options.selectFieldSelector, false);
         this._elementId = this.options.elementId;
         this._pageType = this.options.pageType;
 
@@ -47,13 +49,15 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        Iterator.iterate(this._radioFields, field => {
-            if (VariantSwitchPlugin._isFieldSerializable(field)) {
-                if (field.dataset) {
-                    field.dataset.variantSwitchValue = field.value;
+        if(this._radioFields) {
+            Iterator.iterate(this._radioFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    if (field.dataset) {
+                        field.dataset.variantSwitchValue = field.value;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -116,13 +120,24 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        Iterator.iterate(this._radioFields, field => {
-            if (VariantSwitchPlugin._isFieldSerializable(field)) {
-                if (field.checked) {
-                    serialized[field.name] = field.value;
+        if(this._radioFields) {
+            Iterator.iterate(this._radioFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    if (field.checked) {
+                        serialized[field.name] = field.value;
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        if(this._selectFields) {
+            Iterator.iterate(this._selectFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    const selectedOption = [...field.options].find(option => option.selected);
+                    serialized[field.name] = selectedOption.value;
+                }
+            });
+        }
 
         return serialized;
     }

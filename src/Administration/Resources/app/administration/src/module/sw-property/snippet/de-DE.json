@@ -23,6 +23,7 @@
     "detail": {
       "mediaDisplayType": "Bild",
       "textDisplayType": "Text",
+      "selectDisplayType": "Dropdown",
       "colorDisplayType": "Farbe",
       "numericSortingType": "Numerisch",
       "alphanumericSortingType": "Alphanumerisch",

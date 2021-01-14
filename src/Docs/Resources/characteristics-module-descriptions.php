@@ -365,4 +365,12 @@ EOD
 __EMPTY__
 EOD
     ,
+    'Migration/V6_3' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/V6_4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

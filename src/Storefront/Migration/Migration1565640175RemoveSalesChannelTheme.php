@@ -2,22 +2,9 @@
 
 namespace Shopware\Storefront\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1565640175RemoveSalesChannelTheme extends MigrationStep
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12349) tag:6.5.0.0 - Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1565640175RemoveSalesChannelTheme extends \Shopware\Storefront\Migration\V6_3\Migration1565640175RemoveSalesChannelTheme
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1565640175;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('DROP TABLE IF EXISTS `sales_channel_theme`;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

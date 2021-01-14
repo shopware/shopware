@@ -366,6 +366,12 @@ Webhooks
 
 Traits for different migration operations
 
+#### V6_3 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_3)
+
+__EMPTY__
+
 ### System Bundle
 
 #### Annotation 

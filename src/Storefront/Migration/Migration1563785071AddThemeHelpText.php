@@ -2,22 +2,9 @@
 
 namespace Shopware\Storefront\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1563785071AddThemeHelpText extends MigrationStep
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12349) tag:6.5.0.0 - Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1563785071AddThemeHelpText extends \Shopware\Storefront\Migration\V6_3\Migration1563785071AddThemeHelpText
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1563785071;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `theme_translation` ADD `help_texts` json NULL AFTER `labels`;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

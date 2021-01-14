@@ -46,6 +46,13 @@
                     </sw-promotion-v2-wizard-discount-selection>
                 {% endblock %}
 
+                {% block sw_promotion_v2_discounts_wizard_shipping_discount %}
+                    <template v-if="selectedDiscountType === 'shipping-discount'">
+                        <sw-promotion-v2-wizard-shipping-discount-trigger>
+                        </sw-promotion-v2-wizard-shipping-discount-trigger>
+                    </template>
+                {% endblock %}
+
             </sw-wizard>
         {% endblock %}
 

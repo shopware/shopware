@@ -28,6 +28,7 @@ Component.register('sw-promotion-v2-discounts', {
         },
 
         onCloseDiscountModal() {
+            this.selectedDiscountType = null;
             this.showDiscountModal = false;
         }
     }

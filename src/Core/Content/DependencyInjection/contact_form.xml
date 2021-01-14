@@ -15,6 +15,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="cms_slot.repository" />
+            <argument type="service" id="salutation.repository" />
         </service>
     </services>
 </container>

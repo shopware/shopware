@@ -568,6 +568,11 @@ class DefinitionValidator
             );
         }
 
+        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        if ($versionError) {
+            $associationViolations[$definition->getClass()][] = $versionError;
+        }
+
         return $associationViolations;
     }
 
@@ -604,6 +609,11 @@ class DefinitionValidator
                 $definition->getClass(),
                 $association->getPropertyName()
             );
+        }
+
+        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        if ($versionError) {
+            $associationViolations[$definition->getClass()][] = $versionError;
         }
 
         return $associationViolations;
@@ -732,6 +742,11 @@ class DefinitionValidator
 
         if (!$reverse) {
             $violations[$reference->getClass()][] = sprintf('Missing reverse many to many association for original %s.%s', $definition->getClass(), $association->getPropertyName());
+        }
+
+        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        if ($versionError) {
+            $associationViolations[$definition->getClass()][] = $versionError;
         }
 
         return $violations;
@@ -1086,5 +1101,36 @@ class DefinitionValidator
         }
 
         return $associationViolations;
+    }
+
+    private function validateVersionAwareness(EntityDefinition $reference, EntityDefinition $definition, AssociationField $association): ?string
+    {
+        if (!$reference->isVersionAware()) {
+            return null;
+        }
+
+        // see if this is the owning side
+        $owningSide = $definition->getFields()->filterInstance(FkField::class)->filter(function (FkField $field) use ($reference): bool {
+            return $field->getReferenceDefinition() === $reference;
+        });
+
+        if ($owningSide->count() === 0) {
+            return null;
+        }
+        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)->filter(function (ReferenceVersionField $field) use ($association): bool {
+            return $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass();
+        });
+
+        if (\count($referenceVersionFieldForReference) > 0) {
+            return null;
+        }
+
+        return sprintf(
+            'Missing version reference for foreign key column %s.%s for definition association %s.%s',
+            $association->getReferenceDefinition()->getEntityName(),
+            $association->getReferenceField(),
+            $definition->getEntityName(),
+            $association->getPropertyName()
+        );
     }
 }

@@ -17,8 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class CmsBlockDefinition extends EntityDefinition
 {
@@ -51,7 +54,7 @@ class CmsBlockDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
@@ -75,5 +78,12 @@ class CmsBlockDefinition extends EntityDefinition
             (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
+
+        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
+            $collection->add((new VersionField())->addFlags(new ApiAware()));
+            $collection->add((new ReferenceVersionField(CmsSectionDefinition::class))->addFlags(new Required(), new ApiAware()));
+        });
+
+        return $collection;
     }
 }

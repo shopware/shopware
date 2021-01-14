@@ -79,6 +79,7 @@ Mixin.register('sw-settings-list', {
             this.entityRepository.search(this.listingCriteria, Shopware.Context.api)
                 .then((items) => {
                     this.items = items;
+                    this.total = items.total;
 
                     return this.items;
                 })

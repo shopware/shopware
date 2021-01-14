@@ -203,6 +203,63 @@ class AccountRegistrationServiceTest extends TestCase
         static::assertMailRecipientStructEvent($this->getMailRecipientStruct(['email' => $email, 'firstName' => 'Max', 'lastName' => 'Mustermann']), $event);
     }
 
+    public function testRegisterWithDataProtectionCheckbox(): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.loginRegistration.requireDataProtectionCheckbox', true);
+
+        $salesChannelContext = $this->createContextWithTestDomain();
+
+        $customerRegisterData = $this->getCustomerRegisterData();
+        $customerRegisterData['acceptedDataProtection'] = '1';
+
+        $dataBag = new DataBag();
+        $dataBag->add($customerRegisterData);
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $phpunit = $this;
+
+        $customerEventDidRun = false;
+        $listenerCustomerEventClosure = function (CustomerRegisterEvent $event) use (&$customerEventDidRun, $phpunit, $customerRegisterData): void {
+            $customerEventDidRun = true;
+            $phpunit->assertSame($customerRegisterData['email'], $event->getCustomer()->getEmail());
+        };
+        $dispatcher->addListener(CustomerRegisterEvent::class, $listenerCustomerEventClosure);
+
+        $this->accountRegistrationService->register($dataBag, false, $salesChannelContext);
+
+        $dispatcher->removeListener(CustomerRegisterEvent::class, $listenerCustomerEventClosure);
+
+        static::assertTrue($customerEventDidRun, 'The "' . CustomerRegisterEvent::class . '" Event did not run');
+    }
+
+    public function testRegisterWithInvalidDataProtectionCheckbox(): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.loginRegistration.requireDataProtectionCheckbox', true);
+
+        $salesChannelContext = $this->createContextWithTestDomain();
+
+        $customerRegisterData = $this->getCustomerRegisterData();
+
+        $dataBag = new DataBag();
+        $dataBag->add($customerRegisterData);
+
+        $exceptionWasThrown = false;
+
+        try {
+            $this->accountRegistrationService->register($dataBag, false, $salesChannelContext);
+        } catch (ConstraintViolationException $e) {
+            $exceptionWasThrown = true;
+
+            static::assertEquals(1, $e->getViolations()->count());
+            static::assertEquals(1, $e->getViolations('/acceptedDataProtection')->count());
+        }
+
+        static::assertTrue($exceptionWasThrown);
+    }
+
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
     {
         return new MailRecipientStruct([

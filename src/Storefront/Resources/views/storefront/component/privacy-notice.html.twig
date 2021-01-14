@@ -1,12 +1,44 @@
 {% block component_privacy_notice %}
-    <p class="form-text privacy-notice">
-        {% block component_privacy_label %}
-            <label>
-                <strong>{{ "general.privacyTitle"|trans|sw_sanitize }}</strong><br />
-                {{ "general.privacyNotice"|trans({
-                    '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
-                })|raw }}
-            </label>
+    <div class="form-text privacy-notice">
+        {% block component_privacy_title %}
+            <strong>{{ "general.privacyTitle"|trans|sw_sanitize }}</strong><br/>
         {% endblock %}
-    </p>
+
+        {% block component_privacy_dpi %}
+            {% if shopware.config.core.loginRegistration.requireDataProtectionCheckbox == 1 %}
+                <div class="custom-control custom-checkbox data-protection-information">
+                    {% block component_privacy_dpi_checkbox %}
+                        <input type="checkbox"
+                               class="custom-control-input {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
+                               name="acceptedDataProtection"
+                               required="required"
+                               value="1"
+                               id="acceptedDataProtection"
+                               {% if data.get('acceptedDataProtection') %}checked="checked"{% endif %}>
+                    {% endblock %}
+
+                    {% block component_privacy_dpi_label %}
+                        <label class="custom-control-label no-validation"
+                               for="acceptedDataProtection">
+                            {{ "general.privacyNotice"|trans({
+                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                            })|raw }}
+
+                            {{ "general.required"|trans|sw_sanitize }}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% else %}
+                <div class="data-protection-information">
+                    {% block component_privacy_label %}
+                        <label>
+                            {{ "general.privacyNotice"|trans({
+                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                            })|raw }}
+                        </label>
+                    {% endblock %}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
 {% endblock %}

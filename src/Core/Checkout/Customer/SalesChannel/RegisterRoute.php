@@ -133,6 +133,7 @@ class RegisterRoute extends AbstractRegisterRoute
      *      @OA\Parameter(name="affiliateCode", description="Affilicate Code", in="query", @OA\Schema(type="string")),
      *      @OA\Parameter(name="campaignCode", description="Campaign Code", in="query", @OA\Schema(type="string")),
      *      @OA\Parameter(name="password", description="Password", in="query", @OA\Schema(type="string")),
+     *      @OA\Parameter(name="acceptedDataProtection", description="Accepted Data Protection policy", in="query", @OA\Schema(type="boolean")),
      *      @OA\Parameter(name="billingAddress", description="Billingaddress", in="query", @OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Parameter(name="shippingAddress", description="Shippingaddress", in="query", @OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Response(
@@ -314,6 +315,10 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
                 ['countryId' => $billingAddress['countryId']]
             ));
+        }
+
+        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannel()->getId())) {
+            $definition->add('acceptedDataProtection', new NotBlank());
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);

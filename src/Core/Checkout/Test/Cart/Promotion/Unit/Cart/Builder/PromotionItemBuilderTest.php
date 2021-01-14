@@ -71,7 +71,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
@@ -101,7 +101,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertEquals('D5', $item->getId());
     }
@@ -128,7 +128,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertEquals('individual-123', $item->getReferencedId());
     }
@@ -156,7 +156,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(10);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 2, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         $expectedPriceDefinition = new PercentagePriceDefinition(-10, null);
 
@@ -186,9 +186,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        /** @var int $precision */
-        $precision = 3;
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         $expectedPriceDefinition = new AbsolutePriceDefinition(-50 * $currencyFactor, null);
 
@@ -230,7 +228,7 @@ class PromotionItemBuilderTest extends TestCase
         $expectedRule = new OrRule();
         $expectedRule->addRule($discountFilter);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertEquals($expectedRule, $item->getPriceDefinition()->getFilter());
     }
@@ -267,7 +265,7 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection->add($discountRuleEntity);
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
     }
@@ -294,7 +292,7 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
     }
@@ -335,10 +333,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $this->salesChannelContext->method('getCurrency')->willReturn($currency);
 
-        /** @var int $precision */
-        $precision = 3;
-
-        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, 'C1', $currencyFactor);
 
         $expectedPrice = -1 * $currencyDiscountValue;
 
@@ -383,10 +378,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $this->salesChannelContext->method('getCurrency')->willReturn($currency);
 
-        /** @var int $precision */
-        $precision = 3;
-
-        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'D1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, 'D1', $currencyFactor);
 
         $expectedPrice = -1 * $standardDiscountValue * $currencyFactor;
 
@@ -425,7 +417,6 @@ class PromotionItemBuilderTest extends TestCase
             '',
             $this->promotion,
             $discount,
-            3,
             'C1'
         );
 

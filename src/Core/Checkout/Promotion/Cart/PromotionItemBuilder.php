@@ -33,7 +33,7 @@ class PromotionItemBuilder
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      */
-    public function buildPlaceholderItem(string $code, int $currencyPrecision): LineItem
+    public function buildPlaceholderItem(string $code): LineItem
     {
         // void duplicate codes with other items
         // that might not be from the promotion scope
@@ -61,7 +61,7 @@ class PromotionItemBuilder
      * @throws InvalidQuantityException
      * @throws UnknownPromotionDiscountTypeException
      */
-    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, string $currencyId, float $currencyFactor = 1.0): LineItem
+    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
     {
         //get the rules collection of discount
         $discountRuleCollection = $discount->getDiscountRules();

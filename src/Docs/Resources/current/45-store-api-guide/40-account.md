@@ -149,7 +149,7 @@ Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) 
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v3/account/customer
+GET /store-api/v3/account/customer
 
 {
     "includes": {

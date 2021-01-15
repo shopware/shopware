@@ -14,22 +14,21 @@ export default class FilterFactory {
      *
      * @param {String} entityName
      * @param {Object|null} filters
-     * @returns {Array}
+     * @returns {Array} filters
      */
     create(entityName, filters) {
-        const { properties } = Shopware.EntityDefinition.get(entityName);
-        const returnFilters = { ...filters };
-
-        Object.entries(returnFilters).forEach(([key, filter]) => {
+        return Object.entries(filters).map(([key, filter]) => {
             filter.name = key;
 
-            if (filter.type || !properties) {
-                return;
+            const property = this.getFilterProperties(entityName, filter.property);
+
+            if (filter.type || !property) {
+                return filter;
             }
 
-            const entitySchema = this.getFilterProperties(entityName, filter.property);
+            filter.schema = property;
 
-            switch (entitySchema.type) {
+            switch (property.type) {
                 case 'string':
                     filter.type = this.STRING_FILTER_INPUT;
                     break;
@@ -40,7 +39,7 @@ export default class FilterFactory {
                     filter.type = this.DATE_FILTER_INPUT;
                     break;
                 case 'association':
-                    filter.type = (entitySchema.relation === 'many_to_many' || entitySchema.relation === 'many_to_one')
+                    filter.type = (property.relation === 'many_to_many' || property.relation === 'many_to_one')
                         ? this.ASSOCIATION_FILTER_INPUT
                         : this.EXISTENCE_FILTER_INPUT;
                     break;
@@ -54,9 +53,9 @@ export default class FilterFactory {
             if (filter.property === 'price') {
                 filter.type = this.PRICE_FILTER_INPUT;
             }
-        });
 
-        return Object.values(returnFilters);
+            return filter;
+        });
     }
 
     /**
@@ -80,27 +79,23 @@ export default class FilterFactory {
             throw new Error(`No definition found for property ${first}`);
         }
 
-        // Field can be returned if no more parts remaining
-        if (parts.length <= 0) {
-            let returnProperty = { ...property };
-
-            // Check for foreign key association
-            if (property.type === 'uuid') {
-                Object.keys(properties).forEach(key => {
-                    if (properties[key].type === 'association' && properties[key].localField === first) {
-                        returnProperty = properties[key];
-                    }
-                });
-            }
-
-            return returnProperty;
+        // If there are more parts remaining
+        if (parts.length > 0 && property.entity) {
+            // recursion call for nested associations
+            return this.getFilterProperties(property.entity, parts.join('.'));
         }
 
-        if (!property.entity) {
-            return property;
+        let returnProperty = { ...property };
+
+        // Check for foreign key association
+        if (property.type === 'uuid') {
+            Object.keys(properties).forEach(key => {
+                if (properties[key].type === 'association' && properties[key].localField === first) {
+                    returnProperty = properties[key];
+                }
+            });
         }
 
-        // recursion call for nested associations
-        return this.getFilterProperties(property.entity, parts.join('.'));
+        return returnProperty;
     }
 }

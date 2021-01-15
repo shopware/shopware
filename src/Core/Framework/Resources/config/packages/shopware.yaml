@@ -136,6 +136,10 @@ shopware:
               default: false
               major: false
               description: "Filters & Search for Admin Grids"
+            - name: FEATURE_NEXT_12429
+              default: false
+              major: true
+              description: "Improve product UX"
 
     logger:
         file_rotation_count: 14

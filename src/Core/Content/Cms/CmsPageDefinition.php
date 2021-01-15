@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Cms;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -77,6 +78,12 @@ class CmsPageDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
                 (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_12032')) {
+            $collection->add(
+                (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete())
             );
         }
 

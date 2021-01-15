@@ -337,4 +337,8 @@ EOD
 Traits for different migration operations
 EOD
     ,
+    'Content/LandingPage' => <<<'EOD'
+Landing pages
+EOD
+    ,
 ];

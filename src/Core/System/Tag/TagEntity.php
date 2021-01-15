@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -55,6 +56,13 @@ class TagEntity extends Entity
      * @var NewsletterRecipientCollection|null
      */
     protected $newsletterRecipients;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     *
+     * @var LandingPageCollection|null
+     */
+    protected $landingPages;
 
     public function getName(): string
     {
@@ -134,5 +142,21 @@ class TagEntity extends Entity
     public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
         $this->newsletterRecipients = $newsletterRecipients;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function getLandingPages(): ?LandingPageCollection
+    {
+        return $this->landingPages;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function setLandingPages(LandingPageCollection $landingPages): void
+    {
+        $this->landingPages = $landingPages;
     }
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTra
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -346,6 +347,13 @@ class LanguageEntity extends Entity
      * @var ProductSearchConfigEntity|null
      */
     protected $productSearchConfig;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     *
+     * @var LandingPageTranslationCollection|null
+     */
+    protected $landingPageTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -931,6 +939,22 @@ class LanguageEntity extends Entity
     public function setProductSearchConfig(ProductSearchConfigEntity $productSearchConfig): void
     {
         $this->productSearchConfig = $productSearchConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function getLandingPageTranslations(): ?LandingPageTranslationCollection
+    {
+        return $this->landingPageTranslations;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function setLandingPageTranslations(LandingPageTranslationCollection $landingPageTranslations): void
+    {
+        $this->landingPageTranslations = $landingPageTranslations;
     }
 
     public function getApiAlias(): string

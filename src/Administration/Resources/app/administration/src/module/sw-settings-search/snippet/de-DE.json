@@ -53,6 +53,7 @@
       "textRebuildSearchIndexDescription": "Das Neuerstellen des Such-Indexes dauert einige Zeit. Achte darauf, dass das Fenster in dieser Zeit nicht geschlossen wird. Du wirst benachrichtigt sobald der Prozess abgeschlossen ist.",
       "textRebuildingSearchIndex": "Neu-Erstellung des Such-Indexes",
       "textLastedBuild": "Latest build:",
+      "textSearchNotIndexedYet": "Suche noch nicht indexiert",
       "list": {
         "columnSearchable": "Suchbar",
         "columnRankingPoints": "Rangpunktzahl",

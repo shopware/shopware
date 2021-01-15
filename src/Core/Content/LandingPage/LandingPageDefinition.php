@@ -58,6 +58,7 @@ class LandingPageDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('customFields'),
+            new TranslatedField('slotConfig'),
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),
             new TranslatedField('keywords'),

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -48,6 +49,7 @@ class LandingPageTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
+            new JsonField('slot_config', 'slotConfig'),
             (new LongTextField('meta_title', 'metaTitle'))->addFlags(new AllowHtml()),
             (new LongTextField('meta_description', 'metaDescription'))->addFlags(new AllowHtml()),
             (new LongTextField('keywords', 'keywords'))->addFlags(new AllowHtml()),

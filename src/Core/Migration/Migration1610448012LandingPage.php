@@ -38,9 +38,11 @@ class Migration1610448012LandingPage extends MigrationStep
               `meta_description` varchar(255) NULL,
               `keywords` varchar(255) NULL,
               `custom_fields` JSON NULL,
+              `slot_config` JSON,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
               PRIMARY KEY (`landing_page_id`, `landing_page_version_id`, `language_id`),
+              CONSTRAINT `json.landing_page_translation.slot_config` CHECK (JSON_VALID(`slot_config`)),
               CONSTRAINT `json.landing_page_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`)),
               CONSTRAINT `fk.landing_page_translation.language_id` FOREIGN KEY (`language_id`)
                 REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

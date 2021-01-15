@@ -68,6 +68,11 @@ class LandingPageEntity extends Entity
      */
     protected $customFields;
 
+    /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
     public function isActive(): bool
     {
         return $this->active;
@@ -176,5 +181,15 @@ class LandingPageEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(?array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 }

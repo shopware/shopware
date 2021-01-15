@@ -124,6 +124,10 @@ shopware:
               default: false
               major: true
               description: "Rule detail page assignments tab"
+            - name: FEATURE_NEXT_12032
+              default: false
+              major: true
+              description: "Add landing pages"
             - name: FEATURE_NEXT_12942
               default: false
               major: true
@@ -140,10 +144,6 @@ shopware:
               default: false
               major: true
               description: "Improve product UX"
-            - name: FEATURE_NEXT_12032
-              default: false
-              major: true
-              description: "Add landing pages"
 
     logger:
         file_rotation_count: 14

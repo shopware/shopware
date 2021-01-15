@@ -53,6 +53,11 @@ class LandingPageTranslationEntity extends Entity
      */
     protected $keywords;
 
+    /**
+     * @var array|null
+     */
+    protected $slotConfig;
+
     public function getLandingPageId(): string
     {
         return $this->landingPageId;
@@ -141,5 +146,15 @@ class LandingPageTranslationEntity extends Entity
     public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
+    }
+
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    public function setSlotConfig(?array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 }

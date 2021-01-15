@@ -7,7 +7,6 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
         this.cookieEnabledName = 'wishlist-enabled';
 
         this.storage = Storage;
-        this.key = 'wishlist-products';
 
         super.init();
     }
@@ -41,14 +40,14 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      */
     _fetch() {
         if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
-            this.storage.removeItem(this.key);
+            this.storage.removeItem(this._getStorageKey());
         }
 
         if (this.getCurrentCounter() > 0) {
             return this.products;
         }
 
-        const productStr = this.storage.getItem(this.key);
+        const productStr = this.storage.getItem(this._getStorageKey());
 
         if (!productStr) {
             return {};
@@ -68,9 +67,16 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      */
     _save() {
         if(this.products === null || this.getCurrentCounter() === 0) {
-            this.storage.removeItem(this.key);
+            this.storage.removeItem(this._getStorageKey());
         } else {
-            this.storage.setItem(this.key, JSON.stringify(this.products));
+            this.storage.setItem(this._getStorageKey(), JSON.stringify(this.products));
         }
+    }
+
+    /**
+     * @private
+     */
+    _getStorageKey() {
+        return 'wishlist-' + (window.salesChannelId || '');
     }
 }

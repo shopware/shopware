@@ -71,7 +71,12 @@ export default class WishlistWidgetPlugin extends Plugin {
      * @private
      */
     _reInitWishlistButton(productId) {
-        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId)
+        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId, false)
+
+        if (!buttonElements) {
+            return;
+        }
+
         buttonElements.forEach((el) => {
             const plugin = window.PluginManager.getPluginInstanceFromElement(el, 'AddToWishlist');
             plugin.initStateClasses();

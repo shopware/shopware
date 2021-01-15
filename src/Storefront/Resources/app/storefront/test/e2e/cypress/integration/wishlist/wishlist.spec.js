@@ -54,6 +54,7 @@ describe('Wishlist: for wishlist', () => {
         cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
+            cy.expect(win.salesChannelId).to.not.empty;
             cy.expect(win.customerLoggedInState).to.equal(0);
             cy.expect(win.wishlistEnabled).to.equal(1);
 

@@ -56,7 +56,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
      */
     _merge(callback) {
         this.storage = Storage;
-        const key = 'wishlist-products';
+        const key = 'wishlist-' + (window.salesChannelId || '');
 
         const productStr = this.storage.getItem(key);
 

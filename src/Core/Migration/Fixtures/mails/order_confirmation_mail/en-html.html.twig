@@ -1,15 +1,15 @@
 <div style="font-family:arial; font-size:12px;">
 
 {% set currencyIsoCode = order.currency.isoCode %}
-{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
+{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
 <br>
-We have received your order from {{ order.orderDateTime|date }}.<br>
+We have received your order from {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.<br>
 <br>
 Order number: {{ order.orderNumber }}<br>
 <br>
 As soon as your payment has been made, you will receive a separate notification and your order will be processed.<br>
 <br>
-You may check the current status of your order with this link: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}<br>
+You may check the current status of your order with this link: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}<br>
 You may use this link to edit your order, change the payment method or make additional payments.<br>
 <br>
 <strong>Information on your order:</strong><br>
@@ -51,7 +51,7 @@ You may use this link to edit your order, change the payment method or make addi
 <p>
     <br>
     <br>
-    Shipping costs: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    Shipping costs: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
 
     Net total: {{ order.amountNet|currency(currencyIsoCode) }}<br>
     {% for calculatedTax in order.price.calculatedTaxes %}
@@ -61,8 +61,8 @@ You may use this link to edit your order, change the payment method or make addi
 
     <br>
 
-    <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.name }}<br>
-    {{ delivery.shippingMethod.description }}<br>
+    <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
+    {{ delivery.shippingMethod.translated.description }}<br>
     <br>
 
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
@@ -71,7 +71,7 @@ You may use this link to edit your order, change the payment method or make addi
     {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
     {{ billingAddress.street }} <br>
     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
-    {{ billingAddress.country.name }}<br>
+    {{ billingAddress.country.translated.name }}<br>
     <br>
 
     <strong>Shipping address:</strong><br>
@@ -79,14 +79,14 @@ You may use this link to edit your order, change the payment method or make addi
     {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
     {{ delivery.shippingOrderAddress.street }} <br>
     {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-    {{ delivery.shippingOrderAddress.country.name }}<br>
+    {{ delivery.shippingOrderAddress.country.translated.name }}<br>
     <br>
     {% if billingAddress.vatId %}
         Your VAT-ID: {{ billingAddress.vatId }}
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>
     {% endif %}
     <br/>
-    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
     </br>
     If you have any questions, do not hesitate to contact us.
 

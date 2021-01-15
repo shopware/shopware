@@ -1,0 +1,29 @@
+{# TODO: extract the sidebar-item to seperate component #}
+<sw-sidebar-item
+    icon="default-action-filter"
+    title="Foo">
+
+
+    <div v-for="filter in filters" :key="filter.name">
+        <div v-if="false"></div> {# hack" that all plugin developers simply say "v-else-if #}
+
+        {% block sw_filter_panel_extension_point %} {% endblock %}
+
+        <sw-boolean-filter
+            v-else-if="filter.type === 'boolean-filter'"
+            :filter="filter"
+            @updateFilter="updateFilter"
+            @resetFilter="resetFilter">
+        </sw-boolean-filter>
+
+        <sw-multi-select-filter
+            v-else-if="filter.type === 'multi-select-filter'"
+            :filter="filter"
+            @updateFilter="updateFilter"
+            @resetFilter="resetFilter">
+        </sw-multi-select-filter>
+    </div>
+
+
+
+</sw-sidebar-item>

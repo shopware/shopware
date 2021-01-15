@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-describe('Tax: Test crud operations', () => {
+describe('Tax: Test tax-rule listing operations', () => {
     before(() => {
         cy.setToInitialState()
             .then(() => {
@@ -14,7 +14,7 @@ describe('Tax: Test crud operations', () => {
             });
     });
     it('@setting: test the default sorting and page', () => {
-        cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value').contains('Standard rate').click();
+        cy.get('.sw-data-grid__row--1 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > .sw-data-grid__cell-value').contains('Standard rate').click();
 
         cy.testListing({
             sorting: {
@@ -60,7 +60,6 @@ describe('Tax: Test crud operations', () => {
 
         cy.log('change items per page to 10');
         cy.get('#perPage').select('10');
-        cy.log('change Sorting direction from DESC to ASC');
 
         cy.testListing({
             sorting: {

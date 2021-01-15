@@ -523,6 +523,7 @@ Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
    primary_key(id) id
    not_null(taxRate) float
    not_null(name) string
+   not_null(position) int
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt

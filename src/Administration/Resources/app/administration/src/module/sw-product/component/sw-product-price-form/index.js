@@ -66,6 +66,14 @@ Component.register('sw-product-price-form', {
                 const value = event.currentTarget.value;
                 event.currentTarget.value = value.replace(/.$/, '.');
             }
+        },
+
+        getTaxLabel(tax) {
+            if (this.$te(`global.tax-rates.${tax.name}`)) {
+                return this.$tc(`global.tax-rates.${tax.name}`);
+            }
+
+            return tax.name;
         }
     }
 });

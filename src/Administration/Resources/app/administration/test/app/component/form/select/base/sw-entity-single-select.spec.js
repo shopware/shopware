@@ -389,4 +389,34 @@ describe('components/sw-entity-single-select', () => {
                 .toContain(fixture[0].variation[0].option);
         });
     });
+
+    it('should display label provided by callback', async () => {
+        const swEntitySingleSelect = createEntitySingleSelect({
+            propsData: {
+                value: fixture[0].id,
+                entity: 'test',
+                labelCallback: () => 'test'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(fixture[0]),
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await swEntitySingleSelect.vm.$nextTick();
+        expect(swEntitySingleSelect.find('.sw-entity-single-select__selection-text').text())
+            .toEqual('test');
+
+        await swEntitySingleSelect.find('input').trigger('click');
+        await swEntitySingleSelect.vm.$nextTick();
+
+        expect(swEntitySingleSelect.find('input').element.value).toBe('test');
+        expect(swEntitySingleSelect.find('.sw-select-result__result-item-text').text()).toBe('test');
+    });
 });

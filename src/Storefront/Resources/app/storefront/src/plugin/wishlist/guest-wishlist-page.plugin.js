@@ -37,7 +37,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
             productIds
         }), response => {
             this.el.innerHTML = response;
-            const forms = this.el.querySelectorAll('form');
+            const forms = this.el.querySelectorAll('form.product-wishlist-form');
 
             if (!forms || forms.length !== productIds.length) {
                 this._cleanInvalidGuestProductIds(productIds, forms);
@@ -50,6 +50,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
             }
 
             ElementLoadingIndicatorUtil.remove(this.el);
+            window.PluginManager.initializePlugins();
         });
     }
 

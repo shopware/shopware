@@ -32,6 +32,8 @@ const product = {
 
 describe('Wishlist: for wishlist page', () => {
     beforeEach(() => {
+        cy.setCookie('wishlist-enabled', '1');
+
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -75,7 +77,7 @@ describe('Wishlist: for wishlist page', () => {
         cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
     });
 
-    it.skip('@wishlist does load wishlist page on guest state', () => {
+    it('@wishlist does load wishlist page on guest state', () => {
         cy.server();
         cy.route({
             url: '/wishlist/guest-pagelet',
@@ -93,7 +95,6 @@ describe('Wishlist: for wishlist page', () => {
 
         cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
         cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-
         cy.get('.product-wishlist-form [type="submit"]').click();
 
         cy.wait('@guestPagelet').then(xhr => {
@@ -103,6 +104,51 @@ describe('Wishlist: for wishlist page', () => {
 
         cy.get('.cms-listing-row').find('h1').contains('Your wishlist is empty')
         cy.get('.cms-listing-row').find('p').contains('Keep an eye on products you like by adding them to your wishlist.')
+    });
+
+    it('@wishlist add to cart button work on guest page', () => {
+        cy.server();
+        cy.route({
+            url: '/wishlist/guest-pagelet',
+            method: 'post'
+        }).as('guestPagelet');
+
+        cy.route({
+            url: '/checkout/line-item/add',
+            method: 'post'
+        }).as('add-to-cart');
+
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('offcanvas');
+
+        cy.visit('/wishlist');
+        cy.title().should('eq', 'Your wishlist')
+
+        localStorage.setItem('wishlist-products', JSON.stringify({[product.id]: "20201220"}));
+
+        cy.wait('@guestPagelet').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
+            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
+
+            cy.wait('@add-to-cart').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+
+            cy.wait('@offcanvas').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+                cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
+                cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
+
+                // Wishlist product should still exist
+                cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+                cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+            });
+        });
     });
 
     it.skip('@wishlist remove product of wishlist', () => {

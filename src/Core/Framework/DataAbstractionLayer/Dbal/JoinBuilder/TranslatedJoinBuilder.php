@@ -22,13 +22,31 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             throw new \InvalidArgumentException('Expected ' . TranslatedField::class);
         }
 
-        $query = $this->getTranslationQuery($definition, $on, $queryBuilder, $context);
-
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($root),
             '#foreignKey#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
             '#on#' => EntityDefinitionQueryHelper::escape($on),
         ];
+
+        $rootVersionFieldName = null;
+        $translatedVersionFieldName = null;
+        $versionJoin = '';
+
+        if ($definition->isVersionAware() && $definition->getTranslationDefinition() !== null) {
+            // field of the translated definition
+            $rootVersionFieldName = 'version_id';
+
+            // field of the translationDefinition
+            $translatedVersionFieldName = $definition->getEntityName() . '_version_id';
+        }
+
+        $query = $this->getTranslationQuery($definition, $on, $queryBuilder, $context, $translatedVersionFieldName);
+
+        if ($rootVersionFieldName && $translatedVersionFieldName) {
+            $variables['#rootVersionField#'] = $rootVersionFieldName;
+            $variables['#translatedVersionField#'] = $translatedVersionFieldName;
+            $versionJoin = ' AND #alias#.#translatedVersionField# = #on#.#rootVersionField#';
+        }
 
         $queryBuilder->leftJoin(
             EntityDefinitionQueryHelper::escape($on),
@@ -37,7 +55,7 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             str_replace(
                 array_keys($variables),
                 array_values($variables),
-                '#alias#.#foreignKey# = #on#.`id`'
+                '#alias#.#foreignKey# = #on#.`id`' . $versionJoin
             )
         );
 
@@ -49,13 +67,19 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             return;
         }
 
-        $query = $this->getTranslationQuery($definition, $on . '.parent', $queryBuilder, $context);
+        $query = $this->getTranslationQuery($definition, $on . '.parent', $queryBuilder, $context, $translatedVersionFieldName);
 
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($root . '.parent'),
             '#foreignKey#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
             '#on#' => EntityDefinitionQueryHelper::escape($on . '.parent'),
         ];
+
+        if ($rootVersionFieldName && $translatedVersionFieldName) {
+            $variables['#rootVersionField#'] = $rootVersionFieldName;
+            $variables['#translatedVersionField#'] = $translatedVersionFieldName;
+            $versionJoin = ' AND #alias#.#translatedVersionField# = #on#.#rootVersionField#';
+        }
 
         $queryBuilder->leftJoin(
             EntityDefinitionQueryHelper::escape($on),
@@ -64,14 +88,14 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
             str_replace(
                 array_keys($variables),
                 array_values($variables),
-                '#alias#.#foreignKey# = #on#.`id`'
+                '#alias#.#foreignKey# = #on#.`id`' . $versionJoin
             )
         );
     }
 
     private function getSelectTemplate(EntityDefinition $definition)
     {
-        $select = $definition->getFields()->fmap(function (Field $field) {
+        $select = $definition->getFields()->fmap(static function (Field $field) {
             if (!$field instanceof StorageAware) {
                 return null;
             }
@@ -82,7 +106,7 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
         return implode(', ', $select);
     }
 
-    private function getTranslationQuery(EntityDefinition $definition, string $on, QueryBuilder $queryBuilder, Context $context): QueryBuilder
+    private function getTranslationQuery(EntityDefinition $definition, string $on, QueryBuilder $queryBuilder, Context $context, ?string $versionFieldName = null): QueryBuilder
     {
         $table = $definition->getEntityName() . '_translation';
 
@@ -101,6 +125,11 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
         // used as join condition
         $query->addSelect($foreignKey);
 
+        if ($versionFieldName !== null) {
+            $versionKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $versionFieldName;
+            $query->addSelect($versionKey);
+        }
+
         // set first language as from part
         $query->addSelect(str_replace('#alias#', $firstAlias, $select));
         $query->from(EntityDefinitionQueryHelper::escape($table), EntityDefinitionQueryHelper::escape($firstAlias));
@@ -114,8 +143,9 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
          * LEFT JOIN (
          *      SELECT
          *          `currency.translation`.currency_id,
-         *          `currency.translation`.`name` as `currency.translation.name`
-         *          `currency.translation.fallback_1`.`name` as `currency.translation.fallback_1.name`
+         *          `currency.translation`.currency_version_id, (optional)
+         *          `currency.translation`.`name` as `currency.translation.name`,
+         *          `currency.translation.fallback_1`.`name` as `currency.translation.fallback_1.name`,
          *          `currency.translation.fallback_2`.`name` as `currency.translation.fallback_2.name`
          *
          *      FROM currency_translation as `currency.translation`
@@ -145,6 +175,11 @@ class TranslatedJoinBuilder implements JoinBuilderInterface
                 '#alias#' => EntityDefinitionQueryHelper::escape($alias),
                 '#firstAlias#' => EntityDefinitionQueryHelper::escape($firstAlias),
             ];
+
+            if ($versionFieldName !== null) {
+                $variables['#versionFieldName#'] = $versionFieldName;
+                $condition .= ' AND #firstAlias#.#versionFieldName# = #alias#.#versionFieldName#';
+            }
 
             $query->leftJoin(
                 EntityDefinitionQueryHelper::escape($firstAlias),

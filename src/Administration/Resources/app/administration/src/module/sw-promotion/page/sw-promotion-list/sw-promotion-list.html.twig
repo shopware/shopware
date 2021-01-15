@@ -75,7 +75,8 @@
                             fullPage
                             @selection-change="updateSelection"
                             @update-records="updateTotal"
-                            :disableDataFetching=true>
+                            :disableDataFetching=true
+                            identifier="sw-promotion-list">
 
                             {% block sw_promotion_list_grid_columns %}
                                 {% block sw_promotion_list_grid_columns_active %}

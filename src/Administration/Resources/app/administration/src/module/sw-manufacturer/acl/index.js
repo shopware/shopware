@@ -10,7 +10,10 @@ Shopware.Service('privileges')
                     'custom_field_set:read',
                     'custom_field:read',
                     'custom_field_set_relation:read',
-                    Shopware.Service('privileges').getPrivileges('media.viewer')
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

@@ -70,7 +70,8 @@
                             :criteriaLimit="limit"
                             :allowInlineEdit="acl.can('product_stream.editor')"
                             @inline-edit-save="onInlineEditSave"
-                            @items-delete-finish="getList">
+                            @items-delete-finish="getList"
+                            identifier="sw-product-stream-list">
 
                             {% block sw_product_stream_list_grid_bulk %}
                                 <template #bulk>

@@ -11,7 +11,10 @@ Shopware.Service('privileges')
                     'sales_channel:read',
                     'salutation:read',
                     'customer:read',
-                    'tag:read'
+                    'tag:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

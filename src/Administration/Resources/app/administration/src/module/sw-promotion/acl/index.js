@@ -18,7 +18,10 @@ Shopware.Service('privileges')
                     'currency:read',
                     'promotion_discount_rule:read',
                     'promotion_setgroup:read',
-                    'promotion_setgroup_rule:read'
+                    'promotion_setgroup_rule:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

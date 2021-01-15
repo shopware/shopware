@@ -53,6 +53,18 @@ export default class WishlistWidgetPlugin extends Plugin {
 
             this._reInitWishlistButton(event.detail.productId);
         });
+
+        const listingEl = DomAccess.querySelector(document, '.cms-element-product-listing-wrapper', false);
+
+        if (listingEl) {
+            const listingPlugin = window.PluginManager.getPluginInstanceFromElement(listingEl, 'Listing');
+
+            listingPlugin.$emitter.subscribe('Listing/afterRenderResponse', () => {
+                window.PluginManager.getPluginInstances('AddToWishlist').forEach((pluginInstance) => {
+                    pluginInstance.initStateClasses();
+                });
+            })
+        }
     }
 
     /**

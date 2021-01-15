@@ -65,6 +65,10 @@ Component.register('sw-settings-search', {
             this.getProductSearchConfigs();
         },
 
+        onTabChange() {
+            this.getProductSearchConfigs();
+        },
+
         onSaveSearchSettings() {
             this.isLoading = true;
             this.productSearchRepository.save(this.productSearchConfigs, Shopware.Context.api)

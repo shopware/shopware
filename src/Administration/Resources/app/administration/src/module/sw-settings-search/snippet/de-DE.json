@@ -16,6 +16,12 @@
       "labelSearchOrCondition": "“ODER”-Suche",
       "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe. \nBeispiel: \"Jeans Sommer\" findet Produkte die entweder das Schlagwort \"jeans\" oder das Schlagwort \"sommer\" enthalten.",
       "labelMinimalSearchTerm": "Minimale Suchbegrifflänge",
+      "labelExcludedSearchTerms": "Ausgeschlossene Suchwörter",
+      "textEmptyStateExcludedSearchTerms": "Bisher keine Suchwörter ausgeschlossen",
+      "buttonAddExcludedSearch": "Ausschluss hinzufügen",
+      "textPlaceholderTermsFilter": "Ausgeschlossene Suchwörter durchsuchen...",
+      "buttonAddExcludedSearchTerms" : "Suchwort ausschließen",
+      "labelExcludedSearchTermsNoResults": "Keine Suchergebnisse gefunden.",
       "labelSearchableContent": "Durchsuchbare Inhalte",
       "textDescriptionSearchableContent": "Durchsuchbare Inhalte findest Du in der Tabelle hierunter. Du kannst die möglichen Suchergebnisse in Deiner Storefront anpassen, indem Du Inhalte von der Suche ausschließt, oder das Suchranking einzelner Elemente anpasst. Höher eingestufte Elemente haben einen höheren \"Suchwert\" und werden in den Suchergebnissen weiter oben angezeigt.",
       "buttonResetDefault": "Standardwerte wiederherstellen",
@@ -25,6 +31,7 @@
       "labelCustomFieldsTab": "Zusatzfelder",
       "textEmptyStateSearchableContent": "Noch kein durchsuchbarer Inhalt hinzugefügt.",
       "titleExampleModal": "Suchranking-Beispiel",
+      "textColumnSearchTerm": "Suchwörter",
       "modal": {
         "textExplain": "Unten findest Du drei Ranking-Beispiele für die Suche nach dem Begriff \"jeans\". Durchsucht werden Produkt-Titel (Ranking-Punktzahl: 100), Produkt-Beschreibungen (Ranking-Punktzahl: 50) und Produkt-Tags (Ranking-Punktzahl: 20).",
         "textTitle": "Titel",
@@ -74,6 +81,11 @@
     },
     "notification": {
       "saveSuccess": "Konfiguration gespeichert.",
+      "excludedTermRequired": "Ausgeschlossene Suchwörter dürfen nicht leer sein.",
+      "excludedTermAlreadyExists": "Dieses Suchwort wurde bereits ausgeschlossen.",
+      "updateExcludedTermSuccess": "Ausgeschlossenes Suchwort aktualisiert.",
+      "createExcludedTermSuccess": "Ausgeschlossenes Suchwort erstellt.",
+      "deleteExcludedTermSuccess": "Ausgeschlossenes Suchwort entfernt.",
       "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
       "index": {
         "started": "Erstellung der Produkt-Indizes.",

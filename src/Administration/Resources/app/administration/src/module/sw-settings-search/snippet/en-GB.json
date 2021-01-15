@@ -16,6 +16,12 @@
       "labelSearchOrCondition": "“OR” Search",
       "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
       "labelMinimalSearchTerm": "Minimal search term length",
+      "labelExcludedSearchTerms": "Excluded Search Terms",
+      "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
+      "buttonAddExcludedSearch": "Add exclusion",
+      "textPlaceholderTermsFilter": "Search excluded terms...",
+      "buttonAddExcludedSearchTerms" : "Add exclusion term",
+      "labelExcludedSearchTermsNoResults": "No results found.",
       "labelSearchableContent": "Searchable content",
       "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Storefront go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
       "buttonResetDefault": "Reset to default",
@@ -25,6 +31,7 @@
       "labelCustomFieldsTab": "Custom fields",
       "textEmptyStateSearchableContent": "No searchable content added yet.",
       "titleExampleModal": "Search ranking example",
+      "textColumnSearchTerm": "Search Terms",
       "modal": {
         "textExplain": "Below you'll find three fictional search results for the search term \"jeans\". Searchable are product titles (ranking score 100), product descriptions (ranking score 50) and product tags (ranking score 20).",
         "textTitle": "Title",
@@ -74,6 +81,11 @@
     },
     "notification": {
       "saveSuccess": "The configuration has been saved.",
+      "excludedTermRequired": "Excluded term should not be empty.",
+      "excludedTermAlreadyExists": "Excluded term already exists.",
+      "updateExcludedTermSuccess": "Excluded term update success.",
+      "createExcludedTermSuccess": "Excluded term create success.",
+      "deleteExcludedTermSuccess": "Excluded term delete success.",
       "saveError": "An error occurred while saving your configuration.",
       "index": {
         "started": "Building product indexes.",

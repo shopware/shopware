@@ -33,6 +33,7 @@
                         v-for="item in treeItems"
                         :key="item.id"
                         :item="item"
+                        :shouldShowActiveState="true"
                         :allowNewCategories="allowCreate"
                         :allowDeleteCategories="allowDelete"
                         :active="item.active"

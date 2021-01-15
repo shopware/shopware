@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -21,8 +21,6 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@base @content: create, translate and read layout', () => {
-        const page = new MediaPageObject();
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page`,
@@ -167,9 +165,7 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 200);
 
             cy.get('.sw-text-editor__content-editor')
-                .then($target => {
-                    const coords = $target[0].getBoundingClientRect();
-
+                .then(() => {
                     cy.get('.sw-text-editor__content-editor').clear();
                     cy.get('.sw-text-editor__content-editor').type('Deutsch');
                 });
@@ -193,7 +189,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

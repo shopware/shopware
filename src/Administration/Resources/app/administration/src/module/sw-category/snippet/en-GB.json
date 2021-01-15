@@ -111,6 +111,11 @@
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
     }
   },
+  "sw-landing-page": {
+    "general": {
+      "treeHeadline": "Landing Pages"
+    }
+  },
   "sw-privileges": {
     "permissions": {
       "category": {

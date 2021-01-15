@@ -15,7 +15,8 @@ Component.register('sw-category-detail', {
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
-        'seoUrlService'
+        'seoUrlService',
+        'feature'
     ],
 
     provide() {
@@ -41,6 +42,11 @@ Component.register('sw-category-detail', {
 
     props: {
         categoryId: {
+            type: String,
+            required: false,
+            default: null
+        },
+        landingPageId: {
             type: String,
             required: false,
             default: null
@@ -78,12 +84,24 @@ Component.register('sw-category-detail', {
             return this.category ? this.placeholder(this.category, 'name') : '';
         },
 
+        landingPageRepository() {
+            return this.repositoryFactory.create('landing_page');
+        },
+
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
 
         cmsPageRepository() {
             return this.repositoryFactory.create('cms_page');
+        },
+
+        landingPage() {
+            if (!Shopware.State.get('swCategoryDetail')) {
+                return {};
+            }
+
+            return Shopware.State.get('swCategoryDetail').landingPage;
         },
 
         category() {
@@ -99,6 +117,10 @@ Component.register('sw-category-detail', {
         },
 
         cmsPageId() {
+            if (this.landingPage) {
+                return this.landingPage.cmsPageId;
+            }
+
             return this.category ? this.category.cmsPageId : null;
         },
 
@@ -154,15 +176,25 @@ Component.register('sw-category-detail', {
     },
 
     watch: {
+        landingPageId() {
+            this.setLandingPage();
+        },
+
         categoryId() {
             this.setCategory();
         },
 
         cmsPageId() {
-            if (!this.isLoading) {
+            if (!this.isLoading && this.category) {
                 this.category.slotConfig = null;
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPage);
+            }
+
+            if (!this.isLoading && this.landingPage) {
+                this.landingPage.slotConfig = null;
+                Shopware.State.dispatch('cmsPageState/resetCmsPageState')
+                    .then(this.getAssignedCmsPageForLandingPage);
             }
         }
     },
@@ -203,7 +235,12 @@ Component.register('sw-category-detail', {
             this.checkViewport();
             this.registerListener();
 
-            this.setCategory();
+            if (this.categoryId !== null) {
+                this.setCategory();
+                return;
+            }
+
+            this.setLandingPage();
         },
 
         registerListener() {
@@ -269,6 +306,97 @@ Component.register('sw-category-detail', {
                 this.cmsService.getEntityMappingTypes('category')
             );
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.category);
+        },
+
+        getAssignedCmsPageForLandingPage() {
+            if (this.cmsPageId === null) {
+                return Promise.resolve(null);
+            }
+
+            const criteria = new Criteria(1, 1);
+            criteria.setIds([this.cmsPageId]);
+            criteria.addAssociation('previewMedia');
+            criteria.addAssociation('sections');
+            criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
+
+            criteria.addAssociation('sections.blocks');
+            criteria.getAssociation('sections.blocks')
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addAssociation('slots');
+
+            return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
+                const cmsPage = response.get(this.cmsPageId);
+                if (this.landingPage.slotConfig !== null) {
+                    cmsPage.sections.forEach((section) => {
+                        section.blocks.forEach((block) => {
+                            block.slots.forEach((slot) => {
+                                if (this.landingPage.slotConfig[slot.id]) {
+                                    if (slot.config === null) {
+                                        slot.config = {};
+                                    }
+                                    merge(slot.config, cloneDeep(this.landingPage.slotConfig[slot.id]));
+                                }
+                            });
+                        });
+                    });
+                }
+
+                this.updateCmsPageDataMappingForLandingPage();
+                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+                return this.cmsPage;
+            });
+        },
+
+        updateCmsPageDataMappingForLandingPage() {
+            Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'landing_page');
+            Shopware.State.commit(
+                'cmsPageState/setCurrentMappingTypes',
+                this.cmsService.getEntityMappingTypes('landing_page')
+            );
+            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.landingPage);
+        },
+
+        setLandingPage() {
+            this.isLoading = true;
+
+            if (this.landingPageId === null) {
+                Shopware.State.commit('shopwareApps/setSelectedIds', []);
+
+                return Shopware.State.dispatch('swCategoryDetail/setActiveLandingPage', { landingPage: null })
+                    .then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
+                    .catch(() => {
+                        this.createNotificationError({
+                            title: this.$tc('global.default.error'),
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                        });
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
+            }
+
+
+            return Shopware.State.dispatch(
+                'shopwareApps/setSelectedIds',
+                [this.landingPageId]
+            ).then(() => {
+                return Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
+                    repository: this.landingPageRepository,
+                    apiContext: Shopware.Context.api,
+                    id: this.landingPageId
+                });
+            }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
+                .then(this.getAssignedCmsPageForLandingPage)
+                .then(this.loadCustomFieldSet)
+                .catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         setCategory() {

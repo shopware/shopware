@@ -59,4 +59,62 @@ Shopware.Service('privileges')
                 ]
             }
         }
+    })
+    .addPrivilegeMappingEntry({
+        category: 'permissions',
+        parent: 'catalogues',
+        key: 'landingPage',
+        roles: {
+            viewer: {
+                privileges: [
+                    'landing_page:read',
+                    'landing_page_translation:read',
+                    'landing_page_tag:read',
+                    'landing_page_sales_channel:read',
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
+                    'tag:read',
+                    'sales_channel:read',
+                    'sales_channel_type:read',
+                    Shopware.Service('privileges').getPrivileges('cms.viewer'),
+                    'custom_field_set:read',
+                    'custom_field:read',
+                    'custom_field_set_relation:read'
+                ],
+                dependencies: []
+            },
+            editor: {
+                privileges: [
+                    'landing_page:update',
+                    'landing_page_translation:create',
+                    'landing_page_translation:update',
+                    Shopware.Service('privileges').getPrivileges('media.creator'),
+                    Shopware.Service('privileges').getPrivileges('cms.editor'),
+                    'tag:create',
+                    'landing_page_tag:create',
+                    'landing_page_tag:delete',
+                    'landing_page_sales_channel:create',
+                    'landing_page_sales_channel:delete'
+                ],
+                dependencies: [
+                    'category.viewer'
+                ]
+            },
+            creator: {
+                privileges: [
+                    'landingPage:create'
+                ],
+                dependencies: [
+                    'landingPage.viewer',
+                    'landingPage.editor'
+                ]
+            },
+            deleter: {
+                privileges: [
+                    'landingPage:delete'
+                ],
+                dependencies: [
+                    'landingPage.viewer'
+                ]
+            }
+        }
     });

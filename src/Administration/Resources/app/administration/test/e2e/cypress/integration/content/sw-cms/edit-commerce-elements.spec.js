@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('CMS: Check usage and editing of commerce elements', () => {
     beforeEach(() => {
@@ -96,7 +96,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -185,7 +185,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

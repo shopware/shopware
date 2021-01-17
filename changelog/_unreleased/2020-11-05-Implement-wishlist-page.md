@@ -1,6 +1,7 @@
 ---
 title: Implement wishlist page in storefront
 issue: NEXT-11281
+flag: FEATURE_NEXT_10549
 ---
 # Storefront
 *  Added `Shopware\Storefront\Controller\WishlistController`.

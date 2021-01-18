@@ -1,6 +1,25 @@
 import products from '../../fixtures/listing-pagination-products.json';
 
-let product = {};
+const product = {
+    "id": "6dfd9dc216ab4ac99598b837ac600368",
+    "name": "Test product 1",
+    "stock": 1,
+    "productNumber": "RS-1",
+    "descriptionLong": "Product description",
+    "price": [
+        {
+            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+            "net": 8.40,
+            "linked": false,
+            "gross": 10
+        }
+    ],
+    "url": "/product-name.html",
+    "manufacturer": {
+        "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "name": "Test variant manufacturer"
+    },
+};
 
 describe('Wishlist: for wishlist', () => {
     beforeEach(() => {
@@ -22,21 +41,17 @@ describe('Wishlist: for wishlist', () => {
             return cy.request(requestConfig);
         });
 
-        cy.setCookie('wishlist-enabled', '1');
-
         return cy.createCustomerFixtureStorefront().then(() => {
-            return cy.createProductFixture().then(() => {
-                return cy.createDefaultFixture('category')
-            }).then(() => {
-                return cy.fixture('product');
-            }).then((res) => {
-                product = res;
+            return cy.createProductFixture(product).then(() => {
+                cy.setCookie('wishlist-enabled', '1');
             })
         })
     });
 
     it('@wishlist: Wishlist state is set correctly', () => {
         cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.expect(win.customerLoggedInState).to.equal(0);
@@ -59,6 +74,8 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge display on header', () => {
         cy.visit('/');
 
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
         cy.window().then((win) => {
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('be.visible');
         })
@@ -66,6 +83,8 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Heart icon badge display on product box in product listing', () => {
         cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             let heartIcon = cy.get('.product-box .product-wishlist-action-circle').first();
@@ -88,6 +107,8 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge display in product detail', () => {
         cy.visit('/');
 
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
         cy.window().then((win) => {
             cy.get('.product-image-wrapper').click();
 
@@ -108,6 +129,8 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge display the counter', () => {
         cy.visit('/');
 
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
         cy.window().then((win) => {
             cy.get('#wishlist-basket').should('not.be.visible');
             cy.get('.product-box .product-wishlist-action-circle').first().click();
@@ -122,6 +145,8 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', () => {
         cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.clearCookie('wishlist-enabled');
@@ -143,10 +168,67 @@ describe('Wishlist: for wishlist', () => {
         })
     });
 
+    it('@wishlist: Order in which the products are displayed is based on the time they were added to the wishlist', () => {
+        cy.createProductFixture({
+            "id": "6dfd9dc216ab4ac99598b837ac600369",
+            "name": "Test product 2",
+            "stock": 1,
+            "productNumber": "RS-2",
+            "descriptionLong": "Product description",
+            "price": [
+                {
+                    "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                    "net": 8.40,
+                    "linked": false,
+                    "gross": 10
+                }
+            ],
+            "url": "/product-name.html",
+            "manufacturer": {
+                "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "name": "Test variant manufacturer"
+            },
+        });
+
+        cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
+        cy.server();
+        cy.route({
+            url: '/wishlist/guest-pagelet',
+            method: 'post'
+        }).as('guestPagelet');
+
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
+
+        heartIcon.click();
+
+        heartIcon = cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
+
+        heartIcon.click();
+
+        cy.visit('/wishlist');
+        cy.title().should('eq', 'Your wishlist');
+
+        cy.wait('@guestPagelet').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+
+            cy.get('.cms-listing-col').eq(0).contains('Test product 2');
+            cy.get('.cms-listing-col').eq(1).contains(product.name);
+        });
+    });
+
     it('@wishlist: Heart icon badge display on product box in product listing pagination', () => {
         Array.from(products).forEach(product => cy.createProductFixture(product));
 
         cy.visit('/');
+
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         Array.from(products).slice(0, 4).forEach(item => {
             let heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();

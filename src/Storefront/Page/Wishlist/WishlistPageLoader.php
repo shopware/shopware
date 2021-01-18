@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -97,6 +98,7 @@ class WishlistPageLoader
         $offset = $limit * ($page - 1);
 
         return (new Criteria())
+            ->addSorting(new FieldSorting('wishlists.updatedAt', FieldSorting::ASCENDING))
             ->addAssociation('manufacturer')
             ->addAssociation('options.group')
             ->setLimit($limit)

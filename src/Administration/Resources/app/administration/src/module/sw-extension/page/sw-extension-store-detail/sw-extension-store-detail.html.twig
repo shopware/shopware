@@ -144,13 +144,13 @@
             {% block sw_extension_store_detail_slot_smart_bar_context_buttons %}
                 <template #smart-bar-context-buttons>
                     {% block sw_extension_store_detail_show_permissions %}
-                        <saas-rufus-meteor-page-context-item
-                            v-if="Object.keys(extension.permissions).length"
-                            :label="$tc('sw-extension-store.detail.labelButtonShowPermissions')"
-                            icon="default-object-shield-full"
-                            @click="openPermissionsModal"
-                            priority="always">
-                        </saas-rufus-meteor-page-context-item>
+                        <sw-button v-if="hasPermissions"
+                                   @click="openPermissionsModal"
+                                   variant="context"
+                                   size="small">
+                            <sw-icon name="default-object-shield-full" size="16px"></sw-icon>
+                            {{ $tc('sw-extension-store.detail.labelButtonShowPermissions') }}
+                        </sw-button>
                     {% endblock %}
                 </template>
             {% endblock %}

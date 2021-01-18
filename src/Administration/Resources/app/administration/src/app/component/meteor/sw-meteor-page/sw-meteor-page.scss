@@ -191,6 +191,10 @@
         .sw-meteor-page__smart-bar-context-buttons {
             grid-area: context;
             min-width: 20%;
+
+            .sw-button {
+                margin: 6px 4px;
+            }
         }
     }
 

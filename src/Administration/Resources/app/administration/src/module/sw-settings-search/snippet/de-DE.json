@@ -45,7 +45,16 @@
       "saveSuccess": "Konfiguration gespeichert.",
       "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten."
     },
-    "liveSearchTab": {}
+    "liveSearchTab": {
+      "titleCard": "Storefront-Echtzeitsuche",
+      "textDescription": "Unten kannst Du Deine eigenen Sucheinstellungen testen. Vergiss nicht, Deine Änderungen zu speichern, bevor Du sie in der Echtzeitsuche testest.",
+      "labelSalesChannelSelect": "Verkaufskanal",
+      "textPlaceholderSalesChannel": "Wähle einen Verkaufskanal aus, um die Echtzeitsuche zu testen.",
+      "linkRebuildSearchIndex": "Suchindex neu aufbauen",
+      "labelName": "Name",
+      "labelScore": "Punktzahl",
+      "textNoResult": "Mit den eingegebenen Suchwörtern wurden keine Ergebnisse gefunden. Versuche es noch einmal."
+    }
   },
   "sw-privileges": {
     "permissions": {

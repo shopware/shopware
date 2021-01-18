@@ -3,6 +3,9 @@ import './sw-meteor-page.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-meteor-page', {
     template,
 

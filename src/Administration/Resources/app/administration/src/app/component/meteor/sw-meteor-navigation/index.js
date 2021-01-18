@@ -3,31 +3,26 @@ import './sw-meteor-navigation.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-meteor-navigation', {
     template,
 
     computed: {
-        route() {
-            return this.$route;
-        },
-
         hasParentRoute() {
-            return this.route.meta && this.route.meta.parentPath;
-        },
-
-        navigationPath() {
-            if (!this.hasParentRoute) {
-                return [];
-            }
-
-            return [{
-                name: this.route.meta.parentPath,
-                label: this.$tc('sw-extension-store.general.backBtn')
-            }].reverse();
+            return this.$route && this.$route.meta && this.$route.meta.parentPath;
         },
 
         parentRoute() {
-            return this.hasParentRoute ? this.navigationPath[0] : null;
+            if (!this.hasParentRoute) {
+                return null;
+            }
+
+            return {
+                name: this.$route.meta.parentPath,
+                label: this.$tc('sw-meteor.navigation.backButton')
+            };
         }
     }
 });

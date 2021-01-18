@@ -8,6 +8,9 @@ const PRIORITIES = Object.freeze({
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-meteor-page-context-item', {
     inheritAttrs: false,
 

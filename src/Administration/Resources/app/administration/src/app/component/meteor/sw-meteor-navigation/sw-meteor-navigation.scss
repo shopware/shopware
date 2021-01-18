@@ -1,17 +1,17 @@
 @import '~scss/variables';
 
-.saas-rufus-meteor-navigation {
+.sw-meteor-navigation {
     display: flex;
     align-items: center;
     color: $color-gray-500;
     font-size: $font-size-small;
 
-    .saas-rufus-meteor-navigation__back-arrow {
+    .sw-meteor-navigation__back-arrow {
         margin-right: 8px;
         cursor: pointer;
     }
 
-    .saas-rufus-meteor-navigation__link {
+    .sw-meteor-navigation__link {
         display: flex;
         align-items: center;
         color: $color-gray-500;

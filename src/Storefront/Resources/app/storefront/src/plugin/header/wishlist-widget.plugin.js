@@ -45,23 +45,24 @@ export default class WishlistWidgetPlugin extends Plugin {
         this.$emitter.subscribe('Wishlist/onProductRemoved', (event) => {
             this._renderCounter();
 
-            this._stopWishlistLoading(event.detail.productId);
+            this._reInitWishlistButton(event.detail.productId);
         });
 
         this.$emitter.subscribe('Wishlist/onProductAdded', (event) => {
             this._renderCounter();
 
-            this._stopWishlistLoading(event.detail.productId);
+            this._reInitWishlistButton(event.detail.productId);
         });
     }
 
     /**
      * @private
      */
-    _stopWishlistLoading(productId) {
+    _reInitWishlistButton(productId) {
         const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId)
         buttonElements.forEach((el) => {
-            el.classList.remove('product-wishlist-loading');
+            const plugin = window.PluginManager.getPluginInstanceFromElement(el, 'AddToWishlist');
+            plugin.initStateClasses();
         });
     }
 }

@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-base', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     props: {
         productId: {

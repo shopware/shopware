@@ -1,0 +1,21 @@
+{% block sw_product_detail_specifications %}
+    <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+        {% block sw_product_detail_specifications_measures_packaging %}
+            <sw-card
+                :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+                :isLoading="isLoading">
+                {% block sw_product_detail_specifications_measures_packaging_content %}
+                    <sw-product-packaging-form
+                        v-if="!isLoading"
+                        :allowEdit="acl.can('product.editor')">
+                    </sw-product-packaging-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_specifications_properties %}
+            <sw-product-detail-properties>
+            </sw-product-detail-properties>
+        {% endblock %}
+    </div>
+{% endblock %}

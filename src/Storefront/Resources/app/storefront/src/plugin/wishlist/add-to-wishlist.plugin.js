@@ -28,7 +28,6 @@ export default class AddToWishlistPlugin extends Plugin {
         const wishlistBasketElement = DomAccess.querySelector(document, '#wishlist-basket', false);
 
         if (!wishlistBasketElement) {
-
             return;
         }
 

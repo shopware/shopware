@@ -508,23 +508,20 @@ class ApplicationBootstrapper {
      * @private
      * @returns {Promise<any[][]>}
      */
-    loadPlugins() {
+    async loadPlugins() {
         const isDevelopmentMode = process.env.NODE_ENV;
 
+        let plugins;
         // only in webpack dev mode
         if (isDevelopmentMode === 'development') {
-            return fetch('./sw-plugin-dev.json')
-                .then((rawResponse) => rawResponse.json())
-                .then((plugins) => {
-                    const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
-                    return Promise.all(injectAllPlugins);
-                });
+            const response = await fetch('./sw-plugin-dev.json');
+            plugins = await response.json();
+        } else {
+            plugins = Shopware.Context.app.config.bundles;
         }
 
-        // in production
-        const plugins = Shopware.Context.app.config.bundles;
-
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+
         return Promise.all(injectAllPlugins);
     }
 
@@ -534,7 +531,7 @@ class ApplicationBootstrapper {
      * @param {Object} plugin
      * @returns {Promise<any[]>}
      */
-    injectPlugin(plugin) {
+    async injectPlugin(plugin) {
         let allScripts = [];
         let allStyles = [];
 
@@ -552,7 +549,13 @@ class ApplicationBootstrapper {
             allStyles.push(this.injectCss(plugin.css));
         }
 
-        return Promise.all([...allScripts, ...allStyles]);
+        try {
+            return await Promise.all([...allScripts, ...allStyles]);
+        } catch (_) {
+            console.log('Error while loading plugin', plugin);
+
+            return null;
+        }
     }
 
     /**

@@ -127,6 +127,8 @@ class MailSendSubscriber implements EventSubscriberInterface
         }
 
         $data->set('recipients', $recipients);
+        $data->set('recipientsCc', $mailEvent->getMailStruct()->getCc());
+        $data->set('recipientsBcc', $mailEvent->getMailStruct()->getBcc());
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());
 

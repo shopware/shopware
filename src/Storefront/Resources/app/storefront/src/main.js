@@ -107,19 +107,6 @@ PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
-
-if (window.wishlistEnabled) {
-    if (window.customerLoggedInState) {
-        PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
-    } else {
-        PluginManager.register('WishlistStorage', WishlistLocalStoragePlugin, '[data-wishlist-storage]');
-        PluginManager.register('GuestWishlistPage', GuestWishlistPagePlugin, '[data-guest-wishlist-page]');
-    }
-
-    PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');
-    PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
-}
-
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
@@ -164,6 +151,18 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
+
+if (window.wishlistEnabled) {
+    if (window.customerLoggedInState) {
+        PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
+    } else {
+        PluginManager.register('WishlistStorage', WishlistLocalStoragePlugin, '[data-wishlist-storage]');
+        PluginManager.register('GuestWishlistPage', GuestWishlistPagePlugin, '[data-guest-wishlist-page]');
+    }
+
+    PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');
+    PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
+}
 
 if (Feature.isActive('FEATURE_NEXT_10078')) {
     PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');

@@ -3,6 +3,9 @@ import './sw-meteor-page-context-menu.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-meteor-page-context-menu', {
     template,
 

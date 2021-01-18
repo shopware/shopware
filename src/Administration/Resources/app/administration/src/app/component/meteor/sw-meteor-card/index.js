@@ -4,7 +4,7 @@ import './sw-meteor-card.scss';
 const { Component } = Shopware;
 
 /**
- * @public
+ * @private
  * @description A card is a flexible and extensible content container.
  * @status ready
  * @example-type static

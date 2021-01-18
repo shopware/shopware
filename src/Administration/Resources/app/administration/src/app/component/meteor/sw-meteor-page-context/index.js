@@ -2,6 +2,9 @@ import './sw-meteor-page-context.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-meteor-page-context', {
     mixins: [Shopware.Mixin.getByName('contextNodeMixin')],
 

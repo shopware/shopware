@@ -1058,5 +1058,10 @@
     "closeButton": "Schließen",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
+  },
+  "sw-meteor": {
+    "navigation": {
+      "backButton": "Zurück"
+    }
   }
 }

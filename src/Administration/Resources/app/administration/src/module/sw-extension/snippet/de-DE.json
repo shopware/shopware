@@ -64,8 +64,7 @@
     "descriptionTextModule": "Verwalte Deine Erweiterungen",
     "general": {
       "labelPrice": "Kostenlos | {price} / Monat | {price}",
-      "labelDiscountedPrice": "Kostenlos | <strong>{discountedPrice}</strong> <s>{price}</s> / Monat | <strong>{discountedPrice}</strong> <s>{price}</s>",
-      "backBtn": "Zurück"
+      "labelDiscountedPrice": "Kostenlos | <strong>{discountedPrice}</strong> <s>{price}</s> / Monat | <strong>{discountedPrice}</strong> <s>{price}</s>"
     },
     "listing": {
       "tabs": {

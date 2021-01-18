@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-page.sw-page--meteor-design.sw-extension-store-detail {
+.sw-meteor-page.sw-extension-store-detail {
     .is--wrap-content {
         word-break: break-word;
     }
@@ -39,18 +39,18 @@
         border-radius: $border-radius-default;
     }
 
-    .head-area.is--scrolled .sw-extension-store-detail__extension-icon {
+    .sw-meteor-page__head-area.is--scrolled .sw-extension-store-detail__extension-icon {
         width: 32px;
         height: 32px;
     }
 
-    .meteor-smart-bar__meta {
+    .sw-meteor-page__smart-bar-meta {
         align-self: flex-end;
         color: $color-gray-500;
         font-size: $font-size-extra-small;
     }
 
-    .meteor-smart-bar__actions {
+    .sw-meteor-page__smart-bar-actions {
         .sw-extension-store-detail__trial-info {
             font-size: $font-size-small;
             font-weight: $font-weight-regular;
@@ -77,7 +77,7 @@
         }
     }
 
-    .meteor-smart-bar__description {
+    .sw-meteor-page__smart-bar-description {
         color: $color-gray-500;
         font-size: $font-size-small;
 

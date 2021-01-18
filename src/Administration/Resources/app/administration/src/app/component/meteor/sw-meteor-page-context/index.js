@@ -1,8 +1,8 @@
-import './sw-extension-meteor-page-context.scss';
+import './sw-meteor-page-context.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-extension-meteor-page-context', {
+Component.register('sw-meteor-page-context', {
     mixins: [Shopware.Mixin.getByName('contextNodeMixin')],
 
     provide() {
@@ -57,11 +57,11 @@ Component.register('sw-extension-meteor-page-context', {
     render(createElement) {
         return createElement(
             'div', {
-                class: 'sw-extension-meteor-page-context'
+                class: 'sw-meteor-page-context'
             }, [
-                createElement('sw-extension-meteor-page-context-item', {
+                createElement('sw-meteor-page-context-item', {
                     props: {
-                        label: this.$tc('sw-saas-rufus.component.sw-extension-meteor-page-context.labelButtonMore'),
+                        label: this.$tc('sw-saas-rufus.component.sw-meteor-page-context.labelButtonMore'),
                         icon: 'default-action-more-horizontal',
                         priority: 'auto'
                     },
@@ -142,14 +142,14 @@ Component.register('sw-extension-meteor-page-context', {
             if (contextItem.icon) {
                 elementContent.push(this.createIcon(
                     contextItem.icon,
-                    ['sw-extension-meteor-page-context-item__icon-action']
+                    ['sw-meteor-page-context-item__icon-action']
                 ));
             }
 
             elementContent.push(this.$createElement(
                 'span',
                 {
-                    class: 'sw-extension-meteor-page-context-item__label'
+                    class: 'sw-meteor-page-context-item__label'
                 },
                 contextItem.label
             ));
@@ -157,18 +157,18 @@ Component.register('sw-extension-meteor-page-context', {
             if (contextItem.hasCollapsedChildren) {
                 elementContent.push(this.createIcon(
                     'small-arrow-medium-down',
-                    ['sw-extension-meteor-page-context-item__icon-collapsed']
+                    ['sw-meteor-page-context-item__icon-collapsed']
                 ));
             }
 
             if (contextItem === this.subMenuRoot) {
-                elementContent.push(this.$createElement('sw-extension-meteor-page-context-menu', {
+                elementContent.push(this.$createElement('sw-meteor-page-context-menu', {
                     props: { menuEntry: this.subMenu }
                 }));
             }
 
             return this.$createElement('span', {
-                class: ['sw-extension-meteor-page-context-item'],
+                class: ['sw-meteor-page-context-item'],
                 on: {
                     click: contextItem.onElementClick
                 }

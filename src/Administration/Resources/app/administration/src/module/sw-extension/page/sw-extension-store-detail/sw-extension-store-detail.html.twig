@@ -1,9 +1,9 @@
 {% block sw_extension_store_detail %}
-    <sw-extension-meteor-page class="sw-extension-store-detail" v-if="suspended || isLoading" :hideIcon="suspended">
+    <sw-meteor-page class="sw-extension-store-detail" v-if="suspended || isLoading" :hideIcon="suspended">
         {% block sw_extension_store_detail_loader %}<sw-loader></sw-loader>{% endblock %}
-    </sw-extension-meteor-page>
+    </sw-meteor-page>
 
-    <sw-extension-meteor-page v-else class="sw-extension-store-detail" :class="variantClass">
+    <sw-meteor-page v-else class="sw-extension-store-detail" :class="variantClass">
         {% block sw_extension_store_detail_smart_bar %}
             {% block sw_extension_store_detail_slot_icon %}
                 <template #smart-bar-icon>
@@ -309,5 +309,5 @@
                 </sw-extension-permissions-modal>
             {% endblock %}
         {% endblock %}
-    </sw-extension-meteor-page>
+    </sw-meteor-page>
 {% endblock %}

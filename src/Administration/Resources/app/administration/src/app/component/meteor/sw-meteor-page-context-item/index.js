@@ -1,4 +1,4 @@
-import './sw-extension-meteor-page-context-item.scss';
+import './sw-meteor-page-context-item.scss';
 
 const PRIORITIES = Object.freeze({
     ALWAYS: 'always',
@@ -8,7 +8,7 @@ const PRIORITIES = Object.freeze({
 
 const { Component } = Shopware;
 
-Component.register('sw-extension-meteor-page-context-item', {
+Component.register('sw-meteor-page-context-item', {
     inheritAttrs: false,
 
     inject: [

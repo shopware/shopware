@@ -12,18 +12,18 @@
          </template>
 
          <template v-for="(subMenuItem, index) in subMenuItems">
-             <sw-extension-meteor-page-context-menu-item
+             <sw-meteor-page-context-menu-item
                  v-for="(renderedChild, innerIndex) in subMenuItem.renderedChildren"
                  :menuEntry="renderedChild"
                 :key="`${index}.${innerIndex}`">
-             </sw-extension-meteor-page-context-menu-item>
+             </sw-meteor-page-context-menu-item>
 
 
-             <sw-extension-meteor-page-context-menu-item
+             <sw-meteor-page-context-menu-item
                  v-if="subMenuItem.hasCollapsedChildren || !subMenuItem.hasChildren"
                  :menuEntry="subMenuItem"
                  :key="`${index}`">
-             </sw-extension-meteor-page-context-menu-item>
+             </sw-meteor-page-context-menu-item>
          </template>
      </sw-context-menu>
  </sw-popover>

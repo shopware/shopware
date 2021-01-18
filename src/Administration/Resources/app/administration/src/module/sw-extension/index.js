@@ -1,8 +1,5 @@
 import './service';
 import initState from './store';
-import './mixin';
-import './component/sw-extension-meteor-page';
-import './component/sw-extension-meteor-navigation';
 import './component/sw-extension-store-listing-filter';
 import './component/sw-extension-listing-card';
 import './component/sw-extension-store-purchased/sw-extension-card-base';
@@ -33,10 +30,6 @@ import './component/sw-extension-permissions-details-modal';
 import './component/sw-extension-privacy-policy-extensions-modal';
 import './component/sw-extensions-store-slider';
 import './component/sw-ratings/sw-extension-rating-modal';
-import './component/context-button-bar/sw-extension-meteor-page-context';
-import './component/context-button-bar/sw-extension-meteor-page-context-item';
-import './component/context-button-bar/sw-extension-meteor-page-context-menu-item';
-import './component/context-button-bar/sw-extension-page-context-menu';
 import './component/sw-extension-gtc-checkbox';
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {

@@ -1,11 +1,11 @@
-.sw-extension-meteor-page-context-menu-item {
+.sw-meteor-page-context-menu-item {
     .sw-context-menu-item__text {
         display: flex;
         justify-content: space-between;
         align-content: space-around;
     }
 
-    .sw-extension-meteor-page-context-menu-item__icon-collapsed {
+    .sw-meteor-page-context-menu-item__icon-collapsed {
         margin-left: 8px;
 
         &.is--hidden {

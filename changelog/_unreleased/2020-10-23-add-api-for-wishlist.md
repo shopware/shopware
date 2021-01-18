@@ -1,6 +1,7 @@
 ---
 title: Put items to wishlist from products listing and detail pages.
 issue: NEXT-11280
+flag: FEATURE_NEXT_10549
 ---
 # Core
 *  Added new route `/store-api/v{version}/customer/wishlist` which return the customer wishlist data.

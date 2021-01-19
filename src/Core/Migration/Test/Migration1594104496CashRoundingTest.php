@@ -30,6 +30,10 @@ class Migration1594104496CashRoundingTest extends TestCase
      */
     public function testCurrencyInsertTrigger(int $decimals, array $expected, ?array $initial = null): void
     {
+        if ($this->getTriggerInfo('currency_cash_rounding_insert') === false) {
+            static::markTestSkipped('trigger "currency_cash_rounding_insert" does not exist');
+        }
+
         $id = Uuid::randomBytes();
         $data = [
             'id' => $id,
@@ -48,13 +52,12 @@ class Migration1594104496CashRoundingTest extends TestCase
         $this->connection->insert('currency', $data);
 
         $record = $this->connection->fetchAssoc(
-            'SELECT item_rounding, total_rounding, decimal_precision FROM currency WHERE id = :id',
+            'SELECT item_rounding, total_rounding FROM currency WHERE id = :id',
             ['id' => $id]
         );
 
         static::assertEquals($expected, json_decode($record['item_rounding'], true));
         static::assertEquals($expected, json_decode($record['total_rounding'], true));
-        static::assertEquals($expected['decimals'], $record['decimal_precision']);
     }
 
     /**
@@ -62,6 +65,10 @@ class Migration1594104496CashRoundingTest extends TestCase
      */
     public function testCurrencyUpdateTrigger(?int $decimals, ?array $rounding, array $expected): void
     {
+        if ($this->getTriggerInfo('currency_cash_rounding_update') === false) {
+            static::markTestSkipped('trigger "currency_cash_rounding_update" does not exist');
+        }
+
         $id = Uuid::randomBytes();
         $data = [
             'id' => $id,
@@ -83,7 +90,7 @@ class Migration1594104496CashRoundingTest extends TestCase
         }
 
         $record = $this->connection->fetchAssoc(
-            'SELECT item_rounding, total_rounding, decimal_precision FROM currency WHERE id = :id',
+            'SELECT item_rounding, total_rounding FROM currency WHERE id = :id',
             ['id' => $id]
         );
         static::assertEquals($expected, json_decode($record['item_rounding'], true));
@@ -91,8 +98,6 @@ class Migration1594104496CashRoundingTest extends TestCase
         if ($decimals) {
             static::assertEquals($expected, json_decode($record['total_rounding'], true));
         }
-
-        static::assertEquals($expected['decimals'], $record['decimal_precision']);
     }
 
     public function testOrderInsertTrigger(): void
@@ -100,7 +105,6 @@ class Migration1594104496CashRoundingTest extends TestCase
         $currencyId = Uuid::randomBytes();
         $data = [
             'id' => $currencyId,
-            'decimal_precision' => 2,
             'item_rounding' => json_encode(['decimals' => 3, 'roundForNet' => true, 'interval' => 0.01]),
             'total_rounding' => json_encode(['decimals' => 3, 'roundForNet' => true, 'interval' => 0.01]),
             'factor' => 1,
@@ -177,5 +181,21 @@ class Migration1594104496CashRoundingTest extends TestCase
                 ['decimals' => 2, 'roundForNet' => false, 'interval' => 0.01],
             ],
         ];
+    }
+
+    private function getTriggerInfo(string $triggerName)
+    {
+        $database = $this->connection->fetchColumn('SELECT DATABASE();');
+
+        return $this->connection->fetchAssoc(
+            '
+                SELECT * FROM information_schema.`TRIGGERS`
+                WHERE TRIGGER_SCHEMA = :database
+                AND TRIGGER_NAME = :trigger',
+            [
+                'database' => $database,
+                'trigger' => $triggerName,
+            ]
+        );
     }
 }

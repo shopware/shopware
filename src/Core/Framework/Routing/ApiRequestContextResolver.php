@@ -300,7 +300,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getCashRounding(string $currencyId): CashRoundingConfig
     {
         $rounding = $this->connection->fetchAssoc(
-            'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
+            'SELECT item_rounding FROM currency WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
         if ($rounding === false) {

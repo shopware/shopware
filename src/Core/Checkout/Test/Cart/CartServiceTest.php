@@ -5,10 +5,13 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Composer\Repository\RepositoryInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -110,7 +113,7 @@ class CartServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $isMerged = null;
-        $dispatcher->addListener(LineItemAddedEvent::class, static function (LineItemAddedEvent $addedEvent) use (&$isMerged): void {
+        $dispatcher->addListener(BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
@@ -138,6 +141,28 @@ class CartServiceTest extends TestCase
         static::assertTrue($isMerged);
     }
 
+    public function testAfterLineItemAddedEventFired(): void
+    {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+
+        $dispatcher->addListener(AfterLineItemAddedEvent::class, $listener);
+
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getSalesChannelContext();
+
+        $cartId = Uuid::randomHex();
+        $cart = $cartService->getCart($cartId, $context);
+        $cartService->add(
+            $cart,
+            (new LineItem('test', 'test')),
+            $context
+        );
+    }
+
     public function testLineItemRemovedEventFired(): void
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -145,7 +170,33 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(LineItemRemovedEvent::class, $listener);
+        $dispatcher->addListener(BeforeLineItemRemovedEvent::class, $listener);
+
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getSalesChannelContext();
+
+        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+
+        $cart = $cartService->getCart($context->getToken(), $context);
+
+        $cart = $cartService->add($cart, $lineItem, $context);
+
+        static::assertTrue($cart->has($this->productId));
+
+        $cart = $cartService->remove($cart, $this->productId, $context);
+
+        static::assertFalse($cart->has($this->productId));
+    }
+
+    public function testAfterLineItemRemovedEventFired(): void
+    {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+
+        $dispatcher->addListener(AfterLineItemRemovedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -171,7 +222,31 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(LineItemQuantityChangedEvent::class, $listener);
+        $dispatcher->addListener(BeforeLineItemQuantityChangedEvent::class, $listener);
+
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getSalesChannelContext();
+
+        $lineItem = (new ProductLineItemFactory())->create($this->productId);
+
+        $cart = $cartService->getCart($context->getToken(), $context);
+
+        $cart = $cartService->add($cart, $lineItem, $context);
+
+        static::assertTrue($cart->has($this->productId));
+
+        $cartService->changeQuantity($cart, $this->productId, 100, $context);
+    }
+
+    public function testAfterLineItemQuantityChangedEventFired(): void
+    {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+
+        $dispatcher->addListener(AfterLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 

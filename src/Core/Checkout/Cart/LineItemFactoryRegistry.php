@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemTypeNotSupportedException;
@@ -83,7 +84,9 @@ class LineItemFactoryRegistry
         if (isset($data['quantity'])) {
             $lineItem->setQuantity($data['quantity']);
 
+            /* @deprecated tag:v6.4.0 - The LineItemQuantityChangedEvent will be removed in the future, please use the BeforeLineItemQuantityChangedEvent and AfterLineItemQuantityChangedEvent variants of this event going forward */
             $this->eventDispatcher->dispatch(new LineItemQuantityChangedEvent($lineItem, $cart, $context));
+            $this->eventDispatcher->dispatch(new BeforeLineItemQuantityChangedEvent($lineItem, $cart, $context));
         }
 
         $lineItem->markModified();

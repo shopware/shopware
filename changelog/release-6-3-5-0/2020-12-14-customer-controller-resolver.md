@@ -23,7 +23,10 @@ ___
 * Changed controller signature to inject customer over new controller resolver.
 ___
 # Upgrade Information
-* Added `Customer $customer` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
+
+## Require CustomerEntity parameter in store api routes
+
+* Added `CustomerEntity $customer` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
     * Affected routes:
         * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractAddWishlistProductRoute`
         * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute`

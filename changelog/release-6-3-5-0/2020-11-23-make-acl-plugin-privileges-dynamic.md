@@ -14,6 +14,7 @@ author_github: lernhart
 ___
 # Upgrade Information
 
+## Plugin acl - Use `enrichPrivileges` instead of `addPrivileges`
 The current behaviour of adding privileges via plugins is deprecated for 6.4.0.0.
 Instead of writing custom plugin privileges via `Shopware\Core\Framework\Plugin::addPrivileges()` right into the database, 
 plugins now should override the new `enrichPrivileges()` method to add privileges on runtime.

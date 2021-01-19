@@ -11,6 +11,23 @@ const { dom } = Shopware.Utils;
 Component.register('sw-admin-menu', {
     template,
 
+    props: {
+        mouseLocationsTracked: {
+            type: Number,
+            required: false,
+            default() {
+                return 3;
+            }
+        },
+        subMenuDelay: {
+            type: Number,
+            required: false,
+            default() {
+                return 150;
+            }
+        }
+    },
+
     mixins: [
         Mixin.getByName('notification'),
         // @deprecated tag:v6.4.0.0
@@ -27,6 +44,10 @@ Component.register('sw-admin-menu', {
 
     data() {
         return {
+            subMenuTimer: null,
+            mouseLocations: [],
+            lastDelayLocation: null,
+            activeEntry: null,
             isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
@@ -80,6 +101,10 @@ Component.register('sw-admin-menu', {
 
         appEntries() {
             return Shopware.State.getters['shopwareApps/navigation'];
+        },
+
+        currentExpandedMenuEntries() {
+            return Shopware.State.get('adminMenu').expandedEntries;
         },
 
         mainMenuEntries() {
@@ -149,11 +174,12 @@ Component.register('sw-admin-menu', {
 
     mounted() {
         this.mountedComponent();
-        document.addEventListener('mouseleave', this.closeFlyout);
+        document.addEventListener('mouseleave', this.onFlyoutLeave);
     },
 
     beforeDestroy() {
-        document.removeEventListener('mouseleave', this.closeFlyout);
+        document.removeEventListener('mousemove', this.onMouseMoveDocument);
+        document.removeEventListener('mouseleave', this.onFlyoutLeave);
     },
 
     methods: {
@@ -193,6 +219,8 @@ Component.register('sw-admin-menu', {
                 component: this
             });
 
+            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+
             this.addScrollbarOffset();
         },
 
@@ -209,20 +237,6 @@ Component.register('sw-admin-menu', {
             });
         },
 
-        openSubMenu(entry, currentTarget) {
-            this.subMenuOpen = !this.subMenuOpen;
-
-            if (this.$device.getViewportWidth() <= 500) {
-                this.isOffCanvasShown = false;
-            }
-
-            if (this.isExpanded) {
-                this.flyoutEntries = [];
-            }
-
-            this.changeActiveItem(currentTarget.querySelector('.sw-admin-menu__navigation-link'));
-        },
-
         collapseMenuOnSmallViewports() {
             if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
                 this.collapseAdminMenu();
@@ -233,63 +247,8 @@ Component.register('sw-admin-menu', {
             }
         },
 
-        changeActiveItem(target) {
-            const mainMenuElement = target.parentNode.parentNode;
-            const activeClass = 'router-link-active';
-            const listElements = mainMenuElement.querySelectorAll('.sw-admin-menu__navigation-link');
-
-            listElements.forEach((listItem) => {
-                listItem.classList.remove(activeClass);
-            });
-
-            target.classList.add(activeClass);
-        },
-
         isActiveItem(menuItem) {
             return this.isExpanded && menuItem.classList.contains('router-link-active');
-        },
-
-        openFlyout(entry, currentTarget, parentEntries) {
-            if (!currentTarget) {
-                this.flyoutEntries = this.lastFlyoutEntries;
-                return false;
-            }
-
-            if (parentEntries) {
-                this.flyoutEntries = parentEntries;
-                return true;
-            }
-
-            this.flyoutEntries = [];
-
-            const menuItem = currentTarget.querySelector('.sw-admin-menu__navigation-link');
-
-            if (this.isActiveItem(menuItem)) {
-                return false;
-            }
-
-            if (this.$device.getViewportWidth() >= 500) {
-                this.flyoutEntries = entry.children;
-            }
-
-            this.flyoutLabel = entry.label;
-
-            this.flyoutStyle = {
-                top: `${currentTarget.getBoundingClientRect().top}px`
-            };
-            this.flyoutColor = entry.color;
-
-            return true;
-        },
-        closeFlyout(event) {
-            if (!!event && event.toElement && event.toElement.closest('.sw-admin-menu__navigation-list-item')) {
-                if (event.toElement.closest('.sw-admin-menu__navigation-list-item')
-                    .classList.contains(this.flyoutEntries[0].parent)) {
-                    return;
-                }
-            }
-            this.lastFlyoutEntries = this.flyoutEntries;
-            this.flyoutEntries = [];
         },
 
         onToggleSidebar() {
@@ -300,9 +259,14 @@ Component.register('sw-admin-menu', {
             }
 
             if (!this.isExpanded) {
-                this.closeFlyout();
+                this.removeClassesFromElements(
+                    Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
+                    ['is--entry-expanded']
+                );
+                this.onFlyoutLeave();
             }
 
+            this.isUserActionsActive = false;
             this.flyoutEntries = [];
         },
 
@@ -351,9 +315,297 @@ Component.register('sw-admin-menu', {
             this.scrollbarOffset = `-${offset}px`;
         },
 
-        getMenuItemClass(entry) {
-            const suffix = entry.id ? entry.id : entry.parent;
-            return `sw-admin-menu__flyout-item--${suffix}`;
+        onMouseMoveDocument(event) {
+            this.mouseLocations.push({
+                x: event.pageX,
+                y: event.pageY
+            });
+
+            // Mouse locations array exceeds the configured threshold
+            if (this.mouseLocations.length > this.mouseLocationsTracked) {
+                this.mouseLocations.shift();
+            }
+        },
+
+        onMenuItemClick(entry, target) {
+            const level = entry.level;
+
+            // Clear previous delay of the menu
+            if (this.subMenuTimer) {
+                window.clearTimeout(this.subMenuTimer);
+            }
+
+            if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
+                return;
+            }
+
+            this.removeClassesFromElements(
+                Array.from(this.$el.querySelectorAll(
+                    '.sw-admin-menu__navigation-list-item'
+                )),
+                ['is--entry-expanded', 'is--flyout-expanded'],
+                [target]
+            );
+
+            this.removeClassesFromElements(
+                Array.from(this.$el.querySelectorAll(
+                    '.sw-admin-menu__navigation-link'
+                )),
+                ['router-link-active'],
+                [target]
+            );
+
+            const firstChild = target.firstChild;
+            if (target.classList.contains('is--entry-expanded')) {
+                Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
+
+                target.classList.remove('is--entry-expanded');
+                firstChild.classList.remove('router-link-active');
+            } else {
+                Shopware.State.commit('adminMenu/expandMenuEntry', entry);
+
+                target.classList.add('is--entry-expanded');
+                firstChild.classList.add('router-link-active');
+            }
+
+            target.classList.remove('is--flyout-expanded');
+
+            // Clear flyout entries if clicked
+            if (this.flyoutEntries.length) {
+                this.flyoutEntries = [];
+            }
+        },
+
+        onMenuLeave() {
+            if (this.subMenuTimer) {
+                window.clearTimeout(this.subMenuTimer);
+            }
+
+            this.deactivatePreviousMenuItem();
+            this.flyoutEntries = [];
+        },
+
+        onMenuItemEnter(entry, event, parentEntries) {
+            const target = event.target;
+
+            // Clear previous delay of the menu
+            if (this.subMenuTimer) {
+                window.clearTimeout(this.subMenuTimer);
+            }
+
+            // Menu is expanded, so we don't have to activate the flyout
+            if (target.classList.contains('is--entry-expanded')) {
+                return;
+            }
+
+            // We don't have children, we don't need to do anything here.
+            if (!target.classList.contains('navigation-list-item__has-children')) {
+                this.deactivatePreviousMenuItem();
+                this.flyoutEntries = [];
+                return;
+            }
+
+            this.possiblyActivate(entry, target, parentEntries);
+        },
+
+        onSubMenuItemEnter(entry, event) {
+            const target = event.target;
+            const parent = target.closest('.is--entry-expanded');
+
+            if (!parent) {
+                return;
+            }
+
+            this.removeClassesFromElements(
+                Array.from(parent.querySelectorAll('.sw-admin-menu__navigation-list-item')),
+                ['is--flyout-enabled'],
+                [target]
+            );
+
+            if (!entry.children.length) {
+                this.flyoutEntries = [];
+                return;
+            }
+
+            target.classList.add('is--flyout-enabled');
+            this.flyoutStyle = {
+                top: `${target.getBoundingClientRect().top}px`
+            };
+
+            this.flyoutEntries = entry.children;
+
+            const parentEntry = this.mainMenuEntries.find((item) => {
+                return item.id === entry.parent || item.path === entry.parent;
+            });
+
+            if (!parentEntry) {
+                return;
+            }
+            this.flyoutColor = parentEntry.color;
+        },
+
+        isPositionInPolygon(x, y, polygon) {
+            // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
+            let inside = false;
+
+            // eslint-disable-next-line no-plusplus
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i][0];
+                const yi = polygon[i][1];
+                const xj = polygon[j][0];
+                const yj = polygon[j][1];
+
+                const intersect = ((yi > y) !== (yj > y)) &&
+                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+
+            return inside;
+        },
+
+        possiblyActivate(entry, currentTarget, parentEntries) {
+            const delay = this.getActivationDelay(currentTarget, entry);
+
+            if (delay) {
+                this.subMenuTimer = window.setTimeout(
+                    this.possiblyActivate.bind(this, entry, currentTarget, parentEntries, true),
+                    delay
+                );
+                return;
+            }
+
+            this.activateMenuItem(entry, currentTarget, parentEntries);
+        },
+
+        activateMenuItem(entry, target, parentEntries) {
+            if (entry.children) {
+                this.flyoutEntries = entry.children;
+            }
+
+            this.flyoutStyle = {
+                top: `${target.getBoundingClientRect().top}px`
+            };
+
+            // Remove previous flyout enabled
+            this.deactivatePreviousMenuItem();
+            target.classList.add('is--flyout-enabled');
+
+            if (this.subMenuTimer) {
+                window.clearTimeout(this.subMenuTimer);
+            }
+            this.flyoutColor = entry.color;
+            this.activeEntry = { entry, target, parentEntries };
+        },
+
+        deactivatePreviousMenuItem() {
+            if (this.activeEntry && this.activeEntry.target) {
+                this.activeEntry.target.classList.remove('is--flyout-enabled');
+            }
+            this.activeEntry = [];
+        },
+
+        getPolygonFromMenuItem(element, entry) {
+            const outerWidth = (el) => {
+                let width = el.offsetWidth;
+                const style = el.currentStyle || getComputedStyle(el);
+
+                width += (parseInt(style.marginLeft, 10) || 0);
+                return width;
+            };
+
+            const outerHeight = (el) => {
+                let height = el.offsetHeight;
+                const style = el.currentStyle || getComputedStyle(el);
+
+                height += (parseInt(style.marginTop, 10) || 0);
+                return height;
+            };
+
+            const targetRect = element.getBoundingClientRect();
+            const targetHeight = outerHeight(element);
+            const targetWidth = outerWidth(element);
+            const subMenuHeight = entry.children.length * targetHeight;
+
+            const topLeft = {
+                x: targetRect.left,
+                y: targetRect.top
+            };
+
+            const bottomLeft = {
+                x: topLeft.x,
+                y: topLeft.y + targetHeight
+            };
+
+            const topRight = {
+                x: topLeft.x + (targetWidth * 2),
+                y: topLeft.y
+            };
+
+            const bottomRight = {
+                x: topRight.x,
+                y: topRight.y + subMenuHeight
+            };
+
+            return [
+                [topLeft.x, topLeft.y],
+                [bottomLeft.x, bottomLeft.y],
+                [bottomRight.x, bottomRight.y],
+                [topRight.x, topRight.y]
+            ];
+        },
+
+        getActivationDelay() {
+            const currentMousePosition = this.mouseLocations[this.mouseLocations.length - 1];
+
+            // No current mouse position, so we activate right away
+            if (!currentMousePosition) {
+                return 0;
+            }
+
+            // If there is no flyout already active, then activate immediately.
+            if (!this.flyoutEntries.length) {
+                return 0;
+            }
+
+            if (this.lastDelayLocation
+                && currentMousePosition.x === this.lastDelayLocation.x
+                && currentMousePosition.y === this.lastDelayLocation.y) {
+                return 0;
+            }
+
+            // We have a previous active entry
+            if (this.activeEntry !== null) {
+                const previousPolygon = this.getPolygonFromMenuItem(this.activeEntry.target, this.activeEntry.entry);
+
+                // We're inside the polygon
+                if (this.isPositionInPolygon(currentMousePosition.x, currentMousePosition.y, previousPolygon)) {
+                    this.lastDelayLocation = currentMousePosition;
+                    return this.subMenuDelay;
+                }
+            }
+
+            return 0;
+        },
+
+        onFlyoutEnter() {
+            if (this.subMenuTimer) {
+                window.clearTimeout(this.subMenuTimer);
+            }
+        },
+
+        onFlyoutLeave() {
+            this.deactivatePreviousMenuItem();
+            this.activeEntry = null;
+            this.flyoutEntries = [];
+        },
+
+        removeClassesFromElements(elements, classList, ignoreElementsList = []) {
+            elements.forEach((element) => {
+                if (ignoreElementsList.includes(element)) {
+                    return;
+                }
+                element.classList.remove(classList);
+            });
         }
     }
 });

@@ -38,7 +38,7 @@
                                 <template #additional-text>
                                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
                                         <button v-if="entry.domainLink && entry.active"
-                                           class="collapsible-text sw-sales-channel-menu-domain-link"
+                                           class="sw-sales-channel-menu-domain-link"
                                            @click.prevent="openStorefrontLink(entry.domainLink)"
                                            :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')">
                                             <sw-icon class="sw-sales-channel-menu-domain-link__icon" name="small-eye" size="16px"></sw-icon>

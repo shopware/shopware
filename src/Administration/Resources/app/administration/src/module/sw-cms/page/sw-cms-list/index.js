@@ -125,6 +125,13 @@ Component.register('sw-cms-list', {
                 criteria.addAssociation('products');
             }
 
+            if (!this.feature.isActive('FEATURE_NEXT_10078')) {
+                criteria.addFilter(Criteria.not(
+                    'AND',
+                    [Criteria.equals('type', 'product_detail')]
+                ));
+            }
+
             if (this.term !== null) {
                 criteria.setTerm(this.term);
             }

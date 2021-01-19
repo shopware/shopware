@@ -1,6 +1,121 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
+# 6.3.5.0
+## Plugin acl - Use `enrichPrivileges` instead of `addPrivileges`
+The current behaviour of adding privileges via plugins is deprecated for 6.4.0.0.
+Instead of writing custom plugin privileges via `Shopware\Core\Framework\Plugin::addPrivileges()` right into the database, 
+plugins now should override the new `enrichPrivileges()` method to add privileges on runtime.
+This method should return an array in the following structure:
+
+```php
+<?php declare(strict_types=1);
+
+namespace MyPlugin;
+
+use Shopware\Core\Framework\Plugin;
+
+class SwagTestPluginAcl extends Plugin
+{
+    public function enrichPrivileges(): array
+    {
+        return [
+            'product.viewer' => [
+                'my_custom_privilege:read',
+                'my_custom_privilege:write',
+                'my_other_custom_privilege:read',
+                // ...
+            ],
+            'product.editor' => [
+                // ...
+            ],
+        ];
+    }
+}
+```
+## Update to Composer 2
+Make sure that your `composer.json` file in your plugin matches the requirements of [Composer](https://getcomposer.org/doc/04-schema.md).
+Especially the `name` property should be checked.
+
+## Require CustomerEntity parameter in store api routes
+* Added `CustomerEntity $customer` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
+    * Affected routes:
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractAddWishlistProductRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteAddressRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractMergeWishlistProductRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractSwitchDefaultAddressRoute`
+        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractUpsertAddressRoute`
+    * Sources before:
+        ```
+        /**
+         * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+         */
+        public function load(Request $request, SalesChannelContext $context): CustomerResponse
+        {
+            $criteria = $this->requestCriteriaBuilder->handleRequest(
+                $request,
+                new Criteria(),
+                $this->customerDefinition,
+                $context->getContext()
+                );
+        }      
+        ```
+    * Sources after:
+        ```
+        use Shopware\Core\Checkout\Customer\CustomerEntity;
+
+        /**
+         * 
+         * @LoginRequired()
+         * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+         */
+        public function load(Request $request, SalesChannelContext $context, CustomerEntity $customer = null): CustomerResponse
+        {
+            // remove this code with, 6.4.0. The customer will be required in this version
+            if (!$customer) {
+                $customer = $context->getCustomer();
+            }
+        }
+        ```
+## Join Filter
+With the new join filter logic, some queries of the DAL may return a different result. Each filter which is added to the criteria directly and contains a reference to a
+to-many association, will lead to a sub-join with the corresponding filters inside.
+
+If you add filters to a criteria which points to an to-many association field
+
+So the following filters give two different results:
+
+```
+1: 
+$criteria->addFilter(
+    new AndFilter([
+        new EqualsFilter('product.categories.name', 'test-category'),
+        new EqualsFilter('product.categories.active', true)
+    ])
+);
+
+
+2:
+$criteria->addFilter(
+    new EqualsFilter('product.categories.name', 'test-category')
+);
+$criteria->addFilter(
+    new EqualsFilter('product.categories.active', true)
+);
+
+```
+
+1: Returns all products assigned to the `test-category` category where `test-category` is also active.
+2: Returns all products that are assigned to the `test-category` category AND have a category assigned that is active.
+
 # 6.3.4.0
 ## Customer's sales channel context is restored after logged in
 - Each customer now has a unique sales channel context, which means it will be shared across devices and browsers, including its cart.

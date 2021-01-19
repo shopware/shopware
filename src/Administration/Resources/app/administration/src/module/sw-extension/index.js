@@ -19,13 +19,13 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-account');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-store-detail');
     await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-stars');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-ratings-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-ratings-summary');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-summary');
     await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-creation');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-creation-inputs');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-reply');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-select-rating');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation-inputs');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-reply');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-select-rating');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-file-upload');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-buy-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-modal');
@@ -33,7 +33,6 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extensions-store-slider');
     await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-gtc-checkbox');
 }
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {

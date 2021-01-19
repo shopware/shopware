@@ -149,27 +149,27 @@
           "linkChoosePLan": "Wähle einen Plan aus"
         }
       },
-      "sw-ratings": {
+      "sw-extension-ratings": {
         "sw-review-reply": {
           "labelCreationDate": "antwortete am {creationDate}"
         },
-        "sw-review-creation": {
+        "sw-extension-review-creation": {
           "submitBtn": "Abschicken"
         },
-        "sw-ratings-summary": {
+        "sw-extension-ratings-summary": {
           "labelRating": "Keine Bewertungen | {numberOfRatings} Bewertung | {numberOfRatings} Bewertungen"
         },
         "sw-extension-review": {
           "labelLastChangeDate": "Von {author} am {lastChangeDate}",
           "labelExtensionVersion": "Version der Erweiterung {extensionVersion}"
         },
-        "sw-ratings-card": {
+        "sw-extension-ratings-card": {
           "cardTitle": "Bewertungen und Rezensionen",
           "labelMoreReviewsBtn": "Mehr Rezensionen lesen",
           "footerHeadline": "Rezension hinzufügen",
           "labelNoReviews": "Diese Erweiterung hat bisher noch keine Bewertungen oder Rezensionen erhalten."
         },
-        "sw-review-creation-inputs": {
+        "sw-extension-review-creation-inputs": {
           "labelHeadline": "Überschrift",
           "placeholderHeadline": "Gib eine Überschrift ein ...",
           "labelRating": "Bewertung",

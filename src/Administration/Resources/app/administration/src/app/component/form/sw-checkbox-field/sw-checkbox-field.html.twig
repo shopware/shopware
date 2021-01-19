@@ -20,8 +20,13 @@
                         :name="identification"
                         @inheritance-restore="$emit('inheritance-restore', $event)"
                         @inheritance-remove="$emit('inheritance-remove', $event)">
+
+                <template #label>
+                    <slot name="label"></slot>
+                </template>
             </sw-base-field>
         </div>
+
         <sw-field-error :error="error"></sw-field-error>
     </div>
 {% endblock %}

@@ -1,14 +1,10 @@
 import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
-const defaultSize = 8;
-const defaultSizeForEditable = 17;
-const paddingStar = 20; // 10% padding left and right
-const scaleFactor = (0.0125 * paddingStar) + 1;
-
-const { Component } = Shopware;
-
-Component.register('sw-extension-rating-stars', {
+/**
+ * @private
+ */
+Shopware.Component.register('sw-extension-rating-stars', {
     template,
 
     model: {
@@ -25,7 +21,7 @@ Component.register('sw-extension-rating-stars', {
         size: {
             type: Number,
             required: false,
-            default: defaultSize
+            default: 8
         },
         rating: {
             type: Number,
@@ -50,17 +46,18 @@ Component.register('sw-extension-rating-stars', {
     computed: {
         editableClass() {
             return {
-                'is--editable': this.editable
+                'sw-extension-rating-stars--is-editable': this.editable
             };
         },
 
         sizeValue() {
-            return this.editable && this.size === defaultSize ? defaultSizeForEditable : this.size;
+            // 8 is the default value of the property `this.size`
+            return this.editable && this.size === 8 ? this.defaultSizeForEditable : this.size;
         },
 
         starSize() {
             return {
-                width: `${this.sizeValue * scaleFactor}px`
+                width: `${this.sizeValue * this.scaleFactor}px`
             };
         },
 
@@ -69,9 +66,15 @@ Component.register('sw-extension-rating-stars', {
         },
 
         partialStarWidth() {
-            return {
-                width: `${(this.ratingValue % 1) * 100}%`
-            };
+            return `${(this.ratingValue % 1) * 100}%`;
+        },
+
+        defaultSizeForEditable() {
+            return 17;
+        },
+
+        scaleFactor() {
+            return 0.0125 * 20 + 1;
         }
     },
 
@@ -87,7 +90,7 @@ Component.register('sw-extension-rating-stars', {
         colorClass(key) {
             return {
                 // subtract because rtl direction is used
-                'is--rated': (this.maxRating + 1) - key <= this.ratingValue
+                'sw-extension-rating-stars__star--is-rated': this.maxRating + 1 - key <= this.ratingValue
             };
         },
 

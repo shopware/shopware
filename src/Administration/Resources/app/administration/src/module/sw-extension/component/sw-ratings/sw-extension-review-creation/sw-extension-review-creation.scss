@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-.sw-review-creation {
-    .sw-review-creation__buttons {
+.sw-extension-review-creation {
+    &__buttons {
         display: flex;
         align-items: center;
 

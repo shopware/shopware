@@ -149,27 +149,27 @@
           "linkChoosePLan": "Choose a plan"
         }
       },
-      "sw-ratings": {
+      "sw-extension-ratings": {
         "sw-review-reply": {
           "labelCreationDate": "replied on {creationDate}"
         },
-        "sw-review-creation": {
+        "sw-extension-review-creation": {
           "submitBtn": "Submit"
         },
-        "sw-ratings-summary": {
+        "sw-extension-ratings-summary": {
           "labelRating": "No ratings | {numberOfRatings} Rating | {numberOfRatings} Ratings"
         },
         "sw-extension-review": {
           "labelLastChangeDate": "By {author} on {lastChangeDate}",
           "labelExtensionVersion": "Extension version {extensionVersion}"
         },
-        "sw-ratings-card": {
+        "sw-extension-ratings-card": {
           "cardTitle": "Ratings and reviews",
           "labelMoreReviewsBtn": "Read more reviews",
           "footerHeadline": "Add a review",
           "labelNoReviews": "This extension hasn't received any ratings or reviews yet."
         },
-        "sw-review-creation-inputs": {
+        "sw-extension-review-creation-inputs": {
           "labelHeadline": "Headline",
           "placeholderHeadline": "Enter a short headline...",
           "labelRating": "Rating",

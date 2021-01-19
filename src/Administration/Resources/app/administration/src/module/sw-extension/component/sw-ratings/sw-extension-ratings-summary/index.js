@@ -1,9 +1,12 @@
-import template from './sw-ratings-summary.html.twig';
-import './sw-ratings-summary.scss';
+import template from './sw-extension-ratings-summary.html.twig';
+import './sw-extension-ratings-summary.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-ratings-summary', {
+/**
+ * @private
+ */
+Component.register('sw-extension-ratings-summary', {
     template,
 
     props: {

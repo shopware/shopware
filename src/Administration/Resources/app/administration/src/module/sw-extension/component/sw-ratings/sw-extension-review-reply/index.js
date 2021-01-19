@@ -1,11 +1,13 @@
-import template from './sw-review-reply.html.twig';
-import './sw-review-reply.scss';
+import template from './sw-extension-review-reply.html.twig';
+import './sw-extension-review-reply.scss';
 
 const { date } = Shopware.Utils.format;
-
 const { Component } = Shopware;
 
-Component.register('sw-review-reply', {
+/**
+ * @private
+ */
+Component.register('sw-extension-review-reply', {
     template,
 
     props: {

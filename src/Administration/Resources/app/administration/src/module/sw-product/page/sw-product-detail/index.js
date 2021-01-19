@@ -466,6 +466,10 @@ Component.register('sw-product-detail', {
         },
 
         validateListPrices(prices) {
+            if (!prices) {
+                return;
+            }
+
             prices.forEach(price => {
                 if (!price.listPrice) {
                     return;

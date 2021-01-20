@@ -211,6 +211,10 @@ Component.register('sw-promotion-v2-detail', {
         cleanUpCodes(cleanUpIndividual, cleanUpFixed) {
             this.cleanUpIndividualCodes = cleanUpIndividual;
             this.cleanUpFixedCode = cleanUpFixed;
+        },
+
+        onGenerateIndividualCodesFinish() {
+            this.savePromotion();
         }
     }
 });

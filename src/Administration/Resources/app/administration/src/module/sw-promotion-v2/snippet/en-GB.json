@@ -81,9 +81,13 @@
                             "placeholderSuffix": "Enter a suffix...",
                             "labelCustomPattern": "Custom pattern",
                             "placeholderCustomPattern": "Enter a custom pattern...",
+                            "helpTextCustomPattern": "Note, that there can only be one consecutive string of variables, which will be converted.<br><br>Possible variables to use:<br>- %d - Digits (0-9)<br>- %s - Letters (A-Z)",
                             "labelUseCustomPattern": "Use custom pattern",
                             "labelPreview": "Promotion code preview",
-                            "labelCodeAmount": "Number of promotion codes"
+                            "labelCodeAmount": "Number of promotion codes",
+                            "notComplexEnoughException": "Cannot create the amount of promotions codes requested. Make sure your pattern is sufficiently complex. To ensure that the promotion codes are sufficiently random, no more than 50% of all possible codes will be generated.",
+                            "alreadyInUseException": "The chosen code pattern already exists in another promotion. Please provide a different pattern.",
+                            "unknownErrorCode": "Something went wrong, while generating promotion codes. Please use the developer tools for more information."
                         }
                     }
                 }

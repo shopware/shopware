@@ -254,13 +254,6 @@ trait PromotionTestFixtureBehaviour
     {
         $data = [
             'id' => $promotionId,
-            'name' => 'Black Friday',
-            'active' => true,
-            'useCodes' => false,
-            'useSetGroups' => false,
-            'salesChannels' => [
-                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
-            ],
         ];
 
         if ($code !== null) {
@@ -268,13 +261,29 @@ trait PromotionTestFixtureBehaviour
             $data['useCodes'] = true;
         }
 
+        return $this->createPromotionWithCustomData($data, $promotionRepository, $context);
+    }
+
+    private function createPromotionWithCustomData(array $data, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): EntityWrittenContainerEvent
+    {
+        $data = array_merge([
+            'id' => Uuid::randomHex(),
+            'name' => 'Black Friday',
+            'active' => true,
+            'useCodes' => false,
+            'useSetGroups' => false,
+            'salesChannels' => [
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+            ],
+        ], $data);
+
         return $promotionRepository->create([$data], $context->getContext());
     }
 
     /**
      * function creates an individual promotion code
      */
-    private function createIndividualCode(string $promotionId, string $code, EntityRepositoryInterface $promotionIndividualRepository, Context $context): EntityWrittenContainerEvent
+    private function createIndividualCode(string $promotionId, ?string $code, EntityRepositoryInterface $promotionIndividualRepository, Context $context): EntityWrittenContainerEvent
     {
         $data = [
             'id' => Uuid::randomHex(),

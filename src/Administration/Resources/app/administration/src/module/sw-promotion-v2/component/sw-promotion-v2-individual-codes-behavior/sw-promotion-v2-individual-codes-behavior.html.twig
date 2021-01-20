@@ -2,7 +2,8 @@
     <div class="sw-promotion-v2-individual-codes-behavior">
 
         {% block sw_promotion_v2_individual_codes_behavior_card %}
-            <sw-card class="sw-promotion-v2-individual-codes-behavior__card">
+            <sw-card class="sw-promotion-v2-individual-codes-behavior__card"
+                     :key="cardIdentifier">
 
                 {% block sw_promotion_v2_individual_codes_behavior_toolbar %}
                     <template #toolbar v-if="promotion.individualCodes && promotion.individualCodes.length > 0">
@@ -194,6 +195,7 @@
             <sw-promotion-v2-generate-codes-modal
                 v-if="generateCodesModal"
                 :promotion="promotion"
+                @generate-finish="onGenerateFinish"
                 @close="onCloseGenerateCodesModal">
             </sw-promotion-v2-generate-codes-modal>
         {% endblock %}

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Util;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.4.0.0 - Use PromotionCodeService instead
+ */
 class PromotionCodesLoader
 {
     /**
@@ -37,11 +40,5 @@ class PromotionCodesLoader
         }
 
         return $result;
-    }
-
-    public function generateCodeFixed(): string
-    {
-        // ToDo NEXT-12515 - When code-pattern-handling will be implemented, use the new method
-        return strtoupper(substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(8))), 0, 8));
     }
 }

@@ -45,7 +45,7 @@
         {% block sw_order_document_settings_modal_form_document_footer %}
             <template #modal-footer>
                 {% block sw_order_document_settings_modal_form_document_footer_preview %}
-                    <sw-button size="small" @click="onPreview">
+                    <sw-button id="sw-order-document-settings-modal__preview-button" size="small" @click="onPreview">
                         {{ $tc('sw-order.documentModal.labelPreview') }}
                     </sw-button>
                 {% endblock %}

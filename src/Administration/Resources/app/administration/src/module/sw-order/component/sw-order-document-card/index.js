@@ -221,6 +221,24 @@ Component.register('sw-order-document-card', {
             this.showModal = true;
         },
 
+        downloadDocument(documentId, documentDeepLink) {
+            this.documentService.getDocument(
+                documentId,
+                documentDeepLink,
+                Shopware.Context.api,
+                true
+            ).then((response) => {
+                if (response.data) {
+                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.download = filename;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.parentNode.removeChild(link);
+                }
+            });
+        },
+
         onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
             this.showModal = false;
             this.$nextTick().then(() => {
@@ -236,35 +254,31 @@ Component.register('sw-order-document-card', {
                 this.$emit('document-save');
 
                 if (additionalAction === 'download') {
-                    window.open(
-                        this.documentService.generateDocumentLink(
-                            response.data.documentId,
-                            response.data.documentDeepLink,
-                            Shopware.Context.api,
-                            true
-                        ),
-                        '_blank'
-                    );
+                    this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
                 }
             });
         },
 
         onPreview(params) {
-            const config = JSON.stringify(params);
-            window.open(
-                this.documentService.generateDocumentPreviewLink(
-                    this.order.id,
-                    this.order.deepLinkCode,
-                    this.currentDocumentType.technicalName,
-                    config,
-                    Shopware.Context.api
-                ),
-                '_blank'
-            );
+            this.documentService.getDocumentPreview(
+                this.order.id,
+                this.order.deepLinkCode,
+                this.currentDocumentType.technicalName,
+                params
+            ).then((response) => {
+                if (response.data) {
+                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.download = filename;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.parentNode.removeChild(link);
+                }
+            });
         },
 
         onDownload(id, deepLink) {
-            window.open(this.documentService.generateDocumentLink(id, deepLink, Shopware.Context.api, false), '_blank');
+            this.downloadDocument(id, deepLink);
         }
     }
 });

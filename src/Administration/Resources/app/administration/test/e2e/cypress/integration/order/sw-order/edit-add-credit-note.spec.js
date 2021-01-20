@@ -37,6 +37,11 @@ describe('Order: Create credit note', () => {
         }).as('orderRecalculateCall');
 
         cy.route({
+            url: `${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
+            method: 'get'
+        }).as('onPreview');
+
+        cy.route({
             url: `${Cypress.env('apiPath')}/_action/order/*/document/invoice`,
             method: 'post'
         }).as('createInvoice');
@@ -83,13 +88,22 @@ describe('Order: Create credit note', () => {
             'Invoice'
         );
 
+        // Generate preview
+        cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
+        cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
+        cy.get('#sw-order-document-settings-modal__preview-button').click();
+
+        cy.wait('@onPreview').then((xhr) => {
+            expect(xhr.status).equal(200);
+        });
+
         // Generate invoice
         cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
         cy.get('.sw-order-document-settings-modal__settings-modal .sw-button--primary').click();
 
         cy.wait('@createInvoice').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr.status).equal(200);
         });
 
         // Open create edit note modal

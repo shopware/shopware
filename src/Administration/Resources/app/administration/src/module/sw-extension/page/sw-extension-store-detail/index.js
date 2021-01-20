@@ -170,6 +170,10 @@ Component.register('sw-extension-store-detail', {
 
         description() {
             return Utils.get(this.extension, 'description');
+        },
+
+        hasPermissions() {
+            return Object.keys(this.extension.permissions).length;
         }
     },
 

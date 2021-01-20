@@ -118,6 +118,11 @@ export default {
     methods: {
         getMenuStructure() {
             return this.$filesInfo.reduce((accumulator, item) => {
+                // skip meteor components
+                if (!item || !item || !item.path || item.path.includes('meteor')) {
+                    return accumulator;
+                }
+
                 // Ignore the component when it's marked as private
                 if (item.source.meta.hasOwnProperty('private') && item.source.meta.private === true) {
                     return accumulator;

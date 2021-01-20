@@ -71,7 +71,7 @@ module.exports = {
             });
         },
         babel: {
-            plugins: ['@babel/plugin-transform-modules-commonjs'],
+            plugins: ['@babel/plugin-transform-modules-commonjs']
         }
     },
     generate: {
@@ -90,6 +90,11 @@ module.exports = {
 
             return fileParser(config).then((files) => {
                 return files.reduce((accumulator, file) => {
+                    // skip meteor components
+                    if (!file || !file.source || !file.source.path || file.source.path.includes('meteor')) {
+                        return accumulator;
+                    }
+
                     if (file.source.meta.hasOwnProperty('private') && file.source.meta.private === true) {
                         return accumulator;
                     }

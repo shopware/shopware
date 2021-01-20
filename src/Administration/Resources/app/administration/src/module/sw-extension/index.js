@@ -1,39 +1,43 @@
-import './service';
 import initState from './store';
-import './component/sw-extension-store-listing-filter';
-import './component/sw-extension-listing-card';
-import './component/sw-extension-store-purchased/sw-extension-card-base';
-import './component/sw-extension-store-purchased/sw-extension-deactivation-modal';
-import './component/sw-extension-store-purchased/sw-bought-extension-card';
-import './component/sw-extension-store-purchased/sw-self-maintained-extension-card';
-import './component/sw-extension-store-purchased/sw-extension-removal-modal';
-import './component/sw-extension-store-purchased/sw-extension-uninstall-modal';
-import './page/sw-extension-config';
-import './page/sw-extension-store-index';
-import './page/sw-extension-store-listing';
-import './page/sw-extension-my-extensions-listing';
-import './page/sw-extension-my-extensions-index';
-import './page/sw-extension-my-extensions-account';
-import './page/sw-extension-store-detail';
-import './component/sw-ratings/sw-extension-rating-stars';
-import './component/sw-ratings/sw-ratings-card';
-import './component/sw-ratings/sw-ratings-summary';
-import './component/sw-ratings/sw-extension-review';
-import './component/sw-ratings/sw-review-creation';
-import './component/sw-ratings/sw-review-creation-inputs';
-import './component/sw-ratings/sw-review-reply';
-import './component/sw-ratings/sw-select-rating';
-import './component/sw-extension-file-upload';
-import './component/sw-extension-buy-modal';
-import './component/sw-extension-permissions-modal';
-import './component/sw-extension-permissions-details-modal';
-import './component/sw-extension-privacy-policy-extensions-modal';
-import './component/sw-extensions-store-slider';
-import './component/sw-ratings/sw-extension-rating-modal';
-import './component/sw-extension-gtc-checkbox';
+
+async function initDependencies() {
+    await import(/* webpackMode: 'eager' */ './service');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-listing-filter');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-listing-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-card-base');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-deactivation-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-bought-extension-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-self-maintained-extension-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-removal-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-uninstall-modal');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-config');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-store-index');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-store-listing');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-listing');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-index');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-account');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-store-detail');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-stars');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-ratings-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-ratings-summary');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-creation');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-creation-inputs');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-review-reply');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-select-rating');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-file-upload');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-buy-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-details-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extensions-store-slider');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-gtc-checkbox');
+}
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
     initState(Shopware);
+    initDependencies();
 }
 
 Shopware.Module.register('sw-extension', {

@@ -1,9 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
-import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-import 'src/app/component/meteor/sw-meteor-card';
-import 'src/app/component/base/sw-button';
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -54,7 +51,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
     let isLoggedIn = false;
 
-    beforeAll(() => {
+    beforeAll(async () => {
         Shopware.Application.view = {
             setReactive: Vue.set
         };
@@ -86,6 +83,14 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
                 }
             };
         });
+
+        Shopware.Feature.init({
+            FEATURE_NEXT_12608: true
+        });
+
+        await import('src/module/sw-extension/page/sw-extension-my-extensions-account');
+        await import('src/app/component/meteor/sw-meteor-card');
+        await import('src/app/component/base/sw-button');
     });
 
     beforeEach(async () => {

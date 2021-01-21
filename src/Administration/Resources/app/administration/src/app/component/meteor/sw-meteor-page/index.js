@@ -1,8 +1,10 @@
+/* eslint-disable indent */
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
 
 const { Component } = Shopware;
 
+if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
 /**
  * @private
  */
@@ -82,3 +84,4 @@ Component.register('sw-meteor-page', {
         }
     }
 });
+}

@@ -1,8 +1,10 @@
+/* eslint-disable indent */
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
 const { Component } = Shopware;
 
+if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
 /**
  * @private
  * @description A card is a flexible and extensible content container.
@@ -102,3 +104,4 @@ Component.register('sw-meteor-card', {
         }
     }
 });
+}

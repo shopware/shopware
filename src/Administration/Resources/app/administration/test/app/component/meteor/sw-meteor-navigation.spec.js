@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/meteor/sw-meteor-navigation';
 
 function createWrapper(customRoute = {}) {
     return shallowMount(Shopware.Component.build('sw-meteor-navigation'), {
@@ -22,6 +21,14 @@ function createWrapper(customRoute = {}) {
 describe('src/app/component/meteor/sw-meteor-navigation', () => {
     /** @type Wrapper */
     let wrapper;
+
+    beforeAll(async () => {
+        Shopware.Feature.init({
+            FEATURE_NEXT_12608: true
+        });
+
+        await import('src/app/component/meteor/sw-meteor-navigation');
+    });
 
     beforeEach(async () => {
         wrapper = await createWrapper();

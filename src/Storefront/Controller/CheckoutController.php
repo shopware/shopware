@@ -144,7 +144,7 @@ class CheckoutController extends StorefrontController
      */
     public function finishPage(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
+        if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
@@ -163,7 +163,7 @@ class CheckoutController extends StorefrontController
             );
         }
 
-        if ($this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
+        if ($context->getCustomer()->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
             $this->logoutRoute->logout($context);
         }
 

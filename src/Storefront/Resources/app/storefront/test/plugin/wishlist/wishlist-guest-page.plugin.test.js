@@ -94,7 +94,7 @@ describe('GuestWishlistPagePlugin tests', () => {
         expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts())).toEqual(expectNewStorageProducts);
     });
 
-    test('_getWishlistStorage method with test', () => {
+    test('_getWishlistStorage method test', () => {
         CookieStorageHelper.setItem('wishlist-enabled', true);
 
         const validProductIds = ['product_1', 'product_2', 'product_3'];

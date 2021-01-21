@@ -5,7 +5,7 @@ Repository Split:
     dependencies: []
     rules:
       # only split on nightly master snd release versions or saas-release
-      - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH =~ "^(master|6\..+)$"'
+      - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH =~ /^(master|6\..+)$/'
       - if: '$CI_COMMIT_BRANCH == "saas-release"'
     environment:
         name: Github

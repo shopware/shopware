@@ -54,14 +54,29 @@
 
         <template #side-content>
             {% block sw_category_side_content %}
-                <sw-category-tree
-                    :categoryId="categoryId"
-                    :currentLanguageId="currentLanguageId"
-                    @unsaved-changes="openChangeModal"
-                    :allowEdit="acl.can('category.editor')"
-                    :allowCreate="acl.can('category.creator')"
-                    :allowDelete="acl.can('category.deleter')"
-                ></sw-category-tree>
+
+                {% block sw_category_tree %}
+                    <sw-category-tree
+                        :categoryId="categoryId"
+                        :currentLanguageId="currentLanguageId"
+                        @unsaved-changes="openChangeModal"
+                        :allowEdit="acl.can('category.editor')"
+                        :allowCreate="acl.can('category.creator')"
+                        :allowDelete="acl.can('category.deleter')"
+                    ></sw-category-tree>
+                {% endblock %}
+
+                {% block sw_landing_page_tree %}
+                    <sw-landing-page-tree
+                        v-if="feature.isActive('FEATURE_NEXT_12032')"
+                        :landingPageId="landingPageId"
+                        :currentLanguageId="currentLanguageId"
+                        @unsaved-changes="openChangeModal"
+                        :allowEdit="acl.can('landingPage.editor')"
+                        :allowCreate="acl.can('landingPage.creator')"
+                        :allowDelete="acl.can('landingPage.deleter')"
+                    ></sw-landing-page-tree>
+                {% endblock %}
             {% endblock %}
         </template>
 
@@ -77,6 +92,14 @@
                     ></sw-category-view>
                 {% endblock %}
 
+                {% block sw_landing_page_content_view %}
+                    <sw-landing-page-view
+                        v-if="feature.isActive('FEATURE_NEXT_12032') && landingPage"
+                        ref="landingPageView"
+                        :isLoading="isLoading"
+                    ></sw-landing-page-view>
+                {% endblock %}
+
                 {% block sw_category_content_discard_changes_modal %}
                     <sw-discard-changes-modal v-if="isDisplayingLeavePageWarning"
                                               @keep-editing="onLeaveModalClose(nextRoute)"
@@ -89,7 +112,7 @@
                 {% endblock %}
 
                 {% block sw_category_content_empty %}
-                    <sw-empty-state v-if="!category" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
+                    <sw-empty-state v-if="!category && !landingPage" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
                 {% endblock %}
             </template>
 

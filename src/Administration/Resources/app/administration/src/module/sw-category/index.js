@@ -1,4 +1,8 @@
 import './component/sw-category-tree';
+import './component/sw-landing-page-tree';
+import './component/sw-landing-page-view';
+import './view/sw-landing-page-detail-base';
+import './view/sw-landing-page-detail-cms';
 import './component/sw-category-view';
 import './component/sw-category-sales-channel-card';
 import './component/sw-category-link-settings';
@@ -67,6 +71,44 @@ Module.register('sw-category', {
                 default(route) {
                     return {
                         categoryId: route.params.id
+                    };
+                }
+            }
+        },
+
+        landingPageDetail: {
+            component: 'sw-category-detail',
+            path: 'landingPage/:id',
+            meta: {
+                privilege: 'category.viewer'
+            },
+            redirect: {
+                name: 'sw.category.landingPageDetail.base'
+            },
+
+            children: {
+                base: {
+                    component: 'sw-landing-page-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer'
+                    }
+                },
+                cms: {
+                    component: 'sw-landing-page-detail-cms',
+                    path: 'cms',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
+                    }
+                }
+            },
+
+            props: {
+                default(route) {
+                    return {
+                        landingPageId: route.params.id
                     };
                 }
             }

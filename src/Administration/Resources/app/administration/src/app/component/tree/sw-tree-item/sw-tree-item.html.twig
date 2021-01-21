@@ -78,6 +78,16 @@
 
                 {% block sw_tree_item_element_actions %}
                     <div class="sw-tree-item__actions">
+
+                        {% block sw_tree_items_active_state %}
+                            <sw-icon
+                                v-if="shouldShowActiveState"
+                                size="6"
+                                :color="getActiveIconColor(item)"
+                                name="default-basic-shape-circle-filled"
+                            ></sw-icon>
+                        {% endblock %}
+
                         <slot name="actions" :item="item" :openTreeItem="openTreeItem">
                             <sw-context-button class="sw-tree-item__context_button" v-tooltip="toolTip" :disabled="isDisabled">
                             {% block sw_tree_items_actions_before %}
@@ -195,6 +205,16 @@
                                             <sw-vnode-renderer :node="$scopedSlots.actions({ item, openTreeItem })"
                                                                v-if="$scopedSlots.actions"></sw-vnode-renderer>
                                             <div v-else class="sw-tree-item__actions">
+
+                                                {% block sw_tree_items_active_state %}
+                                                    <sw-icon
+                                                        v-if="shouldShowActiveState"
+                                                        size="6"
+                                                        :color="getActiveIconColor(item)"
+                                                        name="default-basic-shape-circle-filled"
+                                                    ></sw-icon>
+                                                {% endblock %}
+
                                                 <slot name="actions" v-bind="{ item, openTreeItem }">
                                                     <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
                                                         {% block sw_tree_items_actions_before %}

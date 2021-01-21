@@ -110,6 +110,11 @@
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
     }
   },
+  "sw-landing-page": {
+    "general": {
+      "treeHeadline": "Landing Pages"
+    }
+  },
   "sw-privileges": {
     "permissions": {
       "category": {

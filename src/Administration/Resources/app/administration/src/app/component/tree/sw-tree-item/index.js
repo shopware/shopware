@@ -79,6 +79,12 @@ Component.register('sw-tree-item', {
             default: false
         },
 
+        shouldShowActiveState: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         activeFocusId: {
             type: String,
             required: false,
@@ -381,6 +387,14 @@ Component.register('sw-tree-item', {
             }
 
             return item.data.name;
+        },
+
+        getActiveIconColor(item) {
+            if (item.data && item.data.active) {
+                return item.data.active === true ? '#37d046' : '#d1d9e0';
+            }
+
+            return '#d1d9e0';
         },
 
         showItemUrl(item) {

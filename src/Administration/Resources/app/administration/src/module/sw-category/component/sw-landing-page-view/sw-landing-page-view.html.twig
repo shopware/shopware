@@ -1,0 +1,41 @@
+{% block sw_landing_page_view %}
+    <sw-card-view class="sw-landing_page-view">
+        {% block sw_landing_page_view_language_info %}
+            <sw-language-info
+                :entityDescription="placeholder(landingPage, 'name', $tc('sw-manufacturer.detail.textHeadline'))">
+            </sw-language-info>
+        {% endblock %}
+
+        {% block sw_landing_page_view_tabs %}
+            <sw-tabs class="sw-customer-detail-page__tabs" v-if="!isLoading">
+                {% block sw_category_view_tabs_general %}
+                    <sw-tabs-item
+                        class="sw-category-detail__tab-base"
+                        :route="{ name: 'sw.category.landingPageDetail.base' }"
+                        :title="$tc('sw-category.view.general')">
+                        {{ $tc('sw-category.view.general') }}
+                    </sw-tabs-item>
+                {% endblock %}
+                {% block sw_category_view_tabs_cms %}
+                    <sw-tabs-item
+                        v-show="cmsPage"
+                        :disabled="!acl.can('category.editor')"
+                        v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('category.editor'),
+                                showOnDisabledElements: true
+                            }"
+                        class="sw-category-detail__tab-cms"
+                        :route="{ name: 'sw.category.landingPageDetail.cms' }"
+                        :title="$tc('sw-category.view.cms')">
+                        {{ $tc('sw-category.view.cms') }}
+                    </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+        {% endblock %}
+
+        {% block sw_landing_page_view_content %}
+            <router-view :isLoading="isLoading"></router-view>
+        {% endblock %}
+    </sw-card-view>
+{% endblock %}

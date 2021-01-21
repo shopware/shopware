@@ -417,6 +417,9 @@
         "label": "Images",
         "placeholder": "Select an image status..."
       }
+    },
+    "notification": {
+      "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
     }
   },
   "sw-privileges": {

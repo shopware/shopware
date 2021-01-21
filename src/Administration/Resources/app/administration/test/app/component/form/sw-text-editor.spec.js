@@ -290,6 +290,30 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(isInsideInlineMapping).toBe(true);
     });
 
+    it('should return true if selection is inside inline mapping with mapping around', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Before {{ test }} {{ category.name }} {{ example }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 21, 29, 'category');
+
+        const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
+        expect(isInsideInlineMapping).toBe(true);
+    });
+
+    it('should return false if selection is not inside inline mapping with mapping around', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Some text before {{ test }} category.name }} {{ example }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 28, 36, 'category');
+
+        const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
+        expect(isInsideInlineMapping).toBe(false);
+    });
+
     it('should return false if selection is not inside inline mapping', async () => {
         wrapper = createWrapper();
 
@@ -297,6 +321,18 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         const paragraph = document.getElementById('paragraph');
         await addAndCheckSelection(wrapper, paragraph, 4, 10, 'inside');
+
+        const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
+        expect(isInsideInlineMapping).toBe(false);
+    });
+
+    it('should return false if selection is not inside inline mapping with mappings around', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">{{ example }} not inside mapping {{ example }}</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 18, 24, 'inside');
 
         const isInsideInlineMapping = wrapper.vm.isInsideInlineMapping();
         expect(isInsideInlineMapping).toBe(false);

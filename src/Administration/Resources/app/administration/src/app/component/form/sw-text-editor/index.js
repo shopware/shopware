@@ -529,35 +529,44 @@ Component.register('sw-text-editor', {
                 anchorNode,
                 anchorOffset,
                 focusNode,
-                focusNode: { nodeValue: focusNodeText }
+                focusNode: { nodeValue: focusNodeText },
+                focusOffset
             } = this.selection;
 
-            const positionOfEndBracket = focusNodeText.lastIndexOf('}');
+            const contentAfterSelection = Array.from(focusNodeText)
+                .splice(focusOffset, focusNodeText.length)
+                .join('');
+            const positionOfEndBracket = contentAfterSelection.indexOf('}}');
             const containsBothStartBrackets = /\{\{/.test(this.selection.toString());
 
             this.setSelection(
                 anchorNode,
                 focusNode,
                 containsBothStartBrackets ? anchorOffset : anchorOffset - 1,
-                positionOfEndBracket + 1
+                focusOffset + positionOfEndBracket + 2
             );
         },
 
         expandSelectionToNearestStartBracket() {
             const {
+                anchorOffset,
                 anchorNode,
                 anchorNode: { nodeValue: anchorNodeText },
                 focusNode,
                 focusOffset
             } = this.selection;
 
-            const positionOfStartBracket = anchorNodeText.indexOf('{');
+            const contentBeforeSelection = Array.from(anchorNodeText)
+                .splice(0, anchorOffset)
+                .reverse()
+                .join('');
+            const positionOfStartBracket = contentBeforeSelection.indexOf('{{');
             const containsBothEndBrackets = /}}/.test(this.selection.toString());
 
             this.setSelection(
                 anchorNode,
                 focusNode,
-                positionOfStartBracket,
+                anchorOffset - positionOfStartBracket - 2,
                 containsBothEndBrackets ? focusOffset : focusOffset + 1
             );
         },
@@ -602,28 +611,20 @@ Component.register('sw-text-editor', {
                 focusNode: { nodeValue: focusNodeText }
             } = this.selection;
 
-            const startBracketFound = Array.from(anchorNodeText)
+            const contentBeforeSelection = Array.from(anchorNodeText)
                 .splice(0, anchorOffset)
                 .reverse()
-                .reduce((accumulator, char) => {
-                    if (char === '{') {
-                        accumulator = true;
-                    }
+                .join('');
+            // https://regex101.com/r/HWsZiH/1
+            const startBracketFound = (/^[^}]*{{/).test(contentBeforeSelection);
 
-                    return accumulator;
-                }, false);
-
-            const endBracketFound = Array.from(focusNodeText)
+            const contentAfterSelection = Array.from(focusNodeText)
                 .splice(focusOffset, focusNodeText.length)
-                .reduce((accumulator, char) => {
-                    if (char === '}') {
-                        accumulator = true;
-                    }
+                .join('');
+            // https://regex101.com/r/nzzL4t/1
+            const endBracketFound = (/^[^{]*}}/).test(contentAfterSelection);
 
-                    return accumulator;
-                }, false);
-
-            return startBracketFound && endBracketFound;
+            return !!startBracketFound && !!endBracketFound;
         },
 
         handleInsertTable(button) {

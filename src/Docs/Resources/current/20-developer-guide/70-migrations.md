@@ -91,3 +91,43 @@ From now on, this migration will be automatically applied when the plugin is
 installed, but you may also
 [control this behaviour](./../60-references-internals/40-plugins/080-plugin-migrations.md#advanced-migration-control)
 in detail if you wish to.
+
+
+### Important Rules
+
+To ensure the stability of updates and Shopware itself, it is imperative that the following rules are always followed when creating new migrations.
+
+
+##### 1. Migrations must be able to be executed more than once
+If a migration fails, make sure that it can be executed again. A migration should check whether structures have already been created to avoid creating duplicates.
+
+
+##### 2. Do not trust any identifier
+Identifiers on a customer system can always be different from those on a development environment, for example.
+Search in detail for trusted identifiers. If in doubt, a database query for the identifier must be initiated in advance.
+
+
+##### 3. Do not trust customer data
+Customers sometimes produce very complex and unpredictable data constructs. Therefore, never rely on the existence of data or structures. Always program migrations very defensively with exact queries on the situation.
+
+
+##### 4. Duration (Performance)
+A migration must never take longer than 10 seconds on your local system. You do not know the timeout values of the customers, so this value should never be exceeded. Customer systems are often slower than developer systems, but contain a lot of data. Make sure to test your migration with big data sets.
+
+
+##### 5. Don't hurt customized Data
+There are data that are often individualized by customers. Under no circumstances may a migration overwrite individualized customer data. Always check this in your migration.
+
+
+##### 6. There are no default languages
+The customers can select any language as their default. Don't rely on any language as given, neither English nor German.
+
+
+##### 7. Test data migration
+If data is updated in a migration, a test must be written for this migration.
+
+
+##### 8. NEVER update a migration
+You cannot alter a migration which was already part of a released version.
+You will need to write a new migration to do the changes, otherwise an existing system will not get the same data structure on update as a new installation.
+The only exception to this rule is when the migration throws an error.

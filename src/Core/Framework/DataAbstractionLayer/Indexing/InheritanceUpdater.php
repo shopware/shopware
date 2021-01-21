@@ -100,6 +100,11 @@ class InheritanceUpdater
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference->getEntityName()),
             ];
+            
+            if ($association instanceof OneToManyAssociationField) {
+                $parameters['#entity_id#'] = EntityDefinitionQueryHelper::escape($association->getReferenceField());
+                $parameters['#property#'] = EntityDefinitionQueryHelper::escape($association->getLocalField());
+            }
 
             $params = ['ids' => $bytes];
 

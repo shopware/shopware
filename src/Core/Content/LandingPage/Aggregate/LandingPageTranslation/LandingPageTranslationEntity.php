@@ -41,6 +41,11 @@ class LandingPageTranslationEntity extends Entity
     /**
      * @var string|null
      */
+    protected $url;
+
+    /**
+     * @var string|null
+     */
     protected $metaTitle;
 
     /**
@@ -116,6 +121,16 @@ class LandingPageTranslationEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): void
+    {
+        $this->url = $url;
     }
 
     public function getMetaTitle(): ?string

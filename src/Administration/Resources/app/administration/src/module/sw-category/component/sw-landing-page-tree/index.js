@@ -116,7 +116,12 @@ Component.register('sw-landing-page-tree', {
         },
 
         currentLanguageId() {
-            this.openInitialTree();
+            this.isLoadingInitialData = true;
+            this.loadedLandingPages = {};
+
+            this.loadLandingPages().finally(() => {
+                this.isLoadingInitialData = false;
+            });
         }
     },
 
@@ -135,10 +140,6 @@ Component.register('sw-landing-page-tree', {
 
         loadLandingPages() {
             return this.landingPageRepository.search(this.cmsLandingPageCriteria, Shopware.Context.api).then((result) => {
-                // Is needed for the sw-tree component
-                result.forEach(element => {
-                    element.childCount = 0;
-                });
                 this.addLandingPages(result);
             });
         },

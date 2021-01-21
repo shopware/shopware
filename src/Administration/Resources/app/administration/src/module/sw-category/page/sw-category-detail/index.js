@@ -143,6 +143,17 @@ Component.register('sw-category-detail', {
             return criteria;
         },
 
+        customFieldSetLandingPageCriteria() {
+            const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'landing_page'));
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -387,8 +398,8 @@ Component.register('sw-category-detail', {
                 });
 
                 await Shopware.State.dispatch('cmsPageState/resetCmsPageState');
-                await this.getAssignedCmsPageForLandingPage;
-                await this.loadCustomFieldSet;
+                await this.getAssignedCmsPageForLandingPage();
+                await this.loadLandingPageCustomFieldSet();
             } catch {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
@@ -436,7 +447,18 @@ Component.register('sw-category-detail', {
             return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
-                }).then(() => {
+                }).finally(() => {
+                    this.isCustomFieldLoading = true;
+                });
+        },
+
+        loadLandingPageCustomFieldSet() {
+            this.isCustomFieldLoading = true;
+
+            return this.customFieldSetRepository.search(this.customFieldSetLandingPageCriteria, Shopware.Context.api)
+                .then((customFieldSet) => {
+                    return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
+                }).finally(() => {
                     this.isCustomFieldLoading = true;
                 });
         },

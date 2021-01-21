@@ -63,6 +63,7 @@ class LandingPageDefinition extends EntityDefinition
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),
             new TranslatedField('keywords'),
+            new TranslatedField('url'),
             (new TranslationsAssociationField(LandingPageTranslationDefinition::class, 'landing_page_id'))->addFlags(new Required()),
             (new ManyToManyAssociationField('tags', TagDefinition::class, LandingPageTagDefinition::class, 'landing_page_id', 'tag_id'))->addFlags(new CascadeDelete()),
             new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),

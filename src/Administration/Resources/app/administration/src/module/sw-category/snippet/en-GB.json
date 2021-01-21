@@ -118,12 +118,48 @@
     }
   },
   "sw-landing-page": {
+    "view": {
+      "general": "General",
+      "cms": "Content"
+    },
     "general": {
       "treeHeadSelected": "{count} selected",
       "buttonCreate": "Create landing page",
       "treeHeadline": "Landing Pages",
       "actions": {
         "withoutPosition": "New landing page"
+      }
+    },
+    "base": {
+      "general": {
+        "labelName": "Name",
+        "headlineInformationCard": "General",
+        "isActiveLabel": "Category active",
+        "labelTags": "Tags",
+        "labelTagsPlaceholder": "Enter tags individually..."
+      },
+      "seo": {
+        "title": "SEO",
+        "labelSalesChannel": "Sales Channels",
+        "labelMetaTitle": "Meta title",
+        "labelMetaDescription": "Meta description",
+        "labelKeywords": "SEO keywords",
+        "labelUrl": "SEO URL",
+        "placeholderSalesChannel": "Chose a sales channel...",
+        "placeholderMetaTitle": "Enter meta title...",
+        "placeholderMetaDescription": "Enter a meta description...",
+        "placeholderKeywords": "Enter one or more keywords...",
+        "placeholderUrl": "Enter a URL..."
+      },
+      "cms": {
+        "title": "Layout assignment",
+        "changeLayout": "Change layout",
+        "changeLayoutEmpty": "Assign layout",
+        "editInPagebuilder": "Edit in designer",
+        "editInPagebuilderEmpty": "Create new layout",
+        "editContent": "Edit content",
+        "defaultTitle": "Default layout",
+        "defaultDesc": "Category page"
       }
     },
     "modal": {

@@ -49,6 +49,7 @@ class LandingPageTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
+            new StringField('url', 'url'),
             new JsonField('slot_config', 'slotConfig'),
             (new LongTextField('meta_title', 'metaTitle'))->addFlags(new AllowHtml()),
             (new LongTextField('meta_description', 'metaDescription'))->addFlags(new AllowHtml()),

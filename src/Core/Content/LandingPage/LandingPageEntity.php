@@ -64,6 +64,11 @@ class LandingPageEntity extends Entity
     protected $keywords;
 
     /**
+     * @var string|null
+     */
+    protected $url;
+
+    /**
      * @var array|null
      */
     protected $customFields;
@@ -171,6 +176,16 @@ class LandingPageEntity extends Entity
     public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): void
+    {
+        $this->url = $url;
     }
 
     public function getCustomFields(): ?array

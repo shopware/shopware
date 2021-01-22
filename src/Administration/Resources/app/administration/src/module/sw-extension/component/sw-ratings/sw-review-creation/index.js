@@ -9,9 +9,7 @@ const { Component } = Shopware;
 Component.register('sw-review-creation', {
     template,
 
-    mixins: [
-
-    ],
+    mixins: ['sw-extension-error'],
 
     props: {
         extension: {
@@ -105,7 +103,7 @@ Component.register('sw-review-creation', {
                 await extensionStoreActionService.rateExtension(review);
                 this.isCreatedSuccessful = true;
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             }
         },
 

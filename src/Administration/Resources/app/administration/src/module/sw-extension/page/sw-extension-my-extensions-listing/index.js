@@ -3,6 +3,9 @@ import './sw-extension-my-extensions-listing.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-my-extensions-listing', {
     template,
 
@@ -27,12 +30,12 @@ Component.register('sw-extension-my-extensions-listing', {
             }, {});
         },
 
+        // TODO: will be refactored with NEXT-12611
         extensionList() {
             const installedExtensions = Object.assign({}, this.installedExtensions);
             const sortedActiveExtensions = [];
             const sortedInstalledExtensions = [];
             const sortedOtherExtensions = [];
-
 
             this.licensedExtensions.forEach(license => {
                 let extension = null;

@@ -3,6 +3,9 @@ import './sw-extension-buy-modal.scss';
 
 const { Component, Mixin, Utils } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-buy-modal', {
     template,
 
@@ -10,7 +13,10 @@ Component.register('sw-extension-buy-modal', {
         'shopwareExtensionService'
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        Mixin.getByName('notification'),
+        'sw-extension-error'
+    ],
 
     props: {
         extension: {
@@ -43,7 +49,7 @@ Component.register('sw-extension-buy-modal', {
         },
 
         selectedVariant() {
-            return this.recommendedVariants.find((variant) => {
+            return this.extension.variants.find((variant) => {
                 return variant.id === this.selectedVariantId;
             });
         },
@@ -113,7 +119,11 @@ Component.register('sw-extension-buy-modal', {
     },
 
     created() {
-        this.setSelectedVariantId(this.recommendedVariants[0].id);
+        const variantId = this.recommendedVariants.length > 0
+            ? this.recommendedVariants[0].id
+            : this.extension.variants[0].id;
+
+        this.setSelectedVariantId(variantId);
         this.permissionsAccepted = !this.extensionHasPermissions;
         this.privacyExtensionsAccepted = !this.extension.privacyPolicyExtensions;
         this.fetchPlan();
@@ -257,7 +267,7 @@ Component.register('sw-extension-buy-modal', {
                 (e) => e.code !== 'SAAS_EXTENSION_ORDER__NO_DEFAULT_PAYMENT_MEAN' && e.code !== 'SAAS_COMPANY__MISSING'
             );
 
-            this.showSaasErrors(error);
+            this.showExtensionErrors(error);
         },
 
         openPermissionsModal() {

@@ -3,14 +3,17 @@ import './sw-extension-card-base.scss';
 
 const { Component, Utils, Filter } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-card-base', {
-    name: 'sw-extension-card-base',
     template,
+
     inheritAttrs: false,
 
     inject: ['shopwareExtensionService', 'extensionStoreActionService'],
 
-    mixins: [],
+    mixins: ['sw-extension-error'],
 
     props: {
         license: {
@@ -132,19 +135,11 @@ Component.register('sw-extension-card-base', {
         },
 
         isRemovable() {
-            if (this.extension && this.extension.installedAt === null) {
-                return true;
-            }
-
-            return false;
+            return this.extension && this.extension.installedAt === null;
         },
 
         isUninstallable() {
-            if (this.extension && this.extension.installedAt !== null) {
-                return true;
-            }
-
-            return false;
+            return this.extension && this.extension.installedAt !== null;
         },
 
         isUpdateable() {
@@ -167,10 +162,6 @@ Component.register('sw-extension-card-base', {
 
         getPropValue(property) {
             return Utils.get(this.licensedExtension, property) || Utils.get(this.extension, property);
-        },
-
-        getHelp() {
-            // implemented in SAAS-1137
         },
 
         openPrivacyAndSafety() {
@@ -204,8 +195,7 @@ Component.register('sw-extension-card-base', {
                     removeData
                 );
             } catch (e) {
-                console.log(e);
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -224,7 +214,7 @@ Component.register('sw-extension-card-base', {
                     this.getPropValue('type')
                 );
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

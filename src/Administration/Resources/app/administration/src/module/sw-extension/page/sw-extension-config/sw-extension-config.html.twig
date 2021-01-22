@@ -1,29 +1,19 @@
-{% block sw_extension_config %}
-    <sw-meteor-page class="sw-extension-config" hideIcon>
-        {% block sw_extension_config_header %}
-            <template #smart-bar-header>
-                {{ namespace }}
-            </template>
-        {% endblock %}
+<sw-meteor-page class="sw-extension-config" hideIcon>
+    <template #smart-bar-header>
+        {{ namespace }}
+    </template>
 
-        {% block sw_extension_config_actions %}
-            <template #smart-bar-actions>
-                {% block sw_extension_config_actions_save %}
-                    <sw-button variant="primary" class="sw-extension-config__save-action" @click.prevent="onSave">
-                        {{ $tc('global.default.save') }}
-                    </sw-button>
-                {% endblock %}
-            </template>
-        {% endblock %}
+    <template #smart-bar-actions>
+        <sw-button variant="primary" class="sw-extension-config__save-action" @click.prevent="onSave">
+            {{ $tc('global.default.save') }}
+        </sw-button>
+    </template>
 
-        <template #default>
-            {% block sw_extension_config_content %}
-                <sw-system-config :domain="domain"
-                                  salesChannelSwitchable
-                                  :salesChannelId="salesChannelId"
-                                  ref="systemConfig">
-                </sw-system-config>
-            {% endblock %}
-        </template>
-    </sw-meteor-page>
-{% endblock %}
+    <template #default>
+        <sw-system-config :domain="domain"
+                          salesChannelSwitchable
+                          :salesChannelId="salesChannelId"
+                          ref="systemConfig">
+        </sw-system-config>
+    </template>
+</sw-meteor-page>

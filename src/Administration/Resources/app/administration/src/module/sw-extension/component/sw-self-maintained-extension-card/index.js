@@ -1,9 +1,14 @@
-import template from '../../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
+import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', {
     template,
+
+    mixins: ['sw-extension-error'],
 
     props: {
         extension: {
@@ -63,7 +68,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                 );
             } catch (e) {
                 console.log(e);
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -81,7 +86,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 window.location.reload();
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -99,7 +104,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
 
                 window.location.reload();
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -116,7 +121,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                 );
                 this.extension.active = false;
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

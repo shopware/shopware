@@ -81,7 +81,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-12109 - Decode URI string in file reader service](/changelog/release-6-3-5-0/2020-12-10-decode-uri-string-in-file-reader-service.md) ([Alexander Schmidt](https://github.com/kiplingi))
 *  [NEXT-5638 - Fix bug automatically set value for nullable product fields](/changelog/release-6-3-5-0/2020-12-10-fix-bug-automatically-set-value-for-nullable-product-fields.md)
 *  [NEXT-12088 - Revert NEXT-9821 - fix padding changed to margin as set in admin](/changelog/release-6-3-5-0/2020-12-10-revert-next-9821---fix-padding-changed-to-margin-as-set-in-admin.md)
-*  [NEXT-1797 - Update to composer 2](/changelog/release-6-3-5-0/2020-12-10-update-to-composer-2.md)
 *  [NEXT-10590 - Customer should see his own review, even if it's not set visible](/changelog/release-6-3-5-0/2020-12-11-customer-should-see-own-review-even-if-its-not-set-visible.md)
 *  [NEXT-12850 - Fix endless loop in sitemap generation](/changelog/release-6-3-5-0/2020-12-11-fix-loop-in-sitemap-generation.md)
 *  [NEXT-12268 - Fix password field for new users is require](/changelog/release-6-3-5-0/2020-12-12-fix-password-for-new-users-required.md)

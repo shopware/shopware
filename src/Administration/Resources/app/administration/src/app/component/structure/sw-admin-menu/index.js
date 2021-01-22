@@ -168,6 +168,12 @@ Component.register('sw-admin-menu', {
         }
     },
 
+    watch: {
+        isExpanded() {
+            this.toggleSidebar();
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -258,10 +264,35 @@ Component.register('sw-admin-menu', {
                 this.expandAdminMenu();
             }
 
+            this.toggleSidebar();
+        },
+
+        toggleSidebar() {
             if (!this.isExpanded) {
                 this.removeClassesFromElements(
                     Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
                     ['is--entry-expanded']
+                );
+
+                const currentlyActiveElement = this.$el.querySelector('a.router-link-active');
+                const currentlyActiveParentElement = currentlyActiveElement.parentElement;
+                const parentIsFirstLevel = currentlyActiveParentElement.classList.contains('navigation-list-item__level-1');
+
+                const ignoreElementsList = [currentlyActiveParentElement];
+
+                if (currentlyActiveElement && !parentIsFirstLevel) {
+                    const mainMenuListItem = currentlyActiveElement.closest(
+                        '.navigation-list-item__level-1.navigation-list-item__has-children'
+                    );
+                    ignoreElementsList.push(mainMenuListItem.firstElementChild);
+                }
+
+                this.removeClassesFromElements(
+                    Array.from(this.$el.querySelectorAll(
+                        '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active'
+                    )),
+                    ['router-link-active'],
+                    ignoreElementsList
                 );
                 this.onFlyoutLeave();
             }
@@ -327,7 +358,8 @@ Component.register('sw-admin-menu', {
             }
         },
 
-        onMenuItemClick(entry, target) {
+        onMenuItemClick(entry, eventTarget) {
+            const target = eventTarget.closest('.sw-admin-menu__navigation-list-item');
             const level = entry.level;
 
             // Clear previous delay of the menu
@@ -339,33 +371,33 @@ Component.register('sw-admin-menu', {
                 return;
             }
 
+            const firstChild = target.firstChild;
             this.removeClassesFromElements(
                 Array.from(this.$el.querySelectorAll(
                     '.sw-admin-menu__navigation-list-item'
                 )),
                 ['is--entry-expanded', 'is--flyout-expanded'],
-                [target]
+                [target, firstChild]
             );
 
-            this.removeClassesFromElements(
-                Array.from(this.$el.querySelectorAll(
-                    '.sw-admin-menu__navigation-link'
-                )),
-                ['router-link-active'],
-                [target]
-            );
+            const isEntryExpanded = target.classList.contains('is--entry-expanded');
+            const isChildRouterActive = target.querySelector('a.router-link-active');
+            if (!isChildRouterActive) {
+                firstChild.classList.remove('router-link-active');
+            } else {
+                firstChild.classList.add('router-link-active');
+            }
 
-            const firstChild = target.firstChild;
-            if (target.classList.contains('is--entry-expanded')) {
+            if (isEntryExpanded) {
                 Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
 
-                target.classList.remove('is--entry-expanded');
                 firstChild.classList.remove('router-link-active');
+                firstChild.remove('is--entry-expanded');
             } else {
                 Shopware.State.commit('adminMenu/expandMenuEntry', entry);
 
-                target.classList.add('is--entry-expanded');
                 firstChild.classList.add('router-link-active');
+                target.classList.add('is--entry-expanded');
             }
 
             target.classList.remove('is--flyout-expanded');

@@ -22,6 +22,12 @@ describe('Product: Edit in various ways', () => {
     });
 
     it('@catalogue: set list price', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v*/search/product',
+            method: 'post'
+        }).as('saveProduct');
+
         const page = new ProductPageObject();
 
         // go to product detail page
@@ -36,7 +42,9 @@ describe('Product: Edit in various ways', () => {
         // generate variants
         page.generateVariants('Color', [0, 1], 2);
 
-        cy.reload();
+        cy.wait('@saveProduct').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // go back to detail tab
         cy.get('.sw-product-detail__tab-general').click();

@@ -29,6 +29,7 @@ Component.register('sw-product-seo-form', {
             searchTerm: '',
             canonicalProductSwitchEnabled: false,
             switchStateHasBeenSet: false,
+            shouldKeepSelectValue: false,
             selectValue: null
         };
     },
@@ -62,6 +63,12 @@ Component.register('sw-product-seo-form', {
         },
 
         canonicalProductSwitchEnabled(isEnabled) {
+            if (!this.shouldKeepSelectValue) {
+                this.shouldKeepSelectValue = true;
+
+                return;
+            }
+
             /* When the switch state is false it saves the variant id internally.
              * And when the switch is enabled and the value is not null it sets back the variant id.
              */

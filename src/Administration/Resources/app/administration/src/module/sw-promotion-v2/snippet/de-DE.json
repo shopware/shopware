@@ -69,6 +69,12 @@
                         "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
                         "openCustomer": "Kunde öffnen",
                         "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
+                        "addCodesModal": {
+                            "title": "Neue Aktionscodes hinzufügen",
+                            "description": "Neue Aktionscodes verwenden dasselbe Präfix, Suffix und Muster, das zur Erzeugung früherer Aktionscodes verwendet wurde.",
+                            "addCodesButton": "Aktionscodes hinzufügen",
+                            "codeAmountLabel": "Anzahl neuer Aktionscodes"
+                        },
                         "generateModal": {
                             "title": "Erzeuge neue Aktionscodes",
                             "buttonGenerate": "Erzeuge Aktionscodes",

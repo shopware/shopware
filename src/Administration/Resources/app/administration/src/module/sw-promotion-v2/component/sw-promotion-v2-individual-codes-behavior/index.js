@@ -10,7 +10,8 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
     inject: [
         'acl',
-        'repositoryFactory'
+        'repositoryFactory',
+        'promotionCodeApiService'
     ],
 
     mixins: [
@@ -26,10 +27,14 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
     data() {
         return {
+            limit: 25,
             isGridLoading: false,
+            isAdding: false,
             codeDeleteModal: false,
             codeBulkDeleteModal: false,
             generateCodesModal: false,
+            addCodesModal: false,
+            newCodeAmount: 10,
             cardIdentifier: createId(),
             currentSelection: []
         };
@@ -79,6 +84,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
     methods: {
         mountedComponent() {
             if (this.$refs.individualCodesGrid) {
+                this.isGridLoading = true;
                 this.loadIndividualCodesGrid();
             }
         },
@@ -92,6 +98,7 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
         loadIndividualCodesGrid() {
             this.promotion.individualCodes.criteria.setPage(1);
+            this.promotion.individualCodes.criteria.setLimit(this.limit);
             this.promotion.individualCodes.criteria.addSorting(Criteria.naturalSorting('code'));
 
             this.$refs.individualCodesGrid.load().then(() => {
@@ -144,6 +151,48 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
         onCloseGenerateCodesModal() {
             this.generateCodesModal = false;
+        },
+
+        onOpenAddCodesModal() {
+            this.addCodesModal = true;
+        },
+
+        onAddCodes() {
+            this.isAdding = true;
+
+            this.promotionCodeApiService.addIndividualCodes(this.promotion.id, this.newCodeAmount).then(() => {
+                this.isAdding = false;
+                this.onCloseAddCodesModal();
+                this.$emit('generate-finish');
+            }).catch((e) => {
+                this.isAdding = false;
+
+                e.response.data.errors.forEach((error) => {
+                    let errorType;
+                    switch (error.code) {
+                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX':
+                            errorType = 'notComplexEnoughException';
+                            break;
+                        case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
+                            errorType = 'alreadyInUseException';
+                            break;
+                        default:
+                            errorType = 'unknownErrorCode';
+                            break;
+                    }
+
+                    this.createNotificationError({
+                        autoClose: false,
+                        message: this.$tc(
+                            `sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`
+                        )
+                    });
+                });
+            });
+        },
+
+        onCloseAddCodesModal() {
+            this.addCodesModal = false;
         },
 
         routeToCustomer(redeemedCustomer) {

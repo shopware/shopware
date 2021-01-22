@@ -71,9 +71,13 @@ Component.register('sw-promotion-v2-detail', {
         },
 
         promotionCriteria() {
-            return (new Criteria(1, 1))
-                .addAssociation('salesChannels')
-                .addAssociation('individualCodes');
+            const criteria = (new Criteria(1, 1))
+                .addAssociation('salesChannels');
+
+            criteria.getAssociation('individualCodes')
+                .setLimit(25);
+
+            return criteria;
         },
 
         tooltipSave() {

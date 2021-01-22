@@ -69,6 +69,12 @@
                         "textDeleteConfirm": "Are you sure you want to delete the code \"{code}\"? | Are you sure cou want to delete these {count} codes?",
                         "openCustomer": "Open customer",
                         "routingError": "The customer \"{name}\" has not been found.",
+                        "addCodesModal": {
+                            "title": "Add new codes",
+                            "description": "New codes will use the same prefix, suffix and pattern that has been used to generate previous codes.",
+                            "addCodesButton": "Add new codes",
+                            "codeAmountLabel": "Number of new codes"
+                        },
                         "generateModal": {
                             "title": "Generate new promotion codes",
                             "buttonGenerate": "Generate codes",

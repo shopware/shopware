@@ -119,12 +119,15 @@
                 {% endblock %}
 
                 {% block sw_promotion_v2_generate_codes_modal_generate %}
-                    <sw-button class="sw-promotion-v2-generate-codes-modal__button-generate"
-                               variant="primary"
-                               size="small"
-                               @click="onGenerate">
+                    <sw-button-process
+                        class="sw-promotion-v2-generate-codes-modal__button-generate"
+                        variant="primary"
+                        size="small"
+                        :isLoading="isGenerating"
+                        :processSuccess="false"
+                        @click="onGenerate">
                         {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateModal.buttonGenerate') }}
-                    </sw-button>
+                    </sw-button-process>
                 {% endblock %}
 
             </template>

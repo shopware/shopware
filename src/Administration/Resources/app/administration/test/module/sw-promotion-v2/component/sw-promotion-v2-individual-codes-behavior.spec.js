@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-button-process';
 
 function createWrapper(additionalPromotionData = {}) {
     const localVue = createLocalVue();
@@ -18,17 +19,24 @@ function createWrapper(additionalPromotionData = {}) {
             'sw-card-filter': {
                 template: '<div class="sw-card-filter"><slot name="filter"></slot></div>'
             },
-            'sw-button': Shopware.Component.build('sw-button'),
-            'sw-one-to-many-grid': true,
-            'sw-icon': true,
-            'sw-context-menu-item': true,
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+            },
             'sw-confirm-modal': true,
+            'sw-promotion-v2-generate-codes-modal': {
+                template: '<div class="sw-promotion-v2-generate-codes-modal"></div>'
+            },
+            'sw-one-to-many-grid': true,
             'sw-empty-state': {
                 template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>'
             },
-            'sw-promotion-v2-generate-codes-modal': {
-                template: '<div class="sw-promotion-v2-generate-codes-modal"></div>'
-            }
+            'sw-context-menu-item': true,
+            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-number-field': {
+                template: '<div class="sw-number-field"><slot></slot></div>'
+            },
+            'sw-icon': true
         },
         provide: {
             acl: {
@@ -38,6 +46,11 @@ function createWrapper(additionalPromotionData = {}) {
                 create: () => ({
                     search: () => Promise.resolve([{ id: 'promotionId1' }])
                 })
+            },
+            promotionCodeApiService: {
+                addIndividualCodes() {
+                    return new Promise(resolve => resolve());
+                }
             }
         },
         mocks: {
@@ -107,7 +120,12 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
 
     it('should open the individual codes generation modal in empty state', async () => {
         let codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
+        const addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
+        const addButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-action');
+
         expect(codesModal.exists()).toBe(false);
+        expect(addModal.exists()).toBe(false);
+        expect(addButton.exists()).toBe(false);
 
         const generateButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action');
         await generateButton.trigger('click');
@@ -129,5 +147,29 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-
 
         codesModal = wrapper.find('.sw-promotion-v2-generate-codes-modal');
         expect(codesModal.exists()).toBe(true);
+    });
+
+    it('should open the add codes modal, when codes already exist', async () => {
+        wrapper = await createWrapper({
+            individualCodes: ['dummy']
+        });
+
+        let addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
+        expect(addModal.exists()).toBe(false);
+
+        const addButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-action');
+        await addButton.trigger('click');
+
+        addModal = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-modal');
+        expect(addModal.exists()).toBe(true);
+
+        const codeAmountInput = wrapper.find('.sw-promotion-v2-individual-codes-behavior__code-amount');
+        const addCodesModalButton = wrapper.find('.sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm');
+
+        expect(codeAmountInput.attributes().value).toBe('10');
+        expect(addCodesModalButton.exists()).toBe(true);
+        await addCodesModalButton.trigger('click');
+
+        expect(wrapper.vm.addCodesModal).toBe(false);
     });
 });

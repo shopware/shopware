@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,7 +34,7 @@ class PromotionCodeService
 
     public function getFixedCode(): string
     {
-        $pattern = implode('', array_fill(0, 4, '%s%d'));
+        $pattern = \implode('', \array_fill(0, 4, '%s%d'));
 
         return $this->generateIndividualCodes($pattern, 1)[0];
     }
@@ -43,56 +44,79 @@ class PromotionCodeService
         return $this->generateIndividualCodes($pattern, 1)[0];
     }
 
-    public function replaceIndividualCodes(string $promotionId, Context $context, string $pattern, int $amount = 1): void
-    {
-        if ($this->isCodePatternAlreadyInUse($pattern, $promotionId, $context)) {
-            throw new PatternAlreadyInUseException();
-        }
-
-        $codes = $this->generateIndividualCodes($pattern, $amount);
-        $codeEntries = \array_values(\array_map(static function ($code) use ($promotionId) {
-            return [
-                'promotionId' => $promotionId,
-                'code' => $code,
-            ];
-        }, $codes));
-
-        $this->resetPromotionCodes($promotionId, $context);
-        $this->individualCodesRepository->upsert($codeEntries, $context);
-    }
-
     /**
      * @throws PatternNotComplexEnoughException
      *
      * @return array<string>
      */
-    public function generateIndividualCodes(string $pattern, int $amount): array
+    public function generateIndividualCodes(string $pattern, int $amount, array $codeBlacklist = []): array
     {
         if ($amount < 1) {
             return [];
         }
 
         $codePattern = $this->splitPattern($pattern);
+        $blacklistCount = \count($codeBlacklist);
 
         /*
          * This condition ensures a fundamental randomness to the generated codes in ratio to all possibilities, which
          * also minimizes the number of retries. Therefore, the CODE_COMPLEXITY_FACTOR is the worst-case-scenario
          * probability to find a new unique promotion code.
          */
-        if ($this->calculatePossibilites($codePattern['replacementString']) * self::CODE_COMPLEXITY_FACTOR < $amount) {
+        if ($this->calculatePossibilites($codePattern['replacementString']) * self::CODE_COMPLEXITY_FACTOR < ($amount + $blacklistCount)) {
             throw new PatternNotComplexEnoughException();
         }
 
-        $codes = [];
+        $codes = $codeBlacklist;
         do {
             $codes[] = $this->generateCode($codePattern);
 
-            if (\count($codes) >= $amount) {
+            if (\count($codes) >= $amount + $blacklistCount) {
                 $codes = \array_unique($codes);
             }
-        } while (\count($codes) < $amount);
+        } while (\count($codes) < $amount + $blacklistCount);
 
-        return $codes;
+        return \array_diff($codes, $codeBlacklist);
+    }
+
+    public function addIndividualCodes(string $promotionId, int $amount, Context $context): void
+    {
+        $criteria = (new Criteria([$promotionId]))
+            ->addAssociation('individualCodes');
+
+        /** @var PromotionEntity $promotion */
+        $promotion = $this->promotionRepository->search($criteria, $context)->first();
+
+        if ($promotion->getIndividualCodes() === null) {
+            $this->replaceIndividualCodes($promotionId, $promotion->getIndividualCodePattern(), $amount, $context);
+
+            return;
+        }
+
+        $newCodes = $this->generateIndividualCodes(
+            $promotion->getIndividualCodePattern(),
+            $amount,
+            $promotion->getIndividualCodes()->getCodeArray()
+        );
+
+        $codeEntries = $this->prepareCodeEntities($promotionId, $newCodes);
+        $this->individualCodesRepository->upsert($codeEntries, $context);
+    }
+
+    /**
+     * @throws PatternAlreadyInUseException
+     */
+    public function replaceIndividualCodes(string $promotionId, string $pattern, int $amount, Context $context): void
+    {
+        if ($this->isCodePatternAlreadyInUse($pattern, $promotionId, $context)) {
+            throw new PatternAlreadyInUseException();
+        }
+
+        $codes = $this->generateIndividualCodes($pattern, $amount);
+        $codeEntries = $this->prepareCodeEntities($promotionId, $codes);
+
+        $this->resetPromotionCodes($promotionId, $context);
+        $this->individualCodesRepository->upsert($codeEntries, $context);
     }
 
     public function resetPromotionCodes(string $promotionId, Context $context): void
@@ -156,9 +180,19 @@ class PromotionCodeService
     private function getRandomChar(string $type): string
     {
         if ($type === 'd') {
-            return (string) random_int(0, 9);
+            return (string) \random_int(0, 9);
         }
 
-        return \chr(random_int(65, 90));
+        return \chr(\random_int(65, 90));
+    }
+
+    private function prepareCodeEntities(string $promotionId, array $codes): array
+    {
+        return \array_values(\array_map(static function ($code) use ($promotionId) {
+            return [
+                'promotionId' => $promotionId,
+                'code' => $code,
+            ];
+        }, $codes));
     }
 }

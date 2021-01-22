@@ -17,7 +17,8 @@
                                         <sw-button class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
                                                    variant="ghost"
                                                    size="small"
-                                                   :disabled="!acl.can('promotion.editor')">
+                                                   :disabled="!acl.can('promotion.editor')"
+                                                   @click="onOpenAddCodesModal">
                                             {{ $tc('sw-promotion-v2.detail.base.codes.individual.addButton') }}
                                         </sw-button>
                                     {% endblock %}
@@ -198,6 +199,63 @@
                 @generate-finish="onGenerateFinish"
                 @close="onCloseGenerateCodesModal">
             </sw-promotion-v2-generate-codes-modal>
+        {% endblock %}
+
+        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal %}
+            <sw-modal v-if="addCodesModal"
+                      class="sw-promotion-v2-individual-codes-behavior__add-codes-modal"
+                      variant="small"
+                      :title="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.title')"
+                      @modal-close="onCloseAddCodesModal">
+
+                {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_content %}
+                    <div class="sw-promotion-v2-individual-codes-behavior__content">
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_description %}
+                            <p class="sw-promotion-v2-individual-codes-behavior__description">
+                                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.description') }}
+                            </p>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_code_amount %}
+                            <sw-number-field
+                                v-model="newCodeAmount"
+                                class="sw-promotion-v2-individual-codes-behavior__code-amount"
+                                :label="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
+                                :min="1">
+                            </sw-number-field>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer %}
+                    <template #modal-footer>
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_cancel %}
+                            <sw-button class="sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel"
+                                       size="small"
+                                       @click="onCloseAddCodesModal">
+                                {{ $tc('global.default.cancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_confirm %}
+                            <sw-button-process
+                                class="sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm"
+                                variant="primary"
+                                size="small"
+                                :isLoading="isAdding"
+                                :processSuccess="false"
+                                @click="onAddCodes">
+                                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.addCodesButton') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+            </sw-modal>
         {% endblock %}
 
     </div>

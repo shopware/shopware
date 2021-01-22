@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -9,6 +9,7 @@ function createWrapper(privileges = []) {
         localVue,
         mocks: {
             $tc: key => key,
+            $te: () => isShopwareDefaultTax,
             $device: {
                 getSystemKey: () => {}
             }
@@ -64,7 +65,8 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-button': true,
             'sw-button-process': true,
-            'sw-field': true
+            'sw-text-field': true,
+            'sw-number-field': true
         }
     });
 }
@@ -87,15 +89,27 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
             '.sw-settings-tax-detail__save-action'
         );
         const taxNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
         );
         const taxRateField = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-        expect(taxNameField.attributes().disabled).toBeUndefined();
+        expect(taxNameField.attributes().disabled).toBeTruthy();
         expect(taxRateField.attributes().disabled).toBeUndefined();
+    });
+
+    it('the name should be editable for non default rates', async () => {
+        const wrapper = createWrapper([
+            'tax.editor'
+        ], false);
+        await wrapper.vm.$nextTick();
+
+        const taxNameField = wrapper.find(
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
+        );
+        expect(taxNameField.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to save the tax', async () => {
@@ -106,10 +120,10 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
             '.sw-settings-tax-detail__save-action'
         );
         const taxNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.detail.labelName"]'
+            'sw-text-field-stub[label="sw-settings-tax.detail.labelName"]'
         );
         const taxRateField = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();

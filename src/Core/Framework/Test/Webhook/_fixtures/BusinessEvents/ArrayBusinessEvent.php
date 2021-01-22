@@ -40,6 +40,7 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
                 'versionId' => null,
                 'name' => $tax->getName(),
                 'taxRate' => (int) $tax->getTaxRate(),
+                'position' => $tax->getPosition(),
                 'products' => null,
                 'shippingMethods' => null,
                 'customFields' => null,

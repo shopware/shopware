@@ -755,6 +755,11 @@
       "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
       "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
       "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
+    },
+    "tax-rates": {
+      "Standard rate": "Standard Satz",
+      "Reduced rate": "Ermäßigter Satz",
+      "Reduced rate 2": "Stark ermäßigter Satz"
     }
   },
   "sw-text-editor-toolbar": {

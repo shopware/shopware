@@ -179,6 +179,13 @@ Component.register('sw-product-detail', {
             return criteria;
         },
 
+        taxCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(Criteria.sort('position'));
+
+            return criteria;
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -375,7 +382,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
+            return this.taxRepository.search(this.taxCriteria, Shopware.Context.api).then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);

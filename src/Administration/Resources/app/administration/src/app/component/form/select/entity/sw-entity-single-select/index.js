@@ -43,6 +43,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: 'name'
         },
+        labelCallback: {
+            type: Function,
+            required: false,
+            default: null
+        },
         entity: {
             required: true,
             type: String
@@ -239,6 +244,10 @@ Component.register('sw-entity-single-select', {
         },
 
         displayLabelProperty(item) {
+            if (typeof this.labelCallback === 'function') {
+                return this.labelCallback(item);
+            }
+
             const labelProperties = [];
 
             if (Array.isArray(this.labelProperty)) {
@@ -274,6 +283,9 @@ Component.register('sw-entity-single-select', {
         },
 
         tryGetSearchText(option) {
+            if (typeof this.labelCallback === 'function') {
+                return this.labelCallback(option);
+            }
             let searchText = this.getKey(option, this.labelProperty, '');
             if (!searchText) {
                 searchText = this.getKey(option, `translated.${this.labelProperty}`, '');

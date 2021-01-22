@@ -11,9 +11,7 @@
         margin-bottom: 16px;
     }
 
-    &__reset {
-        font-size: $font-size-small;
-        color: $color-shopware-brand-500;
-        cursor: pointer;
+    .sw-base-filter__headline .sw-base-filter__reset {
+        padding-right: 0;
     }
 }

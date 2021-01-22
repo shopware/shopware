@@ -13,6 +13,10 @@ Component.register('sw-multi-select-filter', {
         filter: {
             type: Object,
             required: true
+        },
+        active: {
+            type: Boolean,
+            required: true
         }
     },
 
@@ -36,12 +40,12 @@ Component.register('sw-multi-select-filter', {
                 newValues.map(newValue => newValue[this.filter.schema.referenceField])
             )];
 
-            this.$emit('updateFilter', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria);
         },
 
         resetFilter() {
             this.values = [];
-            this.$emit('resetFilter', this.filter.name);
+            this.$emit('filter-reset', this.filter.name);
         }
     }
 });

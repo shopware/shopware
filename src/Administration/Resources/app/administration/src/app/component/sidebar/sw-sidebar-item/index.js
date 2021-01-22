@@ -39,6 +39,11 @@ Component.register('sw-sidebar-item', {
             validator(value) {
                 return ['top', 'bottom'].includes(value);
             }
+        },
+
+        badge: {
+            type: Number,
+            required: false
         }
     },
 

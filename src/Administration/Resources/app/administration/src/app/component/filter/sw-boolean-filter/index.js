@@ -10,6 +10,10 @@ Component.register('sw-boolean-filter', {
         filter: {
             type: Object,
             required: true
+        },
+        active: {
+            type: Boolean,
+            required: true
         }
     },
 
@@ -30,12 +34,12 @@ Component.register('sw-boolean-filter', {
 
             const filterCriteria = [Criteria.equals(this.filter.property, this.value === 'true')];
 
-            this.$emit('updateFilter', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria);
         },
 
         resetFilter() {
             this.value = null;
-            this.$emit('resetFilter', this.filter.name);
+            this.$emit('filter-reset', this.filter.name);
         }
     }
 });

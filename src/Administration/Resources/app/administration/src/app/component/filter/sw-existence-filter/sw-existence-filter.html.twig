@@ -2,10 +2,10 @@
     <div class="sw-existence-filter">
         <sw-base-filter :title="filter.label"
                         :showResetButton="!!value"
-                        @resetFilter="resetFilter">
+                        :active="active"
+                        @filter-reset="resetFilter">
             {% block sw_existence_filter_content %}
                 <sw-select-field :value="value"
-                                 :size="'small'"
                                  :placeholder="filter.placeholder"
                                  @change="changeValue">
                     <option :value="true">{{ $t('sw-existence-filter.hasCriteria', { criteriaName: filter.label.toLowerCase() }) }}</option>

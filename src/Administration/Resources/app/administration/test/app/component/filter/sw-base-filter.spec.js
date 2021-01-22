@@ -7,7 +7,9 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-base-filter'), {
         localVue,
         propsData: {
-            title: 'Example Filter'
+            title: 'Example Filter',
+            showResetButton: false,
+            active: true
         },
         mocks: {
             $tc: key => key
@@ -31,6 +33,30 @@ describe('components/sw-base-filter', () => {
 
         wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should show reset button when showResetButton is false', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({ showResetButton: false });
+
+        expect(wrapper.find('.sw-base-filter__reset').exists()).toBeFalsy();
+    });
+
+    it('should emit `filter-reset` when filter is not active', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({ active: false });
+
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should not emit `filter-reset` when filter is active', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({ active: true });
+
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

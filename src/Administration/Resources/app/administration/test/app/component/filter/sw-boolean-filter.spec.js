@@ -27,7 +27,8 @@ function createWrapper() {
                 property: 'manufacturerId',
                 name: 'manufacturerId',
                 label: 'Manufacturer ID'
-            }
+            },
+            active: true
         },
         mocks: {
             $tc: key => key
@@ -37,33 +38,33 @@ function createWrapper() {
 }
 
 describe('components/sw-boolean-filter', () => {
-    it('should emit `updateFilter` event when user changes from default option to `Active`', async () => {
+    it('should emit `filter-update` event when user changes from default option to `Active`', async () => {
         const wrapper = createWrapper();
 
         const options = wrapper.find('select').findAll('option');
 
         options.at(0).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', true)]
         ]);
     });
 
-    it('should emit `updateFilter` event when user changes from default option to `Inactive`', async () => {
+    it('should emit `filter-update` event when user changes from default option to `Inactive`', async () => {
         const wrapper = createWrapper();
 
         const options = wrapper.find('select').findAll('option');
 
         options.at(1).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', false)]
         ]);
     });
 
-    it('should emit `resetFilter` event when user clicks Reset button from `Active` option', async () => {
+    it('should emit `filter-reset` event when user clicks Reset button from `Active` option', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'true' });
@@ -71,10 +72,10 @@ describe('components/sw-boolean-filter', () => {
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
-    it('should emit `resetFilter` event when user clicks Reset button from `Inactive` option', async () => {
+    it('should emit `filter-reset` event when user clicks Reset button from `Inactive` option', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'false' });
@@ -82,11 +83,11 @@ describe('components/sw-boolean-filter', () => {
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
     //
 
-    it('should emit `updateFilter` event when user changes from `Active` to `Inactive`', async () => {
+    it('should emit `filter-update` event when user changes from `Active` to `Inactive`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'true' });
@@ -95,13 +96,13 @@ describe('components/sw-boolean-filter', () => {
 
         options.at(1).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', false)]
         ]);
     });
 
-    it('should emit `updateFilter` event when user changes from `Inactive` to `Active`', async () => {
+    it('should emit `filter-update` event when user changes from `Inactive` to `Active`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'false' });
@@ -110,9 +111,35 @@ describe('components/sw-boolean-filter', () => {
 
         options.at(0).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', true)]
         ]);
+    });
+
+    it('should reset the filter value when `active` is false', async () => {
+        const wrapper = createWrapper();
+
+        const options = wrapper.find('select').findAll('option');
+
+        options.at(0).setSelected();
+
+        await wrapper.setProps({ active: false });
+
+        expect(wrapper.vm.value).toEqual(null);
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should not reset the filter value when `active` is true', async () => {
+        const wrapper = createWrapper();
+
+        const options = wrapper.find('select').findAll('option');
+
+        options.at(0).setSelected();
+
+        await wrapper.setProps({ active: true });
+
+        expect(wrapper.vm.value).toEqual('true');
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

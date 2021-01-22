@@ -7,6 +7,7 @@ $sw-sidebar-navigation-item-active-color-background: $color-shopware-brand-50;
 $sw-sidebar-navigation-item-size: 64px;
 
 .sw-sidebar-navigation-item {
+    position: relative;
     width: $sw-sidebar-navigation-item-size;
     height: $sw-sidebar-navigation-item-size;
     border: none;
@@ -27,5 +28,18 @@ $sw-sidebar-navigation-item-size: 64px;
     &.is--disabled {
         cursor: not-allowed;
         opacity: .3;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(-30%, 70%);
+        background: $color-shopware-brand-500;
+        border-radius: 18px;
+        padding: 2px 8px;
+        color: #fff;
+        font-size: $font-size-extra-small;
+        font-style: normal;
     }
 }

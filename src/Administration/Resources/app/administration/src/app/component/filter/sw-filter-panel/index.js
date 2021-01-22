@@ -17,7 +17,6 @@ Component.register('sw-filter-panel', {
             required: true
         },
 
-        // TODO: handle default filters
         defaults: {
             type: Array,
             required: true
@@ -39,6 +38,14 @@ Component.register('sw-filter-panel', {
             });
 
             return filters;
+        },
+
+        isFilterActive() {
+            return this.activeFiltersNumber > 0;
+        },
+
+        activeFiltersNumber() {
+            return Object.keys(this.activeFilters).length;
         }
     },
 
@@ -48,6 +55,9 @@ Component.register('sw-filter-panel', {
                 this.$emit('criteria-changed', this.criteria);
             },
             deep: true
+        },
+        activeFiltersNumber() {
+            this.$emit('active-filter-number-update', this.activeFiltersNumber);
         }
     },
 
@@ -58,6 +68,14 @@ Component.register('sw-filter-panel', {
 
         resetFilter(name) {
             this.$delete(this.activeFilters, name);
+        },
+
+        resetAll() {
+            this.activeFilters = {};
+        },
+
+        showFilter(filter, type) {
+            return filter.type === type && this.defaults.includes(filter.name);
         }
     }
 });

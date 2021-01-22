@@ -30,7 +30,8 @@ function createWrapper() {
                 schema: {
                     localField: 'id'
                 }
-            }
+            },
+            active: true
         },
         mocks: {
             $tc: key => key,
@@ -41,33 +42,33 @@ function createWrapper() {
 }
 
 describe('components/sw-existence-filter', () => {
-    it('should emit `updateFilter` event when user changes from unset to `true`', async () => {
+    it('should emit `filter-update` event when user changes from unset to `true`', async () => {
         const wrapper = createWrapper();
 
         const options = wrapper.find('select').findAll('option');
 
         options.at(0).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.not('AND', [Criteria.equals('media.id', null)])]
         ]);
     });
 
-    it('should emit `updateFilter` event when user changes from default option to `false`', async () => {
+    it('should emit `filter-update` event when user changes from default option to `false`', async () => {
         const wrapper = createWrapper();
 
         const options = wrapper.find('select').findAll('option');
 
         options.at(1).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.equals('media.id', null)]
         ]);
     });
 
-    it('should emit `resetFilter` event when user clicks Reset button from `true`', async () => {
+    it('should emit `filter-reset` event when user clicks Reset button from `true`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'true' });
@@ -75,10 +76,10 @@ describe('components/sw-existence-filter', () => {
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
-    it('should emit `resetFilter` event when user clicks Reset button from `false`', async () => {
+    it('should emit `filter-reset` event when user clicks Reset button from `false`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'false' });
@@ -86,10 +87,10 @@ describe('components/sw-existence-filter', () => {
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
-    it('should emit `updateFilter` event when user changes from `true` to `false`', async () => {
+    it('should emit `filter-update` event when user changes from `true` to `false`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'true' });
@@ -98,13 +99,13 @@ describe('components/sw-existence-filter', () => {
 
         options.at(1).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.equals('media.id', null)]
         ]);
     });
 
-    it('should emit `updateFilter` event when user changes from `false` to `true`', async () => {
+    it('should emit `filter-update` event when user changes from `false` to `true`', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setData({ value: 'false' });
@@ -113,9 +114,35 @@ describe('components/sw-existence-filter', () => {
 
         options.at(0).setSelected();
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
             [Criteria.not('AND', [Criteria.equals('media.id', null)])]
         ]);
+    });
+
+    it('should reset the filter value when `active` is false', async () => {
+        const wrapper = createWrapper();
+
+        const options = wrapper.find('select').findAll('option');
+
+        options.at(0).setSelected();
+
+        await wrapper.setProps({ active: false });
+
+        expect(wrapper.vm.value).toEqual(null);
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should not reset the filter value when `active` is true', async () => {
+        const wrapper = createWrapper();
+
+        const options = wrapper.find('select').findAll('option');
+
+        options.at(0).setSelected();
+
+        await wrapper.setProps({ active: true });
+
+        expect(wrapper.vm.value).toEqual('true');
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

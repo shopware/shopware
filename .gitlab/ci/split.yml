@@ -24,5 +24,5 @@ Repository Split:
               echo "Splitting ${pkg}"
               SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
               git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
-              git push origin $SHA1:$CI_COMMIT_BRANCH -f -u
+              git push origin $SHA1:refs/heads/${CI_COMMIT_BRANCH} -f -u
             done

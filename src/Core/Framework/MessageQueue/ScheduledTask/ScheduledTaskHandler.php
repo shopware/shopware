@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -71,12 +72,21 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
     protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
         $now = new \DateTimeImmutable();
+
+        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
+        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+
+        if ($newNextExecutionTime < $now) {
+            $newNextExecutionTime = $now;
+        }
+
         $this->scheduledTaskRepository->update([
             [
                 'id' => $task->getTaskId(),
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'lastExecutionTime' => $now,
-                'nextExecutionTime' => $now->modify(sprintf('+%d seconds', $taskEntity->getRunInterval())),
+                'nextExecutionTime' => $newNextExecutionTime,
             ],
         ], Context::createDefaultContext());
     }

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -364,6 +365,41 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(3, $products->getIds());
             static::assertSame(3, $products->getTotal());
             static::assertContains($data->get('p1'), $products->getIds());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testMultiNotFilterFilter(TestDataCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+            // check filter for categories
+            $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [
+                        new RangeFilter('product.price', [RangeFilter::LTE => 101]),
+                        new ContainsFilter('product.name', 'ilk'),
+                    ]
+                )
+            );
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertCount(5, $products->getIds());
+            static::assertSame(5, $products->getTotal());
+            static::assertContains($data->get('p2'), $products->getIds());
+            static::assertContains($data->get('p3'), $products->getIds());
+            static::assertContains($data->get('p4'), $products->getIds());
+            static::assertContains($data->get('p5'), $products->getIds());
+            static::assertContains($data->get('p6'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 

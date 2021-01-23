@@ -58,9 +58,8 @@ describe('Customer groups: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group/*`,
             method: 'patch'
         }).as('updateCustomerGroup');
 
@@ -90,9 +89,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify creation
-        cy.wait('@updateCustomerGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateCustomerGroup').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Net price');
@@ -124,9 +121,8 @@ describe('Customer groups: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group`,
             method: 'post'
         }).as('createCustomerGroup');
 
@@ -149,9 +145,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify creation
-        cy.wait('@createCustomerGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createCustomerGroup').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('VIP');
@@ -176,9 +170,8 @@ describe('Customer groups: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group/*`,
             method: 'delete'
         }).as('deleteCustomerGroup');
 
@@ -197,9 +190,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteCustomerGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteCustomerGroup').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnName}`).should('not.exist');

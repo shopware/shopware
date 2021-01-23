@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
 
-import CategoryPageObject from '../../../../support/pages/module/sw-category.page-object';
-
 describe('Product Search: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -15,9 +13,9 @@ describe('Product Search: Test crud operations', () => {
 
     it('@settings: create search configuration for search behaviour', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config/*',
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -30,24 +28,22 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__button-save').click();
 
         // Verify save search config method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.awaitAndCheckNotification('Configuration saved.');
     });
 
     it('@settings: create search configuration for search behaviour bases on another language', () => {
-        const page = new CategoryPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config/*',
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
-            url: '/api/product-search-config/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -70,9 +66,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__button-save').click();
 
         // Verify save search config method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.awaitAndCheckNotification('Configuration saved.');
     });

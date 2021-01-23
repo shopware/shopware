@@ -18,7 +18,7 @@ describe('Seo: Test crud operations on templates', () => {
                     }
                 });
             })
-            .then((data) => {
+            .then(() => {
                 let salesChannel;
                 return cy.searchViaAdminApi({
                     endpoint: 'sales-channel',
@@ -29,7 +29,7 @@ describe('Seo: Test crud operations on templates', () => {
                     }
                 }).then((data) => {
                     salesChannel = data.id;
-                    cy.createDefaultFixture('cms-page', {}, 'cms-landing-page')
+                    cy.createDefaultFixture('cms-page', {}, 'cms-landing-page');
                 }).then((data) => {
                     cy.createDefaultFixture('landing-page', {
                         cmsPage: data,
@@ -67,7 +67,7 @@ describe('Seo: Test crud operations on templates', () => {
     });
 
     it('@settings: update template', () => {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('templateSaveCall');
@@ -95,13 +95,11 @@ describe('Seo: Test crud operations on templates', () => {
 
         // check that the templates can be saved
         cy.get('.smart-bar__actions').contains('Save').click();
-        cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
     });
 
     it('@base @settings: update template for a sales channel', () => {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('templateCreateCall');
@@ -134,9 +132,7 @@ describe('Seo: Test crud operations on templates', () => {
 
         //
         cy.get('.smart-bar__actions').contains('Save').click();
-        cy.wait('@templateCreateCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@templateCreateCall').its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('SEO URL templates have been saved.');
     });
 
@@ -148,7 +144,7 @@ describe('Seo: Test crud operations on templates', () => {
     });
 
     it('@base @settings: can save when the first template is empty', () => {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('templateSaveCall');
@@ -161,10 +157,8 @@ describe('Seo: Test crud operations on templates', () => {
 
         // check that no error is thrown
         cy.get('.smart-bar__actions').contains('Save').click();
-        cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-field__error').should('not.contain', 'This value should not be blank');
-        });
+        cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-field__error').should('not.exist');
 
         // ensure the template is still visible
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -173,7 +167,7 @@ describe('Seo: Test crud operations on templates', () => {
     });
 
     it('@base @settings: can save when the second template is empty', () => {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('templateSaveCall');
@@ -186,10 +180,8 @@ describe('Seo: Test crud operations on templates', () => {
 
         // check that no error is thrown
         cy.get('.smart-bar__actions').contains('Save').click();
-        cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-field__error').should('not.contain', 'This value should not be blank');
-        });
+        cy.wait('@templateSaveCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-field__error').should('not.exist');
 
         // ensure the template is still visible
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -198,7 +190,7 @@ describe('Seo: Test crud operations on templates', () => {
     });
 
     it('@base @settings: can save when the third template is empty', () => {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('templateSaveCall');
@@ -211,10 +203,10 @@ describe('Seo: Test crud operations on templates', () => {
 
         // check that no error is thrown
         cy.get('.smart-bar__actions').contains('Save').click();
-        cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-field__error').should('not.contain', 'This value should not be blank');
-        });
+
+        cy.wait('@templateSaveCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-field__error').should('not.exist');
 
         // ensure the template is still visible
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')

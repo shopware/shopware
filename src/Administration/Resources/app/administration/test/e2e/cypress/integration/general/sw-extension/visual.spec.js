@@ -19,16 +19,15 @@ describe('Dashboard:  Visual tests', () => {
 
     // skipped because it has a dependency to the sbp, see NEXT-15818
     it.skip('@visual: check appearance of my extension overview', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
             method: 'get'
         }).as('getInstalled');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/**`,
             method: 'post'
         }).as('searchResultCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension-store/list`,
             method: 'post'
         }).as('extensionList');
@@ -47,9 +46,8 @@ describe('Dashboard:  Visual tests', () => {
         cy.get('.sw-extension-store-landing-page__wrapper-loading').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.wait('@extensionList').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@extensionList')
+            .its('response.statusCode').should('equal', 200);
 
         // Prepare and do snapshot
         cy.get('.sw-extension-store-listing').should('be.visible');
@@ -89,9 +87,8 @@ describe('Dashboard:  Visual tests', () => {
             subMenuId: 'sw-extension-my-extensions'
         });
 
-        cy.wait('@getInstalled').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getInstalled')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-loader').should('not.exist');
 

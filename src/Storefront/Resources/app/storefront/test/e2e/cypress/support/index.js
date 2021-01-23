@@ -24,14 +24,6 @@ require('./service/fixture/product-wishlist.fixture');
 // Custom storefront commands
 require('./commands/commands');
 
-beforeEach(() => {
-    return cy.log('Cleaning, please wait a little bit.').then(() => {
-        return cy.cleanUpPreviousState();
-    }).then(() => {
-        return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
-    })
-});
-
 Cypress.Cookies.defaults({
     preserve: ['_test-api-dbName', '_apiAuth']
 })

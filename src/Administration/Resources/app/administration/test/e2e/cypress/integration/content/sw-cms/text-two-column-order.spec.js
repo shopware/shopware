@@ -16,13 +16,12 @@ describe('CMS: Check order of slots throughout layout edits', () => {
     });
 
     it('@base @content: create two column texts and test order', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
@@ -40,29 +39,43 @@ describe('CMS: Check order of slots throughout layout edits', () => {
         cy.get('.sw-cms-preview-text-two-column').dragTo('.sw-cms-stage-add-block:last-of-type');
 
         // Add unique text to columns
-        cy.get('.sw-cms-block').eq(0).find('.sw-cms-slot').eq(0).find('.sw-text-editor__content-editor')
-            .clear().type('1st');
-        cy.get('.sw-cms-block').eq(0).find('.sw-cms-slot').eq(1).find('.sw-text-editor__content-editor')
-            .clear().type('2nd');
-        cy.get('.sw-cms-block').eq(1).find('.sw-cms-slot').eq(0).find('.sw-text-editor__content-editor')
-            .clear().type('3rd');
-        cy.get('.sw-cms-block').eq(1).find('.sw-cms-slot').eq(1).find('.sw-text-editor__content-editor')
-            .clear().type('4th');
-        cy.get('.sw-cms-block').eq(2).find('.sw-cms-slot').eq(0).find('.sw-text-editor__content-editor')
-            .clear().type('5th');
-        cy.get('.sw-cms-block').eq(2).find('.sw-cms-slot').eq(1).find('.sw-text-editor__content-editor')
-            .clear().type('6th');
-        cy.get('.sw-cms-block').eq(3).find('.sw-cms-slot').eq(0).find('.sw-text-editor__content-editor')
-            .clear().type('7th');
-        cy.get('.sw-cms-block').eq(3).find('.sw-cms-slot').eq(1).find('.sw-text-editor__content-editor')
-            .clear().type('8th');
+        cy.get('.sw-cms-block').eq(0).find('.sw-cms-slot').eq(0)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('1st');
+        cy.get('.sw-cms-block').eq(0).find('.sw-cms-slot').eq(1)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('2nd');
+        cy.get('.sw-cms-block').eq(1).find('.sw-cms-slot').eq(0)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('3rd');
+        cy.get('.sw-cms-block').eq(1).find('.sw-cms-slot').eq(1)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('4th');
+        cy.get('.sw-cms-block').eq(2).find('.sw-cms-slot').eq(0)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('5th');
+        cy.get('.sw-cms-block').eq(2).find('.sw-cms-slot').eq(1)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('6th');
+        cy.get('.sw-cms-block').eq(3).find('.sw-cms-slot').eq(0)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('7th');
+        cy.get('.sw-cms-block').eq(3).find('.sw-cms-slot').eq(1)
+            .find('.sw-text-editor__content-editor')
+            .clear()
+            .type('8th');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equals', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -76,38 +89,60 @@ describe('CMS: Check order of slots throughout layout edits', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
 
         // Check if order of columns is correct
-        cy.get('.sw-cms-mapping-field').eq(0).contains('1st').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(0).find('.sw-text-editor__content-editor').clear().type('First');
-        cy.get('.sw-cms-mapping-field').eq(1).contains('2nd').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(1).find('.sw-text-editor__content-editor').clear().type('Second');
-        cy.get('.sw-cms-mapping-field').eq(2).contains('3rd').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(2).find('.sw-text-editor__content-editor').clear().type('Third');
-        cy.get('.sw-cms-mapping-field').eq(3).contains('4th').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(3).find('.sw-text-editor__content-editor').clear().type('Fourth');
-        cy.get('.sw-cms-mapping-field').eq(4).contains('5th').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(4).find('.sw-text-editor__content-editor').clear().type('Fifth');
-        cy.get('.sw-cms-mapping-field').eq(5).contains('6th').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(5).find('.sw-text-editor__content-editor').clear().type('Sixth');
-        cy.get('.sw-cms-mapping-field').eq(6).contains('7th').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(6).find('.sw-text-editor__content-editor').clear().type('Seventh');
-        cy.get('.sw-cms-mapping-field').eq(7).contains('8th').scrollIntoView().should('be.visible');
-        cy.get('.sw-cms-mapping-field').eq(7).find('.sw-text-editor__content-editor').clear().type('Eigth');
+        cy.get('.sw-cms-mapping-field').eq(0).contains('1st').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(0).find('.sw-text-editor__content-editor').clear()
+            .type('First');
+        cy.get('.sw-cms-mapping-field').eq(1).contains('2nd').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(1).find('.sw-text-editor__content-editor').clear()
+            .type('Second');
+        cy.get('.sw-cms-mapping-field').eq(2).contains('3rd').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(2).find('.sw-text-editor__content-editor').clear()
+            .type('Third');
+        cy.get('.sw-cms-mapping-field').eq(3).contains('4th').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(3).find('.sw-text-editor__content-editor').clear()
+            .type('Fourth');
+        cy.get('.sw-cms-mapping-field').eq(4).contains('5th').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(4).find('.sw-text-editor__content-editor').clear()
+            .type('Fifth');
+        cy.get('.sw-cms-mapping-field').eq(5).contains('6th').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(5).find('.sw-text-editor__content-editor').clear()
+            .type('Sixth');
+        cy.get('.sw-cms-mapping-field').eq(6).contains('7th').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(6).find('.sw-text-editor__content-editor').clear()
+            .type('Seventh');
+        cy.get('.sw-cms-mapping-field').eq(7).contains('8th').scrollIntoView()
+            .should('be.visible');
+        cy.get('.sw-cms-mapping-field').eq(7).find('.sw-text-editor__content-editor').clear()
+            .type('Eigth');
 
         cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory').its('response.statusCode').should('eq', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
 
-        cy.get('.cms-block.pos-0').find('.cms-element-text').eq(0).contains('First').should('be.visible');
-        cy.get('.cms-block.pos-0').find('.cms-element-text').eq(1).contains('Second').should('be.visible');
-        cy.get('.cms-block.pos-1').find('.cms-element-text').eq(0).contains('Third').should('be.visible');
-        cy.get('.cms-block.pos-1').find('.cms-element-text').eq(1).contains('Fourth').should('be.visible');
-        cy.get('.cms-block.pos-2').find('.cms-element-text').eq(0).contains('Fifth').should('be.visible');
-        cy.get('.cms-block.pos-2').find('.cms-element-text').eq(1).contains('Sixth').should('be.visible');
-        cy.get('.cms-block.pos-3').find('.cms-element-text').eq(0).contains('Seventh').should('be.visible');
-        cy.get('.cms-block.pos-3').find('.cms-element-text').eq(1).contains('Eigth').should('be.visible');
+        cy.get('.cms-block.pos-0').find('.cms-element-text').eq(0).contains('First')
+            .should('be.visible');
+        cy.get('.cms-block.pos-0').find('.cms-element-text').eq(1).contains('Second')
+            .should('be.visible');
+        cy.get('.cms-block.pos-1').find('.cms-element-text').eq(0).contains('Third')
+            .should('be.visible');
+        cy.get('.cms-block.pos-1').find('.cms-element-text').eq(1).contains('Fourth')
+            .should('be.visible');
+        cy.get('.cms-block.pos-2').find('.cms-element-text').eq(0).contains('Fifth')
+            .should('be.visible');
+        cy.get('.cms-block.pos-2').find('.cms-element-text').eq(1).contains('Sixth')
+            .should('be.visible');
+        cy.get('.cms-block.pos-3').find('.cms-element-text').eq(0).contains('Seventh')
+            .should('be.visible');
+        cy.get('.cms-block.pos-3').find('.cms-element-text').eq(1).contains('Eigth')
+            .should('be.visible');
     });
 });

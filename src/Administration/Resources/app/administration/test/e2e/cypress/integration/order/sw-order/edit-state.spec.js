@@ -35,9 +35,8 @@ describe('Order: Test order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/order`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
 
@@ -47,32 +46,28 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
-            page.setOrderState({
-                stateTitle: 'Reminded',
-                type: 'payment',
-                signal: 'progress',
-                call: 'remind'
-            });
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        page.setOrderState({
+            stateTitle: 'Reminded',
+            type: 'payment',
+            signal: 'progress',
+            call: 'remind'
         });
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
-            // Change order state to "Cancelled"
-            page.setOrderState({
-                stateTitle: 'Cancelled',
-                type: 'order',
-                signal: 'danger',
-                call: 'cancel'
-            });
+        // Change order state to "Cancelled"
+        page.setOrderState({
+            stateTitle: 'Cancelled',
+            type: 'order',
+            signal: 'danger',
+            call: 'cancel'
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -85,17 +80,15 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
-            page.setOrderState({
-                stateTitle: 'Open',
-                type: 'order',
-                signal: 'neutral',
-                call: 'reopen'
-            });
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        page.setOrderState({
+            stateTitle: 'Open',
+            type: 'order',
+            signal: 'neutral',
+            call: 'reopen'
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -109,45 +102,39 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
-            page.setOrderState({
-                stateTitle: 'In progress',
-                type: 'order',
-                signal: 'progress',
-                call: 'process'
-            });
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        page.setOrderState({
+            stateTitle: 'In progress',
+            type: 'order',
+            signal: 'progress',
+            call: 'process'
         });
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
-            // Change payment state to "Paid"
-            page.setOrderState({
-                stateTitle: 'Paid',
-                type: 'payment',
-                signal: 'success',
-                call: 'pay'
-            });
+        // Change payment state to "Paid"
+        page.setOrderState({
+            stateTitle: 'Paid',
+            type: 'payment',
+            signal: 'success',
+            call: 'pay'
         });
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
-            // Set state to "Done"
-            page.setOrderState({
-                stateTitle: 'Done',
-                type: 'order',
-                signal: 'success',
-                call: 'complete'
-            });
+        // Set state to "Done"
+        page.setOrderState({
+            stateTitle: 'Done',
+            type: 'order',
+            signal: 'success',
+            call: 'complete'
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -162,9 +149,8 @@ describe('Order: Test order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/order`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
 
@@ -176,12 +162,10 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-            cy.get(`${page.elements.userMetadata}-user-name`)
-                .contains('Max Mustermann');
-        });
+        cy.get(`${page.elements.userMetadata}-user-name`)
+            .contains('Max Mustermann');
         cy.get('.sw-order-delivery-metadata').scrollIntoView();
 
         // Check current order and payment status history

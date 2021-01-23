@@ -27,13 +27,12 @@ describe('Essential characteristics: Test create operation', () => {
 
     it('@settings: create a feature set', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-feature-set`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-feature-set`,
             method: 'post'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-feature-set/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-feature-set/*`,
             method: 'patch'
         }).as('addField');
 
@@ -43,9 +42,7 @@ describe('Essential characteristics: Test create operation', () => {
         cy.get(selectors.saveButton).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(selectors.addFieldButton).click();
 
@@ -74,8 +71,6 @@ describe('Essential characteristics: Test create operation', () => {
         });
 
         // Verify creation
-        cy.wait('@addField').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@addField').its('response.statusCode').should('equal', 204);
     });
 });

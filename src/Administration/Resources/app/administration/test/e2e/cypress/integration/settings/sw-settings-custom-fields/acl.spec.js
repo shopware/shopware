@@ -1,6 +1,6 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
-import SettingsPageObject from "../../../support/pages/module/sw-settings.page-object";
+import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
 describe('Custom fields: Test ACL privileges', () => {
     beforeEach(() => {
@@ -14,7 +14,6 @@ describe('Custom fields: Test ACL privileges', () => {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index`);
             });
-
     });
 
     it('@settings @customField: has no access to custom field module', () => {
@@ -53,8 +52,7 @@ describe('Custom fields: Test ACL privileges', () => {
 
     it('@settings @customField: can edit custom field set', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
             method: 'post'
         }).as('saveData');
@@ -79,15 +77,12 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('#sw-field--set-position').type('2');
         cy.get('.sw-settings-set-detail__save-action').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
     });
 
     it('@settings @customfield: can create custom field set', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
             method: 'post'
         }).as('saveData');
@@ -124,17 +119,14 @@ describe('Custom fields: Test ACL privileges', () => {
         // saving custom field
         cy.get('.sw-settings-set-detail__save-action').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     it('@settings @customfield: can delete custom field set', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/*`,
             method: 'delete'
         }).as('deleteData');
@@ -163,10 +155,8 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('.sw-button--danger').click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-modal').should('not.exist');
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-modal').should('not.exist');
 
         cy.get('.sw-empty-state').should('exist');
         cy.get('.sw-empty-state__title').contains('No custom fields yet.');

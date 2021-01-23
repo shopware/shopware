@@ -17,13 +17,12 @@ describe('CMS: Visual tests', () => {
     });
 
     it('@visual: check appearance of cms layout workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
@@ -51,17 +50,16 @@ describe('CMS: Visual tests', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
 
-            // Take snapshot for visual testing
-            cy.get('.sw-loader').should('not.exist');
-            cy.contains('Vierte Wand').click();
-            cy.get('.sw-tooltip').should('not.exist');
-            cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage');
-        });
+        // Take snapshot for visual testing
+        cy.get('.sw-loader').should('not.exist');
+        cy.contains('Vierte Wand').click();
+        cy.get('.sw-tooltip').should('not.exist');
+        cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage');
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
@@ -79,9 +77,8 @@ describe('CMS: Visual tests', () => {
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');

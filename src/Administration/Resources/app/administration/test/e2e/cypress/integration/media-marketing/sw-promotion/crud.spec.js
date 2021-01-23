@@ -35,15 +35,15 @@ describe('Promotion: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
             method: 'post'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
-        }).as('patchPromotion');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            method: 'post'
+        }).as('saveDiscount');
 
         cy.get('a[href="#/sw/promotion/create"]').click();
 
@@ -55,9 +55,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -72,9 +70,8 @@ describe('Promotion: Test crud operations', () => {
 
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filteredResultCall')
+            .its('response.statusCode').should('equal', 200);
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
@@ -87,9 +84,7 @@ describe('Promotion: Test crud operations', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveDiscount').its('response.statusCode').should('equal', 200);
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
@@ -135,8 +130,7 @@ describe('Promotion: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/*`,
             method: 'delete'
         }).as('deleteData');
@@ -153,9 +147,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('button[title="Refresh"]').click();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');

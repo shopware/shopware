@@ -21,8 +21,7 @@ describe('Mail templates: Check module navigation in settings', () => {
     it('@visual: check appearance of email templates module', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('getData');
@@ -33,15 +32,12 @@ describe('Mail templates: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData').its('response.statusCode').should('equals', 200);
+
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Type', 'Contact form');
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData').its('response.statusCode').should('equals', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-mail-templates-list-grid .sw-data-grid__row--0').should('be.visible');
 

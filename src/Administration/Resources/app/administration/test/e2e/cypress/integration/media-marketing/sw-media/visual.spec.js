@@ -21,17 +21,16 @@ describe('Media: Visual tests', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'post'
         }).as('saveDataFileUpload');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media`,
             method: 'post'
         }).as('getData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
             method: 'post'
         }).as('saveDataUrlUpload');
@@ -41,18 +40,16 @@ describe('Media: Visual tests', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-media'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-media-index__page-content').should('be.visible');
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
-            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+            page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
-            cy.wait('@saveDataFileUpload').then((xhr) => {
-                cy.awaitAndCheckNotification('File has been saved.');
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@saveDataFileUpload')
+                .its('response.statusCode').should('equal', 204);
+            cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
                 .should('be.visible');
         }
@@ -65,10 +62,9 @@ describe('Media: Visual tests', () => {
             );
             page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
 
-            cy.wait('@saveDataUrlUpload').then((xhr) => {
-                cy.awaitAndCheckNotification('File has been saved.');
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@saveDataUrlUpload')
+                .its('response.statusCode').should('equal', 204);
+            cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
                 .should('be.visible');
         }
@@ -83,8 +79,7 @@ describe('Media: Visual tests', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveProduct');
@@ -99,11 +94,7 @@ describe('Media: Visual tests', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
         cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
-                mimeType: 'image/png'
-            });
+            .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
@@ -114,9 +105,8 @@ describe('Media: Visual tests', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
         cy.visit('/');

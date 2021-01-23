@@ -63,10 +63,10 @@ describe('Promotion: Test ACL privileges', () => {
     });
 
     it('@acl: can edit promotion', () => {
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
-        }).as('patchPromotion');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            method: 'post'
+        }).as('saveDiscount');
 
         const page = new ProductPageObject();
 
@@ -116,9 +116,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveDiscount').its('response.statusCode').should('equal', 200);
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
@@ -131,8 +129,7 @@ describe('Promotion: Test ACL privileges', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/*`,
             method: 'delete'
         }).as('deleteData');
@@ -166,9 +163,7 @@ describe('Promotion: Test ACL privileges', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('button[title="Refresh"]').click();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');

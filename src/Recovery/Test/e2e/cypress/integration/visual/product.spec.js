@@ -16,14 +16,13 @@ describe('Product: Visual tests', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
-        cy.route({
-            url: '/api/_action/calculate-price',
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: '/api/v*/_action/calculate-price',
         }).as('calculatePrice');
 
         // Add basic data to product
@@ -54,9 +53,8 @@ describe('Product: Visual tests', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Save product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-loader').should('not.exist');
         const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';

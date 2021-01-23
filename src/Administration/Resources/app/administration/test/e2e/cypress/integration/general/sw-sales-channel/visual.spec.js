@@ -18,8 +18,7 @@ describe('Sales Channel: Visual tests', () => {
 
     it('@visual: check appearance of basic sales channel workflow', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
             method: 'post'
         }).as('saveData');

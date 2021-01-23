@@ -16,9 +16,8 @@ describe('Scale units: Visual testing', () => {
     });
 
     it('@visual: check appearance of scale unit module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/unit`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/unit`,
             method: 'post'
         }).as('getData');
 
@@ -28,9 +27,8 @@ describe('Scale units: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-units').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__cell--name', 'Gramm').should('be.visible');

@@ -35,16 +35,17 @@ describe('Order: Test order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
             method: 'post'
         }).as('createDocumentCall');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/document`,
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document`,
             method: 'post'
         }).as('findDocumentCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('findOrder');
@@ -89,47 +90,13 @@ describe('Order: Test order state', () => {
             .click();
 
         // Verify invoice
-        cy.wait('@createDocumentCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            expect(xhr.responseBody).to.have.property('documentId');
-            expect(xhr.responseBody).to.have.property('documentDeepLink');
+        cy.wait('@createDocumentCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
 
-            const documentId = xhr.response.body.documentId;
-            const documentDeepLink = xhr.response.body.documentDeepLink;
+        cy.wait('@findOrder').its('response.statusCode').should('equal', 200);
 
-            cy.getCookie('bearerAuth').then((bearerAuth) => {
-                return JSON.parse(bearerAuth.value).access;
-            }).then((authToken) => {
-                return cy.request(
-                    {
-                        headers: {
-                            Accept: 'application/vnd.api+json',
-                            Authorization: `Bearer ${authToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        method: 'GET',
-                        url: `/api/_action/document/${documentId}/${documentDeepLink}`
-                    }
-                );
-            }).then((xhrDeepLink) => {
-                expect(xhrDeepLink).to.have.property('status', 200);
-                expect(xhrDeepLink.headers).to.have.property('content-type', 'application/pdf');
-            });
-        });
-
-
-        cy.wait('@findDocumentCall').then((xhr) => {
-            cy.log(`metal.total${xhr.responseBody.meta.total}`);
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.wait('@findOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.wait('@findDocumentCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
@@ -156,20 +123,19 @@ describe('Order: Test order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
             method: 'post'
         }).as('createDocumentCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/document`,
             method: 'post'
         }).as('findDocumentCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('findOrder');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/number-range/reserve/document_invoice/*`,
             method: 'get'
         }).as('reserveDocumentNumberRange');
@@ -207,9 +173,8 @@ describe('Order: Test order state', () => {
             cy.get('.sw-modal__footer .sw-button--primary').click();
         });
 
-        cy.wait('@reserveDocumentNumberRange').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@reserveDocumentNumberRange')
+            .its('response.statusCode').should('equal', 200);
 
         // Generate first invoice
         cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
@@ -220,46 +185,17 @@ describe('Order: Test order state', () => {
                     .click();
 
                 // Verify first invoice
-                cy.wait('@createDocumentCall').then((xhr) => {
-                    expect(xhr).to.have.property('status', 200);
-                    expect(xhr.responseBody).to.have.property('documentId');
-                    expect(xhr.responseBody).to.have.property('documentDeepLink');
+                cy.wait('@createDocumentCall')
+                    .its('response.statusCode').should('equal', 200);
 
-                    const documentId = xhr.response.body.documentId;
-                    const documentDeepLink = xhr.response.body.documentDeepLink;
+                cy.wait('@findDocumentCall')
+                    .its('response.statusCode').should('equal', 200);
 
-                    cy.getCookie('bearerAuth').then((bearerAuth) => {
-                        return JSON.parse(bearerAuth.value).access;
-                    }).then((authToken) => {
-                        return cy.request(
-                            {
-                                headers: {
-                                    Accept: 'application/vnd.api+json',
-                                    Authorization: `Bearer ${authToken}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                method: 'GET',
-                                url: `/api/_action/document/${documentId}/${documentDeepLink}`
-                            }
-                        );
-                    }).then((xhrDeepLink) => {
-                        expect(xhrDeepLink).to.have.property('status', 200);
-                        expect(xhrDeepLink.headers).to.have.property('content-type', 'application/pdf');
-                    });
-                });
+                cy.wait('@findOrder')
+                    .its('response.statusCode').should('equal', 200);
 
-                cy.wait('@findDocumentCall').then((xhr) => {
-                    cy.log(`metal.total${xhr.responseBody.meta.total}`);
-                    expect(xhr).to.have.property('status', 200);
-                });
-
-                cy.wait('@findOrder').then((xhr) => {
-                    expect(xhr).to.have.property('status', 200);
-                });
-
-                cy.wait('@findDocumentCall').then((xhr) => {
-                    expect(xhr).to.have.property('status', 200);
-                });
+                cy.wait('@findDocumentCall')
+                    .its('response.statusCode').should('equal', 200);
 
                 // Start to create a second invoice
                 cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
@@ -285,9 +221,7 @@ describe('Order: Test order state', () => {
                 });
 
                 cy.wait('@reserveDocumentNumberRange')
-                    .then((xhr) => {
-                        expect(xhr).to.have.property('status', 200);
-                    });
+                    .its('response.statusCode').should('equal', 200);
 
                 // Generate second invoice with same invoice number with first invoice
                 cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
@@ -300,10 +234,10 @@ describe('Order: Test order state', () => {
                     });
                 cy.get('.sw-order-document-settings-modal__settings-modal .sw-button--primary')
                     .click();
+
                 // Verify second invoice and check error notification
-                cy.wait('@createDocumentCall').then((xhr) => {
-                    expect(xhr).to.have.property('status', 400);
-                });
+                cy.wait('@createDocumentCall')
+                    .its('response.statusCode').should('equal', 400);
                 cy.awaitAndCheckNotification(`Document number ${invoiceNumber} has already been allocated.`);
             });
     });

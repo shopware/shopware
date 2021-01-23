@@ -21,7 +21,7 @@
     "pass": "shopware",
     "salesChannelName": "Storefront",
     "admin": "/admin",
-    "apiPath": "/api",
+    "apiPath": "api",
     "locale": "en-GB",
     "checkoutAllowed": false,
     "shopwareRoot": "/app",

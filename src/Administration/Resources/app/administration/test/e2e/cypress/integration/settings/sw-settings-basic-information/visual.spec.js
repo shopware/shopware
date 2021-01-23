@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Basic information: Visual testing', () => {
     beforeEach(() => {
@@ -13,8 +13,7 @@ describe('Basic information: Visual testing', () => {
     });
 
     it('@visual: check appearance of basic information module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.basicInformation`,
             method: 'get'
         }).as('getData');
@@ -25,9 +24,8 @@ describe('Basic information: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/basic/information/index"]').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains('Basic information');
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Basic information] Details', '.sw-settings-basic-information');

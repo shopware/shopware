@@ -14,8 +14,7 @@ describe('Sitemap: Visual testing', () => {
     });
 
     it('@visual: check appearance of sitemap module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.sitemap`,
             method: 'get'
         }).as('getData');
@@ -26,9 +25,8 @@ describe('Sitemap: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.contains('Sitemap').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-system-config').should('be.visible');
         cy.takeSnapshot('[Sitemap] Detail', '.sw-card__toolbar');
     });

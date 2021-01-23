@@ -55,11 +55,13 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Wishlist can be merge from anonymous user to registered users', () => {
         cy.visit('/');
 
-        cy.server();
-        cy.route({
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/merge',
-            method: 'post'
         }).as('wishlistMerge');
+
 
         let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
 
@@ -99,15 +101,16 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', () => {
         cy.visit('/');
 
-        cy.server();
-        cy.route({
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/add/**',
-            method: 'post'
         }).as('wishlistAdd');
 
-        cy.route({
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/merge',
-            method: 'post'
         }).as('wishlistMerge');
 
         cy.visit('/account/login');
@@ -176,15 +179,15 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.server();
-        cy.route({
-            url: '/wishlist/add/**',
-            method: 'post'
-        }).as('wishlistAdd');
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
-        cy.route({
+        cy.intercept({
+            method: 'POST',
+            url: '/wishlist/add/**',
+        }).as('wishlistAdd');
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/merge',
-            method: 'post'
         }).as('wishlistMerge');
 
         cy.visit('/account/login');
@@ -252,14 +255,16 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.server();
-        cy.route({
-            url: '/wishlist/add/**',
-            method: 'post'
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
+        cy.intercept({
+            method: 'POST',
+            url: '/wishlist/add/**'
         }).as('wishlistAdd');
-        cy.route({
-            url: '/wishlist/merge',
-            method: 'post'
+
+        cy.intercept({
+            method: 'POST',
+            url: '/wishlist/merge'
         }).as('wishlistMerge');
 
         cy.visit('/account/login');

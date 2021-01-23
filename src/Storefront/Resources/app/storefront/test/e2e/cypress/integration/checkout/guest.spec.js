@@ -4,9 +4,11 @@ let product = {};
 
 describe(`Checkout as Guest`, () => {
     beforeEach(() => {
-        return cy.createProductFixture().then(() => {
+        return cy.setToInitialState().then(() => {
             return cy.createDefaultFixture('category')
         }).then(() => {
+            return cy.createProductFixture()
+        }, { timeout: 30000 }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
@@ -74,7 +76,7 @@ describe(`Checkout as Guest`, () => {
         cy.get('.col-5.checkout-aside-summary-value').contains('10.00');
     });
 
-    it('@base @checkout: Run checkout with account type', () => {
+    it.only('@base @checkout: Run checkout with account type', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -129,15 +131,15 @@ describe(`Checkout as Guest`, () => {
             cy.get('input[name="lastName"]').type('Doe');
 
             // check Company, Department, VatId fields not exists in register address form
-            cy.get(`.register-shipping ${billingAddressCompanySelector}`).should('not.be.visible');
-            cy.get(`.register-shipping ${billingAddressDepartmentSelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${billingAddressCompanySelector}`).should('not.exist');
+            cy.get(`.register-shipping ${billingAddressDepartmentSelector}`).should('not.exist');
             cy.get(`.register-shipping ${vatIdsSelector}`).should('not.be.visible');
 
             cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
             // check Company, Department, VatId fields not exists in register shipping address form
             cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.be.visible').should('not.have.attr', 'required');
             cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.be.visible');
-            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.exist');
 
             cy.get(accountTypeSelector).typeAndSelect('Private');
             cy.get(billingAddressCompanySelector).should('not.be.visible');
@@ -148,12 +150,12 @@ describe(`Checkout as Guest`, () => {
             // check Company, Department, VatId fields not exists in register address form
             cy.get(`.register-address ${billingAddressCompanySelector}`).should('not.be.visible');
             cy.get(`.register-address ${billingAddressDepartmentSelector}`).should('not.be.visible');
-            cy.get(`.register-address ${vatIdsSelector}`).should('not.be.visible');
+            cy.get(`.register-address ${vatIdsSelector}`).should('not.exist');
 
             // check Company, Department, VatId fields not exists in register shipping address form
-            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.be.visible');
-            cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.be.visible');
-            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.exist');
+            cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.exist');
+            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.exist');
 
             cy.get(billingAddressCompanySelector).should('be.visible');
             cy.get(billingAddressCompanySelector).type('Company Testing');

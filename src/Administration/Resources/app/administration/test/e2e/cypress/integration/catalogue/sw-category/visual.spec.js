@@ -17,9 +17,8 @@ describe('Category: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic category workflow', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/category`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'post'
         }).as('getData');
 
@@ -29,16 +28,15 @@ describe('Category: Visual tests', () => {
             subMenuId: 'sw-category'
         });
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-tree').should('be.visible');
         cy.takeSnapshot('[Category] Detail', '.sw-category-tree');
 
         cy.contains('.tree-link', 'Home').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
         // Change color of the element to ensure consistent snapshots

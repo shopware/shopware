@@ -36,8 +36,7 @@ describe('Order: Visual tests', () => {
     it('@visual: check appearance of basic order workflow', () => {
         const page = new OrderPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('getData');
@@ -48,9 +47,8 @@ describe('Order: Visual tests', () => {
             mainMenuId: 'sw-order',
             subMenuId: 'sw-order-index'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -118,8 +116,7 @@ describe('Order: Visual tests', () => {
     });
 
     it('@visual: check appearance of order creation workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('getData');
@@ -129,9 +126,8 @@ describe('Order: Visual tests', () => {
             mainMenuId: 'sw-order',
             subMenuId: 'sw-order-index'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing

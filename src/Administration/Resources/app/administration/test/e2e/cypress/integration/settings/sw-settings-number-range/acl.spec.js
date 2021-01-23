@@ -64,20 +64,23 @@ describe('Number Range: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
         });
 
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range`,
+
+        cy.intercept({
+            url: '/api/search/number-range',
             method: 'post'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('searchData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
             method: 'post'
         }).as('searchNumberRangeType');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
             method: 'post'
         }).as('searchSalesChannel');
@@ -93,9 +96,8 @@ describe('Number Range: Test acl privileges', () => {
                 '#numberRangeTypes'
             );
 
-        cy.wait('@searchNumberRangeType').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchNumberRangeType')
+            .its('response.statusCode').should('equal', 200);
         cy.wait('@searchSalesChannel').then(({ response }) => {
             const { attributes } = response.body.data[0];
             cy.get('.sw-multi-select').typeMultiSelectAndCheck(attributes.name);
@@ -104,9 +106,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get(page.elements.numberRangeSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Name e2e');
@@ -132,12 +132,11 @@ describe('Number Range: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range/*`,
+        cy.intercept({
+            url: '/api/search/number-range/*',
             method: 'patch'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('searchData');
@@ -151,18 +150,12 @@ describe('Number Range: Test acl privileges', () => {
         cy.get(page.elements.numberRangeSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Cancellations update');
 
-        cy.wait('@searchData').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get('.sw-settings-number-range-list-grid').should('be.visible');
+        cy.wait('@searchData').its('response.statusCode').should('equal', 200); cy.get('.sw-settings-number-range-list-grid').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Cancellations update');
     });
@@ -183,9 +176,8 @@ describe('Number Range: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range/*`,
+        cy.intercept({
+            url: '/api/search/number-range/*',
             method: 'delete'
         }).as('deleteData');
 
@@ -203,9 +195,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
     });

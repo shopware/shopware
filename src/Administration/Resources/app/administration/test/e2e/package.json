@@ -5,34 +5,33 @@
   "description": "E2E Test suite for the Shopware administration",
   "main": "index.js",
   "license": "MIT",
-  "engines": {
-    "node": ">= 8.10.0",
-    "npm": ">= 6.5.0"
-  },
   "scripts": {
-    "open": "node_modules/.bin/cypress open",
+    "cypress:open": "./node_modules/.bin/cypress open",
+    "cypress:run": "./node_modules/.bin/cypress run",
+    "cypress": "./node_modules/.bin/cypress",
+    "open": "./node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
-    "cy:run:percy": "percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000",
-    "cy:finalize:percy": "percy finalize --all",
     "cy:run:firefox": "cypress run --browser firefox",
     "combine-reports": "mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json",
     "generate-report": "marge cypress/mochareports/*.json -f report -o mochareports"
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
+    "@babel/register": "^7.7.4",
     "@percy/cypress": "^3.1.0",
-    "@shopware-ag/e2e-testsuite-platform": "^2.0.2",
-    "cypress-file-upload": "4.1.1",
+    "@shopware-ag/e2e-testsuite-platform": "3.0.0-alpha.5",
+    "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.5.1",
     "cypress-select-tests": "^1.7.1",
-    "mocha-junit-reporter": "^1.23.1"
+    "cypress-multi-reporters": "^1.4.0",
+    "mocha": "^7.2.0",
+    "mocha-junit-reporter": "^1.23.1",
+    "mochawesome": "^4.1.0",
+    "uuid": "3.3.3"
   },
   "devDependencies": {
     "@percy/cli": "^1.0.0-beta.51",
-    "cypress": "5.6.0",
-    "cypress-multi-reporters": "^1.5.0",
-    "mocha": "^7.2.0",
-    "mochawesome": "^4.1.0",
+    "cypress": "7.6.0",
     "mochawesome-merge": "^4.2.0",
     "mochawesome-report-generator": "^4.1.0"
   }

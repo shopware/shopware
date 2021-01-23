@@ -64,7 +64,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 
-    it('@settings: update and read snippets', () => {
+    it.only('@settings: update and read snippets', () => {
         const page = new SnippetPageObject();
 
         // Open snippet set
@@ -87,7 +87,7 @@ describe('Snippets: Test crud operations', () => {
             .should('not.have.value', '');
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .clear();
-        cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
+        cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]').clear()
             .type('Mine yours theirs');
         cy.get(page.elements.snippetSaveAction).click();
         cy.get(page.elements.loader).should('not.exist');

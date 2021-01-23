@@ -23,18 +23,17 @@ describe('Import/Export - Export:', () => {
     });
 
     it('@base @settings: Create export with product profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'post'
         }).as('prepare');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
             method: 'post'
         }).as('process');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
             method: 'post'
         }).as('importExportLog');
@@ -47,19 +46,13 @@ describe('Import/Export - Export:', () => {
         cy.get('.sw-import-export-progress__start-process-action').click();
 
         // Prepare request should be successful
-        cy.wait('@prepare').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@prepare').its('response.statusCode').should('equal', 200);
 
         // Process request should be successful
-        cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@process').its('response.statusCode').should('equal', 204);
 
         // Import export log request should be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@importExportLog').its('response.statusCode').should('equal', 200);
 
         // The activity logs should contain an entry for the succeeded export
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');

@@ -20,8 +20,7 @@ describe('Payment: Test crud operations', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method`,
             method: 'post'
         }).as('saveData');
@@ -34,9 +33,7 @@ describe('Payment: Test crud operations', () => {
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 
@@ -49,8 +46,7 @@ describe('Payment: Test crud operations', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'patch'
         }).as('saveData');
@@ -67,9 +63,7 @@ describe('Payment: Test crud operations', () => {
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
@@ -81,8 +75,7 @@ describe('Payment: Test crud operations', () => {
         const page = new PaymentPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'delete'
         }).as('deleteData');
@@ -100,9 +93,7 @@ describe('Payment: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify and check usage of payment-method
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');

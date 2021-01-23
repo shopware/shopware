@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import PropertyPageObject from '../../../support/pages/module/sw-property.page-object';
 
@@ -22,9 +22,8 @@ describe('Property: Test crud operations', () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/property-group`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/property-group`,
             method: 'post'
         }).as('saveData');
 
@@ -35,9 +34,7 @@ describe('Property: Test crud operations', () => {
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-data-grid__row', '1 Coleur');
     });
@@ -46,9 +43,8 @@ describe('Property: Test crud operations', () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/property-group`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('saveData');
 
@@ -76,9 +72,7 @@ describe('Property: Test crud operations', () => {
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify new options in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Bleu');
     });
@@ -87,9 +81,8 @@ describe('Property: Test crud operations', () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/property-group/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/property-group/**`,
             method: 'delete'
         }).as('deleteData');
 
@@ -127,9 +120,7 @@ describe('Property: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.modal).should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');
     });

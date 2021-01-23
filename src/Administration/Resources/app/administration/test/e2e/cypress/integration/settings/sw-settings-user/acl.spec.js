@@ -12,6 +12,12 @@ describe('User: Test acl privileges', () => {
     });
 
     it('@settings: view user', () => {
+        // Request we want to wait for later
+        cy.intercept({
+            method: 'post',
+            url: `**/${Cypress.env('apiPath')}/search/user`
+        }).as('loadUser');
+
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
@@ -26,6 +32,10 @@ describe('User: Test acl privileges', () => {
 
         cy.get('.sw-users-permissions-user-listing__toolbar .sw-simple-search-field input')
             .clearTypeAndCheck('maxmuster');
+
+        cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username')
@@ -40,6 +50,16 @@ describe('User: Test acl privileges', () => {
     });
 
     it('@settings: edit user', () => {
+        // Request we want to wait for later
+        cy.intercept({
+            method: 'post',
+            url: `**/${Cypress.env('apiPath')}/search/user`
+        }).as('loadUser');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'post'
+        }).as('oauthCall');
+
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
@@ -53,6 +73,9 @@ describe('User: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
         });
 
+        cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
         cy.get('.sw-users-permissions-user-listing__toolbar .sw-simple-search-field input')
             .clearTypeAndCheck('maxmuster');
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
@@ -63,12 +86,6 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0 .sw-data-grid__cell--username a')
             .click();
 
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
-        }).as('oauthCall');
 
         cy.get('#sw-field--user-email')
             .should('be.visible')
@@ -97,12 +114,10 @@ describe('User: Test acl privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         cy.get('#sw-field--user-email')
             .should('be.visible')
@@ -110,6 +125,20 @@ describe('User: Test acl privileges', () => {
     });
 
     it('@settings: edit user role', () => {
+        // Request we want to wait for later
+        cy.intercept({
+            method: 'post',
+            url: `**/${Cypress.env('apiPath')}/search/user`
+        }).as('loadUser');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'post'
+        }).as('oauthCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/acl-role/*`,
+            method: 'patch'
+        }).as('saveRole');
+
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
@@ -123,6 +152,9 @@ describe('User: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
         });
 
+        cy.wait('@loadUser').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
         cy.get('.sw-users-permissions-user-listing__toolbar .sw-simple-search-field input')
             .clearTypeAndCheck('maxmuster');
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
@@ -131,16 +163,6 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-card.sw-users-permissions-role-listing .sw-data-grid__row--0 .sw-data-grid__cell--name a')
             .click();
 
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/oauth/token',
-            method: 'post'
-        }).as('oauthCall');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/acl-role/*`,
-            method: 'patch'
-        }).as('saveRole');
 
         cy.get('#sw-field--role-description')
             .should('be.visible')
@@ -167,16 +189,12 @@ describe('User: Test acl privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
-        cy.wait('@saveRole').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveRole').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         cy.get('#sw-field--role-description')
             .should('be.visible')
@@ -184,6 +202,20 @@ describe('User: Test acl privileges', () => {
     });
 
     it('@settings: create user', () => {
+        // Requests we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/user`,
+            method: 'POST'
+        }).as('searchCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/user`,
+            method: 'POST'
+        }).as('createCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'POST'
+        }).as('oauthCall');
+
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
@@ -200,21 +232,6 @@ describe('User: Test acl privileges', () => {
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
         });
-
-        // Requests we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'post'
-        }).as('searchCall');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
-        }).as('createCall');
-        cy.route({
-            url: '/api/oauth/token',
-            method: 'post'
-        }).as('oauthCall');
 
         // create a new user
         cy.get('.sw-users-permissions-user-listing__add-user-button')
@@ -259,13 +276,9 @@ describe('User: Test acl privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
-        cy.wait('@createCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createCall').its('response.statusCode').should('equal', 204);
     });
 
     it('@settings: create user and delete them', () => {
@@ -291,21 +304,23 @@ describe('User: Test acl privileges', () => {
         });
 
         // Requests we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
             method: 'post'
         }).as('createCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user/**`,
             method: 'delete'
         }).as('deleteCall');
-        cy.route({
-            url: '/api/oauth/token',
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
             method: 'post'
         }).as('oauthCall');
 
@@ -352,16 +367,12 @@ describe('User: Test acl privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
-        cy.wait('@createCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createCall').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         // should be able to delete the user
         cy.get('a.smart-bar__back-btn').click();
@@ -389,12 +400,10 @@ describe('User: Test acl privileges', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@deleteCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteCall').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });

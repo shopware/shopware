@@ -57,8 +57,7 @@ describe('Currency: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'patch'
         }).as('saveCurrency');
@@ -75,9 +74,7 @@ describe('Currency: Test acl privileges', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveCurrency').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCurrency').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Kreuzer');
@@ -107,8 +104,7 @@ describe('Currency: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/currency`,
             method: 'post'
         }).as('saveCurrency');
@@ -124,9 +120,7 @@ describe('Currency: Test acl privileges', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveCurrency').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCurrency').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-currency-list__content').should('be.visible');
@@ -150,8 +144,7 @@ describe('Currency: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'delete'
         }).as('deleteCurrency');
@@ -171,9 +164,7 @@ describe('Currency: Test acl privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteCurrency').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteCurrency').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).should('not.exist');

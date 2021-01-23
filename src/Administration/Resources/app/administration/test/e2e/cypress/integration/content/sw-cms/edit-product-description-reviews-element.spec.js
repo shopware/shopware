@@ -23,18 +23,17 @@ describe('CMS: Check usage and editing of product description reviews element', 
     });
 
     it('@content: use product description reviews element in another block', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveProductData');
@@ -67,9 +66,9 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -83,9 +82,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
@@ -97,13 +94,12 @@ describe('CMS: Check usage and editing of product description reviews element', 
     });
 
     it('@content: use product description reviews block in landing page', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
@@ -133,9 +129,9 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -149,9 +145,7 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');

@@ -37,22 +37,24 @@ describe('Customer:  Visual test', () => {
     it('@visual: check appearance of basic customer workflow', () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
             method: 'post'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
             method: 'post'
         }).as('getData');
 
         cy.get('.sw-customer-list').should('be.visible');
-
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/customer/index',
+            mainMenuId: 'sw-customer',
+            subMenuId: 'sw-customer-index'
         });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-customer-list__content').should('be.visible');
 
         // Take snapshot for visual testing
@@ -89,11 +91,10 @@ describe('Customer:  Visual test', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail
-        cy.wait('@saveData').then((xhr) => {
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
 
         // Take snapshot for visual testing
         cy.get('.sw-card-section--secondary').contains('English');
@@ -106,8 +107,7 @@ describe('Customer:  Visual test', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
             method: 'post'
         }).as('getCountries');
@@ -131,9 +131,8 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
-        cy.wait('@getCountries').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.get('.sw-modal').should('be.visible');
+        cy.wait('@getCountries').its('response.statusCode').should('equal', 200);
 
         // Take snapshot for visual testing
         cy.handleModalSnapshot('Address');

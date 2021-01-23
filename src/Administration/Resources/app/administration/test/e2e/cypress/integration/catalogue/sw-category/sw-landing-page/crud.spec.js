@@ -14,9 +14,8 @@ describe('Category: Landing pages', () => {
     });
 
     it('@catalogue: create a landing page and check storefront behavior', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
-        cy.route('POST', `${Cypress.env('apiPath')}/landing-page`).as('saveLandingPage');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/landing-page`).as('saveLandingPage');
 
         cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator')
             .click();
@@ -44,7 +43,7 @@ describe('Category: Landing pages', () => {
         cy.wait('@saveLandingPage');
 
         // verify changes
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
         cy.reload();
         cy.wait('@loadLandingPage');
         cy.get('#landingPageName').should('have.value', 'MyLandingPage');
@@ -70,13 +69,13 @@ describe('Category: Landing pages', () => {
         cy.contains('.cms-page', 'Baumhaus landing page').should('be.visible');
 
         // disable landing page
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPageForEdit');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPageForEdit');
         cy.then(() => {
             cy.visit(editPage);
         });
         cy.wait('@loadLandingPageForEdit');
         cy.get('input[name="landingPageActive"]').uncheck();
-        cy.route('PATCH', `${Cypress.env('apiPath')}/landing-page/*`).as('patchLandingPage');
+        cy.intercept('patch', `${Cypress.env('apiPath')}/landing-page/*`).as('patchLandingPage');
         cy.get('.sw-category-detail__save-landing-page-action').click();
         cy.wait('@patchLandingPage');
 

@@ -1,11 +1,12 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 const uuid = require('uuid/v4');
 
 describe('Product: Test pagination and the corosponding URL parameters', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        let taxId, currencyId;
+        let taxId; let
+            currencyId;
 
         cy.setToInitialState()
             .then(() => {
@@ -18,7 +19,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
                         value: 'Standard rate'
                     },
                     endpoint: 'tax'
-                })
+                });
             }).then(tax => {
                 taxId = tax.id;
 
@@ -28,13 +29,17 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
                         value: 'Euro'
                     },
                     endpoint: 'currency'
-                })
-            }).then(currency => {
+                });
+            })
+            .then(currency => {
                 currencyId = currency.id;
 
                 cy.authenticate();
-            }).then(auth => {
-                let products = [];
+            })
+            .then(auth => {
+                const products = [];
+
+                // eslint-disable-next-line no-plusplus
                 for (let i = 1; i <= 26; i++) {
                     products.push(
                         {
@@ -59,21 +64,21 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
                     body: {
                         'write-product': {
-                            'entity': 'product',
-                            'action': 'upsert',
-                            'payload': products
+                            entity: 'product',
+                            action: 'upsert',
+                            payload: products
                         }
 
                     }
-                })
-            })
+                });
+            });
     });
 
     it('@catalogue: check that the url parameters get set', () => {
@@ -113,7 +118,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
         });
 
         cy.log('change items per page to 10');
-        cy.get('#perPage').select("10");
+        cy.get('#perPage').select('10');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({
@@ -127,7 +132,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
             page: 1,
             limit: 10
         });
-        cy.log('go to second page')
+        cy.log('go to second page');
         cy.get(':nth-child(2) > .sw-pagination__list-button').click();
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -143,7 +148,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
             limit: 10
         });
 
-        cy.log('change sorting to Available')
+        cy.log('change sorting to Available');
         cy.get('.sw-data-grid__cell--14 > .sw-data-grid__cell-content').click('right');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -163,7 +168,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
     it('@catalogue: check that the url parameters get applied after a reload', () => {
         cy.loginViaApi();
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`)
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index?limit=10&page=2&term=product&sortBy=availableStock&sortDirection=ASC&naturalSorting=true`);
 
         cy.testListing({
             searchTerm: 'product',

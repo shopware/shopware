@@ -37,7 +37,7 @@ describe('Media: Move folder and image', () => {
         cy.get(page.elements.smartBarHeader).contains('1st folder');
 
         // Upload image in folder
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
@@ -48,7 +48,7 @@ describe('Media: Move folder and image', () => {
         cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').should('not.exist');
 
         // Upload another image
-        page.uploadImageUsingFileUpload('img/sw-test-image.png', 'sw-test-image.png');
+        page.uploadImageUsingFileUpload('img/sw-test-image.png');
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Move image to second folder

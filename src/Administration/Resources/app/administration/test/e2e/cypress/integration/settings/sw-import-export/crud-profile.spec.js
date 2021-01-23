@@ -21,8 +21,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
 
     it('@settings @base: Create and read profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'post'
         }).as('saveData');
@@ -116,9 +115,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');
@@ -159,8 +156,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings: Update and read profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'patch'
         }).as('saveData');
@@ -196,11 +192,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
+        cy.get('.sw-import-export-edit-profile-modal').should('not.exist');
 
         // Verify updated profile is in listing
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -301,13 +295,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings: Delete profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'delete'
         }).as('deleteData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
             method: 'post'
         }).as('search');
@@ -317,10 +310,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Search for given profile
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+
         // wait for the search request before checking the search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equals', 200);
 
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
@@ -341,9 +333,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-modal__dialog .sw-button--danger').click();
 
         // Delete request should be successful
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         // Verify deleted item is not present
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -353,10 +343,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+
         // wait for the search request before checking the search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equals', 200);
         cy.get('.sw-import-export-view-profiles__listing .sw-data-grid__body').should('not.contain', 'E2E');
     });
 

@@ -1,6 +1,4 @@
-/// <reference types="Cypress" />
-
-import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
+// / <reference types="Cypress" />
 
 describe('CMS: check validation of product detail page', () => {
     beforeEach(() => {
@@ -18,8 +16,7 @@ describe('CMS: check validation of product detail page', () => {
     });
 
     it('@content: create product detail page', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'post'
         }).as('saveData');
@@ -36,13 +33,12 @@ describe('CMS: check validation of product detail page', () => {
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
         cy.contains('.sw-button--primary', 'Create layout').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-cms-section__empty-stage').should('not.be.visible');
+        cy.get('.sw-cms-section__empty-stage').should('not.exist');
         cy.get('.sw-cms-block-product-heading').should('be.visible');
 
         cy.get('.sw-cms-detail__save-action').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
     });
 });

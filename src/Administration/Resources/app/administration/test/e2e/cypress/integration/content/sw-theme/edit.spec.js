@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Theme: Test common editing of theme', () => {
     beforeEach(() => {
@@ -13,8 +13,7 @@ describe('Theme: Test common editing of theme', () => {
     });
 
     it('@base @media @content: change theme logo image', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'patch'
         }).as('saveData');
@@ -35,12 +34,7 @@ describe('Theme: Test common editing of theme', () => {
             .click();
 
         // Add image to product
-        cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-test-image.png',
-                fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
-            });
+        cy.get('#files').attachFile('img/sw-test-image.png');
 
         cy.get('.sw-media-preview-v2__item')
             .should('have.attr', 'src')
@@ -54,9 +48,7 @@ describe('Theme: Test common editing of theme', () => {
             .contains('Do you really want to save the changes? This will change the visualization of your shop.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.visit('/');
         cy.get('.img-fluid').should('be.visible');
@@ -66,8 +58,7 @@ describe('Theme: Test common editing of theme', () => {
     });
 
     it('@base @content: saves theme primary color', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'patch'
         }).as('saveData');
@@ -85,20 +76,16 @@ describe('Theme: Test common editing of theme', () => {
         cy.get('.smart-bar__actions .sw-button-process.sw-button--primary').click();
         cy.get('.sw-modal .sw-button--primary').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.value', '#000');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.value', '#000');
 
         cy.visit('/');
         cy.get('.header-cart-total')
             .should('have.css', 'color', 'rgb(0, 0, 0)');
-
     });
 
     it('@base @media @content: change theme logo image by sidebar', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'patch'
         }).as('saveData');
@@ -141,9 +128,7 @@ describe('Theme: Test common editing of theme', () => {
             .contains('Do you really want to save the changes? This will change the visualization of your shop.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.visit('/');
         cy.get('.img-fluid').should('be.visible');

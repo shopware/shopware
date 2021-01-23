@@ -43,10 +43,9 @@ describe('Customer:  Visual test', () => {
     it('@visual: check appearance of basic customer workflow', () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: 'api/customer',
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: 'api/v*/customer',
         }).as('saveData');
 
         // Take snapshot for visual testing
@@ -91,9 +90,8 @@ describe('Customer:  Visual test', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         const language = Cypress.env('locale') === 'en-GB' ? 'English' : 'Deutsch';
         cy.get('.sw-card-section--secondary').contains(language);

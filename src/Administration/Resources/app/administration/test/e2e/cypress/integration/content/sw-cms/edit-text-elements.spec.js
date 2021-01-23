@@ -16,14 +16,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     });
 
     it('@base @content: use text block with headline', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/cms-page/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
-
-        cy.route({
-            url: `${Cypress.env('apiPath')}/category/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -44,10 +42,10 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -61,9 +59,8 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
@@ -71,9 +68,8 @@ describe('CMS: Check usage and editing of text elements', () => {
     });
 
     it('@base @content: edit text block settings', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/cms-page/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -114,14 +110,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     });
 
     it('@content: use text block with three columns', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/cms-page/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
-
-        cy.route({
-            url: `${Cypress.env('apiPath')}/category/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -146,10 +140,10 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Save layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -163,9 +157,8 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');

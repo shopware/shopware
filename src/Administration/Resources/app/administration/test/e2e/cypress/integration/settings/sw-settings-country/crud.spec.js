@@ -16,12 +16,44 @@ describe('Country: Test crud operations', () => {
             });
     });
 
+    it('@settings: create and read country', () => {
+        cy.skipOnFeature('FEATURE_NEXT_14114');
+        const page = new SettingsPageObject();
+
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/country`,
+            method: 'post'
+        }).as('saveData');
+
+        cy.get('a[href="#/sw/settings/country/create"]').click();
+
+        // Create country
+        cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
+
+        // Check tax free companies field exists and clicks
+        cy.contains('Tax free (B2C)').should('be.visible');
+        cy.contains('Tax free (B2C)').click();
+
+        // Check validate vat id for correct format field exists and clicks
+        cy.contains('Validate VAT Reg.No. format').should('be.visible');
+        cy.contains('Validate VAT Reg.No. format').click();
+
+        cy.get(page.elements.countrySaveAction).click();
+
+        // Verify creation
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
+            .contains('01.Niemandsland');
+    });
+
     it('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveData');
@@ -37,9 +69,7 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
@@ -50,8 +80,7 @@ describe('Country: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'delete'
         }).as('deleteData');
@@ -68,9 +97,7 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify creation
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`)
             .should('not.have.value', '1.Niemandsland');
@@ -80,13 +107,13 @@ describe('Country: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
             method: 'post'
         }).as('searchCurrency');
@@ -128,9 +155,8 @@ describe('Country: Test crud operations', () => {
 
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
@@ -158,13 +184,13 @@ describe('Country: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country`,
             method: 'post'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
             method: 'post'
         }).as('searchCurrency');
@@ -192,9 +218,8 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-settings-country-general-company-tax').should('be.visible');
         cy.get('#sw-field--country-companyTax-amount').eq(0).should('have.value', '300');

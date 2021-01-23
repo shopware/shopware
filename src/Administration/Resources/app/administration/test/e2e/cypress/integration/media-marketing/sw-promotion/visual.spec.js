@@ -38,12 +38,11 @@ describe('Promotion: Visual tests', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/**`,
             method: 'patch'
         }).as('patchPromotion');
@@ -62,9 +61,8 @@ describe('Promotion: Visual tests', () => {
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
@@ -83,9 +81,11 @@ describe('Promotion: Visual tests', () => {
 
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@filteredResultCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.wait('@patchPromotion')
+            .its('response.statusCode').should('equal', 200);
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
@@ -101,9 +101,8 @@ describe('Promotion: Visual tests', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@patchPromotion')
+            .its('response.statusCode').should('equal', 200);
 
         // Verify Promotion in Storefront
         cy.visit('/');

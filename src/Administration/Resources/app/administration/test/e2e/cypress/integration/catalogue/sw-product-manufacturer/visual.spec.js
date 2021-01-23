@@ -21,12 +21,11 @@ describe('Manufacturer: Visual tests', () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'patch'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
             method: 'post'
         }).as('getData');
@@ -36,9 +35,8 @@ describe('Manufacturer: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-manufacturer'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-manufacturer-list__content').should('exist');
 
         // Take snapshot for visual testing

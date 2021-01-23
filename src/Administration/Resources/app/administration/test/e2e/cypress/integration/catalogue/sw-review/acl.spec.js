@@ -60,9 +60,8 @@ describe('Review: Test ACL privileges', () => {
 
     it('@catalogue: can edit review', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-review/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-review/*`,
             method: 'patch'
         }).as('saveProperty');
 
@@ -91,16 +90,13 @@ describe('Review: Test ACL privileges', () => {
         // Verify updated review
         cy.get('.sw-review-detail__save-action').should('not.be.disabled');
         cy.get('.sw-review-detail__save-action').click();
-        cy.wait('@saveProperty').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveProperty').its('response.statusCode').should('equal', 204);
     });
 
     it('@catalogue: can delete review', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-review/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-review/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -131,8 +127,6 @@ describe('Review: Test ACL privileges', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
     });
 });

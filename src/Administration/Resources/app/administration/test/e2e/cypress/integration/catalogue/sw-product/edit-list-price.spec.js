@@ -20,12 +20,11 @@ describe('Product: Edit in various ways', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculateData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
@@ -42,19 +41,14 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-list-price-field__list-price #sw-price-field-gross').typeAndCheck('100');
         cy.contains('.sw-card__title', 'Prices').click();
 
-        cy.wait('@calculateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
+        cy.wait('@calculateData').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.productSaveAction).should('be.enabled');
         cy.get(page.elements.productSaveAction).click();
         cy.get('.sw-loader').should('not.exist');
 
         // Verify updated product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         // Verify product's list price in Storefront
         cy.visit('/');

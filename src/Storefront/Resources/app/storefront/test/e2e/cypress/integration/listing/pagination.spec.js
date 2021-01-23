@@ -30,7 +30,10 @@ describe('Listing: Test product pagination', () => {
                 cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
                 cy.visit('/');
 
-                cy.server().route('GET', '/widgets/cms/navigation/**').as('loadNextPage');
+                cy.intercept({
+                    method: 'GET',
+                    url: '/widgets/cms/navigation/**',
+                }).as('loadNextPage');
 
                 cy.get('.cms-listing-row .card').should('have.length', testCase);
 
@@ -48,7 +51,8 @@ describe('Listing: Test product pagination', () => {
 
                     for (let i = 1; i < pageCount; i++) {
                         cy.get('.pagination-nav .page-next').eq(0).click();
-                        cy.wait('@loadNextPage').should('have.property', 'status', 200);
+                        cy.wait('@loadNextPage')
+                            .its('response.statusCode').should('equal', 200);
                         cy.get('.cms-listing-row .card').should('have.length', testCase);
                     }
 
@@ -69,7 +73,10 @@ describe('Listing: Test product pagination', () => {
                 cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
                 cy.visit('/');
 
-                cy.server().route('GET', '/widgets/search**').as('loadNextSearchPage');
+                cy.intercept({
+                    method: 'GET',
+                    url: '/widgets/search**',
+                }).as('loadNextSearchPage');
 
                 cy.get('input[name=search]').type('Test').type('{enter}');
 
@@ -89,7 +96,8 @@ describe('Listing: Test product pagination', () => {
 
                     for (let i = 1; i < pageCount; i++) {
                         cy.get('.pagination-nav .page-next').eq(0).click();
-                        cy.wait('@loadNextSearchPage').should('have.property', 'status', 200);
+                        cy.wait('@loadNextSearchPage')
+                            .its('response.statusCode').should('equal', 200);
                         cy.get('.cms-listing-row .card').should('have.length', testCase);
                     }
 

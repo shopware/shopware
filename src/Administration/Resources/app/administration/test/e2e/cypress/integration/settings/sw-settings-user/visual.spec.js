@@ -18,9 +18,8 @@ describe('User: Visual testing', () => {
     });
 
     it('@visual: check appearance of user module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/user`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/user`,
             method: 'post'
         }).as('getData');
 
@@ -53,9 +52,8 @@ describe('User: Visual testing', () => {
 
         cy.contains('Users & permissions').should('be.visible');
         cy.contains('Users & permissions').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-user-list').should('be.visible');
 
         // Shoot snapshots

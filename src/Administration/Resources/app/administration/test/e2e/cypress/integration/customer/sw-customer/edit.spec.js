@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -20,8 +20,7 @@ describe('Customer:  Edit in various ways', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'patch'
         }).as('saveData');
@@ -34,9 +33,7 @@ describe('Customer:  Edit in various ways', () => {
         cy.get(page.elements.dataGridInlineEditSave).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-data-grid__cell--firstName').contains('Ech, Woody');
     });
 });

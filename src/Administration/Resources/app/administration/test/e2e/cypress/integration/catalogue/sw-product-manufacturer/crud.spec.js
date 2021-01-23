@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ManufacturerPageObject from '../../../support/pages/module/sw-manufacturer.page-object';
 
@@ -20,9 +20,8 @@ describe('Manufacturer: Test crud operations', () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer`,
             method: 'post'
         }).as('saveData');
 
@@ -35,9 +34,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
     });
 
@@ -45,9 +42,8 @@ describe('Manufacturer: Test crud operations', () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'patch'
         }).as('saveData');
 
@@ -60,9 +56,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
@@ -72,12 +66,11 @@ describe('Manufacturer: Test crud operations', () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'patch'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/sanitize-html`,
             method: 'post'
         }).as('sanitizePreview');
@@ -93,10 +86,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get('.sw-text-editor-toolbar-button__type-codeSwitch').click();
         cy.get('.sw-code-editor').type('<script>alert("Danger!");'); // closing `</script>` inserted by ace editor
         cy.get('input[name=name]').click(); // trigger blur event on sw-code-editor component
-
-        cy.wait('@sanitizePreview').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@sanitizePreview').its('response.statusCode').should('equals', 200);
 
         cy.get('.sw-code-editor__sanitized-hint').should('be.visible');
 
@@ -106,9 +96,9 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equals', 204);
+
+
         cy.get('.sw-text-editor__content').contains('Manufacturer description');
         cy.get(page.elements.successIcon).should('be.visible');
     });
@@ -117,9 +107,8 @@ describe('Manufacturer: Test crud operations', () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'delete'
         }).as('saveData');
 
@@ -136,9 +125,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.contains('MAN-U-FACTURE').should('not.exist');
     });
 });

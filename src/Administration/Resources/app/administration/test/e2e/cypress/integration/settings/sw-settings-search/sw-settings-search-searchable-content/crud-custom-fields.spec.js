@@ -20,34 +20,30 @@ describe('Product Search: Test crud operations of custom field', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
             method: 'post'
         }).as('createSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
             method: 'post'
         }).as('getCustomField');
 
-        cy.route({
-            url: '/api/search/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
             method: 'post'
         }).as('getData');
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(1)').scrollIntoView();
 
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title')
             .contains('No searchable content added yet.');
         cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
@@ -66,9 +62,8 @@ describe('Product Search: Test crud operations of custom field', () => {
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check field already created
         cy.get('.sw-settings-search__searchable-content-customfields ' +
@@ -81,37 +76,34 @@ describe('Product Search: Test crud operations of custom field', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
             method: 'post'
         }).as('createSearchConfig');
-        cy.route({
-            url: '/api/product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
             method: 'patch'
         }).as('updateSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
             method: 'post'
         }).as('getCustomField');
 
-        cy.route({
-            url: '/api/search/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
             method: 'post'
         }).as('getData');
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
 
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
 
         // Create a new item first and then update it.
         cy.get('.sw-settings-search__searchable-content-add-button').click();
@@ -129,9 +121,8 @@ describe('Product Search: Test crud operations of custom field', () => {
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             `${page.elements.dataGridRow}--0`).dblclick();
@@ -140,9 +131,8 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-customfields ' +
@@ -155,38 +145,35 @@ describe('Product Search: Test crud operations of custom field', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
             method: 'post'
         }).as('createSearchConfig');
 
-        cy.route({
-            url: '/api/product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
             method: 'delete'
         }).as('deleteSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
             method: 'post'
         }).as('getCustomField');
 
-        cy.route({
-            url: '/api/search/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
             method: 'post'
         }).as('getData');
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         // change to customfield tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
 
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
 
         // Create a new item first and then delete it.
         cy.get('.sw-settings-search__searchable-content-add-button').click();
@@ -205,9 +192,8 @@ describe('Product Search: Test crud operations of custom field', () => {
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
         cy.clickContextMenuItem(
@@ -216,9 +202,8 @@ describe('Product Search: Test crud operations of custom field', () => {
             `.sw-settings-search__searchable-content-customfields ${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@deleteSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-empty-state').should('exist');
     });

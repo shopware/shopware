@@ -50,6 +50,8 @@ describe('Product: Testing filter and reset filter', () => {
             })
             .then(auth => {
                 const products = [];
+
+                // eslint-disable-next-line no-plusplus
                 for (let i = 1; i <= 26; i++) {
                     products.push(
                         {
@@ -123,8 +125,8 @@ describe('Product: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
@@ -144,8 +146,8 @@ describe('Product: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
@@ -189,25 +191,23 @@ describe('Product: Testing filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('filterProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('getUserConfig');
 
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
         // Check if saved user filter is loaded
-        cy.wait('@getUserConfig').then((xhr) => {
+        cy.wait('@getUserConfig').then(() => {
             cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
             // Check if Reset All button shows up
             cy.get('.sw-sidebar-item__headline a').should('exist');
@@ -218,21 +218,19 @@ describe('Product: Testing filter and reset filter', () => {
 
         cy.get('.sw-sidebar-item__headline a').click();
 
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // Filter results with single criteria
         cy.get('#active-filter').find('select').select('true');
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
         cy.get('#active-filter').find('select').select('false');
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('2');
 
         // Check notification badge after filtering
@@ -240,15 +238,15 @@ describe('Product: Testing filter and reset filter', () => {
 
         // Combine multiple filter criterias
         cy.get('#product-without-images-filter').find('select').select('true');
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
         cy.get('#product-without-images-filter').find('select').select('false');
-        cy.wait('@filterProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('1');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
@@ -260,13 +258,12 @@ describe('Product: Testing filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('filterProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('getUserConfig');
@@ -282,7 +279,7 @@ describe('Product: Testing filter and reset filter', () => {
         // Click Reset button to reset filter
         cy.get('#active-filter').find('.sw-base-filter__reset').click();
 
-        cy.wait('@getUserConfig').then((xhr) => {
+        cy.wait('@getUserConfig').then(() => {
             cy.get('#active-filter').find('option:selected').should('have.value', '');
         });
 
@@ -297,12 +294,11 @@ describe('Product: Testing filter and reset filter', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.wait('@getUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.wait('@filterProduct').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-                cy.contains('.sw-page__smart-bar-amount', '28');
-            });
-        });
+        cy.wait('@getUserConfig')
+            .its('response.statusCode').should('equal', 200);
+
+        cy.wait('@filterProduct')
+            .its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-page__smart-bar-amount', '28');
     });
 });

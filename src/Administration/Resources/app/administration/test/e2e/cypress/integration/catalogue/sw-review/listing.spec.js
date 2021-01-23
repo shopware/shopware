@@ -1,24 +1,20 @@
 // / <reference types="Cypress" />
 const uuid = require('uuid/v4');
 
-describe('Review: Test pagination and the corosponding URL parameters', () => {
+describe('Review: Test pagination and the corresponding URL parameters', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        let authToken;
-        let salesChannelId;
-        const productIds = [];
+        let authToken = '';
+        let salesChannelId = '';
+        let productIds = [];
 
-        cy.setToInitialState()
-            .then(() => {
-                cy.log('first call to authenticate');
-                return cy.authenticate();
-            })
-            .then((auth) => {
-                authToken = auth.access;
+        cy.setToInitialState().then(() => {
+            return cy.authenticate();
+        }).then((auth) => {
+            authToken = auth.access;
 
-                cy.log('creating tax fixtures');
-                cy.createDefaultFixture('tax');
-            })
+            cy.createDefaultFixture('tax');
+        })
             .then(() => {
                 cy.log('search via admin api');
                 cy.searchViaAdminApi({
@@ -30,19 +26,16 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                 });
             })
             .then(tax => {
-                cy.log('create 25 products');
                 const products = [];
 
-                for (let i = 0; i <= 25; i += 1) {
-                    const id = uuid().replace(/-/g, '');
-
-                    productIds.push(id);
+                // eslint-disable-next-line no-plusplus
+                for (let i = 1; i <= 26; i++) {
                     products.push(
                         {
-                            id: id,
+                            id: uuid().replace(/-/g, ''),
                             name: `product-${i + 1}`,
                             stock: i,
-                            productNumber: id,
+                            productNumber: `product-${i + 1}`,
                             taxId: tax.id,
                             price: [
                                 {
@@ -61,8 +54,8 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         Authorization: `Bearer ${authToken}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
@@ -75,7 +68,9 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                     }
                 });
             })
-            .then(() => {
+            .then(products => {
+                productIds = products.body.data['write-product'].result.map(product => product.entities.product[0]);
+
                 return cy.searchViaAdminApi({
                     endpoint: 'sales-channel',
                     data: {
@@ -114,8 +109,8 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         Authorization: `Bearer ${authToken}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },

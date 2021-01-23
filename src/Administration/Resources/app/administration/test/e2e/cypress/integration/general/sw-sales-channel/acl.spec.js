@@ -73,8 +73,7 @@ describe('Sales Channel: Test acl', () => {
         ]);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
             method: 'post'
         }).as('saveData');
@@ -92,9 +91,7 @@ describe('Sales Channel: Test acl', () => {
         page.fillInBasicSalesChannelData('1st Epic Sales Channel');
 
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // Verify creation
         cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');

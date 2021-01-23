@@ -37,37 +37,30 @@ describe('Manual update', () => {
         cy.get('.navigation--list .is--active .navigation--link').contains('Database migration').should('be.visible');
         cy.get('.content--main h2').contains('Database migration').should('be.visible');
 
-        cy.server();
-
         // match applyMigrations where offset == total
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update$/,
-            method: 'get'
         }).as('applyMigrations');
 
         // match applyMigrations migration where offset == total
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update_destructive$/,
-            method: 'get'
         }).as('applyDestructiveMigrations');
 
         // start migrations
         cy.get('.btn.btn-primary').contains('Start').click();
 
         cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
         cy.wait('@applyDestructiveMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
         cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Cleanup').should('be.visible');
         cy.get('.content--main h2').contains('File cleanup').should('be.visible');
         cy.get('.btn.btn-primary').contains('Forward').should('be.visible').click();
-
 
         cy.get('.alert-hero-title').should('be.visible');
         cy.get('.navigation--list .is--active .navigation--link').contains('Done').should('be.visible');

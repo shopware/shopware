@@ -16,8 +16,7 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@base @content: create and read layout', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'post'
         }).as('saveData');
@@ -46,9 +45,8 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
@@ -57,13 +55,12 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@base @content: update and read layout', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
@@ -81,9 +78,8 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
@@ -101,9 +97,8 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
@@ -111,8 +106,7 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@base @content: delete layout', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'delete'
         }).as('deleteData');
@@ -128,9 +122,8 @@ describe('CMS: Test crud operations of layouts', () => {
             .contains('Are you sure you really want to delete the layout "Vierte Wand"?');
         cy.get('.sw-button--danger').click();
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData')
+            .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title')
             .should('not.have.value', 'Vierte Wand');
     });

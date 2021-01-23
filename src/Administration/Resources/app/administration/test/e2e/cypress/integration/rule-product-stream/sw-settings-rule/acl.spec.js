@@ -53,9 +53,7 @@ describe('Rule builder: Test crud operations', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
             method: 'patch'
         }).as('saveData');
@@ -81,9 +79,7 @@ describe('Rule builder: Test crud operations', () => {
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     it('@base @rule: create and read rule', () => {
@@ -107,9 +103,7 @@ describe('Rule builder: Test crud operations', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
             method: 'post'
         }).as('saveData');
@@ -118,9 +112,7 @@ describe('Rule builder: Test crud operations', () => {
 
         // save with empty data
         cy.get('button.sw-button').contains('Save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
         cy.awaitAndCheckNotification('An error occurred while saving rule "".');
 
@@ -155,9 +147,7 @@ describe('Rule builder: Test crud operations', () => {
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
@@ -182,8 +172,7 @@ describe('Rule builder: Test crud operations', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
             method: 'delete'
         }).as('deleteData');
@@ -201,9 +190,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
     });

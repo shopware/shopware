@@ -18,8 +18,7 @@ describe('Rule builder: Visual tests', () => {
 
     it('@visual: check appearance of basic rule workflow', () => {
         const page = new RulePageObject();
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
             method: 'post'
         }).as('getData');
@@ -29,9 +28,8 @@ describe('Rule builder: Visual tests', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-rule').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-rule-list__content').should('exist');
 
         // Change color of the element to ensure consistent snapshots

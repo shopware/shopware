@@ -1,6 +1,10 @@
 describe('Account: Edit order', () => {
     beforeEach(() => {
-        return cy.createProductFixture().then(() => {
+        return cy.log('Cleaning, please wait a little bit.').then(() => {
+            return cy.cleanUpPreviousState();
+        }).then(() => {
+            return cy.createProductFixture()
+        }).then(() => {
             return cy.createCustomerFixtureStorefront()
         }).then(() => {
             return cy.searchViaAdminApi({
@@ -67,7 +71,7 @@ describe('Account: Edit order', () => {
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 
-    it('@base @customer: change payment', () => {
+    it.only('@base @customer: change payment', () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');

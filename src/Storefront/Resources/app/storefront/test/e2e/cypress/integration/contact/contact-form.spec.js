@@ -17,10 +17,9 @@ describe('Contact form', () => {
     function openContactForm(callback) {
         cy.visit('/');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: '/widgets/cms/*',
-            method: 'GET'
         }).as('contactFormRequest');
 
         cy.get(selector.footerLinkContact).click();
@@ -48,17 +47,16 @@ describe('Contact form', () => {
     }
 
     function submitContactForm(callback) {
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'POST',
             url: '/form/contact',
-            method: 'POST'
         }).as('contactFormPostRequest');
 
         cy.get(selector.formContact).within(() => {
             cy.get(selector.formContactButtonSubmit).click();
         });
 
-        cy.wait('@contactFormPostRequest').then(callback);
+        cy.wait('@contactFormPostRequest').its('response.statusCode').should('equals', 200);
     }
 
     function checkForCorrectlyLabelledPrivacyInformationCheckbox() {
@@ -84,8 +82,6 @@ describe('Contact form', () => {
 
         fillOutContactForm();
 
-        submitContactForm((response) => {
-            expect(response).to.have.property('status', 200);
-        });
+        submitContactForm();
     });
 });

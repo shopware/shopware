@@ -20,12 +20,12 @@ describe('Product: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');
@@ -40,11 +40,7 @@ describe('Product: Test crud operations', () => {
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
             cy.get('#files')
-                .attachFile({
-                    filePath: 'img/sw-login-background.png',
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                });
+                .attachFile('img/sw-login-background.png');
 
             cy.get('.sw-product-image__image img')
                 .should('have.attr', 'src')
@@ -76,9 +72,7 @@ describe('Product: Test crud operations', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product with file upload image');
@@ -99,8 +93,7 @@ describe('Product: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
@@ -117,9 +110,7 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('What remains of Edith Finch');
@@ -129,8 +120,7 @@ describe('Product: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'delete'
         }).as('deleteData');
@@ -147,9 +137,7 @@ describe('Product: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.emptyState).should('be.visible');
     });
 
@@ -168,8 +156,7 @@ describe('Product: Test crud operations', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
@@ -190,9 +177,8 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-text-editor__content-editor')
             .invoke('text')
@@ -205,9 +191,8 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-text-editor__content-editor')
             .invoke('text')
@@ -218,9 +203,7 @@ describe('Product: Test crud operations', () => {
 
     it('@base @catalogue: Test floating point precision', () => {
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');

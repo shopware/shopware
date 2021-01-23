@@ -64,8 +64,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config`, method: 'post' }).as('saveData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/document-base-config`,
+            method: 'post'
+        }).as('saveData');
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // check if delete button is disabled
@@ -86,9 +88,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get('.sw-settings-document-detail__save-action').click();
 
         // Verify successful create request
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // go back and see if the created document exists
         cy.get(page.elements.smartBarBack).click();
@@ -106,8 +106,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'patch' }).as('saveData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/document-base-config/**`,
+            method: 'patch'
+        }).as('saveData');
 
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
@@ -125,9 +127,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get('.sw-settings-document-detail__save-action').click();
 
         // verify successful update request
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // go back and see if change persisted
         cy.get(page.elements.smartBarBack).click();
@@ -147,8 +147,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config`, method: 'post' }).as('createData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/document-base-config`,
+            method: 'post'
+        }).as('createData');
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
         // check if delete button is disabled
@@ -166,35 +168,33 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get('.sw-document-detail__select-type').typeMultiSelectAndCheck('Storefront');
 
         // save minimal document
-        cy.route({ url: `${Cypress.env('apiPath')}/search/document-base-config-sales-channel`, method: 'post' }).as('loadData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/document-base-config-sales-channel`,
+            method: 'post'
+        }).as('loadData');
         cy.get('.sw-settings-document-detail__save-action').click();
 
         // Verify successful create request
-        cy.wait('@createData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createData').its('response.statusCode').should('equal', 204);
         // wait for Data to be loaded
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
 
         cy.get('#sw-field--documentConfig-name').scrollIntoView();
         cy.get('#sw-field--documentConfig-name').type('1');
 
         // save the changed name
-        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'patch' }).as('updateData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/document-base-config/**`,
+            method: 'patch'
+        }).as('updateData');
 
         cy.get('.sw-settings-document-detail__save-action').click();
 
         // verify successful update request
-        cy.wait('@updateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
         // wait for Data to be loaded
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
         // go back and see if change persisted
@@ -212,8 +212,10 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'delete' }).as('deleteData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/document-base-config/**`,
+            method: 'delete'
+        }).as('deleteData');
 
         // Delete Document
         cy.get('.sw-grid__row--3').first().as('row');
@@ -224,9 +226,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // verify successful delete request
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.contains('storno').should('not.exist');
     });
 });

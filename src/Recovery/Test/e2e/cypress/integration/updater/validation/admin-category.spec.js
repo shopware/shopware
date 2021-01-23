@@ -10,10 +10,9 @@ describe('Minimal auto update', () => {
 
     it('@update: Check category', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/search/category',
-            method: 'POST'
+        cy.intercept({
+            method: 'POST',
+            url: '/api/v*/search/category',
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/category/index');
@@ -25,8 +24,7 @@ describe('Minimal auto update', () => {
 
         cy.get('.smart-bar__header').contains('Startseite');
 
-        cy.wait('@dataRequest').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@dataRequest')
+            .its('response.statusCode').should('equal', 200);
     });
 });

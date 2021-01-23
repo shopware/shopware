@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -12,10 +14,10 @@
 // the project's config changing)
 
 require('@babel/register');
-const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 // TODO Check incompatibility and reintegrate as soon as possible
 // const logToOutput = require('cypress-log-to-output');
+// const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 module.exports = (on, config) => {
     // logToOutput.install(on);
@@ -26,12 +28,10 @@ module.exports = (on, config) => {
     on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome' && browser.isHeadless) {
             launchOptions.args.push('--disable-gpu');
+
             return launchOptions;
         }
     });
-
-    // `config` is the resolved Cypress config
-    on('file:preprocessor', selectTestsWithGrep(config));
 
     on('before:browser:launch', () => {
         config.env.projectRoot = config.env.projectRoot || config.env.shopwareRoot;

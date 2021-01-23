@@ -29,20 +29,19 @@ describe('Promotion v2: Visual tests', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/**`,
             method: 'patch'
         }).as('patchPromotion');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'post'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: '/widgets/checkout/info',
             method: 'get'
         }).as('cartInfo');
@@ -52,9 +51,8 @@ describe('Promotion v2: Visual tests', () => {
             mainMenuId: 'sw-marketing',
             subMenuId: 'sw-promotion-v2'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -70,9 +68,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('input[name="sw-field--promotion-active"]').click();
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
@@ -108,9 +105,9 @@ describe('Promotion v2: Visual tests', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+
+        cy.wait('@patchPromotion')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify Promotion in Storefront
         cy.visit('/');
@@ -118,9 +115,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         cy.get('.offcanvas').should('be.visible');
-        cy.wait('@cartInfo').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@cartInfo').its('response.statusCode').should('equal', 200);
+
         cy.get('.loader').should('not.exist');
 
         cy.changeElementStyling(

@@ -10,10 +10,9 @@ describe('Minimal auto update', () => {
 
     it('@update: Check image', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/search/media',
-            method: 'POST'
+        cy.intercept({
+            method: 'POST',
+            url: '/api/v*/search/media',
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/media/index');
@@ -25,8 +24,7 @@ describe('Minimal auto update', () => {
             .should('have.attr', 'src')
             .and('match', /de-pp-logo/);
 
-        cy.wait('@dataRequest').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@dataRequest')
+            .its('response.statusCode').should('equal', 204);
     });
 });

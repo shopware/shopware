@@ -65,8 +65,7 @@ describe('Category: Edit categories', () => {
     });
 
     it('@catalogue: assign dynamic product group', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
@@ -101,11 +100,8 @@ describe('Category: Edit categories', () => {
         cy.get('.sw-category-detail__save-action').click();
 
         // Wait for category request with correct data to be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            expect(xhr.requestBody).to.have.property('productAssignmentType', 'product_stream');
-            expect(xhr.requestBody).to.have.property('productStreamId');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify configured data is correct after save action
         cy.get('.sw-category-detail-products__product-assignment-type-select .sw-single-select__selection-text')
@@ -152,8 +148,7 @@ describe('Category: Edit categories', () => {
     });
 
     it('@catalogue: saving the data when changing content language', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
@@ -172,18 +167,17 @@ describe('Category: Edit categories', () => {
         cy.get('#sw-language-switch-save-changes-button').click();
 
         // Wait for category request with correct data to be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
-            cy.get('.sw-tree-item__label')
-                .should('be.visible')
-                .contains('Home');
-        });
+        cy.get('.sw-tree-item__label')
+            .should('be.visible')
+            .contains('Home');
 
         page.changeTranslation('English', 1);
         cy.get('.sw-tree-item__label').should('be.visible');
         cy.get('.sw-tree-item__label')
             .should('be.visible')
             .contains('Home - English');
-    })
+    });
 });

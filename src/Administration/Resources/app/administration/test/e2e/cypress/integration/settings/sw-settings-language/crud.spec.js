@@ -25,8 +25,7 @@ describe('Language: Test crud operations', () => {
         const productPage = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language`,
             method: 'post'
         }).as('saveData');
@@ -43,9 +42,7 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`)
@@ -72,8 +69,7 @@ describe('Language: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'patch'
         }).as('saveData');
@@ -88,9 +84,7 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
@@ -101,8 +95,7 @@ describe('Language: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'delete'
         }).as('deleteData');
@@ -120,9 +113,7 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify and check usage of customer-group
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('not.exist');
     });

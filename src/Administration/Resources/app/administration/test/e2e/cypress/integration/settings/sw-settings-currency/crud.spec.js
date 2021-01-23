@@ -17,53 +17,48 @@ describe('Currency: Test crud operations', () => {
     });
 
     it('@settings: create and read currency', () => {
-        cy.window().then(() => {
-            const page = new SettingsPageObject();
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/currency`,
-                method: 'post'
-            }).as('saveData');
+        const page = new SettingsPageObject();
 
-            cy.get('a[href="#/sw/settings/currency/create"]').click();
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/currency`,
+            method: 'post'
+        }).as('saveData');
 
-            // Create currency
-            cy.get('input[name=sw-field--currency-name]').typeAndCheck('0000 Dukaten');
-            cy.get('input[name=sw-field--currency-isoCode]').type('D');
-            cy.get('input[name=sw-field--currency-shortName]').type('D');
-            cy.get('input[name=sw-field--currency-symbol]').type('D¥');
-            cy.get('input[name=sw-field--currency-factor]').type('1.0076');
+        cy.get('a[href="#/sw/settings/currency/create"]').click();
 
-            cy.get('input[name=sw-field--itemRounding-decimals]').clearTypeAndCheck('20');
-            cy.get('.sw-settings-price-rounding__item-interval-select')
-                .typeSingleSelectAndCheck('0.10', '.sw-settings-price-rounding__item-interval-select');
-            cy.get('input[name=sw-field--totalRounding-decimals]').clearTypeAndCheck('15');
-            cy.get('.sw-settings-price-rounding__grand-interval-select')
-                .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
+        // Create currency
+        cy.get('input[name=sw-field--currency-name]').typeAndCheck('0000 Dukaten');
+        cy.get('input[name=sw-field--currency-isoCode]').type('D');
+        cy.get('input[name=sw-field--currency-shortName]').type('D');
+        cy.get('input[name=sw-field--currency-symbol]').type('D¥');
+        cy.get('input[name=sw-field--currency-factor]').type('1.0076');
 
-            cy.get(page.elements.currencySaveAction).click();
+        cy.get('input[name=sw-field--itemRounding-decimals]').clearTypeAndCheck('20');
+        cy.get('.sw-settings-price-rounding__item-interval-select')
+            .typeSingleSelectAndCheck('0.10', '.sw-settings-price-rounding__item-interval-select');
+        cy.get('input[name=sw-field--totalRounding-decimals]').clearTypeAndCheck('15');
+        cy.get('.sw-settings-price-rounding__grand-interval-select')
+            .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
 
-            // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+        cy.get(page.elements.currencySaveAction).click();
 
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('.sw-currency-list__content').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
-        });
+        // Verify creation
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-currency-list__content').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
     });
 
     it('@settings: update and read currency', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
-        }).as('loadData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/currency/*`,
+            method: 'patch'
+        }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.clickContextMenuItem(
@@ -77,9 +72,7 @@ describe('Currency: Test crud operations', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Kreuzer');
@@ -92,8 +85,7 @@ describe('Currency: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'delete'
         }).as('deleteData');
@@ -115,9 +107,7 @@ describe('Currency: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');

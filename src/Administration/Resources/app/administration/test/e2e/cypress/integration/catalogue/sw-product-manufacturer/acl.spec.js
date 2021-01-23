@@ -70,10 +70,9 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer`,
-            method: 'post'
+        cy.intercept({
+            method: 'post',
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer`
         }).as('saveData');
 
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Manufacturer');
@@ -85,9 +84,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
 
         cy.get('.sw-manufacturer-list__content').contains('MAN-U-FACTURE');
@@ -111,24 +109,23 @@ describe('Manufacturer: Test crud operations with ACL', () => {
 
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'patch'
+        cy.intercept({
+            method: 'patch',
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`
         }).as('saveData');
+
 
         // Edit base data
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
         cy.get('input[name=name]').clearTypeAndCheck('be.visible');
         cy.get('input[name=name]').clear().type('What does it means?(TM)');
         cy.get('input[name=link]').clear().type('https://google.com/doodles');
-        cy.get('.sw-property-detail__save-action').should('not.be.disabled');
+        cy.get('.sw-manufacturer-detail__save-action').should('be.visible');
+        cy.get('.sw-manufacturer-detail__save-action').should('not.be.disabled');
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
@@ -153,9 +150,9 @@ describe('Manufacturer: Test crud operations with ACL', () => {
 
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'delete'
         }).as('saveData');
 
@@ -172,9 +169,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.contains('MAN-U-FACTURE').should('not.exist');
     });
 });

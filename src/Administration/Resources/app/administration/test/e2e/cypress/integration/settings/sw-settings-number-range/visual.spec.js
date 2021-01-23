@@ -17,9 +17,8 @@ describe('Number range: Visual testing', () => {
     });
 
     it('@visual: check appearance of number ranges module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/number-range`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('getData');
         cy.route({
@@ -35,9 +34,8 @@ describe('Number range: Visual testing', () => {
         cy.get('#sw-settings-number-range').click();
 
         // Ensure snapshot consistency
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot

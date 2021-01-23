@@ -78,10 +78,9 @@ describe('Wishlist: for wishlist page', () => {
     });
 
     it('@wishlist does load wishlist page on guest state', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/guest-pagelet',
-            method: 'post'
         }).as('guestPagelet');
 
         cy.window().then((win) => {
@@ -92,39 +91,35 @@ describe('Wishlist: for wishlist page', () => {
 
             cy.title().should('eq', 'Your wishlist');
 
-            cy.wait('@guestPagelet').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
+        cy.wait('@guestPagelet')
+            .its('response.statusCode').should('equal', 200);
 
             cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
             cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
             cy.get('.product-wishlist-form [type="submit"]').click();
 
-            cy.wait('@guestPagelet').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-                expect(win.localStorage.getItem('wishlist-' + win.salesChannelId)).to.equal(null)
+        cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200)
+            .then(() => {
+                expect(localStorage.getItem('wishlist-products')).to.equal(null)
             });
 
-            cy.get('.cms-listing-row').find('h1').contains('Your wishlist is empty')
-            cy.get('.cms-listing-row').find('p').contains('Keep an eye on products you like by adding them to your wishlist.');
+            cy.get('.cms-listing-row h1').contains('Your wishlist is empty')
+            cy.get('.cms-listing-row p').contains('Keep an eye on products you like by adding them to your wishlist.');
         });
     });
 
     it('@wishlist add to cart button work on guest page', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/guest-pagelet',
-            method: 'post'
         }).as('guestPagelet');
-
-        cy.route({
+        cy.intercept({
+            method: 'POST',
             url: '/checkout/line-item/add',
-            method: 'post'
         }).as('add-to-cart');
-
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: '/widgets/checkout/info',
-            method: 'get'
         }).as('checkoutInfo');
 
         cy.window().then(win => {
@@ -135,18 +130,16 @@ describe('Wishlist: for wishlist page', () => {
 
             cy.title().should('eq', 'Your wishlist');
 
-            cy.wait('@guestPagelet').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
+            cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200).then(() => {
                 cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
                 cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
                 cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
                 cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
 
-                cy.wait('@add-to-cart').then(xhr => {
-                    expect(xhr).to.have.property('status', 200);
+                cy.wait('@guestPagelet')
+                    .its('response.statusCode').should('equal', 200);
 
-                    cy.wait('@checkoutInfo').then(xhr => {
-                        expect(xhr).to.have.property('status', 200);
+                cy.wait('@checkoutInfo').its('response.statusCode').should('equal', 200).then(() => {
                         cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
                         cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
 

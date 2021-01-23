@@ -42,16 +42,16 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge is not display on header', () => {
         cy.visit('/');
 
-        cy.window().then((win) => {
-            cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('not.be.visible');
+        cy.window().then(() => {
+            cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('not.exist');
         })
     });
 
     it('@wishlist: Heart icon badge not display on product box in product listing', () => {
         cy.visit('/');
 
-        cy.window().then((win) => {
-            cy.get('.product-box .product-wishlist-action-circle').should('not.be.visible');
+        cy.window().then(() => {
+            cy.get('.product-box .product-wishlist-action-circle').should('not.exist');
         })
     });
 });

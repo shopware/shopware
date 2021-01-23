@@ -12,60 +12,54 @@ describe('Custom Fields: Test crud operations', () => {
     });
 
     it('@settings: test entity type custom field', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
             method: 'post'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
 
-        cy.window().then((win) => {
-            cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
+        cy.get('#sw-field--set-name').clearTypeAndCheck('my_custom_field');
 
-            cy.get('.sw-custom-field-translated-labels input').clearTypeAndCheck('My custom field set');
+        cy.get('.sw-custom-field-translated-labels input').clearTypeAndCheck('My custom field set');
 
-            cy.get('.sw-select').click();
-            cy.contains('.sw-select-result', 'Products').click({ force: true });
-            cy.get('h2').click();
+        cy.get('.sw-select').click();
+        cy.contains('.sw-select-result', 'Products').click({ force: true });
+        cy.get('h2').click();
 
-            // saving custom field
-            cy.get('.sw-settings-set-detail__save-action').click();
+        // saving custom field
+        cy.get('.sw-settings-set-detail__save-action').click();
 
-            // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+        // Verify creation
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-            cy.get('.sw-custom-field-list__add-button').click();
+        cy.get('.sw-custom-field-list__add-button').click();
 
-            cy.get('#sw-field--currentCustomField-name').clearTypeAndCheck('my_custom_field_first');
-            cy.get('#sw-field--currentCustomField-config-customFieldType').select('Entity select');
+        cy.get('#sw-field--currentCustomField-name').clearTypeAndCheck('my_custom_field_first');
+        cy.get('#sw-field--currentCustomField-config-customFieldType').select('Entity select');
 
-            cy.get('.sw-custom-field-type-base .sw-single-select .sw-block-field__block').click();
-            cy.get('.sw-select-result-list-popover-wrapper .sw-select-option--product').click();
+        cy.get('.sw-custom-field-type-base .sw-single-select .sw-block-field__block').click();
+        cy.get('.sw-select-result-list-popover-wrapper .sw-select-option--product').click();
 
-            cy.get('.sw-modal__footer > .sw-button--primary').click();
+        cy.get('.sw-modal__footer > .sw-button--primary').click();
 
-            // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-        });
+        // Verify creation
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     it('@settings: create and read custom field', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
             method: 'post'
         }).as('saveData');
@@ -88,9 +82,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-settings-set-detail__save-action').click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // adding custom fields
         cy.get('.sw-custom-field-list__add-button').click();
@@ -110,9 +102,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-custom-field-translated-labels input').should('have.value', 'My custom field set');
 
@@ -125,8 +115,7 @@ describe('Custom Fields: Test crud operations', () => {
 
     it('@settings: edit custom field', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields/*`,
             method: 'patch'
         }).as('saveData');
@@ -159,9 +148,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-modal').should('not.exist');
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-grid__row--0 .sw-grid-column:nth-of-type(3)').contains('Another label');
 
@@ -179,8 +166,7 @@ describe('Custom Fields: Test crud operations', () => {
 
     it('@settings: delete custom field', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
@@ -217,10 +203,8 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-button--danger').click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-modal').should('not.exist');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-modal').should('not.exist');
 
         cy.get('.sw-empty-state').should('exist');
         cy.get('.sw-empty-state__title').contains('No custom fields yet.');

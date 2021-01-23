@@ -20,14 +20,14 @@ describe('Currency: Test crud operations', () => {
         cy.window().then(() => {
             const page = new SettingsPageObject();
             // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/currency`,
+
+            cy.intercept({
+                url: `**/${Cypress.env('apiPath')}/currency`,
                 method: 'post'
             }).as('saveData');
 
-            cy.route({
-                url: `${Cypress.env('apiPath')}/currency/**/country-roundings`,
+            cy.intercept({
+                url: `**/${Cypress.env('apiPath')}/currency/**/country-roundings`,
                 method: 'post'
             }).as('saveCurrencyCountry');
 
@@ -51,9 +51,8 @@ describe('Currency: Test crud operations', () => {
             cy.get(page.elements.currencySaveAction).click();
 
             // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@saveData')
+                .its('response.statusCode').should('equal', 204);
 
             // Create new currency country rounding
             cy.get('.sw-settings-currency-detail__currency-country-toolbar-button').click();
@@ -68,9 +67,8 @@ describe('Currency: Test crud operations', () => {
             cy.get('.sw-settings-currency-country-modal__button-save').click();
 
             // Verify creation
-            cy.wait('@saveCurrencyCountry').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@saveCurrencyCountry')
+                .its('response.statusCode').should('equal', 204);
 
             cy.get('.sw-settings-currency-country-modal').should('not.exist');
             cy.get('.sw-settings-currency-detail__currency-country-list').should('be.visible');

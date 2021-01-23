@@ -5,8 +5,14 @@ const uuid = require('uuid/v4');
 describe('Order: Testing filter and reset filter', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        let currencyId; let countryId; let paymentMethodId; let salesChannelId; let groupId; let salutationId; let stateMachineId; let
-            shippingMethodId; let userId;
+        let currencyId = '';
+        let countryId = '';
+        let paymentMethodId = '';
+        let salesChannelId = '';
+        let salutationId = '';
+        let stateMachineId = '';
+        let shippingMethodId = '';
+        let userId = '';
 
         cy.setToInitialState()
             .then(() => {
@@ -51,7 +57,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
+            .then((data) => {
                 paymentMethodId = data.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'shipping-method',
@@ -62,7 +68,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
+            .then((data) => {
                 shippingMethodId = data.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'sales-channel',
@@ -73,7 +79,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
+            .then((data) => {
                 salesChannelId = data.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'customer-group',
@@ -84,8 +90,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
-                groupId = data.id;
+            .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'salutation',
                     data: {
@@ -95,7 +100,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
+            .then((data) => {
                 salutationId = data.id;
 
                 cy.searchViaAdminApi({
@@ -106,7 +111,7 @@ describe('Order: Testing filter and reset filter', () => {
                     endpoint: 'currency'
                 });
             })
-            .then(currency => {
+            .then((currency) => {
                 currencyId = currency.id;
 
                 return cy.searchViaAdminApi({
@@ -117,13 +122,15 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(salesChannel => {
+            .then((salesChannel) => {
                 salesChannelId = salesChannel.id;
 
                 cy.authenticate();
             })
-            .then(auth => {
+            .then((auth) => {
                 const orders = [];
+
+                // eslint-disable-next-line no-plusplus
                 for (let i = 1; i < 10; i += 1) {
                     orders.push(
                         {
@@ -228,8 +235,8 @@ describe('Order: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
@@ -249,8 +256,8 @@ describe('Order: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'POST',
-                    url: '/api/_action/sync',
+                    method: 'post',
+                    url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
                     },
@@ -294,25 +301,23 @@ describe('Order: Testing filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('filterOrder');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
             method: 'post'
         }).as('getStateMachineState');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('getUserConfig');
 
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
@@ -327,21 +332,18 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.get('.sw-sidebar-item__headline a').click();
 
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
 
         // Filter results with single criteria
         cy.get('#document-filter').find('select').select('true');
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('0');
 
         cy.get('#document-filter').find('select').select('false');
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
 
         // Check notification badge after filtering
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
@@ -362,9 +364,8 @@ describe('Order: Testing filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
 
         // Request we want to wait for later
-        cy.server();
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
             method: 'post'
         }).as('getStateMachineState');
@@ -373,7 +374,7 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-data-grid__body').should('not.have.attr', 'aria-busy');
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('be.visible');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('getUserConfig');
@@ -381,11 +382,10 @@ describe('Order: Testing filter and reset filter', () => {
         // Open the filter panel
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
-        cy.wait('@getUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getUserConfig')
+            .its('response.statusCode').should('equal', 200);
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('filterOrder');
@@ -393,10 +393,8 @@ describe('Order: Testing filter and reset filter', () => {
         // Reset all filters
         cy.get('.sw-sidebar-item__headline a').click();
 
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            expect(xhr.requestBody).not.to.have.property('filter');
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-sidebar-item__headline a').should('not.be.visible');
 
@@ -421,7 +419,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.get('.sw-sidebar-item__headline a').should('be.visible');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('filterOrder');
@@ -429,10 +427,8 @@ describe('Order: Testing filter and reset filter', () => {
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
 
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            expect(xhr.requestBody).not.to.have.property('filter');
-        });
+        cy.wait('@filterOrder')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-sidebar-item__headline a').should('not.be.visible');
 

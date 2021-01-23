@@ -71,10 +71,9 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/newsletter-recipient/**`,
-            method: 'PATCH'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/newsletter-recipient/**`,
+            method: 'patch'
         }).as('saveData');
 
         // Edit base data
@@ -85,9 +84,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.get(page.elements.newsletteSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-alert__title').contains('Success');
     });
@@ -117,10 +114,9 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.contains('Mustermann').should('exist');
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/newsletter-recipient/**`,
-            method: 'DELETE'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/newsletter-recipient/**`,
+            method: 'delete'
         }).as('saveData');
 
         // Delete manufacturer
@@ -136,9 +132,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.contains('Mustermann').should('not.exist');
     });
 });

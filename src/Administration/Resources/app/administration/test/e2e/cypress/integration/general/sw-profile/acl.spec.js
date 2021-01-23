@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
 
-import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-
 describe('Review: Test ACL privileges', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -30,10 +28,10 @@ describe('Review: Test ACL privileges', () => {
 
         // see menu without review menu item
         cy.get('.sw-admin-menu__user-actions-toggle').should('be.visible');
-        cy.get('.sw-admin-menu__profile-item').should('not.be.visible');
+        cy.get('.sw-admin-menu__profile-item').should('not.exist');
         cy.get('.sw-admin-menu__user-actions-toggle').click();
         cy.get('.sw-admin-menu__logout-action').should('be.visible');
-        cy.get('.sw-admin-menu__profile-item').should('not.be.visible');
+        cy.get('.sw-admin-menu__profile-item').should('not.exist');
     });
 
     it('@general: can edit own user', () => {
@@ -74,7 +72,7 @@ describe('Review: Test ACL privileges', () => {
             .click()
             .then(() => {
                 cy.get('.sw-modal')
-                    .should('not.be.visible');
+                    .should('not.exist');
 
                 cy.get('#sw-field--email')
                     .should('be.visible')

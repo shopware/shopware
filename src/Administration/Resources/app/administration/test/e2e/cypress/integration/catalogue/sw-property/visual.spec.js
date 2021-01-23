@@ -32,16 +32,15 @@ describe('Property: Visual tests', () => {
         const page = new PropertyPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-default-folder`,
             method: 'post'
         }).as('getMediaFolder');
@@ -51,9 +50,8 @@ describe('Property: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-property'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-property-list__content').should('exist');
 
         // Take snapshot for visual testing
@@ -84,9 +82,8 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
-        cy.wait('@getMediaFolder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.get('.sw-modal').should('be.visible');
+        cy.wait('@getMediaFolder').its('response.statusCode').should('equal', 200);
 
         // Take snapshot for visual testing
         cy.handleModalSnapshot('New value');

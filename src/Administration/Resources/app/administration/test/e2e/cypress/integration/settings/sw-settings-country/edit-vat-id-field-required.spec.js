@@ -13,8 +13,8 @@ describe('Country: Test can setting VAT id field required', () => {
 
     it('@settings: can setting VAT id field required', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'post'
         }).as('saveSettings');
@@ -30,9 +30,8 @@ describe('Country: Test can setting VAT id field required', () => {
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').click().should('have.value', 'on');
         cy.get('.smart-bar__content .sw-button--primary').click();
 
-        cy.wait('@saveSettings').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveSettings')
+            .its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         const settingPage = new SettingsPageObject();

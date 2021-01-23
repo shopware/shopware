@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -15,7 +15,6 @@ describe('Theme: Test loading and saving of theme', () => {
     });
 
     it('@base @content: opens and loads theme config', () => {
-        cy.server();
         cy.get('.sw-theme-list-item')
             .last()
             .get('.sw-theme-list-item__title')
@@ -32,9 +31,7 @@ describe('Theme: Test loading and saving of theme', () => {
 
     it('@base @content: rename theme', () => {
         const page = new ProductPageObject();
-
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'patch'
         }).as('saveData');
@@ -59,9 +56,7 @@ describe('Theme: Test loading and saving of theme', () => {
         cy.get('.smart-bar__actions .sw-button-process.sw-button--primary').click();
         cy.get('.sw-modal .sw-button--primary').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-theme-manager-detail__info-name').contains('Lovski Theme');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-theme-manager-detail__info-name').contains('Lovski Theme');
     });
 });

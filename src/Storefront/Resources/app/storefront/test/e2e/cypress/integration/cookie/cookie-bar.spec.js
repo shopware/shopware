@@ -14,7 +14,7 @@ describe('Test if the cookie bar works correctly', () => {
         cy.get('.cookie-permission-container').should('be.visible');
 
         // check if the acceptAll button is not visible
-        cy.get('.js-cookie-accept-all-button').should('not.be.visible');
+        cy.get('.js-cookie-accept-all-button').should('not.exist');
     });
 
     it('Should show the accept all button in cookie bar and accept all cookies when the user clicks the button', () => {
@@ -40,10 +40,9 @@ describe('Test if the cookie bar works correctly', () => {
         cy.visit('/');
 
         // should wait of cookieOffcanvas
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: '/cookie/offcanvas',
-            method: 'get'
         }).as('cookieOffcanvas');
 
         // wait for product listing

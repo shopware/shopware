@@ -17,20 +17,19 @@ describe('Rule builder: Test duplication of rule', () => {
         const page = new RulePageObject();
 
         // Request we want to wait for later
-        cy.server();
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
             method: 'post'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
             method: 'post'
         }).as('searchData');
 
         // Request for duplicate Rule
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/rule/*`,
             method: 'post'
         }).as('duplicateData');
@@ -64,9 +63,8 @@ describe('Rule builder: Test duplication of rule', () => {
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.wait('@searchData').then(({ response }) => {
             const originalId = response.body.data[0].id;
@@ -82,10 +80,9 @@ describe('Rule builder: Test duplication of rule', () => {
             );
 
             // Verify duplicate
-            cy.wait('@duplicateData').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-                cy.url().should('not.contain', originalId);
-            });
+            cy.wait('@duplicateData')
+                .its('response.statusCode').should('equal', 200);
+            cy.url().should('not.contain', originalId);
         });
     });
 });

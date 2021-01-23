@@ -18,8 +18,7 @@ describe('Category: Create several categories', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
             method: 'post'
         }).as('saveData');
@@ -34,9 +33,7 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -51,8 +48,7 @@ describe('Category: Create several categories', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
             method: 'post'
         }).as('saveData');
@@ -67,9 +63,7 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -84,16 +78,15 @@ describe('Category: Create several categories', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
             method: 'post'
         }).as('loadCategory');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/**`,
             method: 'patch'
         }).as('editCategory');
@@ -114,9 +107,7 @@ describe('Category: Create several categories', () => {
         });
 
         // Save and verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -128,15 +119,11 @@ describe('Category: Create several categories', () => {
         cy.contains('Categorian').click();
 
         // Assign category and set it active
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
         cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@editCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@editCategory').its('response.statusCode').should('equal', 204);
 
         // Verify category in Storefront
         cy.visit('/');
@@ -148,8 +135,7 @@ describe('Category: Create several categories', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
             method: 'post'
         }).as('saveData');
@@ -164,9 +150,8 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();

@@ -21,9 +21,9 @@ describe('Search settings: Search Index', () => {
 
         cy.get('.sw-settings-search__search-index-rebuild-button.sw-button').click();
         cy.get('.sw-settings-search__search-index-rebuilding-progress').should('be.visible');
-        cy.get('.sw-alert__message').should('be.visible');
         cy.awaitAndCheckNotification('Building product indexes.');
 
+        cy.get('.sw-button__loader').should('not.exist');
         cy.awaitAndCheckNotification('Product indexes built.');
         cy.get('.sw-settings-search__search-index-rebuilding-progress').should('not.visible');
     });

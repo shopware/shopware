@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -19,9 +19,8 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Create and read delivery time', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/delivery-time`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('saveData');
 
@@ -40,9 +39,8 @@ describe('Delivery times group: Test crud operations', () => {
 
         // Save
         cy.get('.sw-settings-delivery-time-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify successful save
         cy.get('.sw-loader__element').should('not.exist');
@@ -73,9 +71,8 @@ describe('Delivery times group: Test crud operations', () => {
     });
 
     it('@settings: Try to create delivery time with empty required fields', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/delivery-time`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('saveEmptyData');
 
@@ -89,9 +86,8 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get('.sw-settings-delivery-time-detail__save').click();
 
         // Verify 400 Bad request
-        cy.wait('@saveEmptyData').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@saveEmptyData')
+            .its('response.statusCode').should('equal', 400);
 
         // Check if all empty required fields have error messages
         cy.get('.sw-card__content .sw-field .sw-field__error')
@@ -102,9 +98,8 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Update and read delivery time', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/delivery-time/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'patch'
         }).as('updateData');
 
@@ -129,9 +124,8 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.get('.sw-settings-delivery-time-detail__save').click();
 
-        cy.wait('@updateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateData')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify updated element
         cy.get(page.elements.smartBarBack).click();
@@ -143,9 +137,8 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Delete delivery time', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/delivery-time/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -166,9 +159,8 @@ describe('Delivery times group: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('not.exist');
     });

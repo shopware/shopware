@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('Integration: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -16,8 +16,7 @@ describe('Integration: Visual testing', () => {
     });
 
     it('@visual: check appearance of integrations module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/integration`,
             method: 'post'
         }).as('getData');
@@ -33,9 +32,9 @@ describe('Integration: Visual testing', () => {
 
         cy.get('a[href="#/sw/integration/index"]').should('be.visible');
         cy.get('a[href="#/sw/integration/index"]').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Integration] Listing', '.sw-integration-list__overview');
 

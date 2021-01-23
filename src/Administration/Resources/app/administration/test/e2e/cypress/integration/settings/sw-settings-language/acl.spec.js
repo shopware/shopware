@@ -37,8 +37,7 @@ describe('Language: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language`,
             method: 'post'
         }).as('saveData');
@@ -59,9 +58,7 @@ describe('Language: Test acl privileges', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).contains('Japanese');
@@ -84,8 +81,7 @@ describe('Language: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'patch'
         }).as('saveData');
@@ -100,9 +96,7 @@ describe('Language: Test acl privileges', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).contains('Kyoto Japanese');
@@ -125,8 +119,7 @@ describe('Language: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
             method: 'delete'
         }).as('deleteData');
@@ -144,9 +137,7 @@ describe('Language: Test acl privileges', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
     });

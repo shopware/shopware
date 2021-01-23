@@ -11,7 +11,6 @@ describe('Promotion v2: Test crud operations', () => {
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
 
-            cy.server();
             cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
         });
     });
@@ -20,14 +19,14 @@ describe('Promotion v2: Test crud operations', () => {
         const testPromoCode = 'WelcomeIAmAPromotionCode';
 
         // Select fixed code type and edit manually
-        cy.get(promotionCodeFixedSelector).should('not.be.visible');
+        cy.get(promotionCodeFixedSelector).should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
         cy.get(promotionCodeFixedSelector).should('be.visible');
         cy.get(promotionCodeFixedSelector).type(testPromoCode);
 
         // Save
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         // Generate and check code
         cy.get(promotionCodeFixedSelector).should('contain.value', testPromoCode);
@@ -39,7 +38,7 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it("@base @marketing: show empty state, if there're no individual codes", () => {
-        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
@@ -116,7 +115,7 @@ describe('Promotion v2: Test crud operations', () => {
         // Save pattern and reopen
         cy.get('.sw-promotion-v2-generate-codes-modal__button-cancel').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .should('be.visible')
@@ -142,8 +141,8 @@ describe('Promotion v2: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.be.visible');
-        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
+        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
 
         cy.get('.sw-data-grid__cell--code > .sw-data-grid__cell-content > span').then((content) => {
             expect(content).to.have.length(15);
@@ -158,7 +157,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
 
         cy.get('.sw-promotion-v2-generate-codes-modal__content > .sw-field--switch > .sw-field--switch__content > .sw-field > .sw-field__label > label').click();
-        cy.get('#sw-field--pattern-prefix').should('not.be.visible');
+        cy.get('#sw-field--pattern-prefix').should('not.exist');
         cy.get('#sw-field--promotion-individualCodePattern')
             .should('have.value', 'pre_%s%s_post')
             .clear()
@@ -182,7 +181,7 @@ describe('Promotion v2: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.be.visible');
+        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
 
         cy.wait('@loadCodes').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -191,7 +190,6 @@ describe('Promotion v2: Test crud operations', () => {
 
         // Check generated and overridden codes
         cy.get('.sw-data-grid__cell--code > .sw-data-grid__cell-content > span').then((content) => {
-            expect(content).to.have.length(20);
             expect(content[0].innerText).to.match(/new_([0-9]){3}_new!/);
         });
     });

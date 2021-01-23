@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import PaymentPageObject from '../../../support/pages/module/sw-payment.page-object';
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
@@ -22,9 +22,8 @@ describe('Payment: Test crud operations', () => {
         const rulePage = new RulePageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/payment-method/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method/**`,
             method: 'patch'
         }).as('saveData');
 
@@ -63,9 +62,7 @@ describe('Payment: Test crud operations', () => {
 
         // Save and verify payment method
         cy.get(page.elements.paymentSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');

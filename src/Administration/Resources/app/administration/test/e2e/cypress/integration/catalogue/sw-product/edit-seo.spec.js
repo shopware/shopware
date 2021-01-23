@@ -35,9 +35,8 @@ describe('Product: Edit in various ways', () => {
     });
 
     it('@catalogue: set list price', () => {
-        cy.server();
-        cy.route({
-            url: '/api/search/product',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('saveProduct');
 
@@ -55,9 +54,7 @@ describe('Product: Edit in various ways', () => {
         // generate variants
         page.generateVariants('Color', [0, 1], 2);
 
-        cy.wait('@saveProduct').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
 
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
@@ -70,17 +67,12 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-product-seo-form .sw-select')
             .typeSingleSelectAndCheck('Green', '.sw-product-seo-form .sw-select');
 
-        cy.wait('@searchCall').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-button-process').click();
 
         // checking if product got saved. 'product call' alias comes from the product.generateVariants method
-        cy.wait('@productCall').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
+        cy.wait('@productCall').its('response.statusCode').should('equal', 200);
         cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.2`);
 
         cy.get('link[rel="canonical"]')
@@ -97,9 +89,8 @@ describe('Product: Edit in various ways', () => {
         const categoryPage = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('updateProduct');
@@ -119,9 +110,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
@@ -143,9 +133,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -184,9 +173,7 @@ describe('Product: Edit in various ways', () => {
         const categoryPage = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('updateProduct');
@@ -206,9 +193,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
@@ -230,9 +216,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -277,9 +262,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@productCall')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });
@@ -289,9 +273,7 @@ describe('Product: Edit in various ways', () => {
         const categoryPage = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('updateProduct');
@@ -312,9 +294,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // go back to seo tab
         cy.get('.sw-product-detail__tab-seo').click();
@@ -336,9 +317,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -387,9 +367,8 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@productCall')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });

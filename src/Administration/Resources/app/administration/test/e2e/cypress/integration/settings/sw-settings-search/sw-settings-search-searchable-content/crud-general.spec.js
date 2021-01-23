@@ -25,9 +25,8 @@ describe('Product Search: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
             method: 'patch'
         }).as('updateSearchConfig');
 
@@ -44,15 +43,13 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Configuration saved.');
 
         cy.get('.sw-settings-search__searchable-content-reset-button').click();
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Configuration saved.');
 
         // Check ranking points already reset
@@ -66,9 +63,8 @@ describe('Product Search: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api//product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}//product-search-config-field/*`,
             method: 'patch'
         }).as('updateSearchConfig');
 
@@ -84,9 +80,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -99,14 +94,13 @@ describe('Product Search: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
             method: 'patch'
         }).as('updateSearchConfig');
 
-        cy.route({
-            url: '/api/search/product-search-config-field',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
             method: 'post'
         }).as('getData');
 
@@ -120,10 +114,8 @@ describe('Product Search: Test crud operations', () => {
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Configuration saved.');
         // cy.wait(3000);
         cy.clickContextMenuItem(
@@ -132,9 +124,8 @@ describe('Product Search: Test crud operations', () => {
             `.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-general ' +

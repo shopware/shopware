@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -30,10 +33,16 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      */
     private $customerRepository;
 
-    public function __construct(EntityRepositoryInterface $addressRepository, EntityRepositoryInterface $customerRepository)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(EntityRepositoryInterface $addressRepository, EntityRepositoryInterface $customerRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->addressRepository = $addressRepository;
         $this->customerRepository = $customerRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractSwitchDefaultAddressRoute
@@ -97,12 +106,18 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
                     'defaultBillingAddressId' => $addressId,
                 ];
 
+                $event = new CustomerSetDefaultBillingAddressEvent($context, $customer, $addressId);
+                $this->eventDispatcher->dispatch($event);
+
                 break;
             default:
                 $data = [
                     'id' => $customer->getId(),
                     'defaultShippingAddressId' => $addressId,
                 ];
+
+                $event = new CustomerSetDefaultShippingAddressEvent($context, $customer, $addressId);
+                $this->eventDispatcher->dispatch($event);
 
                 break;
         }

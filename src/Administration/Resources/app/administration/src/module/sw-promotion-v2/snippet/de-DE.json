@@ -100,11 +100,19 @@
             },
             "conditions": {
                 "preConditions": {
-                    "cardTitle": "Voraussetzungen",
+                    "cardTitlePreConditions": "Voraussetzungen",
+                    "cardTitleRuleConditions": "Regelbasierte Bedingungen",
                     "labelPromotionExclusions": "Nicht kombinieren mit",
                     "placeholderPromotionExclusions": "Aktion hinzufügen ...",
                     "labelPromotionSalesChannel": "Verkaufskanäle",
-                    "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ..."
+                    "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ...",
+                    "labelCustomerSelect": "Kunden-Regeln",
+                    "placeholderCustomerSelect": "Wähle Kunden-Regeln aus ...",
+                    "labelCartConditionSelect": "Warenkorb-Regeln",
+                    "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
+                    "labelOrderConditionSelect": "Bestellungs-Regeln",
+                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
+
                 }
             },
             "discounts": {

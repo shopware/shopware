@@ -21,11 +21,19 @@ Component.register('sw-promotion-v2-rule-select', {
             required: false,
             default: null
         },
-
         ruleScope: {
             type: Array,
             required: false,
-            default: null
+            default() {
+                return [];
+            }
+        },
+        localMode: {
+            type: Boolean,
+            required: false,
+            default() {
+                return false;
+            }
         }
     },
 

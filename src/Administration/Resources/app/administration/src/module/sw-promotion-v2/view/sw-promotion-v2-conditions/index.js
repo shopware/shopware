@@ -27,6 +27,54 @@ Component.register('sw-promotion-v2-conditions', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));
             return criteria;
+        },
+
+        personaRuleFilter() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi('AND', [
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
+                Criteria.equalsAny('conditions.type', [
+                    'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
+                    'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
+                    'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
+                    'customerShippingStreet', 'customerShippingZipCode'
+                ])
+            ]));
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
+        },
+
+        cartConditionsRuleFilter() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+            );
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
+        },
+
+        orderConditionsFilter() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.multi('AND', [
+                Criteria.equalsAny('conditions.type', [
+                    'customerOrderCount', 'customerDaysSinceLastOrder', 'customerBillingCountry',
+                    'customerBillingStreet', 'customerBillingZipCode', 'customerCustomerGroup',
+                    'customerCustomerNumber', 'customerDifferentAddresses', 'customerIsNewCustomer',
+                    'customerLastName', 'customerShippingCountry', 'customerShippingStreet',
+                    'customerShippingZipCode'
+                ]),
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+            ]));
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
         }
     },
 

@@ -3,7 +3,7 @@
         class="sw-admin-menu__navigation-list-item"
         :class="getElementClasses(entry.id || entryPath)"
         :style="{ 'border-color': borderColor }"
-        @click.prevent="$emit('menu-item-click', entry, $event.currentTarget)"
+        @click.prevent="$emit('menu-item-click', entry, $event.target)"
         @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)">
 
         {% block sw_admin_menu_item_router_link %}

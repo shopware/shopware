@@ -69,6 +69,18 @@ $sw-admin-menu-active-text: $color-white;
     &.is--expanded {
         width: $sw-admin-menu-width-expanded;
 
+        .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
+            background: $sw-admin-menu-background-active-first-level;
+        }
+
+        .sw-admin-menu__navigation-link.router-link-active {
+            background: $sw-admin-menu-background-active-second-level;
+
+            .collapsible-text {
+                color: $sw-admin-menu-active-text;
+            }
+        }
+
         .collapsible-text {
             opacity: 1;
             transform: translateX(0);
@@ -426,14 +438,6 @@ $sw-admin-menu-active-text: $color-white;
         }
     }
 
-    &.is--expanded .sw-admin-menu__navigation-link.router-link-active {
-        background: $sw-admin-menu-background-active-second-level;
-
-        .collapsible-text {
-            color: $sw-admin-menu-active-text;
-        }
-    }
-
     // Separator between plugin & core entries
     .navigation-list-item__type-plugin .collapsible-text::before {
         background: $sw-admin-menu-divider;
@@ -466,6 +470,10 @@ $sw-admin-menu-active-text: $color-white;
         .collapsible-text,
         &:hover .collapsible-text {
             color: $sw-admin-menu-color-text-primary;
+        }
+
+        &:hover .router-link-active .collapsible-text {
+            color: $sw-admin-menu-active-text;
         }
 
         & > .sw-admin-menu__navigation-link .collapsible-text {

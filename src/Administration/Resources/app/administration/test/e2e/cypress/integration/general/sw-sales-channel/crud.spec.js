@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 
@@ -47,7 +47,8 @@ describe('Sales Channel: Test crud operations', () => {
         // Check if the sales channel can be used in other modules
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer'
+            mainMenuId: 'sw-customer',
+            subMenuId: 'sw-customer-index'
         });
         cy.get('.smart-bar__actions a[href="#/sw/customer/create"]').click();
         cy.get('.sw-customer-base-form__sales-channel-select')

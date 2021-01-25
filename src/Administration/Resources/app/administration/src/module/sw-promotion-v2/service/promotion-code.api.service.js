@@ -49,6 +49,29 @@ export default class PromotionCodeApiService extends ApiService {
 
     /**
      * @param {String} promotionId
+     * @param {Number} amount
+     *
+     * @returns {Promise<T>}
+     */
+    addIndividualCodes(promotionId, amount) {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient.post(
+            `/_action/${this.getApiBasePath()}/codes/add-individual`,
+            {
+                promotionId,
+                amount
+            },
+            {
+                headers
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
+    /**
+     * @param {String} promotionId
      * @param {String} codePattern
      * @param {Number} amount
      *

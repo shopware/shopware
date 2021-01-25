@@ -82,7 +82,28 @@ class PromotionController extends AbstractController
         $codePattern = $request->request->get('codePattern');
         $amount = $request->request->get('amount');
 
-        $this->codeService->replaceIndividualCodes($promotionId, $context, $codePattern, $amount);
+        $this->codeService->replaceIndividualCodes($promotionId, $codePattern, $amount, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Since("6.4.0.0")
+     * @Route("/api/v{version}/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"})
+     * @Acl({"promotion.editor"})
+     *
+     * @throws NotFoundHttpException
+     */
+    public function addIndividualCodes(Request $request, Context $context): Response
+    {
+        if (!Feature::isActive('FEATURE_NEXT_12016')) {
+            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
+        }
+
+        $promotionId = $request->request->get('promotionId');
+        $amount = $request->request->getInt('amount');
+
+        $this->codeService->addIndividualCodes($promotionId, $amount, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

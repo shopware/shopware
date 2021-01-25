@@ -24,6 +24,7 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
 
     data() {
         return {
+            isGenerating: false,
             customPatternMode: false,
             codeAmount: 10,
             preview: '',
@@ -98,19 +99,24 @@ Component.register('sw-promotion-v2-generate-codes-modal', {
         },
 
         updatePreview: debounce(function updatePreview() {
+            this.isGenerating = true;
             this.promotionCodeApiService.generatePreview(this.promotion.individualCodePattern).then((result) => {
+                this.isGenerating = false;
                 this.preview = result;
             });
         }, 500),
 
         onGenerate() {
+            this.isGenerating = true;
             this.promotionCodeApiService.replaceIndividualCodes(
                 this.promotion.id,
                 this.promotion.individualCodePattern,
                 this.codeAmount
             ).then(() => {
+                this.isGenerating = false;
                 this.$emit('generate-finish');
             }).catch((e) => {
+                this.isGenerating = false;
                 e.response.data.errors.forEach((error) => {
                     let errorType;
                     switch (error.code) {

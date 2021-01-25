@@ -8,6 +8,18 @@ $color-state-negative: $color-crimson-500;
         margin-right: 6px;
     }
 
+    &__add-codes-modal {
+        .sw-promotion-v2-individual-codes-behavior__code-amount.sw-field {
+            margin-bottom: 0;
+        }
+    }
+
+    &__description {
+        font-size: $font-size-small;
+        line-height: 22px;
+        margin-bottom: 24px;
+    }
+
     &__redeemed-state {
         &.is--active {
             color: $color-state-positive;

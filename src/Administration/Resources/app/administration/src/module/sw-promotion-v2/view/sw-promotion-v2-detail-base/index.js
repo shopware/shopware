@@ -87,8 +87,7 @@ Component.register('sw-promotion-v2-detail-base', {
                 return;
             }
 
-            const newCode = typeof this.promotion.useCodes !== 'string' ? '0' : Number(this.promotion.useCodes).toString();
-            this.setNewCodeType(newCode);
+            this.setNewCodeType(this.promotion.useCodes ? this.CODE_TYPES.FIXED : this.CODE_TYPES.NONE);
         },
 
         initialSort() {

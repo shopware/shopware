@@ -26,7 +26,8 @@ function createWrapper(promotionProps = {}) {
             'sw-field-error': true,
             'sw-modal': true,
             'sw-alert': true,
-            'sw-button': true
+            'sw-button': true,
+            'sw-button-process': true
         },
         provide: {
             promotionCodeApiService: {

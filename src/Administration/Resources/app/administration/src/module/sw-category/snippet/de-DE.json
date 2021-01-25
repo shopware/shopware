@@ -112,13 +112,25 @@
   },
   "sw-landing-page": {
     "general": {
-      "treeHeadline": "Landing Pages"
+      "treeHeadSelected": "{count} ausgewählt",
+      "buttonCreate": "Landing Page erstellen",
+      "treeHeadline": "Landing Pages",
+      "actions": {
+        "withoutPosition": "Neue Landing Page erstellen"
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Möchtest Du die Landing Page \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landing Pages wirklich löschen?"
     }
   },
   "sw-privileges": {
     "permissions": {
       "category": {
         "label": "Kategorien"
+      },
+      "landingPage": {
+        "label": "Landing Pages"
       }
     }
   }

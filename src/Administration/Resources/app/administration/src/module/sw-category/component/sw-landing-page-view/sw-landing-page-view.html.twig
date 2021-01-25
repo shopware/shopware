@@ -8,7 +8,8 @@
 
         {% block sw_landing_page_view_tabs %}
             <sw-tabs class="sw-customer-detail-page__tabs" v-if="!isLoading">
-                {% block sw_category_view_tabs_general %}
+
+                {% block sw_landing_page_view_tabs_general %}
                     <sw-tabs-item
                         class="sw-category-detail__tab-base"
                         :route="{ name: 'sw.category.landingPageDetail.base' }"
@@ -16,16 +17,17 @@
                         {{ $tc('sw-category.view.general') }}
                     </sw-tabs-item>
                 {% endblock %}
-                {% block sw_category_view_tabs_cms %}
+
+                {% block sw_landing_page_view_tabs_cms %}
                     <sw-tabs-item
                         v-show="cmsPage"
-                        :disabled="!acl.can('category.editor')"
+                        :disabled="!acl.can('landingPage.editor')"
                         v-tooltip="{
                                 message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('category.editor'),
+                                disabled: acl.can('landingPage.editor'),
                                 showOnDisabledElements: true
                             }"
-                        class="sw-category-detail__tab-cms"
+                        class="sw-landing-page-detail__tab-cms"
                         :route="{ name: 'sw.category.landingPageDetail.cms' }"
                         :title="$tc('sw-category.view.cms')">
                         {{ $tc('sw-category.view.cms') }}

@@ -1,6 +1,56 @@
 {% block sw_landing_page_detail_base %}
     <div class="sw-landing-page-detail-base">
         <!-- Todo: Implement base tab - NEXT-13205 -->
-        General Tab
+        {% block sw_landing_page_detail_information %}
+            <sw-card :title="$tc('sw-category.base.general.headlineInformationCard')" :isLoading="isLoading">
+                <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
+                    {% block sw_landing_page_detail_information_name %}
+                        <sw-text-field
+                            required
+                            name="landingPageName"
+                            v-model="landingPage.name"
+                            validation="required"
+                            :disabled="!acl.can('landingPage.editor')"
+                            :label="$tc('sw-category.base.general.categoryNameLabel')"
+                            :placeholder="placeholder(landingPage, 'name')"
+                            :error="landingPageNameError">
+                        </sw-text-field>
+                    {% endblock %}
+
+                    {% block sw_landing_page_detail_information_active %}
+                        <sw-switch-field
+                            :disabled="!acl.can('landingPage.editor')"
+                            name="landingPageActive"
+                            class="sw-category-detail-base__active"
+                            :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
+                            v-model="landingPage.active">
+                        </sw-switch-field>
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_landing_page_detail_information_tags %}
+                    <sw-entity-tag-select
+                        v-if="landingPage && !isLoading"
+                        class="sw-category-detail-base__tags"
+                        :label="$tc('sw-category.base.general.labelCategoryTags')"
+                        :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
+                        :disabled="!acl.can('landingPage.editor')"
+                        v-model="landingPage.tags">
+                    </sw-entity-tag-select>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_landing_page_detail_attribute_sets %}
+            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                     v-if="customFieldSetsArray.length > 0"
+                     :isLoading="isLoading">
+                <sw-custom-field-set-renderer
+                    :entity="landingPage"
+                    :sets="customFieldSetsArray">
+                </sw-custom-field-set-renderer>
+            </sw-card>
+        {% endblock %}
     </div>
 {% endblock %}

@@ -30,24 +30,42 @@
         </template>
 
         <template #smart-bar-actions>
-            <template v-if="category">
+            <template v-if="category || landingPage">
                 {% block sw_category_smart_bar_abort %}
                     <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="cancelEdit">
                         {{ $tc('sw-product.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
+
                 {% block sw_category_smart_bar_save %}
-                <sw-button-process v-if="category"
-                        class="sw-category-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('category.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                    {{ $tc('sw-category.general.buttonSafeCategory') }}
-                </sw-button-process>
+
+                    {% block sw_category_smart_bar_save_category %}
+                        <sw-button-process v-if="category"
+                                class="sw-category-detail__save-action"
+                                :isLoading="isLoading"
+                                :processSuccess="isSaveSuccessful"
+                                :disabled="isLoading || !acl.can('category.editor')"
+                                variant="primary"
+                                @process-finish="saveFinish"
+                                v-tooltip.bottom="tooltipSave"
+                                @click.prevent="onSave">
+                            {{ $tc('sw-category.general.buttonSafeCategory') }}
+                        </sw-button-process>
+                    {% endblock %}
+
+                    {% block sw_category_smart_bar_save_landing_page %}
+                        <sw-button-process v-if="landingPage"
+                                           class="sw-category-detail__save-landing-page-action"
+                                           :isLoading="isLoading"
+                                           :processSuccess="isSaveSuccessful"
+                                           :disabled="isLoading || !acl.can('landingPage.editor')"
+                                           variant="primary"
+                                           @process-finish="saveFinish"
+                                           v-tooltip.bottom="tooltipSave"
+                                           @click.prevent="onSaveLandingPage">
+                            {{ $tc('sw-category.general.buttonSafeCategory') }}
+                        </sw-button-process>
+                    {% endblock %}
                 {% endblock %}
             </template>
         </template>
@@ -112,7 +130,7 @@
                 {% endblock %}
 
                 {% block sw_category_content_empty %}
-                    <sw-empty-state v-if="!category && !landingPage" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
+                    <sw-empty-state v-if="showEmptyState" :title="$tc('sw-category.general.emptyStateHeadline')"></sw-empty-state>
                 {% endblock %}
             </template>
 

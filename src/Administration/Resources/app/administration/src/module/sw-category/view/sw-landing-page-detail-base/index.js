@@ -1,7 +1,8 @@
 import template from './sw-landing-page-detail-base.html.twig';
+import './sw-landing-page-detail-base.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-landing-page-detail-base', {
     template,
@@ -27,6 +28,10 @@ Component.register('sw-landing-page-detail-base', {
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
         },
+
+        ...mapPropertyErrors('landingPage', [
+            'name'
+        ]),
 
         ...mapState('swCategoryDetail', {
             customFieldSetsArray: state => {

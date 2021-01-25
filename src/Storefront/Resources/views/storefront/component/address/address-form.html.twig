@@ -248,6 +248,12 @@
 
             {% block component_address_form_additional_field1 %}
                 {% if shopware.config.core.loginRegistration.showAdditionalAddressField1 %}
+                    {% if formViolations.getViolations("/additionalAddressLine1") is not empty %}
+                        {% set violationPath = "/additionalAddressLine1" %}
+                    {% elseif formViolations.getViolations("/#{prefix}/additionalAddressLine1") is not empty %}
+                        {% set violationPath = "/#{prefix}/additionalAddressLine1" %}
+                    {% endif %}
+
                     <div class="form-group col-md-6">
                         {% block component_address_form_additional_field1_label %}
                             <label class="form-label"
@@ -258,12 +264,18 @@
 
                         {% block component_address_form_additional_field1_input %}
                             <input type="text"
-                                   class="form-control"
+                                   class="form-control {% if violationPath %} is-invalid{% endif %}"
                                    id="{{ prefix }}AdditionalField1"
                                    placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField1Required ? 'required="true"' }}>
+                        {% endblock %}
+
+                        {% block component_address_form_additional_field1_error %}
+                            {% if violationPath %}
+                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endif %}
@@ -271,6 +283,11 @@
 
             {% block component_address_form_additional_field2 %}
                 {% if shopware.config.core.loginRegistration.showAdditionalAddressField2 %}
+                    {% if formViolations.getViolations("/additionalAddressLine2") is not empty %}
+                        {% set violationPath = "/additionalAddressLine2" %}
+                    {% elseif formViolations.getViolations("/#{prefix}/additionalAddressLine2") is not empty %}
+                        {% set violationPath = "/#{prefix}/additionalAddressLine2" %}
+                    {% endif %}
                     <div class="form-group col-md-6">
                         {% block component_address_form_additional_field2_label %}
                             <label class="form-label"
@@ -281,12 +298,18 @@
 
                         {% block component_address_form_additional_field2_input %}
                             <input type="text"
-                                   class="form-control"
+                                   class="form-control {% if violationPath %} is-invalid{% endif %}"
                                    id="{{ prefix }}AdditionalField2"
                                    placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField2Required ? 'required="true"' }}>
+                        {% endblock %}
+
+                        {% block component_address_form_additional_field2_error %}
+                            {% if violationPath %}
+                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endif %}

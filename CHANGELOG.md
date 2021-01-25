@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.3.5.0
+*  [NEXT-13413 - Fix the Elasticsearch Query Parser for NotFilters](/changelog/release-6-3-5-0/2021-01-22-fix-elasticsearch-not-filter-parser.md)
 *  [NEXT-12417 - Change German translations for "valid"](/changelog/release-6-3-5-0/2020-09-16-change-german-translations-for-valid.md) ([Sebastian König](https://github.com/tinect))
 *  [NEXT-10688 - Fix reverting data after changing and saving](/changelog/release-6-3-5-0/2020-09-17-fix-reverting-data-after-changing-and-saving.md)
 *  [NEXT-11231 - Cronjobs can not handle interactive choice for profile name.](/changelog/release-6-3-5-0/2020-10-02-import-with-optional-profile-name.md)

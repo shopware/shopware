@@ -109,7 +109,40 @@
             },
             "discounts": {
                 "emptyStateTitle": "Noch keinen Rabatt angelegt.",
-                "emptyStateButton": "Rabatt anlegen"
+                "emptyStateButton": "Rabatt anlegen",
+                "wizard": {
+                    "basic": {
+                        "prefixTitle": "Einfacher Rabatt - {title}",
+                        "titleDiscountType": "Rabatt-Typ",
+                        "description": "Definiere zuerst den Rabatt-Typ. Trigger, die diesen Rabatt aktivieren, kannst Du auf der nächsten Seite setzen."
+                    }
+                },
+                "settings": {
+                    "discountType": {
+                        "form": {
+                            "labelDiscountType": "Rabatt-Typ",
+                            "labelPrice": "Preis",
+                            "labelMaxDiscountValue": "Max. Rabattwert",
+                            "labelApplyDiscountTo": "Rabatt anwenden auf",
+                            "labelApplyTo": "Anwenden auf",
+                            "placeholderPrice": "Gib einen Preis ein ...",
+                            "discountTypeSelection": {
+                                "displayFixedPrice": "Festgelegter Preis",
+                                "displayFixedDiscount": "Festgelegter Rabatt",
+                                "displayPercentage": "Prozentual",
+                                "displayFree": "Kostenlos"
+                            },
+                            "applyDiscountTo": {
+                                "displayTotalPrice": "Gesamtpreis",
+                                "displayProductPrice": "Produktpreis"
+                            },
+                            "applyTo": {
+                                "displayNet": "Netto",
+                                "displayGross": "Brutto"
+                            }
+                        }
+                    }
+                }
             },
             "discount-selection": {
                 "modalTitle": "Neuer Rabatt",

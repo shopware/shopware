@@ -15,6 +15,8 @@ import './component/sw-promotion-v2-wizard-discount-selection';
 import './component/sw-promotion-v2-wizard-description';
 import './component/sw-promotion-v2-wizard-shipping-discount-trigger';
 
+import './component/sw-promotion-v2-settings-discount-type';
+
 const { Module } = Shopware;
 
 Module.register('sw-promotion-v2', {

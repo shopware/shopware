@@ -7,3 +7,4 @@ author_github: OliverSkroblin
 ---
 # Core
 * Added internal cache for country availability query in `\Shopware\Core\Checkout\Cart\Address\AddressValidator`
+* Changed customer address validation to be executed only on the checkout confirm page

@@ -164,6 +164,7 @@
     },
     "sw-list-price-field": {
       "labelListPriceGross": "List price (gross)",
+      "helpTextListPriceGross": "List prices indicate a discounted product. List prices are denoted as the \"original\" price which is crossed out and coloured in red. The actual and discounted price will be displayed alongside in the default text colour.",
       "labelListPriceNet": "List price (net)"
     },
     "sw-text-editor": {

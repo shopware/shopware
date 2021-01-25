@@ -145,4 +145,14 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.vm.priceForCurrency.net).toBeNull();
     });
+
+    it('should pass down gross and net helptext', () => {
+        const wrapper = setup({
+            grossHelpText: 'help for gross price',
+            netHelpText: 'help for net price'
+        });
+
+        expect(wrapper.find('.sw-price-field-gross').attributes().helptext).toBe('help for gross price');
+        expect(wrapper.find('.sw-price-field-net').attributes().helptext).toBe('help for net price');
+    });
 });

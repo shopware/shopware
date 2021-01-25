@@ -164,6 +164,7 @@
     },
     "sw-list-price-field": {
       "labelListPriceGross": "Streichpreis (Brutto)",
+      "helpTextListPriceGross": "Streichpreise weisen auf ein preisreduziertes Produkt hin. Der Streichpreis zeigt den ursprünglichen Preis als durchgestrichenen, roten Text an. Der gültige Preis wird daneben in der Standardtextfarbe dargestellt.",
       "labelListPriceNet": "Streichpreis (Netto)"
     },
     "sw-text-editor": {

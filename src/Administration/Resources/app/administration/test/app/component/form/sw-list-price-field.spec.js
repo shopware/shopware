@@ -109,4 +109,10 @@ describe('components/form/sw-list-price-field', () => {
 
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
+
+    it('should pass down gross help text', async () => {
+        const wrapper = setup();
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBe('global.sw-list-price-field.helpTextListPriceGross');
+    });
 });

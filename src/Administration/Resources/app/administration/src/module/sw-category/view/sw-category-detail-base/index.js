@@ -142,7 +142,35 @@ Component.register('sw-category-detail-base', {
             'name',
             'productStreamId',
             'productAssignmentType'
-        ])
+        ]),
+
+        dynamicProductGroupHelpText() {
+            const link = {
+                name: 'sw.product.stream.index'
+            };
+
+            const helpText = this.$tc('sw-category.base.products.dynamicProductGroupHelpText.label', 0, {
+                link: `<sw-internal-link
+                           :router-link=${JSON.stringify(link)}
+                           :inline="true">
+                           ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.linkText')}
+                       </sw-internal-link>`
+            });
+
+            try {
+                // eslint-disable-next-line no-new
+                new URL(this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl'));
+            } catch {
+                return helpText;
+            }
+
+            return `${helpText}
+                    <br>
+                    <sw-external-link
+                        href="${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl')}">
+                        ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
+                    </sw-external-link>`;
+        }
     },
 
     methods: {

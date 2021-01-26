@@ -372,6 +372,18 @@ Traits for different migration operations
 
 __EMPTY__
 
+#### V6_4 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_4)
+
+__EMPTY__
+
+#### V6_5 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_5)
+
+__EMPTY__
+
 ### System Bundle
 
 #### Annotation 

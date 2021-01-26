@@ -105,6 +105,8 @@ class MigrationController extends AbstractController
     private function getCollection(Request $request, string $mode): MigrationCollection
     {
         $identifier = $request->request->get('identifier', 'core');
+
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Only check for identifier
         if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
             return $this->loader->collectAllForVersion($this->shopwareVersion, $mode);
         }

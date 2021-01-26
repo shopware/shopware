@@ -97,6 +97,8 @@ class Container extends BaseContainer
                     SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
                 ];
             }
+
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) Always return an empty array
             if ($c['feature.isActive']('FEATURE_NEXT_12349')) {
                 // the migrations moved into core.V6_3
                 $coreBundleMigrations = [];
@@ -106,6 +108,7 @@ class Container extends BaseContainer
         };
 
         $container['migration.sources'] = static function ($c) {
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block
             if (!$c['feature.isActive']('FEATURE_NEXT_12349')) {
                 return [$c['migration.source']];
             }

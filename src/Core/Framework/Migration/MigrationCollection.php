@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
@@ -29,14 +30,21 @@ class MigrationCollection
      */
     private $migrationRuntime;
 
+    /**
+     * @var LoggerInterface|null
+     */
+    private $logger;
+
     public function __construct(
         MigrationSource $migrationSource,
         MigrationRuntime $migrationRuntime,
-        Connection $connection
+        Connection $connection,
+        ?LoggerInterface $logger = null
     ) {
         $this->migrationSource = $migrationSource;
         $this->connection = $connection;
         $this->migrationRuntime = $migrationRuntime;
+        $this->logger = $logger;
     }
 
     public function getName(): string
@@ -115,6 +123,8 @@ class MigrationCollection
             '`class`' => $className,
             '`creation_timestamp`' => $migrationStep->getCreationTimestamp(),
         ];
+
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block
         if (!Feature::isActive('FEATURE_NEXT_12349')) {
             return $default;
         }
@@ -166,6 +176,16 @@ class MigrationCollection
 
         foreach ($this->migrationSource->getSourceDirectories() as $directory => $namespace) {
             if (!is_readable($directory)) {
+                if ($this->logger !== null) {
+                    $this->logger->warning(
+                        'Migration directory "{directory}" for namespace "{namespace}" does not exist or is not readable.',
+                        [
+                            'directory' => $directory,
+                            'namespace' => $namespace,
+                        ]
+                    );
+                }
+
                 continue;
             }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
@@ -56,7 +57,12 @@ class MigrationCollectionLoader
      */
     private $migrationRuntime;
 
-    public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [])
+    /**
+     * @var LoggerInterface|null
+     */
+    private $logger;
+
+    public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [], ?LoggerInterface $logger = null)
     {
         $this->connection = $connection;
         $this->migrationRuntime = $migrationRuntime;
@@ -64,6 +70,7 @@ class MigrationCollectionLoader
         foreach ($migrationSources as $migrationSource) {
             $this->addSource($migrationSource);
         }
+        $this->logger = $logger;
     }
 
     public function addSource(MigrationSource $migrationSource): void
@@ -83,7 +90,7 @@ class MigrationCollectionLoader
 
         $source = $this->migrationSources[$name];
 
-        return new MigrationCollection($source, $this->migrationRuntime, $this->connection);
+        return new MigrationCollection($source, $this->migrationRuntime, $this->connection, $this->logger);
     }
 
     /**
@@ -97,14 +104,15 @@ class MigrationCollectionLoader
 
         $safeMajorVersion = $this->getLastSafeMajorVersion($version, $mode);
 
-        $namespaces = [$this->getSource('core')];
+        $namespaces = [];
         for ($major = 3; $safeMajorVersion >= 3 && $major <= $safeMajorVersion; ++$major) {
             $namespaces[] = $this->getSource('core.V6_' . $major);
         }
+        $namespaces[] = $this->getSource('core');
 
         $source = new MigrationSource('allForVersion', $namespaces);
 
-        return new MigrationCollection($source, $this->migrationRuntime, $this->connection);
+        return new MigrationCollection($source, $this->migrationRuntime, $this->connection, $this->logger);
     }
 
     /**

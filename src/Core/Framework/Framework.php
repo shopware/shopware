@@ -83,6 +83,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
 
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block and only keep else
         if (!Feature::isActive('FEATURE_NEXT_12349')) {
             $this->addCoreMigrationPath($container, __DIR__ . '/../Migration', 'Shopware\Core\Migration');
         } else {

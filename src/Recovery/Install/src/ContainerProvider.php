@@ -203,6 +203,7 @@ class ContainerProvider implements ServiceProviderInterface
                 ];
             }
 
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) Always return an empty array
             if ($c['feature.isActive']('FEATURE_NEXT_12349')) {
                 // the migrations moved into core.V6_3
                 $coreBundleMigrations = [];
@@ -212,6 +213,7 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['migration.sources'] = static function ($c) {
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block
             if (!$c['feature.isActive']('FEATURE_NEXT_12349')) {
                 return [$c['migration.source']];
             }

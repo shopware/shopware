@@ -108,6 +108,7 @@ class MigrationCommand extends Command
 
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
+        // @feature-deprecated (flag:FEATURE_NEXT_10539) Only check for identifier
         if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
             return $this->loader->collectAllForVersion(
                 $this->shopwareVersion,

@@ -430,6 +430,8 @@
       "textEditInDesigner": "Im Designer bearbeiten"
     },
     "filters": {
+      "fromPlaceholder": "Startwert eingeben ...",
+      "toPlaceholder": "Endwert eingeben ...",
       "activeFilter": {
         "label": "Aktiv",
         "placeholder": "Wähle einen Status ..."

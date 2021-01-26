@@ -1,4 +1,5 @@
 import template from './sw-number-filter.html.twig';
+import './sw-number-filter.scss';
 
 const { Component } = Shopware;
 
@@ -30,11 +31,17 @@ Component.register('sw-number-filter', {
     },
 
     methods: {
-        updateFilter(...params) {
-            this.$emit('filter-update', ...params);
+        updateFilter(params) {
+            if (!this.numberValue.from && !this.numberValue.to) {
+                this.$emit('filter-reset', this.filter.name);
+                return;
+            }
+
+            this.$emit('filter-update', this.filter.name, params);
         },
 
         resetFilter() {
+            this.numberValue = { from: null, to: null };
             this.$emit('filter-reset', this.filter.name);
         }
     }

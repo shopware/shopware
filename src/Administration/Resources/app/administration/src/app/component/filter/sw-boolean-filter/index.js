@@ -3,6 +3,9 @@ import template from './sw-boolean-filter.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
 Component.register('sw-boolean-filter', {
     template,
 

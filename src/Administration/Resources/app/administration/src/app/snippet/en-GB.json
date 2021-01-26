@@ -1100,7 +1100,7 @@
     "hasCriteria": "Has {criteriaName}"
   },
   "sw-filter-panel": {
-    "titleSidebarItemFilter": "Filter"
+    "titleSidebarItemFilter": "Filters"
   },
   "sw-sidebar-filter-panel": {
     "resetButton": "Reset all"

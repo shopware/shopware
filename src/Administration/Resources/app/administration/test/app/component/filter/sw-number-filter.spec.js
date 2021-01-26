@@ -6,15 +6,12 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
+import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
 function createWrapper() {
-    const localVue = createLocalVue();
-
     return shallowMount(Shopware.Component.build('sw-number-filter'), {
-        localVue,
         stubs: {
             'sw-base-filter': Shopware.Component.build('sw-base-filter'),
             'sw-range-filter': Shopware.Component.build('sw-range-filter'),

@@ -141,8 +141,8 @@ describe('Product: Testing filter and reset filter', () => {
             method: 'post'
         }).as('filterProduct');
 
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
 
         cy.get('.sw-filter-panel').should('exist');
 
@@ -196,7 +196,7 @@ describe('Product: Testing filter and reset filter', () => {
             method: 'post'
         }).as('filterProduct');
 
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
         // Check Reset and Reset All button at default state
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
@@ -217,7 +217,7 @@ describe('Product: Testing filter and reset filter', () => {
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
         cy.wait('@filterProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

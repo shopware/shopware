@@ -4,6 +4,9 @@ import './sw-multi-select-filter.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
 Component.register('sw-multi-select-filter', {
     template,
 

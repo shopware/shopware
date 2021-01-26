@@ -18,17 +18,15 @@ function createWrapper() {
             'sw-field-error': true
         },
         propsData: {
-            filter: {
-                property: 'releaseDate',
-                name: 'releaseDate',
-                label: 'Release Date'
-            },
             isShowDivider: true,
             value: {
                 from: null,
                 to: null
             },
-            active: true
+            active: true,
+            property: 'releaseDate',
+            showResetButton: false,
+            title: 'Release Date'
         },
         mocks: {
             $tc: key => key
@@ -40,13 +38,6 @@ function createWrapper() {
 enableAutoDestroy(afterEach);
 
 describe('src/app/component/filter/sw-range-filter', () => {
-    it('should emit `change` event when user select `From` field', () => {
-        const wrapper = createWrapper();
-        wrapper.vm.changeFromValue('2021-01-20');
-
-        expect(wrapper.emitted().change[0]).toEqual([{ from: '2021-01-20', to: null }]);
-    });
-
     it('should emit `filter-update` event when `From` value exits', async () => {
         const wrapper = createWrapper();
 
@@ -58,16 +49,8 @@ describe('src/app/component/filter/sw-range-filter', () => {
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-20' })]
         ]);
-    });
-
-    it('should emit `change` event when user select `To` field', () => {
-        const wrapper = createWrapper();
-        wrapper.vm.changeToValue('2021-01-23');
-
-        expect(wrapper.emitted().change[0]).toEqual([{ from: null, to: '2021-01-23' }]);
     });
 
     it('should emit `filter-update` event when `To` value exits', async () => {
@@ -81,29 +64,11 @@ describe('src/app/component/filter/sw-range-filter', () => {
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'releaseDate',
             [Criteria.range('releaseDate', { lte: '2021-01-23' })]
         ]);
     });
 
-    it('should emit `filter-reset` event when user clicks Reset button when rom value exists', async () => {
-        const wrapper = createWrapper();
-
-        await wrapper.setProps({
-            value: {
-                from: '2021-01-20',
-                to: null
-            }
-        });
-
-        // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        expect(wrapper.emitted().change).toBeTruthy();
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-    });
-
-    it('should emit `filter-reset` event when user clicks Reset button when From value and To value exist', async () => {
+    it('should emit `filter-update` event when `From` and `To` value exits', async () => {
         const wrapper = createWrapper();
 
         await wrapper.setProps({
@@ -113,28 +78,9 @@ describe('src/app/component/filter/sw-range-filter', () => {
             }
         });
 
-        // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        expect(wrapper.emitted().change).toBeTruthy();
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-    });
-
-    it('should emit `filter-reset` event when user clicks Reset button when To value exists', async () => {
-        const wrapper = createWrapper();
-
-        await wrapper.setProps({
-            value: {
-                from: null,
-                to: '2021-01-23'
-            }
-        });
-
-        // Trigger click Reset button
-        wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        expect(wrapper.emitted().change).toBeTruthy();
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+            [Criteria.range('releaseDate', { gte: '2021-01-20', lte: '2021-01-23' })]
+        ]);
     });
 
     it('should render From field and To field on the same line', () => {

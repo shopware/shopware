@@ -1,33 +1,36 @@
 {% block sw_date_filter %}
     <sw-range-filter
-        v-model="dateValue"
-        :filter="filter"
+        class="sw-date-filter"
+        :value="dateValue"
+        :title="filter.label"
         :active="active"
+        :showResetButton="!!dateValue.from || !!dateValue.to"
         :isShowDivider="!isDateTimeType"
+        :property="filter.property"
         @filter-update="updateFilter"
         @filter-reset="resetFilter">
         {% block sw_date_filter_from_field %}
-            <template #from-field="{ value, changeFromValue }">
+            <template #from-field>
                 <sw-datepicker
-                    size="small"
-                    :value="value.from"
+                    v-model="dateValue.from"
+                    v-bind="$attrs"
+                    class="sw-date-filter__from"
                     :dateType="dateType"
-                    :config="filter.config"
-                    :label="$tc('global.default.from')"
-                    @input="changeFromValue">
+                    :placeholder="filter.fromPlaceholder"
+                    :label="$tc('global.default.from')">
                 </sw-datepicker>
             </template>
         {% endblock %}
 
         {% block sw_date_filter_to_field %}
-            <template #to-field="{ value, changeToValue }">
+            <template #to-field>
                 <sw-datepicker
-                    size="small"
-                    :value="value.to"
+                    v-model="dateValue.to"
+                    v-bind="$attrs"
+                    class="sw-date-filter__to"
                     :dateType="dateType"
-                    :config="filter.config"
-                    :label="$tc('global.default.to')"
-                    @input="changeToValue">
+                    :placeholder="filter.toPlaceholder"
+                    :label="$tc('global.default.to')">
                 </sw-datepicker>
             </template>
         {% endblock %}

@@ -34,6 +34,7 @@ Component.register('sw-order-list', {
             filterCriteria: [],
             defaultFilters: [
                 'document-filter',
+                'order-date-filter',
                 'status-filter',
                 'payment-status-filter',
                 'delivery-status-filter',
@@ -115,6 +116,11 @@ Component.register('sw-order-list', {
                     property: 'documents',
                     label: this.$tc('sw-order.filters.documentFilter.label'),
                     placeholder: this.$tc('sw-order.filters.documentFilter.placeholder')
+                },
+                'order-date-filter': {
+                    property: 'orderDateTime',
+                    label: this.$tc('sw-order.filters.orderDateFilter.label'),
+                    dateType: 'datetime-local'
                 },
                 'status-filter': {
                     property: 'stateMachineState',

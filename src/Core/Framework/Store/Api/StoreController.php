@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -62,9 +62,9 @@ class StoreController extends AbstractStoreController
     private $configService;
 
     /**
-     * @var RequestCriteriaBuilder
+     * @var AbstractExtensionDataProvider|null
      */
-    private $searchCriteriaBuilder;
+    private $extensionDataProvider;
 
     public function __construct(
         StoreClient $storeClient,
@@ -73,7 +73,7 @@ class StoreController extends AbstractStoreController
         PluginLifecycleService $pluginLifecycleService,
         EntityRepositoryInterface $userRepository,
         SystemConfigService $configService,
-        RequestCriteriaBuilder $searchCriteriaBuilder
+        ?AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
@@ -81,8 +81,8 @@ class StoreController extends AbstractStoreController
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->userRepository = $userRepository;
         $this->configService = $configService;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         parent::__construct($userRepository);
+        $this->extensionDataProvider = $extensionDataProvider;
     }
 
     /**
@@ -277,8 +277,18 @@ class StoreController extends AbstractStoreController
     {
         $language = $request->query->get('language', '');
 
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        if ($this->extensionDataProvider) {
+            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
+        } else {
+            /** @var PluginCollection $extensions */
+            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        }
+
+        $indexedExtensions = [];
+
+        foreach ($extensions as $extension) {
+            $indexedExtensions[$extension->getName()] = $extension->getVersion();
+        }
 
         try {
             $storeToken = $this->getUserStoreToken($context);
@@ -287,7 +297,7 @@ class StoreController extends AbstractStoreController
         }
 
         try {
-            $violations = $this->storeClient->getLicenseViolations($storeToken, $plugins, $language, $request->getHost(), $context);
+            $violations = $this->storeClient->getLicenseViolations($storeToken, $indexedExtensions, $language, $request->getHost());
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -304,12 +314,12 @@ class StoreController extends AbstractStoreController
      */
     public function searchPlugins(Request $request, Context $context): Response
     {
-        $definition = $this->pluginRepo->getDefinition();
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, new Criteria(), $definition, $context);
-        $searchResult = $this->pluginRepo->search($criteria, $context);
-
-        /** @var PluginCollection $plugins */
-        $plugins = $searchResult->getEntities();
+        if ($this->extensionDataProvider) {
+            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
+        } else {
+            /** @var PluginCollection $extensions */
+            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        }
 
         try {
             $language = $request->query->get('language', 'en-GB');
@@ -320,14 +330,14 @@ class StoreController extends AbstractStoreController
                 $storeToken = null;
             }
 
-            $this->storeClient->checkForViolations($storeToken, $plugins, $language, $request->getHost(), $context);
+            $this->storeClient->checkForViolations($storeToken, $extensions, $language, $request->getHost());
         } catch (\Exception $e) {
-            // plugin list should always work
+            // extension list should always work
         }
 
         return new JsonResponse([
-            'total' => $searchResult->count(),
-            'items' => $plugins,
+            'total' => $extensions->count(),
+            'items' => $extensions,
         ]);
     }
 

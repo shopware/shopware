@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -235,38 +237,43 @@ class StoreClient
 
     public function checkForViolations(
         ?string $storeToken,
-        PluginCollection $plugins,
+        Collection $extensions,
         string $language,
-        string $hostName,
-        Context $context
+        string $hostName
     ): void {
-        $violations = $this->getLicenseViolations($storeToken, $plugins, $language, $hostName, $context);
+        $indexedExtensions = [];
+
+        /** @var PluginEntity|ExtensionStruct $extension */
+        foreach ($extensions as $extension) {
+            $indexedExtensions[$extension->getName()] = $extension->getVersion();
+        }
+
+        $violations = $this->getLicenseViolations($storeToken, $indexedExtensions, $language, $hostName);
         $indexed = [];
         /** @var StoreLicenseViolationStruct $violation */
         foreach ($violations as $violation) {
             $indexed[$violation->getName()] = $violation;
         }
 
-        foreach ($plugins as $plugin) {
-            if (isset($indexed[$plugin->getName()])) {
-                $plugin->addExtension(self::PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY, $indexed[$plugin->getName()]);
+        foreach ($extensions as $extension) {
+            if (isset($indexed[$extension->getName()])) {
+                $extension->addExtension(self::PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY, $indexed[$extension->getName()]);
             }
         }
     }
 
     public function getLicenseViolations(
         ?string $storeToken,
-        PluginCollection $plugins,
+        array $extensions,
         string $language,
-        string $hostName,
-        Context $context
+        string $hostName
     ): array {
         $pluginData = [];
 
-        foreach ($plugins as $plugin) {
+        foreach ($extensions as $name => $version) {
             $pluginData[] = [
-                'name' => $plugin->getName(),
-                'version' => $plugin->getVersion(),
+                'name' => $name,
+                'version' => $version,
             ];
         }
 

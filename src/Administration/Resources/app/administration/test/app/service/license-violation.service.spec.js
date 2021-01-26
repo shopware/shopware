@@ -2,8 +2,24 @@ import LicenseViolationService from 'src/app/service/license-violations.service'
 
 const Application = Shopware.Application;
 
+const extensionApiServiceMock = {
+    deactivateExtension: jest.fn(() => Promise.resolve()),
+    uninstallExtension: jest.fn(() => Promise.resolve()),
+    removeExtension: jest.fn(() => Promise.resolve())
+};
+const cacheApiServiceMock = {
+    clear: jest.fn(() => Promise.resolve())
+};
+
 describe('app/service/license-violation.service.js', () => {
+    Shopware.Service().register('shopwareExtensionService', () => extensionApiServiceMock);
+    Shopware.Service().register('cacheApiService', () => cacheApiServiceMock);
     const licenseViolationService = LicenseViolationService(Application.getContainer('service').storeService);
+
+    beforeEach(() => {
+        Shopware.Feature.isActive = () => false;
+        jest.clearAllMocks();
+    });
 
     it('should be an object', async () => {
         const type = typeof licenseViolationService;
@@ -158,5 +174,56 @@ describe('app/service/license-violation.service.js', () => {
         licenseViolationService.removeTimeFromLocalStorage('testKey');
 
         expect(localStorage.getItem('testKey')).toBeNull();
+    });
+
+    it('should force delete the plugin (deactivate & uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
+        Shopware.Feature.isActive = (flag) => {
+            return flag === 'FEATURE_NEXT_12608';
+        };
+
+        const extensionMock = {
+            active: true,
+            installedAt: '123456'
+        };
+        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+
+        expect(extensionApiServiceMock.deactivateExtension).toHaveBeenCalled();
+        expect(cacheApiServiceMock.clear).toHaveBeenCalled();
+        expect(extensionApiServiceMock.uninstallExtension).toHaveBeenCalled();
+        expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
+    });
+
+    it('should force delete the plugin (uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
+        Shopware.Feature.isActive = (flag) => {
+            return flag === 'FEATURE_NEXT_12608';
+        };
+
+        const extensionMock = {
+            active: false,
+            installedAt: '123456'
+        };
+        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+
+        expect(extensionApiServiceMock.deactivateExtension).not.toHaveBeenCalled();
+        expect(cacheApiServiceMock.clear).not.toHaveBeenCalled();
+        expect(extensionApiServiceMock.uninstallExtension).toHaveBeenCalled();
+        expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
+    });
+
+    it('should force delete the plugin (remove) (with FEATURE_NEXT_12608)', async () => {
+        Shopware.Feature.isActive = (flag) => {
+            return flag === 'FEATURE_NEXT_12608';
+        };
+
+        const extensionMock = {
+            active: false,
+            installedAt: null
+        };
+        await licenseViolationService.forceDeletePlugin({}, extensionMock);
+
+        expect(extensionApiServiceMock.deactivateExtension).not.toHaveBeenCalled();
+        expect(cacheApiServiceMock.clear).not.toHaveBeenCalled();
+        expect(extensionApiServiceMock.uninstallExtension).not.toHaveBeenCalled();
+        expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
     });
 });

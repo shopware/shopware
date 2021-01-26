@@ -1,14 +1,15 @@
 import template from './sw-landing-page-tree.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+// Todo: Will be tested in NEXT-13222
 Component.register('sw-landing-page-tree', {
     template,
 
     inject: ['repositoryFactory', 'syncService'],
     mixins: [
-        Mixin.getByName('notification')
+        'notification'
     ],
 
     props: {
@@ -44,7 +45,7 @@ Component.register('sw-landing-page-tree', {
 
     data() {
         return {
-            landingPages: [],
+            loadedLandingPages: {},
             translationContext: 'sw-landing-page',
             linkContext: 'sw.category.landingPage',
             isLoadingInitialData: true
@@ -64,8 +65,16 @@ Component.register('sw-landing-page-tree', {
             return criteria;
         },
 
+        landingPage() {
+            return Shopware.State.get('swCategoryDetail').landingPage;
+        },
+
         landingPageRepository() {
             return this.repositoryFactory.create('landing_page');
+        },
+
+        landingPages() {
+            return Object.values(this.loadedLandingPages);
         },
 
         disableContextMenu() {
@@ -86,8 +95,28 @@ Component.register('sw-landing-page-tree', {
     },
 
     watch: {
+        landingPage(newVal, oldVal) {
+            // load data when path is available
+            if (!oldVal && this.isLoadingInitialData) {
+                this.loadLandingPages();
+                return;
+            }
+
+            // back to index
+            if (newVal === null) {
+                return;
+            }
+
+            // reload after save
+            if (oldVal && newVal.id === oldVal.id) {
+                this.landingPageRepository.get(newVal.id, Shopware.Context.api).then((newLandingPage) => {
+                    this.$set(this.loadedLandingPages, newLandingPage.id, newLandingPage);
+                });
+            }
+        },
+
         currentLanguageId() {
-            this.landingPages = [];
+            this.openInitialTree();
         }
     },
 
@@ -111,11 +140,10 @@ Component.register('sw-landing-page-tree', {
                 result.forEach(element => {
                     element.childCount = 0;
                 });
-                this.landingPages = result;
+                this.addLandingPages(result);
             });
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
             this.landingPageRepository.syncDeleted(ids, Shopware.Context.api).then(() => {
@@ -123,11 +151,9 @@ Component.register('sw-landing-page-tree', {
             });
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
         onDeleteLandingPage({ data: landingPage }) {
             if (landingPage.isNew()) {
-                delete this.landingPages[landingPage.id];
-                this.landingPages = { ...this.landingPages };
+                this.$delete(this.loadedLandingPages, landingPage.id);
                 return Promise.resolve();
             }
 
@@ -142,17 +168,24 @@ Component.register('sw-landing-page-tree', {
 
         changeLandingPage(landingPage) {
             const route = { name: 'sw.category.landingPageDetail', params: { id: landingPage.id } };
-            this.$router.push(route);
+
+            if (this.landingPage && this.landingPageRepository.hasChanges(this.landingPage)) {
+                this.$emit('unsaved-changes', route);
+            } else {
+                this.$router.push(route);
+            }
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
-        createNewElement(contextItem, name = '') {
+        createNewElement(contextItem, parentId, name = '') {
             const newLandingPage = this.createNewLandingPage(name);
             this.addLandingPage(newLandingPage);
             return newLandingPage;
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
+        syncLandingPages() {
+            return this.landingPageRepository.sync(this.landingPages, Shopware.Context.api);
+        },
+
         createNewLandingPage(name) {
             const newLandingPage = this.landingPageRepository.create(Shopware.Context.api);
 
@@ -172,43 +205,22 @@ Component.register('sw-landing-page-tree', {
             return newLandingPage;
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
         addLandingPage(landingPage) {
             if (!landingPage) {
                 return;
             }
 
-            this.landingPages = { ...this.landingPages, [landingPage.id]: landingPage };
+            this.$set(this.loadedLandingPages, landingPage.id, landingPage);
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
         addLandingPages(landingPages) {
             landingPages.forEach((landingPage) => {
-                this.landingPages[landingPage.id] = landingPage;
+                this.$set(this.loadedLandingPages, landingPage.id, landingPage);
             });
-            this.landingPages = { ...this.landingPages };
         },
 
-        // Todo: Implement CRUD functions - NEXT-13223
         removeFromStore(id) {
-            const deletedIds = this.getDeletedIds(id);
-            this.loadedParentIds = this.loadedParentIds.filter((loadedId) => {
-                return !deletedIds.includes(loadedId);
-            });
-
-            deletedIds.forEach((deleted) => {
-                delete this.landingPages[deleted];
-            });
-            this.landingPages = { ...this.landingPages };
-        },
-
-        // Todo: Implement CRUD functions - NEXT-13223
-        getDeletedIds(idToDelete) {
-            const idsToDelete = [idToDelete];
-            Object.keys(this.landingPages).forEach((id) => {
-                idsToDelete.push(...this.getDeletedIds(id));
-            });
-            return idsToDelete;
+            this.$delete(this.loadedLandingPages, id);
         },
 
         getLandingPageUrl(landingPage) {

@@ -109,6 +109,12 @@ Component.register('sw-tree-item', {
             default: true
         },
 
+        allowCreateWithoutPosition: {
+            type: Boolean,
+            default: false,
+            required: false
+        },
+
         getItemUrl: {
             type: Function,
             required: false,

@@ -225,11 +225,14 @@ Component.register('sw-tree', {
                     return;
                 }
 
+                const hasChildCountProperty = item.hasOwnProperty(this.childCountProperty);
+                const childCount = hasChildCountProperty ? item[this.childCountProperty] : 0;
+
                 treeItems.push({
                     data: item,
                     id: item.id,
                     parentId: parentId,
-                    childCount: item[this.childCountProperty],
+                    childCount: childCount,
                     children: this.getTreeItems(item.id),
                     initialOpened: false,
                     active: false,
@@ -440,6 +443,10 @@ Component.register('sw-tree', {
                 this.addElementPosition = pos;
             }
 
+            if (!contextItem.hasOwnProperty('parentId')) {
+                contextItem.parentId = null;
+            }
+
             this.currentEditMode = this.addElement;
 
             const targetTree = this.findTreeByParentId(contextItem.parentId);
@@ -461,11 +468,17 @@ Component.register('sw-tree', {
         },
 
         getNewTreeItem(elem) {
+            const hasChildCountProperty = elem.hasOwnProperty(this.childCountProperty);
+            const childCount = hasChildCountProperty ? elem[this.childCountProperty] : 0;
+
+            const hasParentProperty = elem.hasOwnProperty('parentId');
+            const parentId = hasParentProperty ? elem.parentId : null;
+
             return {
                 data: elem,
                 id: elem.id,
-                parentId: elem.parentId,
-                childCount: elem[this.childCountProperty],
+                parentId: parentId,
+                childCount: childCount,
                 children: 0,
                 initialOpened: false,
                 active: false

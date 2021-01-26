@@ -119,13 +119,25 @@
   },
   "sw-landing-page": {
     "general": {
-      "treeHeadline": "Landing Pages"
+      "treeHeadSelected": "{count} selected",
+      "buttonCreate": "Create landing page",
+      "treeHeadline": "Landing Pages",
+      "actions": {
+        "withoutPosition": "New landing page"
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
     }
   },
   "sw-privileges": {
     "permissions": {
       "category": {
         "label": "Categories"
+      },
+      "landingPage": {
+        "label": "Landing Pages"
       }
     }
   }

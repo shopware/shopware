@@ -18,6 +18,7 @@
                             <sw-button
                                 v-if="currentlyActivePage === 0"
                                 size="small"
+                                :disabled="leftButtonDisabled"
                                 @click="onClose">
                                 {{ $tc('sw-wizard.closeButton') }}
                             </sw-button>
@@ -27,6 +28,7 @@
                             <sw-button
                                 v-else
                                 size="small"
+                                :disabled="leftButtonDisabled"
                                 @click="previousPage">
                                 {{ $tc('sw-wizard.backButton') }}
                             </sw-button>
@@ -54,6 +56,7 @@
                                 v-if="currentlyActivePage >= pagesCount - 1"
                                 size="small"
                                 variant="primary"
+                                :disabled="rightButtonDisabled"
                                 @click="$emit('finish')">
                                 {{ $tc('sw-wizard.finishButton') }}
                             </sw-button>
@@ -64,6 +67,7 @@
                                 v-else
                                 size="small"
                                 variant="primary"
+                                :disabled="rightButtonDisabled"
                                 @click="nextPage">
                                 {{ $tc('sw-wizard.nextButton') }}
                             </sw-button>

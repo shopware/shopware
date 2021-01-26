@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-promotion-v2-rule-select {
+    &__add-new-rule:hover {
+        background-color: lighten($color-shopware-brand-500, 40%);
+    }
+
+    &__add-new-rule.sw-select-result {
+        color: $color-darkgray-200;
+    }
+}

@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-individual-codes-behavior';
+import 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 

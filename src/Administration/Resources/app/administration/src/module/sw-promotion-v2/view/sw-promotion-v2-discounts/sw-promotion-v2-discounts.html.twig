@@ -40,7 +40,7 @@
                 v-if="showDiscountModal"
                 :showNavigationDots="selectedDiscountType !== null"
                 @close="onCloseDiscountModal"
-                @finish="onCloseDiscountModal">
+                @finish="onFinishDiscountModal">
 
                 {% block sw_promotion_v2_discounts_wizard_selection %}
                     <sw-promotion-v2-wizard-discount-selection
@@ -57,7 +57,22 @@
                             })">
 
                                 {% block sw_promotion_v2_discounts_wizard_basic_discount_type_settings %}
-                                    <sw-promotion-v2-settings-discount-type></sw-promotion-v2-settings-discount-type>
+                                    <sw-promotion-v2-settings-discount-type
+                                        :discount="newDiscount"
+                                        :discountScope="selectedDiscountType">
+                                    </sw-promotion-v2-settings-discount-type>
+                                {% endblock %}
+
+                            </sw-wizard-page>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_discounts_wizard_basic_rule_selection %}
+                            <sw-wizard-page :title="$tc('sw-promotion-v2.detail.discounts.settings.ruleSelection.title')">
+
+                                {% block sw_promotion_v2_discounts_wizard_basic_rule_selection_card %}
+                                    <sw-promotion-v2-settings-rule-selection
+                                        :discount="newDiscount">
+                                    </sw-promotion-v2-settings-rule-selection>
                                 {% endblock %}
 
                             </sw-wizard-page>

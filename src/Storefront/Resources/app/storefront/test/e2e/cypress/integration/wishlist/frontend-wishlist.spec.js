@@ -84,26 +84,30 @@ describe('Wishlist: for wishlist page', () => {
             method: 'post'
         }).as('guestPagelet');
 
-        cy.visit('/wishlist');
-        cy.title().should('eq', 'Your wishlist')
+        cy.visit('/');
 
-        localStorage.setItem('wishlist-products', JSON.stringify({[product.id]: "20201220"}));
+        cy.window().then((win) => {
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
+            cy.visit('/wishlist');
 
-        cy.wait('@guestPagelet').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
+            cy.title().should('eq', 'Your wishlist');
+
+            cy.wait('@guestPagelet').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+            cy.get('.product-wishlist-form [type="submit"]').click();
+
+            cy.wait('@guestPagelet').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+                expect(win.localStorage.getItem('wishlist-' + win.salesChannelId)).to.equal(null)
+            });
+
+            cy.get('.cms-listing-row').find('h1').contains('Your wishlist is empty')
+            cy.get('.cms-listing-row').find('p').contains('Keep an eye on products you like by adding them to your wishlist.');
         });
-
-        cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-        cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-        cy.get('.product-wishlist-form [type="submit"]').click();
-
-        cy.wait('@guestPagelet').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-            expect(localStorage.getItem('wishlist-products')).to.equal(null)
-        });
-
-        cy.get('.cms-listing-row').find('h1').contains('Your wishlist is empty')
-        cy.get('.cms-listing-row').find('p').contains('Keep an eye on products you like by adding them to your wishlist.')
     });
 
     it('@wishlist add to cart button work on guest page', () => {
@@ -123,30 +127,35 @@ describe('Wishlist: for wishlist page', () => {
             method: 'get'
         }).as('offcanvas');
 
-        cy.visit('/wishlist');
-        cy.title().should('eq', 'Your wishlist')
+        cy.visit('/');
 
-        localStorage.setItem('wishlist-products', JSON.stringify({[product.id]: "20201220"}));
+        cy.window().then(win => {
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
 
-        cy.wait('@guestPagelet').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
-            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
+            cy.visit('/wishlist');
 
-            cy.wait('@add-to-cart').then(xhr => {
+            cy.title().should('eq', 'Your wishlist')
+
+            cy.wait('@guestPagelet').then(xhr => {
                 expect(xhr).to.have.property('status', 200);
-            });
-
-            cy.wait('@offcanvas').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-                cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
-                cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
-
-                // Wishlist product should still exist
                 cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
                 cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
+                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
+
+                cy.wait('@add-to-cart').then(xhr => {
+                    expect(xhr).to.have.property('status', 200);
+                });
+
+                cy.wait('@offcanvas').then(xhr => {
+                    expect(xhr).to.have.property('status', 200);
+                    cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
+                    cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
+
+                    // Wishlist product should still exist
+                    cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+                    cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                });
             });
         });
     });

@@ -5,7 +5,7 @@
 /* eslint-disable */
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 
-describe('WishlistStorage tests', () => {
+describe('BaseWishlistStoragePlugin tests', () => {
     let wishlistStoragePlugin = undefined;
     let spyInitializePlugins = jest.fn();
 
@@ -34,11 +34,11 @@ describe('WishlistStorage tests', () => {
         spyInitializePlugins.mockClear();
     });
 
-    test('Wishlist Storage widget plugin exists', () => {
+    test('BaseWishlistStoragePlugin exists', () => {
         expect(typeof wishlistStoragePlugin).toBe('object');
     });
 
-    test('Wishlist base storage add/remove/has/getCurrentCounter/getProducts methods test', () => {
+    test('BaseWishlistStoragePlugin methods test', () => {
         const products = {
             'PRODUCT_1': 'product 1',
             'PRODUCT_2': 'product 2',

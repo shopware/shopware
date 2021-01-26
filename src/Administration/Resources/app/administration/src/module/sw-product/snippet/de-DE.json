@@ -428,6 +428,9 @@
       "imagesFilter": {
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ..."
+      },
+      "releaseDateFilter": {
+        "label": "Erscheinungsdatum"
       }
     },
     "notification": {

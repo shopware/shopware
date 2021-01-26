@@ -37,7 +37,8 @@ Component.register('sw-product-list', {
             filterCriteria: [],
             defaultFilters: [
                 'active-filter',
-                'product-without-images-filter'
+                'product-without-images-filter',
+                'release-date-filter'
             ]
         };
     },
@@ -114,6 +115,11 @@ Component.register('sw-product-list', {
                     property: 'media',
                     label: this.$tc('sw-product.filters.imagesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
+                },
+                'release-date-filter': {
+                    property: 'releaseDate',
+                    label: this.$tc('sw-product.filters.releaseDateFilter.label'),
+                    dateType: 'datetime'
                 }
             });
         }

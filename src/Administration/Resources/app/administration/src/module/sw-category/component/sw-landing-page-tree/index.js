@@ -125,7 +125,6 @@ Component.register('sw-landing-page-tree', {
             this.loadLandingPages()
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
                     });
                 })
@@ -174,6 +173,33 @@ Component.register('sw-landing-page-tree', {
             } else {
                 this.$router.push(route);
             }
+        },
+
+        duplicateElement(contextItem) {
+            const behavior = {
+                cloneChildren: false,
+                overwrites: {
+                    name: `${contextItem.data.name} ${this.$tc('sw-product.general.copy')}`,
+                    active: false
+                }
+            };
+
+            this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
+                const criteria = new Criteria();
+                criteria.setIds([clone.id]);
+                this.landingPageRepository.search(criteria, Shopware.Context.api).then((landingPages) => {
+                    landingPages.forEach(element => {
+                        element.childCount = 0;
+                        element.parentId = null;
+                    });
+
+                    this.addLandingPages(landingPages);
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                });
+            });
         },
 
         createNewElement(contextItem, parentId, name = '') {

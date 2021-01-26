@@ -14,10 +14,11 @@ author_github: King-of-Babylon
     * `\Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition`
 ___
 # Administration
-* Added props `shouldShowActiveState` and `allowCreateWithoutPosition` to `sw-tree-item` component
-* Added new blocks `sw_tree_items_active_state` and `sw_tree_items_actions_without_position` in `src/Administration/Resources/app/administration/src/app/component/tree/sw-tree-item/sw-tree-item.html.twig`
+* Added props `shouldShowActiveState`, `allowDuplicate` and `allowCreateWithoutPosition` to `sw-tree-item` component
+* Added new blocks `sw_tree_items_active_state`, `sw_tree_items_actions_duplicate` and `sw_tree_items_actions_without_position` in `src/Administration/Resources/app/administration/src/app/component/tree/sw-tree-item/sw-tree-item.html.twig`
 * Added `viewer`, `editor`, `creator` and `deleter` roles for landing page tree in `src/Administration/Resources/app/administration/src/module/sw-category/acl/index.js`
 * Added new blocks `sw_category_tree`, `sw_landing_page_tree` and `sw_landing_page_content_view` in `src/Administration/Resources/app/administration/src/module/sw-category/page/sw-category-detail/sw-category-detail.html.twig`
+* Added new functions `duplicateElement` to `sw-tree` and `sw-tree-item` component
 * Added new computed prop `showEmptyState` to `sw-category-detail` component
 * Added `sw-landing-page-tree` component in following files:
     * `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-landing-page-tree/index.js`

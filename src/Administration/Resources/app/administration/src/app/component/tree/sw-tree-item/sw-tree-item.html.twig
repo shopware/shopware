@@ -98,7 +98,7 @@
                                 <sw-context-menu-item
                                     v-if="allowCreateWithoutPosition"
                                     class="sw-tree-item__without-position-action"
-                                    @click="addElement(item);">
+                                    @click="addElement(item)">
                                     {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
                                 </sw-context-menu-item>
                             {% endblock %}
@@ -108,7 +108,7 @@
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
                                     class="sw-tree-item__before-action"
-                                    @click="addElement(item, 'before');">
+                                    @click="addElement(item, 'before')">
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                 </sw-context-menu-item>
                             {% endblock %}
@@ -118,7 +118,7 @@
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
                                     class="sw-tree-item__after-action"
-                                    @click="addElement(item, 'after');">
+                                    @click="addElement(item, 'after')">
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                 </sw-context-menu-item>
                             {% endblock %}
@@ -130,6 +130,15 @@
                                     class="sw-tree-item__sub-action"
                                     @click="addSubElement(item); openTreeItem(true)">
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_tree_items_actions_duplicate %}
+                                <sw-context-menu-item
+                                    v-if="allowDuplicate"
+                                    class="sw-context-menu__duplicate-action"
+                                    @click="onDuplicate(item)">
+                                    {{ $tc(`global.default.duplicate`) }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
@@ -245,27 +254,47 @@
                                                 <slot name="actions" v-bind="{ item, openTreeItem }">
                                                     <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
 
+                                                        {% block sw_tree_items_actions_without_position %}
+                                                            <sw-context-menu-item
+                                                                v-if="allowCreateWithoutPosition"
+                                                                class="sw-tree-item__without-position-action"
+                                                                @click="addElement(item)">
+                                                                {{ $tc(`${translationContext}.general.actions.withoutPosition`) }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
                                                         {% block sw_tree_items_actions_before %}
                                                             <sw-context-menu-item
+                                                                v-if="!allowCreateWithoutPosition"
                                                                 :disabled="!allowNewCategories"
-                                                                @click="addElement(item, 'before');">
+                                                                @click="addElement(item, 'before')">
                                                                 {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_tree_items_actions_after %}
                                                             <sw-context-menu-item
+                                                                v-if="!allowCreateWithoutPosition"
                                                                 :disabled="!allowNewCategories"
-                                                                @click="addElement(item, 'after');">
+                                                                @click="addElement(item, 'after')">
                                                                 {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_tree_items_actions_sub %}
                                                             <sw-context-menu-item
+                                                                v-if="!allowCreateWithoutPosition"
                                                                 :disabled="!allowNewCategories"
                                                                 @click="addSubElement(item); openTreeItem(true)">
                                                                 {{ $tc(`${translationContext}.general.actions.createSub`) }}
+                                                            </sw-context-menu-item>
+                                                        {% endblock %}
+
+                                                        {% block sw_tree_items_actions_duplicate %}
+                                                            <sw-context-menu-item
+                                                                v-if="allowDuplicate"
+                                                                @click="onDuplicate(item)">
+                                                                {{ $tc(`global.default.duplicate`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 

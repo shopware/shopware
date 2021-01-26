@@ -163,4 +163,20 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(treeLink.attributes().href).not.toEqual('detail/1a2b');
         expect(treeLink.attributes().href).toEqual('detail/1a2b3c');
     });
+
+    it('should be able to duplicate items', async () => {
+        const contextButton = wrapper.find('.sw-tree-item__context_button');
+
+        await wrapper.setProps({
+            allowDuplicate: true
+        });
+
+        expect(contextButton.find('.sw-context-menu__duplicate-action').exists()).toBeTruthy();
+    });
+
+    it('should be unable to duplicate items', async () => {
+        const contextButton = wrapper.find('.sw-tree-item__context_button');
+
+        expect(contextButton.find('.sw-context-menu__duplicate-action').exists()).toBeFalsy();
+    });
 });

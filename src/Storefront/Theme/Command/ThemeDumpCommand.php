@@ -13,6 +13,7 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -68,6 +69,7 @@ class ThemeDumpCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('theme-id', InputArgument::OPTIONAL, 'Theme ID');
+        $this->addOption('sales-channel-domain-url', 'u', InputOption::VALUE_REQUIRED, 'The URL of the Sales-Channel for which you want to dump the theme');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -84,6 +86,22 @@ class ThemeDumpCommand extends Command
             } else {
                 $criteria->setIds([$id]);
             }
+        }
+        
+        if ($id === null && $input->getOption('sales-channel-domain-url') !== null) {
+            $criteria->addFilter(new EqualsFilter('theme.salesChannels.domains.url', $input->getOption('sales-channel-domain-url')));
+        }
+
+        if ($id === null && $input->getOption('sales-channel-domain-url') !== null) {
+            $criteria->addFilter(new EqualsFilter('theme.salesChannels.domains.url', $input->getOption('sales-channel-domain-url')));
+        }
+
+        if ($id === null && $input->getOption('sales-channel-domain-url') !== null) {
+            $criteria->addFilter(new EqualsFilter('theme.salesChannels.domains.url', $input->getOption('sales-channel-domain-url')));
+        }
+
+        if ($id === null && $input->getOption('sales-channel-domain-url') !== null) {
+            $criteria->addFilter(new EqualsFilter('theme.salesChannels.domains.url', $input->getOption('sales-channel-domain-url')));
         }
 
         $themes = $this->themeRepository->search($criteria, $this->context);

@@ -49,6 +49,7 @@
       "messagePluginActivationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht aktiviert werden",
       "messagePluginDeactivationFailed": "Das Plugin konnte aufgrund der Fehlermeldung \"{message}\" nicht deaktiviert werden",
       "messageDeactivationFailedDependencies": "Das Plugin \"{dependency}\" kann nicht deaktiviert werden, da es noch aktive Plugins gibt, die von ihm abhängig sind. Bitte deaktiviere zuerst folgende Plugins, bevor du das Update erneut startest: {dependantNames}",
+      "messageDeactivationFailedThemeAssignment": "Das Theme \"{themeName}\" konnte nicht deaktiviert werden. Bitte entferne die folgenden Theme-Zuweisungen: {assignments}",
       "messagePluginUpdateFailed": "Das Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden. {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Das Plugin wurde deaktiviert."
     },

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -47,11 +48,23 @@ class EntityScoreBuilderTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var EntityDefinition
+     */
+    private $shouldTokenizeDefinition;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $shouldNotTokenizeDefinition;
+
     protected function setUp(): void
     {
         $this->testDefinition = $this->registerDefinition(ScoreBuilderTestDefinition::class, NestedDefinition::class);
         $this->testDefinitionTranslated = $this->registerDefinition(OnlyTranslatedFieldDefinition::class);
         $this->onlyDateFieldDefinition = $this->registerDefinition(OnlyDateFieldDefinition::class);
+        $this->shouldTokenizeDefinition = $this->registerDefinition(ShouldTokenizeFieldDefinition::class);
+        $this->shouldNotTokenizeDefinition = $this->registerDefinition(ShouldNotTokenizeFieldDefinition::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -99,6 +112,34 @@ class EntityScoreBuilderTest extends TestCase
             ],
             $queries
         );
+    }
+
+    /**
+     * @dataProvider searchCustomerEmail
+     */
+    public function testSearchTokenizeTerm(bool $tokenize, string $term): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(new SearchTerm($term, 1));
+
+        $pattern->addTerm(new SearchTerm('johndoe', 0.5));
+        $pattern->addTerm(new SearchTerm('example', 0.3));
+        $pattern->addTerm(new SearchTerm('com', 0.2));
+
+        $definition = $tokenize ? $this->shouldTokenizeDefinition : $this->shouldNotTokenizeDefinition;
+
+        $queries = $builder->buildScoreQueries($pattern, $definition, 'test', $this->context);
+
+        if (!$tokenize) {
+            static::assertCount(2, $queries);
+            static::assertEquals([
+                new ScoreQuery(new EqualsFilter('test.email', $term), 100),
+                new ScoreQuery(new ContainsFilter('test.email', $term), 50),
+            ], $queries);
+        } else {
+            static::assertCount(8, $queries);
+        }
     }
 
     public function testSimplePattern(): void
@@ -216,6 +257,16 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
+    public function searchCustomerEmail()
+    {
+        $shouldTokenize = true;
+
+        return [
+            'query should tokenzie' => [$shouldTokenize, 'johndoe@example.com'],
+            'query should not tokenzie' => [!$shouldTokenize, 'johndoe@example.com'],
+        ];
+    }
+
     public function inValidDateTerms()
     {
         return [
@@ -327,6 +378,50 @@ class OnlyDateFieldDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new DateTimeField('date_time', 'dateTime'))->addFlags(new SearchRanking(100)),
+        ]);
+    }
+}
+
+class ShouldTokenizeFieldDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'only_tokenize_field';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    public function since(): string
+    {
+        return '6.3.5.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new EmailField('email', 'email'))->addFlags(new SearchRanking(100, true)),
+        ]);
+    }
+}
+
+class ShouldNotTokenizeFieldDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'only_not_tokenize_field';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    public function since(): string
+    {
+        return '6.3.5.0';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new EmailField('email', 'email'))->addFlags(new SearchRanking(100, false)),
         ]);
     }
 }

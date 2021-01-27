@@ -19,9 +19,15 @@ class SearchRanking extends Flag
      */
     protected $ranking;
 
-    public function __construct(float $ranking)
+    /**
+     * @var bool
+     */
+    protected $tokenize;
+
+    public function __construct(float $ranking, bool $tokenize = true)
     {
         $this->ranking = $ranking;
+        $this->tokenize = $tokenize;
     }
 
     public function getRanking(): float
@@ -32,5 +38,10 @@ class SearchRanking extends Flag
     public function parse(): \Generator
     {
         yield 'search_ranking' => $this->ranking;
+    }
+
+    public function tokenize(): bool
+    {
+        return $this->tokenize;
     }
 }

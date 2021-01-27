@@ -370,6 +370,73 @@ class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestC
         static::assertEmpty($fields);
     }
 
+    public function testMigrationWithOnlyDe(): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE FROM `language` WHERE `id` != :defaultLanguage',
+            ['defaultLanguage' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $deLocaleId = $this->connection->fetchColumn(
+            'SELECT id FROM `locale` WHERE `code` = :code',
+            ['code' => 'de-DE']
+        );
+
+        $this->connection->update(
+            'language',
+            [
+                'name' => self::GERMAN_LANGUAGE_NAME,
+                'locale_id' => $deLocaleId,
+                'translation_code_id' => $deLocaleId,
+            ],
+            ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $this->runMigration();
+
+        $fields = $this->connection->fetchAll(
+            'SELECT config_field.field AS field FROM product_search_config_field AS config_field
+            INNER JOIN product_search_config AS search_config
+            ON search_config.id = config_field.product_search_config_id
+            WHERE search_config.language_id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $fields = array_column($fields, 'field');
+        sort($fields);
+
+        $expected = [
+            'categories.customFields',
+            'categories.name',
+            'description',
+            'manufacturer.customFields',
+            'manufacturer.name',
+            'metaDescription',
+            'metaTitle',
+            'name',
+            'productNumber',
+            'properties.name',
+            'tags.name',
+            'variantRestrictions',
+            'manufacturerNumber',
+            'ean',
+            'customSearchKeywords',
+        ];
+
+        sort($expected);
+
+        static::assertEquals($expected, $fields);
+
+        $fields = $this->connection->fetchColumn(
+            'SELECT excluded_terms FROM product_search_config
+            WHERE product_search_config.language_id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $deStopwords = require \dirname(__DIR__) . '/Fixtures/stopwords/de.php';
+        static::assertEquals($deStopwords, json_decode($fields));
+    }
+
     private function fetchLanguageIds(): array
     {
         return $this->connection->fetchAll('SELECT LOWER(HEX(id)) as array_key, id as language_id, name FROM language ORDER BY name');

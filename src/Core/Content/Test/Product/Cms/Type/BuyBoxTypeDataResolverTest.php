@@ -9,18 +9,26 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,7 +52,11 @@ class BuyBoxTypeDataResolverTest extends TestCase
             new PropertyGroupCollection()
         );
 
-        $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader);
+        $deprecatedEntityDefinition = new DeprecatedEntityDefinition();
+        $deprecatedEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $repositoryMock = $this->createMock(EntityRepositoryInterface::class);
+
+        $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader, $repositoryMock);
     }
 
     public function testGetType(): void
@@ -165,5 +177,105 @@ class BuyBoxTypeDataResolverTest extends TestCase
         $criteriaCollection = $this->buyBoxResolver->collect($slot, $resolverContext);
 
         static::assertNull($criteriaCollection);
+    }
+
+    public function testReviewCountLoaded(): void
+    {
+        $productId = Uuid::randomHex();
+        $saleChannelContext = $this->createSalesChannelContext();
+
+        $this->createProduct($productId);
+        $this->createReviews($productId);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('buy-box');
+        $slot->setFieldConfig($fieldConfig);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($productId);
+
+        $resolverContext = new ResolverContext($saleChannelContext, new Request());
+
+        $result = new ElementDataCollection();
+        $result->add('product_id', new EntitySearchResult(
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            $resolverContext->getSalesChannelContext()->getContext()
+        ));
+
+        $buyBoxResolver = $this->getContainer()->get(BuyBoxCmsElementResolver::class);
+        $buyBoxResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var BuyBoxStruct|null $buyBoxStruct */
+        $buyBoxStruct = $slot->getData();
+
+        static::assertSame(3, $buyBoxStruct->getTotalReviews());
+    }
+
+    private function createProduct(string $productId): void
+    {
+        $data = [
+            'id' => $productId,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'purchasePrice' => 7.5,
+            'purchasePrices' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],
+            ],
+            'active' => true,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'weight' => 100,
+            'height' => 101,
+            'width' => 102,
+            'length' => 103,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'test',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+    }
+
+    private function createReviews(string $productId): void
+    {
+        $reviews = [];
+        for ($i = 1; $i <= 3; ++$i) {
+            $reviews[] = [
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'productId' => $productId,
+                'title' => 'Test',
+                'content' => 'test',
+                'points' => min(5, $i + $i / 5),
+                'status' => true,
+            ];
+        }
+
+        $this->getContainer()->get('product_review.repository')
+            ->create($reviews, Context::createDefaultContext());
+    }
+
+    private function createSalesChannelContext(): SalesChannelContext
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+
+        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 }

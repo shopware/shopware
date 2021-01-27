@@ -384,6 +384,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
+            <argument type="service" id="product_review.repository"/>
             <tag name="shopware.cms.data_resolver"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>

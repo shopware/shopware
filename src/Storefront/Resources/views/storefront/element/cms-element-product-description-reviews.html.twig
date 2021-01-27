@@ -1,5 +1,12 @@
 {% block element_product_desciption_reviews %}
-    {%  set config = element.fieldConfig.elements %}
+    {% set config = element.fieldConfig.elements %}
+    {% set product = element.data.product %}
+    {% set descriptionTabId = "description-tab-" ~ product.id %}
+    {% set descriptionTabHref = "#description-tab-pane-" ~ product.id %}
+    {% set descriptionTabContent = "description-tab-pane-" ~ product.id %}
+    {% set reviewTabId = "review-tab-" ~ product.id %}
+    {% set reviewTabHref = "#review-tab-pane-" ~ product.id %}
+    {% set reviewTabContent = "review-tab-pane-" ~ product.id %}
 
     {% if element.data.product %}
         <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
@@ -16,12 +23,12 @@
                                     {% block element_product_desciption_reviews_tabs_navigation_description %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
-                                               id="description-tab"
+                                               id="{{ descriptionTabId }}"
                                                data-toggle="tab"
                                                data-offcanvas-tabs="true"
-                                               href="#description-tab-pane"
+                                               href="{{ descriptionTabHref }}"
                                                role="tab"
-                                               aria-controls="description-tab-pane"
+                                               aria-controls="{{ descriptionTabContent }}"
                                                aria-selected="true">
                                                 <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
                                                 <span class="product-detail-tab-navigation-icon">
@@ -43,16 +50,17 @@
                                             </a>
                                         </li>
                                     {% endblock %}
+
                                     {% block element_product_desciption_reviews_tabs_navigation_review %}
                                         {% if shopware.config.core.listing.showReview %}
                                             <li class="nav-item">
                                                 <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
-                                                   id="review-tab"
+                                                   id="{{ reviewTabId }}"
                                                    data-toggle="tab"
                                                    data-offcanvas-tabs="true"
-                                                   href="#review-tab-pane"
+                                                   href="{{ reviewTabHref }}"
                                                    role="tab"
-                                                   aria-controls="review-tab-pane"
+                                                   aria-controls="{{ reviewTabContent }}"
                                                    aria-selected="true">
                                                     {{ "detail.tabsReview"|trans|sw_sanitize }}
                                                     <span class="product-detail-tab-navigation-icon">
@@ -73,9 +81,9 @@
                                 <div class="tab-content">
                                     {% block element_product_desciption_reviews_tabs_content_description %}
                                         <div class="tab-pane fade show {% if (element.data.ratingSuccess != 1) and (element.data.ratingSuccess != -1) %}active{% endif %}"
-                                             id="description-tab-pane"
+                                             id="{{ descriptionTabContent }}"
                                              role="tabpanel"
-                                             aria-labelledby="description-tab">
+                                             aria-labelledby="{{ descriptionTabId }}">
                                             {% sw_include '@Storefront/storefront/component/product/description.html.twig' with {
                                                 product: element.data.product
                                             } %}
@@ -85,9 +93,9 @@
                                     {% block element_product_desciption_reviews_tabs_content_review %}
                                         {% if shopware.config.core.listing.showReview %}
                                             <div class="tab-pane fade show {% if (element.data.ratingSuccess == 1) or (element.data.ratingSuccess == -1) %}active{% endif %}"
-                                                 id="review-tab-pane"
+                                                 id="{{ reviewTabContent }}"
                                                  role="tabpanel"
-                                                 aria-labelledby="review-tab">
+                                                 aria-labelledby="{{ reviewTabId }}">
                                                 {% sw_include '@Storefront/storefront/component/review/review.html.twig' with {
                                                     reviews: element.data.reviews,
                                                     product: element.data.product

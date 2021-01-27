@@ -122,9 +122,11 @@
                     {% endblock %}
 
                     {% set remoteClickOptions = {
-                        selector: "#review-tab",
+                        selector: "#review-tab-" ~ product.id,
                         scrollToElement: true
                     } %}
+
+                    {% set reviewTabHref = "#review-tab-pane-" ~ product.id %}
 
                     {% block buy_widget_reviews %}
                         {% if product.ratingAverage > 0 and totalReviews > 0 and shopware.config.core.listing.showReview %}
@@ -139,7 +141,7 @@
                                    data-offcanvas-tabs="true"
                                    data-remote-click="true"
                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="#review-tab-pane"
+                                   href="{{ reviewTabHref }}"
                                    aria-controls="review-tab-pane">
                                     {{ totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}

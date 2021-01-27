@@ -27,6 +27,24 @@ const mockCategories = [
     }
 ];
 
+const mockProducts = [
+    {
+        name: 'Product 1',
+        id: 'uuid1',
+        cmsPageId: null
+    },
+    {
+        name: 'Product 2',
+        id: 'uuid2',
+        cmsPageId: null
+    },
+    {
+        name: 'Product 3',
+        id: 'uuid3',
+        cmsPageId: null
+    }
+];
+
 function createWrapper(layoutType = 'product_list', privileges = []) {
     const localVue = createLocalVue();
 
@@ -37,6 +55,7 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
         propsData: {
             page: {
                 categories: new EntityCollection(null, null, null, new Criteria(), mockCategories),
+                products: new EntityCollection(null, null, null, new Criteria(), mockProducts),
                 type: layoutType,
                 id: 'uuid007'
             }
@@ -59,7 +78,8 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
             },
             'sw-multi-select': true,
             'sw-loader': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-cms-product-assignment': true
         },
         mocks: {
             $tc: (value) => value,
@@ -117,6 +137,10 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
 }
 
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
+    beforeAll(() => {
+        Shopware.Feature.isActive = () => true;
+    });
+
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 
@@ -648,5 +672,223 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(discardShopPageChangesSpy).toHaveBeenCalledTimes(1);
         expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.emitted('modal-close')).toBeTruthy();
+    });
+
+    it('should render product selection', () => {
+        const wrapper = createWrapper('product_detail');
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBeTruthy();
+    });
+
+    it('should store previous products on component creation', () => {
+        const wrapper = createWrapper('product_detail');
+
+        expect(wrapper.vm.previousProducts).toEqual(mockProducts);
+        expect(wrapper.vm.previousProductIds).toEqual(expect.arrayContaining(['uuid1', 'uuid2']));
+    });
+
+    it('should add products', async () => {
+        const wrapper = createWrapper('product_detail');
+
+        await wrapper.setData({
+            page: {
+                products: new EntityCollection(null, null, null, new Criteria(), [
+                    ...mockProducts,
+                    {
+                        name: 'New product',
+                        id: 'uuid4'
+                    }
+                ])
+            }
+        });
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for main modal
+
+        expect(wrapper.vm.page.products).toEqual(expect.arrayContaining([
+            {
+                name: 'New product',
+                id: 'uuid4'
+            }
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('should add a product which already has a different assigned layout', async () => {
+        const wrapper = createWrapper('product_detail');
+
+        await wrapper.setData({
+            page: {
+                products: new EntityCollection(null, null, null, new Criteria(), [
+                    ...mockProducts,
+                    {
+                        name: 'New product',
+                        id: 'uuid4',
+                        cmsPageId: 'differentId'
+                    },
+                    {
+                        name: 'Also new product',
+                        id: 'uuid5',
+                        cmsPageId: null
+                    }
+                ])
+            }
+        });
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because one new category has already an assigned layout
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products-assigned-layouts').exists()).toBeTruthy();
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for warning modal to close
+        await wrapper.vm.$nextTick(); // Wait for main modal to close
+
+        expect(wrapper.vm.page.products).toEqual(expect.arrayContaining([
+            {
+                name: 'New product',
+                id: 'uuid4',
+                cmsPageId: 'differentId'
+            },
+            {
+                name: 'Also new product',
+                id: 'uuid5',
+                cmsPageId: null
+            }
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+    //
+    it('should remove products and confirm', async () => {
+        const wrapper = createWrapper('product_detail');
+
+        await wrapper.setData({
+            page: {
+                products: new EntityCollection(null, null, null, new Criteria(), [
+                    {
+                        name: 'Product 1',
+                        id: 'uuid1'
+                    },
+                    {
+                        name: 'Product 1',
+                        id: 'uuid2'
+                    }
+                ])
+            }
+        });
+
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed category
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products').exists()).toBeTruthy();
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for warning modal to close
+        await wrapper.vm.$nextTick(); // Wait for main modal to close
+
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('should remove products but discard changes', async () => {
+        const wrapper = createWrapper('product_detail');
+
+        await wrapper.setData({
+            page: {
+                products: new EntityCollection(null, null, null, new Criteria(), [
+                    {
+                        name: 'Product 1',
+                        id: 'uuid1'
+                    },
+                    {
+                        name: 'Product 1',
+                        id: 'uuid2'
+                    }
+                ])
+            }
+        });
+
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed category
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products').exists()).toBeTruthy();
+
+        // Discard changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-discard').trigger('click');
+
+        // Verify categories are restored to initial categories
+        expect(wrapper.vm.page.products).toEqual(expect.arrayContaining(mockProducts));
+        expect(wrapper.emitted('modal-close')).toBeFalsy();
+        expect(wrapper.emitted('confirm')).toBeFalsy();
+    });
+
+    it('should remove products but keep editing', async () => {
+        const wrapper = createWrapper('product_detail');
+
+        await wrapper.setData({
+            page: {
+                products: new EntityCollection(null, null, null, new Criteria(), [
+                    {
+                        name: 'Product 1',
+                        id: 'uuid1'
+                    },
+                    {
+                        name: 'Product 1',
+                        id: 'uuid2'
+                    }
+                ])
+            }
+        });
+
+        // Confirm
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed category
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-products').exists()).toBeTruthy();
+
+        // Keep editing
+        wrapper.find('.sw-cms-layout-assignment-modal__action-keep-editing').trigger('click');
+
+        // Verify categories are still the same modified categories
+        expect(wrapper.vm.page.products).toEqual(expect.arrayContaining([
+            {
+                name: 'Product 1',
+                id: 'uuid1'
+            },
+            {
+                name: 'Product 1',
+                id: 'uuid2'
+            }
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeFalsy();
+        expect(wrapper.emitted('confirm')).toBeFalsy();
     });
 });

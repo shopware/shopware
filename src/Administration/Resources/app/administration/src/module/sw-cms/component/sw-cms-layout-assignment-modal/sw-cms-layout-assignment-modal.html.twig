@@ -13,7 +13,7 @@
 
         {% block sw_cms_layout_assignment_modal_info_text_general %}
             <p
-                v-if="page.type !== 'page'"
+                v-if="page.type !== 'page' && page.type !== 'product_detail'"
                 class="sw-cms-layout-assignment-modal__info-text">
                 {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoText') }}
             </p>
@@ -24,6 +24,14 @@
                 v-if="page.type === 'page'"
                 class="sw-cms-layout-assignment-modal__info-text">
                 {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoTextShopPages') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_info_text_product_detail_pages %}
+            <p
+                v-if="page.type === 'product_detail'"
+                class="sw-cms-layout-assignment-modal__info-text">
+                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoTextProductDetailPages') }}
             </p>
         {% endblock %}
 
@@ -64,7 +72,7 @@
 
                 <template #content="{ active }">
                     {% block sw_cms_layout_assignment_modal_category_select %}
-                        <template v-if="active === 'categories'">
+                        <template v-if="!isProductDetailPage && active === 'categories'">
 
                             {% block sw_cms_layout_assignment_modal_category_select_field %}
                                 <sw-category-tree-field
@@ -79,7 +87,7 @@
                     {% endblock %}
 
                     {% block sw_cms_layout_assignment_modal_shop_pages_select %}
-                        <template v-if="active === 'shop_pages'">
+                        <template v-if="!isProductDetailPage && active === 'shop_pages'">
 
                             {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
                                 <sw-entity-single-select
@@ -114,6 +122,54 @@
                             {% endblock %}
                         </template>
                     {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_product_detail_pages_select %}
+                        <template v-if="page.type === 'product_detail'">
+                            {% block sw_entity_many_to_many_assignment_card_select %}
+                                <sw-cms-product-assignment
+                                    class="sw-cms-layout-assignment-modal__product-select"
+                                    :localMode="true"
+                                    :entityCollection="page.products"
+                                    :columns="productColumns"
+                                    :criteria="productCriteria"
+                                    :selectLabel="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
+                                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')">
+
+                                    {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
+                                        <template #column-name="{ item, column }">
+                                            <router-link
+                                                :to="{ name: column.routerLink, params: { id: item.id } }">
+                                                <sw-product-variant-info :variations="item.options">
+                                                    {{ item.translated.name }}
+                                                </sw-product-variant-info>
+                                            </router-link>
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer %}
+                                        <template #column-manufacturer.name="{ item, column }">
+                                            <router-link
+                                                v-if="item.manufacturerId"
+                                                :to="{ name: column.routerLink, params: { id: item.manufacturerId } }">
+                                                {{ item.manufacturer.translated.name }}
+                                            </router-link>
+                                            <span v-else></span>
+                                        </template>
+
+                                    {% endblock %}
+
+                                    {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
+                                        <template #empty-state>
+                                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+
+                                            <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                                        </template>
+                                    {% endblock %}
+                                </sw-cms-product-assignment>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
                 </template>
             </sw-tabs>
         {% endblock %}
@@ -154,6 +210,22 @@
                     <p
                         class="sw-cms-layout-assignment-modal__confirm-text-general"
                         v-html="$tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextGeneral')">
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_products %}
+                    <p
+                        v-if="hasDeletedProducts"
+                        class="sw-cms-layout-assignment-modal__confirm-text-products">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProducts') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_products_assigned_layouts %}
+                    <p
+                        v-if="hasProductsWithAssignedLayouts"
+                        class="sw-cms-layout-assignment-modal__confirm-text-products-assigned-layouts">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProductsAssignedLayouts') }}
                     </p>
                 {% endblock %}
 

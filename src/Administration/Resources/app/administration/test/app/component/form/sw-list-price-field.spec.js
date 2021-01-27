@@ -110,9 +110,26 @@ describe('components/form/sw-list-price-field', () => {
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 
-    it('should pass down gross help text', async () => {
+    it('should not display gross help text when not in vertical mode', async () => {
         const wrapper = setup();
 
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
+    });
+
+    it('should display gross help text when in vertical mode', async () => {
+        const wrapper = setup({
+            vertical: true
+        });
+
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBe('global.sw-list-price-field.helpTextListPriceGross');
+    });
+
+    it('should not display gross help text when in compact mode', async () => {
+        const wrapper = setup({
+            vertical: true,
+            compact: true
+        });
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
     });
 });

@@ -159,6 +159,14 @@ Component.register('sw-list-price-field', {
             });
 
             return !priceForCurrency;
+        },
+
+        listPriceHelpText() {
+            if (!this.vertical || this.compact) {
+                return null;
+            }
+
+            return this.$tc('global.sw-list-price-field.helpTextListPriceGross');
         }
     },
 

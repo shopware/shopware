@@ -25,7 +25,6 @@ exports[`components/form/sw-list-price-field should renders correctly 1`] = `
       class="sw-list-price-field__list-price"
       currency="[object Object]"
       defaultprice="[object Object]"
-      grosshelptext="global.sw-list-price-field.helpTextListPriceGross"
       grosslabel="global.sw-list-price-field.labelListPriceGross"
       label="true"
       netlabel="global.sw-list-price-field.labelListPriceNet"

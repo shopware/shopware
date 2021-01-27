@@ -7,7 +7,7 @@ const { get, format } = Utils;
 Component.register('sw-order-line-items-grid', {
     template,
 
-    inject: ['orderService', 'acl'],
+    inject: ['repositoryFactory', 'orderService', 'acl'],
 
     data() {
         return {

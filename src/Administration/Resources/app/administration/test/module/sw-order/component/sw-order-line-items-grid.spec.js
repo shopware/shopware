@@ -150,6 +150,9 @@ function createWrapper({ privileges = [] }) {
             context: {}
         },
         provide: {
+            repositoryFactory: {
+                create: () => ({ search: () => Promise.resolve([]) })
+            },
             orderService: {},
             acl: {
                 can: (key) => {

@@ -73,7 +73,7 @@ class NewsletterController extends StorefrontController
         try {
             $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
         } catch (\Throwable $throwable) {
-            $this->addFlash('danger', $this->trans('newsletter.subscriptionConfirmationFailed'));
+            $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 
             throw new \Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
         }

@@ -144,7 +144,7 @@ class AuthController extends StorefrontController
         }
 
         if ((bool) $request->get('loginError')) {
-            $this->addFlash('danger', $this->trans('account.orderGuestLoginWrongCredentials'));
+            $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
         }
 
         $page = $this->loginPageLoader->load($request, $context);
@@ -173,7 +173,7 @@ class AuthController extends StorefrontController
                 $request->getSession()->invalidate();
             }
 
-            $this->addFlash('success', $this->trans('account.logoutSucceeded'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.logoutSucceeded'));
 
             $parameters = [];
         } catch (ConstraintViolationException $formViolations) {
@@ -250,11 +250,11 @@ class AuthController extends StorefrontController
                 false
             );
 
-            $this->addFlash('success', $this->trans('account.recoveryMailSend'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
         } catch (CustomerNotFoundException $e) {
-            $this->addFlash('success', $this->trans('account.recoveryMailSend'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.recoveryMailSend'));
         } catch (InconsistentCriteriaIdsException $e) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.recover.page');
@@ -274,7 +274,7 @@ class AuthController extends StorefrontController
         $hash = $request->get('hash');
 
         if (!$hash) {
-            $this->addFlash('danger', $this->trans('account.passwordHashNotFound'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
@@ -287,13 +287,13 @@ class AuthController extends StorefrontController
             ->first();
 
         if ($customerRecovery === null) {
-            $this->addFlash('danger', $this->trans('account.passwordHashNotFound'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
 
         if (!$this->checkHash($hash, $context->getContext())) {
-            $this->addFlash('danger', $this->trans('account.passwordHashExpired'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordHashExpired'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
         }
@@ -320,20 +320,20 @@ class AuthController extends StorefrontController
 
             $this->resetPasswordRoute->resetPassword($pw->toRequestDataBag(), $context);
 
-            $this->addFlash('success', $this->trans('account.passwordChangeSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
 
             return $this->forwardToRoute(
                 'frontend.account.recover.password.page',
                 ['hash' => $hash, 'formViolations' => $formViolations, 'passwordFormViolation' => true]
             );
         } catch (CustomerNotFoundByHashException $e) {
-            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.recover.request');
         } catch (CustomerRecoveryHashExpiredException $e) {
-            $this->addFlash('danger', $this->trans('account.passwordHashExpired'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordHashExpired'));
 
             return $this->forwardToRoute('frontend.account.recover.request');
         }

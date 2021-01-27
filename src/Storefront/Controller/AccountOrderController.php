@@ -183,7 +183,7 @@ class AccountOrderController extends StorefrontController
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
         if ($page->isPaymentChangeable() === false) {
-            $this->addFlash('danger', $this->trans('account.editOrderPaymentNotChangeable'));
+            $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeable'));
         }
 
         $page->setErrorCode($request->get('error-code'));

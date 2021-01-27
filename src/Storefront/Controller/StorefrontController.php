@@ -18,6 +18,11 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 
 abstract class StorefrontController extends AbstractController
 {
+    public const SUCCESS = 'success';
+    public const DANGER = 'danger';
+    public const INFO = 'info';
+    public const WARNING = 'warning';
+
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $request = $this->get('request_stack')->getCurrentRequest();

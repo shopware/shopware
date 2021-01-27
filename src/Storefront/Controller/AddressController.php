@@ -305,9 +305,9 @@ class AddressController extends StorefrontController
         }
 
         if ($success) {
-            $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.addressDefaultChanged'));
         } else {
-            $this->addFlash('danger', $this->trans('account.addressDefaultNotChanged'));
+            $this->addFlash(self::DANGER, $this->trans('account.addressDefaultNotChanged'));
         }
 
         $viewData['success'] = $success;

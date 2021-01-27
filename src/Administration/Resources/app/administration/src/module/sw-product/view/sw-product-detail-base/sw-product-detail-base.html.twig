@@ -141,7 +141,7 @@
             {% endblock %}
         {% endblock %}
 
-        {# @deprecated tag:v6.4.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
             {% block sw_product_detail_specifications %}
                 <div v-if="feature.isActive('FEATURE_NEXT_12429')">
                     ...
@@ -175,19 +175,64 @@
             </sw-card>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+            {% block sw_product_detail_specifications %}
+                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                    ...
+                    {% block sw_product_detail_specifications_essential_characteristics %}
+                        <sw-card
+                            :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
+                            :isLoading="isLoading">
+                            {% block sw_product_detail_specifications_essential_characteristics_content %}
+                                <sw-product-feature-set-form
+                                    ...>
+                                </sw-product-feature-set-form>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                    ...
+                </div>
+            {% endblock %}
+        #}
         {% block sw_product_detail_base_feature_set_card %}
-            <sw-card :title="$tc('sw-product.featureSets.cardTitle')"
-                     :isLoading="loading.product">
+            <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_12429')"
+                :title="$tc('sw-product.featureSets.cardTitle')"
+                :isLoading="loading.product">
                 {% block sw_product_detail_base_feature_set_form %}
                     <sw-product-feature-set-form :allowEdit="acl.can('product.editor')"></sw-product-feature-set-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+            {% block sw_product_detail_specifications %}
+                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                    ...
+                    {% block sw_product_detail_specifications_custom_fields %}
+                        <sw-card
+                            :title="$tc('sw-product.specifications.cardTitleCustomFields')"
+                            :isLoading="isLoading">
+                            {% block sw_product_detail_specifications_custom_fields_content %}
+                                <sw-custom-field-set-renderer
+                                    ...>
+                                </sw-custom-field-set-renderer>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                    ...
+                </div>
+            {% endblock %}
+        #}
         {% block sw_product_detail_attribute_sets %}
-            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                     v-if="customFieldSetsArray.length > 0 && !isLoading"
-                     :isLoading="loading.product || loading.customFieldSets">
+            <sw-card
+                v-if="
+                    !feature.isActive('FEATURE_NEXT_12429') &&
+                    customFieldSetsArray.length > 0 &&
+                    !isLoading
+                "
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :isLoading="loading.product || loading.customFieldSets">
                     <sw-custom-field-set-renderer
                         :entity="product"
                         :disabled="!acl.can('product.editor')"

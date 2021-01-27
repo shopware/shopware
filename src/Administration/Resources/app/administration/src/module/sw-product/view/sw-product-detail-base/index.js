@@ -27,14 +27,20 @@ Component.register('sw-product-detail-base', {
             limit: 10,
             total: 0,
 
-            // @deprecated tag:v6.4.0 - the variable "showLayoutModal" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+            /**
+             * @deprecated tag:v6.5.0 - The variable "showLayoutModal" will be removed because
+             * the modal was moved from this component to `sw-product-detail-layout` component.
+             */
             showLayoutModal: false
         };
     },
 
     watch: {
         product() {
-            // @deprecated tag:v6.4.0 - the logic `onLayoutSelect` will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+            /**
+             * @deprecated tag:v6.5.0 - The logic `onLayoutSelect` will be removed because
+             * the modal was moved from this component to `sw-product-detail-layout` component.
+             */
             if (this.product.cmsPageId) {
                 this.onLayoutSelect(this.product.cmsPageId);
             }
@@ -59,6 +65,10 @@ Component.register('sw-product-detail-base', {
             'isLoading'
         ]),
 
+        /**
+         * @deprecated tag:v6.5.0- The property "customFieldSetsArray" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-specifications` component.
+         */
         ...mapState('swProductDetail', {
             customFieldSetsArray: state => {
                 if (!state.customFieldSets) {
@@ -105,12 +115,18 @@ Component.register('sw-product-detail-base', {
             return this.repositoryFactory.create(this.product.media.entity);
         },
 
-        // @deprecated tag:v6.4.0 - the property "cmsPageRepository" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The property "cmsPageRepository" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         cmsPageRepository() {
             return this.repositoryFactory.create('cms_page');
         },
 
-        // @deprecated tag:v6.4.0 - the property "cmsPage" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The property "cmsPage" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
         }
@@ -218,17 +234,26 @@ Component.register('sw-product-detail-base', {
             this.product.mainCategories.push(mainCategory);
         },
 
-        // @deprecated tag:v6.4.0
+        /**
+         * @deprecated tag:v6.5.0 - The method "openLayoutModal" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         openLayoutModal() {
             this.showLayoutModal = true;
         },
 
-        // @deprecated tag:v6.4.0 - the method "closeLayoutModal" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The method "closeLayoutModal" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         closeLayoutModal() {
             this.showLayoutModal = false;
         },
 
-        // @deprecated tag:v6.4.0 - the method "onLayoutSelect" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The method "onLayoutSelect" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         onLayoutSelect(selectedLayout) {
             this.product.cmsPageId = selectedLayout;
 
@@ -239,7 +264,10 @@ Component.register('sw-product-detail-base', {
             });
         },
 
-        // @deprecated tag:v6.4.0 - the method "openInPageBuilder" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The method "openInPageBuilder" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         openInPageBuilder() {
             if (!this.cmsPage) {
                 this.$router.push({ name: 'sw.cms.create' });
@@ -248,7 +276,10 @@ Component.register('sw-product-detail-base', {
             }
         },
 
-        // @deprecated tag:v6.4.0 - the method "onLayoutReset" will be removed because the modal was moved from this component to `sw-product-detail-layout` component
+        /**
+         * @deprecated tag:v6.5.0 - The method "onLayoutReset" will be removed because
+         * the modal was moved from this component to `sw-product-detail-layout` component.
+         */
         onLayoutReset() {
             this.onLayoutSelect(null);
         }

@@ -115,6 +115,12 @@ Component.register('sw-tree-item', {
             required: false
         },
 
+        allowDuplicate: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         getItemUrl: {
             type: Function,
             required: false,
@@ -356,6 +362,15 @@ Component.register('sw-tree-item', {
 
         addElement(item, pos) {
             this.parentScope.addElement(item, pos);
+        },
+
+        duplicateElement(contextItem) {
+            this.parentScope.duplicateElement(contextItem);
+        },
+
+        onDuplicate(item) {
+            this.duplicateElement(item);
+            this.openTreeItem(true);
         },
 
         editElementName() {

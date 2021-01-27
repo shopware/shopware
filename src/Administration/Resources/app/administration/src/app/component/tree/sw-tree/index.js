@@ -431,6 +431,10 @@ Component.register('sw-tree', {
             });
         },
 
+        duplicateElement(contextItem) {
+            this.$parent.duplicateElement(contextItem);
+        },
+
         addElement(contextItem, pos) {
             const newElem = this.$parent.createNewElement(contextItem);
 

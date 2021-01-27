@@ -102,8 +102,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
 
         if (this.options.submitOnChange) {
             Iterator.iterate(this._form.elements, element => {
-                element.removeEventListener('change', onSubmit);
-                element.addEventListener('change', onSubmit);
+                if (element.removeEventListener !== undefined) {
+                    element.removeEventListener('change', onSubmit);
+                    element.addEventListener('change', onSubmit);
+                }
             });
         }
     }

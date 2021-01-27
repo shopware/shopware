@@ -8,11 +8,8 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,14 +32,6 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
 
-        $productDetailRouteMock = $this->createMock(AbstractProductDetailRoute::class);
-        $productDetailRouteMock->method('load')->willReturn(
-            new ProductDetailRouteResponse(
-                new SalesChannelProductEntity(),
-                null
-            )
-        );
-
         $productReviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $productReviewRouteMock->method('load')->willReturn(
             new ProductReviewRouteResponse(
@@ -51,7 +40,6 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
         );
 
         $this->productDescriptionReviewResolver = new ProductDescriptionReviewsCmsElementResolver(
-            $productDetailRouteMock,
             $productReviewRouteMock
         );
     }

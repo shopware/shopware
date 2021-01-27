@@ -41,7 +41,7 @@ class BuyBoxStruct extends Struct
         return $this->configuratorSettings;
     }
 
-    public function setConfiguratorSettings(PropertyGroupCollection $configuratorSettings): void
+    public function setConfiguratorSettings(?PropertyGroupCollection $configuratorSettings): void
     {
         $this->configuratorSettings = $configuratorSettings;
     }

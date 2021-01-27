@@ -4,15 +4,21 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -48,16 +54,34 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $breadcrumbBuilder;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var SalesChannelCmsPageLoaderInterface
+     */
+    private $cmsPageLoader;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var ProductDefinition
+     */
+    private $productDefinition;
+
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $config,
         ProductConfiguratorLoader $configuratorLoader,
-        CategoryBreadcrumbBuilder $breadcrumbBuilder
+        CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        SalesChannelProductDefinition $productDefinition
     ) {
         $this->repository = $repository;
         $this->config = $config;
         $this->configuratorLoader = $configuratorLoader;
         $this->breadcrumbBuilder = $breadcrumbBuilder;
+        $this->cmsPageLoader = $cmsPageLoader;
+        $this->productDefinition = $productDefinition;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -104,6 +128,28 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $configurator = $this->configuratorLoader->load($product, $context);
 
+        if (!Feature::isActive('FEATURE_NEXT_10078')) {
+            return new ProductDetailRouteResponse($product, $configurator);
+        }
+
+        $pageId = $product->getCmsPageId();
+
+        if ($pageId) {
+            $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, $product);
+
+            $pages = $this->cmsPageLoader->load(
+                $request,
+                $this->createCriteria($pageId, $request),
+                $context,
+                $product->getTranslation('slotConfig'),
+                $resolverContext
+            );
+
+            if ($page = $pages->first()) {
+                $product->setCmsPage($page);
+            }
+        }
+
         return new ProductDetailRouteResponse($product, $configurator);
     }
 
@@ -142,5 +188,25 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
 
         return $productId;
+    }
+
+    private function createCriteria(string $pageId, Request $request): Criteria
+    {
+        $criteria = new Criteria([$pageId]);
+        $criteria->setTitle('product::cms-page');
+
+        $slots = $request->get('slots');
+
+        if (\is_string($slots)) {
+            $slots = explode('|', $slots);
+        }
+
+        if (!empty($slots) && \is_array($slots)) {
+            $criteria
+                ->getAssociation('sections.blocks')
+                ->addFilter(new EqualsAnyFilter('slots.id', $slots));
+        }
+
+        return $criteria;
     }
 }

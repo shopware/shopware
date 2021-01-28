@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -23,7 +23,9 @@ describe('Media: Dissolve folder', () => {
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
 
         // Upload image in folder
@@ -32,7 +34,10 @@ describe('Media: Dissolve folder', () => {
         // Upload medium
         cy.clickContextMenuItem(
             '.sw-media-upload-v2__button-url-upload',
-            '.sw-media-upload-v2__button-context-menu'
+            '.sw-media-upload-v2__button-context-menu',
+            null,
+            '',
+            true
         );
         page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
         page.dissolve('sw_logo_white.png');

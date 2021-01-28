@@ -123,7 +123,13 @@ describe('CMS: Test crud operations of layouts', () => {
             method: 'delete'
         }).as('deleteData');
 
-        cy.clickContextMenuItem('.sw-cms-list-item__option-delete', '.sw-cms-list-item__options', '.sw-cms-list-item--0');
+        cy.clickContextMenuItem(
+            '.sw-cms-list-item__option-delete',
+            '.sw-cms-list-item__options',
+            '.sw-cms-list-item--0',
+            '',
+            true
+        );
         cy.get('.sw_tree__confirm-delete-text')
             .contains('Are you sure you really want to delete the layout "Vierte Wand"?');
         cy.get('.sw-button--danger').click();

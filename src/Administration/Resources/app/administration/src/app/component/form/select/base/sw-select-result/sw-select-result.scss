@@ -10,11 +10,11 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
 .sw-select-result {
     padding: 12px 15px;
-    border-bottom: 1px solid $sw-select-result-color-border;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-radius: 4px;
 
     .sw-select-result__result-item-text {
         max-width: 100%;

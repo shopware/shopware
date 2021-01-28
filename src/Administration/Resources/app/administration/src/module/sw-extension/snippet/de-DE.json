@@ -4,6 +4,10 @@
       "tabs": {
         "apps": "Apps",
         "themes": "Themes"
+      },
+      "listing": {
+        "anyOption": "Alle",
+        "sort": "Sortierung"
       }
     },
     "my-extensions": {

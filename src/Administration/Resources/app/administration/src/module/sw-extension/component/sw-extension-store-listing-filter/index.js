@@ -7,104 +7,157 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-extension-store-listing-filter', {
     template,
 
+    mixins: [
+        'notification'
+    ],
+
+    inject: ['extensionStoreDataService'],
+
     data() {
         return {
-            maxRating: 5
+            isLoading: true,
+            listingFilters: [],
+            listingSorting: {}
         };
     },
 
     computed: {
-        currentSearch() {
+        search() {
             return Shopware.State.get('shopwareExtensions').search;
         },
 
-        categories() {
-            return [{
-                name: null,
-                details: { name: this.$tc('sw-extension-store.listing.placeHolderCategories') }
-            }].concat(Shopware.State.get('shopwareExtensions').storeCategories);
-        },
-
-        category: {
+        activeFilters: {
             get() {
-                return this.currentSearch.category;
+                return Shopware.State.get('shopwareExtensions').search.filter;
             },
-            set(category) {
-                Shopware.State.commit('shopwareExtensions/setSearchValue', { key: 'category', value: category });
+            set(newFilter) {
+                Shopware.State.get('shopwareExtensions').search.filter = newFilter;
             }
         },
 
-        rating: {
-            get() {
-                return this.currentSearch.rating;
-            },
-            set(rating) {
-                Shopware.State.commit('shopwareExtensions/setSearchValue', { key: 'rating', value: rating });
+        sortingOptions() {
+            if (!this.listingSorting.options) {
+                return [];
             }
+
+            return this.listingSorting.options.map(option => {
+                option.orderIdentifier = `${option.orderBy}##${option.orderSequence}`;
+
+                return option;
+            });
         },
 
-        ratings() {
-            return [{
-                label: this.$tc('sw-extension-store.listing.placeholderRatings'),
-                value: null
-            }].concat(Array.from({ length: this.maxRating }, (element, index) => {
-                const value = this.maxRating - index;
-                return {
-                    label: `${value}`,
-                    value
-                };
-            }));
-        },
-
-        sortings() {
-            return [{
-                value: 'releaseDate.DESC',
-                label: this.$tc('sw-extension-store.listing.sorting.releaseDateDesc')
-            }, {
-                value: 'releaseDate.ASC',
-                label: this.$tc('sw-extension-store.listing.sorting.releaseDateAsc')
-            }, {
-                value: 'name.ASC',
-                label: this.$tc('sw-extension-store.listing.sorting.nameAsc')
-            }, {
-                value: 'name.DESC',
-                label: this.$tc('sw-extension-store.listing.sorting.nameDesc')
-            }, {
-                value: 'rating.ASC',
-                label: this.$tc('sw-extension-store.listing.sorting.ratingAsc')
-            }, {
-                value: 'rating.DESC',
-                label: this.$tc('sw-extension-store.listing.sorting.ratingDesc')
-            }];
-        },
-
-        sorting: {
-            get() {
-                if (!this.currentSearch.sorting) {
-                    this.sorting = this.sortings[0].value;
-                }
-
-                return `${this.currentSearch.sorting.field}.${this.currentSearch.sorting.order}`;
-            },
-            set(sorting) {
-                if (sorting === null) {
-                    sorting = this.sortings[0].value;
-                }
-
-                const [field, order] = sorting.split('.');
-
-                Shopware.State.commit(
-                    'shopwareExtensions/setSearchValue',
-                    {
-                        key: 'sorting',
-                        value: Criteria.sort(field, order)
-                    }
-                );
+        defaultSortingValue() {
+            if (!this.listingSorting.default) {
+                return null;
             }
+
+            return `${this.listingSorting.default.orderBy}##${this.listingSorting.default.orderSequence}`;
+        },
+
+        sortingValue() {
+            const field = this.search.sorting && this.search.sorting.field;
+            const order = this.search.sorting && this.search.sorting.order;
+
+            if (!field || !order) {
+                return this.defaultSortingValue;
+            }
+
+            // Sorting value contains field and order which are seperated by two #
+            return `${field}##${order}`;
+        },
+
+        listingFiltersSorted() {
+            const listingFiltersCopy = [...this.listingFilters];
+
+            // sort filters
+            listingFiltersCopy.sort((a, b) => a.position - b.position);
+
+            // sort options in each filter
+            listingFiltersCopy.forEach(filter => {
+                filter.options.sort((a, b) => a.position - b.position);
+            });
+
+            // special case for categories - add children behind parents
+            const categoryFilter = listingFiltersCopy.find(filter => filter.type === 'category');
+
+            if (categoryFilter) {
+                const rootOptions = categoryFilter.options.filter(option => option.parent === null);
+
+                categoryFilter.options = rootOptions.reduce((acc, rootOption) => {
+                    const children = categoryFilter.options.filter(option => option.parent === rootOption.value);
+
+                    acc.push(rootOption, ...children);
+
+                    return acc;
+                }, []);
+            }
+
+            return listingFiltersCopy;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.fetchListingFilters();
+        },
+
+        fetchListingFilters() {
+            return this.extensionStoreDataService.listingFilters()
+                .then(({ filter, sorting }) => {
+                    this.listingFilters = filter;
+                    this.listingSorting = sorting;
+                })
+                .catch((e) => {
+                    this.createNotificationError({
+                        message: e
+                    });
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        getValueForFilter(filter) {
+            return this.activeFilters[filter.name] || null;
+        },
+
+        changeValueForFilter(filter, value) {
+            if (!value) {
+                this.$delete(this.activeFilters, filter.name);
+                return;
+            }
+
+            this.$set(this.activeFilters, filter.name, value);
+        },
+
+        getOptionsForFilter(filter) {
+            const anyOption = {
+                label: this.$tc('sw-extension.store.listing.anyOption'),
+                value: null
+            };
+
+            return [
+                anyOption,
+                ...filter.options
+            ];
+        },
+
+        setSelectedSorting(orderIdentifier) {
+            // Sorting value contains field and order which are seperated by two #
+            //  Here we extract both values
+            const [field, order] = orderIdentifier.split('##');
+
+            Shopware.State.commit(
+                'shopwareExtensions/setSearchValue',
+                { key: 'sorting', value: Criteria.sort(field, order) }
+            );
+        },
+
         isRootCategory(category) {
             return category.parent === null || typeof category.parent === 'undefined';
         },

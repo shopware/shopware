@@ -92,7 +92,8 @@ export default class ExtensionStoreDataService extends ApiService {
         rating = null,
         category = null,
         term = null,
-        sorting = null
+        sorting = null,
+        filter = {}
     } = {}) {
         const criteria = new Criteria(
             page,
@@ -108,6 +109,10 @@ export default class ExtensionStoreDataService extends ApiService {
         if (rating !== null) {
             filters.push(Criteria.equals('rating', rating));
         }
+
+        Object.entries(filter).forEach(([field, value]) => {
+            filters.push(Criteria.equals(field, value));
+        });
 
         if (category !== null) {
             filters.push(Criteria.equals('category', category));

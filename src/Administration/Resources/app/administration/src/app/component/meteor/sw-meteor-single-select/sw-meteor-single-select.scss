@@ -1,0 +1,46 @@
+@import "~scss/variables";
+
+.sw-meteor-single-select {
+    .sw-meteor-single-select__preview {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        background-color: $color-white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid $color-gray-300;
+        font-size: $font-size-small;
+        color: $color-darkgray-200;
+        cursor: pointer;
+        transition: 0.1s all ease-in-out;
+
+        &:hover {
+            border-color: $color-shopware-brand-500;
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-icon {
+            margin-top: 2px;
+            margin-left: 2px;
+        }
+    }
+
+    .sw-meteor-single-select__label {
+        font-weight: $font-weight-semi-bold;
+        padding-right: 4px;
+    }
+
+    .sw-meteor-single-select__result-list {
+        position: relative;
+        width: 100%;
+    }
+}
+
+.sw-meteor-single-select__popover {
+    width: 250px;
+
+    .sw-simple-search-field {
+        margin-top: 12px;
+        margin-bottom: 8px;
+    }
+}

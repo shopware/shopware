@@ -41,10 +41,6 @@ Component.register('sw-extension-store-listing', {
             return this.extensions.total || 0;
         },
 
-        category() {
-            return this.currentSearch.category;
-        },
-
         rating() {
             return this.currentSearch.rating;
         },
@@ -65,27 +61,19 @@ Component.register('sw-extension-store-listing', {
     watch: {
         currentSearch: {
             deep: true,
+            immediate: true,
             handler() {
                 this.getList();
             }
         },
         languageId(newValue) {
             if (newValue !== '') {
-                this.getStoreCategories();
                 this.getList();
             }
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.getStoreCategories();
-        },
-
         async getList() {
             this.isLoading = true;
 
@@ -105,18 +93,6 @@ Component.register('sw-extension-store-listing', {
         setPage({ limit, page }) {
             Shopware.State.commit('shopwareExtensions/setSearchValue', { key: 'limit', value: limit });
             Shopware.State.commit('shopwareExtensions/setSearchValue', { key: 'page', value: page });
-        },
-
-        async getStoreCategories() {
-            if (this.languageId === '') {
-                return;
-            }
-
-            try {
-                await Shopware.State.dispatch('shopwareExtensions/getStoreCategories');
-            } catch (e) {
-                this.showExtensionErrors(e);
-            }
         }
     }
 });

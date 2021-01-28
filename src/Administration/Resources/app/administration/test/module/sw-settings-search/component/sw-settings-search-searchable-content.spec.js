@@ -12,6 +12,14 @@ function createWrapper() {
             $tc: key => key
         },
 
+        provide: {
+            repositoryFactory: {
+                create() {
+                    return Promise.resolve();
+                }
+            }
+        },
+
         stubs: {
             'sw-card': true,
             'sw-container': true,
@@ -46,5 +54,29 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         await wrapper.vm.onShowExampleModal();
         const modalElement = wrapper.find('.sw-settings-search-example-modal');
         expect(modalElement.isVisible()).toBe(true);
+    });
+
+    it('Should able to create new config', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const createButton = wrapper.find('.sw-settings-search__searchable-content-add-button');
+
+        expect(createButton.isVisible()).toBe(true);
+        expect(createButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('Should able to reset to default', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');
+
+        wrapper.vm.isEnabledReset = false;
+        await wrapper.vm.$nextTick();
+
+
+        expect(resetButton.isVisible()).toBe(true);
+        expect(resetButton.attributes().disabled).toBeFalsy();
     });
 });

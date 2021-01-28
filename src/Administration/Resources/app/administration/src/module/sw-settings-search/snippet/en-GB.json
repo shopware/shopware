@@ -45,7 +45,32 @@
       "textWarningOpenTab": "Please keep this window/tab open.",
       "textRebuildSearchIndexDescription": "Rebuilding the search index takes a little time. During that time it is mandatory to keep this window/tab open in order to successfully rebuild the search index. You'll be notified as soon as the process has finished.",
       "textRebuildingSearchIndex": "Rebuilding search index",
-      "textLastedBuild": "Latest build:"
+      "textLastedBuild": "Latest build:",
+      "list": {
+        "columnSearchable": "Searchable",
+        "columnRankingPoints": "Ranking points",
+        "columnContent": "Content",
+        "columnSplitKeywords": "Split keywords",
+        "textResetRanking": "Reset ranking",
+        "textRemove": "Remove"
+      },
+      "configFields": {
+        "name": "Name",
+        "description": "Description",
+        "productNumber": "Product number",
+        "manufacturerNumber": "Manufacturer number",
+        "ean": "EAN",
+        "customSearchKeywords": "Custom search keywords",
+        "manufacturerName": "Manufacturer name",
+        "manufacturerCustomFields": "Manufacturer custom fields",
+        "categoriesName": "Categories name",
+        "categoriesCustomFields": "Categories custom fields",
+        "tagsName": "Tag name",
+        "metaTitle": "Meta title",
+        "metaDescription": "Meta description",
+        "propertiesName": "Property name",
+        "variantValue": "Variant value"
+      }
     },
     "notification": {
       "saveSuccess": "The configuration has been saved.",
@@ -53,7 +78,8 @@
       "index": {
         "started": "Building product indexes.",
         "success": "Product indexes built."
-      }
+      },
+      "loadError": "An error occurred while loading your configuration."
     },
     "liveSearchTab": {
       "titleCard": "Storefront live search",

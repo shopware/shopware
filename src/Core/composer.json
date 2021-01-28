@@ -77,7 +77,7 @@
         "symfony/event-dispatcher": "~4.4.13",
         "symfony/event-dispatcher-contracts": "1.1.7",
         "symfony/filesystem": "~4.4.13",
-        "symfony/finder": "~4.4.13",
+        "symfony/finder": "~4.4.13 !=4.4.19",
         "symfony/framework-bundle": "~4.4.13",
         "symfony/http-foundation": "~4.4.13",
         "symfony/http-kernel": "~4.4.13",

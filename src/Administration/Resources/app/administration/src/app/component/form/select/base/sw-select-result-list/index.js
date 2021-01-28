@@ -51,6 +51,12 @@ Component.register('sw-select-result-list', {
             default() {
                 return [];
             }
+        },
+
+        popoverResizeWidth: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -103,14 +109,34 @@ Component.register('sw-select-result-list', {
 
         addEventListeners() {
             this.focusEl.addEventListener('keydown', this.navigate);
+            document.addEventListener('click', this.checkOutsideClick);
         },
 
         removeEventListeners() {
             this.focusEl.removeEventListener('keydown', this.navigate);
+            document.removeEventListener('click', this.checkOutsideClick);
         },
 
         emitActiveItemIndex() {
             this.$emit('active-item-change', this.activeItemIndex);
+        },
+
+        /**
+         *
+         * @param event {Event}
+         */
+        checkOutsideClick(event) {
+            event.stopPropagation();
+
+            const popoverContentClicked = this.$refs.popoverContent.contains(event.target);
+            const componentClicked = this.$el.contains(event.target);
+            const parentClicked = this.$parent.$el.contains(event.target);
+
+            if (popoverContentClicked || componentClicked || parentClicked) {
+                return;
+            }
+
+            this.$emit('outside-click');
         },
 
         navigate({ key }) {

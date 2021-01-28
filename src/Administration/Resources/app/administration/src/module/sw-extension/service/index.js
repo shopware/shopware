@@ -1,5 +1,4 @@
 import ExtensionStoreActionService from './extension-store-action.service';
-import ExtensionStoreCategoryService from './extension-store-category.service';
 import ExtensionStoreDataService from './extension-store-data.service';
 import ExtensionLicenseService from './extension-store-licenses.service';
 import ShopwareExtensionService from './shopware-extension.service';
@@ -18,13 +17,6 @@ Application.addServiceProvider('extensionApiService', () => {
 
 Application.addServiceProvider('extensionStoreActionService', () => {
     return new ExtensionStoreActionService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
-    );
-});
-
-Application.addServiceProvider('extensionStoreCategoryService', () => {
-    return new ExtensionStoreCategoryService(
         Shopware.Application.getContainer('init').httpClient,
         Shopware.Service('loginService')
     );

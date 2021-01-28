@@ -9,9 +9,9 @@ export default {
                 page: 1,
                 limit: 12,
                 rating: null,
-                category: null,
                 sorting: null,
-                term: null
+                term: null,
+                filter: {}
             },
             extensionListing: [],
             storeCategories: [],
@@ -101,21 +101,6 @@ export default {
             );
 
             commit('myExtensions', myExtensions);
-        },
-
-        async getStoreCategories({ state, commit }) {
-            const currentUiLanguageId = Shopware.State.get('session').languageId;
-
-            if (state.storeCategories.length > 0 && state.categoriesLanguageId === currentUiLanguageId) {
-                return;
-            }
-            const extensionStoreCategoryService = Shopware.Service('extensionStoreCategoryService');
-            const storeCategories = await extensionStoreCategoryService.getStoreCategories(
-                { ...Shopware.Context.api, languageId: currentUiLanguageId }
-            );
-
-            commit('storeCategories', storeCategories);
-            commit('categoriesLanguageId', currentUiLanguageId);
         },
 
         loginShopwareUser({ commit, dispatch }, { shopwareId, password }) {

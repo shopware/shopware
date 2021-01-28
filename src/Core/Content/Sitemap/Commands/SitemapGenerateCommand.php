@@ -20,6 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SitemapGenerateCommand extends Command
 {
+    public static $defaultName = 'sitemap:generate';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -53,7 +55,6 @@ class SitemapGenerateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('sitemap:generate')
             ->setDescription('Generates sitemaps for a given shop (or all active ones)')
             ->addOption(
                 'salesChannelId',

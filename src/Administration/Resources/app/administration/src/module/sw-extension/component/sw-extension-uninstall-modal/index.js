@@ -3,6 +3,9 @@ import './sw-extension-uninstall-modal.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-uninstall-modal', {
     template,
 

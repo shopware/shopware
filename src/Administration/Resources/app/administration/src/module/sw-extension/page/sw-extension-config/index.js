@@ -2,6 +2,9 @@ import template from './sw-extension-config.html.twig';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-config', {
     template,
 

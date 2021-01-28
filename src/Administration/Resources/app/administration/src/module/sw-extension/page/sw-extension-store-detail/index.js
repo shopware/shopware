@@ -3,6 +3,9 @@ import './sw-extension-store-detail.scss';
 
 const { Component, Utils } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-store-detail', {
     template,
 
@@ -11,8 +14,7 @@ Component.register('sw-extension-store-detail', {
         'shopwareExtensionService'
     ],
 
-    mixins: [
-    ],
+    mixins: ['sw-extension-error'],
 
     props: {
         id: {
@@ -68,16 +70,6 @@ Component.register('sw-extension-store-detail', {
             return this.extension.images.map((image) => {
                 return image.remoteLink;
             });
-        },
-
-        imageSlideCount() {
-            /* TODO: uncomment in SAAS-1247
-            if (this.suspended || this.extension.isTheme) {
-                return 1;
-            } */
-
-            // TODO: use Math.min(2, this.images.length) in SAAS-1247
-            return 1;
         },
 
         extensionCategoryNames() {
@@ -226,7 +218,7 @@ Component.register('sw-extension-store-detail', {
                     { ...Shopware.Context.api, languageId: this.languageId }
                 );
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -303,7 +295,7 @@ Component.register('sw-extension-store-detail', {
 
                 this.isInstallSuccessful = true;
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isInstalling = false;
             }

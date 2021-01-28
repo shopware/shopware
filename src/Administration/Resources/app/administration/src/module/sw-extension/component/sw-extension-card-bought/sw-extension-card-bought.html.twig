@@ -19,13 +19,13 @@
     {% block sw_extension_card_base_calculated_price %}
         <section v-if="calculatedPrice && license.variant === 'rent'">
             {% block sw_bought_extension_card_calculated_price_subscription %}
-                <span class="sw-bought-extension-card__info-price-subscription">
+                <span class="sw-extension-card-bought__info-price-subscription">
                     {{ $tc('sw-extension-store.component.sw-extension-card-base.subscriptionLabel') }}
                 </span>
             {% endblock %}
 
             {% block sw_bought_extension_card_calculated_price_per_month %}
-                <span class="sw-bought-extension-card__info-price-per-month">
+                <span class="sw-extension-card-bought__info-price-per-month">
                     {{ $tc('sw-extension-store.general.labelPrice', 1, { price: calculatedPrice }) }}
                 </span>
             {% endblock %}

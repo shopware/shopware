@@ -1,10 +1,6 @@
 export default class ShopwareDiscountCampaignService {
     isDiscountCampaignActive(discountCampaign) {
-        if (!discountCampaign) {
-            return false;
-        }
-
-        if (!discountCampaign.startDate) {
+        if (!discountCampaign || !discountCampaign.startDate) {
             return false;
         }
 

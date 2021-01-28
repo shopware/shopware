@@ -9,9 +9,7 @@ export default {
     name: 'sw-ratings-card',
     template,
 
-    mixins: [
-        // Shopware.Mixin.getByName('saasError'),
-    ],
+    mixins: ['sw-extension-error'],
 
     props: {
         extension: {
@@ -84,7 +82,7 @@ export default {
                 this.numberOfRatings = this.summary.numberOfRatings;
                 this.reviews = this.reviews.concat(reviews);
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

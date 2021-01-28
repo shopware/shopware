@@ -1,15 +1,16 @@
 import initState from './store';
+import extensionErrorMixin from './mixin/sw-extension-error.mixin';
 
 async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './service');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-store-listing-filter');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-listing-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-card-base');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-deactivation-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-bought-extension-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-self-maintained-extension-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-removal-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-store-purchased/sw-extension-uninstall-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-card-base');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-deactivation-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-card-bought');
+    await import(/* webpackMode: 'eager' */ './component/sw-self-maintained-extension-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-removal-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-uninstall-modal');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-config');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-store-index');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-store-listing');
@@ -38,6 +39,8 @@ async function initDependencies() {
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
     initState(Shopware);
     initDependencies();
+
+    Shopware.Mixin.register('sw-extension-error', extensionErrorMixin);
 }
 
 Shopware.Module.register('sw-extension', {

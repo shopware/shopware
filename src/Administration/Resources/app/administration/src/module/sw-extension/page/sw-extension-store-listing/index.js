@@ -3,14 +3,16 @@ import './sw-extension-store-listing.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-store-listing', {
     name: 'sw-extension-store-listing',
     template,
 
     inject: ['feature'],
 
-    mixins: [
-    ],
+    mixins: ['sw-extension-error'],
 
     data() {
         return {
@@ -57,15 +59,6 @@ Component.register('sw-extension-store-listing', {
 
         currentLocale() {
             return Shopware.State.get('session').currentLocale === 'de-DE' ? 'de' : 'en';
-        },
-
-        bwsImage() {
-            return this.assetFilter(`saasrufus/static/img/store-banner/bws2020-${this.currentLocale}.jpg`);
-        },
-
-        sourceSet() {
-            return `${this.bwsImage},
-                    ${this.assetFilter(`saasrufus/static/img/store-banner/bws2020-${this.currentLocale}@2x.jpg`)} 2x`;
         }
     },
 
@@ -103,7 +96,7 @@ Component.register('sw-extension-store-listing', {
             try {
                 await Shopware.State.dispatch('shopwareExtensions/search');
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -122,16 +115,8 @@ Component.register('sw-extension-store-listing', {
             try {
                 await Shopware.State.dispatch('shopwareExtensions/getStoreCategories');
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             }
-        },
-
-        selectBlackFridayCategory() {
-            if (!this.feature.isActive('FEATURE_WEB_4686')) {
-                return;
-            }
-
-            this.currentSearch.category = 'BlackFriday';
         }
     }
 });

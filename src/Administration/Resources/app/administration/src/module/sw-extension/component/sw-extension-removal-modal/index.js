@@ -3,6 +3,9 @@ import './sw-extension-removal-modal.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-removal-modal', {
     template,
 
@@ -24,8 +27,14 @@ Component.register('sw-extension-removal-modal', {
     computed: {
         title() {
             return this.isLicensed ?
-                this.$t('sw-extension-store.component.sw-extension-removal-modal.titleCancel', { extensionName: this.extensionName }) :
-                this.$t('sw-extension-store.component.sw-extension-removal-modal.titleRemove', { extensionName: this.extensionName });
+                this.$t(
+                    'sw-extension-store.component.sw-extension-removal-modal.titleCancel',
+                    { extensionName: this.extensionName }
+                ) :
+                this.$t(
+                    'sw-extension-store.component.sw-extension-removal-modal.titleRemove',
+                    { extensionName: this.extensionName }
+                );
         },
 
         alert() {

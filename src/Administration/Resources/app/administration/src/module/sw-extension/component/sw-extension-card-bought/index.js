@@ -1,12 +1,17 @@
-import template from './sw-bought-extension-card.html.twig';
-import './sw-bought-extension-card.scss';
+import template from './sw-extension-card-bought.html.twig';
+import './sw-extension-card-bought.scss';
 
 const { currency } = Shopware.Utils.format;
 
 const { Component } = Shopware;
 
-Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
+/**
+ * @private
+ */
+Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
     template,
+
+    mixins: ['sw-extension-error'],
 
     props: {
         license: {
@@ -37,7 +42,7 @@ Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
     computed: {
         extensionCardClasses() {
             return {
-                'sw-bought-extension-card': true,
+                'sw-extension-card-bought': true,
                 ...this.$super('extensionCardClasses')
             };
         },
@@ -94,7 +99,7 @@ Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
                 );
                 this.extension.active = true;
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -110,7 +115,7 @@ Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
                 );
                 this.extension.active = false;
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -142,7 +147,7 @@ Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
                 );
             } catch (e) {
                 console.log(e);
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
@@ -159,7 +164,7 @@ Component.extend('sw-bought-extension-card', 'sw-extension-card-base', {
                     this.emitUpdateList();
                 });
             } catch (e) {
-                this.showSaasErrors(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

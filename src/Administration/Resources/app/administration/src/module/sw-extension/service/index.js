@@ -5,6 +5,7 @@ import ExtensionLicenseService from './extension-store-licenses.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ShopwareDiscountCampaignService from './discount-campaign.service';
 import ExtensionApiService from './extension.api.service';
+import ExtensionErrorService from './extension-error.service';
 
 const { Application } = Shopware;
 
@@ -54,4 +55,11 @@ Application.addServiceProvider('shopwareExtensionService', () => {
         Shopware.Service('extensionStoreLicensesService'),
         Shopware.Service('shopwareDiscountCampaignService')
     );
+});
+
+Application.addServiceProvider('extensionErrorService', () => {
+    return new ExtensionErrorService({}, {
+        title: 'global.default.error',
+        message: 'global.notification.unspecifiedSaveErrorMessage'
+    });
 });

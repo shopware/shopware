@@ -3,6 +3,9 @@ import './sw-extension-store-index.scss';
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-store-index', {
     template,
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -23,6 +24,10 @@ describe('core/factory/http.factory.js', () => {
                 $tc: v => v
             }
         };
+    });
+
+    afterEach(() => {
+        Shopware.Feature.isActive = () => false;
     });
 
     ['request', 'get', 'delete', 'head', 'options', 'post', 'put', 'patch'].forEach(method => {
@@ -390,6 +395,118 @@ describe('core/factory/http.factory.js', () => {
                 title: 'global.default.error',
                 message: 'global.notification.messageDeleteFailed<br>global.default.xTimesIn <b>global.entities.tax_rule</b>'
             });
+        });
+
+        test('should throw multiple errors for sync api requests which return multiple errors', async () => {
+            Shopware.Context.api.apiPath = 'https://www.shopware-test.de/api';
+            Shopware.Context.api.apiVersion = 3;
+            Shopware.Feature.isActive = (flag) => {
+                return flag === 'FEATURE_NEXT_10539';
+            };
+
+            const { client, clientMock } = getClientMock();
+            clientMock.onPost('/_action/sync')
+                .reply(400, {
+                    data: {
+                        entityName: {
+                            extensions: [],
+                            result: [{
+                                entities: [],
+                                errors: [{
+                                    status: '409',
+                                    code: 'FRAMEWORK__DELETE_RESTRICTED',
+                                    title: 'Conflict',
+                                    detail: 'The delete request for tax was denied due to a conflict. This entity is currently in use by: tax_rule (27)',
+                                    meta: {
+                                        parameters: {
+                                            entity: 'tax',
+                                            usagesString: 'tax_rule (27)',
+                                            usages: [{ entityName: 'tax_rule', count: 27 }]
+                                        }
+                                    }
+                                }]
+                            }, {
+                                entities: [],
+                                errors: [{
+                                    status: '409',
+                                    code: 'FRAMEWORK__DELETE_RESTRICTED',
+                                    title: 'Conflict',
+                                    detail: 'The delete request for tax was denied due to a conflict. This entity is currently in use by: product_price (20)',
+                                    meta: {
+                                        parameters: {
+                                            entity: 'rule',
+                                            usagesString: 'product_price (20)',
+                                            usages: [{ entityName: 'product_price', count: 20 }]
+                                        }
+                                    }
+                                }]
+                            }, {
+                                // Should skip entities with empty errors
+                                entities: [],
+                                errors: []
+                            }, {
+                                // Should skip nested 400
+                                entities: [],
+                                errors: [{
+                                    status: '400',
+                                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                                    detail: 'This value should not be blank.',
+                                    meta: {
+                                        parameters: {}
+                                    }
+                                }]
+                            }]
+                        },
+                        anotherEntity: {
+                            extensions: [],
+                            result: [{
+                                entities: [],
+                                errors: [{
+                                    status: '409',
+                                    code: 'FRAMEWORK__DELETE_RESTRICTED',
+                                    title: 'Conflict',
+                                    detail: 'The delete request for tax was denied due to a conflict. This entity is currently in use by: tax_rule (27)',
+                                    meta: {
+                                        parameters: {
+                                            entity: 'tax',
+                                            usagesString: 'random_entity (55)',
+                                            usages: [{ entityName: 'random_entity', count: 55 }]
+                                        }
+                                    }
+                                }]
+                            }]
+                        }
+                    }
+                });
+
+            const dispatchSpy = jest.fn();
+
+            Object.defineProperty(Shopware.State, 'dispatch', {
+                value: dispatchSpy
+            });
+            try {
+                await client.post('/_action/sync');
+            } catch (e) {
+                expect(e.response.status).toBe(400);
+            }
+            expect(dispatchSpy).toHaveBeenCalledTimes(3);
+            expect(dispatchSpy.mock.calls).toEqual([
+                ['notification/createNotification', {
+                    variant: 'error',
+                    title: 'global.default.error',
+                    message: 'global.notification.messageDeleteFailed<br>global.default.xTimesIn <b>global.entities.tax_rule</b>'
+                }],
+                ['notification/createNotification', {
+                    variant: 'error',
+                    title: 'global.default.error',
+                    message: 'global.notification.messageDeleteFailed<br>global.default.xTimesIn <b>global.entities.product_price</b>'
+                }],
+                ['notification/createNotification', {
+                    variant: 'error',
+                    title: 'global.default.error',
+                    message: 'global.notification.messageDeleteFailed<br>global.default.xTimesIn <b>global.entities.random_entity</b>'
+                }]
+            ]);
         });
     });
 });

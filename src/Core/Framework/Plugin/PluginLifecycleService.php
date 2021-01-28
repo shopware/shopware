@@ -554,6 +554,11 @@ class PluginLifecycleService
         /** @var Kernel $kernel */
         $kernel = $this->container->get('kernel');
 
+        $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
+        if (!\is_string($pluginDir)) {
+            throw new \RuntimeException('Container parameter "kernel.plugin_dir" needs to be a string');
+        }
+
         /** @var KernelPluginLoader $pluginLoader */
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
@@ -569,11 +574,7 @@ class PluginLifecycleService
          *
          * All other Requests wont have this plugin active until its updated in the db
          */
-        $tmpStaticPluginLoader = new StaticKernelPluginLoader(
-            $pluginLoader->getClassLoader(),
-            $kernel->getContainer()->getParameter('kernel.plugin_dir'),
-            $plugins
-        );
+        $tmpStaticPluginLoader = new StaticKernelPluginLoader($pluginLoader->getClassLoader(), $pluginDir, $plugins);
         $kernel->reboot(null, $tmpStaticPluginLoader);
 
         // If symfony throws an exception when calling getContainer on an not booted kernel and catch it here

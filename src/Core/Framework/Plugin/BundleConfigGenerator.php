@@ -46,7 +46,12 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $this->kernel = $kernel;
         $this->pluginRepository = $pluginRepository;
         $this->activeAppsLoader = $activeAppsLoader;
-        $this->projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
+
+        $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
+        if (!\is_string($projectDir)) {
+            throw new \RuntimeException('Container parameter "kernel.project_dir" needs to be a string');
+        }
+        $this->projectDir = $projectDir;
     }
 
     public function getConfig(): array

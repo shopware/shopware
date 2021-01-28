@@ -13,7 +13,12 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
     {
         $fileSystemLoader = $container->findDefinition('twig.loader.native_filesystem');
 
-        foreach ($container->getParameter('kernel.bundles_metadata') as $name => $bundle) {
+        $bundlesMetadata = $container->getParameter('kernel.bundles_metadata');
+        if (!\is_array($bundlesMetadata)) {
+            throw new \RuntimeException('Container parameter "kernel.bundles_metadata" needs to be an array');
+        }
+
+        foreach ($bundlesMetadata as $name => $bundle) {
             $directory = $bundle['path'] . '/Resources/views';
             if (!file_exists($directory)) {
                 continue;
@@ -41,12 +46,13 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
             return;
         }
 
+        $projectDir = $container->getParameter('kernel.project_dir');
+        if (!\is_string($projectDir)) {
+            throw new \RuntimeException('Container parameter "kernel.project_dir" needs to be a string');
+        }
+
         foreach ($apps as $app) {
-            $directory = sprintf(
-                '%s/%s/Resources/views',
-                $container->getParameter('kernel.project_dir'),
-                $app['path']
-            );
+            $directory = sprintf('%s/%s/Resources/views', $projectDir, $app['path']);
 
             if (!file_exists($directory)) {
                 continue;

@@ -26,6 +26,7 @@ import './component/sw-product-variant-modal';
 import './component/sw-product-cross-selling-assignment';
 import './component/sw-product-layout-assignment';
 import './view/sw-product-detail-base';
+import './view/sw-product-detail-specifications';
 import './view/sw-product-detail-context-prices';
 import './view/sw-product-detail-properties';
 import './view/sw-product-detail-variants';
@@ -103,6 +104,14 @@ Module.register('sw-product', {
                 base: {
                     component: 'sw-product-detail-base',
                     path: 'base',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
+                    }
+                },
+                specifications: {
+                    component: 'sw-product-detail-specifications',
+                    path: 'specifications',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer'

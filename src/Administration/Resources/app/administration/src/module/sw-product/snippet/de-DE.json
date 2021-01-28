@@ -147,6 +147,9 @@
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "cardTitleSeo": "SEO"
     },
+    "specifications": {
+      "cardTitleMeasuresPackaging": "Measures & Packaging"
+    },
     "reviewForm": {
       "labelStatus": "Sichtbar",
       "labelCreatedAt": "Erstellt am",
@@ -227,6 +230,7 @@
       "buttonSaveDuplicate": "Speichern und duplizieren",
       "buttonSaveAndNew": "Speichern und neues erstellen",
       "tabGeneral": "Allgemein",
+      "tabSpecifications": "Specifications",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",

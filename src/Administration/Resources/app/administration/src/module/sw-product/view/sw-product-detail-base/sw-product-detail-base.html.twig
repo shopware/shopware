@@ -141,9 +141,31 @@
             {% endblock %}
         {% endblock %}
 
-
+        {# @deprecated tag:v6.4.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
+            {% block sw_product_detail_specifications %}
+                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                    ...
+                    {% block sw_product_detail_specifications_measures_packaging %}
+                        <sw-card
+                            :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+                            :isLoading="isLoading">
+                            {% block sw_product_detail_specifications_measures_packaging_content %}
+                                <sw-product-packaging-form
+                                    v-if="!isLoading"
+                                    :allowEdit="acl.can('product.editor')">
+                                </sw-product-packaging-form>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                    ...
+                </div>
+            {% endblock %}
+        #}
         {% block sw_product_detail_base_packaging_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitlePackaging')" :isLoading="isLoading">
+            <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_12429')"
+                :title="$tc('sw-product.detailBase.cardTitlePackaging')"
+                :isLoading="isLoading">
                 {% block sw_product_detail_base_packaging_form %}
                     <sw-product-packaging-form
                         v-if="!isLoading"

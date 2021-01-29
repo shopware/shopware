@@ -26,6 +26,14 @@
 
         {% block sw_card_content %}
             <div class="sw-card__content">
+                <div v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
+                     class="sw-card__context-menu">
+                    <sw-context-button>
+                        <slot name="context-actions">
+                            {% block sw_card_slot_context_menu_actions %}{% endblock %}
+                        </slot>
+                    </sw-context-button>
+                </div>
                 <slot>
                     {% block sw_card_slot_default %}{% endblock %}
                 </slot>

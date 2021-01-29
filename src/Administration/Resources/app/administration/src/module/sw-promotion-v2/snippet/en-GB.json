@@ -116,12 +116,20 @@
             },
             "discounts": {
                 "emptyStateTitle": "No discount yet.",
-                "emptyStateButton": "Add discount",
+                "addDiscountButton": "Add discount",
                 "wizard": {
                     "basic": {
                         "prefixTitle": "Basic discount - {title}",
                         "titleDiscountType": "Discount type",
+                        "titleProductRules": "Product rules",
                         "description": "Define the type of discount first. You may select triggers that activate this discount in the next step."
+                    },
+                    "shipping-discount": {
+                        "prefixTitle": "Shipping Discount - {title}"
+                    },
+                    "buy-x-get-y": {
+                        "prefixTitle": "Buy X get Y - {title}",
+                        "titleDiscountType": "Discount type"
                     }
                 },
                 "settings": {
@@ -145,7 +153,6 @@
                         }
                     },
                     "ruleSelection": {
-                        "title": "Basic discount - Product rules",
                         "description": "Select or create a rule to make products eligable for the discount.",
                         "labelSelection": "Rule select",
                         "placeholderSelection": "Select rule..."
@@ -159,13 +166,13 @@
                     "name": "Basic discount",
                     "description": "Discount whole shopping carts or a selected group of products."
                 },
+                "shipping-discount": {
+                    "name": "Shipping discount",
+                    "description": "Discount shipping costs or provide free shipping using optional product triggers."
+                },
                 "buy-x-get-y": {
                     "name": "Buy X get Y",
                     "description": "Set a discount that gets activated when one or more certain products are added to the cart."
-                },
-                "shipping-discount": {
-                  "name": "Shipping discount",
-                  "description": "Discount shipping costs or provide free shipping using optional product triggers."
                 }
             },
             "shipping-discount-trigger": {

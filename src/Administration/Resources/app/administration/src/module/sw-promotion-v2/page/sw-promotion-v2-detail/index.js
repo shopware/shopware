@@ -72,10 +72,12 @@ Component.register('sw-promotion-v2-detail', {
 
         promotionCriteria() {
             const criteria = (new Criteria(1, 1))
-                .addAssociation('discounts')
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
                 .addAssociation('salesChannels');
+
+            criteria.getAssociation('discounts')
+                .addSorting(Criteria.sort('createdAt', 'ASC'));
 
             criteria.getAssociation('individualCodes')
                 .setLimit(25);

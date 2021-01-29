@@ -6,13 +6,13 @@
                          @inheritance-remove="$emit('inheritance-remove', $event)"
                          v-on="$listeners">
         <template v-if="hasPrefix" #sw-contextual-field-prefix="{ disabled, identification }">
-            <slot name="prefix" v-bind="{disabled, identification}"></slot>
+            <slot name="prefix" v-bind="{ disabled, identification }"></slot>
         </template>
 
         <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
             <input type="text"
                 :name="identification"
-                :id="identification"
+                :id="createInputId(identification)"
                 :disabled="disabled"
                 :value="currentValue"
                 :placeHolder="placeholder"
@@ -23,7 +23,7 @@
                 v-on="additionalListeners">
         </template>
 
-        <template v-if="copyable || hasSuffix" #sw-contextual-field-suffix="{disabled, identification}">
+        <template v-if="copyable || hasSuffix" #sw-contextual-field-suffix="{ disabled, identification }">
             <slot name="suffix" v-bind="{ identification }"></slot>
             <sw-field-copyable
                 v-if="copyable"

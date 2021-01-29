@@ -6,6 +6,12 @@
     position: relative;
     color: $color-darkgray-200;
 
+    &__context-menu {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+    }
+
     &.sw-card--tabs {
         .sw-card__content {
             border-radius: 0 0 $border-radius-default $border-radius-default;

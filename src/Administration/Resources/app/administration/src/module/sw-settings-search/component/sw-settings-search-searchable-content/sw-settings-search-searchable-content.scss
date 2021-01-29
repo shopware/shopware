@@ -1,0 +1,46 @@
+@import "~scss/variables";
+
+.sw-settings-search {
+    &__searchable-content-show-example-text {
+        text-align: right;
+    }
+
+    &__searchable-content-show-example-link {
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+        cursor: pointer;
+        text-decoration: underline;
+
+        &:hover {
+            color: $color-shopware-brand-600;
+        }
+    }
+
+    &__searchable-content-title {
+        display: block;
+        font-size: $font-size-small;
+        line-height: 22px;
+        letter-spacing: 0.1px;
+    }
+
+    &__searchable-content-tab-title {
+        display: block;
+        font-size: $font-size-small;
+    }
+
+    &__searchable-content.sw-card {
+        .sw-card__content {
+            padding: 30px 0;
+        }
+
+        .sw-settings-search__searchable-content-title,
+        .sw-container.sw-field,
+        .sw-tabs.sw-tabs--small {
+            padding: 0 30px;
+        }
+    }
+
+    &__searchable-content-add-button.sw-button {
+        margin-right: 15px;
+    }
+}

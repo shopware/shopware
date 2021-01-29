@@ -149,6 +149,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-13209 - Use the admin locale for the datepicker](/changelog/release-6-3-5-0/2021-01-14-use-admin-locale-for-datepicker.md)
 *  [NEXT-12262 - Filter Close in a category at mobile view also triggers the area behind](/changelog/release-6-3-5-0/2021-01-15-filter-close-in-a-category-at-mobile-view-also-triggers-the-area-behind.md)
 *  [NEXT-13392 - fix canonical url is not displayed correctly](/changelog/release-6-3-5-0/2021-01-22-fix-canonical-url-is-not-displayed-correctly.md)
+*  [NEXT-13487 - Lock symfony finder version to fix swagger generation](/changelog/release-6-3-5-0/2021-01-28-exclude-4.1.19-symfony-finder-version.md)
 
 ## 6.3.4.1
 *  [NEXT-12230 - Improve saving own user profile](/changelog/release-6-3-4-1/2020-11-27-improve-saving-own-user-profile.md)

@@ -33,9 +33,6 @@ class SwagTestPluginAcl extends Plugin
     }
 }
 ```
-## Update to Composer 2
-Make sure that your `composer.json` file in your plugin matches the requirements of [Composer](https://getcomposer.org/doc/04-schema.md).
-Especially the `name` property should be checked.
 
 ## Require CustomerEntity parameter in store api routes
 * Added `CustomerEntity $customer` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:

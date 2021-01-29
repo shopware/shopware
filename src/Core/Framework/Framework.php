@@ -91,10 +91,17 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        Feature::registerFeatures(
-            $this->container->getParameter('shopware.feature.flags'),
-            $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
-        );
+        $featureFlags = $this->container->getParameter('shopware.feature.flags');
+        if (!\is_array($featureFlags)) {
+            throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
+        }
+
+        $cacheDir = $this->container->getParameter('kernel.cache_dir');
+        if (!\is_string($cacheDir)) {
+            throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
+        }
+
+        Feature::registerFeatures($featureFlags, $cacheDir . '/shopware_features.php');
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -112,6 +119,11 @@ class Framework extends Bundle
 
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
+        $cacheDir = $container->getParameter('kernel.cache_dir');
+        if (!\is_string($cacheDir)) {
+            throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
+        }
+
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
@@ -130,7 +142,7 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
-        $shopwareFeaturesPath = $container->getParameter('kernel.cache_dir') . '/shopware_features.php';
+        $shopwareFeaturesPath = $cacheDir . '/shopware_features.php';
         if (is_readable($shopwareFeaturesPath)) {
             $configLoader->load($shopwareFeaturesPath, 'php');
         }

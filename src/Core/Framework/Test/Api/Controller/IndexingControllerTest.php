@@ -2,41 +2,24 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Framework\Api\Controller\IndexingController;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
 
 class IndexingControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
-
     protected function setUp(): void
     {
-        // TODO: NEXT-13105 - Remove this skipping test after fixing the test error happens on mysql 8.0
-        static::markTestSkipped('Need to fix this test failure with mysql 8.0');
-
-        Feature::skipTestIfActive('FEATURE_NEXT_10552', $this);
-
-        parent::setUp();
-
-        $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
     }
 
     public function testIterateIndexerApiShouldReturnFinishTrueWithInvalidIndexer(): void
@@ -57,26 +40,25 @@ class IndexingControllerTest extends TestCase
      */
     public function testIterateIndexerApiShouldReturnCorrectOffset(int $offset): void
     {
-        $database = $this->connection->fetchColumn('select database();');
-        $autoIncrement = $this->connection->fetchColumn(
-            'SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = :database AND TABLE_NAME = "product"',
-            ['database' => $database]
-        );
+        $productIndexer = $this->createMock(ProductIndexer::class);
+        if ($offset === 100) {
+            $productIndexer->method('iterate')->willReturn(null);
+        } else {
+            $productIndexer->method('iterate')->willReturn(new ProductIndexingMessage(
+                [
+                    Uuid::randomHex(),
+                ],
+                ['offset' => $offset + 50]
+            ));
+        }
+        $registry = $this->getMockBuilder(EntityIndexerRegistry::class)->disableOriginalConstructor()->getMock();
+        $registry->method('getIndexer')->willReturn($productIndexer);
+        $indexer = new IndexingController($registry);
 
-        $offset = $offset + $autoIncrement - 1;
-
-        $this->createProducts();
-
-        $this->getBrowser()->request(
-            'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/_action/indexing/product.indexer',
-            ['offset' => $offset]
-        );
-        $response = $this->getBrowser()->getResponse();
+        $response = $indexer->iterate('product.indexer', new Request([], ['offset' => $offset]));
         $response = json_decode($response->getContent(), true);
 
-        if ($offset - $autoIncrement + 1 === 100) {
+        if ($offset === 100) {
             static::assertTrue($response['finish']);
         } else {
             static::assertFalse($response['finish']);
@@ -91,24 +73,5 @@ class IndexingControllerTest extends TestCase
             'offset 50' => [50],
             'offset 100' => [100],
         ];
-    }
-
-    private function createProducts(): void
-    {
-        $data = [];
-        for ($i = 0; $i < 100; ++$i) {
-            $data[] = [
-                'id' => Uuid::randomHex(),
-                'name' => 'test',
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 10,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-            ];
-        }
-        $this->productRepository->create($data, Context::createDefaultContext());
     }
 }

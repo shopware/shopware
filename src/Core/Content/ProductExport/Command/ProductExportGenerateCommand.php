@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ProductExportGenerateCommand extends Command
 {
+    public static $defaultName = 'product-export:generate';
+
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
 
@@ -35,7 +37,6 @@ class ProductExportGenerateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('product-export:generate')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Ignore cache and force generation')
             ->addOption('include-inactive', 'i', InputOption::VALUE_NONE, 'Include inactive exports')
             ->addArgument('sales-channel-id', InputArgument::REQUIRED, 'Sales channel to generate exports for')

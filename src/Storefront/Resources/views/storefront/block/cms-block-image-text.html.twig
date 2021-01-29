@@ -1,5 +1,7 @@
 {% block block_image_text %}
     {% set columns = 2 %}
+    {% deprecated '@deprecated tag:v6.5.0 - Use "element.id" directly instead.' %}
+    {% set id = element.id %}
 
     {% block block_image_text_left %}
         {% set element = block.slots.getSlot('left') %}

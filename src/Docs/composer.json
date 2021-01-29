@@ -28,11 +28,11 @@
         "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "6.5.2",
         "shopware/core": "*",
-        "symfony/config": "4.4.18",
-        "symfony/console": "4.4.18",
-        "symfony/dependency-injection": "4.4.18",
-        "symfony/filesystem": "4.4.18",
-        "symfony/finder": "4.4.18",
-        "symfony/http-kernel": "4.4.18"
+        "symfony/config": "~4.4.13",
+        "symfony/console": "~4.4.13",
+        "symfony/dependency-injection": "~4.4.13",
+        "symfony/filesystem": "~4.4.13",
+        "symfony/finder": "~4.4.13",
+        "symfony/http-kernel": "~4.4.13"
     }
 }

@@ -1,13 +1,15 @@
 {% block buy_widget_configurator %}
     <div class="product-detail-configurator">
-        {% if elementId is defined and elementId is not null %}
+        {% if elementId is defined and elementId is not null and pageType != 'product_detail' %}
             {% set config = {
                 url: url('frontend.cms.buybox.switch', { productId: product.parentId }),
-                elementId: elementId
+                elementId: elementId,
+                pageType: pageType
             } %}
         {% else %}
             {% set config = {
                 url: url('frontend.detail.switch', { productId: product.parentId }),
+                pageType: pageType
             } %}
         {% endif %}
 

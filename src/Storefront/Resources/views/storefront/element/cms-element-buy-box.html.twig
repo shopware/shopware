@@ -9,7 +9,8 @@
         <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}"
              data-buy-box="true"
              data-buy-box-options='{{ buyBoxOptions|json_encode }}'>
-            {% block element_product_box_inner %}
+
+            {% block element_buy_box_inner %}
                 {% if config.alignment.value %}
                     <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 {% endif %}
@@ -17,7 +18,8 @@
                         'product': element.data.product,
                         'configuratorSettings': element.data.configuratorSettings,
                         'totalReviews': element.data.totalReviews,
-                        'elementId': element.id
+                        'elementId': element.id,
+                        'pageType': cmsPage.type
                     } %}
                 {% if config.alignment.value %}
                     </div>

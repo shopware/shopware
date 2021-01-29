@@ -7,15 +7,34 @@ Component.register('sw-promotion-v2-discounts', {
     template,
 
     inject: [
-        'acl'
+        'acl',
+        'repositoryFactory'
     ],
+
+    mixins: [
+        'notification'
+    ],
+
+    props: {
+        promotion: {
+            type: Object,
+            required: true
+        }
+    },
 
     data() {
         return {
             isActive: false,
-            selectedDiscountType: null,
+            newDiscount: null,
+            selectedDiscountType: 'basic',
             showDiscountModal: false
         };
+    },
+
+    computed: {
+        promotionDiscountRepository() {
+            return this.repositoryFactory.create('promotion_discount');
+        }
     },
 
     methods: {
@@ -28,12 +47,47 @@ Component.register('sw-promotion-v2-discounts', {
         },
 
         onShowDiscountModal() {
+            this.newDiscount = this.createNewDiscount();
             this.showDiscountModal = true;
         },
 
         onCloseDiscountModal() {
-            this.selectedDiscountType = null;
+            this.newDiscount = null;
+            this.selectedDiscountType = 'basic';
             this.showDiscountModal = false;
+        },
+
+        onFinishDiscountModal() {
+            if (this.newDiscount.type === 'free') {
+                Object.assign(this.newDiscount, {
+                    type: 'percentage',
+                    value: 100,
+                    applierKey: 'SELECT'
+                });
+            }
+
+            this.promotionDiscountRepository.save(this.newDiscount, Shopware.Context.api).then(() => {
+                this.onCloseDiscountModal();
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
+                        entityName: this.promotion.name
+                    })
+                });
+            });
+        },
+
+        createNewDiscount() {
+            const discount = this.promotionDiscountRepository.create(Shopware.Context.api);
+            Object.assign(discount, {
+                promotionId: this.promotion.id,
+                value: 0,
+                considerAdvancedRules: false,
+                sorterKey: 'PRICE_ASC',
+                usageKey: 'ALL'
+            });
+
+            return discount;
         }
     }
 });

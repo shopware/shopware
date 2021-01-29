@@ -121,26 +121,27 @@
                     "discountType": {
                         "form": {
                             "labelDiscountType": "Discount type",
-                            "labelPrice": "Price",
-                            "labelMaxDiscountValue": "Max. discount type",
+                            "labelValue": "Price | Percentage",
+                            "labelMaxDiscountValue": "Max. discount value",
                             "labelApplyDiscountTo": "Apply discount to",
                             "labelApplyTo": "Apply to",
-                            "placeholderPrice": "Enter price...",
                             "discountTypeSelection": {
                                 "displayFixedPrice": "Fixed price",
-                                "displayFixedDiscount": "Fixed discount",
+                                "displayFixedDiscount": "Absolute",
                                 "displayPercentage": "Percentage",
-                                "displayFree": "Free"
+                                "displayFree": "Free product"
                             },
                             "applyDiscountTo": {
                                 "displayTotalPrice": "Total price",
                                 "displayProductPrice": "Product price"
-                            },
-                            "applyTo": {
-                                "displayNet": "Net",
-                                "displayGross": "Gross"
                             }
                         }
+                    },
+                    "ruleSelection": {
+                        "title": "Basic discount - Product rules",
+                        "description": "Select or create a rule to make products eligable for the discount.",
+                        "labelSelection": "Rule select",
+                        "placeholderSelection": "Select rule..."
                     }
                 }
             },
@@ -165,6 +166,9 @@
                 "description": "You may use the Rule Builder to create individual discount triggers. Define thresholds, e.g. a certain number of products or a certain shopping cart value that trigger discounts. You may even create nested trigger cascades.",
                 "labelUseTrigger": "Use trigger"
             }
+        },
+        "ruleSelect": {
+            "labelAddNewRule": "Add new rule"
         }
     }
 }

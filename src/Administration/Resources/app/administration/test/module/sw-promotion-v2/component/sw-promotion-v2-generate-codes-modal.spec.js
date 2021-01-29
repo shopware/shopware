@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-modal';
+import 'src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal';
 
 const swPromotionV2GenerateCodesModal = Shopware.Component.build('sw-promotion-v2-generate-codes-modal');
 const mockCode = 'PREFIX_ABCD_SUFFIX';

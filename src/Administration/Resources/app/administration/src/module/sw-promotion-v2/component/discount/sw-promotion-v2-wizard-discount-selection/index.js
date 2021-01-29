@@ -7,7 +7,7 @@ Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', 
 
     data() {
         return {
-            value: null,
+            value: 'basic',
             modalTitle: this.$tc('sw-promotion-v2.detail.discount-selection.modalTitle')
         };
     },

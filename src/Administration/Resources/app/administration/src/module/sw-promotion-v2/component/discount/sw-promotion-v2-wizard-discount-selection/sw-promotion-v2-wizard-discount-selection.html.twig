@@ -1,5 +1,4 @@
 {% block sw_wizard_page_slot_default %}
-
     {% block sw_wizard_discount_selection %}
         <sw-promotion-v2-wizard-description>
             {{ $tc('sw-promotion-v2.detail.discount-selection.description') }}
@@ -8,9 +7,9 @@
 
     {% block sw_wizard_discount_selection_option_selection %}
         <sw-radio-field
-            block
             v-model="value"
             :options="getSelectionOptions()"
+            block
             @change="onChangeSelection">
         </sw-radio-field>
     {% endblock %}

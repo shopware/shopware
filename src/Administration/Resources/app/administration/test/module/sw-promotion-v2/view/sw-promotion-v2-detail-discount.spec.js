@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-promotion-v2/view/sw-promotion-v2-discounts';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-wizard-discount-selection';
+import 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection';
 
 import 'src/app/component/wizard/sw-wizard';
 import 'src/app/component/wizard/sw-wizard-page';
@@ -26,6 +26,7 @@ const stubs = {
     'sw-promotion-v2-wizard-discount-selection': Component.build('sw-promotion-v2-wizard-discount-selection'),
     'sw-promotion-v2-settings-discount-type': true,
     'sw-button': true,
+    'sw-button-process': true,
     'sw-icon': true,
     'sw-radio-field': true
 };

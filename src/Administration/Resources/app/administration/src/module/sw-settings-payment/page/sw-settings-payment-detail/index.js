@@ -155,7 +155,6 @@ Component.register('sw-settings-payment-detail', {
         },
 
         onSave() {
-            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
@@ -170,7 +169,6 @@ Component.register('sw-settings-payment-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        title: titleSaveError,
                         message: messageSaveError
                     });
                     warn(this._name, exception.message, exception.response);

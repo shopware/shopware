@@ -83,22 +83,21 @@ Component.register('sw-promotion-v2-individual-codes-behavior', {
 
     methods: {
         mountedComponent() {
-            if (this.$refs.individualCodesGrid) {
-                this.isGridLoading = true;
-                this.loadIndividualCodesGrid();
-            }
+            this.loadIndividualCodesGrid();
         },
 
         onSearchTermChange(term) {
-            this.isGridLoading = true;
             this.promotion.individualCodes.criteria.setTerm(term);
 
             this.loadIndividualCodesGrid();
         },
 
         loadIndividualCodesGrid() {
-            this.promotion.individualCodes.criteria.setPage(1);
-            this.promotion.individualCodes.criteria.setLimit(this.limit);
+            if (!this.$refs.individualCodesGrid) {
+                return;
+            }
+
+            this.isGridLoading = true;
             this.promotion.individualCodes.criteria.addSorting(Criteria.naturalSorting('code'));
 
             this.$refs.individualCodesGrid.load().then(() => {

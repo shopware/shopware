@@ -121,26 +121,27 @@
                     "discountType": {
                         "form": {
                             "labelDiscountType": "Rabatt-Typ",
-                            "labelPrice": "Preis",
-                            "labelMaxDiscountValue": "Max. Rabattwert",
+                            "labelValue": "Preis | Prozentwert",
+                            "labelMaxDiscountValue": "Maximaler Rabattwert",
                             "labelApplyDiscountTo": "Rabatt anwenden auf",
                             "labelApplyTo": "Anwenden auf",
-                            "placeholderPrice": "Gib einen Preis ein ...",
                             "discountTypeSelection": {
                                 "displayFixedPrice": "Festgelegter Preis",
-                                "displayFixedDiscount": "Festgelegter Rabatt",
+                                "displayFixedDiscount": "Absolut",
                                 "displayPercentage": "Prozentual",
-                                "displayFree": "Kostenlos"
+                                "displayFree": "Kostenloses Produkt"
                             },
                             "applyDiscountTo": {
                                 "displayTotalPrice": "Gesamtpreis",
                                 "displayProductPrice": "Produktpreis"
-                            },
-                            "applyTo": {
-                                "displayNet": "Netto",
-                                "displayGross": "Brutto"
                             }
                         }
+                    },
+                    "ruleSelection": {
+                        "title": "Einfacher Rabatt - Produkt-Regeln",
+                        "description": "Wähle oder erstelle Regeln um Produkte zu definieren, die für den Rabatt in Frage kommen.",
+                        "labelSelection": "Regelauswahl",
+                        "placeholderSelection": "Wähle eine Regel aus ..."
                     }
                 }
             },
@@ -165,6 +166,9 @@
                 "description": "Du kannst den Rule Builder verwenden, um individuelle Rabatt-Trigger zu erstellen. Definiere Schwellenwerte, z.B. eine bestimmte Anzahl von Produkten oder einen bestimmten Warenkorbwert, die Rabatte auslösen. Du kannst sogar verschachtelte Trigger-Kaskaden erstellen.",
                 "labelUseTrigger": "Verwende Trigger"
             }
+        },
+        "ruleSelect": {
+            "labelAddNewRule": "Neue Regel erstellen"
         }
     }
 }

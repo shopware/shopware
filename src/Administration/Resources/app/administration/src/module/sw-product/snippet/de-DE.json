@@ -152,6 +152,9 @@
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder"
     },
+    "seo": {
+      "cardTitleSeo": "SEO"
+    },
     "reviewForm": {
       "labelStatus": "Sichtbar",
       "labelCreatedAt": "Erstellt am",
@@ -237,6 +240,7 @@
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",
       "tabLayout": "Layout",
+      "tabSeo": "SEO",
       "tabCrossSelling": "Cross Selling",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",

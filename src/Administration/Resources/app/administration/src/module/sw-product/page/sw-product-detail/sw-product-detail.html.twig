@@ -179,6 +179,16 @@
                             </sw-tabs-item>
                         {% endblock %}
 
+                        {% block sw_product_detail_content_tabs_seo %}
+                            <sw-tabs-item
+                                v-if="feature.isActive('FEATURE_NEXT_12429')"
+                                class="sw-product-detail__tab-seo"
+                                :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
+                                :title="$tc('sw-product.detail.tabSeo')">
+                                {{ $tc('sw-product.detail.tabSeo') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
                         {% block sw_product_detail_content_tabs_cross_selling %}
                             <sw-tabs-item
                                 v-if="!isChild"

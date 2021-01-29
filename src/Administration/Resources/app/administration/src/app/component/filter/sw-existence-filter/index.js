@@ -1,9 +1,9 @@
-import template from './sw-boolean-filter.html.twig';
+import template from './sw-existence-filter.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-boolean-filter', {
+Component.register('sw-existence-filter', {
     template,
 
     props: {
@@ -28,7 +28,11 @@ Component.register('sw-boolean-filter', {
 
             this.value = newValue;
 
-            const filterCriteria = [Criteria.equals(this.filter.property, this.value === 'true')];
+            let filterCriteria = [Criteria.equals(`${this.filter.property}.${this.filter.schema.localField}`, null)];
+
+            if (this.value === 'true') {
+                filterCriteria = [Criteria.not('AND', filterCriteria)];
+            }
 
             this.$emit('updateFilter', this.filter.name, filterCriteria);
         },

@@ -34,7 +34,7 @@ Component.register('sw-product-list', {
             product: null,
             cloning: false,
             productEntityVariantModal: false,
-            filterCriteria: new Criteria()
+            filterCriteria: []
         };
     },
 
@@ -84,6 +84,10 @@ Component.register('sw-product-list', {
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
 
+            this.filterCriteria.forEach(filter => {
+                productCriteria.addFilter(filter);
+            });
+
             return productCriteria;
         },
 
@@ -99,11 +103,13 @@ Component.register('sw-product-list', {
             return this.filterFactory.create('product', {
                 'active-filter': {
                     property: 'active',
-                    label: 'Active'
+                    label: this.$tc('sw-product.filters.activeFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder')
                 },
-                'category-filter': {
-                    property: 'categories',
-                    label: 'Category'
+                'product-without-images-filter': {
+                    property: 'media',
+                    label: this.$tc('sw-product.filters.imagesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
                 }
             });
         }
@@ -196,6 +202,7 @@ Component.register('sw-product-list', {
 
         updateCriteria(criteria) {
             this.page = 1;
+
             this.filterCriteria = criteria;
         },
 

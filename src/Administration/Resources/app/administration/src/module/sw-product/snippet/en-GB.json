@@ -407,6 +407,16 @@
       "textChangeLayout": "Change layout",
       "textCreateNewLayout": "Create new layout",
       "textEditInDesigner": "Edit in designer"
+    },
+    "filters": {
+      "activeFilter": {
+        "label": "Active",
+        "placeholder": "Select a status..."
+      },
+      "imagesFilter": {
+        "label": "Images",
+        "placeholder": "Select an image status..."
+      }
     }
   },
   "sw-privileges": {

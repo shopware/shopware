@@ -10,6 +10,10 @@ Component.register('sw-base-filter', {
         title: {
             type: String,
             required: true
+        },
+        showResetButton: {
+            type: Boolean,
+            required: true
         }
     },
 

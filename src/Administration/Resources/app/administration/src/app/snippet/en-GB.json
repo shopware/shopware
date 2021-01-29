@@ -1070,5 +1070,24 @@
     "navigation": {
       "backButton": "Back"
     }
+  },
+  "sw-base-filter": {
+    "resetButton": "Reset"
+  },
+  "sw-boolean-filter": {
+    "placeholder": "All",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "sw-existence-filter": {
+    "placeholder": "All",
+    "noCriteria": "No {criteriaName}",
+    "hasCriteria": "Has {criteriaName}"
+  },
+  "sw-filter-panel": {
+    "titleSidebarItemFilter": "Filter"
+  },
+  "sw-sidebar-filter-panel": {
+    "resetButton": "Reset all"
   }
 }

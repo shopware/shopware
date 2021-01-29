@@ -1,5 +1,7 @@
 ---
 title: Reduce default poll-intervall of admin-worker
+author: Manuel Kress
+author_email: 6232639+windaishi@users.noreply.github.com
 ---
 # Core
 * Reduced the default `poll_interval` of the`admin_worker` from 30 to 20 seconds.

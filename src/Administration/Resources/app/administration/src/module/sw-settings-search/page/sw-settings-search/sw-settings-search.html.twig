@@ -37,7 +37,9 @@
                     {% block sw_settings_search_tabs_header %}
                         <sw-tabs>
                             {% block sw_setting_search_tabs_general %}
-                                <sw-tabs-item :route="{ name: 'sw.settings.search.index.general' }">
+                                <sw-tabs-item
+                                    v-bind="$props"
+                                    :route="{ name: 'sw.settings.search.index.general' }">
                                     {{ $tc('sw-settings-search.page.generalTab') }}
                                 </sw-tabs-item>
                             {% endblock %}

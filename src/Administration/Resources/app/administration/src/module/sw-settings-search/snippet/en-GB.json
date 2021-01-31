@@ -39,11 +39,21 @@
         "textProductRankedSecondScore": "The product ranked second has search hits for product title and product tags, resulting in a total ranking score of 120.",
         "textSuperPants": "Super pants",
         "textProductRankedThirdScore": "The product ranked third has only one hit in product tags, resulting in a total ranking score of 20."
-      }
+      },
+      "labelSearchIndex": "Search index",
+      "buttonRebuildSearchIndex": "Rebuild search index",
+      "textWarningOpenTab": "Please keep this window/tab open.",
+      "textRebuildSearchIndexDescription": "Rebuilding the search index takes a little time. During that time it is mandatory to keep this window/tab open in order to successfully rebuild the search index. You'll be notified as soon as the process has finished.",
+      "textRebuildingSearchIndex": "Rebuilding search index",
+      "textLastedBuild": "Latest build:"
     },
     "notification": {
       "saveSuccess": "The configuration has been saved.",
-      "saveError": "An error occured while saving your configuration."
+      "saveError": "An error occurred while saving your configuration.",
+      "index": {
+        "started": "Building product indexes.",
+        "success": "Product indexes built."
+      }
     },
     "liveSearchTab": {
       "titleCard": "Storefront live search",

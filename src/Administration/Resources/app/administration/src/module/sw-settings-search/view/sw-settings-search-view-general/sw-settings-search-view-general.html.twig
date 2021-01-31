@@ -17,7 +17,8 @@
         {% endblock %}
 
         {% block sw_settings_search_search_index_card %}
-            {#TODO: NEXT-11994 - Implement Search index in new Search settings module #}
+            <sw-settings-search-search-index :isLoading="isLoading">
+            </sw-settings-search-search-index>
         {% endblock %}
     </div>
 {% endblock %}

@@ -35,12 +35,18 @@ class EntitySearcherTest extends TestCase
      */
     private $productRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productTranslationRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->groupRepository = $this->getContainer()->get('property_group.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productTranslationRepository = $this->getContainer()->get('product_translation.repository');
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -90,6 +96,51 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
         static::assertCount(2, $result->getEntities());
+    }
+
+    public function testSearchFromCompoundKeyRelation(): void
+    {
+        $id1 = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $id1,
+                'productNumber' => $id1,
+                'name' => 'test matching product',
+                'stock' => 10,
+                'price' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 15,
+                        'net' => 10,
+                        'linked' => false,
+                    ]
+                ],
+                'manufacturer' => [
+                    'name' => 'test',
+                ],
+                'tax' => [
+                    'name' => 'test',
+                    'taxRate' => 15,
+                ],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.productNumber', $id1));
+        $result = $this->productTranslationRepository->search($criteria, $context);
+
+        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result->getEntities());
+
+        // search twice to ensure that the cache hit is correct as well
+        $result = $this->productTranslationRepository->search($criteria, $context);
+
+        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result->getEntities());
     }
 
     public function testSortingAndTotalCountWithManyAssociation(): void

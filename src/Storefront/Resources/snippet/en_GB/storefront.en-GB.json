@@ -34,6 +34,7 @@
     "maintenanceModeHeader": "Maintenance mode",
     "maintenanceModeDescription": "We are currently updating this site. Please check back later.",
     "sortingLabel": "Sorting",
+    "productCountLabel": "Products/page",
     "next": "Next",
     "previous": "Previous",
     "formSubmit": "Submit"

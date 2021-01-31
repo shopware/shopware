@@ -53,5 +53,14 @@
             <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
             <min>1</min>
         </input-field>
+
+        <input-field>
+            <name>productCountSteps</name>
+            <label>Products/page</label>
+            <label lang="de-DE">Produkte/Seite</label>
+            <helpText>Integers starting from 1, separated by commas.</helpText>
+            <helpText lang="de-DE">Ganzzahlen ab 1, getrennt mit Kommas.</helpText>
+            <defaultValue>24,36,48</defaultValue>
+        </input-field>
     </card>
 </config>

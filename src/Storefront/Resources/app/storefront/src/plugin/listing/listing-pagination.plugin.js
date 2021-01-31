@@ -5,12 +5,15 @@ import deepmerge from 'deepmerge';
 export default class ListingPaginationPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
-        page: 1
+        page: 1,
+        limit: 24
     });
 
     init() {
         this._initButtons();
-        this.tempValue = null;
+        this._initLimitSelection();
+        this.tempPage = null;
+        this.tempLimit = null;
     }
 
     _initButtons() {
@@ -18,6 +21,14 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
 
         if (this.buttons) {
             this._registerButtonEvents();
+        }
+    }
+
+    _initLimitSelection() {
+        this.limitSelections = DomAccess.querySelectorAll(this.el,  '.product-count select', false);
+
+        if (this.limitSelections) {
+            this._registerLimitSelectionEvents();
         }
     }
 
@@ -30,10 +41,25 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         });
     }
 
+    /**
+     * @private
+     */
+    _registerLimitSelectionEvents() {
+        this.limitSelections.forEach(select => {
+            select.addEventListener('change', this.onChangeProductCount.bind(this));
+        });
+    }
+
     onChangePage(event) {
-        this.tempValue = event.target.value;
+        this.tempPage = event.target.value;
         this.listing.changeListing();
-        this.tempValue = null;
+        this.tempPage = null;
+    }
+
+    onChangeProductCount(event) {
+        this.tempLimit = event.target.value;
+        this.listing.changeListing();
+        this.tempLimit = null;
     }
 
     /**
@@ -53,14 +79,22 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
      * @public
      */
     getValues() {
-        if (this.tempValue !== null) {
-            return { p: this.tempValue };
+        const result = {};
+
+        if (this.tempPage !== null) {
+            result.p = this.tempPage;
         }
-        return { p: 1 };
+
+        if (this.tempLimit !== null) {
+            result.limit = this.tempLimit;
+        }
+
+        return result;
     }
 
     afterContentChange() {
         this._initButtons();
+        this._initLimitSelection();
     }
 
     /**

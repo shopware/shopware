@@ -13,13 +13,13 @@ const { Component } = Shopware;
  * @example-type static
  * @component-example
  * <sw-wizard :showDotNavigation="true">
- *     <sw-wizard-page title="Example #1">
+ *     <sw-wizard-page position="1" title="Example #1">
  *         <h1>Example #1</h1>
  *     </sw-wizard-page>
- *     <sw-wizard-page title="Example #2">
+ *     <sw-wizard-page position="2" title="Example #2">
  *         <h1>Example #2</h1>
  *     </sw-wizard-page>
- *     <sw-wizard-page title="Example #3">
+ *     <sw-wizard-page position="3" title="Example #3">
  *         <h1>Example #3</h1>
  *     </sw-wizard-page>
  * </sw-wizard>
@@ -130,15 +130,18 @@ Component.register('sw-wizard', {
             }
 
             this.currentlyActivePage = newPageIndex;
-
-            this.pages.forEach((page, index) => {
-                page.isCurrentlyActive = newPageIndex === index;
+            this.pages.forEach((page) => {
+                page.isCurrentlyActive = newPageIndex === page.position;
             });
 
-            const page = this.pages[this.currentlyActivePage];
+            const page = this.pages.find((pageComponent) => {
+                return pageComponent.position === newPageIndex;
+            });
 
             // Set title of the modal
-            this.title = page.title || page.modalTitle;
+            if (page) {
+                this.title = page.title || page.modalTitle;
+            }
 
             this.$emit('current-page-change', this.currentlyActivePage, page);
         },

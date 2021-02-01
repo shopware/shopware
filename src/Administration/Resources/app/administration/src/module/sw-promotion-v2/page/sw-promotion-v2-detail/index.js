@@ -140,6 +140,12 @@ Component.register('sw-promotion-v2-detail', {
             return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
                     this.promotion = promotion;
+                    this.promotion.discounts.forEach((discount) => {
+                        if (discount.type === 'percentage' && discount.value === 100 && discount.maxValue === null) {
+                            discount.type = 'free';
+                        }
+                    });
+
                     this.isLoading = false;
                 });
         },
@@ -189,6 +195,16 @@ Component.register('sw-promotion-v2-detail', {
             if (this.cleanUpFixedCode === true) {
                 this.promotion.code = '';
             }
+
+            this.promotion.discounts.forEach((discount) => {
+                if (discount.type === 'free') {
+                    Object.assign(discount, {
+                        type: 'percentage',
+                        value: 100,
+                        applierKey: 'SELECT'
+                    });
+                }
+            });
 
             return this.promotionRepository.save(this.promotion, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;

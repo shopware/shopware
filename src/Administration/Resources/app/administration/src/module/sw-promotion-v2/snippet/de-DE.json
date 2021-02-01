@@ -112,7 +112,6 @@
                     "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
                     "labelOrderConditionSelect": "Bestellungs-Regeln",
                     "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
-
                 }
             },
             "discounts": {
@@ -126,38 +125,55 @@
                         "description": "Definiere zuerst den Rabatt-Typ. Trigger, die diesen Rabatt aktivieren, kannst Du auf der nächsten Seite setzen."
                     },
                     "shipping-discount": {
-                        "prefixTitle": "Versand-Rabatt - {title}"
+                        "prefixTitle": "Versand-Rabatt - {title}",
+                        "titleDiscountType": "Rabatt-Typ",
+                        "titleTriggerSelection": "Trigger (optional)",
+                        "description": "Du kannst den Rule Builder verwenden, um individuelle Rabatt-Trigger zu erstellen. Definiere Schwellenwerte, z.B. eine bestimmte Anzahl von Produkten oder einen bestimmten Warenkorbwert, die Rabatte auslösen. Du kannst sogar verschachtelte Trigger-Kaskaden erstellen."
                     },
                     "buy-x-get-y": {
                         "prefixTitle": "Kaufe X erhalte Y - {title}",
-                        "titleDiscountType": "Rabatt-Typ"
+                        "titleDiscountType": "Rabatt-Typ",
+                        "titleTriggerSelection": "Trigger (optional)"
                     }
                 },
                 "settings": {
                     "discountType": {
-                        "form": {
-                            "labelDiscountType": "Rabatt-Typ",
-                            "labelValue": "Preis | Prozentwert",
-                            "labelMaxDiscountValue": "Maximaler Rabattwert",
-                            "labelApplyDiscountTo": "Rabatt anwenden auf",
-                            "labelApplyTo": "Anwenden auf",
-                            "discountTypeSelection": {
-                                "displayFixedPrice": "Festgelegter Preis",
-                                "displayFixedDiscount": "Absolut",
-                                "displayPercentage": "Prozentual",
-                                "displayFree": "Kostenloses Produkt"
-                            },
-                            "applyDiscountTo": {
-                                "displayTotalPrice": "Gesamtpreis",
-                                "displayProductPrice": "Produktpreis"
-                            }
+                        "labelDiscountType": "Rabatt-Typ",
+                        "labelValue": "Preis | Prozentwert",
+                        "labelMaxDiscountValue": "Maximaler Rabattwert",
+                        "labelApplyDiscountTo": "Rabatt anwenden auf",
+                        "labelApplyTo": "Anwenden auf",
+                        "discountTypeSelection": {
+                            "displayFixedPrice": "Festgelegter Preis",
+                            "displayFixedDiscount": "Absolut",
+                            "displayPercentage": "Prozentual",
+                            "displayFree": "Kostenloses Produkt"
+                        },
+                        "applyDiscountTo": {
+                            "displayTotalPrice": "Gesamtpreis",
+                            "displayProductPrice": "Produktpreis"
                         }
                     },
                     "ruleSelection": {
                         "description": "Wähle oder erstelle Regeln um Produkte zu definieren, die für den Rabatt in Frage kommen.",
                         "labelSelection": "Regelauswahl",
                         "placeholderSelection": "Wähle eine Regel aus ..."
+                    },
+                    "trigger": {
+                        "labelUseTrigger": "Verwende Trigger",
+                        "triggerType": {
+                            "displaySingleTrigger": "Einzelprodukt-Trigger",
+                            "displayMultiTrigger": "Mehr-Produkt-Trigger"
+                        },
+                        "labelNumberOfTriggers": "Trigger-Typ"
                     }
+                },
+                "pricesModal": {
+                    "advancedPricesHeader": "Erweiterte Preise",
+                    "closeModal": "Schließen",
+                    "labelCurrency": "Währung",
+                    "labelPrice": "Wert",
+                    "linkAdvancedPrices": "Erweiterte Preisansicht öffnen"
                 }
             },
             "discount-selection": {
@@ -167,13 +183,13 @@
                     "name": "Basis-Rabatt",
                     "description": "Rabattiere ganze Warenkörbe oder eine ausgewählte Gruppe von Produkten."
                 },
-                "shipping-discount": {
-                    "name": "Versand-Rabatt",
-                    "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
-                },
                 "buy-x-get-y": {
                     "name": "X kaufen, Y bekommen",
                     "description": "Lege einen Rabatt fest, der aktiviert wird, wenn ein bestimmtes Produkt oder bestimmte Produkte in den Warenkorb gelegt werden."
+                },
+                "shipping-discount": {
+                    "name": "Versand-Rabatt",
+                    "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
                 }
             },
             "shipping-discount-trigger": {

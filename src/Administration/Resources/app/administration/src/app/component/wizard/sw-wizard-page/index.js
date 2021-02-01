@@ -25,6 +25,10 @@ Component.register('sw-wizard-page', {
             default() {
                 return '';
             }
+        },
+        position: {
+            type: Number,
+            required: true
         }
     },
 

@@ -2,6 +2,7 @@ import template from './sw-promotion-v2-discounts.html.twig';
 import './sw-promotion-v2-discounts.scss';
 
 const { Component } = Shopware;
+const { createId } = Shopware.Utils;
 
 Component.register('sw-promotion-v2-discounts', {
     template,
@@ -38,6 +39,10 @@ Component.register('sw-promotion-v2-discounts', {
     },
 
     methods: {
+        createWizardPageId() {
+            return createId();
+        },
+
         onButtonClick() {
             this.isActive = !this.isActive;
         },
@@ -62,14 +67,6 @@ Component.register('sw-promotion-v2-discounts', {
         },
 
         onFinishDiscountModal() {
-            if (this.newDiscount.type === 'free') {
-                Object.assign(this.newDiscount, {
-                    type: 'percentage',
-                    value: 100,
-                    applierKey: 'SELECT'
-                });
-            }
-
             this.promotion.discounts.push(this.newDiscount);
             this.onCloseDiscountModal();
         },
@@ -91,6 +88,7 @@ Component.register('sw-promotion-v2-discounts', {
             const typeMapping = {
                 cart: 'basic',
                 delivery: 'shipping-discount',
+                set: 'buy-x-get-y',
                 setgroup: 'buy-x-get-y'
             };
 

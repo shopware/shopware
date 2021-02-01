@@ -48,13 +48,39 @@
 
                             {% block sw_promotion_v2_discounts_list_element_buy_x_get_y %}
                                 <template v-if="getScope(discount) === 'buy-x-get-y'">
+
+                                    {% block sw_promotion_v2_discounts_list_element_buy_x_get_y_type %}
+                                        <h4>{{ $tc('sw-promotion-v2.detail.discounts.wizard.buy-x-get-y.titleDiscountType') }}</h4>
+                                        <sw-promotion-v2-settings-discount-type
+                                            :discount="discount"
+                                            :discountScope="getScope(discount)">
+                                        </sw-promotion-v2-settings-discount-type>
+                                    {% endblock %}
+
                                 </template>
                             {% endblock %}
 
                             {% block sw_promotion_v2_discounts_list_element_shipping_discount %}
                                 <template v-if="getScope(discount) === 'shipping-discount'">
+
+                                    {% block sw_promotion_v2_discounts_list_element_shipping_discount_type %}
+                                        <h4>{{ $tc('sw-promotion-v2.detail.discounts.wizard.shipping-discount.titleDiscountType') }}</h4>
+                                        <sw-promotion-v2-settings-discount-type
+                                            :discount="discount"
+                                            :discountScope="getScope(discount)">
+                                        </sw-promotion-v2-settings-discount-type>
+                                    {% endblock %}
+
+                                    {% block sw_promotion_v2_discounts_list_element_shipping_discount_trigger %}
+                                        <h4>{{ $tc('sw-promotion-v2.detail.discounts.wizard.shipping-discount.titleTriggerSelection') }}</h4>
+                                        <sw-promotion-v2-settings-trigger
+                                            :discount="discount">
+                                        </sw-promotion-v2-settings-trigger>
+                                    {% endblock %}
+
                                 </template>
                             {% endblock %}
+
                         {% endblock %}
 
                     </sw-card>
@@ -118,6 +144,7 @@
 
                 {% block sw_promotion_v2_discounts_wizard_selection %}
                     <sw-promotion-v2-wizard-discount-selection
+                        :position="0"
                         @change-selection="onChangeSelection">
                     </sw-promotion-v2-wizard-discount-selection>
                 {% endblock %}
@@ -126,7 +153,7 @@
                     <template v-if="selectedDiscountType === 'basic'">
 
                         {% block sw_promotion_v2_discounts_wizard_basic_discount_type %}
-                            <sw-wizard-page :title="getTitle(selectedDiscountType, 'DiscountType')">
+                            <sw-wizard-page :position="1" :title="getTitle(selectedDiscountType, 'DiscountType')">
 
                                 {% block sw_promotion_v2_discounts_wizard_basic_discount_type_settings %}
                                     <sw-promotion-v2-settings-discount-type
@@ -139,7 +166,7 @@
                         {% endblock %}
 
                         {% block sw_promotion_v2_discounts_wizard_basic_rule_selection %}
-                            <sw-wizard-page :title="getTitle(selectedDiscountType, 'ProductRules')">
+                            <sw-wizard-page :position="2" :title="getTitle(selectedDiscountType, 'ProductRules')">
 
                                 {% block sw_promotion_v2_discounts_wizard_basic_rule_selection_card %}
                                     <sw-promotion-v2-settings-rule-selection
@@ -155,20 +182,51 @@
 
                 {% block sw_promotion_v2_discounts_wizard_buy_x_get_y %}
                     <template v-else-if="selectedDiscountType === 'buy-x-get-y'">
-                        <sw-wizard-page :title="getTitle(selectedDiscountType, 'DiscountType')">
 
-                        </sw-wizard-page>
+                        {% block sw_promotion_v2_discounts_wizard_buy_x_get_y_type %}
+                            <sw-wizard-page :position="1" :title="getTitle(selectedDiscountType, 'DiscountType')">
+
+                                {% block sw_promotion_v2_discounts_wizard_buy_x_get_y_card %}
+                                    <sw-promotion-v2-settings-discount-type
+                                        :discount="newDiscount"
+                                        :discountScope="selectedDiscountType">
+                                    </sw-promotion-v2-settings-discount-type>
+                                {% endblock %}
+
+                            </sw-wizard-page>
+                        {% endblock %}
+
                     </template>
                 {% endblock %}
 
                 {% block sw_promotion_v2_discounts_wizard_shipping_discount %}
                     <template v-else-if="selectedDiscountType === 'shipping-discount'">
-                        <sw-wizard-page :title="getTitle(selectedDiscountType, 'DiscountType')">
 
-                            <sw-promotion-v2-wizard-shipping-discount-trigger>
-                            </sw-promotion-v2-wizard-shipping-discount-trigger>
+                        {% block sw_promotion_v2_discounts_wizard_shipping_discount_type %}
+                            <sw-wizard-page :position="1" :title="getTitle(selectedDiscountType, 'DiscountType')">
 
-                        </sw-wizard-page>
+                                {% block sw_promotion_v2_discounts_wizard_shipping_discount_card %}
+                                    <sw-promotion-v2-settings-discount-type
+                                        :discount="newDiscount"
+                                        :discountScope="selectedDiscountType">
+                                    </sw-promotion-v2-settings-discount-type>
+                                {% endblock %}
+
+                            </sw-wizard-page>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_discounts_wizard_shipping_discount_trigger_settings %}
+                            <sw-wizard-page :position="2" :title="getTitle(selectedDiscountType, 'TriggerSelection')">
+
+                                {% block sw_promotion_v2_discounts_wizard_shipping_discount_trigger_settings_card %}
+                                    <sw-promotion-v2-settings-trigger
+                                        :discount="newDiscount">
+                                    </sw-promotion-v2-settings-trigger>
+                                {% endblock %}
+
+                            </sw-wizard-page>
+                        {% endblock %}
+
                     </template>
                 {% endblock %}
 

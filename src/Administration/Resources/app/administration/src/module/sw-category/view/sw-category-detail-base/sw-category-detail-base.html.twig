@@ -83,9 +83,10 @@
                 <sw-category-detail-menu v-bind="{ category, isLoading }"></sw-category-detail-menu>
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
             {% block sw_category_detail_products %}
                 <sw-many-to-many-assignment-card
-                    v-if="category.type !== 'folder'"
+                    v-if="category.type !== 'folder' && !feature.isActive('FEATURE_NEXT_13504')"
                     class="sw-category-detail-base__products"
                     :title="$tc('sw-category.base.products.productAssignmentHeadline')"
                     :entityCollection="category.products"
@@ -98,8 +99,11 @@
                     :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
                     @paginate="onPaginateManualProductAssignment">
 
+                    {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                     {% block sw_category_detail_product_assignment_type_select %}
                         <template #prepend-select>
+
+                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                             {% block sw_category_detail_product_assignment_type_select_field %}
                                 <sw-single-select
                                     class="sw-category-detail__product-assignment-type-select"
@@ -112,6 +116,7 @@
                                 </sw-single-select>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                             {% block sw_category_detail_product_assignment_manual_alert %}
                                 <sw-alert
                                     v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
@@ -122,11 +127,13 @@
                         </template>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                     {% block sw_category_detail_product_assignment_stream_select %}
                         <template
                             v-if="category.productAssignmentType === 'product_stream'"
                             #select>
 
+                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                             {% block sw_category_detail_product_assignment_stream_select_field %}
                                 <sw-entity-single-select
                                     class="sw-category-detail__product-stream-select"
@@ -140,6 +147,7 @@
                                 </sw-entity-single-select>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                             {% block sw_category_detail_product_assignment_stream_preview_link %}
                                 <div class="sw-category-detail-base__product-stream-preview-link">
                                     <router-link
@@ -156,6 +164,7 @@
                         </template>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
                     {% block sw_category_detail_product_assignment_stream_preview_grid %}
                         <template
                             v-if="category.productAssignmentType === 'product_stream'"

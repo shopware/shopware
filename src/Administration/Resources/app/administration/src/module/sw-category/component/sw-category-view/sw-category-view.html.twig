@@ -17,6 +17,16 @@
                     </sw-tabs-item>
                 {% endblock %}
 
+                {% block sw_category_view_tabs_products %}
+                    <sw-tabs-item
+                        v-if="showProducts"
+                        class="sw-category-detail__tab-products"
+                        :route="{ name: 'sw.category.detail.products' }"
+                        :title="$tc('sw-category.view.products')">
+                        {{ $tc('sw-category.view.products') }}
+                    </sw-tabs-item>
+                {% endblock %}
+
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
                         v-show="cmsPage"

@@ -23,7 +23,8 @@
     },
     "view": {
       "general": "General",
-      "cms": "Content"
+      "cms": "Content",
+      "products": "Products"
     },
     "base": {
       "general": {

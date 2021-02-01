@@ -12,6 +12,7 @@ import './component/sw-category-seo-form';
 import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
+import './view/sw-category-detail-products';
 import './acl';
 
 const { Module } = Shopware;
@@ -63,6 +64,14 @@ Module.register('sw-category', {
                     meta: {
                         parentPath: 'sw.category.index',
                         privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
+                    }
+                },
+                products: {
+                    component: 'sw-category-detail-products',
+                    path: 'products',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer'
                     }
                 }
             },

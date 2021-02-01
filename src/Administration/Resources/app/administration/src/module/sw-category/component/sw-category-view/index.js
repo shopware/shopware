@@ -9,7 +9,7 @@ Component.register('sw-category-view', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     props: {
         isLoading: {
@@ -35,6 +35,14 @@ Component.register('sw-category-view', {
             }
 
             return Shopware.State.get('cmsPageState').currentPage;
+        },
+
+        showProducts() {
+            if (this.type === 'folder' || this.type === 'link') {
+                return false;
+            }
+
+            return (this.feature.isActive('FEATURE_NEXT_13504'));
         }
     }
 });

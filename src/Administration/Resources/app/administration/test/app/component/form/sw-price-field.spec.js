@@ -15,6 +15,13 @@ const euroPrice = {
     linked: true
 };
 
+const negativePrice = {
+    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+    net: -100,
+    gross: -107,
+    linked: true
+};
+
 const taxRate = {
     name: '7%',
     taxRate: 7,
@@ -42,6 +49,23 @@ const defaultPrice = {
 const setup = (propOverride) => {
     const propsData = {
         price: [dollarPrice, euroPrice],
+        taxRate,
+        currency,
+        defaultPrice,
+        enableInheritance: false,
+        ...propOverride
+    };
+
+    return shallowMount(Shopware.Component.build('sw-price-field'), {
+        stubs: ['sw-field', 'sw-icon'],
+        mocks: { $tc: key => key },
+        propsData
+    });
+};
+
+const setupNegative = (propOverride) => {
+    const propsData = {
+        price: [negativePrice],
         taxRate,
         currency,
         defaultPrice,
@@ -144,6 +168,13 @@ describe('components/form/sw-price-field', () => {
         });
 
         expect(wrapper.vm.priceForCurrency.net).toBeNull();
+    });
+
+    it('should set values not set value to 0 when price is negative', () => {
+        const wrapper = setupNegative();
+
+        expect(wrapper.vm.priceForCurrency.net).toBeLessThan(0);
+        expect(wrapper.vm.priceForCurrency.gross).toBeLessThan(0);
     });
 
     it('should pass down gross and net helptext', () => {

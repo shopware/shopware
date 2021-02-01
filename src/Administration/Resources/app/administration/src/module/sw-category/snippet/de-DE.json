@@ -117,12 +117,48 @@
     }
   },
   "sw-landing-page": {
+    "view": {
+      "general": "Allgemein",
+      "cms": "Inhalte"
+    },
     "general": {
       "treeHeadSelected": "{count} ausgewählt",
       "buttonCreate": "Landing Page erstellen",
       "treeHeadline": "Landing Pages",
       "actions": {
         "withoutPosition": "Neue Landing Page erstellen"
+      }
+    },
+    "base": {
+      "general": {
+        "labelName": "Name",
+        "headlineInformationCard": "Allgemein",
+        "isActiveLabel": "Landing Page ist aktiv",
+        "labelTags": "Tags",
+        "labelTagsPlaceholder": "Gib einzelne Tags ein ..."
+      },
+      "seo": {
+        "title": "SEO",
+        "labelSalesChannel": "Verkaufskanäle",
+        "labelMetaTitle": "Meta-Titel",
+        "labelMetaDescription": "Meta-Beschreibung",
+        "labelKeywords": "SEO-Schlüsselwörter",
+        "labelUrl": "SEO URL",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal aus ...",
+        "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+        "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
+        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
+        "placeholderUrl": "Gib eine URL an ..."
+      },
+      "cms": {
+        "title": "Layout-Zuweisung",
+        "changeLayout": "Layout ändern",
+        "changeLayoutEmpty": "Layout zuweisen",
+        "editInPagebuilder": "Im Designer bearbeiten",
+        "editInPagebuilderEmpty": "Neues Layout erstellen",
+        "editContent": "Inhalte bearbeiten",
+        "defaultTitle": "Standard-Layout",
+        "defaultDesc": "Kategorieseite"
       }
     },
     "modal": {

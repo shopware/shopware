@@ -34,6 +34,7 @@ export default {
             const criteria = new Criteria();
 
             criteria.addAssociation('tags');
+            criteria.addAssociation('salesChannels');
 
             return repository.get(id, apiContext, criteria).then((landingPage) => {
                 commit('setActiveLandingPage', { landingPage });

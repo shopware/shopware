@@ -1,6 +1,14 @@
-{% block sw_category_detail_cms %}
-    <div class="sw-category-detail__cms">
-        {% block sw_category_detail_cms_form %}
+{% block sw_landing_page_detail_cms %}
+    <div class="sw-landing-page-detail__cms">
+
+        {% block sw_landing_page_detail_cms_layout %}
+            <sw-category-layout-card
+                :category="landingPage"
+                v-bind="{ cmsPage, isLoading }">
+            </sw-category-layout-card>
+        {% endblock %}
+
+        {% block sw_landing_page_detail_cms_form %}
             <sw-cms-page-form v-if="cmsPage" :page="cmsPage"></sw-cms-page-form>
         {% endblock %}
     </div>

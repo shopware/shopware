@@ -34,6 +34,7 @@ class Migration1610448012LandingPage extends MigrationStep
               `landing_page_version_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
               `name` VARCHAR(255) NULL,
+              `url` VARCHAR(255) NULL,
               `meta_title` varchar(255) NULL,
               `meta_description` varchar(255) NULL,
               `keywords` varchar(255) NULL,

@@ -108,6 +108,12 @@
       "labelDiscountPeriod": "*For the first month - | *For the first {months} months - "
     },
     "component": {
+      "sw-extension-gtc-checkbox": {
+        "labelTerms": ""
+      },
+      "sw-extension-meteor-page-context-item": {
+        "labelButtonMore": "More"
+      },
       "sw-extension-buy-modal": {
         "title": "Add extension",
         "labelAcceptPermissions": "I am aware this extension needs permissions",
@@ -222,7 +228,7 @@
         "titleCancel": "\"{extensionName}\" cancel and remove",
         "titleRemove": "\"{extensionName}\" remove",
         "description": "If you remove the extension, you can no longer use it.",
-        "alertCancel": "Are you sure you want to cancel and remove the extension?",
+        "alertCancel": "Are you sure you want to remove the extension?",
         "alertRemove": "Are you sure you want to remove the extension?",
         "labelCancel": "Cancel and remove",
         "labelRemove": "Remove"

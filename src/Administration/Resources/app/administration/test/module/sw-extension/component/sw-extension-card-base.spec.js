@@ -4,6 +4,7 @@ import 'src/module/sw-extension/component/sw-extension-card-base';
 function createWrapper(propsData = {}) {
     return shallowMount(Shopware.Component.build('sw-extension-card-base'), {
         propsData: {
+            extension: { installedAt: null },
             ...propsData
         },
         mocks: {
@@ -20,7 +21,8 @@ function createWrapper(propsData = {}) {
             shopwareExtensionService: {
                 canBeOpened: () => true
             },
-            extensionStoreActionService: {}
+            extensionStoreActionService: {},
+            cacheApiService: {}
         }
     });
 }
@@ -48,19 +50,20 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
     it('should contain the correct computed values', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {}
+            extension: {
+                installedAt: null,
+                permissions: []
             }
         });
     });
 
     it('should show the short description when it exists', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {
-                    shortDescription: 'My short description',
-                    description: 'My long description'
-                }
+            extension: {
+                installedAt: null,
+                shortDescription: 'My short description',
+                description: 'My long description',
+                permissions: []
             }
         });
 
@@ -69,11 +72,11 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
     it('should show the long description as fallback when short does not exists', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {
-                    shortDescription: '',
-                    description: 'My long description'
-                }
+            extension: {
+                installedAt: null,
+                shortDescription: '',
+                description: 'My long description',
+                permissions: []
             }
         });
 
@@ -82,10 +85,10 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
     it('should show the correct image (icon)', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {
-                    icon: 'my-icon'
-                }
+            extension: {
+                installedAt: '845618651',
+                icon: 'my-icon',
+                permissions: []
             }
         });
 
@@ -96,10 +99,10 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const base64Example = 'z87hufieajh38haefwa9hefjio';
 
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {
-                    iconRaw: base64Example
-                }
+            extension: {
+                installedAt: '845618651',
+                iconRaw: base64Example,
+                permissions: []
             }
         });
 
@@ -108,8 +111,9 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
     it('should show the correct image (default theme asset)', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {}
+            extension: {
+                installedAt: '845618651',
+                permissions: []
             }
         });
 
@@ -119,7 +123,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     it('should be installed', async () => {
         wrapper = await createWrapper({
             extension: {
-                installedAt: '845618651'
+                installedAt: '845618651',
+                permissions: []
             }
         });
 
@@ -127,20 +132,12 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not be installed', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm.isInstalled).toEqual(false);
-    });
-
-    it('should show the label', async () => {
         wrapper = await createWrapper({
-            license: {
-                licensedExtension: {
-                    label: 'My mega plugin'
-                }
+            extension: {
+                installedAt: null
             }
         });
 
-        expect(wrapper.vm.label).toEqual('My mega plugin');
+        expect(wrapper.vm.isInstalled).toEqual(false);
     });
 });

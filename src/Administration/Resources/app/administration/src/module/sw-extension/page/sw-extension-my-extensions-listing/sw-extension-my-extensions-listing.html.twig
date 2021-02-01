@@ -14,11 +14,9 @@
 
         <template v-for="entry in extensionList">
             <component
-                :is="entry.license ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                :key="entry.key"
-                :extension="entry.extension"
-                :license="entry.license"
-                :isLocalAvailable="entry.isLocalAvailable"
+                :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                :key="entry.name"
+                :extension="entry"
                 @updateList="updateList">
             </component>
         </template>

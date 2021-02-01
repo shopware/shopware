@@ -82,7 +82,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             throw new ExtensionInstallException(sprintf('Cannot find app by name %s', $technicalName));
         }
 
-        $this->appLifecycle->install($manifests[$technicalName], true, $context);
+        $this->appLifecycle->install($manifests[$technicalName], false, $context);
     }
 
     public function uninstallExtension(string $technicalName, Context $context): void
@@ -158,6 +158,9 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         return $app;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     protected function getDecorated(): AbstractStoreAppLifecycleService
     {
         throw new DecorationPatternException(self::class);

@@ -6,8 +6,9 @@ const defaultSizeForEditable = 17;
 const paddingStar = 20; // 10% padding left and right
 const scaleFactor = (0.0125 * paddingStar) + 1;
 
-export default {
-    name: 'sw-extension-rating-stars',
+const { Component } = Shopware;
+
+Component.register('sw-extension-rating-stars', {
     template,
 
     model: {
@@ -106,4 +107,4 @@ export default {
                 && (this.maxRating - Math.ceil(this.ratingValue)) === key;
         }
     }
-};
+});

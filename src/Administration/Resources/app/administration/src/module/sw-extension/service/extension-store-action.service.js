@@ -62,7 +62,7 @@ export default class ExtensionStoreActionService extends ApiService {
             });
     }
 
-    cancelAndRemoveExtension(licenseId) {
+    cancelLicense(licenseId) {
         return this.httpClient
             .delete(`/license/cancel/${licenseId}`, {
                 headers: this.basicHeaders(),

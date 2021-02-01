@@ -4,7 +4,7 @@ import 'src/module/sw-extension/component/sw-extension-file-upload';
 import 'src/app/component/base/sw-button';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
-const updateInstalledExtensionsSpy = jest.fn();
+const updateMyExtensionsSpy = jest.fn();
 
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-extension-file-upload'), {
@@ -40,8 +40,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         Shopware.State.registerModule('shopwareExtensions', {
             namespaced: true,
             actions: {
-                updateInstalledExtensions(state, value) {
-                    updateInstalledExtensionsSpy(value);
+                updateMyExtensions(state, value) {
+                    updateMyExtensionsSpy(value);
                 }
             }
         });
@@ -50,7 +50,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     beforeEach(async () => {
         wrapper = await createWrapper();
         uploadSpy.mockClear();
-        updateInstalledExtensionsSpy.mockClear();
+        updateMyExtensionsSpy.mockClear();
         Shopware.State.get('notification').notifications = {};
         Shopware.State.get('notification').growlNotifications = {};
     });
@@ -98,7 +98,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(uploadSpy).toHaveBeenCalledWith(formDataMock);
 
         // check if installed extensions get updated
-        expect(updateInstalledExtensionsSpy).toHaveBeenCalled();
+        expect(updateMyExtensionsSpy).toHaveBeenCalled();
     });
 
     it('should throw an error if the upload goes wrong', async () => {

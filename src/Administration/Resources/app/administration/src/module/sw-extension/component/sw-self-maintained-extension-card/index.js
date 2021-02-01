@@ -14,18 +14,6 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
         extension: {
             type: Object,
             required: true
-        },
-
-        license: {
-            type: Object,
-            required: false,
-            default: null
-        },
-
-        isLocalAvailable: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -66,8 +54,9 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                     this.extension.name,
                     this.extension.type
                 );
+
+                await this.clearCacheAndReloadPage();
             } catch (e) {
-                console.log(e);
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
@@ -84,7 +73,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                 );
                 this.extension.active = true;
 
-                window.location.reload();
+                await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -102,7 +91,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                 );
                 this.extension.active = false;
 
-                window.location.reload();
+                await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -120,6 +109,7 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
                     this.extension.type
                 );
                 this.extension.active = false;
+                await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {

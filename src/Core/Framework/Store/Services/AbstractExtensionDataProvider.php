@@ -18,7 +18,7 @@ abstract class AbstractExtensionDataProvider
 
     abstract public function getReviews(int $extensionId, ExtensionCriteria $criteria, Context $context): array;
 
-    abstract public function getInstalledExtensions(Context $context): ExtensionCollection;
+    abstract public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true): ExtensionCollection;
 
     abstract public function getAppEntityFromTechnicalName(string $technicalName, Context $context): AppEntity;
 

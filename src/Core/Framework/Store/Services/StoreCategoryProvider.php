@@ -26,6 +26,9 @@ class StoreCategoryProvider extends AbstractStoreCategoryProvider
         return new StoreCategoryCollection($this->storeClient->getCategories($context));
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     protected function getDecorated(): AbstractStoreCategoryProvider
     {
         throw new DecorationPatternException(self::class);

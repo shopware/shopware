@@ -47,8 +47,8 @@ export default class ShopwareExtensionService {
         await this.updateExtensionData();
     }
 
-    async cancelAndRemoveExtension(licenseId) {
-        await this.extensionStoreActionService.cancelAndRemoveExtension(licenseId);
+    async cancelLicense(licenseId) {
+        await this.extensionStoreActionService.cancelLicense(licenseId);
     }
 
     async activateExtension(extensionId, type) {
@@ -64,8 +64,7 @@ export default class ShopwareExtensionService {
     }
 
     async updateExtensionData() {
-        await Shopware.State.dispatch('shopwareExtensions/updateLicensedExtensions');
-        await Shopware.State.dispatch('shopwareExtensions/updateInstalledExtensions');
+        await Shopware.State.dispatch('shopwareExtensions/updateMyExtensions');
         await this.updateModules();
     }
 

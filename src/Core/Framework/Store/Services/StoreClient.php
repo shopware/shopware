@@ -11,9 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
+use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\CartStruct;
+use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
+use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
+use Shopware\Core\Framework\Store\Struct\LicenseStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
@@ -32,6 +36,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class StoreClient
 {
     public const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
+    public const SBP_API_LIST_MY_EXTENSIONS = '/swplatform/licenseenvironment';
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
 
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
@@ -80,16 +85,23 @@ class StoreClient
      */
     private $authenticationProvider;
 
+    /**
+     * @var ExtensionLoader|null
+     */
+    private $extensionLoader;
+
     final public function __construct(
         StoreService $storeService,
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService,
-        ?AbstractAuthenticationProvider $authenticationProvider
+        ?AbstractAuthenticationProvider $authenticationProvider,
+        ?ExtensionLoader $extensionLoader
     ) {
         $this->storeService = $storeService;
         $this->configService = $configService;
         $this->pluginRepo = $pluginRepo;
         $this->authenticationProvider = $authenticationProvider;
+        $this->extensionLoader = $extensionLoader;
     }
 
     public function ping(): void
@@ -345,22 +357,77 @@ class StoreClient
     {
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->get(self::SBP_API_LIST_CATEGORIES, [
-            'query' => $this->storeService->getDefaultQueryParameters($language, false),
-            'headers' => $this->getHeaders(),
-        ]);
+        try {
+            $response = $this->getClient()->get(self::SBP_API_LIST_CATEGORIES, [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders(),
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         return json_decode((string) $response->getBody(), true);
+    }
+
+    public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
+    {
+        if ($this->authenticationProvider === null || $this->extensionLoader === null) {
+            throw new \RuntimeException('App Store is not active');
+        }
+
+        $language = $this->storeService->getLanguageByContext($context);
+        $storeToken = $this->authenticationProvider->getUserStoreToken($context);
+
+        try {
+            $response = $this->getClient()->post(self::SBP_API_LIST_MY_EXTENSIONS, [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders($storeToken),
+                'json' => ['plugins' => array_map(function (ExtensionStruct $e) {
+                    return [
+                        'name' => $e->getName(),
+                        'version' => $e->getVersion(),
+                    ];
+                }, $extensions->getElements())],
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        $myExtensions = new ExtensionCollection();
+
+        foreach ($body as $item) {
+            $extension = $this->extensionLoader->loadFromArray($context, $item['extension']);
+            $extension->setSource(ExtensionStruct::SOURCE_STORE);
+            if (isset($item['license'])) {
+                $extension->setStoreLicense(LicenseStruct::fromArray($item['license']));
+            }
+
+            if (isset($item['update'])) {
+                $extension->setVersion($item['update']['installedVersion']);
+                $extension->setLatestVersion($item['update']['availableVersion']);
+                $extension->setUpdateSource(ExtensionStruct::SOURCE_STORE);
+            }
+
+            $myExtensions->set($extension->getName(), $extension);
+        }
+
+        return $myExtensions;
     }
 
     public function listExtensions(ExtensionCriteria $criteria, Context $context): array
     {
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->get(self::SBP_API_LIST_EXTENSIONS, [
-            'query' => array_merge($this->storeService->getDefaultQueryParameters($language, false), $criteria->getQueryParameter()),
-            'headers' => $this->getHeaders(),
-        ]);
+        try {
+            $response = $this->getClient()->get(self::SBP_API_LIST_EXTENSIONS, [
+                'query' => array_merge($this->storeService->getDefaultQueryParameters($language, false), $criteria->getQueryParameter()),
+                'headers' => $this->getHeaders(),
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         $body = json_decode((string) $response->getBody(), true);
 
@@ -374,10 +441,14 @@ class StoreClient
     {
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->get(self::SBP_API_LIST_FILTERS, [
-            'query' => $this->storeService->getDefaultQueryParameters($language, false),
-            'headers' => $this->getHeaders(),
-        ]);
+        try {
+            $response = $this->getClient()->get(self::SBP_API_LIST_FILTERS, [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders(),
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         return json_decode((string) $response->getBody(), true);
     }
@@ -386,10 +457,14 @@ class StoreClient
     {
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->get(sprintf(self::SBP_API_DETAIL_EXTENSION, $id), [
-            'query' => $this->storeService->getDefaultQueryParameters($language, false),
-            'headers' => $this->getHeaders(),
-        ]);
+        try {
+            $response = $this->getClient()->get(sprintf(self::SBP_API_DETAIL_EXTENSION, $id), [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders(),
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         return json_decode((string) $response->getBody(), true);
     }
@@ -398,10 +473,14 @@ class StoreClient
     {
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->get(sprintf(self::SBP_API_DETAIL_EXTENSION_REVIEWS, $id), [
-            'query' => array_merge($this->storeService->getDefaultQueryParameters($language, false), $criteria->getQueryParameter()),
-            'headers' => $this->getHeaders(),
-        ]);
+        try {
+            $response = $this->getClient()->get(sprintf(self::SBP_API_DETAIL_EXTENSION_REVIEWS, $id), [
+                'query' => array_merge($this->storeService->getDefaultQueryParameters($language, false), $criteria->getQueryParameter()),
+                'headers' => $this->getHeaders(),
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         return json_decode((string) $response->getBody(), true);
     }
@@ -414,18 +493,22 @@ class StoreClient
 
         $language = $this->storeService->getLanguageByContext($context);
 
-        $response = $this->getClient()->post(self::SBP_API_CREATE_CART, [
-            'query' => $this->storeService->getDefaultQueryParameters($language, false),
-            'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
-            'json' => [
-                'extensions' => [
-                    [
-                        'extensionId' => $extensionId,
-                        'variantId' => $variantId,
+        try {
+            $response = $this->getClient()->post(self::SBP_API_CREATE_CART, [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                'json' => [
+                    'extensions' => [
+                        [
+                            'extensionId' => $extensionId,
+                            'variantId' => $variantId,
+                        ],
                     ],
                 ],
-            ],
-        ]);
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         return CartStruct::fromArray(json_decode((string) $response->getBody(), true));
     }
@@ -436,11 +519,15 @@ class StoreClient
             throw new \RuntimeException('App Store is not active');
         }
 
-        $this->getClient()->post(self::SBP_API_ORDER_CART, [
-            'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
-            'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
-            'json' => $cartStruct,
-        ]);
+        try {
+            $this->getClient()->post(self::SBP_API_ORDER_CART, [
+                'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
+                'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                'json' => $cartStruct,
+            ]);
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
     }
 
     public function cancelSubscription(int $licenseId, Context $context): void
@@ -464,7 +551,7 @@ class StoreClient
                 }
             }
 
-            throw $e;
+            throw new StoreApiException($e);
         }
     }
 
@@ -478,13 +565,17 @@ class StoreClient
             throw new \RuntimeException('App Store is not active');
         }
 
-        $response = $this->getClient()->get(
-            self::SBP_API_URL_LICENSES,
-            [
-                'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
-                'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
-            ]
-        );
+        try {
+            $response = $this->getClient()->get(
+                self::SBP_API_URL_LICENSES,
+                [
+                    'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
+                    'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
+                ]
+            );
+        } catch (ClientException $e) {
+            throw new StoreApiException($e);
+        }
 
         $body = json_decode($response->getBody()->getContents(), true);
 

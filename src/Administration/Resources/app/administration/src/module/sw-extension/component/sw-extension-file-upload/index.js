@@ -46,7 +46,7 @@ Component.register('sw-extension-file-upload', {
             };
 
             return this.extensionApiService.upload(formData).then(() => {
-                State.dispatch('shopwareExtensions/updateInstalledExtensions', searchData).then(() => {
+                State.dispatch('shopwareExtensions/updateMyExtensions', searchData).then(() => {
                     return this.createNotificationSuccess({
                         message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess')
                     });

@@ -4,7 +4,7 @@
     {% block sw_bought_extension_card_deactivation_modal %}
         <sw-extension-deactivation-modal
             v-if="showDeactivationModal"
-            :extensionName="label"
+            :extensionName="extension.label"
             :isLicensed="license !== null"
             :isLoading="isLoading"
             @modal-close="closeDeactivationModal"
@@ -17,7 +17,7 @@
     {% parent %}
 
     {% block sw_extension_card_base_calculated_price %}
-        <section v-if="calculatedPrice && license.variant === 'rent'">
+        <section v-if="calculatedPrice && extension.storeLicense.variant === 'rent'">
             {% block sw_bought_extension_card_calculated_price_subscription %}
                 <span class="sw-extension-card-bought__info-price-subscription">
                     {{ $tc('sw-extension-store.component.sw-extension-card-base.subscriptionLabel') }}

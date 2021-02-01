@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Services\StoreService;
+use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,9 +71,19 @@ class PluginManagementService
         $this->storeService = $storeService;
     }
 
-    public function extractPluginZip(string $file, bool $delete = true): string
+    public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
     {
         $archive = ZipUtils::openZip($file);
+
+        if ($storeType) {
+            $this->pluginExtractor->extract($archive, $delete, $storeType);
+
+            if ($storeType === 'plugin') {
+                $this->cacheClearer->clearContainerCache();
+            }
+
+            return $storeType;
+        }
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
             $this->pluginExtractor->extract($archive, $delete, 'plugin');
@@ -95,25 +106,27 @@ class PluginManagementService
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
-        $this->extractPluginZip($tempFile->getPathname());
+        $type = $this->extractPluginZip($tempFile->getPathname());
 
-        $this->pluginService->refreshPlugins($context, new NullIO());
+        if ($type === 'plugin') {
+            $this->pluginService->refreshPlugins($context, new NullIO());
+        }
     }
 
-    public function downloadStorePlugin(string $location, Context $context): int
+    public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): int
     {
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
         $client = $this->storeService->createClient(false);
 
-        $statusCode = $client->request('GET', $location, ['sink' => $tempFileName])->getStatusCode();
+        $statusCode = $client->request('GET', $location->getLocation(), ['sink' => $tempFileName])->getStatusCode();
 
         if ($statusCode !== Response::HTTP_OK) {
             return $statusCode;
         }
 
-        $type = $this->extractPluginZip($tempFileName);
+        $this->extractPluginZip($tempFileName, true, $location->getType());
 
-        if ($type === 'plugin') {
+        if ($location->getType() === 'plugin') {
             $this->pluginService->refreshPlugins($context, new NullIO());
         }
 

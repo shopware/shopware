@@ -47,7 +47,7 @@ Component.register('sw-review-creation', {
         },
 
         installedVersion() {
-            const installedExtension = Shopware.State.get('shopwareExtensions').installedExtensions.data.find(
+            const installedExtension = Shopware.State.get('shopwareExtensions').myExtensions.data.find(
                 (extension) => extension.name === this.extension.name
             );
 

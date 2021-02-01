@@ -809,7 +809,7 @@
       "insert-unordered-list": "Insert unordered list",
       "insert-ordered-list": "Insert ordered list",
       "link": "Link",
-      "data-mapping": "Data mapping",
+      "data-mapping": "Insert variable",
       "undo": "Undo",
       "redo": "Redo",
       "insert-table": "Insert table",

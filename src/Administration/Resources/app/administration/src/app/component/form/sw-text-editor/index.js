@@ -391,7 +391,7 @@ Component.register('sw-text-editor', {
                 if (this.feature.isActive('FEATURE_NEXT_10550') && this.availableDataMappings.length > 0) {
                     const dataMappingButton = {
                         type: 'data-mapping',
-                        title: 'Data mapping',
+                        title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'default-text-editor-variables',
                         position: 'left'
                     };

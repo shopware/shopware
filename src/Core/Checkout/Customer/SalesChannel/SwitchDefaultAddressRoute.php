@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
@@ -95,6 +96,10 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
         if (!$customer) {
             $customer = $context->getCustomer();
+
+            if ($customer === null) {
+                throw new CustomerNotLoggedInException();
+            }
         }
 
         $this->validateAddress($addressId, $context);

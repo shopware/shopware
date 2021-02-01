@@ -31,11 +31,6 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements BusinessEve
     /**
      * @var string
      */
-    private $contextToken;
-
-    /**
-     * @var string
-     */
     private $addressId;
 
     public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $addressId)
@@ -63,11 +58,6 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements BusinessEve
     public function getContext(): Context
     {
         return $this->salesChannelContext->getContext();
-    }
-
-    public function getContextToken(): string
-    {
-        return $this->contextToken;
     }
 
     public function getSalesChannelId(): string

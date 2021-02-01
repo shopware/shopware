@@ -100,11 +100,18 @@
             },
             "conditions": {
                 "preConditions": {
-                    "cardTitle": "Pre-conditions",
+                    "cardTitlePreConditions": "Pre-conditions",
+                    "cardTitleRuleConditions": "Rule based conditions",
                     "labelPromotionExclusions": "Do not combine with",
                     "placeholderPromotionExclusions": "Add promotion...",
                     "labelPromotionSalesChannel": "Sales Channels",
-                    "placeholderPromotionSalesChannel": "Add sales channel..."
+                    "placeholderPromotionSalesChannel": "Add sales channel...",
+                    "labelCustomerSelect": "Customer rules",
+                    "placeholderCustomerSelect": "Select customer rules...",
+                    "labelCartConditionSelect": "Shopping cart rules",
+                    "placeholderCartConditionSelect": "Select shopping cart rules...",
+                    "labelOrderConditionSelect": "Order rules",
+                    "placeholderOrderConditionSelect": "Select order rules..."
                 }
             },
             "discounts": {

@@ -16,7 +16,7 @@ describe('Product: Test ACL privileges', () => {
             });
     });
 
-    // @deprecated tag:v6.4.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active
+    // @deprecated tag:v6.5.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active
     it('@base @catalogue: can view product', () => {
         cy.skipOnFeature('FEATURE_NEXT_12429');
 

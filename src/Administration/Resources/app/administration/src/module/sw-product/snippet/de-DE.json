@@ -148,7 +148,9 @@
       "cardTitleSeo": "SEO"
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Measures & Packaging"
+      "cardTitleMeasuresPackaging": "Measures & Packaging",
+      "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
+      "cardTitleCustomFields": "Zusatzfelder"
     },
     "reviewForm": {
       "labelStatus": "Sichtbar",

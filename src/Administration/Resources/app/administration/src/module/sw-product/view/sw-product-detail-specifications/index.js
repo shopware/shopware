@@ -1,7 +1,7 @@
 import template from './sw-product-detail-specifications.html.twig';
 
 const { Component } = Shopware;
-const { mapGetters } = Component.getComponentHelper();
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-detail-specifications', {
     template,
@@ -9,6 +9,12 @@ Component.register('sw-product-detail-specifications', {
     inject: ['feature', 'acl'],
 
     computed: {
+        ...mapState('swProductDetail', [
+            'product',
+            'parentProduct',
+            'customFieldSets'
+        ]),
+
         ...mapGetters('swProductDetail', [
             'isLoading'
         ])

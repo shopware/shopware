@@ -17,5 +17,38 @@
             <sw-product-detail-properties>
             </sw-product-detail-properties>
         {% endblock %}
+
+        {% block sw_product_detail_specifications_essential_characteristics %}
+            <sw-card
+                :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
+                :isLoading="isLoading">
+                {% block sw_product_detail_specifications_essential_characteristics_content %}
+                    <sw-product-feature-set-form
+                        v-if="!isLoading"
+                        :allowEdit="acl.can('product.editor')">
+                    </sw-product-feature-set-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_specifications_custom_products %}
+        {% endblock %}
+
+        {% block sw_product_detail_specifications_custom_fields %}
+            <sw-card
+                :title="$tc('sw-product.specifications.cardTitleCustomFields')"
+                :isLoading="isLoading">
+                {% block sw_product_detail_specifications_custom_fields_content %}
+                    <sw-custom-field-set-renderer
+                        v-if="!isLoading && customFieldSets.length > 0"
+                        showCustomFieldSetSelection
+                        :entity="product"
+                        :parentEntity="parentProduct"
+                        :sets="customFieldSets"
+                        :disabled="!acl.can('product.editor')">
+                    </sw-custom-field-set-renderer>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
     </div>
 {% endblock %}

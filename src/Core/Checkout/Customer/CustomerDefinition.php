@@ -103,7 +103,7 @@ class CustomerDefinition extends EntityDefinition
             (new StringField('company', 'company'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             (new PasswordField('password', 'password'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
-            (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             new StringField('title', 'title'),
             new ListField('vat_ids', 'vatIds', StringField::class),
             new StringField('affiliate_code', 'affiliateCode'),

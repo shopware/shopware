@@ -890,6 +890,42 @@ EOF;
         static::assertEquals($id, $content['data'][0]['id']);
     }
 
+    public function testSearchNonTokenizeTerm(): void
+    {
+        // Create two customers with different email but same suffix example.com
+        $this->createCustomer();
+        $ids = $this->createCustomer();
+
+        $data = [
+            'page' => 1,
+            'limit' => 5,
+            'sort' => [
+                [
+                    'field' => 'customerNumber',
+                    'order' => 'desc',
+                ],
+            ],
+            'term' => $ids->get('email') . '@example.com',
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/customer', $data);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertEquals(1, $content['meta']['total']);
+        static::assertEquals($ids->get('customer'), $content['data'][0]['id']);
+
+        $data['term'] = 'example.com';
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/customer', $data);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertEquals(2, $content['meta']['total']);
+    }
+
     public function testSearch(): void
     {
         $id = Uuid::randomHex();
@@ -1996,38 +2032,7 @@ EOF;
 
     public function testGetBillingAddress(): void
     {
-        $ids = new IdsCollection();
-
-        $data = [
-            'id' => $ids->get('customer'),
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $ids->get('address'),
-            'defaultShippingAddressId' => $ids->get('address'),
-            'addresses' => [
-                [
-                    'id' => $ids->get('address'),
-                    'customerId' => $ids->get('customer'),
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-        $this->getContainer()->get('customer.repository')
-            ->create([$data], $ids->getContext());
+        $ids = $this->createCustomer();
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/customer/' . $ids->get('customer') . '/default-billing-address');
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
@@ -2111,5 +2116,43 @@ EOF;
         $criteria->setLimit(1);
 
         return $languageRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+    }
+
+    private function createCustomer(): IdsCollection
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('customer'),
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => $ids->get('email') . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $ids->get('address'),
+            'defaultShippingAddressId' => $ids->get('address'),
+            'addresses' => [
+                [
+                    'id' => $ids->get('address'),
+                    'customerId' => $ids->get('customer'),
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+        $this->getContainer()->get('customer.repository')
+            ->create([$data], $ids->getContext());
+
+        return $ids;
     }
 }

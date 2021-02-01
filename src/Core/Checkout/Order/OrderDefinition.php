@@ -79,7 +79,7 @@ class OrderDefinition extends EntityDefinition
 
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
-            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new NumberRangeField('order_number', 'orderNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false)),
 
             (new FkField('billing_address_id', 'billingAddressId', OrderAddressDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new Required()),

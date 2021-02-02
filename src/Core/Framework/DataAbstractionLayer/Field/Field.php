@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\DefaultFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Struct\Struct;
@@ -45,6 +47,7 @@ abstract class Field extends Struct
     public function __construct(string $propertyName)
     {
         $this->propertyName = $propertyName;
+        $this->addFlags(new ApiAware(AdminApiSource::class));
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -64,14 +67,26 @@ abstract class Field extends Struct
 
     public function setFlags(Flag ...$flags): self
     {
-        $this->flags = $flags;
+        $this->flags = [];
+        foreach ($flags as $flag) {
+            $this->flags[\get_class($flag)] = $flag;
+        }
 
         return $this;
     }
 
     public function addFlags(Flag ...$flags): self
     {
-        $this->flags = array_merge($this->flags, $flags);
+        foreach ($flags as $flag) {
+            $this->flags[\get_class($flag)] = $flag;
+        }
+
+        return $this;
+    }
+
+    public function removeFlag(string $class): self
+    {
+        unset($this->flags[$class]);
 
         return $this;
     }
@@ -83,13 +98,7 @@ abstract class Field extends Struct
 
     public function getFlag(string $class): ?Flag
     {
-        foreach ($this->flags as $flag) {
-            if ($flag instanceof $class) {
-                return $flag;
-            }
-        }
-
-        return null;
+        return $this->flags[$class] ?? null;
     }
 
     /**
@@ -97,7 +106,7 @@ abstract class Field extends Struct
      */
     public function getFlags(): array
     {
-        return $this->flags;
+        return array_values($this->flags);
     }
 
     public function getSerializer(): FieldSerializerInterface

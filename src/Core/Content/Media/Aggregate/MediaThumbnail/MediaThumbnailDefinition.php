@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -49,16 +50,15 @@ class MediaThumbnailDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required()),
 
-            (new IntField('width', 'width'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new StringField('url', 'url'))->addFlags(new Runtime()),
-
+            (new IntField('width', 'width'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('height', 'height'))->addFlags(new ApiAware(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime()),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
-            new CustomFields(),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

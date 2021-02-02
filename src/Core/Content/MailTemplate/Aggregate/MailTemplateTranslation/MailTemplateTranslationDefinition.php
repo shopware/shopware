@@ -6,6 +6,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -43,13 +44,12 @@ class MailTemplateTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('sender_name', 'senderName'),
-            new LongTextField('description', 'description'),
-            (new StringField('subject', 'subject'))->setFlags(new Required()),
-            (new LongTextField('content_html', 'contentHtml'))->setFlags(new Required(), new AllowHtml()),
-            (new LongTextField('content_plain', 'contentPlain'))->setFlags(new Required()),
-
-            new CustomFields(),
+            (new StringField('sender_name', 'senderName'))->addFlags(new ApiAware()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
+            (new StringField('subject', 'subject'))->addFlags(new Required()),
+            (new LongTextField('content_html', 'contentHtml'))->addFlags(new Required(), new AllowHtml()),
+            (new LongTextField('content_plain', 'contentPlain'))->addFlags(new Required()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

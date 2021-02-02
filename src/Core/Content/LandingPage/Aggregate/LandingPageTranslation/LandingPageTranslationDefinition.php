@@ -6,6 +6,7 @@ use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -48,13 +49,12 @@ class LandingPageTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new JsonField('slot_config', 'slotConfig'),
-            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new AllowHtml()),
-            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new AllowHtml()),
-            (new LongTextField('keywords', 'keywords'))->addFlags(new AllowHtml()),
-
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware()),
+            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

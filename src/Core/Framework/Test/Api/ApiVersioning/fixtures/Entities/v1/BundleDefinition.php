@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v1;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -31,12 +32,12 @@ class BundleDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextField('description', 'description'),
-            new LongTextField('long_description', 'longDescription'),
-            (new StringField('discount_type', 'discountType'))->addFlags(new Required()),
-            (new FloatField('discount', 'discount'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
+            (new LongTextField('long_description', 'longDescription'))->addFlags(new ApiAware()),
+            (new StringField('discount_type', 'discountType'))->addFlags(new ApiAware(), new Required()),
+            (new FloatField('discount', 'discount'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

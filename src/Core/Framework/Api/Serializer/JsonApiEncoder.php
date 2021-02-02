@@ -8,8 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -170,10 +170,10 @@ class JsonApiEncoder
                 continue;
             }
 
-            /** @var ReadProtected|null $readProtected */
-            $readProtected = $field->getFlag(ReadProtected::class);
+            /** @var ApiAware|null $flag */
+            $flag = $field->getFlag(ApiAware::class);
 
-            if ($readProtected && !$readProtected->isBaseUrlAllowed($result->getBaseUrl())) {
+            if ($flag === null || !$flag->isBaseUrlAllowed($result->getBaseUrl())) {
                 continue;
             }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -42,10 +43,10 @@ class ShippingMethodTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextField('description', 'description'),
-            new LongTextField('tracking_url', 'trackingUrl'),
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
+            (new LongTextField('tracking_url', 'trackingUrl'))->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

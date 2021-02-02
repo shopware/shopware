@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -46,16 +47,15 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new ListField('breadcrumb', 'breadcrumb', StringField::class))->addFlags(new WriteProtected()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new ListField('breadcrumb', 'breadcrumb', StringField::class))->addFlags(new ApiAware(), new WriteProtected()),
             new JsonField('slot_config', 'slotConfig'),
-            new StringField('external_link', 'externalLink'),
-            (new LongTextField('description', 'description'))->addFlags(new AllowHtml()),
-            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new AllowHtml()),
-            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new AllowHtml()),
-            (new LongTextField('keywords', 'keywords'))->addFlags(new AllowHtml()),
-
-            new CustomFields(),
+            (new StringField('external_link', 'externalLink'))->addFlags(new ApiAware()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
-class ReadProtectedFlagTest extends TestCase
+class ApiAwareFlagTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;

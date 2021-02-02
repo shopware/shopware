@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -27,13 +28,11 @@ class ExtendedDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new StringField('name', 'name'),
-
-            new FkField('extendable_id', 'extendableId', ExtendableDefinition::class),
-
-            new OneToOneAssociationField('toOne', 'extendable_id', 'id', ExtendableDefinition::class),
-            new ManyToOneAssociationField('toMany', 'extendable_id', ExtendableDefinition::class),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new FkField('extendable_id', 'extendableId', ExtendableDefinition::class))->addFlags(new ApiAware()),
+            (new OneToOneAssociationField('toOne', 'extendable_id', 'id', ExtendableDefinition::class))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('toMany', 'extendable_id', ExtendableDefinition::class))->addFlags(new ApiAware()),
         ]);
     }
 }

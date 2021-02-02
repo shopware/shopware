@@ -24,11 +24,11 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role\n(Acl role)") {
    primary_key(id) id
-   not_null(createdAt) createdAt
-   updatedAt updatedAt
    not_null(name) string
    description longText
    not_null(privileges) list
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
    primary_key(userId) foreignKey

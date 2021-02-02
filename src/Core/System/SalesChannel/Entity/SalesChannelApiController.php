@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ReadProtectedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -186,10 +186,9 @@ class SalesChannelApiController
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $acessor);
             /** @var Field $field */
             foreach ($fields as $field) {
-                /** @var ReadProtected|null $flag */
-                $flag = $field->getFlag(ReadProtected::class);
-
-                if ($flag && !$flag->isSourceAllowed(SalesChannelApiSource::class)) {
+                /** @var ApiAware|null $flag */
+                $flag = $field->getFlag(ApiAware::class);
+                if ($flag === null || !$flag->isSourceAllowed(SalesChannelApiSource::class)) {
                     throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
                 }
 

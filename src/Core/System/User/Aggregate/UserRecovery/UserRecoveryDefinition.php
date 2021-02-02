@@ -2,12 +2,10 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -52,8 +50,7 @@ class UserRecoveryDefinition extends EntityDefinition
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
             (new CreatedAtField())->addFlags(new Required()),
 
-            (new OneToOneAssociationField('user', 'user_id', 'id', UserDefinition::class, false))
-                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToOneAssociationField('user', 'user_id', 'id', UserDefinition::class, false)),
         ]);
     }
 }

@@ -4,54 +4,57 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 
-/**
- * @deprecated tag:v6.4.0 - Read protection (blacklisting) is deprecated, please use ApiAware (whitelisting)
- */
-class ReadProtected extends Flag
+class ApiAware extends Flag
 {
     private const BASE_URLS = [
-        AdminApiSource::class => '/api/v',
-        SalesChannelApiSource::class => '/sales-channel-api/v',
+        AdminApiSource::class => '/api/',
+        SalesChannelApiSource::class => '/sales-channel-api/',
     ];
 
     /**
      * @var array[string]string
      */
-    private $protectedSources = [];
+    private $whitelist = [];
 
     public function __construct(string ...$protectedSources)
     {
         foreach ($protectedSources as $source) {
-            $this->protectedSources[$source] = self::BASE_URLS[$source];
+            $this->whitelist[$source] = self::BASE_URLS[$source];
         }
-    }
 
-    public function getProtectedSources(): array
-    {
-        return array_keys($this->protectedSources);
+        if (empty($protectedSources)) {
+            $this->whitelist = self::BASE_URLS;
+        }
     }
 
     public function isBaseUrlAllowed(string $baseUrl): bool
     {
-        foreach ($this->protectedSources as $url) {
+        $baseUrl = rtrim($baseUrl, '/') . '/';
+
+        foreach ($this->whitelist as $url) {
             if (mb_strpos($baseUrl, $url) !== false) {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     public function isSourceAllowed(string $source): bool
     {
-        return !isset($this->protectedSources[$source]);
+        if ($source === SystemSource::class) {
+            return true;
+        }
+
+        return isset($this->whitelist[$source]);
     }
 
     public function parse(): \Generator
     {
         yield 'read_protected' => [
-            array_keys($this->protectedSources),
+            array_keys($this->whitelist),
         ];
     }
 }

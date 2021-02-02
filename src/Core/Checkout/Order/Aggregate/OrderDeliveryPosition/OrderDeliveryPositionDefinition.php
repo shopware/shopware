@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -51,20 +52,19 @@ class OrderDeliveryPositionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
 
-            (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(OrderDeliveryDefinition::class))->addFlags(new Required()),
+            (new FkField('order_delivery_id', 'orderDeliveryId', OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(OrderDeliveryDefinition::class))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new Required()),
-
-            new CalculatedPriceField('price', 'price'),
-            (new FloatField('unit_price', 'unitPrice'))->addFlags(new Computed()),
-            (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),
-            (new IntField('quantity', 'quantity'))->addFlags(new Computed()),
-            new CustomFields(),
+            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new CalculatedPriceField('price', 'price'))->addFlags(new ApiAware()),
+            (new FloatField('unit_price', 'unitPrice'))->addFlags(new ApiAware(), new Computed()),
+            (new FloatField('total_price', 'totalPrice'))->addFlags(new ApiAware(), new Computed()),
+            (new IntField('quantity', 'quantity'))->addFlags(new ApiAware(), new Computed()),
+            (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('orderDelivery', 'order_delivery_id', OrderDeliveryDefinition::class, 'id', false),
             new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, 'id', false),
         ]);

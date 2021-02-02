@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\System\User\Aggregate\UserConfig;
 
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -47,8 +45,7 @@ class UserConfigDefinition extends EntityDefinition
             (new StringField('key', 'key'))->addFlags(new Required()),
             (new JsonField('value', 'value')),
 
-            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false))
-                ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false)),
         ]);
     }
 }

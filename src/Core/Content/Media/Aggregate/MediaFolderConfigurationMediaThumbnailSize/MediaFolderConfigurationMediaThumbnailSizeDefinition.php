@@ -28,11 +28,8 @@ class MediaFolderConfigurationMediaThumbnailSizeDefinition extends MappingEntity
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))
-                ->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('media_thumbnail_size_id', 'mediaThumbnailSizeId', MediaThumbnailSizeDefinition::class))
-                ->addFlags(new PrimaryKey(), new Required()),
-
+            (new FkField('media_folder_configuration_id', 'mediaFolderConfigurationId', MediaFolderConfigurationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField('media_thumbnail_size_id', 'mediaThumbnailSizeId', MediaThumbnailSizeDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new ManyToOneAssociationField('mediaFolderConfiguration', 'media_folder_configuration_id', MediaFolderConfigurationDefinition::class, 'id', false),
             new ManyToOneAssociationField('mediaThumbnailSize', 'media_thumbnail_size_id', MediaThumbnailSizeDefinition::class, 'id', false),
         ]);

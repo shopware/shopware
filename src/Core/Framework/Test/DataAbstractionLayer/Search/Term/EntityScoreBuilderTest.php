@@ -3,11 +3,12 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -192,11 +193,8 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('test', 0.1)
         );
 
-        $queries = [];
-
-        $this->context->scope(SalesChannelApiSource::class, function () use ($builder, $pattern, &$queries): void {
-            $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test', $this->context);
-        });
+        $context = new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
+        $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test', $context);
 
         static::assertEquals(
             [
@@ -257,10 +255,10 @@ class ScoreBuilderTestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
-            (new StringField('description', 'description'))->addFlags(new SearchRanking(200), new ReadProtected(SalesChannelApiSource::class)),
-            new StringField('long_description', 'longDescription'),
-            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, 'id', true))->addFlags(new SearchRanking(0.5)),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
+            (new StringField('description', 'description'))->addFlags(new SearchRanking(200)),
+            (new StringField('long_description', 'longDescription'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('nested', 'nested_id', NestedDefinition::class, 'id', true))->addFlags(new ApiAware(), new SearchRanking(0.5)),
         ]);
     }
 }
@@ -282,7 +280,7 @@ class NestedDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new SearchRanking(100)),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new SearchRanking(100)),
         ]);
     }
 }
@@ -304,7 +302,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new TranslatedField('name'),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
         ]);
     }
 }
@@ -326,7 +324,7 @@ class OnlyDateFieldDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new DateTimeField('date_time', 'dateTime'))->addFlags(new SearchRanking(100)),
+            (new DateTimeField('date_time', 'dateTime'))->addFlags(new ApiAware(), new SearchRanking(100)),
         ]);
     }
 }

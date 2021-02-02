@@ -57,11 +57,8 @@ class NewsletterRecipientDefinition extends EntityDefinition
             (new StringField('status', 'status'))->addFlags(new Required()),
             (new StringField('hash', 'hash'))->addFlags(new Required()),
             new CustomFields(),
-
             new DateTimeField('confirmed_at', 'confirmedAt'),
-
             new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterRecipientTagDefinition::class, 'newsletter_recipient_id', 'tag_id'),
-
             new FkField('salutation_id', 'salutationId', SalutationDefinition::class),
             new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
 

@@ -40,8 +40,6 @@ class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoder
                 'versionId' => null,
                 'name' => $tax->getName(),
                 'taxRate' => (int) $tax->getTaxRate(),
-                'products' => null,
-                'shippingMethods' => null,
                 'customFields' => null,
                 'translated' => [],
                 'createdAt' => $tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),

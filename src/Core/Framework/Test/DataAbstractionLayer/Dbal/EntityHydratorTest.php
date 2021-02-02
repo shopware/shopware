@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -299,12 +300,11 @@ class FkExtensionFieldTest extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-            new StringField('name', 'name'),
-            new FkField('normal_fk', 'normalFk', ProductDefinition::class),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new FkField('normal_fk', 'normalFk', ProductDefinition::class))->addFlags(new ApiAware()),
 
-            (new FkField('extended_fk', 'extendedFk', ProductDefinition::class))
-                ->addFlags(new Extension()),
+            (new FkField('extended_fk', 'extendedFk', ProductDefinition::class))->addFlags(new ApiAware(), new Extension()),
         ]);
     }
 }

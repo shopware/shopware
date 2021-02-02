@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1741,8 +1742,7 @@ EOF;
 
     public function testWriteExtensionWithExtensionKey(): void
     {
-        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
@@ -1818,8 +1818,7 @@ EOF;
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
     {
-        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 

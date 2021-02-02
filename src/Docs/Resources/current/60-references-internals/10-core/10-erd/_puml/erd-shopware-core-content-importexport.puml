@@ -58,8 +58,8 @@ Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDe
    not_null(path) string
    not_null(expireDate) dateTime
    size int
-   not_null(createdAt) createdAt
    not_null(accessToken) string
+   not_null(createdAt) createdAt
    updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreContentImportExportImportExportProfileTranslationDefinition, "import_export_profile_translation\n((Translations))") {

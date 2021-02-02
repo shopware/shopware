@@ -1036,7 +1036,7 @@
     "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
     "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
     "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
-    "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
+    "messagePluginSets": "Plugin-Zusatzfeld-Sets (Können nicht entfernt werden)"
   },
   "sw-rating-stars": {
     "ratingTooltipText": "{actual} von {max} Sternen"
@@ -1044,7 +1044,7 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden Deiner Appactions aufgetreten."
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten."
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

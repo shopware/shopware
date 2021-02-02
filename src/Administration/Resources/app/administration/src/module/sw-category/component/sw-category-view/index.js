@@ -43,6 +43,14 @@ Component.register('sw-category-view', {
             }
 
             return (this.feature.isActive('FEATURE_NEXT_13504'));
+        },
+
+        showSeo() {
+            if (this.type === 'folder' || this.type === 'link') {
+                return false;
+            }
+
+            return (this.feature.isActive('FEATURE_NEXT_13504'));
         }
     }
 });

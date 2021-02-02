@@ -24,7 +24,8 @@
     "view": {
       "general": "Allgemein",
       "cms": "Inhalte",
-      "products": "Produkte"
+      "products": "Produkte",
+      "seo": "SEO"
     },
     "base": {
       "general": {

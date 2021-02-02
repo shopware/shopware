@@ -202,22 +202,15 @@
                 </sw-many-to-many-assignment-card>
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
             {% block sw_category_detail_seo %}
-                <sw-card v-if="category.type !== 'folder'"
-                         :title="$tc('sw-category.base.seo.title')"
-                         :isLoading="isLoading">
-                    <sw-category-seo-form :category="category"></sw-category-seo-form>
-                </sw-card>
+                <sw-category-detail-seo v-if="category.type !== 'folder' && !feature.isActive('FEATURE_NEXT_13504')"
+                                        :isLoading="isLoading">
+                </sw-category-detail-seo>
             {% endblock %}
 
-            {% block sw_category_detail_seo_card %}
-                <sw-seo-url v-if="category.seoUrls && category.type !=='folder'"
-                            :isLoading="isLoading"
-                            :hasDefaultTemplate="false"
-                            :disabled="!acl.can('category.editor')"
-                            :urls="category.seoUrls">
-                </sw-seo-url>
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            {% block sw_category_detail_seo_card %}{% endblock %}
         </template>
 
         {% block sw_category_detail_attribute_sets %}

@@ -42,6 +42,16 @@
                         {{ $tc('sw-category.view.cms') }}
                     </sw-tabs-item>
                 {% endblock %}
+
+                {% block sw_category_view_tabs_seo %}
+                    <sw-tabs-item
+                        v-if="showSeo"
+                        class="sw-category-detail__tab-seo"
+                        :route="{ name: 'sw.category.detail.seo' }"
+                        :title="$tc('sw-category.view.seo')">
+                        {{ $tc('sw-category.view.seo') }}
+                    </sw-tabs-item>
+                {% endblock %}
             </sw-tabs>
         {% endblock %}
 

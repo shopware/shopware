@@ -94,8 +94,11 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-layout-card').should('exist');
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').should('exist');
+
+        cy.get('.sw-category-detail__tab-seo').should('exist').click();
         cy.get('.sw-category-seo-form').should('exist');
         cy.get('.sw-seo-url__card').should('exist');
+        cy.get('.sw-category-detail__tab-base').should('exist').click();
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
         cy.get('.sw-category-detail__tab-cms').should('be.visible');
@@ -108,8 +111,7 @@ describe('Category: Create several categories', () => {
 
         cy.get('.sw-category-layout-card').should('not.exist');
         cy.get('.sw-category-detail__tab-products').should('not.exist');
-        cy.get('.sw-category-seo-form').should('not.exist');
-        cy.get('.sw-seo-url__card').should('not.exist');
+        cy.get('.sw-category-detail__tab-seo').should('not.exist');
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
         cy.get('.sw-category-detail__tab-cms').should('not.be.visible');
@@ -124,8 +126,12 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-layout-card').should('exist');
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').should('exist');
+
+        cy.get('.sw-category-detail__tab-seo').should('exist').click();
         cy.get('.sw-category-seo-form').should('exist');
         cy.get('.sw-seo-url__card').should('exist');
+        cy.get('.sw-category-detail__tab-base').should('exist').click();
+
         cy.get('.sw-category-link-settings').should('not.exist');
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
@@ -155,7 +161,6 @@ describe('Category: Create several categories', () => {
         // change category type to Structuring element
         cy.get('.sw-category-detail-base__type-container > .sw-field')
             .typeSingleSelectAndCheck('Structuring element', '.sw-category-detail-base__type-container > .sw-field');
-
 
         cy.get('.sw-category-layout-card').should('not.exist');
         cy.get('.sw-many-to-many-assignment-card').should('not.exist');
@@ -195,8 +200,11 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-layout-card').should('exist');
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').should('exist');
+
+        cy.get('.sw-category-detail__tab-seo').should('exist').click();
         cy.get('.sw-category-seo-form').should('exist');
         cy.get('.sw-seo-url__card').should('exist');
+        cy.get('.sw-category-detail__tab-base').should('exist').click();
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
         cy.get('.sw-category-detail__tab-cms').should('be.visible');
@@ -210,8 +218,7 @@ describe('Category: Create several categories', () => {
 
         cy.get('.sw-category-layout-card').should('not.exist');
         cy.get('.sw-category-detail__tab-products').should('not.exist');
-        cy.get('.sw-category-seo-form').should('not.exist');
-        cy.get('.sw-seo-url__card').should('not.exist');
+        cy.get('.sw-category-detail__tab-seo').should('not.exist');
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
         cy.get('.sw-category-detail__tab-cms').should('not.be.visible');
@@ -226,9 +233,12 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-layout-card').should('exist');
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').should('exist');
+        cy.get('.sw-category-link-settings').should('not.exist');
+
+        cy.get('.sw-category-detail__tab-seo').should('exist').click();
         cy.get('.sw-category-seo-form').should('exist');
         cy.get('.sw-seo-url__card').should('exist');
-        cy.get('.sw-category-link-settings').should('not.exist');
+        cy.get('.sw-category-detail__tab-base').should('exist').click();
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView();
         cy.get('.sw-category-detail__tab-cms').should('be.visible');

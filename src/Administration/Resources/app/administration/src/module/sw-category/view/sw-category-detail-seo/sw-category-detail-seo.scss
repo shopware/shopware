@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-category-detail-seo {
+    @media screen and (min-width: 1580px) {
+        .sw-card .sw-card__title {
+            width: inherit;
+            position: inherit;
+            left: inherit;
+            top: inherit;
+            text-align: inherit;
+        }
+    }
+}

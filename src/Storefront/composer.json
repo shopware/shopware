@@ -1,6 +1,6 @@
 {
     "name": "shopware/storefront",
-    "version": "6.3.5.0",
+    "version": "6.3.5.1",
     "description": "Storefront for Shopware",
     "type": "library",
     "license": "MIT",

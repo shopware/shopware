@@ -1,6 +1,6 @@
 ---
-title: Fix pagination setting snippet listing
-issue: NEXT-13252
+title: Deprecated get generateDocumentLink and generateDocumentPreviewLink
+issue: NEXT-12824
 ---
 # Administration
 * Deprecated method `generateDocumentPreviewLink` in `Administration/Resources/app/administration/src/core/service/api/document.api.service.js` use `getDocumentPreview` instead.

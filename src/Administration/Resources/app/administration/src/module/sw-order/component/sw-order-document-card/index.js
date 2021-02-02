@@ -255,15 +255,7 @@ Component.register('sw-order-document-card', {
             this.$emit('document-save');
 
             if (additionalAction === 'download') {
-                window.open(
-                    this.documentService.generateDocumentLink(
-                        response.data.documentId,
-                        response.data.documentDeepLink,
-                        Shopware.Context.api,
-                        true
-                    ),
-                    '_blank'
-                );
+                this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
             }
         },
 

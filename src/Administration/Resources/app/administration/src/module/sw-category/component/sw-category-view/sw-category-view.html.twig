@@ -19,7 +19,7 @@
 
                 {% block sw_category_view_tabs_products %}
                     <sw-tabs-item
-                        v-if="showProducts"
+                        v-show="isPage"
                         class="sw-category-detail__tab-products"
                         :route="{ name: 'sw.category.detail.products' }"
                         :title="$tc('sw-category.view.products')">
@@ -45,7 +45,7 @@
 
                 {% block sw_category_view_tabs_seo %}
                     <sw-tabs-item
-                        v-if="showSeo"
+                        v-show="isPage"
                         class="sw-category-detail__tab-seo"
                         :route="{ name: 'sw.category.detail.seo' }"
                         :title="$tc('sw-category.view.seo')">

@@ -84,6 +84,7 @@ Component.register('sw-category-detail-base', {
             return Shopware.State.get('swCategoryDetail').category;
         },
 
+        // @deprecated tag:v6.5.0 - can be removed completely
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
         },

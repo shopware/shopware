@@ -67,7 +67,7 @@ describe('Category: Edit categories', () => {
         cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -115,7 +115,6 @@ describe('Category: Edit categories', () => {
             .should('contain', '2nd Product stream');
     });
 
-    // @deprecated tag:v6.4.0 - Will be removed when "FEATURE_NEXT_13504" is removed
     it('@catalogue: assign dynamic product group', () => {
         cy.skipOnFeature('FEATURE_NEXT_13504');
         cy.server();

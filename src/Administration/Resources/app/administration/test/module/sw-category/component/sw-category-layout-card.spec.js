@@ -9,6 +9,7 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-card': true,
             'sw-cms-list-item': true,
+            'sw-icon': true,
             'sw-button': true
         },
         mocks: {
@@ -24,6 +25,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         propsData: {
@@ -117,31 +121,5 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
 
         expect(resetLayoutButton.attributes().disabled).toBe('true');
-    });
-
-    it('should show the router link', async () => {
-        const wrapper = createWrapper([
-            'category.editor'
-        ]);
-
-        await wrapper.setProps({
-            cmsPage: {}
-        });
-
-        const routerLink = wrapper.find('.sw-category-layout-card__desc-link');
-
-        expect(routerLink.exists()).toBeTruthy();
-    });
-
-    it('should hide the router link', async () => {
-        const wrapper = createWrapper([]);
-
-        await wrapper.setProps({
-            cmsPage: {}
-        });
-
-        const routerLink = wrapper.find('.sw-category-layout-card__desc-link');
-
-        expect(routerLink.exists()).toBeFalsy();
     });
 });

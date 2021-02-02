@@ -13,5 +13,6 @@ author: Krispin Lütjann & Max Stegmeyer
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-category-detail-seo/index.js`
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-category-detail-seo/sw-category-detail-seo.html.twig`
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-category-detail-seo/sw-category-detail-seo.scss`
-* Moved product assignment in `sw-category-detail-base` to separate `sw-category-detail-products` component
-* Moved seo & seo urls in `sw-category-detail-base` to separate `sw-category-detail-seo` component
+* Changed location of product assignment in `sw-category-detail-base` to separate `sw-category-detail-products` component
+* Changed location of seo & seo urls in `sw-category-detail-base` to separate `sw-category-detail-seo` component
+* Changed location of layout assignment in `sw-category-detail-base` to `sw-category-detail-cms` component

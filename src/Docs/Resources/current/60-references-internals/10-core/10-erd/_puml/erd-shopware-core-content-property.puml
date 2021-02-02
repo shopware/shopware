@@ -29,6 +29,7 @@ Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(Prop
    not_null(displayType) string
    not_null(sortingType) string
    filterable bool
+   visibleOnProductDetailPage bool
    position translated
    customFields translated
    not_null(createdAt) createdAt

@@ -551,6 +551,21 @@ Component.register('sw-product-detail', {
                     }
 
                     default: {
+                        const errorCode = Shopware.Utils.get(response, 'response.data.errors[0].code');
+
+                        if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
+                            const titleSaveError = this.$tc('global.default.error');
+                            const messageSaveError = this.$t(
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', { productNo: response.response.data.errors[0].meta.parameters.number }
+                            );
+
+                            this.createNotificationError({
+                                title: titleSaveError,
+                                message: messageSaveError
+                            });
+                            break;
+                        }
+
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'

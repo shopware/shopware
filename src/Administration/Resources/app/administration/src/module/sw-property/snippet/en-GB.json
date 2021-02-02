@@ -23,6 +23,7 @@
     "detail": {
       "mediaDisplayType": "Image",
       "textDisplayType": "Text",
+      "selectDisplayType": "Dropdown",
       "colorDisplayType": "Colour",
       "numericSortingType": "Numeric",
       "alphanumericSortingType": "Alphanumeric",
@@ -31,6 +32,7 @@
       "labelName": "Name",
       "placeholderName": "Enter name...",
       "labelFilterable": "Display in product filters",
+      "labelvisibleOnProductDetailPage": "Display on product detail page",
       "labelDisplayType": "Value display type",
       "labelSortingType": "Sorting",
       "labelOptionName": "Name",

@@ -21,7 +21,8 @@ Component.register('sw-mail-header-footer-detail', {
                 return this.allowSave;
             },
             method: 'onSave'
-        }
+        },
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -156,6 +157,10 @@ Component.register('sw-mail-header-footer-detail', {
 
         saveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.mail.template.index' });
         },
 
         onSave() {

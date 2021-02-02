@@ -421,6 +421,9 @@
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ..."
       }
+    },
+    "notification": {
+      "notificationSaveErrorProductNoAlreadyExists": "Die Produktnummer \"{productNo}\" ist bereits vergeben."
     }
   },
   "sw-privileges": {

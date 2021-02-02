@@ -104,7 +104,8 @@
                     :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
                     :value="customer.salesChannelId"
                     @change="onSalesChannelChange"
-                    :error="customerSalesChannelIdError">
+                    :error="customerSalesChannelIdError"
+                    required>
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -125,7 +126,8 @@
                     :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
                     :error="customerCustomerNumberError"
-                    v-model="customer.customerNumber">
+                    v-model="customer.customerNumber"
+                    required>
                 </sw-text-field>
             {% endblock %}
         </sw-container>

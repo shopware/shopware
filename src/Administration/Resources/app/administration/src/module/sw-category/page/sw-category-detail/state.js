@@ -31,6 +31,13 @@ export default {
         },
 
         loadActiveLandingPage({ commit }, { repository, id, apiContext }) {
+            if (id === 'create') {
+                const landingPage = repository.create(apiContext);
+                landingPage.cmsPageId = null;
+                commit('setActiveLandingPage', { landingPage });
+                return Promise.resolve();
+            }
+
             const criteria = new Criteria();
 
             criteria.addAssociation('tags');

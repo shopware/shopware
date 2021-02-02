@@ -4,6 +4,7 @@
         {% block sw_landing_page_tree_inner %}
             <sw-tree class="sw-landing-page-tree__inner"
                  v-if="!isLoadingInitialData"
+                  ref="landingPageTree"
                  :items="landingPages"
                  :sortable="false"
                  :searchable="false"
@@ -11,10 +12,14 @@
                  :onChangeRoute="changeLandingPage"
                  :disableContextMenu="disableContextMenu"
                  :allowDeleteCategories="allowDelete"
+                 :allowCreateCategories="false"
                  :activeTreeItemId="landingPageId"
                  @batch-delete="deleteCheckedItems"
                  @delete-element="onDeleteLandingPage"
-                 @editing-end="syncLandingPages">
+                 @editing-end="syncLandingPages"
+                 @checked-elements-count="checkedElementsCount">
+
+                <template slot="headline"><span></span></template>
 
                 <template
                     #items="{
@@ -35,7 +40,7 @@
                             :item="item"
                             :shouldShowActiveState="true"
                             :allowDuplicate="true"
-                            :allowCreateWithoutPosition="allowCreate"
+                            :allowNewCategories="false"
                             :allowDeleteCategories="allowDelete"
                             :active="item.active"
                             :translationContext="translationContext"
@@ -48,10 +53,50 @@
                             :newElementId="newElementId"
                             :getItemUrl="getLandingPageUrl"
                             @check-item="checkItem">
+                            <template slot="actions">
+                                {% block sw_landing_page_tree_items_actions %}
+                                    <sw-context-button class="sw-tree-item__context_button">
+
+                                        {% block sw_landing_page_tree_items_actions_edit %}
+                                            <sw-context-menu-item @click="onChangeRoute(item)">
+                                                {{ $tc('global.default.edit') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_landing_page_tree_items_actions_duplicate %}
+                                            <sw-context-menu-item
+                                                class="sw-context-menu__duplicate-action"
+                                                @click="onDuplicate(item)">
+                                                {{ $tc(`global.default.duplicate`) }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+
+                                        {% block sw_landing_page_tree_items_actions_delete %}
+                                            <sw-context-menu-item
+                                                class="sw-context-menu__group-button-delete"
+                                                variant="danger"
+                                                @click="deleteElement(item)">
+                                                {{ $tc('global.default.delete') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    </sw-context-button>
+                                {% endblock %}
+                            </template>
                         </sw-tree-item>
                     {% endblock %}
                 </template>
             </sw-tree>
+        {% endblock %}
+
+        {% block sw_landing_page_tree_action %}
+            <div class="sw-landing-page-tree__add-button">
+                <sw-button
+                    :routerLink="newLandingPageUrl()"
+                    size="small"
+                    variant="ghost">
+                    Add Landing Page
+                </sw-button>
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

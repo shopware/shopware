@@ -68,7 +68,9 @@ Component.register('sw-category-detail', {
              * Please use "forceDiscardChanges" instead.
              */
             discardChanges: false,
-            forceDiscardChanges: false
+            forceDiscardChanges: false,
+            categoryCheckedItem: 0,
+            landingPageCheckedItem: 0
         };
     },
 
@@ -260,6 +262,14 @@ Component.register('sw-category-detail', {
             }
 
             this.setLandingPage();
+        },
+
+        categoryCheckedElementsCount(count) {
+            this.categoryCheckedItem = count;
+        },
+
+        landingPageCheckedElementsCount(count) {
+            this.landingPageCheckedItem = count;
         },
 
         registerListener() {
@@ -573,6 +583,12 @@ Component.register('sw-category-detail', {
             this.isLoading = true;
             this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
+
+                if (this.landingPageId === 'create') {
+                    this.$router.push({ name: 'sw.category.landingPageDetail', params: { id: this.landingPage.id } });
+                    return Promise.resolve();
+                }
+
                 return this.setLandingPage();
             }).catch(() => {
                 this.isLoading = false;

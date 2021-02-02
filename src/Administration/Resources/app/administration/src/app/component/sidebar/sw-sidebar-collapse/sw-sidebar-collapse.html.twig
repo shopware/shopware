@@ -10,6 +10,9 @@
             {% endblock %}
 
             {% block sw_sidebar_collapse_buttons %}
+                <div class="sw-sidebar-collapse__actions">
+                    <slot name="actions"></slot>
+                </div>
                 <div class="sw-sidebar-collapse__indicator" @click="collapseItem">
                     <sw-icon name="small-arrow-small-right"
                              class="sw-sidebar-collapse__button"

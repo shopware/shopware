@@ -91,7 +91,8 @@
                                       :disabled="!acl.can('landingPage.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelUrl')"
                                       :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"
-                                      v-model="landingPage.url">
+                                      v-model="landingPage.url"
+                                      :error="landingPageUrlError">
                             </sw-text-field>
                         {% endblock %}
                     </div>

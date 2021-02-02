@@ -2,6 +2,7 @@
     <div class="sw-category-tree">
         <sw-tree class="sw-category-tree__inner"
             v-if="!isLoadingInitialData"
+            ref="categoryTree"
             after-id-property="afterCategoryId"
             :items="categories"
             :sortable="allowEdit"
@@ -15,7 +16,10 @@
             @delete-element="onDeleteCategory"
             @drag-end="onUpdatePositions"
             @get-tree-items="onGetTreeItems"
-            @editing-end="syncSiblings">
+            @editing-end="syncSiblings"
+            @checked-elements-count="checkedElementsCount">
+
+            <template slot="headline"><span></span></template>
 
             {% block sw_category_tree_items %}
                 <template

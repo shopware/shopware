@@ -4,6 +4,7 @@
         {% block sw_landing_page_detail_cms_layout %}
             <sw-category-layout-card
                 :category="landingPage"
+                :pageTypes="['landingpage']"
                 v-bind="{ cmsPage, isLoading }">
             </sw-category-layout-card>
         {% endblock %}

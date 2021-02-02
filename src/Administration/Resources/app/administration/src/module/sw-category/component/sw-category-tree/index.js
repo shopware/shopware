@@ -170,6 +170,10 @@ Component.register('sw-category-tree', {
             });
         },
 
+        checkedElementsCount(count) {
+            this.$emit('category-checked-elements-count', count);
+        },
+
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
             this.categoryRepository.syncDeleted(ids, Shopware.Context.api).then(() => {

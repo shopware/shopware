@@ -341,4 +341,8 @@ EOD
 Landing pages
 EOD
     ,
+    'Content/Mail' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

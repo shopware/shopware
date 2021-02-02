@@ -128,6 +128,10 @@ shopware:
               default: false
               major: true
               description: "Add landing pages"
+            - name: FEATURE_NEXT_12246
+              default: false
+              major: true
+              description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
             - name: FEATURE_NEXT_12942
               default: false
               major: true

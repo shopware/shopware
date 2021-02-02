@@ -93,6 +93,7 @@
         "symfony/http-foundation": "~4.4.13",
         "symfony/http-kernel": "~4.4.13",
         "symfony/inflector": "~4.4.13",
+        "symfony/mailer": "~4.4",
         "symfony/messenger": "~4.4.13",
         "symfony/mime": "~4.4.13",
         "symfony/monolog-bridge": "~4.4.13",

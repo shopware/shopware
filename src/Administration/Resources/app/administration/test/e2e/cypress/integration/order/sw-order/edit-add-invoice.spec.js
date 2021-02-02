@@ -41,10 +41,6 @@ describe('Order: Test order state', () => {
             url: `${Cypress.env('apiPath')}/search/document`,
             method: 'post'
         }).as('findDocumentCall');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
-        }).as('findOrder');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
@@ -89,25 +85,8 @@ describe('Order: Test order state', () => {
         });
 
         cy.wait('@findDocumentCall').then((xhr) => {
-            cy.log(`metal.total${xhr.responseBody.meta.total}`);
             expect(xhr).to.have.property('status', 200);
         });
-
-        cy.wait('@findOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.wait('@findDocumentCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
-        cy.clickContextMenuItem(
-            '.sw-order-list__order-view-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
 
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
         cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');

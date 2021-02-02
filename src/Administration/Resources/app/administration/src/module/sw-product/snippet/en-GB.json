@@ -359,7 +359,9 @@
     },
     "layout": {
       "title": "Layout assignment",
-      "subtitle": "You may change product detail pages by assigning custom layouts. If no custom layout is assigned here, the default layout will be used."
+      "subtitle": "You may change product detail pages by assigning custom layouts. If no custom layout is assigned here, the default layout will be used.",
+      "textNoConfig": "The current selected layout does not have any editable elements",
+      "textContentInfo": "Default product blocks are filled with product data automatically. The actual contents are thus not listed here."
     },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",

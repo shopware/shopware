@@ -51,6 +51,10 @@ Component.register('sw-cms-el-config-image-gallery', {
 
         gridAutoRows() {
             return `grid-auto-rows: ${this.columnWidth}`;
+        },
+
+        isProductPage() {
+            return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
         }
     },
 
@@ -60,10 +64,15 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         sliderItemsConfigValue(value) {
+            if (!value) {
+                this.element.config.sliderItems.value = [];
+                return;
+            }
+
             const isSourceMapped = Utils.get(this.element, 'config.sliderItems.source') === 'mapped';
             const isSliderLengthValid = value && value.length === this.sliderItems.length;
 
-            if (isSourceMapped || isSliderLengthValid) {
+            if (isSourceMapped || isSliderLengthValid || !this.sliderItems.length) {
                 return;
             }
 
@@ -109,10 +118,26 @@ Component.register('sw-cms-el-config-image-gallery', {
                     return searchResult.get(mediaId);
                 });
             }
+
+            this.initConfig();
         },
 
         mountedComponent() {
             this.updateColumnWidth();
+        },
+
+        initConfig() {
+            if (!this.isProductPage || Utils.get(this.element, 'translated.config')) {
+                return;
+            }
+
+            this.element.config.sliderItems.source = 'mapped';
+            this.element.config.sliderItems.value = 'product.media';
+            this.element.config.navigationDots.value = 'inside';
+            this.element.config.zoom.value = true;
+            this.element.config.fullScreen.value = true;
+            this.element.config.displayMode.value = 'contain';
+            this.element.config.minHeight.value = '430px';
         },
 
         updateColumnWidth() {
@@ -190,7 +215,12 @@ Component.register('sw-cms-el-config-image-gallery', {
                         }
                     });
                 });
-                this.$set(this.element.data, 'sliderItems', sliderItems);
+
+                if (!this.element.data) {
+                    this.$set(this.element, 'data', { sliderItems });
+                } else {
+                    this.$set(this.element.data, 'sliderItems', sliderItems);
+                }
             }
         },
 

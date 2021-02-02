@@ -24,7 +24,8 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
     data() {
         return {
             showDeactivationModal: false,
-            showRatingModal: false
+            showRatingModal: false,
+            showExtensionInstallationFailedModal: false
         };
     },
 
@@ -133,6 +134,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
+                this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;
             }
@@ -165,6 +167,10 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
 
         closeRatingModal() {
             this.showRatingModal = false;
+        },
+
+        closeInstallationFailedNotification() {
+            this.showExtensionInstallationFailedModal = false;
         }
     }
 });

@@ -33,6 +33,8 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extensions-store-slider');
     await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-failed');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
 }
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {

@@ -1,7 +1,7 @@
 import template from './sw-extension-buy-modal.html.twig';
 import './sw-extension-buy-modal.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Utils } = Shopware;
 
 /**
  * @private
@@ -14,7 +14,6 @@ Component.register('sw-extension-buy-modal', {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
         'sw-extension-error'
     ],
 
@@ -30,22 +29,19 @@ Component.register('sw-extension-buy-modal', {
             tocAccepted: false,
             selectedVariantId: null,
             isLoading: false,
-            hasSuccessfullyInstalledExtension: false,
             permissionsAccepted: false,
             showPermissionsModal: false,
             privacyExtensionsAccepted: false,
-            showPrivacyModal: false
+            showPrivacyModal: false,
+            checkoutStep: null
         };
     },
 
     computed: {
         recommendedVariants() {
-            const filteredVariants = this.extension.variants.filter((variant) => {
-                return variant.type === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.FREE ||
-                    variant.type === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+            return this.shopwareExtensionService.orderVariantsByRecommendation(this.extension.variants).filter((variant) => {
+                return Object.values(this.shopwareExtensionService.EXTENSION_VARIANT_TYPES).includes(variant.type);
             });
-
-            return this.shopwareExtensionService.orderVariantsByRecommendation(filteredVariants);
         },
 
         selectedVariant() {
@@ -110,11 +106,15 @@ Component.register('sw-extension-buy-modal', {
 
         /* onPrem we need to check if the user is connected to the store in saas we check if the user has a plan */
         userCanBuyFromStore() {
-            return Shopware.State.get('swPlugin').loginStatus;
+            return Shopware.State.get('shopwareExtensions').loginStatus;
         },
 
-        planBookingModalLink() {
-            return { query: { ...this.$route.query, showBookingModal: 1 } };
+        checkoutSteps() {
+            return Object.freeze({
+                CHECKOUT: null,
+                SUCCESS: 'checkout-success',
+                FAILED: 'checkout-failed'
+            });
         }
     },
 
@@ -163,6 +163,8 @@ Component.register('sw-extension-buy-modal', {
         async purchaseExtension() {
             this.isLoading = true;
 
+            let checkoutResult = null;
+
             try {
                 await this.shopwareExtensionService.purchaseExtension(
                     this.extension.id,
@@ -170,11 +172,14 @@ Component.register('sw-extension-buy-modal', {
                     this.tocAccepted,
                     this.permissionsAccepted
                 );
-
-                this.hasSuccessfullyInstalledExtension = true;
+                checkoutResult = this.checkoutSteps.SUCCESS;
             } catch (e) {
                 this.handleErrors(e);
+                checkoutResult = this.checkoutSteps.FAILED;
             } finally {
+                await this.shopwareExtensionService.updateExtensionData();
+                this.checkoutStep = checkoutResult;
+
                 this.isLoading = false;
             }
         },

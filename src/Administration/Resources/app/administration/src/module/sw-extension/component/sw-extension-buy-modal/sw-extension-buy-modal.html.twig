@@ -7,7 +7,24 @@
         @modal-close="emitClose">
 
         {% block sw_extension_buy_modal_content %}
-            <template v-if="!hasSuccessfullyInstalledExtension">
+            <template v-if="checkoutStep === checkoutSteps.SUCCESS">
+                {% block sw_extension_buy_modal_adding_success_content%}
+                    <sw-extension-adding-success
+                        @close="emitClose">
+                    </sw-extension-adding-success>
+                {% endblock %}
+            </template>
+
+            <template v-else-if="checkoutStep === checkoutSteps.FAILED">
+                {% block sw_extension_buy_modal_adding_failed_content %}
+                    <sw-extension-adding-failed
+                        :extensionName="extension.name"
+                        @close="emitClose">
+                    </sw-extension-adding-failed>
+                {% endblock %}
+            </template>
+
+            <template v-else>
                 {% block sw_extension_buy_modal_content_not_installed %}
                     {% block sw_extension_buy_modal_variant_selection %}
                         <div class="sw-extension-buy-modal__variants-selection">
@@ -106,7 +123,7 @@
                     {% endblock %}
 
                     {% block sw_extension_buy_modal_accept_toc %}
-                        <sw-extension-gtc-checkbox v-model="tocAccepted"></sw-extension-gtc-checkbox>
+                        <sw-gtc-checkbox v-model="tocAccepted"></sw-gtc-checkbox>
                     {% endblock %}
 
                     {% block sw_extension_buy_modal_accept_extension_permissions %}
@@ -125,10 +142,10 @@
 
                                 <div class="sw-field__label">
                                     <label :for="`permissions-checkbox--${extension.name}`" class="is--required">
-                                        <span>{{ $t('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPermissions') }}</span>
+                                        <span>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPermissions') }}</span>
                                     </label>
                                     <sw-button @click="openPermissionsModal">
-                                        {{ $t('sw-extension-store.detail.labelButtonShowPermissions') }}
+                                        {{ $tc('sw-extension-store.detail.labelButtonShowPermissions') }}
                                     </sw-button>
                                 </div>
                             </div>
@@ -151,10 +168,10 @@
 
                                 <div class="sw-field__label">
                                     <label :for="`privacy-extensions-checkbox--${extension.name}`" class="is--required">
-                                        <span>{{ $t('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPrivacyExtensions') }}</span>
+                                        <span>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.labelAcceptPrivacyExtensions') }}</span>
                                     </label>
                                     <sw-button @click="openPrivacyModal">
-                                        {{ $t('sw-extension-store.component.sw-extension-buy-modal.buttonShowPrivacyExtensions') }}
+                                        {{ $tc('sw-extension-store.component.sw-extension-buy-modal.buttonShowPrivacyExtensions') }}
                                     </sw-button>
                                 </div>
                             </div>
@@ -195,36 +212,6 @@
                         :privacyPolicyExtensions="extension.privacyPolicyExtensions"
                         @modal-close="closePrivacyModal">
                     </sw-extension-privacy-policy-extensions-modal>
-                {% endblock %}
-            </template>
-
-            <template v-else>
-                {% block sw_extension_buy_modal_content_installed %}
-                    <div class="sw-extension-buy-modal__content-installed">
-                        {% block sw_extension_buy_modal_content_installed_icon_success %}
-                            <saas-rufus-circle-icon
-                                size="72"
-                                iconName="default-basic-checkmark-line"
-                                variant="success">
-                            </saas-rufus-circle-icon>
-                        {% endblock %}
-
-                        {% block sw_extension_buy_modal_content_installed_headline_success %}
-                            <h3>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.titleSuccess') }}</h3>
-                        {% endblock %}
-
-                        {% block sw_extension_buy_modal_content_installed_subheadline_success %}
-                            <p>{{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.subtitleSuccess') }}</p>
-                        {% endblock %}
-
-                        {% block sw_extension_buy_modal_content_installed_button_back %}
-                            <sw-button variant="primary"
-                                       block
-                                       @click="emitClose">
-                                {{ $tc('sw-extension-store.component.sw-extension-buy-modal.successNotification.labelButtonBack') }}
-                            </sw-button>
-                        {% endblock %}
-                    </div>
                 {% endblock %}
             </template>
         {% endblock %}

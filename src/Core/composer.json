@@ -41,7 +41,7 @@
         "aws/aws-sdk-php": "3.133.6",
         "cocur/slugify": "4.0.0",
         "composer/composer": "~1.10.0",
-        "composer/package-versions-deprecated": "^1.8.2",
+        "composer/package-versions-deprecated": "^1.8.0",
         "composer/semver": "~1.7.0",
         "doctrine/annotations": "1.8.0",
         "doctrine/dbal": "2.10.1",

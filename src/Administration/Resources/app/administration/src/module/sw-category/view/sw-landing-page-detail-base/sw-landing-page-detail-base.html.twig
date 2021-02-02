@@ -10,7 +10,7 @@
                             name="landingPageName"
                             v-model="landingPage.name"
                             validation="required"
-                            :disabled="!acl.can('landingPage.editor')"
+                            :disabled="!acl.can('landing_page.editor')"
                             :label="$tc('sw-landing-page.base.general.labelName')"
                             :placeholder="placeholder(landingPage, 'name')"
                             :error="landingPageNameError">
@@ -19,7 +19,7 @@
 
                     {% block sw_landing_page_detail_base_information_active %}
                         <sw-switch-field
-                            :disabled="!acl.can('landingPage.editor')"
+                            :disabled="!acl.can('landing_page.editor')"
                             name="landingPageActive"
                             class="sw-landing-page-detail-base__active"
                             :label="$tc('sw-landing-page.base.general.isActiveLabel')"
@@ -34,7 +34,7 @@
                         class="sw-landing-page-detail-base__tags"
                         :label="$tc('sw-landing-page.base.general.labelTags')"
                         :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
-                        :disabled="!acl.can('landingPage.editor')"
+                        :disabled="!acl.can('landing_page.editor')"
                         v-model="landingPage.tags">
                     </sw-entity-tag-select>
                 {% endblock %}
@@ -52,7 +52,7 @@
                         {% block sw_landing_page_detail_base_seo_form_sales_channel %}
                             <sw-entity-multi-select
                                       entityName="sales_channel"
-                                      :disabled="!acl.can('landingPage.editor')"
+                                      :disabled="!acl.can('landing_page.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelSalesChannel')"
                                       :placeholder="$tc('sw-landing-page.base.seo.placeholderSalesChannel')"
                                       v-model="landingPage.salesChannels">
@@ -61,7 +61,7 @@
 
                         {% block sw_landing_page_detail_base_seo_form_meta_title %}
                             <sw-text-field
-                                      :disabled="!acl.can('landingPage.editor')"
+                                      :disabled="!acl.can('landing_page.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
                                       :placeholder="placeholder(landingPage, 'metaTitle', $tc('sw-landing-page.base.seo.placeholderMetaTitle'))"
                                       v-model="landingPage.metaTitle">
@@ -70,7 +70,7 @@
 
                         {% block sw_landing_page_detail_base_seo_form_meta_description %}
                             <sw-textarea-field
-                                      :disabled="!acl.can('landingPage.editor')"
+                                      :disabled="!acl.can('landing_page.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
                                       :placeholder="placeholder(landingPage, 'metaDescription', $tc('sw-landing-page.base.seo.placeholderMetaDescription'))"
                                       v-model="landingPage.metaDescription">
@@ -79,7 +79,7 @@
 
                         {% block sw_landing_page_detail_base_seo_form_keywords %}
                             <sw-text-field
-                                      :disabled="!acl.can('landingPage.editor')"
+                                      :disabled="!acl.can('landing_page.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelKeywords')"
                                       :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))"
                                       v-model="landingPage.keywords">
@@ -88,7 +88,7 @@
 
                         {% block sw_landing_page_detail_base_seo_form_url %}
                             <sw-text-field
-                                      :disabled="!acl.can('landingPage.editor')"
+                                      :disabled="!acl.can('landing_page.editor')"
                                       :label="$tc('sw-landing-page.base.seo.labelUrl')"
                                       :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"
                                       v-model="landingPage.url"

@@ -124,6 +124,7 @@
       "cms": "Inhalte"
     },
     "general": {
+      "placeholderSearchBar": "Durchsuche alle Landing Pages ...",
       "treeHeadSelected": "{count} ausgewählt",
       "buttonCreate": "Landing Page erstellen",
       "treeHeadline": "Landing Pages",
@@ -173,7 +174,7 @@
       "category": {
         "label": "Kategorien"
       },
-      "landingPage": {
+      "landing_page": {
         "label": "Landing Pages"
       }
     }

@@ -21,10 +21,10 @@
 
                 {% block sw_landing_page_view_tabs_cms %}
                     <sw-tabs-item
-                        :disabled="!acl.can('landingPage.editor')"
+                        :disabled="!acl.can('landing_page.editor')"
                         v-tooltip="{
                                 message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('landingPage.editor'),
+                                disabled: acl.can('landing_page.editor'),
                                 showOnDisabledElements: true
                             }"
                         class="sw-landing-page-detail__tab-cms"

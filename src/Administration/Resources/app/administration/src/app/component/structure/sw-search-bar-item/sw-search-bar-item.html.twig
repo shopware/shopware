@@ -98,5 +98,21 @@
                 {% endblock %}
             </router-link>
         {% endblock %}
+
+        {% block sw_search_bar_item_landing_page %}
+            <router-link v-else-if="type === 'landing_page'"
+                         ref="routerLink"
+                         class="sw-search-bar-item__link"
+                         :to="{ name: 'sw.category.landingPageDetail.base', params: { id: item.id } }">
+                {% block sw_search_bar_item_cms_page_label %}
+                    <span class="sw-search-bar-item__label">
+                        <sw-highlight-text
+                            :searchTerm="searchTerm"
+                            :text="item.name">
+                        </sw-highlight-text>
+                    </span>
+                {% endblock %}
+            </router-link>
+        {% endblock %}
     </li>
 {% endblock %}

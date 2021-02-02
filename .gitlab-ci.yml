@@ -493,7 +493,7 @@ RIPS security:
     interruptible: false
 
 Symfony security check:
-    stage: Security
+    stage: unit
     only:
         refs:
             - merge_requests
@@ -502,14 +502,15 @@ Symfony security check:
             - schedules
             - pipelines
     image: shopware/development:latest
-    before_script: []
-    allow_failure: true
     script:
-        - wget https://get.sensiolabs.org/security-checker.phar
-        - composer install
-        - php security-checker.phar security:check composer.lock
-        - composer install -d src/Recovery/Common/
-        - php security-checker.phar security:check src/Recovery/Common/composer.lock
+        - composer install --no-interaction --no-scripts
+        - curl --location --output local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
+        - echo 'e5b12488ca78bc07c149e9352278bf10667b88a8461caac10154f9a6f5476369  local-php-security-checker' > local-php-security-checker.sha256
+        - sha256sum --check local-php-security-checker.sha256
+        - chmod +x local-php-security-checker
+        - ./local-php-security-checker
+        - composer install --no-interaction --no-scripts -d vendor/shopware/platform/src/Recovery
+        - ./local-php-security-checker --path=vendor/shopware/platform/src/Recovery
 
 NPM security check:
     stage: Security

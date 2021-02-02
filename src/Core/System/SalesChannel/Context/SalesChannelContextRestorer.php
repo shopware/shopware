@@ -54,13 +54,20 @@ class SalesChannelContextRestorer
 
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
     {
-        $customerPayload = $this->contextPersister->load($currentContext->getToken(), $currentContext->getSalesChannel()->getId(), $customerId);
+        $customerPayload = $this->contextPersister->load(
+            $currentContext->getToken(),
+            $currentContext->getSalesChannel()->getId(),
+            $customerId
+        );
 
-        if (empty($customerPayload) || $customerPayload['token'] === $currentContext->getToken()) {
+        if (empty($customerPayload) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
         $customerContext = $this->factory->create($customerPayload['token'], $currentContext->getSalesChannel()->getId(), $customerPayload);
+        if ($customerPayload['expired'] ?? false) {
+            $customerContext = $this->replaceContextToken($customerId, $customerContext);
+        }
 
         $guestCart = $this->cartService->getCart($currentContext->getToken(), $currentContext);
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);

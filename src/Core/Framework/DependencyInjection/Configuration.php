@@ -111,6 +111,11 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('api'))->getRootNode();
         $rootNode
             ->children()
+            ->arrayNode('store')
+                ->children()
+                ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                ->end()
+            ->end()
             ->arrayNode('allowed_limits')
                 /* @deprecated tag:v6.4.0 - The `shopware.api.allowed_limits` config will be fully removed */
                 ->setDeprecated('The "%node%" is deprecated and will be fully removed with v6.4.0')

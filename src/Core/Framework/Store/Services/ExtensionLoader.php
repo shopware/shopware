@@ -104,10 +104,6 @@ class ExtensionLoader
         // Enrich apps from filesystem
         $localApps = $this->loadLocalAppsCollection($context);
 
-        /**
-         * @var string          $name
-         * @var ExtensionStruct $app
-         */
         foreach ($localApps as $name => $app) {
             if ($registeredApps->has($name)) {
                 /** @var ExtensionStruct $registeredApp */
@@ -132,7 +128,8 @@ class ExtensionLoader
         $extensions = new ExtensionCollection();
 
         foreach ($collection as $app) {
-            $extensions->add($this->loadFromPlugin($context, $app));
+            $plugin = $this->loadFromPlugin($context, $app);
+            $extensions->set($plugin->getName(), $plugin);
         }
 
         return $extensions;

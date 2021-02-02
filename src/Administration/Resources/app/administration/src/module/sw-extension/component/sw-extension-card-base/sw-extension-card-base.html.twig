@@ -26,7 +26,7 @@
                         <section>
                             {% block sw_extension_card_base_info_name %}
                                 <span class="sw-extension-card-base__info-name">
-                                    {{ label }}
+                                    {{ extension.label }}
                                 </span>
                             {% endblock %}
 
@@ -56,9 +56,9 @@
                             {{ dateFilter(extension.installedAt.date, { year: 'numeric' }) }}
                         </span>
 
-                        <span v-else-if="license">
+                        <span v-else-if="extension.storeLicense">
                             {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-                            {{ dateFilter(license.creationDate, { year: 'numeric' }) }}
+                            {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
                         </span>
                     {% endblock %}
                 {% endblock %}
@@ -124,7 +124,7 @@
                                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
                             </sw-context-menu-item>
 
-                            <sw-context-menu-item v-if="license && license.expirationDate === null" variant="danger" @click="openRemovalModal">
+                            <sw-context-menu-item v-if="isRemovable && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null" variant="danger" @click="openRemovalModal">
                                 {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
                             </sw-context-menu-item>
 
@@ -145,8 +145,8 @@
             {% block sw_extension_card_base_uninstall_modal %}
                 <sw-extension-uninstall-modal
                     v-if="showUninstallModal"
-                    :extensionName="label"
-                    :isLicensed="license !== null"
+                    :extensionName="extension.label"
+                    :isLicensed="extension.storeLicense !== null"
                     :isLoading="isLoading"
                     @modal-close="closeUninstallModal"
                     @uninstall-extension="closeModalAndUninstallExtension">
@@ -156,8 +156,8 @@
             {% block sw_extension_card_base_removal_modal %}
                 <sw-extension-removal-modal
                     v-if="showRemovalModal"
-                    :extensionName="label"
-                    :isLicensed="license !== null"
+                    :extensionName="extension.label"
+                    :isLicensed="extension.storeLicense !== null"
                     :isLoading="isLoading"
                     @modal-close="closeRemovalModal"
                     @remove-extension="closeModalAndRemoveExtension">
@@ -167,7 +167,7 @@
             {% block sw_extension_card_base_permissions_modal %}
                 <sw-extension-permissions-modal
                     v-if="showPermissionsModal"
-                    :extensionLabel="label"
+                    :extensionLabel="extension.label"
                     :permissions="permissions"
                     :actionLabel="permissionModalActionLabel"
                     @modal-close="closePermissionsModal"
@@ -178,7 +178,7 @@
             {% block sw_extension_card_base_privacy_modal %}
                 <sw-extension-privacy-policy-extensions-modal
                     v-if="showPrivacyModal"
-                    :extensionName="label"
+                    :extensionName="extension.label"
                     :privacyPolicyExtensions="extension.privacyPolicyExtensions"
                     @modal-close="closePrivacyModal">
                 </sw-extension-privacy-policy-extensions-modal>

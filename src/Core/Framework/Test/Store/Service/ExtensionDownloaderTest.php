@@ -35,7 +35,7 @@ class ExtensionDownloaderTest extends TestCase
     public function testDownloadExtension(): void
     {
         $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip"}'));
+        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
         $this->extensionDownloader->download('TestApp', Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));

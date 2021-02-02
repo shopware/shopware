@@ -48,7 +48,7 @@ export default class ExtensionStoreDataService extends ApiService {
         return data;
     }
 
-    async getInstalledExtensions(context) {
+    async getMyExtensions(context) {
         const { data } = await this.httpClient.get('_action/extension/installed', {
             headers: this.basicHeaders(context),
             version: 3

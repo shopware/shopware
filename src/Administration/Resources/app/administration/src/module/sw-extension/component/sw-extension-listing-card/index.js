@@ -70,15 +70,21 @@ Component.register('sw-extension-listing-card', {
         },
 
         isInstalled() {
-            return !!Shopware.State.get('shopwareExtensions').installedExtensions.data.find((installedExtension) => {
-                return installedExtension.name === this.extension.name;
+            return !!Shopware.State.get('shopwareExtensions').myExtensions.data.find((installedExtension) => {
+                return installedExtension.installedAt && installedExtension.name === this.extension.name;
             });
         },
 
         isLicensed() {
-            return !!Shopware.State.get('shopwareExtensions').licensedExtensions.data.find((license) => {
-                return license.licensedExtension.name === this.extension.name;
+            const extension = Shopware.State.get('shopwareExtensions').myExtensions.data.find((installedExtension) => {
+                return installedExtension.name === this.extension.name;
             });
+
+            if (extension === undefined) {
+                return false;
+            }
+
+            return !!extension.storeLicense;
         },
 
         assetFilter() {

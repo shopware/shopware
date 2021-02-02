@@ -4,11 +4,10 @@ import './sw-ratings-card.scss';
 const extensionStoreDataService = Shopware.Service('extensionStoreDataService');
 const startValuePage = 1;
 const startValueLimit = 4;
+const { Component } = Shopware;
 
-export default {
-    name: 'sw-ratings-card',
+Component.register('sw-ratings-card', {
     template,
-
     mixins: ['sw-extension-error'],
 
     props: {
@@ -101,4 +100,4 @@ export default {
             );
         }
     }
-};
+});

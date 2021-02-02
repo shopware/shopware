@@ -108,6 +108,12 @@
       "labelDiscountPeriod": "*Für den ersten Monat - | *Für die ersten {months} Monate - "
     },
     "component": {
+      "sw-extension-gtc-checkbox": {
+        "labelTerms": ""
+      },
+      "sw-extension-meteor-page-context-item": {
+        "labelButtonMore": "Mehr"
+      },
       "sw-extension-buy-modal": {
         "title": "Erweiterung hinzufügen",
         "labelAcceptPermissions": "Ich bin mir bewusst, dass diese Erweiterung Berechtigungen benötigt",

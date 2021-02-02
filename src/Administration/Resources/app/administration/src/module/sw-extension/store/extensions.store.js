@@ -16,11 +16,7 @@ export default {
             extensionListing: [],
             storeCategories: [],
             categoriesLanguageId: null,
-            licensedExtensions: {
-                loading: true,
-                data: []
-            },
-            installedExtensions: {
+            myExtensions: {
                 loading: true,
                 data: []
             },
@@ -39,13 +35,13 @@ export default {
             state.extensionListing = extensions;
         },
 
-        loadInstalledExtensions(state) {
-            state.installedExtensions.loading = true;
+        loadMyExtensions(state) {
+            state.myExtensions.loading = true;
         },
 
-        installedExtensions(state, installedExtensions) {
-            state.installedExtensions.data = installedExtensions;
-            state.installedExtensions.loading = false;
+        myExtensions(state, myExtensions) {
+            state.myExtensions.data = myExtensions;
+            state.myExtensions.loading = false;
         },
 
         loadLicensedExtensions(state) {
@@ -93,36 +89,18 @@ export default {
             commit('setExtensionListing', page);
         },
 
-        async updateInstalledExtensions({ commit }) {
-            commit('loadInstalledExtensions');
+        async updateMyExtensions({ commit }) {
+            commit('loadMyExtensions');
 
             const extensionDataService = Shopware.Service('extensionStoreDataService');
 
             await extensionDataService.refreshExtensions();
 
-            const installedExtensions = await extensionDataService.getInstalledExtensions(
+            const myExtensions = await extensionDataService.getMyExtensions(
                 { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
             );
 
-            commit('installedExtensions', installedExtensions);
-        },
-
-        async updateLicensedExtensions({ commit }) {
-            commit('loadLicensedExtensions');
-
-            const extensionStoreLicensesService = Shopware.Service('extensionStoreLicensesService');
-
-            let licensedExtensions = [];
-
-            try {
-                licensedExtensions = await extensionStoreLicensesService.getLicensedExtensions(
-                    { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
-                );
-            } catch (e) {
-                console.log(e);
-            }
-
-            commit('licensedExtensions', licensedExtensions);
+            commit('myExtensions', myExtensions);
         },
 
         async getStoreCategories({ state, commit }) {

@@ -47,9 +47,15 @@ Component.register('sw-extension-store-detail', {
                 return null;
             }
 
-            return Shopware.State.get('shopwareExtensions').licensedExtensions.data.find((license) => {
-                return license.licensedExtension.id === this.extension.id;
+            const extension = Shopware.State.get('shopwareExtensions').myExtensions.data.find((ext) => {
+                return ext.id === this.extension.id;
             });
+
+            if (extension === undefined) {
+                return null;
+            }
+
+            return extension.storeLicense ? extension.storeLicense : null;
         },
 
         isLicensed() {
@@ -57,7 +63,7 @@ Component.register('sw-extension-store-detail', {
         },
 
         isInstalled() {
-            return Shopware.State.get('shopwareExtensions').installedExtensions.data.some((extension) => {
+            return Shopware.State.get('shopwareExtensions').myExtensions.data.some((extension) => {
                 return extension.name === this.extension.name;
             });
         },

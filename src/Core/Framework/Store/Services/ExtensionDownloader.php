@@ -72,7 +72,7 @@ class ExtensionDownloader
 
         $data = $this->storeClient->getDownloadDataForPlugin($technicalName, $storeToken, 'de-DE', $storeToken !== '');
 
-        $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
+        $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
         if ($statusCode !== Response::HTTP_OK) {
             throw new StoreNotAvailableException();
         }

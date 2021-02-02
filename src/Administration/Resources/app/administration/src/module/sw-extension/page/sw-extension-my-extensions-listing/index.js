@@ -15,94 +15,30 @@ Component.register('sw-extension-my-extensions-listing', {
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
 
-            return state.licensedExtensions.loading || state.installedExtensions.loading;
+            return state.myExtensions.loading;
         },
 
-        licensedExtensions() {
-            return Shopware.State.get('shopwareExtensions').licensedExtensions.data;
+        myExtensions() {
+            return Shopware.State.get('shopwareExtensions').myExtensions.data;
         },
 
-        installedExtensions() {
-            return Shopware.State.get('shopwareExtensions').installedExtensions.data.reduce((acc, extension) => {
-                acc[extension.name.toLowerCase()] = extension;
-
-                return acc;
-            }, {});
-        },
-
-        // TODO: will be refactored with NEXT-12611
         extensionList() {
-            const installedExtensions = Object.assign({}, this.installedExtensions);
-            const sortedActiveExtensions = [];
-            const sortedInstalledExtensions = [];
-            const sortedOtherExtensions = [];
+            const isAppRoute = this.$route.name === 'sw.extension.my-extensions.listing.app';
+            const isThemeRoute = this.$route.name === 'sw.extension.my-extensions.listing.theme';
 
-            this.licensedExtensions.forEach(license => {
-                let extension = null;
-                let updateLocation = null;
-                if (installedExtensions.hasOwnProperty(license.licensedExtension.name.toLowerCase())) {
-                    extension = installedExtensions[license.licensedExtension.name.toLowerCase()];
-                    if (extension.latestVersion) {
-                        updateLocation = 'local';
-                    } else if (license.licensedExtension.latestVersion && extension.version !== license.licensedExtension.latestVersion) {
-                        updateLocation = 'store';
-                    }
+            return this.myExtensions.filter(extension => {
+                // app route and no theme
+                if (isAppRoute && !extension.isTheme) {
+                    return true;
                 }
 
-                const item = {
-                    license,
-                    extension,
-                    key: license.licensedExtension.name,
-                    isLocalAvailable: extension !== null,
-                    updateLocation
-                };
-
-                if (extension && extension.active) {
-                    sortedActiveExtensions.push(item);
-                } else if (extension && extension.installedAt !== null) {
-                    sortedInstalledExtensions.push(item);
-                } else {
-                    sortedOtherExtensions.push(item);
+                // theme route and theme
+                if (isThemeRoute && extension.isTheme) {
+                    return true;
                 }
 
-                delete installedExtensions[license.licensedExtension.name.toLowerCase()];
+                return false;
             });
-
-            Object.values(installedExtensions).forEach(extension => {
-                const item = {
-                    license: null,
-                    extension,
-                    key: extension.name,
-                    isLocalAvailable: true,
-                    updateLocation: 'local'
-                };
-
-                if (extension.active) {
-                    sortedActiveExtensions.push(item);
-                } else if (extension.installedAt !== null) {
-                    sortedInstalledExtensions.push(item);
-                } else {
-                    sortedOtherExtensions.push(item);
-                }
-            });
-
-            this.sortByLocale(sortedActiveExtensions);
-            this.sortByLocale(sortedInstalledExtensions);
-            this.sortByLocale(sortedOtherExtensions);
-            const allExtensions = [].concat(sortedActiveExtensions, sortedInstalledExtensions, sortedOtherExtensions);
-            const listExtension = [];
-
-            allExtensions.forEach(extension => {
-                const isTheme = (extension.extension ? extension.extension.isTheme : false) || (extension.license ? extension.license.licensedExtension.isTheme : false);
-
-                if (this.$route.name === 'sw.extension.my-extensions.listing.app' && !isTheme) {
-                    listExtension.push(extension);
-                } else if (this.$route.name === 'sw.extension.my-extensions.listing.theme' && isTheme) {
-                    listExtension.push(extension);
-                }
-            });
-
-            return listExtension;
         }
     },
 
@@ -115,18 +51,6 @@ Component.register('sw-extension-my-extensions-listing', {
             this.$router.push({
                 name: 'sw.extension.store.index'
             });
-        },
-
-        getTitle(extension) {
-            if (extension.extension) {
-                return extension.extension.label;
-            }
-
-            return extension.license.licensedExtension.label;
-        },
-
-        sortByLocale(array) {
-            return array.sort((a, b) => this.getTitle(a).localeCompare(this.getTitle(b)));
         }
     }
 });

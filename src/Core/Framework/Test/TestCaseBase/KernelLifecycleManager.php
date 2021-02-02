@@ -131,6 +131,13 @@ class KernelLifecycleManager
         $existingConnection = null;
         if ($reuseConnection) {
             $existingConnection = self::$connection;
+
+            try {
+                $existingConnection->fetchAll('SELECT 1');
+            } catch (\Throwable $e) {
+                // The connection is closed
+                $existingConnection = null;
+            }
         }
         if ($existingConnection === null) {
             $existingConnection = self::$connection = $kernelClass::getConnection();

@@ -13,6 +13,8 @@ class ExtensionStruct extends Struct
 {
     public const EXTENSION_TYPE_APP = 'app';
     public const EXTENSION_TYPE_PLUGIN = 'plugin';
+    public const SOURCE_LOCAL = 'local';
+    public const SOURCE_STORE = 'store';
 
     /**
      * @var int|null is null for private extensions
@@ -44,7 +46,7 @@ class ExtensionStruct extends Struct
      * @see AppEntity::$description
      * @see PluginEntity::$description
      *
-     * @var string
+     * @var string|null
      */
     protected $description;
 
@@ -78,7 +80,7 @@ class ExtensionStruct extends Struct
     protected $version;
 
     /**
-     * @var string|null for private extensions
+     * @var string|null
      */
     protected $latestVersion;
 
@@ -177,6 +179,40 @@ class ExtensionStruct extends Struct
      */
     protected $privacyPolicyExtensions;
 
+    /**
+     * @var LicenseStruct|null
+     */
+    protected $storeLicense;
+
+    /**
+     * @var ExtensionStruct|null
+     */
+    protected $storeExtension;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $installedAt;
+
+    /**
+     * @var array
+     */
+    protected $notices = [];
+
+    /**
+     * Is this extension locally available or only in store
+     *
+     * @var string
+     */
+    protected $source = self::SOURCE_LOCAL;
+
+    /**
+     * Is the update local or in store
+     *
+     * @var string
+     */
+    protected $updateSource = self::SOURCE_LOCAL;
+
     public static function fromArray(array $data): ExtensionStruct
     {
         return (new self())->assign($data);
@@ -222,12 +258,12 @@ class ExtensionStruct extends Struct
         $this->label = $label;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -383,7 +419,7 @@ class ExtensionStruct extends Struct
         return $this->icon;
     }
 
-    public function setIcon(string $icon): void
+    public function setIcon(?string $icon): void
     {
         $this->icon = $icon;
     }
@@ -473,5 +509,65 @@ class ExtensionStruct extends Struct
     public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
     {
         $this->privacyPolicyExtensions = $privacyPolicyExtensions;
+    }
+
+    public function getStoreLicense(): ?LicenseStruct
+    {
+        return $this->storeLicense;
+    }
+
+    public function setStoreLicense(?LicenseStruct $storeLicense): void
+    {
+        $this->storeLicense = $storeLicense;
+    }
+
+    public function getInstalledAt(): ?\DateTimeInterface
+    {
+        return $this->installedAt;
+    }
+
+    public function setInstalledAt(?\DateTimeInterface $installedAt): void
+    {
+        $this->installedAt = $installedAt;
+    }
+
+    public function getNotices(): array
+    {
+        return $this->notices;
+    }
+
+    public function setNotices(array $notices): void
+    {
+        $this->notices = $notices;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): void
+    {
+        $this->source = $source;
+    }
+
+    public function getUpdateSource(): string
+    {
+        return $this->updateSource;
+    }
+
+    public function setUpdateSource(string $updateSource): void
+    {
+        $this->updateSource = $updateSource;
+    }
+
+    public function getStoreExtension(): ?ExtensionStruct
+    {
+        return $this->storeExtension;
+    }
+
+    public function setStoreExtension(?ExtensionStruct $storeExtension): void
+    {
+        $this->storeExtension = $storeExtension;
     }
 }

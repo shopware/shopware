@@ -11,27 +11,14 @@ Component.register('sw-extension-card-base', {
 
     inheritAttrs: false,
 
-    inject: ['shopwareExtensionService', 'extensionStoreActionService'],
+    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
 
     mixins: ['sw-extension-error'],
 
     props: {
-        license: {
-            type: Object,
-            required: false,
-            default: null
-        },
-
         extension: {
             type: Object,
-            required: false,
-            default: null
-        },
-
-        updateLocation: {
-            type: String,
-            required: false,
-            default: null
+            required: true
         }
     },
 
@@ -63,24 +50,24 @@ Component.register('sw-extension-card-base', {
         },
 
         licensedExtension() {
-            return this.license ? this.license.licensedExtension : null;
+            return this.extension.storeLicense;
         },
 
         description() {
-            if (this.getPropValue('shortDescription')) {
-                return this.getPropValue('shortDescription');
+            if (this.extension.shortDescription) {
+                return this.extension.shortDescription;
             }
 
-            return this.getPropValue('description');
+            return this.extension.description;
         },
 
         image() {
-            if (this.getPropValue('icon')) {
-                return this.getPropValue('icon');
+            if (this.extension.icon) {
+                return this.extension.icon;
             }
 
-            if (this.getPropValue('iconRaw')) {
-                return `data:image/png;base64, ${this.getPropValue('iconRaw')}`;
+            if (this.extension.iconRaw) {
+                return `data:image/png;base64, ${this.extension.iconRaw}`;
             }
 
             return this.defaultThemeAsset;
@@ -108,26 +95,20 @@ Component.register('sw-extension-card-base', {
         },
 
         isInstalled() {
-            return !!this.extension && this.extension.installedAt !== null;
+            return this.extension.installedAt !== null;
         },
 
         canBeOpened() {
             return this.shopwareExtensionService.canBeOpened(this.extension);
         },
 
-        label() {
-            return this.getPropValue('label');
-        },
-
         privacyPolicyLink() {
-            return this.getPropValue('privacyPolicyLink');
+            return this.extension.privacyPolicyLink;
         },
 
-        /*
-         * Interface for deriving components
-         */
         permissions() {
-            Utils.debug.warn(this._name, 'No implementation of permissions found');
+            return Object.keys(this.extension.permissions).length ?
+                this.extension.permissions : null;
         },
 
         assetFilter() {
@@ -135,18 +116,22 @@ Component.register('sw-extension-card-base', {
         },
 
         isRemovable() {
-            return this.extension && this.extension.installedAt === null;
+            if (this.extension.installedAt === null && this.extension.source === 'local') {
+                return true;
+            }
+
+            return false;
         },
 
         isUninstallable() {
-            return this.extension && this.extension.installedAt !== null;
+            if (this.extension.installedAt !== null) {
+                return true;
+            }
+
+            return false;
         },
 
         isUpdateable() {
-            if (this.extension === null) {
-                return false;
-            }
-
             if (this.extension.latestVersion === null) {
                 return false;
             }
@@ -160,12 +145,12 @@ Component.register('sw-extension-card-base', {
             this.$emit('updateList');
         },
 
-        getPropValue(property) {
-            return Utils.get(this.licensedExtension, property) || Utils.get(this.extension, property);
+        getHelp() {
+            // implemented in SAAS-1137
         },
 
         openPrivacyAndSafety() {
-            window.open(this.getPropValue('privacyPolicyLink'), '_blank');
+            window.open(this.extension.privacyPolicyLink, '_blank');
         },
 
         openRemovalModal() {
@@ -190,10 +175,11 @@ Component.register('sw-extension-card-base', {
 
             try {
                 await this.shopwareExtensionService.uninstallExtension(
-                    this.getPropValue('name'),
-                    this.getPropValue('type'),
+                    this.extension.name,
+                    this.extension.type,
                     removeData
                 );
+                this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -205,14 +191,15 @@ Component.register('sw-extension-card-base', {
             this.isLoading = true;
 
             try {
-                if (this.updateLocation === 'store') {
-                    await this.shopwareExtensionService.downloadExtension(this.getPropValue('name'));
+                if (this.extension.updateSource === 'remote') {
+                    await this.extensionStoreActionService.downloadExtension(this.extension.name);
                 }
 
                 await this.shopwareExtensionService.updateExtension(
-                    this.getPropValue('name'),
-                    this.getPropValue('type')
+                    this.extension.name,
+                    this.extension.type
                 );
+                this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -222,13 +209,15 @@ Component.register('sw-extension-card-base', {
 
         async closeModalAndRemoveExtension() {
             // we close the modal in the called methods before updating the listing
-            if (this.license === null) {
+            if (this.extension.storeLicense === null) {
                 await this.removeExtension();
+                this.showRemovalModal = false;
 
                 return;
             }
 
             await this.cancelAndRemoveExtension();
+            this.showRemovalModal = false;
         },
 
         async openExtension() {
@@ -278,8 +267,21 @@ Component.register('sw-extension-card-base', {
             Utils.debug.warn(this._name, 'No implementation of installExtension found');
         },
 
-        removeExtension() {
-            Utils.debug.warn(this._name, 'No implementation of removeExtension found');
+        async removeExtension() {
+            try {
+                this.showRemovalModal = false;
+                this.isLoading = true;
+
+                await this.shopwareExtensionService.removeExtension(
+                    this.extension.name,
+                    this.extension.type
+                );
+                this.extension.active = false;
+            } catch (e) {
+                this.showStoreError(e);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         cancelAndRemoveExtension() {
@@ -292,6 +294,13 @@ Component.register('sw-extension-card-base', {
 
         closePrivacyModal() {
             this.showPrivacyModal = false;
+        },
+
+        clearCacheAndReloadPage() {
+            return this.cacheApiService.clear()
+                .then(() => {
+                    window.location.reload();
+                });
         }
     }
 });

@@ -14,21 +14,10 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
     mixins: ['sw-extension-error'],
 
     props: {
-        license: {
-            type: Object,
-            required: true
-        },
-
         extension: {
             type: Object,
             required: false,
             default: null
-        },
-
-        isLocalAvailable: {
-            type: Boolean,
-            required: false,
-            default: true
         }
     },
 
@@ -48,22 +37,17 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
         },
 
         calculatedPrice() {
-            return this.license.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT ?
-                null : currency(Number(this.license.netPrice), 'EUR');
+            return this.extension.storeLicense.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT ?
+                null : currency(Number(this.extension.storeLicense.netPrice), 'EUR');
         },
 
         detailLink() {
             return {
                 name: 'sw.extension.store.detail',
                 params: {
-                    id: String(this.licensedExtension.id)
+                    id: String(this.extension.storeExtension ? this.extension.storeExtension.id : this.extension.id)
                 }
             };
-        },
-
-        permissions() {
-            return Object.keys(this.licensedExtension.permissions).length ?
-                this.licensedExtension.permissions : null;
         }
     },
 
@@ -94,10 +78,11 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 this.isLoading = true;
 
                 await this.shopwareExtensionService.activateExtension(
-                    this.license.licensedExtension.name,
-                    this.license.licensedExtension.type
+                    this.extension.name,
+                    this.extension.type
                 );
                 this.extension.active = true;
+                this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -110,10 +95,11 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 this.isLoading = true;
 
                 await this.shopwareExtensionService.deactivateExtension(
-                    this.license.licensedExtension.name,
-                    this.license.licensedExtension.type
+                    this.extension.name,
+                    this.extension.type
                 );
                 this.extension.active = false;
+                this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
@@ -134,19 +120,18 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             this.isLoading = true;
 
             try {
-                if (!this.isLocalAvailable) {
+                if (this.extension.source === 'store') {
                     await this.extensionStoreActionService.downloadExtension(
-                        this.license.licensedExtension.name
+                        this.extension.name
                     );
                 }
 
-
                 await this.shopwareExtensionService.installExtension(
-                    this.license.licensedExtension.name,
-                    this.license.licensedExtension.type
+                    this.extension.name,
+                    this.extension.type
                 );
+                await this.clearCacheAndReloadPage();
             } catch (e) {
-                console.log(e);
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
@@ -157,7 +142,11 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
             try {
                 this.isLoading = true;
 
-                await this.shopwareExtensionService.cancelAndRemoveExtension(this.license.id);
+                await this.shopwareExtensionService.cancelLicense(this.extension.storeLicense.id);
+                await this.shopwareExtensionService.removeExtension(
+                    this.extension.name,
+                    this.extension.type
+                );
                 this.closeRemovalModal();
 
                 this.$nextTick(() => {

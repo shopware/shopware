@@ -155,6 +155,9 @@
     "seo": {
       "cardTitleSeo": "SEO"
     },
+    "reviews": {
+      "cardTitleReviews": "Reviews"
+    },
     "reviewForm": {
       "labelStatus": "Visible",
       "labelCreatedAt": "Created at",
@@ -241,6 +244,7 @@
       "tabLayout": "Layout",
       "tabSeo": "SEO",
       "tabCrossSelling": "Cross Selling",
+      "tabReviews": "Reviews",
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",

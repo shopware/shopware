@@ -62,7 +62,7 @@ function createWrapper(privileges = []) {
                 }
             },
             feature: {
-                isActive: () => true
+                isActive: () => false
             }
         }
     });
@@ -117,6 +117,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    /**
+     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
+     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
+     * this case was covered there as well.
+     */
     it('should not be able to delete', async () => {
         wrapper = createWrapper();
         await wrapper.setData({
@@ -129,6 +134,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
+    /**
+     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
+     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
+     * this case was covered there as well.
+     */
     it('should be able to delete', async () => {
         wrapper = createWrapper([
             'product.editor'
@@ -144,6 +154,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
     });
 
+    /**
+     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
+     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
+     * this case was covered there as well.
+     */
     it('should not be able to edit', async () => {
         wrapper = createWrapper();
         await wrapper.setData({
@@ -156,6 +171,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
+    /**
+     * Remove the test when feature flag "FEATURE_NEXT_12429" is active because
+     * its relevant view was moved from this component to `sw-product-detail-reviews` component and
+     * this case was covered there as well.
+     */
     it('should be able to edit', async () => {
         wrapper = createWrapper([
             'product.editor'

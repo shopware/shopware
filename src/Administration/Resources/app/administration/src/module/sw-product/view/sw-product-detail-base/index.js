@@ -20,11 +20,40 @@ Component.register('sw-product-detail-base', {
 
     data() {
         return {
+            /**
+             * @deprecated tag:v6.5.0 - The variable "showReviewDeleteModal" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             showReviewDeleteModal: false,
+
+            /**
+             * @deprecated tag:v6.5.0 - The variable "toDeleteReviewId" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             toDeleteReviewId: null,
+
+            /**
+             * @deprecated tag:v6.5.0 - The variable "reviewItemData" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             reviewItemData: [],
+
+            /**
+             * @deprecated tag:v6.5.0 - The variable "page" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             page: 1,
+
+            /**
+             * @deprecated tag:v6.5.0 - The variable "limit" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             limit: 10,
+
+            /**
+             * @deprecated tag:v6.5.0 - The variable "total" will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             total: 0,
 
             /**
@@ -45,6 +74,10 @@ Component.register('sw-product-detail-base', {
                 this.onLayoutSelect(this.product.cmsPageId);
             }
 
+            /**
+             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             this.reloadReviews();
         }
     },
@@ -85,10 +118,18 @@ Component.register('sw-product-detail-base', {
                    !this.loading.media;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The property "reviewRepository" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         reviewRepository() {
             return this.repositoryFactory.create('product_review');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The property "reviewColumns" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         reviewColumns() {
             return [{
                 property: 'points',
@@ -134,6 +175,10 @@ Component.register('sw-product-detail-base', {
 
     methods: {
         createdComponent() {
+            /**
+             * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
+             * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+             */
             if (this.product) {
                 this.reloadReviews();
             }
@@ -166,11 +211,19 @@ Component.register('sw-product-detail-base', {
             return this.product.media;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onStartReviewDelete" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onStartReviewDelete(review) {
             this.toDeleteReviewId = review.id;
             this.onShowReviewDeleteModal();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onConfirmReviewDelete" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onConfirmReviewDelete() {
             this.onCloseReviewDeleteModal();
 
@@ -180,21 +233,37 @@ Component.register('sw-product-detail-base', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onCancelReviewDelete" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onCancelReviewDelete() {
             this.toDeleteReviewId = null;
             this.onCloseReviewDeleteModal();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onShowReviewDeleteModal" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onShowReviewDeleteModal() {
             this.showReviewDeleteModal = true;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onCloseReviewDeleteModal" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onCloseReviewDeleteModal() {
             this.showReviewDeleteModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "reloadReviews" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         reloadReviews() {
-            if (!this.product || !this.product.id) {
+            if (this.feature.isActive('FEATURE_NEXT_12429') || !this.product || !this.product.id) {
                 return;
             }
             const criteria = new Criteria();
@@ -223,6 +292,10 @@ Component.register('sw-product-detail-base', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onChangePage" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-reviews` component.
+         */
         onChangePage(data) {
             this.page = data.page;
             this.limit = data.limit;

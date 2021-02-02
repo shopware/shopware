@@ -259,11 +259,23 @@
                 </sw-card>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
+            {% block sw_product_detail_reviews %}
+                <sw-card
+                    v-if="feature.isActive('FEATURE_NEXT_12429')"
+                    class="sw-product-detail-reviews"
+                    :title="$tc('sw-product.reviews.cardTitleReviews')"
+                    :isLoading="isLoading">
+                    ...
+                </sw-card>
+            {% endblock %}
+        #}
         {% block sw_product_detail_base_ratings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')"
-                     v-if="reviewItemData"
-                     class="sw-product-detail-base__review-card"
-                     :isLoading="product.isLoading">
+            <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_12429') && reviewItemData"
+                class="sw-product-detail-base__review-card"
+                :title="$tc('sw-product.detailBase.cardTitleReviews')"
+                :isLoading="product.isLoading">
                 <template #grid>
                     <sw-data-grid
                         v-if="total"

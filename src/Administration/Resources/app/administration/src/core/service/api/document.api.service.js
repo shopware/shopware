@@ -50,11 +50,41 @@ class DocumentApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.4.0 use getDocumentPreview to get the preview blob instead
+     */
     generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {
         // eslint-disable-next-line max-len
         return `${context.apiPath}/v${this.getApiVersion()}/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 
+    getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {
+        const config = JSON.stringify(params);
+
+        return this.httpClient
+            .get(
+                `/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`,
+                {
+                    responseType: 'blob',
+                    headers: this.getBasicHeaders()
+                }
+            );
+    }
+
+    getDocument(documentId, documentDeepLink, context, download = false) {
+        return this.httpClient
+            .get(
+                `/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`,
+                {
+                    responseType: 'blob',
+                    headers: this.getBasicHeaders()
+                }
+            );
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 use getDocument to get the document blob instead
+     */
     generateDocumentLink(documentId, documentDeepLink, context, download = false) {
         // eslint-disable-next-line max-len
         return `${context.apiPath}/v${this.getApiVersion()}/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;

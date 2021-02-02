@@ -295,8 +295,9 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
 
     private function removeForeignKeyConstraintIfExists(): void
     {
-        $categoryKeyName = $this->getForeignKeyName(self::FK_CATEGORY_TABLE, self::FK_CMS_PAGE_TABLE, self::FK_CATEGORY_COLUMN, self::FK_CMS_PAGE_COLUMN);
-        $productKeyName = $this->getForeignKeyName(self::FK_PRODUCT_TABLE, self::FK_CMS_PAGE_TABLE, self::FK_PRODUCT_COLUMN, self::FK_CMS_PAGE_COLUMN);
+        $database = $this->connection->fetchColumn('select database();');
+        $categoryKeyName = $this->getForeignKeyName($database, self::FK_CATEGORY_TABLE, self::FK_CMS_PAGE_TABLE, self::FK_CATEGORY_COLUMN, self::FK_CMS_PAGE_COLUMN);
+        $productKeyName = $this->getForeignKeyName($database, self::FK_PRODUCT_TABLE, self::FK_CMS_PAGE_TABLE, self::FK_PRODUCT_COLUMN, self::FK_CMS_PAGE_COLUMN);
 
         if ($categoryKeyName !== null) {
             $this->connection->executeUpdate(self::dropIndexAndForeignKeyQuery(
@@ -315,9 +316,9 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         }
     }
 
-    private function getForeignKeyName(string $localTable, string $referenceTable, string $localColumn, string $referenceColumn): ?string
+    private function getForeignKeyName(string $database, string $localTable, string $referenceTable, string $localColumn, string $referenceColumn): ?string
     {
-        $foreignKeyName = $this->connection->fetchColumn(self::getForeignKeyQuery($localTable, $referenceTable, $localColumn, $referenceColumn));
+        $foreignKeyName = $this->connection->fetchColumn(self::getForeignKeyQuery($database, $localTable, $referenceTable, $localColumn, $referenceColumn));
 
         if (\is_string($foreignKeyName) && !empty($foreignKeyName)) {
             return $foreignKeyName;
@@ -326,12 +327,13 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         return null;
     }
 
-    private static function getForeignKeyQuery(string $localTable, string $referenceTable, string $localColumn, string $referenceColumn): string
+    private static function getForeignKeyQuery(string $database, string $localTable, string $referenceTable, string $localColumn, string $referenceColumn): string
     {
         $template = <<<'EOF'
 SELECT `CONSTRAINT_NAME`
 FROM `information_schema`.`KEY_COLUMN_USAGE`
 WHERE
+    `CONSTRAINT_SCHEMA` = '#constrain_schema#' AND
     `TABLE_NAME` = '#local_table#' AND
     `REFERENCED_TABLE_NAME` = '#referenced_table#' AND
     `COLUMN_NAME` = '#local_column#' AND
@@ -339,8 +341,9 @@ WHERE
 EOF;
 
         return str_replace(
-            ['#local_table#', '#referenced_table#', '#local_column#', '#referenced_column#'],
+            ['#constrain_schema#', '#local_table#', '#referenced_table#', '#local_column#', '#referenced_column#'],
             [
+                $database,
                 $localTable,
                 $referenceTable,
                 $localColumn,

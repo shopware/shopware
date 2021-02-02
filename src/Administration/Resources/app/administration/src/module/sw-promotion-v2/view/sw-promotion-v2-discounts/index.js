@@ -46,6 +46,10 @@ Component.register('sw-promotion-v2-discounts', {
             this.selectedDiscountType = value;
         },
 
+        onDeleteDiscount(discountId) {
+            this.promotion.discounts = this.promotion.discounts.filter(discount => discount.id !== discountId);
+        },
+
         onShowDiscountModal() {
             this.newDiscount = this.createNewDiscount();
             this.showDiscountModal = true;
@@ -66,15 +70,8 @@ Component.register('sw-promotion-v2-discounts', {
                 });
             }
 
-            this.promotionDiscountRepository.save(this.newDiscount, Shopware.Context.api).then(() => {
-                this.onCloseDiscountModal();
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                        entityName: this.promotion.name
-                    })
-                });
-            });
+            this.promotion.discounts.push(this.newDiscount);
+            this.onCloseDiscountModal();
         },
 
         createNewDiscount() {
@@ -88,6 +85,22 @@ Component.register('sw-promotion-v2-discounts', {
             });
 
             return discount;
+        },
+
+        getScope(discount) {
+            const typeMapping = {
+                cart: 'basic',
+                delivery: 'shipping-discount',
+                setgroup: 'buy-x-get-y'
+            };
+
+            return typeMapping[discount.scope.split('-')[0]];
+        },
+
+        getTitle(type, pageTitle) {
+            return this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.prefixTitle`, 0, {
+                title: this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.title${pageTitle}`)
+            });
         }
     }
 });

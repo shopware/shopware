@@ -117,12 +117,20 @@
             },
             "discounts": {
                 "emptyStateTitle": "Noch keinen Rabatt angelegt.",
-                "emptyStateButton": "Rabatt anlegen",
+                "addDiscountButton": "Rabatt anlegen",
                 "wizard": {
                     "basic": {
                         "prefixTitle": "Einfacher Rabatt - {title}",
                         "titleDiscountType": "Rabatt-Typ",
+                        "titleProductRules": "Produkt-Regeln",
                         "description": "Definiere zuerst den Rabatt-Typ. Trigger, die diesen Rabatt aktivieren, kannst Du auf der nächsten Seite setzen."
+                    },
+                    "shipping-discount": {
+                        "prefixTitle": "Versand-Rabatt - {title}"
+                    },
+                    "buy-x-get-y": {
+                        "prefixTitle": "Kaufe X erhalte Y - {title}",
+                        "titleDiscountType": "Rabatt-Typ"
                     }
                 },
                 "settings": {
@@ -146,7 +154,6 @@
                         }
                     },
                     "ruleSelection": {
-                        "title": "Einfacher Rabatt - Produkt-Regeln",
                         "description": "Wähle oder erstelle Regeln um Produkte zu definieren, die für den Rabatt in Frage kommen.",
                         "labelSelection": "Regelauswahl",
                         "placeholderSelection": "Wähle eine Regel aus ..."
@@ -160,13 +167,13 @@
                     "name": "Basis-Rabatt",
                     "description": "Rabattiere ganze Warenkörbe oder eine ausgewählte Gruppe von Produkten."
                 },
-                "buy-x-get-y": {
-                    "name": "X kaufen, Y bekommen",
-                    "description": "Lege einen Rabatt fest, der aktiviert wird, wenn ein bestimmtes Produkt oder bestimmte Produkte in den Warenkorb gelegt werden."
-                },
                 "shipping-discount": {
                     "name": "Versand-Rabatt",
                     "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
+                },
+                "buy-x-get-y": {
+                    "name": "X kaufen, Y bekommen",
+                    "description": "Lege einen Rabatt fest, der aktiviert wird, wenn ein bestimmtes Produkt oder bestimmte Produkte in den Warenkorb gelegt werden."
                 }
             },
             "shipping-discount-trigger": {

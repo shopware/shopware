@@ -25,6 +25,7 @@
                 <sw-number-field
                     v-model="discount.value"
                     class="sw-promotion-v2-settings-discount-type__field-price"
+                    :idSuffix="discount.id"
                     :min="0"
                     :max="discount.type === 'percentage' ? 100 : null"
                     :label="labelValue"
@@ -64,6 +65,7 @@
                 <sw-number-field
                     v-model="discount.maxValue"
                     class="sw-promotion-v2-settings-discount-type__field-max-discount"
+                    :idSuffix="discount.id"
                     :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.form.labelMaxDiscountValue')"
                     :disabled="discount.type !== 'percentage' || !acl.can('promotion.editor')"
                     allowEmpty>

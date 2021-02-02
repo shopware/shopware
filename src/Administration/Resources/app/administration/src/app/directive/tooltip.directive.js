@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 const { Directive } = Shopware;
 const { debug } = Shopware.Utils;
 const { hasOwnProperty } = Shopware.Utils.object;
@@ -53,6 +55,7 @@ class Tooltip {
         this._isShown = false;
         this._state = false;
         this._DOMElement = null;
+        this._vue = null;
         this._parentDOMElementWrapper = null;
         this._actualTooltipPlacement = null;
     }
@@ -68,8 +71,8 @@ class Tooltip {
      * Initializes the tooltip.
      * Needs to be called after the parent DOM Element is inserted to the DOM.
      */
-    init() {
-        this._DOMElement = this.createDOMElement();
+    init(node) {
+        this._DOMElement = this.createDOMElement(node);
 
         if (this._showOnDisabledElements) {
             this._parentDOMElementWrapper = this.createParentDOMElementWrapper();
@@ -102,6 +105,16 @@ class Tooltip {
         if (message && this._message !== message) {
             this._message = Tooltip.validateMessage(message);
             this._DOMElement.innerHTML = this._message;
+
+            this._vue.$destroy();
+            this._vue = new Vue({
+                template: this._DOMElement.outerHTML,
+                parent: this._vue.$parent,
+                el: this._DOMElement
+            });
+
+            this._DOMElement = this._vue.$el;
+            this.registerEvents();
         }
 
         if (width && this._width !== width) {
@@ -156,7 +169,7 @@ class Tooltip {
     /**
      * @returns {HTMLElement}
      */
-    createDOMElement() {
+    createDOMElement(node) {
         const element = document.createElement('div');
         element.innerHTML = this._message;
         element.style.width = `${this._width}px`;
@@ -164,7 +177,13 @@ class Tooltip {
         element.classList.add('sw-tooltip');
         element.classList.add(`sw-tooltip--${this._appearance}`);
 
-        return element;
+        this._vue = new Vue({
+            template: element.outerHTML,
+            parent: node.context,
+            el: element
+        });
+
+        return this._vue.$el;
     }
 
     registerEvents() {
@@ -226,6 +245,7 @@ class Tooltip {
             return;
         }
         this._DOMElement.remove();
+        this._vue.$destroy();
         this._isShown = false;
     }
 
@@ -332,6 +352,7 @@ class Tooltip {
         if (!message) {
             debug.warn('Tooltip Directive', 'The tooltip needs a message');
         }
+
         return message;
     }
 
@@ -460,11 +481,13 @@ Directive.register('tooltip', {
     /**
      * Initialize the tooltip once it has been inserted to the DOM.
      * @param el
+     * @param binding
+     * @param node
      */
-    inserted: (el) => {
+    inserted: (el, binding, node) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
-            tooltip.init();
+            tooltip.init(node);
         }
     }
 });

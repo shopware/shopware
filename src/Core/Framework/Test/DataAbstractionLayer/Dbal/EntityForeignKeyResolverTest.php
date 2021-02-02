@@ -9,7 +9,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class EntityForeignKeyResolverTest extends TestCase
 {
@@ -161,6 +164,30 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertContains($ids->get('position2'), $affected['order_delivery_position']);
     }
 
+    public function testOnlyIncludesAffectedDeleteRestrictionsWithDirectRelation(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $ruleDefinition = $this->getContainer()->get(RuleDefinition::class);
+
+        $this->createRule($ids);
+        $this->createShippingMethod($ids);
+        $this->createSalesChannel($ids);
+
+        $deleteIds = [
+            'id' => $ids->get('rule'),
+        ];
+
+        $affected = $this->getContainer()->get(EntityForeignKeyResolver::class)
+            ->getAffectedDeleteRestrictions($ruleDefinition, $deleteIds, $context, true);
+
+        static::assertCount(1, $affected);
+        static::assertArrayHasKey('shipping_method', $affected);
+        static::assertContains($ids->get('shipping-method'), $affected['shipping_method']);
+        static::assertArrayNotHasKey('sales_channel', $affected);
+    }
+
     private function getStateId(string $state, string $machine)
     {
         return $this->getContainer()->get(Connection::class)
@@ -253,5 +280,91 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $this->getContainer()->get('order.repository')
             ->create([$data], $context);
+    }
+
+    private function createShippingMethod(IdsCollection $ids): void
+    {
+        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+
+        $data = [
+            'id' => $ids->create('shipping-method'),
+            'type' => 0,
+            'name' => 'Test shipping method',
+            'bindShippingfree' => false,
+            'active' => true,
+            'prices' => [
+                [
+                    'name' => 'Std',
+                    'price' => '10.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 20,
+                            'gross' => 30,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+            ],
+            'deliveryTime' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+                'min' => 1,
+                'max' => 90,
+                'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+            ],
+            'availabilityRule' => [
+                'id' => $ids->get('rule'),
+                'name' => 'true',
+                'priority' => 1,
+            ],
+        ];
+
+        $shippingMethodRepository->create([$data], Context::createDefaultContext());
+    }
+
+    private function createRule(IdsCollection $ids): void
+    {
+        $ruleId = $ids->create('rule');
+        $ruleRepository = $this->getContainer()->get('rule.repository');
+
+        $ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+    }
+
+    private function createSalesChannel(IdsCollection $ids): void
+    {
+        $data = [
+            'id' => $ids->create('sales-channel'),
+            'name' => 'unit test channel',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $ids->get('shipping-method'),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+        ];
+
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository->create([$data], Context::createDefaultContext());
     }
 }

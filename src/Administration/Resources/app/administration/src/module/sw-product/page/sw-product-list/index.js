@@ -7,7 +7,13 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'numberRangeService',
+        'acl',
+        'filterFactory',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -27,7 +33,8 @@ Component.register('sw-product-list', {
             total: 0,
             product: null,
             cloning: false,
-            productEntityVariantModal: false
+            productEntityVariantModal: false,
+            filterCriteria: []
         };
     },
 
@@ -67,6 +74,7 @@ Component.register('sw-product-list', {
                 };
             });
         },
+
         productCriteria() {
             const productCriteria = new Criteria(this.page, this.limit);
 
@@ -75,6 +83,10 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
+
+            this.filterCriteria.forEach(filter => {
+                productCriteria.addFilter(filter);
+            });
 
             return productCriteria;
         },
@@ -85,6 +97,30 @@ Component.register('sw-product-list', {
 
         showVariantModal() {
             return !!this.productEntityVariantModal;
+        },
+
+        listFilters() {
+            return this.filterFactory.create('product', {
+                'active-filter': {
+                    property: 'active',
+                    label: this.$tc('sw-product.filters.activeFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder')
+                },
+                'product-without-images-filter': {
+                    property: 'media',
+                    label: this.$tc('sw-product.filters.imagesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
+                }
+            });
+        }
+    },
+
+    watch: {
+        productCriteria: {
+            handler() {
+                this.getList();
+            },
+            deep: true
         }
     },
 
@@ -162,6 +198,12 @@ Component.register('sw-product-list', {
         onChangeLanguage(languageId) {
             Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
+        },
+
+        updateCriteria(criteria) {
+            this.page = 1;
+
+            this.filterCriteria = criteria;
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

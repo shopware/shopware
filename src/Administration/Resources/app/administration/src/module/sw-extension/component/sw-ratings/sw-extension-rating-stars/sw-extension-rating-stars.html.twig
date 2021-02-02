@@ -1,0 +1,33 @@
+{% block sw_extension_rating_stars %}
+    <div class="sw-extension-rating-stars" :class="editableClass">
+        {% block sw_extension_rating_stars_wrapper %}
+            <div class="sw-extension-rating-stars__wrapper">
+                {% block sw_extension_rating_stars_star %}
+                    <button v-for="star, key in maxRating"
+                            @click="addRating(key)"
+                            :disabled="!editable"
+                            class="sw-extension-rating-stars__star"
+                            :class="colorClass(key+1)"
+                            :key="key">
+                        {% block sw_extension_rating_stars_star_icon %}
+                            <sw-icon name="default-review-star-full" :style="starSize"></sw-icon>
+                        {% endblock %}
+
+                        {% block sw_extension_rating_stars_partial_star %}
+                            <span v-if="showPartialStar(key)" class="sw-extension-rating-stars__partial-star">
+                                {% block sw_extension_rating_stars_partial_star_wrapper %}
+                                    <span class="sw-extension-rating-stars__partial-star-wrapper" :style="partialStarWidth">
+                                        {% block sw_extension_rating_stars_partial_star_icon %}
+                                            <sw-icon name="default-review-star-full" :size="partialStarSize"></sw-icon>
+                                        {% endblock %}
+                                    </span>
+                                {% endblock %}
+                            </span>
+                        {% endblock %}
+                    </button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+

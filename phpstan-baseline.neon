@@ -46,16 +46,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php
 
 		-
-			message: "#^Cannot call method getShippingMethod\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\Delivery\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryProcessor.php
-
-		-
-			message: "#^Cannot call method setShippingMethod\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\Delivery\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryProcessor.php
-
-		-
 			message: "#^Parameter \\#1 \\$entity of method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection\\:\\:add\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryCollection.php
@@ -4596,13 +4586,8 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
 
 		-
-			message: "#^Cannot call method variableNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/Configuration.php
-
-		-
 			message: "#^Cannot call method scalarNode\\(\\) on Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\NodeParentInterface\\|null\\.$#"
-			count: 2
+			count: 3
 			path: src/Core/Framework/DependencyInjection/Configuration.php
 
 		-
@@ -4879,11 +4864,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginZipDetector.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Requirement\\\\RequirementExceptionStack\\:\\:\\$exceptions has no typehint specified\\.$#"
@@ -7149,3 +7129,8 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchKeywordAnalyzerInterface\\:\\:analyze\\(\\) invoked with 3 parameters, 2 required\\.$#"
+			count: 1
+			path: src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php

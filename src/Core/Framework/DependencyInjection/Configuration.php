@@ -42,6 +42,7 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->scalarNode('visibility')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()

@@ -83,6 +83,14 @@ Component.register('sw-settings-tax-detail', {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
+        },
+
+        isShopwareDefaultTax() {
+            return this.$te(`global.tax-rates.${this.tax.name}`, 'en-GB');
+        },
+
+        label() {
+            return this.isShopwareDefaultTax ? this.$tc(`global.tax-rates.${this.tax.name}`) : this.tax.name;
         }
     },
 
@@ -150,6 +158,10 @@ Component.register('sw-settings-tax-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.tax.index' });
+        },
+
+        changeName(name) {
+            this.tax.name = name;
         }
     }
 });

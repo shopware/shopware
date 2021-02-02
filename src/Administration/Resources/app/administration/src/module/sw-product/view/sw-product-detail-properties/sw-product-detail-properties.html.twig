@@ -1,9 +1,16 @@
 {% block sw_product_detail_properties %}
     <div class="sw-product-detail-properties">
+        {% block sw_product_detail_properties_loading_card %}
+            <sw-card
+                v-if="isLoading"
+                :isLoading="isLoading">
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_properties_assignment_card %}
             <sw-card
-                :title="$tc('sw-product.properties.cardTitleProperties')"
-                v-if="product.properties && product.properties.length > 0">
+                v-else-if="product.properties && product.properties.length > 0"
+                :title="$tc('sw-product.properties.cardTitleProperties')">
                 {% block sw_product_detail_properties_assignment_card_assignment %}
                     <sw-property-assignment
                         v-if="propertiesAvailable && product.properties"
@@ -22,7 +29,10 @@
         {% endblock %}
 
         {% block sw_product_detail_properties_empty_card %}
-            <sw-card class="sw-product-detail-properties__empty-state-card" v-else>
+            <sw-card
+                v-else
+                class="sw-product-detail-properties__empty-state-card"
+                :title="$tc('sw-product.properties.cardTitleProperties')">
                 {% block sw_product_detail_properties_empty_state %}
                     <div class="sw-product-detail-properties__empty-state">
 

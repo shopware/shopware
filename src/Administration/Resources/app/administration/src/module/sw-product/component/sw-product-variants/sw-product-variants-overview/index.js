@@ -10,8 +10,7 @@ Component.register('sw-product-variants-overview', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [
@@ -161,6 +160,11 @@ Component.register('sw-product-variants-overview', {
                     searchCriteria
                         .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
+
+                // update product because childCount has been update
+                this.productRepository.get(this.product.id, Shopware.Context.api).then(res => {
+                    Shopware.State.commit('swProductDetail/setProduct', res);
+                });
 
                 // Start search
                 this.productRepository
@@ -460,10 +464,6 @@ Component.register('sw-product-variants-overview', {
         },
 
         async canVariantBeDeleted() {
-            if (!this.feature.isActive('FEATURE_NEXT_10820')) {
-                return true;
-            }
-
             const products = await this.productRepository.search(this.canBeDeletedCriteria, Shopware.Context.api);
 
             return products.length === 0;

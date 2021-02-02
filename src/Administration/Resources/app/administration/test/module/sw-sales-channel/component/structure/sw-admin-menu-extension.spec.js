@@ -36,6 +36,9 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
+            },
+            appModulesService: {
+                fetchAppModules: () => Promise.resolve([])
             }
         },
         mocks: {

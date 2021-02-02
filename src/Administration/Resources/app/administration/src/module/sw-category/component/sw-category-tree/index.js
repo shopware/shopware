@@ -179,8 +179,7 @@ Component.register('sw-category-tree', {
 
         onDeleteCategory({ data: category }) {
             if (category.isNew()) {
-                delete this.loadedCategories[category.id];
-                this.loadedCategories = { ...this.loadedCategories };
+                this.$delete(this.loadedCategories, category.id);
                 return Promise.resolve();
             }
 
@@ -290,14 +289,13 @@ Component.register('sw-category-tree', {
                 return;
             }
 
-            this.loadedCategories = { ...this.loadedCategories, [category.id]: category };
+            this.$set(this.loadedCategories, category.id, category);
         },
 
         addCategories(categories) {
             categories.forEach((category) => {
-                this.loadedCategories[category.id] = category;
+                this.$set(this.loadedCategories, category.id, category);
             });
-            this.loadedCategories = { ...this.loadedCategories };
         },
 
         removeFromStore(id) {
@@ -307,9 +305,8 @@ Component.register('sw-category-tree', {
             });
 
             deletedIds.forEach((deleted) => {
-                delete this.loadedCategories[deleted];
+                this.$delete(this.loadedCategories, deleted);
             });
-            this.loadedCategories = { ...this.loadedCategories };
         },
 
         getDeletedIds(idToDelete) {

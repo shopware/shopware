@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
@@ -57,7 +56,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -93,7 +91,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldReturnSuccessNoWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productData = $this->createProduct($this->context);
 
         $this->browser
@@ -116,8 +113,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeTwoProductShouldReturnSuccessNoWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $productDataOne = $this->createProduct($this->context);
         $productDataTwo = $this->createProduct($this->context);
 
@@ -142,7 +137,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeThreeProductShouldReturnSuccessNoWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productDataOne = $this->createProduct($this->context);
         $productDataTwo = $this->createProduct($this->context);
 
@@ -168,7 +162,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldThrowCustomerNotLoggedInException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', Random::getAlphanumericString(12));
 
         $this->browser
@@ -194,7 +187,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldThrowCustomerWishlistNotActivatedException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
         $this->browser
@@ -220,8 +212,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldSuccessWithNoProductInsert(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->browser
             ->request(
                 'POST',
@@ -242,7 +232,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldReturnSuccessAlreadyWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productData = $this->createProduct($this->context);
         $this->createCustomerWishlist($productData);
 
@@ -267,7 +256,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldReturnSuccessAlreadyProductWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $alreadyProductData = $this->createProduct($this->context);
         $this->createCustomerWishlist($alreadyProductData);
         $newProductData = $this->createProduct($this->context);
@@ -292,7 +280,6 @@ class MergeWishlistProductRouteTest extends TestCase
 
     public function testMergeProductShouldReturnSuccessSameProductWishlistExisted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $alreadyProductData = $this->createProduct($this->context);
         $this->createCustomerWishlist($alreadyProductData);
 

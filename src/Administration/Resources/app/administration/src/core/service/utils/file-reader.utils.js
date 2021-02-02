@@ -90,6 +90,8 @@ function getNameAndExtensionFromUrl(urlObject) {
         ref = ref.substring(0, indexOfQueryIndicator);
     }
 
+    ref = decodeURI(ref);
+
     return splitFileNameAndExtension(ref);
 }
 

@@ -1,7 +1,8 @@
 {% block sw_admin_menu %}
     <aside class="sw-admin-menu"
            :class="adminMenuClasses"
-           :aria-expanded="isExpanded ? 'true' : 'false'">
+           :aria-expanded="isExpanded ? 'true' : 'false'"
+           @mouseleave="onMenuLeave">
 
         {% block sw_admin_menu_header %}
             <div class="sw-admin-menu__header">
@@ -26,16 +27,16 @@
 
                                 {% block sw_admin_menu_navigation_main_list %}
                                     <ul class="sw-admin-menu__navigation-list">
-
                                         {% block sw_admin_menu_navigation_main_items %}
                                             <sw-admin-menu-item
                                                 v-for="(entry, index) in mainMenuEntries"
+                                                :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
                                                 :key="`${entry.id || entry.path}-${entry.children.length}`"
-                                                :class="['sw-admin-menu__item--' + entry.id, entry.label]"
                                                 :sidebarExpanded="isExpanded"
                                                 :entry="entry"
-                                                @menu-item-hover="openFlyout"
-                                                @menu-item-click="openSubMenu">
+                                                @menu-item-click="onMenuItemClick"
+                                                @menu-item-enter="onMenuItemEnter"
+                                                @sub-menu-item-enter="onSubMenuItemEnter">
                                             </sw-admin-menu-item>
                                         {% endblock %}
                                     </ul>
@@ -152,36 +153,19 @@
 
         {% block sw_admin_menu_flyout_transition %}
             <transition name="flyout">
-                {% block sw_admin_menu_flyout %}
-                    <div v-if="flyoutEntries.length"
-                         class="sw-admin-menu__flyout"
-                         :style="flyoutStyle"
-                         @mouseleave="closeFlyout($event)">
-
-                        {% block sw_admin_menu_flyout_label %}
-                            <div v-if="!isExpanded" class="sw-admin-menu__flyout-label" :style="{'border-color': flyoutColor}">
-                                {{ $tc(flyoutLabel) }}
-                            </div>
-                        {% endblock %}
-
-                        {% block sw_admin_menu_flyout_list %}
-                            <ul v-if="flyoutEntries" class="sw-admin-menu__flyout-list">
-                                <sw-admin-menu-item v-for="(entry, index) in flyoutEntries"
-                                                    class="sw-admin-menu__flyout-item"
-                                                    :class="[getMenuItemClass(entry)]"
-                                                    :style="{'border-color': flyoutColor}"
-                                                    :entry="entry"
-                                                    :parentEntries="flyoutEntries"
-                                                    :key="entry.id || entry.path"
-                                                    :collapsibleText="false"
-                                                    :displayIcon="false"
-                                                    @menu-item-click="closeFlyout"
-                                                    @menu-item-hover="openFlyout">
-                                </sw-admin-menu-item>
-                            </ul>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+                <ul class="sw-admin-menu_flyout-holder"
+                    v-if="flyoutEntries.length"
+                    :style="flyoutStyle"
+                    @mouseenter="onFlyoutEnter"
+                    @mouseleave="onFlyoutLeave">
+                    <sw-admin-menu-item
+                        v-for="entry in flyoutEntries"
+                        :key="`${entry.id || entry.path}-${entry.children.length}`"
+                        :entry="entry"
+                        :borderColor="flyoutColor"
+                        :displayIcon="false">
+                    </sw-admin-menu-item>
+                </ul>
             </transition>
         {% endblock %}
     </aside>

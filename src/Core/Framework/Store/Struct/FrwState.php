@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class FrwState
 {
     /**

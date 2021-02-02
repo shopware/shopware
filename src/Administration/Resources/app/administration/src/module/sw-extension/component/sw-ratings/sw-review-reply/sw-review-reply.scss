@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-review-reply {
+    background: $color-gray-100;
+    border-radius: 4px;
+    margin: 24px 0;
+    padding: 25px;
+
+    .sw-review-reply__head {
+        line-height: 17px;
+        margin-bottom: 4px;
+
+        .sw-review-reply__producer-name {
+            font-weight: $font-weight-semi-bold;
+        }
+
+        .sw-review-reply__date {
+            color: $color-gray-500;
+            display: inline-block;
+        }
+    }
+}

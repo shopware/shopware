@@ -29,11 +29,13 @@
                                 :disabled="disabled"
                                 allowEmpty
                                 :grossLabel="$tc('global.sw-list-price-field.labelListPriceGross')"
+                                :grossHelpText="listPriceHelpText"
                                 :netLabel="$tc('global.sw-list-price-field.labelListPriceNet')"
                                 :compact="compact"
                                 :disableSuffix="disableSuffix"
                                 :label="label"
                                 :enableInheritance="enableInheritance"
+                                :inherited="isInherited"
                                 class="sw-list-price-field__list-price"
                                 @change="listPriceChanged"
                                 :error="error"

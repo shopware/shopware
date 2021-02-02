@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -52,7 +52,9 @@ describe('Media: Test crud operations of folders', () => {
         cy.clickContextMenuItem(
             '.sw-media-context-item__rename-folder-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
 
         cy.get(`${page.elements.folderNameInput}`).clear();
@@ -104,7 +106,9 @@ describe('Media: Test crud operations of folders', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
         cy.get(`${page.elements.modal}__body p`)
             .contains('Are you sure you want to delete the folder "A thing to fold about"?');

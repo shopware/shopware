@@ -9,8 +9,7 @@ Component.register('sw-product-variant-modal', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [
@@ -392,10 +391,6 @@ Component.register('sw-product-variant-modal', {
         },
 
         async canVariantsBeDeleted() {
-            if (!this.feature.isActive('FEATURE_NEXT_10820')) {
-                return true;
-            }
-
             const products = await this.productRepository.search(this.canBeDeletedCriteria, Shopware.Context.api);
 
             return products.length === 0;

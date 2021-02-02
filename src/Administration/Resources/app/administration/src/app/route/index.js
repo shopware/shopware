@@ -1,7 +1,6 @@
 export default [
     {
-        path: '/core',
-        alias: '/',
+        path: '/',
         name: 'core',
         coreRoute: true,
         root: true,

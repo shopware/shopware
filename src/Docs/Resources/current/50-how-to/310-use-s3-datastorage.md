@@ -37,6 +37,7 @@ shopware:
       url: "{url-to-your-public-files}"
       # The Adapter Configuration
     private:
+      visibility: "private"
       # The Adapter Configuration
     theme:
       url: "{url-to-your-theme-files}"

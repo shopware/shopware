@@ -33,7 +33,7 @@
 
                             {% block sw_cms_element_cross_selling_config_content_products %}
                                 <sw-entity-single-select
-                                    v-else
+                                    v-if="!isProductPageType"
                                     v-model="element.config.product.value"
                                     ref="cmsProductSelection"
                                     entity="product"

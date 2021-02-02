@@ -244,6 +244,11 @@ Component.register('sw-cms-detail', {
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
 
+            if (Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
+                criteria
+                    .addAssociation('products.manufacturer');
+            }
+
             return criteria;
         },
 
@@ -258,6 +263,10 @@ Component.register('sw-cms-detail', {
             criteria.addAssociation('manufacturer.media');
 
             return criteria;
+        },
+
+        isProductPage() {
+            return this.page.type === 'product_detail';
         }
     },
 
@@ -369,7 +378,6 @@ Component.register('sw-cms-detail', {
 
         updateDataMapping() {
             const mappingEntity = this.cmsPageTypeSettings.entity;
-
 
             if (!mappingEntity) {
                 Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');
@@ -860,6 +868,15 @@ Component.register('sw-cms-detail', {
 
         processBlock(block, blockType) {
             const cmsBlock = this.cmsBlocks[blockType];
+            let defaultConfig = cmsBlock.defaultConfig;
+
+            if (this.isProductPage && defaultConfig && blockType !== 'product-heading') {
+                defaultConfig = {
+                    ...defaultConfig,
+                    marginLeft: '0',
+                    marginRight: '0'
+                };
+            }
 
             block.type = blockType;
             block.position = 0;
@@ -870,7 +887,7 @@ Component.register('sw-cms-detail', {
             Object.assign(
                 block,
                 cloneDeep(this.blockConfigDefaults),
-                cloneDeep(cmsBlock.defaultConfig || {})
+                cloneDeep(defaultConfig || {})
             );
         },
 

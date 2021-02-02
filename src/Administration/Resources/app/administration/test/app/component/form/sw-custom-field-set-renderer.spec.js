@@ -860,6 +860,33 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(1);
     });
 
+    it('should initialize new custom fields on entity change', async () => {
+        const props = {
+            entity: {
+                customFieldSetSelectionActive: false,
+                customFieldSets: undefined
+            },
+            sets: createEntityCollection([{
+                name: 'set1',
+                position: 2
+            }, {
+                name: 'set2',
+                position: 1
+            }]),
+            showCustomFieldSetSelection: true
+        };
+
+        wrapper = createWrapper(props);
+
+        const spyInitializeCustomFields = jest.spyOn(wrapper.vm, 'initializeCustomFields');
+
+        wrapper.vm.onChangeCustomFieldSetSelectionActive();
+
+        await wrapper.vm.$nextTick();
+
+        expect(spyInitializeCustomFields).toHaveBeenCalledTimes(1);
+    });
+
     it('should sort sets by position', async () => {
         const props = {
             entity: {

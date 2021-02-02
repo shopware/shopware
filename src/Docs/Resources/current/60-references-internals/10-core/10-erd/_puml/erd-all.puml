@@ -523,6 +523,7 @@ Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
    primary_key(id) id
    not_null(taxRate) float
    not_null(name) string
+   not_null(position) int
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -586,6 +587,14 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    lastUpdatedPasswordAt dateTime
    customFields customFields
    storeToken string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition, "user_config\n(User Config)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(key) string
+   value json
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -956,6 +965,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    featureSetId foreignKey
    purchasePrices price
    customSearchKeywords translated
+   canonicalProductId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1662,6 +1672,22 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "cu
    primary_key(customerId) foreignKey
    primary_key(tagId) foreignKey
 }
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition, "customer_wishlist\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(customerId) foreignKey
+   not_null(salesChannelId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(wishlistId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
 Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
    primary_key(id) id
    not_null(documentTypeId) foreignKey
@@ -2182,6 +2208,7 @@ ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> Shop
 ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelAnalyticsSalesChannelAnalyticsDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
@@ -2221,6 +2248,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefini
 ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreSystemUnitUnitDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
@@ -2303,6 +2331,7 @@ ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCo
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition
@@ -2357,8 +2386,10 @@ ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition --> Shopw
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
 ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition

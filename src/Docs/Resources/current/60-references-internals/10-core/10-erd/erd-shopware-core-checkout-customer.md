@@ -35,4 +35,14 @@ Customers can be categorized in different groups.
 The customer group is used so processes like the cart can incorporate different rules.
 
 
+### Table `customer_wishlist`
+
+__EMPTY__
+
+
+### Table `customer_wishlist_product`
+
+__EMPTY__
+
+
 [Back to modules](./../10-modules.md)

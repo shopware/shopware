@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @internal (flag:FEATURE_NEXT_10549)
- */
 class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

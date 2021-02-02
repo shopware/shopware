@@ -9,6 +9,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\System\User\Command\UserCreateCommand">
             <argument type="service" id="Shopware\Core\System\User\Service\UserProvisioner"/>
             <tag name="console.command"/>

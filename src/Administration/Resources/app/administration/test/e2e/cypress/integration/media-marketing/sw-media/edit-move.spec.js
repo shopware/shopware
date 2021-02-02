@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -30,7 +30,9 @@ describe('Media: Move folder and image', () => {
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
         cy.get(page.elements.smartBarHeader).contains('1st folder');
 
@@ -65,7 +67,9 @@ describe('Media: Move folder and image', () => {
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('2nd folder');
@@ -75,7 +79,9 @@ describe('Media: Move folder and image', () => {
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('1st folder');

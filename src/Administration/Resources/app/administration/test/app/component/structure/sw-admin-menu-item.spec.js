@@ -122,13 +122,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         const children = wrapper.findAll('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
         expect(children.length).toBe(6);
 
-        expect(wrapper.classes()).toContain('sw-catalogue');
-        expect(children.at(0).classes()).toContain('sw-product');
-        expect(children.at(1).classes()).toContain('sw-review');
-        expect(children.at(2).classes()).toContain('sw-category');
-        expect(children.at(3).classes()).toContain('sw-product-stream');
-        expect(children.at(4).classes()).toContain('sw-property');
-        expect(children.at(5).classes()).toContain('sw-manufacturer');
+        expect(wrapper.classes()).toContain('navigation-list-item__sw-catalogue');
+        expect(children.at(0).classes()).toContain('navigation-list-item__sw-product');
+        expect(children.at(1).classes()).toContain('navigation-list-item__sw-review');
+        expect(children.at(2).classes()).toContain('navigation-list-item__sw-category');
+        expect(children.at(3).classes()).toContain('navigation-list-item__sw-product-stream');
+        expect(children.at(4).classes()).toContain('navigation-list-item__sw-property');
+        expect(children.at(5).classes()).toContain('navigation-list-item__sw-manufacturer');
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -152,7 +152,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         const children = wrapper.findAll('sw-admin-menu-item-stub');
         expect(children.length).toBe(0);
 
-        expect(wrapper.classes()).toContain('sw-product');
+        expect(wrapper.classes()).toContain('navigation-list-item__sw-product');
     });
 
     it('should show a link when a path is provided', async () => {
@@ -166,12 +166,14 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: []
                 }
             }
         });
 
-        const routerLink = wrapper.find('.sw-admin-menu__navigation-list-item.sw-product .router-link');
+        const routerLink = wrapper.find('.navigation-list-item__sw-product .router-link');
 
         expect(routerLink.props().to).toMatchObject({
             name: 'sw.product.index'
@@ -201,6 +203,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     parent: 'sw-catalogue',
                     privilege: 'product.viewer',
                     position: 10,
+                    moduleType: 'core',
+                    level: 1,
                     children: []
                 }
             }
@@ -222,6 +226,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     parent: 'sw-catalogue',
                     privilege: 'product.viewer',
                     position: 10,
+                    moduleType: 'core',
+                    level: 1,
                     children: []
                 }
             }
@@ -242,6 +248,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: [{
                         id: 'sw-product',
                         label: 'sw-product.general.mainMenuItemGeneral',
@@ -250,6 +258,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 10,
+                        level: 2,
+                        moduleType: 'core',
                         privilege: 'product.viewer',
                         children: []
                     }, {
@@ -260,6 +270,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 20,
+                        level: 2,
+                        moduleType: 'core',
                         children: []
                     }]
                 }
@@ -282,6 +294,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: [{
                         id: 'sw-product',
                         label: 'sw-product.general.mainMenuItemGeneral',
@@ -290,6 +304,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 10,
+                        level: 2,
+                        moduleType: 'core',
                         meta: {
                             privilege: 'product.viewer'
                         },
@@ -302,6 +318,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 20,
+                        level: 2,
+                        moduleType: 'core',
                         children: []
                     }]
                 }
@@ -330,6 +348,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: [{
                         id: 'sw-product',
                         label: 'sw-product.general.mainMenuItemGeneral',
@@ -338,6 +358,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 10,
+                        level: 2,
+                        moduleType: 'core',
                         privilege: 'product.viewer',
                         children: []
                     }, {
@@ -349,6 +371,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         parent: 'sw-catalogue',
                         privilege: 'reviewer.viewer',
                         position: 20,
+                        level: 2,
+                        moduleType: 'core',
                         children: []
                     }]
                 }
@@ -369,6 +393,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    moduleType: 'core',
+                    level: 1,
                     children: [{
                         id: 'sw-product',
                         label: 'sw-product.general.mainMenuItemGeneral',
@@ -377,6 +403,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 10,
+                        level: 2,
+                        moduleType: 'core',
                         privilege: 'product.viewer',
                         children: []
                     }, {
@@ -388,6 +416,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         parent: 'sw-catalogue',
                         privilege: 'reviewer.viewer',
                         position: 20,
+                        level: 2,
+                        moduleType: 'core',
                         children: []
                     }]
                 }
@@ -410,6 +440,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
+                    moduleType: 'core',
+                    level: 1,
                     children: [{
                         id: 'sw-product',
                         label: 'sw-product.general.mainMenuItemGeneral',
@@ -418,6 +450,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         icon: 'default-symbol-products',
                         parent: 'sw-catalogue',
                         position: 10,
+                        level: 2,
+                        moduleType: 'core',
                         privilege: 'product.viewer',
                         children: []
                     }, {
@@ -429,6 +463,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         parent: 'sw-catalogue',
                         privilege: 'reviewer.viewer',
                         position: 20,
+                        level: 2,
+                        moduleType: 'core',
                         children: []
                     }]
                 }
@@ -456,6 +492,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     color: '#57D9A3',
                     path: 'sw.settings.index',
                     icon: 'default-symbol-products',
+                    level: 1,
+                    moduleType: 'core',
                     position: 10
                 }
             }
@@ -481,6 +519,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     path: 'sw.settings.index',
                     icon: 'default-symbol-products',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: []
                 }
             }
@@ -505,6 +545,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     path: 'sw.settings.index',
                     icon: 'default-symbol-products',
                     position: 10,
+                    level: 1,
+                    moduleType: 'core',
                     children: []
                 }
             }

@@ -25,8 +25,17 @@
                         <sw-container v-if="active === 'content'"
                                       class="sw-cms-el-config-product-description-reviews-config__tab-content"
                                       :columns="'minmax(300px, 1fr)'">
+                            {% block sw_cms_element_product_description_reviews_warning %}
+                                <sw-alert
+                                    v-if="isProductPage"
+                                    class="sw-cms-el-config-buy-box__warning" variant="info">
+                                    {{ $tc('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
+                                </sw-alert>
+                            {% endblock %}
+
                             {% block sw_cms_element_product_description_reviews_config_product_select %}
                                 <sw-entity-single-select
+                                    v-if="!isProductPage"
                                     v-model="element.config.product.value"
                                     ref="cmsProductSelection"
                                     entity="product"

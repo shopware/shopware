@@ -136,7 +136,7 @@ class ProductDefinition extends EntityDefinition
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ReadProtected(SalesChannelApiSource::class)),
-            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
+            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required()),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
@@ -149,8 +149,8 @@ class ProductDefinition extends EntityDefinition
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
             (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new Inherited()),
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
+            (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
             (new IntField('min_purchase', 'minPurchase', 1))->addFlags(new Inherited()),
@@ -280,30 +280,30 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
         );
 
-        if (Feature::isActive('FEATURE_NEXT_10549')) {
-            $collection->add(
-                (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
-            );
-        }
+        $collection->add(
+            (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
+        );
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
-                new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class)
+                (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new Inherited())
             );
             $collection->add(
-                new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false)
+                (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new Inherited())
+            );
+            $collection->add(
+                (new TranslatedField('slotConfig'))
+                    ->addFlags(new Inherited())
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10820')) {
-            $collection->add(
-                (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new Inherited())
-            );
+        $collection->add(
+            (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new Inherited())
+        );
 
-            $collection->add(
-                (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new Inherited())
-            );
-        }
+        $collection->add(
+            (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new Inherited())
+        );
 
         return $collection;
     }

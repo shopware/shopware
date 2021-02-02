@@ -16,7 +16,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_manufacturer:read',
                 'property_group_option:read',
                 'property_group:read',
-                'currency:read'
+                'currency:read',
+                'user_config:read',
+                'user_config:create',
+                'user_config:update'
             ],
             dependencies: []
         },

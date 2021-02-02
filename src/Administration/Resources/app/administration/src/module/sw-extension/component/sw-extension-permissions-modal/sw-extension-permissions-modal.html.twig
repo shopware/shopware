@@ -1,0 +1,73 @@
+{% block sw_extension_permissions_modal %}
+    <sw-modal class="sw-extension-permissions-modal" v-on="$listeners" :title="modalTitle" variant="small">
+        {% block sw_extension_permissions_modal_content %}
+            {% block sw_extension_permissions_modal_intro %}
+                <div class="sw-extension-permissions-modal__intro">
+                    {% block sw_extension_permissions_modal_intro_image %}
+                        <img class="sw-extension-permissions-modal__image" :src="'saasrufus/static/img/svg/permissions.svg' | asset">
+                    {% endblock %}
+
+                    {% block sw_extension_permissions_modal_intro_text %}
+                        <p>
+                            {{
+                                $t('sw-extension-store.component.sw-extension-permissions-modal.description',
+                                { extensionLabel: extensionLabel })
+                            }}
+                        </p>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_extension_permissions_modal_categories %}
+                <div class="sw-extension-permissions-modal__categories">
+                    {% block sw_extension_permissions_modal_category %}
+                        <div v-for="(permission, key) in permissionsWithGroupedOperations" class="sw-extension-permissions-modal__category">
+                            {% block sw_extension_permissions_modal_category_inner %}
+                                {% block sw_extension_permissions_modal_category_label %}
+                                    <span class="sw-extension-permissions-modal__category-label">
+                                        {{ categoryLabel(key) }}
+                                    </span>
+                                {% endblock %}
+
+                                {% block sw_extension_permissions_modal_link %}
+                                    <sw-button class="sw-extension-permissions-modal__link" @click="openDetailsModal(key)">
+                                        {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
+                                        <sw-icon name="default-arrow-simple-right" size="12"></sw-icon>
+                                    </sw-button>
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_footer %}
+            <template #modal-footer>
+                {% block sw_extension_permissions_modal_footer_inner %}
+                    {% block sw_extension_permissions_modal_footer_close %}
+                        <sw-button :variant="actionLabel === null ? 'primary' : 'default'" @click="close" size="small">
+                            {{ $tc('global.sw-modal.labelClose') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_extension_permissions_modal_footer_action %}
+                        <sw-button v-if="actionLabel" variant="primary" @click="closeWithAction" size="small">
+                            {{ actionLabel }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_extension_permissions_modal_details %}
+            <sw-extension-permissions-details-modal
+                v-if="showDetailsModal"
+                :modalTitle="modalTitle"
+                :permissions="permissionsWithGroupedOperations"
+                :selectedEntity="selectedEntity"
+                @modal-close="closeDetailsModal">
+            </sw-extension-permissions-details-modal>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

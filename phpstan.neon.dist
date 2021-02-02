@@ -6,7 +6,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
     tmpDir: ../var/cache/phpstan
     paths:
         - src
@@ -60,6 +60,13 @@ parameters:
         -
             message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
             path: src/Core/**/SalesChannel/**Route.php
+        -
+            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addData\(\) has parameter \$value with no typehint specified#'
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
+        -
+            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addTemplateData\(\) has parameter \$value with no typehint specified#'
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
+
         # For BC in Entity repository clone
         - '#Method .*EntityRepositoryInterface::clone\(\) invoked with 4 parameters, 2-3 required\.#'
         -
@@ -91,8 +98,25 @@ parameters:
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
         # For BC in SalesChannelContextService get
         - '#Method Shopware\\Core\\System\\SalesChannel\\Context\\SalesChannelContextServiceInterface::get\(\) invoked with 4 parameters, 3 required\.#'
-
         - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
+            message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailBeforeSentEvent\\:\\:__construct\\(\\) has parameter \\$message with no typehint specified\\.$#"
+            count: 1
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeSentEvent.php
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
+            message: "#^Parameter \\#1 \\$data of class Swift_Attachment constructor expects string\\|Swift_OutputByteStream\\|null, string\\|false given\\.$#"
+            count: 1
+            path: src/Core/Content/Mail/Service/MailFactory.php
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
+            message: "#^Parameter \\#3 \\$contentType of class Swift_Attachment constructor expects string\\|null, string\\|false given\\.$#"
+            count: 1
+            path: src/Core/Content/Mail/Service/MailFactory.php
 
 services:
     -

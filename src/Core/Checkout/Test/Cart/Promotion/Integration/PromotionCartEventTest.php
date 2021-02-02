@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -75,7 +75,7 @@ class PromotionCartEventTest extends TestCase
 
         $addListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
         $addListener->expects(static::exactly(1 + \count($codes)))->method('__invoke');
-        $dispatcher->addListener(LineItemAddedEvent::class, $addListener);
+        $dispatcher->addListener(BeforeLineItemAddedEvent::class, $addListener);
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
@@ -109,7 +109,7 @@ class PromotionCartEventTest extends TestCase
 
         $removeListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
         $removeListener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener(LineItemRemovedEvent::class, $removeListener);
+        $dispatcher->addListener(BeforeLineItemRemovedEvent::class, $removeListener);
 
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 

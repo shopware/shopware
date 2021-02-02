@@ -33,7 +33,9 @@ Component.register('sw-promotion-v2-detail', {
         promotionId: {
             type: String,
             required: false,
-            default: null
+            default() {
+                return null;
+            }
         }
     },
 
@@ -69,8 +71,18 @@ Component.register('sw-promotion-v2-detail', {
         },
 
         promotionCriteria() {
-            return (new Criteria(1, 1))
-                .addAssociation('individualCodes');
+            const criteria = (new Criteria(1, 1))
+                .addAssociation('discounts.promotionDiscountPrices')
+                .addAssociation('discounts.discountRules')
+                .addAssociation('salesChannels');
+
+            criteria.getAssociation('discounts')
+                .addSorting(Criteria.sort('createdAt', 'ASC'));
+
+            criteria.getAssociation('individualCodes')
+                .setLimit(25);
+
+            return criteria;
         },
 
         tooltipSave() {
@@ -208,6 +220,10 @@ Component.register('sw-promotion-v2-detail', {
         cleanUpCodes(cleanUpIndividual, cleanUpFixed) {
             this.cleanUpIndividualCodes = cleanUpIndividual;
             this.cleanUpFixedCode = cleanUpFixed;
+        },
+
+        onGenerateIndividualCodesFinish() {
+            this.savePromotion();
         }
     }
 });

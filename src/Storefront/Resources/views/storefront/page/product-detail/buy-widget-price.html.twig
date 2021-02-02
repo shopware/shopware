@@ -86,7 +86,7 @@
               content="{{ price.unitPrice }}">
 
         {% block page_product_detail_price_content %}
-            {% set listPrice = page.product.priceRange ? null : price.listPrice %}
+            {% set listPrice = price.listPrice %}
 
             <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
                 {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}

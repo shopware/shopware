@@ -1,0 +1,81 @@
+@import "~scss/variables";
+
+$font-size-rating: 10px;
+
+.sw-extension-listing-card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border-radius: 8px;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .sw-extension-listing-card__preview {
+        width: 100%;
+        padding-top: 75%;
+        cursor: pointer;
+    }
+
+    .sw-extension-listing-card__info-grid {
+        background: #fff;
+        padding: 10px 16px 14px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr auto;
+        grid-row-gap: 3px;
+        grid-template-areas:
+            "name name"
+            "description description"
+            "rating price";
+
+        .sw-extension-listing-card__info-name {
+            cursor: pointer;
+            grid-area: name;
+            font-size: $font-size-small;
+            font-weight: $font-weight-semi-bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sw-extension-listing-card__info-description {
+            grid-area: description;
+            font-size: $font-size-extra-small;
+            color: $color-gray-500;
+        }
+
+        .sw-extension-listing-card__info-rating {
+            grid-area: rating;
+            display: flex;
+            align-items: baseline;
+            font-size: $font-size-rating;
+
+            & > * {
+                margin-right: 1ex;
+            }
+        }
+
+        .sw-extension-listing-card__info-rating-stars-count {
+            color: #919aa3;
+        }
+
+        .sw-extension-listing-card__info-rating-count {
+            color: $color-shopware-brand-500;
+            cursor: pointer;
+        }
+
+        .sw-extension-listing-card__info-price {
+            grid-area: price;
+            justify-self: end;
+            font-size: $font-size-small;
+            text-align: right;
+
+            .sw-extension-listing-card__info-price-discounted {
+                color: $color-crimson-400;
+
+                s {
+                    margin-left: 4px;
+                }
+            }
+        }
+    }
+}

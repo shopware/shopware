@@ -90,4 +90,46 @@ describe('components/form/sw-list-price-field', () => {
         await wrapper.vm.listPriceChanged(listPrice);
         expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
     });
+
+    it('should set the correct inherited state when inherited', async () => {
+        const wrapper = setup();
+        wrapper.setProps({
+            price: [euroPrice]
+        });
+
+        expect(wrapper.vm.isInherited).toBeTruthy();
+    });
+
+    it('should set the correct inherited state when not inherited', async () => {
+        const wrapper = setup();
+
+        wrapper.setProps({
+            price: [dollarPrice]
+        });
+
+        expect(wrapper.vm.isInherited).toBeFalsy();
+    });
+
+    it('should not display gross help text when not in vertical mode', async () => {
+        const wrapper = setup();
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
+    });
+
+    it('should display gross help text when in vertical mode', async () => {
+        const wrapper = setup({
+            vertical: true
+        });
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBe('global.sw-list-price-field.helpTextListPriceGross');
+    });
+
+    it('should not display gross help text when in compact mode', async () => {
+        const wrapper = setup({
+            vertical: true,
+            compact: true
+        });
+
+        expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub').attributes().grosshelptext).toBeUndefined();
+    });
 });

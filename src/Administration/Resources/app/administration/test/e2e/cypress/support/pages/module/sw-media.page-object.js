@@ -70,7 +70,9 @@ export default class MediaPageObject {
         cy.clickContextMenuItem(
             contextMenuItemSelector,
             this.elements.contextMenuButton,
-            mediaItem
+            mediaItem,
+            '',
+            true
         );
         cy.get(this.elements.modalTitle).contains(`Move "${name}"`);
         cy.get('.sw-media-modal-move__confirm').should('be.disabled');
@@ -149,7 +151,9 @@ export default class MediaPageObject {
         cy.clickContextMenuItem(
             '.sw-media-context-item__dissolve-folder-action',
             this.elements.contextMenuButton,
-            `${this.elements.gridItem}--0`
+            `${this.elements.gridItem}--0`,
+            '',
+            true
         );
         cy.get(`${this.elements.modal}__body`)
             .contains('Are you sure you want to dissolve "A thing to fold about" ?');

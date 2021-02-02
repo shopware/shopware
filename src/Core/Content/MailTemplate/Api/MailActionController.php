@@ -58,6 +58,7 @@ class MailActionController extends AbstractController
      */
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
+        $this->templateRenderer->initialize();
         $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
         $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
 

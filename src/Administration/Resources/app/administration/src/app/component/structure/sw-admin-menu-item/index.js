@@ -38,6 +38,11 @@ Component.register('sw-admin-menu-item', {
             type: Boolean,
             default: true,
             required: false
+        },
+        borderColor: {
+            type: String,
+            default: '#333',
+            required: false
         }
     },
 
@@ -136,6 +141,26 @@ Component.register('sw-admin-menu-item', {
             }
 
             return this.entry.id === compareTo;
+        },
+
+        getElementClasses(menuItemName) {
+            const name = menuItemName.replace(/\./g, '-');
+            const hasChildren = this.entry.children.length > 0;
+            const convertName = this.entry.id || this.entry.path;
+            const convertedId = convertName.replace(/\./g, '-');
+
+            return [
+                convertedId,
+                `navigation-list-item__type-${this.entry.moduleType}`,
+                `navigation-list-item__${name}`,
+                `sw-admin-menu__item--${this.entry.id}`,
+                `navigation-list-item__level-${this.entry.level}`,
+                { 'navigation-list-item__has-children': hasChildren }
+            ];
+        },
+
+        onSubMenuItemEnter(entry, $event, parentEntries) {
+            this.$emit('sub-menu-item-enter', entry, $event, parentEntries);
         }
     }
 });

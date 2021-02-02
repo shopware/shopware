@@ -150,16 +150,24 @@ specific styling for elements dependent on their parent block
     }
 }
 
-.cms-block-product-heading {
-    .cms-element-product-name {
-        width: 100%;
+.cms-element-product-name {
+    display: inline-block;
+}
+
+.cms-element-manufacturer-logo {
+    justify-content: flex-end;
+
+    .cms-image-link {
+        text-align: right;
         height: 100%;
-        display: flex;
     }
 
-    .cms-element-manufacturer-logo img {
-        max-width: 200px;
-        max-height: 70px;
+    .cms-image-container.is-standard {
+        img {
+            max-width: 200px;
+            max-height: 70px;
+        }
     }
 }
+
 

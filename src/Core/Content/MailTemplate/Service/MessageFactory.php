@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) MessageFactory will be removed
+ */
 class MessageFactory implements MessageFactoryInterface
 {
     /**

@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     beforeEach(() => {
@@ -78,7 +78,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-layout-card__desc-headline').contains('Vierte Wand');
 

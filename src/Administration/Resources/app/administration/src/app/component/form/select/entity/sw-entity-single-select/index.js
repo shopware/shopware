@@ -43,6 +43,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: 'name'
         },
+        labelCallback: {
+            type: Function,
+            required: false,
+            default: null
+        },
         entity: {
             required: true,
             type: String
@@ -155,7 +160,7 @@ Component.register('sw-entity-single-select', {
 
             this.isLoading = true;
 
-            return this.repository.get(this.value, this.context, this.criteria).then((item) => {
+            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
                 this.criteria.setIds([]);
 
                 this.singleSelection = item;
@@ -207,7 +212,7 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, this.context).then((result) => {
+            return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 this.displaySearch(result);
 
                 this.isLoading = false;
@@ -239,6 +244,10 @@ Component.register('sw-entity-single-select', {
         },
 
         displayLabelProperty(item) {
+            if (typeof this.labelCallback === 'function') {
+                return this.labelCallback(item);
+            }
+
             const labelProperties = [];
 
             if (Array.isArray(this.labelProperty)) {
@@ -274,6 +283,9 @@ Component.register('sw-entity-single-select', {
         },
 
         tryGetSearchText(option) {
+            if (typeof this.labelCallback === 'function') {
+                return this.labelCallback(option);
+            }
             let searchText = this.getKey(option, this.labelProperty, '');
             if (!searchText) {
                 searchText = this.getKey(option, `translated.${this.labelProperty}`, '');

@@ -2,6 +2,11 @@ import './page/sw-settings-search';
 import './view/sw-settings-search-view-general';
 import './view/sw-settings-search-view-live-search';
 import './component/sw-settings-search-search-behaviour';
+import './component/sw-settings-search-searchable-content';
+import './component/sw-settings-search-example-modal';
+import './component/sw-settings-search-searchable-content-general';
+import './component/sw-settings-search-searchable-content-customfields';
+
 import './acl';
 
 const { Module } = Shopware;

@@ -77,10 +77,14 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginExtractor">
-            <argument>%kernel.plugin_dir%</argument>
+            <argument type="collection">
+                <argument key="plugin">%kernel.plugin_dir%</argument>
+                <argument key="app">%kernel.app_dir%</argument>
+            </argument>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
         </service>
 

@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPagelet;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
@@ -15,11 +14,6 @@ class GuestWishlistPageletTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-    }
 
     public function testItLoadsWishlistGuestPageletWithInvalidProductIds(): void
     {

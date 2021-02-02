@@ -17,16 +17,16 @@ class LineItemGroupPriceDescSorter implements LineItemGroupSorterInterface
     {
         $sorted = $items->getElements();
 
-        usort($sorted, function (LineItem $a, LineItem $b) {
+        usort($sorted, static function (LineItem $a, LineItem $b) {
             if ($a->getPrice() === null) {
-                return true;
+                return 1;
             }
 
             if ($b->getPrice() === null) {
-                return false;
+                return 0;
             }
 
-            return $a->getPrice()->getUnitPrice() < $b->getPrice()->getUnitPrice();
+            return $b->getPrice()->getUnitPrice() <=> $a->getPrice()->getUnitPrice();
         });
 
         return new LineItemFlatCollection($sorted);

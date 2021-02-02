@@ -122,6 +122,24 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         return $criteria;
     }
 
+    protected function resolveEntityValues(EntityResolverContext $resolverContext, string $content): ?string
+    {
+        // https://regex101.com/r/idIfbk/1
+        $content = preg_replace_callback(
+            '/{{\s*(?<property>[\w.\d]+)\s*}}/',
+            function ($matches) use ($resolverContext) {
+                try {
+                    return $this->resolveEntityValue($resolverContext->getEntity(), $matches['property']);
+                } catch (\InvalidArgumentException $e) {
+                    return $matches[0];
+                }
+            },
+            $content
+        );
+
+        return $content;
+    }
+
     private function getKeyByManyToMany(ManyToManyAssociationField $field): ?string
     {
         $referenceDefinition = $field->getReferenceDefinition();

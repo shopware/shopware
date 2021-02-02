@@ -106,6 +106,42 @@ describe('VariantSwitchPlugin tests', () => {
         variantSwitchPlugin._redirectToVariant.mockRestore();
     });
 
+    test('_redirectVariant should not get called if cms elementId exists and page type is not product detail', () => {
+        variantSwitchPlugin._elementId = '1';
+        variantSwitchPlugin._pageType = 'landingpage';
+
+        // Mock the function which should be called on click
+        variantSwitchPlugin._redirectToVariant = jest.fn();
+        const spy = jest.spyOn(variantSwitchPlugin, '_redirectToVariant');
+
+        // simulate click
+        const mockInput = variantSwitchPlugin.el.firstChild;
+        mockInput.click();
+
+        expect(spy).not.toHaveBeenCalled();
+
+        // Reset mock
+        variantSwitchPlugin._redirectToVariant.mockRestore();
+    });
+
+    test('_redirectVariant should get called if cms elementId exists and page type is product detail', () => {
+        variantSwitchPlugin._elementId = '1';
+        variantSwitchPlugin._pageType = 'product_detail';
+
+        // Mock the function which should be called on click
+        variantSwitchPlugin._redirectToVariant = jest.fn();
+        const spy = jest.spyOn(variantSwitchPlugin, '_redirectToVariant');
+
+        // simulate click
+        const mockInput = variantSwitchPlugin.el.firstChild;
+        mockInput.click();
+
+        expect(spy).toHaveBeenCalled();
+
+        // Reset mock
+        variantSwitchPlugin._redirectToVariant.mockRestore();
+    });
+
     test('Ensure the updateBuyWidget event is fired with correct params', () => {
         function cb(event) {
             expect(event.detail.elementId).toEqual('1');

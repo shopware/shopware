@@ -2,9 +2,8 @@
     <sw-container rows="auto" columns="1fr" class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
-            <sw-card
+            <sw-card v-if="isLoading"
                 class="context-prices__empty-state"
-                v-if="isLoading"
                 :large="true">
                 <sw-loader></sw-loader>
             </sw-card>
@@ -90,8 +89,7 @@
                     {% endblock %}
 
                     {% block sw_product_detail_prices_price_card_price_group_grid %}
-                        <sw-data-grid
-                            v-if="priceGroup.ruleId"
+                        <sw-data-grid v-if="priceGroup.ruleId"
                             :dataSource="priceGroup.prices"
                             :columns="pricesColumns"
                             showSettings
@@ -99,16 +97,15 @@
                             :compactMode="true">
                             {% block sw_product_detail_prices_price_card_price_group_grid_settings %}
                                 <template #additionalSettings>
-                                    <template v-if="feature.isActive('FEATURE_NEXT_10541')">
                                     {% block sw_product_detail_prices_price_card_price_group_grid_settings_list_prices %}
                                         <sw-switch-field
                                             size="medium"
-                                            v-model="showListPrices[priceGroup.ruleId]"
+                                            :value="showListPrices[priceGroup.ruleId] !== false"
+                                            @change="onChangeShowListPrices($event, priceGroup.ruleId)"
                                             noMarginTop
                                             :label="$tc('sw-product.prices.settingShowListPrices')">
                                         </sw-switch-field>
                                     {% endblock %}
-                                    </template>
                                 </template>
                             {% endblock %}
 
@@ -116,7 +113,9 @@
                                 <template slot="column-type" slot-scope="{ item, itemIndex, compact }">
                                     <div class="sw-product-detail-context-prices__type-label">
                                         <label>{{ $tc('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
-                                        <label v-if="showListPrices[priceGroup.ruleId]">{{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}</label>
+                                        <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                                            {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
+                                        </label>
                                     </div>
                                 </template>
                             {% endblock %}
@@ -124,14 +123,14 @@
                             {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
                                 <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
                                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
-                                        <sw-field
-                                            type="number"
+                                        <sw-field type="number"
                                             v-model="item.quantityStart"
                                             validation="required"
+                                            v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                                             :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
                                             :max="item.quantityEnd ? item.quantityEnd : null"
                                             :size="compact ? 'small' : 'default'"
-                                            :disabled="!acl.can('product.editor')">
+                                            :disabled="(feature.isActive('FEATURE_NEXT_10553') && itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')">
                                         </sw-field>
                                     {% endblock %}
                                 </template>
@@ -157,7 +156,7 @@
 
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                                 <template v-for="currency in currencies" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, column, compact }">
-                                    <template v-if="!showListPrices[priceGroup.ruleId]">
+                                    <template v-if="showListPrices[priceGroup.ruleId] === false">
                                         <div class="product-detail-context-prices__price-field-wrapper">
                                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
                                                 <sw-inheritance-switch
@@ -184,7 +183,7 @@
                                         </div>
                                     </template>
 
-                                    <template v-if="showListPrices[priceGroup.ruleId] && feature.isActive('FEATURE_NEXT_10541')">
+                                    <template v-if="showListPrices[priceGroup.ruleId] !== false">
                                         <div class="product-detail-context-prices__price-field-wrapper">
                                             <sw-inheritance-switch
                                                 v-if="!currency.isSystemDefault"

@@ -7,10 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
@@ -48,7 +50,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             new StringField('meta_description', 'metaDescription'),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('keywords', 'keywords'),
@@ -60,5 +62,13 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
             new CustomFields(),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_10078')) {
+            $collection->add(
+                new JsonField('slot_config', 'slotConfig')
+            );
+        }
+
+        return $collection;
     }
 }

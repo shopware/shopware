@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class AddToWishlistPlugin extends Plugin {
     init() {
@@ -16,6 +17,7 @@ export default class AddToWishlistPlugin extends Plugin {
         }
 
         this._registerEvents();
+        this.el.classList.remove(this.classList.isLoading);
     }
 
     /**
@@ -23,10 +25,9 @@ export default class AddToWishlistPlugin extends Plugin {
      * @private
      */
     _getWishlistStorage() {
-        const wishlistBasketElement = document.querySelector('#wishlist-basket');
+        const wishlistBasketElement = DomAccess.querySelector(document, '#wishlist-basket', false);
 
         if (!wishlistBasketElement) {
-
             return;
         }
 

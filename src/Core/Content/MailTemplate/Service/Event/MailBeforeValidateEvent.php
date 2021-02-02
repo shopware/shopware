@@ -54,6 +54,16 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
         return $this->data;
     }
 
+    public function setData(array $data): void
+    {
+        $this->data = $data;
+    }
+
+    public function addData(string $key, $value): void
+    {
+        $this->data[$key] = $value;
+    }
+
     public function getContext(): Context
     {
         return $this->context;
@@ -62,6 +72,16 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
     public function getTemplateData(): array
     {
         return $this->templateData;
+    }
+
+    public function setTemplateData(array $templateData): void
+    {
+        $this->templateData = $templateData;
+    }
+
+    public function addTemplateData(string $key, $value): void
+    {
+        $this->templateData[$key] = $value;
     }
 
     public function getLogData(): array

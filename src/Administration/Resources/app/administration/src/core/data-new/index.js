@@ -6,6 +6,7 @@ import EntityDefinition from './entity-definition.data';
 import EntityFactory from './entity-factory.data';
 import EntityHydrator from './entity-hydrator.data';
 import Repository from './repository.data';
+import FilterFactory from './filter-factory.data';
 
 export default {
     ChangesetGenerator,
@@ -15,5 +16,6 @@ export default {
     EntityDefinition,
     EntityFactory,
     EntityHydrator,
-    Repository
+    Repository,
+    FilterFactory
 };

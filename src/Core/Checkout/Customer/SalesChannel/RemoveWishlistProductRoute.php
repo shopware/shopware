@@ -22,8 +22,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_10549)
- *
  * @RouteScope(scopes={"store-api"})
  */
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute

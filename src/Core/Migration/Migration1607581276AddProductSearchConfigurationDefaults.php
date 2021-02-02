@@ -60,13 +60,16 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
             ]
         );
 
-        $this->importTranslation(ProductSearchConfigDefinition::ENTITY_NAME, $translations, $connection);
+        $writeResult = $this->importTranslation(ProductSearchConfigDefinition::ENTITY_NAME, $translations, $connection);
 
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $defaultSearchData = $this->getConfigFieldDefaultData($searchConfigEnId, $createdAt);
+        $defaultSearchData = [];
+        if ($writeResult->hasWrittenEnglishTranslations()) {
+            $defaultSearchData = $this->getConfigFieldDefaultData($searchConfigEnId, $createdAt);
+        }
 
-        if ($deLanguageId) {
+        if ($writeResult->hasWrittenGermanTranslations()) {
             $defaultSearchData = array_merge(
                 $defaultSearchData,
                 $this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)

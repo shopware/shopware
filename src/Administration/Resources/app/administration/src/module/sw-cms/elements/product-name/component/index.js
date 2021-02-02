@@ -17,7 +17,7 @@ Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', {
         createdComponent() {
             this.initElementConfig('product-name');
 
-            if (this.isProductPage) {
+            if (this.isProductPage && !Utils.get(this.element, 'translated.config.content')) {
                 this.element.config.content.source = 'mapped';
                 this.element.config.content.value = 'product.name';
             }

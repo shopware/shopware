@@ -38,6 +38,7 @@ class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEn
                 'versionId' => null,
                 'name' => $tax->getName(),
                 'taxRate' => (int) $tax->getTaxRate(),
+                'position' => $tax->getPosition(),
                 'products' => null,
                 'shippingMethods' => null,
                 'customFields' => null,

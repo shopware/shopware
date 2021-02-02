@@ -1,0 +1,262 @@
+{% block sw_promotion_v2_individual_codes_behavior %}
+    <div class="sw-promotion-v2-individual-codes-behavior">
+
+        {% block sw_promotion_v2_individual_codes_behavior_card %}
+            <sw-card class="sw-promotion-v2-individual-codes-behavior__card"
+                     :key="cardIdentifier">
+
+                {% block sw_promotion_v2_individual_codes_behavior_toolbar %}
+                    <template #toolbar v-if="promotion.individualCodes && promotion.individualCodes.length > 0">
+
+                        {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter %}
+                            <sw-card-filter :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.searchPlaceholder')"
+                                            @sw-card-filter-term-change="onSearchTermChange">
+                                <template #filter>
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_add_codes %}
+                                        <sw-button class="sw-promotion-v2-individual-codes-behavior__add-codes-action"
+                                                   variant="ghost"
+                                                   size="small"
+                                                   :disabled="!acl.can('promotion.editor')"
+                                                   @click="onOpenAddCodesModal">
+                                            {{ $tc('sw-promotion-v2.detail.base.codes.individual.addButton') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter_generate_codes %}
+                                        <sw-button class="sw-promotion-v2-individual-codes-behavior__generate-codes-action"
+                                                   variant="ghost"
+                                                   size="small"
+                                                   :disabled="!acl.can('promotion.editor')"
+                                                   @click="onOpenGenerateCodesModal">
+                                            {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
+                                        </sw-button>
+                                    {% endblock %}
+
+                                </template>
+                            </sw-card-filter>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_grid %}
+                    <template #grid v-if="promotion.individualCodes && promotion.individualCodes.length > 0">
+                        <sw-one-to-many-grid
+                            class="sw-promotion-v2-individual-codes-behavior__grid"
+                            ref="individualCodesGrid"
+                            :isLoading="isGridLoading"
+                            :collection="promotion.individualCodes"
+                            :columns="codeColumns"
+                            :localMode="false"
+                            sortBy="code"
+                            sortDirection="ASC"
+                            @selection-change="onSelectionChange">
+
+                            {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed %}
+                                <template #column-payload="{ item }">
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon %}
+                                        {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_true %}
+                                            <sw-icon v-if="!!item.payload"
+                                                     class="sw-promotion-v2-individual-codes-behavior__redeemed-state is--active"
+                                                     name="small-default-checkmark-line-medium"
+                                                     small>
+                                            </sw-icon>
+                                        {% endblock %}
+
+                                        {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_false %}
+                                            <sw-icon v-else
+                                                     class="sw-promotion-v2-individual-codes-behavior__redeemed-state is--inactive"
+                                                     name="small-default-x-line-medium"
+                                                     small>
+                                            </sw-icon>
+                                        {% endblock %}
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer %}
+                                <template #column-payload.customerName="{ item }">
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer_link %}
+                                        <a v-if="item.payload && item.payload.customerId"
+                                           class="sw-promotion-v2-individual-codes-behavior__redeemed-customer-name"
+                                           @click="routeToCustomer(item.payload)">
+                                            {{ item.payload.customerName }}
+                                        </a>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_promotion_v2_individual_codes_behavior_grid_actions %}
+                                <template #actions="{ item }">
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_actions_route_to_customer %}
+                                        <sw-context-menu-item
+                                            class="sw-promotion-v2-individual-codes-behavior__customer-route-action"
+                                            :disabled="!(item.payload && item.payload.customerId)"
+                                            @click="routeToCustomer(item.payload)">
+                                            {{ $tc('sw-promotion-v2.detail.base.codes.individual.openCustomer') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_actions_delete %}
+                                        <sw-context-menu-item
+                                            class="sw-promotion-v2-individual-codes-behavior__code-delete-action"
+                                            variant="danger"
+                                            :disabled="!acl.can('promotion.editor')"
+                                            @click="onShowCodeDeleteModal(item.id)">
+                                            {{ $tc('sw-property.list.contextMenuDelete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk %}
+                                <template #bulk>
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk_delete %}
+                                        <span class="sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action link link-danger"
+                                              @click="onShowCodeBulkDeleteModal">
+                                            {{ $tc('global.default.delete') }}
+                                        </span>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_promotion_v2_individual_codes_behavior_grid_action_modals %}
+                                <template #action-modals="{ item }">
+
+                                    {% block sw_promotion_v2_individual_codes_behavior_grid_action_delete_modal %}
+                                        <sw-confirm-modal
+                                            v-if="codeDeleteModal === item.id"
+                                            class="sw-promotion-v2-individual-codes-behavior__confirm-delete-modal"
+                                            type="delete"
+                                            :text="$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', 1, { code: item.code })"
+                                            @confirm="onConfirmCodeDelete(item.id)"
+                                            @close="onCloseDeleteModal"
+                                            @cancel="onCloseDeleteModal">
+                                        </sw-confirm-modal>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                        </sw-one-to-many-grid>
+                    </template>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
+                    <sw-empty-state v-else
+                                    class="sw-promotion-v2-individual-codes-behavior__empty-state"
+                                    :title="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
+                                    :absolute="false">
+
+                        {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}
+                            <template #icon>
+                                <img class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
+                                     :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset">
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}
+                            <template #actions>
+                                <sw-button class="sw-promotion-v2-individual-codes-behavior__empty-state-generate-action"
+                                           variant="ghost"
+                                           :disabled="!acl.can('promotion.editor')"
+                                           @click="onOpenGenerateCodesModal">
+                                    {{ $tc('sw-promotion-v2.detail.base.codes.individual.generateButton') }}
+                                </sw-button>
+                            </template>
+                        {% endblock %}
+
+                    </sw-empty-state>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_promotion_v2_individual_codes_behavior_delete_bulk_modal %}
+            <sw-confirm-modal v-if="codeBulkDeleteModal"
+                              class="sw-promotion-v2-individual-codes-behavior__confirm-delete-bulk-modal"
+                              type="delete"
+                              :text="deleteConfirmText"
+                              @confirm="onConfirmCodeBulkDelete"
+                              @close="onCloseBulkDeleteModal"
+                              @cancel="onCloseBulkDeleteModal">
+            </sw-confirm-modal>
+        {% endblock %}
+
+        {% block sw_promotion_v2_individual_codes_behavior_generate_codes_modal %}
+            <sw-promotion-v2-generate-codes-modal
+                v-if="generateCodesModal"
+                :promotion="promotion"
+                @generate-finish="onGenerateFinish"
+                @close="onCloseGenerateCodesModal">
+            </sw-promotion-v2-generate-codes-modal>
+        {% endblock %}
+
+        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal %}
+            <sw-modal v-if="addCodesModal"
+                      class="sw-promotion-v2-individual-codes-behavior__add-codes-modal"
+                      variant="small"
+                      :title="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.title')"
+                      @modal-close="onCloseAddCodesModal">
+
+                {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_content %}
+                    <div class="sw-promotion-v2-individual-codes-behavior__content">
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_description %}
+                            <p class="sw-promotion-v2-individual-codes-behavior__description">
+                                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.description') }}
+                            </p>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_code_amount %}
+                            <sw-number-field
+                                v-model="newCodeAmount"
+                                class="sw-promotion-v2-individual-codes-behavior__code-amount"
+                                :label="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
+                                :min="1">
+                            </sw-number-field>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer %}
+                    <template #modal-footer>
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_cancel %}
+                            <sw-button class="sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel"
+                                       size="small"
+                                       @click="onCloseAddCodesModal">
+                                {{ $tc('global.default.cancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_footer_confirm %}
+                            <sw-button-process
+                                class="sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm"
+                                variant="primary"
+                                size="small"
+                                :isLoading="isAdding"
+                                :processSuccess="false"
+                                @click="onAddCodes">
+                                {{ $tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.addCodesButton') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+            </sw-modal>
+        {% endblock %}
+
+    </div>
+{% endblock %}

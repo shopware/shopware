@@ -28,7 +28,8 @@ function createWrapper(privileges = []) {
             },
             'sw-datepicker': {
                 template: '<div class="sw-datepicker"></div>'
-            }
+            },
+            'sw-button-process': true
         },
         provide: {
             acl: {
@@ -42,12 +43,16 @@ function createWrapper(privileges = []) {
                 create: () => ({
                     search: () => Promise.resolve([{ id: 'promotionId1' }])
                 })
+            },
+            promotionCodeApiService: {
+                generateCodeFixed: () => 'ABCDEF'
             }
         },
         mocks: {
             $tc: v => v
         },
         propsData: {
+            isCreateMode: false,
             promotion: {
                 name: 'Test Promotion',
                 active: true,

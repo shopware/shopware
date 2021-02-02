@@ -1,13 +1,15 @@
 {% block buy_widget_configurator %}
     <div class="product-detail-configurator">
-        {% if elementId is defined %}
+        {% if elementId is defined and elementId is not null and pageType != 'product_detail' %}
             {% set config = {
                 url: url('frontend.cms.buybox.switch', { productId: product.parentId }),
-                elementId: elementId
+                elementId: elementId,
+                pageType: pageType
             } %}
         {% else %}
             {% set config = {
                 url: url('frontend.detail.switch', { productId: product.parentId }),
+                pageType: pageType
             } %}
         {% endif %}
 
@@ -15,7 +17,7 @@
             <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
 
                 {% block buy_widget_configurator_csrf %}
-                    {% if elementId is defined %}
+                    {% if elementId is defined and elementId is not null %}
                         {{ sw_csrf('frontend.cms.buybox.switch') }}
                     {% else %}
                         {{ sw_csrf('frontend.detail.switch') }}
@@ -37,8 +39,12 @@
                                 {% block buy_widget_configurator_options %}
                                     <div class="product-detail-configurator-options">
                                         {% for option in group.options %}
+                                            {% if elementId is defined and elementId is not null %}
+                                                {% set optionIdentifier = [group.id, option.id, elementId]|join('-') %}
+                                            {% else %}
+                                                {% set optionIdentifier = [group.id, option.id]|join('-') %}
+                                            {% endif %}
 
-                                            {% set optionIdentifier = [group.id, option.id]|join('-') %}
                                             {% set isActive = false %}
                                             {% set isCombinableCls = 'is-combinable' %}
 

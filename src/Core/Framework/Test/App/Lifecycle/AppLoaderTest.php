@@ -20,7 +20,7 @@ class AppLoaderTest extends TestCase
         $manifests = $appLoader->load();
 
         static::assertCount(10, $manifests);
-        static::assertInstanceOf(Manifest::class, $manifests[0]);
+        static::assertInstanceOf(Manifest::class, $manifests['minimal']);
     }
 
     public function testLoadIgnoresInvalid(): void
@@ -51,7 +51,7 @@ class AppLoaderTest extends TestCase
         $manifests = $appLoader->load();
 
         static::assertCount(1, $manifests);
-        $manifest = $manifests[0];
+        $manifest = $manifests['test'];
 
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/icon.png',
@@ -66,7 +66,7 @@ class AppLoaderTest extends TestCase
         $manifests = $appLoader->load();
 
         static::assertCount(1, $manifests);
-        $manifest = $manifests[0];
+        $manifest = $manifests['test'];
 
         $manifest->getMetadata()->assign(['icon' => 'file/that/dont/exist.png']);
 

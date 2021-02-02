@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -17,12 +17,7 @@ describe('Product: Edit list prices of context prices', () => {
     });
 
     it('@base @rule @product: creates context price rules', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10541')) {
-                cy.log('Skipped test beause of missing feature flag: FEATURE_NEXT_10541')
-                return;
-            }
-
+        cy.window().then(() => {
             const page = new ProductPageObject();
             const emptySelectRule = '.sw-product-detail-context-prices__empty-state-select-rule';
 
@@ -51,11 +46,6 @@ describe('Product: Edit list prices of context prices', () => {
             cy.get('#sw-field--item-quantityEnd').type('{enter}');
 
             cy.get('.sw-data-grid__row--1').should('be.visible');
-            cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
-            cy.get('.sw-context-menu__content > :nth-child(1)').should('be.visible');
-            cy.contains('Show list prices').should('be.visible');
-            cy.contains('Show list prices').click();
-            cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-gross')
                 .type('100');
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-net')

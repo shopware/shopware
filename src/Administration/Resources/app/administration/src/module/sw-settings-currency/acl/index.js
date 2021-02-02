@@ -6,7 +6,10 @@ Shopware.Service('privileges')
         roles: {
             viewer: {
                 privileges: [
-                    'currency:read'
+                    'currency:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

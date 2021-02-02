@@ -1,5 +1,5 @@
 {% set currencyIsoCode = order.currency.isoCode %}
-{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
+{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 We received your payment and will now start processing the order.
 
@@ -15,7 +15,7 @@ Pos.   Prod. No.			Description			Quantities			Price			Total
 
 {% set delivery = order.deliveries.first %}
 
-Shipping costs: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+Shipping costs: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
 Net total: {{ order.amountNet|currency(currencyIsoCode) }}
     {% for calculatedTax in order.price.calculatedTaxes %}
            {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}
@@ -23,11 +23,11 @@ Net total: {{ order.amountNet|currency(currencyIsoCode) }}
 Total gross: {{ order.amountTotal|currency(currencyIsoCode) }}
 
 
-Selected payment type: {{ order.transactions.first.paymentMethod.name }}
-{{ order.transactions.first.paymentMethod.description }}
+Selected payment type: {{ order.transactions.first.paymentMethod.translated.name }}
+{{ order.transactions.first.paymentMethod.translated.description }}
 
-Selected shipping type: {{ delivery.shippingMethod.name }}
-{{ delivery.shippingMethod.description }}
+Selected shipping type: {{ delivery.shippingMethod.translated.name }}
+{{ delivery.shippingMethod.translated.description }}
 
 {% set billingAddress = order.addresses.get(order.billingAddressId) %}
 Billing address:
@@ -35,21 +35,21 @@ Billing address:
 {{ billingAddress.firstName }} {{ billingAddress.lastName }}
 {{ billingAddress.street }}
 {{ billingAddress.zipcode }} {{ billingAddress.city }}
-{{ billingAddress.country.name }}
+{{ billingAddress.country.translated.name }}
 
 Shipping address:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
 {{ delivery.shippingOrderAddress.street }}
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
-{{ delivery.shippingOrderAddress.country.name }}
+{{ delivery.shippingOrderAddress.country.translated.name }}
 
 {% if billingAddress.vatId %}
 Your VAT-ID: {{ billingAddress.vatId }}
 In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.
 {% endif %}
 
-You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
 If you have any questions, do not hesitate to contact us.
 
 However, in case you have purchased without a registration or a customer account, you do not have this option.

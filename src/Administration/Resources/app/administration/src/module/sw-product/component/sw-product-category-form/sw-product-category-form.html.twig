@@ -62,9 +62,11 @@
 
         {% block sw_product_category_form_tags_field %}
             <sw-inherit-wrapper
+                class="sw-product-category-form__tag-field-wrapper"
                 v-model="product.tags"
                 :inheritedValue="parentProduct.tags"
                 isAssociation
+                :helpText="$tc('sw-product.categoryForm.helpTextTags')"
                 :label="$tc('global.sw-tag-field.title')">
 
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">

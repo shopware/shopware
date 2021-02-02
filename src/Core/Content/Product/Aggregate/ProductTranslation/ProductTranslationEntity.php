@@ -58,6 +58,13 @@ class ProductTranslationEntity extends TranslationEntity
     protected $customFields;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var array|null
+     */
+    protected $slotConfig;
+
+    /**
      * @var string[]|null
      */
     protected $customSearchKeywords;
@@ -150,6 +157,22 @@ class ProductTranslationEntity extends TranslationEntity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setSlotConfig(array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 
     public function getMetaDescription(): ?string

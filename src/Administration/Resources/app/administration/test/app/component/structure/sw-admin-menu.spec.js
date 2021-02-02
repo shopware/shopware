@@ -25,6 +25,9 @@ function createWrapper() {
             }
         },
         provide: {
+            feature: {
+                isActive: () => true
+            },
             menuService: {
                 getMainMenu: () => {
                     return mainMenu;
@@ -124,10 +127,68 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 { name: 'Copyreader' }
             ]
         });
+
         wrapper = await createWrapper();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
         expect(userTitle.text()).toBe('Copyreader');
+    });
+
+    it('should remove classes from an element', async () => {
+        wrapper = await createWrapper();
+
+        const element1 = document.createElement('div');
+        const element2 = document.createElement('div');
+
+        element1.classList.add('foo', 'bar');
+        element2.classList.add('foo', 'bar');
+
+        wrapper.vm.removeClassesFromElements([
+            element1,
+            element2
+        ], ['foo'], [element2]);
+
+        expect(element1.classList.contains('bar')).toBeTruthy();
+        expect(element1.classList.contains('foo')).toBeFalsy();
+
+        expect(element2.classList.contains('bar')).toBeTruthy();
+        expect(element2.classList.contains('foo')).toBeTruthy();
+    });
+
+    it('should be able to check if a mouse position is in a polygon', async () => {
+        wrapper = await createWrapper();
+
+        const polygon = [
+            [0, 287],
+            [0, 335],
+            [300, 431],
+            [300, 287]
+        ];
+
+        const insideMousePosition = {
+            x: 10,
+            y: 300
+        };
+        expect(wrapper.vm.isPositionInPolygon(insideMousePosition.x, insideMousePosition.y, polygon)).toBeTruthy();
+
+        const outsideMousePosition = {
+            x: 1,
+            y: 1
+        };
+        expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBeFalsy();
+    });
+
+    it('should get polygon from menu item', async () => {
+        wrapper = await createWrapper();
+
+        const element = document.createElement('div');
+        const entry = {
+            children: [{
+                name: 'foo'
+            }]
+        };
+
+        expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
     });
 });

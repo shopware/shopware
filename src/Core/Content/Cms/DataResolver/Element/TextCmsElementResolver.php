@@ -37,7 +37,13 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isStatic()) {
-            $text->setContent((string) $config->getValue());
+            if ($resolverContext instanceof EntityResolverContext) {
+                $content = $this->resolveEntityValues($resolverContext, (string) $config->getValue());
+
+                $text->setContent((string) $content);
+            } else {
+                $text->setContent((string) $config->getValue());
+            }
         }
     }
 }

@@ -63,6 +63,12 @@ Component.register('sw-entity-multi-select', {
             required: true
         },
 
+        entityName: {
+            type: String,
+            required: false,
+            default: null
+        },
+
         context: {
             type: Object,
             required: false,
@@ -90,7 +96,7 @@ Component.register('sw-entity-multi-select', {
 
     computed: {
         repository() {
-            return this.repositoryFactory.create(this.entityCollection.entity);
+            return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },
 
         visibleValues() {

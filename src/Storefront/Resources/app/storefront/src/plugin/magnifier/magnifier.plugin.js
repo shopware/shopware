@@ -74,6 +74,13 @@ export default class MagnifierPlugin extends Plugin {
         magnifierOverGallery: false,
 
         /**
+         * scale size for zoomed image element
+         *
+         * @type boolean
+         */
+        scaleZoomImage: false,
+
+        /**
          * css cursor type when zoom is active
          *
          * @type string
@@ -222,7 +229,7 @@ export default class MagnifierPlugin extends Plugin {
     _setZoomImageSize(imageSize) {
         const factor = imageSize.y / imageSize.x;
         const zoomImageSize = this._getZoomImageSize();
-        const height = zoomImageSize.x * factor;
+        const height = this.options.scaleZoomImage ? zoomImageSize.x * factor : zoomImageSize.y;
         this._zoomImage.style.height = `${height}px`;
         this._zoomImage.style.minHeight = `${height}px`;
     }

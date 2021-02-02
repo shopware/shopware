@@ -9,7 +9,7 @@ const { Component } = Shopware;
  * @status ready
  * @example-type dynamic
  * @component-example
- * <sw-card title="Test title">
+ * <sw-card title="Test title" subtitle="Test subtitle">
  *     Your content
  * </sw-card>
  */
@@ -19,7 +19,13 @@ Component.register('sw-card', {
     props: {
         title: {
             type: String,
-            required: false
+            required: false,
+            default: ''
+        },
+        subtitle: {
+            type: String,
+            required: false,
+            default: ''
         },
         hero: {
             type: Boolean,

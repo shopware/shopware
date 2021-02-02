@@ -72,6 +72,15 @@
                                 </sw-tabs-item>
                             {% endblock %}
 
+                            {% block sw_promotion_v2_detail_content_tabs_conditions %}
+                                <sw-tabs-item
+                                    :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
+                                    :title="$tc('sw-promotion-v2.detail.tabs.tabConditions')"
+                                    :disabled="!promotionId">
+                                    {{ $tc('sw-promotion-v2.detail.tabs.tabConditions') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
                             {% block sw_promotion_v2_detail_content_tabs_discounts %}
                                 <sw-tabs-item
                                     :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
@@ -86,10 +95,12 @@
 
                     {% block sw_product_detail_content_view %}
                         <router-view
+                            v-if="promotion"
                             :promotion="promotion"
                             :isLoading="isLoading"
                             :isCreateMode="isCreateMode"
-                            @clean-up-codes="onCleanUpCodes">
+                            @clean-up-codes="onCleanUpCodes"
+                            @generate-individual-codes-finish="onGenerateIndividualCodesFinish">
                         </router-view>
                     {% endblock %}
 

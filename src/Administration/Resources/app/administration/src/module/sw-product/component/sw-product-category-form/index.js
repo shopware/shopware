@@ -1,4 +1,5 @@
 import template from './sw-product-category-form.html.twig';
+import './sw-product-category-form.scss';
 
 const { Component } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;

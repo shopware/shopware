@@ -144,7 +144,9 @@ describe('Search bar: Check main functionality', () => {
         cy.clickContextMenuItem(
             page.elements.showMediaAction,
             page.elements.contextMenuButton,
-            `${page.elements.gridItem}--0`
+            `${page.elements.gridItem}--0`,
+            '',
+            true
         );
 
         // Upload image in folder

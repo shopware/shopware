@@ -50,7 +50,8 @@
                         @column-sort="onSortColumn"
                         :disableDataFetching=true
                         :sortBy="sortBy"
-                        :sortDirection="sortDirection">
+                        :sortDirection="sortDirection"
+                        identifier="sw-review-list">
 
                         {% block sw_review_list_content_list_status %}
                             <template #column-status="{ item }">

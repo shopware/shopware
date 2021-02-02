@@ -68,7 +68,8 @@
                                        :sortDirection="sortDirection"
                                        @column-sort="onSortColumn"
                                        :disableDataFetching=true
-                                       @inline-edit-save="onInlineEditSave">
+                                       @inline-edit-save="onInlineEditSave"
+                                       identifier="sw-settings-currency-list">
 
                         {% block sw_settings_currency_list_grid_columns_actions %}
                             <template #actions="{ item }">

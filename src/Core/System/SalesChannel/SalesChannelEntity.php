@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -355,11 +356,16 @@ class SalesChannelEntity extends Entity
     protected $boundCustomers;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     *
+     * @var LandingPageCollection|null
+     */
+    protected $landingPages;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -987,19 +993,29 @@ class SalesChannelEntity extends Entity
         $this->boundCustomers = $boundCustomers;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function getLandingPages(): ?LandingPageCollection
+    {
+        return $this->landingPages;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12032)
+     */
+    public function setLandingPages(LandingPageCollection $landingPages): void
+    {
+        $this->landingPages = $landingPages;
     }
 }

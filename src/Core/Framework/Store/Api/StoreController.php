@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -30,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
  * @RouteScope(scopes={"api"})
  */
 class StoreController extends AbstractStoreController
@@ -247,15 +249,21 @@ class StoreController extends AbstractStoreController
             throw new StoreApiException($exception);
         }
 
-        $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
+        $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
         if ($statusCode !== Response::HTTP_OK) {
             return new JsonResponse(null, $statusCode);
         }
 
-        /** @var PluginEntity|null $plugin */
-        $plugin = $this->pluginRepo->search($criteria, $context)->first();
-        if ($plugin && $plugin->getUpgradeVersion()) {
-            $this->pluginLifecycleService->updatePlugin($plugin, $context);
+        /*
+         * @deprecated tag:v6.4.0 - (flag:FEATURE_NEXT_12957) Plugin download and update will be handled separately
+         */
+        if (!Feature::isActive('FEATURE_NEXT_12957')) {
+            /** @var PluginEntity|null $plugin */
+            $plugin = $this->pluginRepo->search($criteria, $context)->first();
+
+            if ($plugin && $plugin->getUpgradeVersion()) {
+                $this->pluginLifecycleService->updatePlugin($plugin, $context);
+            }
         }
 
         return new JsonResponse();
@@ -321,5 +329,10 @@ class StoreController extends AbstractStoreController
             'total' => $searchResult->count(),
             'items' => $plugins,
         ]);
+    }
+
+    public function categoriesAction(Context $context): Response
+    {
+        return new JsonResponse($this->storeClient->getCategories($context));
     }
 }

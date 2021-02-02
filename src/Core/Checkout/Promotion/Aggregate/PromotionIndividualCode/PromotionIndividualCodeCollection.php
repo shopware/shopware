@@ -20,6 +20,19 @@ class PromotionIndividualCodeCollection extends EntityCollection
         return 'promotion_individual_code_collection';
     }
 
+    /**
+     * @returns string[]
+     */
+    public function getCodeArray(): array
+    {
+        $codes = [];
+        foreach ($this->getIterator() as $codeEntity) {
+            $codes[] = $codeEntity->getCode();
+        }
+
+        return $codes;
+    }
+
     protected function getExpectedClass(): string
     {
         return PromotionIndividualCodeEntity::class;

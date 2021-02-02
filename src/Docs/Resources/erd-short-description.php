@@ -227,4 +227,7 @@ return [
     Shopware\Core\Framework\Webhook\WebhookDefinition::class => 'Webhooks',
     'Shopware\\Core\\Framework\\App' => 'App system',
     'Shopware\\Core\\Framework\\Webhook' => 'Webhooks',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition::class => '__EMPTY__',
+    Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition::class => '__EMPTY__',
+    Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition::class => 'User Config',
 ];

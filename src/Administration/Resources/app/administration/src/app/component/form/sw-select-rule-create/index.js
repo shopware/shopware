@@ -47,7 +47,7 @@ Component.register('sw-select-rule-create', {
             type: Object,
             required: false,
             default() {
-                const criteria = new Criteria(1, Shopware.Context.api);
+                const criteria = new Criteria();
                 criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
                 return criteria;

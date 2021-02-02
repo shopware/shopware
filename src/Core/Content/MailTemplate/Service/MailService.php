@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\Exception\FeatureActiveException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -23,6 +25,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) MailService will be removed, use MailService instead
+ */
 class MailService implements MailServiceInterface
 {
     /**
@@ -108,12 +113,19 @@ class MailService implements MailServiceInterface
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
+        if (Feature::isActive('FEATURE_NEXT_12246')) {
+            throw new FeatureActiveException('FEATURE_NEXT_12246');
+        }
+
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
         if ($mailBeforeValidateEvent->isPropagationStopped()) {
             return null;
         }
+
+        $data = $mailBeforeValidateEvent->getData();
+        $templateData = $mailBeforeValidateEvent->getTemplateData();
 
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -140,6 +152,7 @@ class MailService implements MailServiceInterface
         $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
+        $this->templateRenderer->initialize();
         if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
             $this->templateRenderer->enableTestMode();
         }
@@ -196,6 +209,7 @@ class MailService implements MailServiceInterface
         }
 
         $this->enrichMessage($message, $data);
+
         $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
         $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 

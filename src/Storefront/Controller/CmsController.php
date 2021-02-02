@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,11 +51,6 @@ class CmsController extends StorefrontController
     private $productRoute;
 
     /**
-     * @var ProductConfiguratorLoader;
-     */
-    private $productConfiguratorLoader;
-
-    /**
      * @var ProductReviewLoader
      */
     private $productReviewLoader;
@@ -71,7 +65,6 @@ class CmsController extends StorefrontController
         AbstractCategoryRoute $categoryRoute,
         AbstractProductListingRoute $listingRoute,
         AbstractProductDetailRoute $productRoute,
-        ProductConfiguratorLoader $productConfiguratorLoader,
         ProductReviewLoader $productReviewLoader,
         ProductCombinationFinder $combinationFinder
     ) {
@@ -79,7 +72,6 @@ class CmsController extends StorefrontController
         $this->categoryRoute = $categoryRoute;
         $this->listingRoute = $listingRoute;
         $this->productRoute = $productRoute;
-        $this->productConfiguratorLoader = $productConfiguratorLoader;
         $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
     }
@@ -207,7 +199,7 @@ class CmsController extends StorefrontController
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();
-        $configurator = $this->productConfiguratorLoader->load($product, $context);
+        $configurator = $result->getConfigurator();
 
         $request->request->set('parentId', $product->getParentId());
         $request->request->set('productId', $product->getId());

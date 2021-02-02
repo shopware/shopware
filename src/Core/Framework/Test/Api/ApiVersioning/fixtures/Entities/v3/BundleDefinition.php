@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -44,17 +45,15 @@ class BundleDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new TranslatedField('name'),
-            new TranslatedField('translatedDescription'),
-            (new LongTextField('description', 'description'))->addFlags(new Deprecated('v2', 'v3', 'translatedDescription')),
-            (new BoolField('is_absolute', 'isAbsolute'))->addFlags(new Required()),
-            (new FloatField('discount', 'discount'))->addFlags(new Required()),
-            new FloatField('pseudo_price', 'pseudoPrice'),
-
-            new TranslationsAssociationField(BundleTranslationDefinition::class, '_test_bundle_id'),
-
-            new OneToManyAssociationField('prices', BundlePriceDefinition::class, 'bundle_id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            (new TranslatedField('translatedDescription'))->addFlags(new ApiAware()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new Deprecated('v2', 'v3', 'translatedDescription')),
+            (new BoolField('is_absolute', 'isAbsolute'))->addFlags(new ApiAware(), new Required()),
+            (new FloatField('discount', 'discount'))->addFlags(new ApiAware(), new Required()),
+            (new FloatField('pseudo_price', 'pseudoPrice'))->addFlags(new ApiAware()),
+            (new TranslationsAssociationField(BundleTranslationDefinition::class, '_test_bundle_id'))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('prices', BundlePriceDefinition::class, 'bundle_id'))->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Theme\Extension;
 
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -17,11 +15,11 @@ class MediaExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new OneToManyAssociationField('themes', ThemeDefinition::class, 'preview_media_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class))
+            new OneToManyAssociationField('themes', ThemeDefinition::class, 'preview_media_id')
         );
 
         $collection->add(
-            (new ManyToManyAssociationField('themeMedia', ThemeDefinition::class, ThemeMediaDefinition::class, 'media_id', 'theme_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class))
+            new ManyToManyAssociationField('themeMedia', ThemeDefinition::class, ThemeMediaDefinition::class, 'media_id', 'theme_id')
         );
     }
 

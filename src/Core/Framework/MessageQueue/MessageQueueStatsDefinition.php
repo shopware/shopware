@@ -44,9 +44,9 @@ class MessageQueueStatsDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new StringField('name', 'name'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new IntField('size', 'size', 0))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('name', 'name'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('size', 'size', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

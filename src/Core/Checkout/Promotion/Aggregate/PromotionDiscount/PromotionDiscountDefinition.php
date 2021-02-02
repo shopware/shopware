@@ -64,8 +64,7 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new StringField('applier_key', 'applierKey', 32)),
             (new StringField('usage_key', 'usageKey', 32)),
             (new StringField('picker_key', 'pickerKey', 32)),
-
-            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
+            (new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'))->addFlags(),
             (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('promotionDiscountPrices', PromotionDiscountPriceDefinition::class, 'discount_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

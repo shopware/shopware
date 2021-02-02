@@ -6,10 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -149,10 +147,6 @@ class SalesChannelApiControllerTest extends TestCase
         $productDefinition = $definitionRegistry->get(ProductDefinition::class);
 
         static::assertNotNull($productDefinition->getField('searchKeywords'));
-
-        $flag = $productDefinition->getField('searchKeywords')->getFlag(ReadProtected::class);
-        static::assertNotNull($flag);
-        static::assertFalse($flag->isSourceAllowed(SalesChannelApiSource::class));
 
         $id = Uuid::randomHex();
         $data = [

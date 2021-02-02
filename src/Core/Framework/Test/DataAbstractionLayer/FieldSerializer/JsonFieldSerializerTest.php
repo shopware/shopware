@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
@@ -137,7 +138,7 @@ class JsonFieldSerializerTest extends TestCase
 
     public function testRequiredValidationThrowsError(): void
     {
-        $field = (new JsonField('data', 'data'))->addFlags(new Required());
+        $field = (new JsonField('data', 'data'))->addFlags(new ApiAware(), new Required());
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', null, true);

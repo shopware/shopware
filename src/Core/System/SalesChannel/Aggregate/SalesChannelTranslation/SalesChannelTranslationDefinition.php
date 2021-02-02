@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -41,8 +42,8 @@ class SalesChannelTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -6,13 +6,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -75,25 +74,23 @@ class ProductCrossSellingDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField('name'))->addFlags(new Required()),
-            (new IntField('position', 'position', 0))->addFlags(new Required()),
-            new StringField('sort_by', 'sortBy'),
-            new StringField('sort_direction', 'sortDirection'),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            new BoolField('active', 'active'),
-            new IntField('limit', 'limit', 0),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new TranslatedField('name'))->addFlags(new ApiAware(), new Required()),
+            (new IntField('position', 'position', 0))->addFlags(new ApiAware(), new Required()),
+            (new StringField('sort_by', 'sortBy'))->addFlags(new ApiAware()),
+            (new StringField('sort_direction', 'sortDirection'))->addFlags(new ApiAware()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware()),
+            (new IntField('limit', 'limit', 0))->addFlags(new ApiAware()),
 
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             (new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class))->addFlags(new ReverseInherited('crossSellings')),
 
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class)),
-            (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new OneToManyAssociationField('assignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'cross_selling_id'))
-                ->addFlags(new CascadeDelete()),
-
-            new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'),
+            (new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class)),
+            (new OneToManyAssociationField('assignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'cross_selling_id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(ProductCrossSellingTranslationDefinition::class, 'product_cross_selling_id'))->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -27,10 +28,10 @@ class CustomFieldPlainTestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
 
-            (new StringField('name', 'name'))->setFlags(new Inherited()),
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new Inherited()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

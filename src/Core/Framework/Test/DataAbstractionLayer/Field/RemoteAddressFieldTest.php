@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
@@ -39,7 +40,7 @@ class RemoteAddressFieldTest extends TestCase
 
         $this->expectException(InvalidSerializerFieldException::class);
         $serializer->encode(
-            new IntField('remote_address', 'remoteAddress'),
+            (new IntField('remote_address', 'remoteAddress'))->addFlags(new ApiAware()),
             $this->getEntityExisting(),
             $data,
             $this->getWriteParameterBagMock()

@@ -205,37 +205,6 @@ class NavigationRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response[0]);
     }
 
-    public function testAssociation(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/main-navigation/main-navigation',
-                [
-                ]
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        static::assertEmpty($response[0]['tags']);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/navigation/main-navigation/main-navigation',
-                [
-                    'associations' => [
-                        'tags' => [],
-                    ],
-                ]
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        static::assertNotEmpty($response[0]['tags']);
-        static::assertCount(1, $response[0]['tags']);
-    }
-
     private function createData(): void
     {
         $data = [

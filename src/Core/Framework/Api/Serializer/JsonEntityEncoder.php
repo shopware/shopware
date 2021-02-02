@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -135,10 +135,9 @@ class JsonEntityEncoder
 
                 continue;
             }
-
-            /** @var ReadProtected|null $readProtected */
-            $readProtected = $field->getFlag(ReadProtected::class);
-            if ($readProtected && !$readProtected->isBaseUrlAllowed($baseUrl)) {
+            /** @var ApiAware|null $flag */
+            $flag = $field->getFlag(ApiAware::class);
+            if ($flag === null || !$flag->isBaseUrlAllowed($baseUrl)) {
                 unset($decoded[$key]);
 
                 continue;

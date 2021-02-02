@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -29,11 +30,11 @@ class TestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('description', 'description'),
-            new TranslatedField('name'),
-            new TranslationsAssociationField(TestTranslationDefinition::class, '_test_lock_id'),
-            new LockedField(),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new StringField('description', 'description'))->addFlags(new ApiAware()),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            (new TranslationsAssociationField(TestTranslationDefinition::class, '_test_lock_id'))->addFlags(new ApiAware()),
+            (new LockedField())->addFlags(new ApiAware()),
         ]);
     }
 }

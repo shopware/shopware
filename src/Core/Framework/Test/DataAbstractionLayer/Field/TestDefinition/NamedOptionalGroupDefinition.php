@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -26,6 +27,6 @@ class NamedOptionalGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new Required()), new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id')]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()), new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id')]);
     }
 }

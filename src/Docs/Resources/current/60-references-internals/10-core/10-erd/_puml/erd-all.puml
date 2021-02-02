@@ -34,11 +34,11 @@ Table(ShopwareCoreFrameworkLogLogEntryDefinition, "log_entry\n(Logs)") {
 }
 Table(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role\n(Acl role)") {
    primary_key(id) id
-   not_null(createdAt) createdAt
-   updatedAt updatedAt
    not_null(name) string
    description longText
    not_null(privileges) list
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
    primary_key(userId) foreignKey
@@ -1047,8 +1047,8 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    points float
    status bool
    comment longText
-   updatedAt updatedAt
    not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -1456,9 +1456,9 @@ Table(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDe
    name translated
    not_null(technicalName) string
    availableEntities json
+   customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
-   customFields translated
    translated json
 }
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition, "mail_template_type_translation\n((Translations))") {
@@ -1553,8 +1553,8 @@ Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDe
    not_null(path) string
    not_null(expireDate) dateTime
    size int
-   not_null(createdAt) createdAt
    not_null(accessToken) string
+   not_null(createdAt) createdAt
    updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreContentImportExportImportExportProfileTranslationDefinition, "import_export_profile_translation\n((Translations))") {
@@ -2368,9 +2368,9 @@ ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreConten
 ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
-ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
 ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition

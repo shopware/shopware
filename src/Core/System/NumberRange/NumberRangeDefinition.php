@@ -52,7 +52,6 @@ class NumberRangeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('type_id', 'typeId', NumberRangeTypeDefinition::class))->addFlags(new Required()),
-
             (new BoolField('global', 'global'))->addFlags(new Required()),
             new TranslatedField('name'),
             new TranslatedField('description'),

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -40,26 +41,26 @@ class CustomFieldService implements EventSubscriberInterface
 
         switch ($type) {
             case CustomFieldTypes::INT:
-                return new IntField($attributeName, $attributeName);
+                return (new IntField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::FLOAT:
-                return new FloatField($attributeName, $attributeName);
+                return (new FloatField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::BOOL:
-                return new BoolField($attributeName, $attributeName);
+                return (new BoolField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::DATETIME:
-                return new DateTimeField($attributeName, $attributeName);
+                return (new DateTimeField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::TEXT:
-                return new LongTextField($attributeName, $attributeName);
+                return (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::HTML:
-                return (new LongTextField($attributeName, $attributeName))->addFlags(new AllowHtml());
+                return (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware(), new AllowHtml());
 
             case CustomFieldTypes::JSON:
             default:
-                return new JsonField($attributeName, $attributeName);
+                return (new JsonField($attributeName, $attributeName))->addFlags(new ApiAware());
         }
     }
 

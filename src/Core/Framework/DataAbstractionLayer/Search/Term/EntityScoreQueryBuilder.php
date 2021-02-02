@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -105,13 +105,13 @@ class EntityScoreQueryBuilder
 
         // exclude read protected fields which are not allowed for the current scope
         $fields = $fields->filter(function (Field $field) use ($context) {
-            /** @var ReadProtected|null $flag */
-            $flag = $field->getFlag(ReadProtected::class);
-            if (!$flag) {
-                return true;
+            /** @var ApiAware|null $flag */
+            $flag = $field->getFlag(ApiAware::class);
+            if ($flag === null) {
+                return false;
             }
 
-            return $flag->isSourceAllowed($context->getScope());
+            return $flag->isSourceAllowed(\get_class($context->getSource()));
         });
 
         if ($fields->count() > 0) {

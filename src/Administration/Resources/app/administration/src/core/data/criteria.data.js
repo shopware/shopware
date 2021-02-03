@@ -451,6 +451,36 @@ export default class Criteria {
     }
 
     /**
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter.
+     * This allows to filter documents where the value marks the beginning of the provided field.
+     *
+     * Sql representation: `{field} LIKE {value}%`
+     *
+     * @param {string} field
+     * @param {string} value
+     *
+     * @returns {Object}
+     */
+    static prefix(field, value) {
+        return { type: 'prefix', field, value };
+    }
+
+    /**
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter.
+     * This allows to filter documents where the value marks the end of the provided field.
+     *
+     * Sql representation: `{field} LIKE %{value}`
+     *
+     * @param {string} field
+     * @param {string} value
+     *
+     * @returns {Object}
+     */
+    static suffix(field, value) {
+        return { type: 'suffix', field, value };
+    }
+
+    /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
      * This allows to filter documents where the field matches one of the provided values
      *

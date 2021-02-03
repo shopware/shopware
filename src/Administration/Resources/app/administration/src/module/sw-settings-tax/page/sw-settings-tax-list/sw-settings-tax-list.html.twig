@@ -68,7 +68,7 @@
                                         :allowEdit="acl.can('tax.editor')"
                                         :allowInlineEdit="acl.can('tax.editor')"
                                         :allowDelete="acl.can('tax.deleter')"
-                                        :disableDataFetching=true
+                                        :disableDataFetching="true"
                                         @column-sort="onSortColumn"
                                         @page-change="onPageChange"
                                         :sortBy="sortBy"

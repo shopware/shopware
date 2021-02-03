@@ -22,7 +22,7 @@
             "dev-master": "6.3.x-dev"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "ext-curl": "*",
         "doctrine/dbal": "2.10.1",

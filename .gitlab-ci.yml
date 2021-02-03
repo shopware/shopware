@@ -502,6 +502,8 @@ Symfony security check:
             - schedules
             - pipelines
     image: shopware/development:latest
+    variables:
+        PLATFORM_PACKAGES: ". src/Core src/Administration src/Docs src/Elasticsearch src/Recovery src/Storefront"
     script:
         - composer install --no-interaction --no-scripts
         - curl --location --output local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
@@ -511,6 +513,12 @@ Symfony security check:
         - ./local-php-security-checker
         - composer install --no-interaction --no-scripts -d vendor/shopware/platform/src/Recovery
         - ./local-php-security-checker --path=vendor/shopware/platform/src/Recovery
+        - >
+            for PLATFORM_PACKAGE in $PLATFORM_PACKAGES; do
+                echo "Testing vendor/shopware/platform/$PLATFORM_PACKAGE"
+                composer install --no-interaction --no-scripts -d vendor/shopware/platform/$PLATFORM_PACKAGE
+                ./local-php-security-checker --path=vendor/shopware/platform/$PLATFORM_PACKAGE
+            done
 
 NPM security check:
     stage: Security

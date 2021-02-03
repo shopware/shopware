@@ -16,16 +16,24 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /** @var SalesChannelContextFactory */
+    /**
+     * @var SalesChannelContextFactory
+     */
     private $salesChannelContextFactory;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $salesChannelRepository;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productExportRepository;
 
-    /** @var MessageBusInterface */
+    /**
+     * @var MessageBusInterface
+     */
     private $messageBus;
 
     public function __construct(
@@ -85,10 +93,17 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 return;
             }
 
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
             /** @var ProductExportEntity $productExport */
             foreach ($productExports as $productExport) {
-                $message = new ProductExportPartialGeneration($productExport->getId(), $salesChannelId);
-                $this->messageBus->dispatch($message);
+                // Make sure the product export is due to be exported
+                if ($productExport->getGeneratedAt() !== null) {
+                    if ($now->getTimestamp() - $productExport->getGeneratedAt()->getTimestamp() < $productExport->getInterval()) {
+                        continue;
+                    }
+                }
+                $this->messageBus->dispatch(new ProductExportPartialGeneration($productExport->getId(), $salesChannelId));
             }
         }
     }

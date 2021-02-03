@@ -167,7 +167,7 @@ class SeoUrlGenerator
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 
         try {
-            $this->twig->loadTemplate('template');
+            $this->twig->loadTemplate($this->twig->getTemplateClass('template'), 'template');
         } catch (SyntaxError $syntaxError) {
             if (!$config->getSkipInvalid()) {
                 throw new InvalidTemplateException('Syntax error: ' . $syntaxError->getMessage());

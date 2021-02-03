@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 abstract class Bundle extends SymfonyBundle
@@ -62,26 +62,26 @@ abstract class Bundle extends SymfonyBundle
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
     }
 
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
         $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
         if ($fileSystem->exists($confDir)) {
-            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, '/', 'glob');
-            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
+            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
+            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
+            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, 'glob');
         }
     }
 
-    public function configureRouteOverwrites(RouteCollectionBuilder $routes, string $environment): void
+    public function configureRouteOverwrites(RoutingConfigurator $routes, string $environment): void
     {
         $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
         if ($fileSystem->exists($confDir)) {
-            $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, '/', 'glob');
+            $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
         }
     }
 

@@ -263,10 +263,6 @@ class MigrationCollectionRuntimeTest extends TestCase
     public function testIgnoreingInvalidMigrations(): void
     {
         $logger = $this->createMock(Logger::class);
-        $logger
-            ->expects(static::once())
-            ->method('notice')
-            ->willReturn(null);
 
         $connection = $this->createMock(Connection::class);
 

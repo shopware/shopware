@@ -255,7 +255,7 @@ final class FirstRunWizardClient
         return $regions;
     }
 
-    public function getRecommendations(string $language, PluginCollection $pluginCollection, string $region, ?string $category): PluginRecommendationCollection
+    public function getRecommendations(string $language, PluginCollection $pluginCollection, ?string $region, ?string $category): PluginRecommendationCollection
     {
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['region'] = $query['market'] = $region;

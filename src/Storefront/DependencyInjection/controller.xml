@@ -144,7 +144,7 @@
 
         <service id="Shopware\Storefront\Controller\ErrorController" lazy="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
-            <argument type="service" id="session.flash_bag"/>
+            <argument type="service" id="session"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader"/>
@@ -234,6 +234,9 @@
             <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">

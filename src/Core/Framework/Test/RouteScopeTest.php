@@ -18,7 +18,11 @@ class RouteScopeTest extends KernelTestBehaviourTest
         $errorMessage = 'No RouteScope defined for following Methods';
 
         foreach ($routeCollection as $route) {
-            $controllerMethod = explode('::', $route->getDefault('_controller'));
+            if (!$controllerMethod = $route->getDefault('_controller')) {
+                continue;
+            }
+
+            $controllerMethod = explode('::', $controllerMethod);
             $routeMethodReflection = new \ReflectionMethod($controllerMethod[0], $controllerMethod[1]);
             $docBlock = $routeMethodReflection->getDocComment() ?: '';
             $pattern = "#@([a-zA-Z]+\s*)#";

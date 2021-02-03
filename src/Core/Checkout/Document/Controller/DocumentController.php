@@ -87,7 +87,8 @@ class DocumentController extends AbstractController
         string $documentTypeName,
         Context $context
     ): Response {
-        $config = $request->query->has('config') ? json_decode($request->query->get('config'), true) : [];
+        $config = $request->query->get('config');
+        $config = $config !== null ? json_decode($config, true) : [];
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);

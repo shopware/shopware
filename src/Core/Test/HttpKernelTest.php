@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 class HttpKernelTest extends TestCase
@@ -46,6 +48,9 @@ class HttpKernelTest extends TestCase
     }
 }
 
+/**
+ * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+ */
 class TestKernel extends Kernel
 {
     public function __construct()
@@ -61,12 +66,12 @@ class TestKernel extends Kernel
         ));
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'test_kernel';
     }
 
-    public function getRootDir()
+    public function getRootDir(): string
     {
         return __DIR__;
     }

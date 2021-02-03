@@ -20,7 +20,7 @@ class ApiRouteLoader extends Loader
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function load($resource, $type = null): RouteCollection
+    public function load($resource, ?string $type = null): RouteCollection
     {
         if ($this->isLoaded) {
             throw new \RuntimeException('Do not add the "api" loader twice');
@@ -35,7 +35,7 @@ class ApiRouteLoader extends Loader
         return $routes;
     }
 
-    public function supports($resource, $type = null): bool
+    public function supports($resource, ?string $type = null): bool
     {
         return $type === 'api';
     }

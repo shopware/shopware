@@ -12,21 +12,19 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
-use Symfony\Component\Translation\Exception\LogicException;
-use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
-use Symfony\Component\Translation\TranslatorInterface as LegacyTranslatorInterface;
+use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyTranslatorInterface
+class Translator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
     use TranslatorTrait;
 
     /**
-     * @var TranslatorInterface|TranslatorBagInterface|LegacyTranslatorInterface
+     * @var TranslatorInterface|TranslatorBagInterface|LocaleAwareInterface
      */
     private $translator;
 
@@ -101,7 +99,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue($locale = null): MessageCatalogueInterface
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         $catalog = $this->translator->getCatalogue($locale);
 
@@ -127,40 +125,13 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
+    public function trans($id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if ($domain === null) {
             $domain = 'messages';
         }
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale, $parameters);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
-    {
-        if (!$this->formatter instanceof ChoiceMessageFormatterInterface) {
-            throw new LogicException(sprintf('The formatter "%s" does not support plural translations.', \get_class($this->formatter)));
-        }
-
-        if ($domain === null) {
-            $domain = 'messages';
-        }
-
-        $catalogue = $this->getCatalogue($locale);
-        $locale = $catalogue->getLocale();
-        while (!$catalogue->defines($id, $domain)) {
-            if ($cat = $catalogue->getFallbackCatalogue()) {
-                $catalogue = $cat;
-                $locale = $catalogue->getLocale();
-            } else {
-                break;
-            }
-        }
-
-        return $this->formatter->choiceFormat($catalogue->get($id, $domain), $number, $locale, $parameters);
+        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
     }
 
     /**

@@ -52,7 +52,7 @@ class TwigSwExtendsTest extends TestCase
 
         $templatePath = $templateFinder->find('@Storefront/storefront/frontend/base.html.twig');
 
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
 
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
     }
@@ -67,7 +67,7 @@ class TwigSwExtendsTest extends TestCase
 
         $templatePath = $templateFinder->find('@Storefront/storefront/frontend/extend_template_in_same_plugin.html.twig');
 
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
 
         static::assertSame('Base/TestPlugin1/TestPlugin2/TestPlugin2Content', $template->render([]));
     }
@@ -82,7 +82,7 @@ class TwigSwExtendsTest extends TestCase
 
         $templatePath = $templateFinder->find('@Storefront/storefront/frontend/extend_base_template_in_same_plugin.html.twig');
 
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
 
         static::assertSame('Base/TestPlugin1/TestPlugin2/StorefrontContent/TestPlugin2Content', $template->render([]));
     }
@@ -98,7 +98,7 @@ class TwigSwExtendsTest extends TestCase
         ]);
 
         $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
         static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
 
         [$twig, $templateFinder] = $this->createFinder([
@@ -107,7 +107,7 @@ class TwigSwExtendsTest extends TestCase
         ]);
 
         $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
         static::assertSame('Base/TestPlugin2', $template->render([]));
     }
 
@@ -120,7 +120,7 @@ class TwigSwExtendsTest extends TestCase
         ]);
 
         $templatePath = $templateFinder->find('@TestPlugin1/storefront/frontend/new_template.html.twig');
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
 
         $template->render([]);
         static::assertSame('AnotherBaseTestPlugin1TestPlugin2', $template->render([]));
@@ -136,7 +136,7 @@ class TwigSwExtendsTest extends TestCase
 
         // order is  important for this test. 2 needs to be loaded before 1
         $templatePath = $templateFinder->find('@Storefront/storefront/frontend/testExtendWithLoop/loop.html.twig');
-        $template = $twig->loadTemplate($templatePath);
+        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
 
         $template->render([]);
         static::assertSame(

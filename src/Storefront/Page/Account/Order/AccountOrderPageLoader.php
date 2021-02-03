@@ -114,8 +114,10 @@ class AccountOrderPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = (int) $request->query->get('limit', 10);
-        $page = (int) $request->query->get('p', 1);
+        $limit = $request->query->get('limit');
+        $limit = $limit ? (int) $limit : 10;
+        $page = $request->query->get('p');
+        $page = $page ? (int) $page : 1;
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))

@@ -52,8 +52,8 @@ class NavigationLoader implements NavigationLoaderInterface
     public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree
     {
         $request = new Request();
-        $request->query->set('buildTree', false);
-        $request->query->set('depth', $depth);
+        $request->query->set('buildTree', 'false');
+        $request->query->set('depth', (string) $depth);
 
         $criteria = new Criteria();
         $criteria->setTitle('header::navigation');

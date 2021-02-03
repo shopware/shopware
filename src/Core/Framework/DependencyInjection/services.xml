@@ -252,6 +252,9 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">

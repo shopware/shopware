@@ -22,7 +22,7 @@ class ConfigurableFilesystemCache extends FilesystemCache
         parent::__construct($directory, $options);
     }
 
-    public function generateKey($name, $className): string
+    public function generateKey(string $name, string $className): string
     {
         $hash = hash('sha256', $className . $this->configHash);
 

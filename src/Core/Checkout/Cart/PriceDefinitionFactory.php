@@ -21,7 +21,7 @@ class PriceDefinitionFactory
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($priceDefinition);
             case AbsolutePriceDefinition::TYPE:
-                return new AbsolutePriceDefinition($priceDefinition['price']);
+                return new AbsolutePriceDefinition((float) $priceDefinition['price']);
             case PercentagePriceDefinition::TYPE:
                 return new PercentagePriceDefinition($priceDefinition['percentage']);
         }

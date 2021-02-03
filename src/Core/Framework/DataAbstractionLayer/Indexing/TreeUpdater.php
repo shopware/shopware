@@ -150,7 +150,9 @@ class TreeUpdater
                 $versionId = $result['parent_version_id'];
             }
             $result['parent'] = $this->loadParents($result['parent_id'], $definition, $versionId);
-            $result['parentCount'] = $result['parent']['parentCount'] + 1;
+            if (isset($result['parent']['parentCount'])) {
+                $result['parentCount'] = $result['parent']['parentCount'] + 1;
+            }
         }
 
         return $result;

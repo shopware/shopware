@@ -40,7 +40,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return SymfonyRouter::getSubscribedServices();
     }
 
-    public function warmUp($cacheDir)
+    public function warmUp(string $cacheDir)
     {
         return $this->decorated->warmUp($cacheDir);
     }
@@ -76,7 +76,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->getRouteCollection();
     }
 
-    public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
+    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH)
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {

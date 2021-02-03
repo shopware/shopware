@@ -1826,26 +1826,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Filesystem/PrefixFilesystem.php
 
 		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Component\\\\Translation\\\\TranslatorInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getCatalogue\\(\\)\\.$#"
-			count: 2
-			path: src/Core/Framework/Adapter/Translation/Translator.php
-
-		-
-			message: "#^Parameter \\#2 \\$locale of method Symfony\\\\Component\\\\Translation\\\\Formatter\\\\MessageFormatterInterface\\:\\:format\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Translation/Translator.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Component\\\\Translation\\\\TranslatorInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:setLocale\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Translation/Translator.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Component\\\\Translation\\\\TranslatorInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getLocale\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Translation/Translator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Translation\\\\Translator\\:\\:warmUp\\(\\) has parameter \\$cacheDir with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Translation/Translator.php
@@ -4906,11 +4886,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/CacheStore.php
 
 		-
-			message: "#^Parameter \\#1 \\$uri of static method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:create\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Framework/Cache/CacheStore.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmerRegistry\\:\\:\\$warmers \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmer\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheRouteWarmerRegistry.php
@@ -4959,11 +4934,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult\\:\\:getPageCount\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Page/StorefrontSearchResult.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:warmUp\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:setContext\\(\\) has no return typehint specified\\.$#"

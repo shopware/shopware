@@ -13,8 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
 {
@@ -233,13 +233,13 @@ class Kernel extends HttpKernel
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
 
-        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, 'glob');
+        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
+        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, 'glob');
 
         $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
@@ -331,37 +331,37 @@ class Kernel extends HttpKernel
         $connection->executeQuery(implode(';', $connectionVariables));
     }
 
-    private function addApiRoutes(RouteCollectionBuilder $routes): void
+    private function addApiRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import('.', null, 'api');
+        $routes->import('.', 'api');
     }
 
-    private function addBundleRoutes(RouteCollectionBuilder $routes): void
+    private function addBundleRoutes(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
-                $bundle->configureRoutes($routes, (string) $this->environment);
+                $bundle->configureRoutes($routes, $this->environment);
             }
         }
     }
 
-    private function addBundleOverwrites(RouteCollectionBuilder $routes): void
+    private function addBundleOverwrites(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
-                $bundle->configureRouteOverwrites($routes, (string) $this->environment);
+                $bundle->configureRouteOverwrites($routes, $this->environment);
             }
         }
     }
 
-    private function addFallbackRoute(RouteCollectionBuilder $routes): void
+    private function addFallbackRoute(RoutingConfigurator $routes): void
     {
         // detail routes
         $route = new Route('/');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', FallbackController::class . '::rootFallback');
 
-        $routes->addRoute($route, 'root.fallback');
+        $routes->add('root.fallback', $route->getPath());
     }
 
     private function parseShopwareVersion(?string $version): void

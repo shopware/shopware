@@ -167,7 +167,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     private function validateRequest(SalesChannelContext $salesChannelContext, string $paymentMethodId): void
     {
         $paymentRequest = new Request();
-        $paymentRequest->query->set('onlyAvailable', 1);
+        $paymentRequest->query->set('onlyAvailable', '1');
 
         $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 

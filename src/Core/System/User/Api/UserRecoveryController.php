@@ -46,7 +46,7 @@ class UserRecoveryController extends AbstractController
     {
         $hash = $request->query->get('hash');
 
-        if ($this->userRecoveryService->checkHash($hash, $context)) {
+        if ($hash !== null && $this->userRecoveryService->checkHash($hash, $context)) {
             return new Response();
         }
 

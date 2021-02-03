@@ -37,7 +37,7 @@ class ConnectionProfiler implements DataCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(Request $request, Response $response, ?\Exception $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         if (!$this->logger || !$this->logger instanceof DebugStack) {
             $this->data['queries'] = [];

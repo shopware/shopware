@@ -15,12 +15,18 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"
                       on-invalid="null"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="user.repository" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler"/>
@@ -94,6 +100,9 @@
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreCategoryController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreCategoryProvider"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
@@ -121,6 +130,9 @@
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreDataController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
@@ -144,6 +156,9 @@
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
@@ -168,6 +183,9 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
     </services>

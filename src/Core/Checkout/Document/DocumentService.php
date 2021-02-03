@@ -258,6 +258,7 @@ class DocumentService
 
         $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
 
+        /** @var string $fileName */
         $fileName = $uploadedFileRequest->query->get('fileName');
 
         $mediaService = $this->mediaService;

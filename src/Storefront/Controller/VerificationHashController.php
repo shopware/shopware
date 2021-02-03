@@ -33,13 +33,14 @@ class VerificationHashController extends AbstractController
      */
     public function load(): Response
     {
+        /** @var string $verificationHash */
         $verificationHash = $this->systemConfigService->get('core.store.verificationHash');
 
         if (empty($verificationHash)) {
             throw new VerificationHashNotConfiguredException();
         }
 
-        return Response::create(
+        return new Response(
             $verificationHash,
             Response::HTTP_OK,
             ['Content-Type' => 'text/plain']

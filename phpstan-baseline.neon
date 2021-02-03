@@ -641,16 +641,6 @@ parameters:
 			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
 
 		-
-			message: "#^Parameter \\#1 \\$keyPath of class League\\\\OAuth2\\\\Server\\\\CryptKey constructor expects string, Lcobucci\\\\JWT\\\\Signer\\\\Key\\|string given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php
-
-		-
-			message: "#^Parameter \\#1 \\$subject of method Lcobucci\\\\JWT\\\\Builder\\:\\:setSubject\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php
-
-		-
 			message: "#^Parameter \\#1 \\$paymentMethodId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentHandlerById\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php
@@ -2674,11 +2664,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\AccessToken\\:\\:\\$userIdentifier \\(string\\) does not accept int\\|string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/AccessToken.php
-
-		-
-			message: "#^Parameter \\#2 \\$clientSecret of method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ClientRepository\\:\\:getByAccessKey\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ClientRepository.php
 
 		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"

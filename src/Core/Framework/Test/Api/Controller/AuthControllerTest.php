@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Lcobucci\JWT\Parser;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -53,14 +53,17 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('POST', '/api/oauth/token', $authPayload);
 
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
-        static::assertEquals('The user credentials were incorrect.', $response['errors'][0]['title']);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
+
+        // invalid credentials should throw invalid_grant message, as by OAuth 2 specs
+        // see https://github.com/thephpleague/oauth2-server/pull/967
+        static::assertEquals(OAuthServerException::invalidGrant()->getMessage(), $response['errors'][0]['title']);
     }
 
     public function testAccessWithInvalidToken(): void
@@ -271,7 +274,8 @@ class AuthControllerTest extends TestCase
     public function testDefaultAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -285,7 +289,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+        $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
     }
@@ -293,7 +297,8 @@ class AuthControllerTest extends TestCase
     public function testUniqueAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -307,7 +312,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+        $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
     }
@@ -315,7 +320,8 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesChangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -337,7 +343,7 @@ class AuthControllerTest extends TestCase
 
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         $data = json_decode($client->getResponse()->getContent(), true);
-        $scopes = $jwtTokenParser->parse($data['access_token'])->getClaim('scopes');
+        $scopes = $jwtTokenParser->parse($data['access_token'])->claims()->get('scopes');
 
         static::assertEquals(['admin'], $scopes);
     }
@@ -345,7 +351,8 @@ class AuthControllerTest extends TestCase
     public function testSuperAdminScopeRemovedOnRefreshToken(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -359,7 +366,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+        $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
 
         static::assertContains(UserVerifiedScope::IDENTIFIER, $oldAccessTokenScopes);
 
@@ -373,7 +380,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+        $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
         static::assertContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
     }
@@ -381,7 +388,8 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -395,7 +403,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+        $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
 
         $refreshPayload = [
             'grant_type' => 'refresh_token',
@@ -407,7 +415,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+        $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing($oldAccessTokenScopes, $newAccessTokenScopes);
     }

@@ -117,119 +117,20 @@ function getBasePath(version = Shopware.Context.api.apiVersion) {
  */
 function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
-        // Get $tc for translations and bind the Vue component scope to make it working
-        const viewRoot = Shopware.Application.view.root;
-        const $tc = viewRoot.$tc.bind(viewRoot);
+        const { response: { status, data: { errors, data } } } = error;
 
-        const { response: { status, data: { errors } } } = error;
+        try {
+            handleErrorStates({ status, errors, error, data });
+        } catch (e) {
+            Shopware.Utils.debug.error(e);
 
-        if (status === 403) {
-            // create a fallback if the backend structure does not match the convention
-            try {
-                const missingPrivilegeErrors = errors.filter(e => e.code === 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
-                missingPrivilegeErrors.forEach(missingPrivilegeError => {
-                    const detail = JSON.parse(missingPrivilegeError.detail);
-                    let missingPrivileges = detail.missingPrivileges;
-
-                    // check if response is an object and not an array. If yes, then convert it
-                    if (!Array.isArray(missingPrivileges) && typeof missingPrivileges === 'object') {
-                        missingPrivileges = Object.values(missingPrivileges);
-                    }
-
-                    const missingPrivilegesMessage = missingPrivileges.reduce((message, privilege) => {
-                        return `${message}<br>"${privilege}"`;
-                    }, '');
-
-                    Shopware.State.dispatch('notification/createNotification', {
-                        variant: 'error',
-                        system: true,
-                        autoClose: false,
-                        growl: true,
-                        title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
-                        message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
-                    });
-                });
-            } catch (e) {
-                Shopware.Utils.debug.error(e);
-
-                errors.forEach(singleError => {
-                    Shopware.State.dispatch('notification/createNotification', {
-                        variant: 'error',
-                        system: true,
-                        autoClose: false,
-                        growl: true,
-                        title: singleError.title,
-                        message: singleError.detail
-                    });
-                });
-            }
-        }
-
-        if (status === 409) {
-            try {
-                if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
-                    const parameters = errors[0].meta.parameters;
-
-                    const entityName = parameters.entity;
-                    let blockingEntities = '';
-                    if (Shopware.Feature.isActive('FEATURE_NEXT_10539')) {
-                        blockingEntities = parameters.usages.reduce((message, usageObject) => {
-                            const times = usageObject.count;
-                            const timesSnippet = $tc('global.default.xTimesIn', times);
-                            const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
-                            return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                        }, '');
-                    } else {
-                        blockingEntities = parameters.usages.reduce((message, entity) => {
-                            const times = entity.match(/ \(([0-9]*)?\)/, '');
-                            const timesSnippet = $tc('global.default.xTimesIn', times[1]);
-                            const blockingEntitiesSnippet = $tc(`global.entities.${entity.replace(/ \([0-9]*?\)/, '')}`, times[1]);
-                            return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                        }, '');
-                    }
-                    Shopware.State.dispatch('notification/createNotification', {
-                        variant: 'error',
-                        title: $tc('global.default.error'),
-                        message: `${$tc(
-                            'global.notification.messageDeleteFailed',
-                            3,
-                            { entityName: $tc(`global.entities.${entityName}`) }
-                        )
-                        }${blockingEntities}`
-                    });
-                }
-            } catch (e) {
-                Shopware.Utils.debug.error(e);
-
+            if (errors) {
                 errors.forEach(singleError => {
                     Shopware.State.dispatch('notification/createNotification', {
                         variant: 'error',
                         title: singleError.title,
                         message: singleError.detail
                     });
-                });
-            }
-        }
-
-        if (status === 412) {
-            const frameworkLanguageNotFound = errors.find((e) => e.code === 'FRAMEWORK__LANGUAGE_NOT_FOUND');
-
-            if (frameworkLanguageNotFound) {
-                localStorage.removeItem('sw-admin-current-language');
-
-                Shopware.State.dispatch('notification/createNotification', {
-                    variant: 'error',
-                    system: true,
-                    autoClose: false,
-                    growl: true,
-                    title: frameworkLanguageNotFound.title,
-                    message: `${frameworkLanguageNotFound.detail} Please reload the administration.`,
-                    actions: [
-                        {
-                            label: 'Reload administration',
-                            method: () => window.location.reload()
-                        }
-                    ]
                 });
             }
         }
@@ -238,6 +139,124 @@ function globalErrorHandlingInterceptor(client) {
     });
 
     return client;
+}
+
+/**
+ * Determines the different status codes and creates a matching error via Shopware.State
+ * @param {Number} status
+ * @param {Array} errors
+ * @param {Object} error
+ * @param {Object} data
+ */
+function handleErrorStates({ status, errors, error = null, data }) {
+    // Get $tc for translations and bind the Vue component scope to make it working
+    const viewRoot = Shopware.Application.view.root;
+    const $tc = viewRoot.$tc.bind(viewRoot);
+
+    // Handle sync-api errors
+    if (status === 400 &&
+        Shopware.Feature.isActive('FEATURE_NEXT_10539') &&
+        Shopware.Utils.get(error, 'response.config.url', '').includes('_action/sync')) {
+        if (!data) {
+            return;
+        }
+
+        // Get data for each entity
+        Object.values(data).forEach((item) => {
+            // Get error for each result
+            item.result.forEach((resultItem) => {
+                if (!resultItem.errors.length) {
+                    return;
+                }
+
+                const statusCode = parseInt(resultItem.errors[0].status, 10);
+                handleErrorStates({ status: statusCode, errors: resultItem.errors, data });
+            });
+        });
+    }
+
+    if (status === 403) {
+        const missingPrivilegeErrors = errors.filter(e => e.code === 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
+        missingPrivilegeErrors.forEach(missingPrivilegeError => {
+            const detail = JSON.parse(missingPrivilegeError.detail);
+            let missingPrivileges = detail.missingPrivileges;
+
+            // check if response is an object and not an array. If yes, then convert it
+            if (!Array.isArray(missingPrivileges) && typeof missingPrivileges === 'object') {
+                missingPrivileges = Object.values(missingPrivileges);
+            }
+
+            const missingPrivilegesMessage = missingPrivileges.reduce((message, privilege) => {
+                return `${message}<br>"${privilege}"`;
+            }, '');
+
+            Shopware.State.dispatch('notification/createNotification', {
+                variant: 'error',
+                system: true,
+                autoClose: false,
+                growl: true,
+                title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
+                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
+            });
+        });
+    }
+
+    if (status === 409) {
+        if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
+            const parameters = errors[0].meta.parameters;
+
+            const entityName = parameters.entity;
+            let blockingEntities = '';
+            if (Shopware.Feature.isActive('FEATURE_NEXT_10539')) {
+                blockingEntities = parameters.usages.reduce((message, usageObject) => {
+                    const times = usageObject.count;
+                    const timesSnippet = $tc('global.default.xTimesIn', times);
+                    const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
+                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
+                }, '');
+            } else {
+                blockingEntities = parameters.usages.reduce((message, entity) => {
+                    const times = entity.match(/ \(([0-9]*)?\)/, '');
+                    const timesSnippet = $tc('global.default.xTimesIn', times[1]);
+                    const blockingEntitiesSnippet = $tc(`global.entities.${entity.replace(/ \([0-9]*?\)/, '')}`, times[1]);
+                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
+                }, '');
+            }
+            Shopware.State.dispatch('notification/createNotification', {
+                variant: 'error',
+                title: $tc('global.default.error'),
+                message: `${$tc(
+                    'global.notification.messageDeleteFailed',
+                    3,
+                    { entityName: $tc(`global.entities.${entityName}`) }
+                )
+                }${blockingEntities}`
+            });
+        }
+    }
+
+    if (status === 412) {
+        const frameworkLanguageNotFound = errors.find((e) => e.code === 'FRAMEWORK__LANGUAGE_NOT_FOUND');
+
+        if (frameworkLanguageNotFound) {
+            localStorage.removeItem('sw-admin-current-language');
+
+            Shopware.State.dispatch('notification/createNotification', {
+                variant: 'error',
+                system: true,
+                autoClose: false,
+                growl: true,
+                title: frameworkLanguageNotFound.title,
+                message: `${frameworkLanguageNotFound.detail} Please reload the administration.`,
+                actions: [
+                    {
+                        label: 'Reload administration',
+                        method: () => window.location.reload()
+                    }
+                ]
+            });
+        }
+    }
 }
 
 /**

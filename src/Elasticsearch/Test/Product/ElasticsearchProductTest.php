@@ -43,7 +43,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
@@ -432,6 +434,94 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-2'), $products->getIds());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPrefixFilter(IdsCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+            $criteria = new Criteria();
+            $criteria->addFilter(new PrefixFilter('product.name', 'Sti'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-3'), $products->getIds());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new PrefixFilter('product.name', 'subber'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(0, $products->getIds());
+            static::assertSame(0, $products->getTotal());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new PrefixFilter('product.name', 'Rubb'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-2'), $products->getIds());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new PrefixFilter('product.name', 'Spacht'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-6'), $products->getIds());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSuffixFilter(IdsCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+            $criteria = new Criteria();
+            $criteria->addFilter(new SuffixFilter('product.name', 'tilk'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-3'), $products->getIds());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new SuffixFilter('product.name', 'subber'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(0, $products->getIds());
+            static::assertSame(0, $products->getTotal());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new SuffixFilter('product.name', 'bber'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-2'), $products->getIds());
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new SuffixFilter('product.name', 'company'));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(1, $products->getIds());
+            static::assertSame(1, $products->getTotal());
+            static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 

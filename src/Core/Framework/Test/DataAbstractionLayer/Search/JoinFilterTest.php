@@ -14,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -149,6 +151,52 @@ class JoinFilterTest extends TestCase
         );
         $criteria->addFilter(
             new ContainsFilter('product.properties.name', 'yell')
+        );
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has($ids->get('product-2')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPrefixFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        // "re" refers to the property "red" of "product-1" and "product-2"
+        $criteria->addFilter(
+            new PrefixFilter('product.properties.name', 're')
+        );
+        // "yell" refers to the property "yellow" of only "product-1"
+        $criteria->addFilter(
+            new PrefixFilter('product.properties.name', 'yell')
+        );
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has($ids->get('product-2')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSuffixFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        // "ed" refers to the property "red" of "product-1" and "product-2"
+        $criteria->addFilter(
+            new SuffixFilter('product.properties.name', 'ed')
+        );
+        // "low" refers to the property "yellow" of only "product-1"
+        $criteria->addFilter(
+            new SuffixFilter('product.properties.name', 'low')
         );
 
         $result = $this->getContainer()->get('product.repository')

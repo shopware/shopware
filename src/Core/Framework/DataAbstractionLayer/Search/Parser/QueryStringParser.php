@@ -11,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 
 class QueryStringParser
 {
@@ -61,6 +63,26 @@ class QueryStringParser
                 }
 
                 return new ContainsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
+            case 'prefix':
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for prefix filter is missing.', $path . '/field');
+                }
+
+                if (!isset($query['value']) || $query['value'] === '') {
+                    throw new InvalidFilterQueryException('Parameter "value" for prefix filter is missing.', $path . '/value');
+                }
+
+                return new PrefixFilter(self::buildFieldName($definition, $query['field']), $query['value']);
+            case 'suffix':
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for suffix filter is missing.', $path . '/field');
+                }
+
+                if (!isset($query['value']) || $query['value'] === '') {
+                    throw new InvalidFilterQueryException('Parameter "value" for suffix filter is missing.', $path . '/value');
+                }
+
+                return new SuffixFilter(self::buildFieldName($definition, $query['field']), $query['value']);
             case 'not':
                 return new NotFilter(
                     $query['operator'] ?? 'AND',
@@ -126,6 +148,18 @@ class QueryStringParser
             case $query instanceof ContainsFilter:
                 return [
                     'type' => 'contains',
+                    'field' => $query->getField(),
+                    'value' => $query->getValue(),
+                ];
+            case $query instanceof PrefixFilter:
+                return [
+                    'type' => 'prefix',
+                    'field' => $query->getField(),
+                    'value' => $query->getValue(),
+                ];
+            case $query instanceof SuffixFilter:
+                return [
+                    'type' => 'suffix',
                     'field' => $query->getField(),
                     'value' => $query->getValue(),
                 ];

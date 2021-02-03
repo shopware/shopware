@@ -12,6 +12,7 @@ use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\PrefixQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\RangeQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
@@ -44,7 +45,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
@@ -152,6 +155,12 @@ class CriteriaParser
 
             case $filter instanceof ContainsFilter:
                 return $this->parseContainsFilter($filter, $definition, $context);
+
+            case $filter instanceof PrefixFilter:
+                return $this->parsePrefixFilter($filter, $definition, $context);
+
+            case $filter instanceof SuffixFilter:
+                return $this->parseSuffixFilter($filter, $definition, $context);
 
             case $filter instanceof RangeFilter:
                 return $this->parseRangeFilter($filter, $definition, $context);
@@ -421,6 +430,32 @@ class CriteriaParser
 
         return $this->createNestedQuery(
             new WildcardQuery($accessor, '*' . $value . '*'),
+            $definition,
+            $filter->getField()
+        );
+    }
+
+    private function parsePrefixFilter(PrefixFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
+    {
+        $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
+
+        $value = $filter->getValue();
+
+        return $this->createNestedQuery(
+            new PrefixQuery($accessor, $value),
+            $definition,
+            $filter->getField()
+        );
+    }
+
+    private function parseSuffixFilter(SuffixFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
+    {
+        $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
+
+        $value = $filter->getValue();
+
+        return $this->createNestedQuery(
+            new WildcardQuery($accessor, '*' . $value),
             $definition,
             $filter->getField()
         );

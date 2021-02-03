@@ -71,7 +71,7 @@
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
                                             detailRoute="sw.settings.salutation.detail"
-                                            disableDataFetching=true
+                                            :disableDataFetching="true"
                                             @column-sort="onSortColumn"
                                             @page-change="onPageChange"
                                             :showSelection="acl.can('salutation.deleter')"

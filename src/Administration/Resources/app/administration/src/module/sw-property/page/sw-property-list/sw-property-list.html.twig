@@ -83,7 +83,7 @@
                             identifier="sw-properties-list"
                             @column-sort="onSortColumn"
                             @page-change="onPageChange"
-                            :disableDataFetching=true>
+                            :disableDataFetching="true">
 
                             {% block sw_property_list_grid_options %}
                                 <template slot="column-options" slot-scope="{ item }">

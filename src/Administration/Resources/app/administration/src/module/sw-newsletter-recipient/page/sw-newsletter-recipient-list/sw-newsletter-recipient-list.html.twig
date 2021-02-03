@@ -44,7 +44,7 @@
                             :sortBy="sortBy"
                             :sortDirection="sortDirection"
                             @column-sort="onSortColumn"
-                            :disableDataFetching=true
+                            :disableDataFetching="true"
                             :allowView="acl.can('newsletter_recipient.viewer')"
                             :allowEdit="acl.can('newsletter_recipient.editor')"
                             :allowInlineEdit="acl.can('newsletter_recipient.editor')"

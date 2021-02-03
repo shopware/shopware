@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
@@ -33,7 +32,7 @@ class ExtensionListingLoader
     {
         try {
             $storeExtensions = $this->client->listMyExtensions($localCollection, $context);
-        } catch (StoreApiException $e) {
+        } catch (\Throwable $e) {
             return;
         }
 

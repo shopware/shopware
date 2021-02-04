@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.5.1
+*  [NEXT-13252 - Fix pagination setting snippet listing](/changelog/release-6-3-5-1/2021-01-19-deprecated-get-preview-link.md)
+*  [NEXT-13371 - Added api aware flag](/changelog/release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
+*  [NEXT-13530 - Lower min version of composer package-versions-deprecated to 1.8.0](/changelog/release-6-3-5-1/2021-02-02-lower-min-version-of-composer-package-versions-deprecated-to-1.8.0.md)
+*  [NEXT-13247 - Expire sales channel contexts](/changelog/release-6-3-5-1/2021-01-25-expire-sales-channel-contexts.md)
+
 ## 6.3.5.0
 *  [NEXT-13413 - Fix the Elasticsearch Query Parser for NotFilters](/changelog/release-6-3-5-0/2021-01-22-fix-elasticsearch-not-filter-parser.md)
 *  [NEXT-12417 - Change German translations for "valid"](/changelog/release-6-3-5-0/2020-09-16-change-german-translations-for-valid.md) ([Sebastian König](https://github.com/tinect))

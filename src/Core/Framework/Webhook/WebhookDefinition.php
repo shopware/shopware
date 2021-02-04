@@ -43,7 +43,6 @@ class WebhookDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('event_name', 'eventName', 500))->addFlags(new Required()),
             (new StringField('url', 'url', 500))->addFlags(new Required()),
-
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);

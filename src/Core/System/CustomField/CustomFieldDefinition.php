@@ -49,9 +49,7 @@ class CustomFieldDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('type', 'type'))->addFlags(new Required()),
             new JsonField('config', 'config', [], []),
-
             new BoolField('active', 'active'),
-
             new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
         ]);

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation;
 
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -39,8 +40,8 @@ class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('name', 'name'),
-            new StringField('description', 'description'),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new StringField('description', 'description'))->addFlags(new ApiAware()),
         ]);
     }
 }

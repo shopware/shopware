@@ -2,16 +2,14 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -53,24 +51,19 @@ class DeadMessageDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 
-            (new LongTextField('original_message_class', 'originalMessageClass'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Required(), new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new LongTextField('handler_class', 'handlerClass'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new BoolField('encrypted', 'encrypted'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-
-            (new IntField('error_count', 'errorCount', 0))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-
-            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-
-            (new LongTextField('exception', 'exception'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new LongTextField('exception_message', 'exceptionMessage'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new LongTextField('exception_file', 'exceptionFile'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new IntField('exception_line', 'exceptionLine'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-
+            (new LongTextField('original_message_class', 'originalMessageClass'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new LongTextField('handler_class', 'handlerClass'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BoolField('encrypted', 'encrypted'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new LongTextField('exception', 'exception'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new LongTextField('exception_message', 'exceptionMessage'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new LongTextField('exception_file', 'exceptionFile'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('exception_line', 'exceptionLine'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             new FkField('scheduled_task_id', 'scheduledTaskId', ScheduledTaskDefinition::class),
-
             new ManyToOneAssociationField('scheduledTask', 'scheduled_task_id', ScheduledTaskDefinition::class, 'id', false),
         ]);
     }

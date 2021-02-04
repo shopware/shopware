@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -51,32 +52,28 @@ class CmsBlockDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new IntField('position', 'position'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-
+            (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             new LockedField(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new StringField('section_position', 'sectionPosition'))->addFlags(new ApiAware()),
+            (new StringField('margin_top', 'marginTop'))->addFlags(new ApiAware()),
+            (new StringField('margin_bottom', 'marginBottom'))->addFlags(new ApiAware()),
+            (new StringField('margin_left', 'marginLeft'))->addFlags(new ApiAware()),
+            (new StringField('margin_right', 'marginRight'))->addFlags(new ApiAware()),
+            (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
+            (new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
 
-            new StringField('name', 'name'),
-            new StringField('section_position', 'sectionPosition'),
-            new StringField('margin_top', 'marginTop'),
-            new StringField('margin_bottom', 'marginBottom'),
-            new StringField('margin_left', 'marginLeft'),
-            new StringField('margin_right', 'marginRight'),
-            new StringField('background_color', 'backgroundColor'),
-            new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class),
-            new StringField('background_media_mode', 'backgroundMediaMode'),
-            new StringField('css_class', 'cssClass'),
-
-            (new FkField('cms_section_id', 'sectionId', CmsSectionDefinition::class))->addFlags(new Required()),
+            (new FkField('cms_section_id', 'sectionId', CmsSectionDefinition::class))->addFlags(new ApiAware(), new Required()),
             new ManyToOneAssociationField('section', 'cms_section_id', CmsSectionDefinition::class, 'id', false),
+            (new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
 
-            new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false),
-
-            (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new CascadeDelete()),
-
-            new CustomFields(),
+            (new OneToManyAssociationField('slots', CmsSlotDefinition::class, 'cms_block_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

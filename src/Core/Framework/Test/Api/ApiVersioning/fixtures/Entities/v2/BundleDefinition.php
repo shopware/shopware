@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v2;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -33,13 +34,13 @@ class BundleDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new LongTextField('description', 'description'),
-            (new LongTextField('long_description', 'longDescription'))->addFlags(new Deprecated('v1', 'v2')),
-            (new StringField('discount_type', 'discountType'))->addFlags(new Deprecated('v1', 'v2', 'isAbsolute')),
-            (new BoolField('is_absolute', 'isAbsolute'))->addFlags(new Required()),
-            (new FloatField('discount', 'discount'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
+            (new LongTextField('long_description', 'longDescription'))->addFlags(new ApiAware(), new Deprecated('v1', 'v2')),
+            (new StringField('discount_type', 'discountType'))->addFlags(new ApiAware(), new Deprecated('v1', 'v2', 'isAbsolute')),
+            (new BoolField('is_absolute', 'isAbsolute'))->addFlags(new ApiAware(), new Required()),
+            (new FloatField('discount', 'discount'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

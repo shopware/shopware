@@ -40,6 +40,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
         $expected = [
             'key' => 'value',
+            'expired' => false,
         ];
 
         $this->connection->insert('sales_channel_api_context', [
@@ -80,6 +81,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
         $expected = [
             'key' => 'value',
+            'expired' => false,
         ];
 
         $this->contextPersister->save($token, $expected);
@@ -93,6 +95,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $expected = [
             'key' => 'value',
             'token' => $token,
+            'expired' => false,
         ];
 
         $customerId = $this->createCustomer();
@@ -125,6 +128,7 @@ class SalesChannelContextPersisterTest extends TestCase
         ]);
 
         $expected = [
+            'expired' => false,
             'first' => 'test',
             'second' => 'overwritten',
             'third' => 'third test',
@@ -158,6 +162,7 @@ class SalesChannelContextPersisterTest extends TestCase
         ], Defaults::SALES_CHANNEL, $customerId);
 
         $expected = [
+            'expired' => false,
             'first' => 'test',
             'second' => 'overwritten',
             'third' => 'third test',
@@ -269,6 +274,45 @@ class SalesChannelContextPersisterTest extends TestCase
 
         static::assertTrue($this->cartExists($newToken));
         static::assertFalse($this->cartExists($token));
+    }
+
+    public function tokenExpiringDataProvider(): \Generator
+    {
+        yield [0, 'P2D', false];
+        yield [1, 'P2D', false];
+        yield [3, 'P2D', true];
+        yield [0, 'P1D', false];
+        yield [2, 'P1D', true];
+    }
+
+    /**
+     * @dataProvider tokenExpiringDataProvider
+     */
+    public function testTokenExpiring(int $tokenAgeInDays, string $lifeTimeInterval, bool $expectedExpired): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $persister = new SalesChannelContextPersister(
+            $connection,
+            $this->createMock(EventDispatcher::class),
+            $lifeTimeInterval
+        );
+        $token = Uuid::randomHex();
+
+        $customerId = $this->createCustomer();
+        $persister->save($token, [], Defaults::SALES_CHANNEL, $customerId);
+
+        if ($tokenAgeInDays !== 0) {
+            // change age
+            $connection->executeUpdate(
+                'UPDATE sales_channel_api_context
+                SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
+                ['intervalInDays' => -$tokenAgeInDays]
+            );
+        }
+
+        $result = $persister->load($token, Defaults::SALES_CHANNEL, $customerId);
+
+        static::assertSame($result['expired'], $expectedExpired, print_r([$tokenAgeInDays, $lifeTimeInterval, $expectedExpired], true));
     }
 
     private function createCustomer(): string

@@ -10,12 +10,12 @@ class CartPriceField extends JsonField
     public function __construct(string $storageName, string $propertyName)
     {
         $propertyMapping = [
-            (new FloatField('netPrice', 'netPrice'))->setFlags(new Required()),
-            (new FloatField('totalPrice', 'totalPrice'))->setFlags(new Required()),
-            (new JsonField('calculatedTaxes', 'calculatedTaxes'))->setFlags(new Required()),
-            (new JsonField('taxRules', 'taxRules'))->setFlags(new Required()),
-            (new FloatField('positionPrice', 'positionPrice'))->setFlags(new Required()),
-            (new StringField('taxStatus', 'taxStatus'))->setFlags(new Required()),
+            (new FloatField('netPrice', 'netPrice'))->addFlags(new Required()),
+            (new FloatField('totalPrice', 'totalPrice'))->addFlags(new Required()),
+            (new JsonField('calculatedTaxes', 'calculatedTaxes'))->addFlags(new Required()),
+            (new JsonField('taxRules', 'taxRules'))->addFlags(new Required()),
+            (new FloatField('positionPrice', 'positionPrice'))->addFlags(new Required()),
+            (new StringField('taxStatus', 'taxStatus'))->addFlags(new Required()),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

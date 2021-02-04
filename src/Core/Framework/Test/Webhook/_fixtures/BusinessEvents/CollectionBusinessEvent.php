@@ -39,8 +39,6 @@ class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEn
                 'name' => $tax->getName(),
                 'taxRate' => (int) $tax->getTaxRate(),
                 'position' => $tax->getPosition(),
-                'products' => null,
-                'shippingMethods' => null,
                 'customFields' => null,
                 'translated' => [],
                 'createdAt' => $tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),

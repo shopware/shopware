@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -36,19 +37,18 @@ class MailHeaderFooterDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-
-            new BoolField('system_default', 'systemDefault'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new BoolField('system_default', 'systemDefault'))->addFlags(new ApiAware()),
 
             // translatable fields
-            new TranslatedField('name'),
-            new TranslatedField('description'),
-            new TranslatedField('headerHtml'),
-            new TranslatedField('headerPlain'),
-            new TranslatedField('footerHtml'),
-            new TranslatedField('footerPlain'),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            (new TranslatedField('description'))->addFlags(new ApiAware()),
+            (new TranslatedField('headerHtml'))->addFlags(new ApiAware()),
+            (new TranslatedField('headerPlain'))->addFlags(new ApiAware()),
+            (new TranslatedField('footerHtml'))->addFlags(new ApiAware()),
+            (new TranslatedField('footerPlain'))->addFlags(new ApiAware()),
 
-            (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new Required()),
+            (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new ApiAware(), new Required()),
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id'),
         ]);
     }

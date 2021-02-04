@@ -57,10 +57,8 @@ class ActionButtonDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Required()),
             (new StringField('action', 'action'))->addFlags(new Required()),
             (new BoolField('open_new_tab', 'openNewTab'))->addFlags(new Required()),
-
             new TranslatedField('label'),
             (new TranslationsAssociationField(ActionButtonTranslationDefinition::class, 'app_action_button_id'))->addFlags(new Required()),
-
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);

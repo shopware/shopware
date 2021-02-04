@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -36,14 +35,13 @@ class ImportExportFileDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('original_name', 'originalName'))->setFlags(new Required()),
-            (new StringField('path', 'path'))->setFlags(new Required()),
-            (new DateTimeField('expire_date', 'expireDate'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('original_name', 'originalName'))->addFlags(new Required()),
+            (new StringField('path', 'path'))->addFlags(new Required()),
+            (new DateTimeField('expire_date', 'expireDate'))->addFlags(new Required()),
             new IntField('size', 'size'),
             new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false),
-            new CreatedAtField(),
-            (new StringField('access_token', 'accessToken'))->setFlags(new Required()),
+            (new StringField('access_token', 'accessToken'))->addFlags(new Required()),
         ]);
     }
 }

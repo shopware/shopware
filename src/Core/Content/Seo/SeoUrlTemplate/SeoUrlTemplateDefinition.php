@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -42,15 +43,13 @@ class SeoUrlTemplateDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
 
             (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),
             (new StringField('route_name', 'routeName'))->addFlags(new Required()),
             (new StringField('template', 'template', 750)),
-
-            new BoolField('is_valid', 'isValid'),
-
-            new CustomFields(),
+            (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
     }

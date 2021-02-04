@@ -61,8 +61,7 @@ class IntegrationDefinition extends EntityDefinition
             new BoolField('admin', 'admin'),
             new CustomFields(),
 
-            (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
-                ->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))->addFlags(new CascadeDelete()),
         ]);
 
         $collection->add(

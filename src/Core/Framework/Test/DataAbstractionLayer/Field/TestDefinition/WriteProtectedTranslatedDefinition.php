@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -29,10 +30,10 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new TranslatedField('protected'))->addFlags(new WriteProtected()),
-            (new TranslatedField('systemProtected'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new TranslatedField('protected'))->addFlags(new ApiAware(), new WriteProtected()),
+            (new TranslatedField('systemProtected'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'))->addFlags(new ApiAware()),
         ]);
     }
 

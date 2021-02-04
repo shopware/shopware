@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -25,6 +26,6 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()), (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()), new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, 'id', false), new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false)]);
+        return new FieldCollection([(new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, 'id', false), new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false)]);
     }
 }

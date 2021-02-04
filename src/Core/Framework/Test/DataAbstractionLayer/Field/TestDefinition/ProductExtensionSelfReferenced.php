@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -20,7 +21,7 @@ class ProductExtensionSelfReferenced extends EntityExtension
         );
 
         $collection->add(
-            (new ReferenceVersionField(ProductDefinition::class, 'linked_product_version_id'))->addFlags(new Required())
+            (new ReferenceVersionField(ProductDefinition::class, 'linked_product_version_id'))->addFlags(new ApiAware(), new Required())
         );
 
         $collection->add(

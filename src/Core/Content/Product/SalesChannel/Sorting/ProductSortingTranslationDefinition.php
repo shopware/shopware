@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -39,7 +40,7 @@ class ProductSortingTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
-            (new StringField('label', 'label'))->addFlags(new Required()),
+            (new StringField('label', 'label'))->addFlags(new ApiAware(), new Required()),
         ]);
 
         return $collection;

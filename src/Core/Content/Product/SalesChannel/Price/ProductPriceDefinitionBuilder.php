@@ -159,7 +159,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         $definition = new QuantityPriceDefinition($this->getCurrencyPrice($prices[0], $context), $taxRules, $quantity);
 
         $definition->setListPrice(
-            $this->getListPrice($product->getPrice(), $context)
+            $this->getListPrice($prices[0]->getPrice(), $context)
         );
 
         $definition->setReferencePriceDefinition($this->buildReferencePriceDefinition($product));

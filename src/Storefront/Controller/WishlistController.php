@@ -87,9 +87,10 @@ class WishlistController extends StorefrontController
      * @Since("6.3.4.0")
      * @Route("/wishlist", name="frontend.wishlist.page", options={"seo"="false"}, methods={"GET"})
      */
-    public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
+    public function index(Request $request, SalesChannelContext $context): Response
     {
-        if ($context->getCustomer()) {
+        $customer = $context->getCustomer();
+        if ($customer !== null) {
             $page = $this->wishlistPageLoader->load($request, $context, $customer);
         } else {
             $page = $this->guestPageLoader->load($request, $context);

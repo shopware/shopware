@@ -243,7 +243,11 @@ export default class EntityHydrator {
 
                 if (nestedEntity) {
                     data[property] = nestedEntity;
+                } else {
+                    data[property] = null;
                 }
+            } else {
+                data[property] = null;
             }
 
             return true;

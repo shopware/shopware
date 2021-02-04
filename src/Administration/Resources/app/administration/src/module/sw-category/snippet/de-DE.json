@@ -121,22 +121,19 @@
   "sw-landing-page": {
     "view": {
       "general": "Allgemein",
-      "cms": "Inhalte"
+      "cms": "Layout"
     },
     "general": {
-      "placeholderSearchBar": "Durchsuche alle Landing Pages ...",
+      "placeholderSearchBar": "Durchsuche alle Landingpages ...",
       "treeHeadSelected": "{count} ausgewählt",
-      "buttonCreate": "Landing Page erstellen",
-      "treeHeadline": "Landing Pages",
-      "actions": {
-        "withoutPosition": "Neue Landing Page erstellen"
-      }
+      "buttonCreate": "Landingpage hinzufügen",
+      "treeHeadline": "Landingpages"
     },
     "base": {
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "Allgemein",
-        "isActiveLabel": "Landing Page ist aktiv",
+        "isActiveLabel": "Landingpage ist aktiv",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Gib einzelne Tags ein ..."
       },
@@ -165,8 +162,8 @@
       }
     },
     "modal": {
-      "textDeleteConfirm": "Möchtest Du die Landing Page \"{name}\" wirklich löschen?",
-      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landing Pages wirklich löschen?"
+      "textDeleteConfirm": "Möchtest Du die Landingpage \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landingpages wirklich löschen?"
     }
   },
   "sw-privileges": {
@@ -175,7 +172,7 @@
         "label": "Kategorien"
       },
       "landing_page": {
-        "label": "Landing Pages"
+        "label": "Landingpages"
       }
     }
   }

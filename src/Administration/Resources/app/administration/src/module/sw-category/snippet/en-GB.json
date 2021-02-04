@@ -122,22 +122,19 @@
   "sw-landing-page": {
     "view": {
       "general": "General",
-      "cms": "Content"
+      "cms": "Layout"
     },
     "general": {
-      "placeholderSearchBar": "Search landing pages...",
+      "placeholderSearchBar": "Search Landing pages...",
       "treeHeadSelected": "{count} selected",
-      "buttonCreate": "Create landing page",
-      "treeHeadline": "Landing Pages",
-      "actions": {
-        "withoutPosition": "New landing page"
-      }
+      "buttonCreate": "Add Landing page",
+      "treeHeadline": "Landing pages"
     },
     "base": {
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "General",
-        "isActiveLabel": "Category active",
+        "isActiveLabel": "Landing page active",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Enter tags individually..."
       },
@@ -166,8 +163,8 @@
       }
     },
     "modal": {
-      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
-      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
+      "textDeleteConfirm": "Are you sure you really want to delete the Landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected Landing pages?"
     }
   },
   "sw-privileges": {
@@ -176,7 +173,7 @@
         "label": "Categories"
       },
       "landing_page": {
-        "label": "Landing Pages"
+        "label": "Landing pages"
       }
     }
   }

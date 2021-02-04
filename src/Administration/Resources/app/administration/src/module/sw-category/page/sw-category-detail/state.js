@@ -7,7 +7,9 @@ export default {
         return {
             landingPage: null,
             category: null,
-            customFieldSets: []
+            customFieldSets: [],
+            landingPagesToDelete: undefined,
+            categoriesToDelete: undefined
         };
     },
 
@@ -22,6 +24,14 @@ export default {
 
         setCustomFieldSets(state, newCustomFieldSets) {
             state.customFieldSets = newCustomFieldSets;
+        },
+
+        setLandingPagesToDelete(state, { landingPagesToDelete }) {
+            state.landingPagesToDelete = landingPagesToDelete;
+        },
+
+        setCategoriesToDelete(state, { categoriesToDelete }) {
+            state.categoriesToDelete = categoriesToDelete;
         }
     },
 

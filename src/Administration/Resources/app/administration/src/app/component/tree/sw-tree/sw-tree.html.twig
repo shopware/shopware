@@ -34,6 +34,7 @@
         {% block sw_tree_content %}
             <div class="sw-tree__content">
                 <div class="tree-items">
+
                     {% block sw_tree_items %}
                         <sw-tree-input-field v-if="hasNoItems && allowCreateCategories" :disabled="disableContextMenu" @new-item-create="onCreateNewItem"></sw-tree-input-field>
                         <slot
@@ -47,6 +48,7 @@
                             :onChangeRoute="onChangeRoute"
                             :sortable="sortable"
                             :disableContextMenu="disableContextMenu">
+
                             {% block sw_tree_slot_items %}
                                 <sw-tree-item
                                     v-for="item in treeItems"
@@ -56,12 +58,14 @@
                                     :draggedItem="draggedItem">
                                 </sw-tree-item>
                             {% endblock %}
+
                         </slot>
                     {% endblock %}
 
                     {% block sw_tree_loader %}
                         <sw-loader v-if="isLoading"></sw-loader>
                     {% endblock %}
+
                 </div>
             </div>
         {% endblock %}

@@ -31,7 +31,8 @@ Component.register('sw-landing-page-detail-base', {
 
         ...mapPropertyErrors('landingPage', [
             'name',
-            'url'
+            'url',
+            'salesChannels'
         ]),
 
         ...mapState('swCategoryDetail', {

@@ -24,6 +24,7 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-category'
         });
+
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

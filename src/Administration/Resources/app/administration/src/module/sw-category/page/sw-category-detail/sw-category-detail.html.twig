@@ -47,8 +47,8 @@
                                 :processSuccess="isSaveSuccessful"
                                 :disabled="isLoading || !acl.can('category.editor')"
                                 variant="primary"
-                                @process-finish="saveFinish"
                                 v-tooltip.bottom="tooltipSave"
+                                @process-finish="saveFinish"
                                 @click.prevent="onSave">
                             {{ $tc('sw-category.general.buttonSafeCategory') }}
                         </sw-button-process>
@@ -61,8 +61,8 @@
                                            :processSuccess="isSaveSuccessful"
                                            :disabled="isLoading || !acl.can('landing_page.editor')"
                                            variant="primary"
-                                           @process-finish="saveFinish"
                                            v-tooltip.bottom="tooltipSave"
+                                           @process-finish="saveFinish"
                                            @click.prevent="onSaveLandingPage">
                             {{ $tc('sw-category.general.buttonSafeCategory') }}
                         </sw-button-process>
@@ -75,7 +75,9 @@
             {% block sw_category_side_content %}
 
                 {% block sw_category_collapse %}
-                    <sw-sidebar-collapse :expandOnLoading="categoryId !== null">
+                    <sw-sidebar-collapse
+                        class="sw-category-detail__category-collapse"
+                        :expandOnLoading="landingPageId === null">
                         <template slot="header">
 
                             {% block sw_category_collapse_header %}
@@ -90,6 +92,7 @@
                                     {{ $tc(`sw-category.general.treeHeadline`) }}
                                 </div>
                             {% endblock %}
+
                         </template>
 
                         <template slot="actions">
@@ -98,13 +101,14 @@
                                 <div v-if="categoryCheckedItem > 0">
                                     <sw-button
                                             class="sw-tree-actions__delete_categories"
-                                            @click="$refs.categoryTree.$refs.categoryTree.onDeleteElements(null)"
                                             variant="danger"
-                                            size="small">
+                                            size="small"
+                                            @click="onCategoryDelete">
                                         {{ $tc('global.default.delete') }}
                                     </sw-button>
                                 </div>
                             {% endblock %}
+
                         </template>
 
                         <template slot="content">
@@ -114,19 +118,23 @@
                                     ref="categoryTree"
                                     :categoryId="categoryId"
                                     :currentLanguageId="currentLanguageId"
-                                    @unsaved-changes="openChangeModal"
-                                    @category-checked-elements-count="categoryCheckedElementsCount"
                                     :allowEdit="acl.can('category.editor')"
                                     :allowCreate="acl.can('category.creator')"
                                     :allowDelete="acl.can('category.deleter')"
+                                    @unsaved-changes="openChangeModal"
+                                    @category-checked-elements-count="categoryCheckedElementsCount"
                                 ></sw-category-tree>
                             {% endblock %}
+
                         </template>
                     </sw-sidebar-collapse>
                 {% endblock %}
 
                 {% block sw_landing_page_collapse %}
-                    <sw-sidebar-collapse v-if="feature.isActive('FEATURE_NEXT_12032')" :expandOnLoading="landingPageId !== null">
+                    <sw-sidebar-collapse
+                        v-if="feature.isActive('FEATURE_NEXT_12032')"
+                        class="sw-category-detail__landing-page-collapse"
+                        :expandOnLoading="landingPageId !== null">
                         <template slot="header">
 
                             {% block sw_landing_page_collapse_header %}
@@ -141,6 +149,7 @@
                                     {{ $tc(`sw-landing-page.general.treeHeadline`) }}
                                 </div>
                             {% endblock %}
+
                         </template>
 
                         <template slot="actions">
@@ -149,13 +158,14 @@
                                 <div v-if="landingPageCheckedItem > 0">
                                     <sw-button
                                         class="sw-tree-actions__delete_categories"
-                                        @click="$refs.landingPageTree.$refs.landingPageTree.onDeleteElements(null)"
                                         variant="danger"
-                                        size="small">
+                                        size="small"
+                                        @click="onLandingPageDelete">
                                         {{ $tc('global.default.delete') }}
                                     </sw-button>
                                 </div>
                             {% endblock %}
+
                         </template>
 
                         <template slot="content">
@@ -165,13 +175,14 @@
                                     ref="landingPageTree"
                                     :landingPageId="landingPageId"
                                     :currentLanguageId="currentLanguageId"
-                                    @unsaved-changes="openChangeModal"
-                                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
                                     :allowEdit="acl.can('landing_page.editor')"
                                     :allowCreate="acl.can('landing_page.creator')"
                                     :allowDelete="acl.can('landing_page.deleter')"
+                                    @unsaved-changes="openChangeModal"
+                                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
                                 ></sw-landing-page-tree>
                             {% endblock %}
+
                         </template>
                     </sw-sidebar-collapse>
                 {% endblock %}
@@ -229,5 +240,6 @@
                 </sw-sidebar>
             </template>
         {% endblock %}
+
     </sw-page>
 {% endblock %}

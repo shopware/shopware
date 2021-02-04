@@ -3,6 +3,7 @@ import './sw-landing-page-tree.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // Todo: Will be tested in NEXT-13222
 Component.register('sw-landing-page-tree', {
@@ -58,6 +59,10 @@ Component.register('sw-landing-page-tree', {
     },
 
     computed: {
+        ...mapState('swCategoryDetail', [
+            'landingPagesToDelete'
+        ]),
+
         cmsLandingPageCriteria() {
             const criteria = new Criteria();
             criteria.limit = 500;
@@ -96,6 +101,18 @@ Component.register('sw-landing-page-tree', {
     },
 
     watch: {
+        landingPagesToDelete(value) {
+            if (value === undefined) {
+                return;
+            }
+
+            this.$refs.landingPageTree.onDeleteElements(value);
+
+            Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
+                landingPagesToDelete: undefined
+            });
+        },
+
         landingPage(newVal, oldVal) {
             // load data when path is available
             if (!oldVal && this.isLoadingInitialData) {

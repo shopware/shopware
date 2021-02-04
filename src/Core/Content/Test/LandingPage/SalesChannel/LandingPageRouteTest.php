@@ -41,7 +41,7 @@ class LandingPageRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/landing_page/' . $this->ids->get('landing-page')
+            '/store-api/landing-page/' . $this->ids->get('landing-page')
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -75,7 +75,7 @@ class LandingPageRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/landing_page/' . $this->ids->get('landing-page'),
+            '/store-api/landing-page/' . $this->ids->get('landing-page'),
             [
                 'includes' => [
                     'product_manufacturer' => ['id', 'name', 'options'],

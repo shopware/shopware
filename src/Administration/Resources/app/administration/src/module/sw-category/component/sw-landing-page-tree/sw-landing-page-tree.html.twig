@@ -53,7 +53,13 @@
                             :newElementId="newElementId"
                             :getItemUrl="getLandingPageUrl"
                             @check-item="checkItem">
-                            <template slot="actions">
+                            <template slot="grip"><span></span></template>
+                            <template
+                                #actions="{
+                                    onDuplicate,
+                                    onChangeRoute,
+                                    deleteElement
+                                }">
                                 {% block sw_landing_page_tree_items_actions %}
                                     <sw-context-button class="sw-tree-item__context_button">
 
@@ -79,11 +85,14 @@
                                                 {{ $tc('global.default.delete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
+
                                     </sw-context-button>
                                 {% endblock %}
+
                             </template>
                         </sw-tree-item>
                     {% endblock %}
+
                 </template>
             </sw-tree>
         {% endblock %}
@@ -94,9 +103,10 @@
                     :routerLink="newLandingPageUrl()"
                     size="small"
                     variant="ghost">
-                    Add Landing Page
+                    {{ $tc('sw-landing-page.general.buttonCreate') }}
                 </sw-button>
             </div>
         {% endblock %}
+
     </div>
 {% endblock %}

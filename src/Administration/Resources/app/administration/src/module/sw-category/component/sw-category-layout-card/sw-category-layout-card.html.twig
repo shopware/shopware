@@ -1,6 +1,7 @@
 {% block sw_category_layout_card %}
     <sw-card class="sw-category-layout-card" :title="$tc('sw-category.base.cms.title')" :isLoading="isLoading">
         <div class="sw-category-layout-card__base-layout">
+
             {% block sw_category_detail_layout_preview %}
                 <div class="sw-category-layout-card__preview" @click="openLayoutModal">
                     <sw-cms-list-item
@@ -25,6 +26,7 @@
 
                     {% block sw_category_detail_layout_desc_info %}
                         <div class="sw-category-layout-card__desc-info">
+
                             {% block sw_category_detail_layout_desc_info_headline %}
                                 <div class="sw-category-layout-card__desc-headline" :class="{ 'is--empty': !cmsPage }">
                                     {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
@@ -36,25 +38,27 @@
                                     {{ cmsPage ? cmsPageTypes[cmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
                                 </div>
                             {% endblock %}
+
                         </div>
                     {% endblock %}
 
                     {% block sw_category_detail_layout_desc_actions %}
                         <div class="sw-category-layout-card__desc-actions">
+
                             {% block sw_category_detail_layout_desc_actions_layout %}
                                 <sw-button
+                                    class="sw-category-detail-layout__change-layout-action"
                                     size="small"
                                     :disabled="!acl.can('category.editor')"
-                                    @click="openLayoutModal"
-                                    class="sw-category-detail-layout__change-layout-action">
+                                    @click="openLayoutModal">
                                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
                                 </sw-button>
                             {% endblock %}
 
                             {% block sw_category_detail_layout_desc_actions_designer %}
-                                <sw-button size="small"
+                                <sw-button class="sw-category-detail-layout__open-in-pagebuilder"
+                                           size="small"
                                            :disabled="!acl.can('category.editor')"
-                                           class="sw-category-detail-layout__open-in-pagebuilder"
                                            @click="openInPagebuilder">
                                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                                 </sw-button>
@@ -70,6 +74,7 @@
                                     <sw-icon name="default-action-trash" small></sw-icon>
                                 </sw-button>
                             {% endblock %}
+
                         </div>
                     {% endblock %}
 
@@ -84,8 +89,10 @@
                             <sw-icon name="default-arrow-simple-right" small></sw-icon>
                         </router-link>
                     {% endblock %}
+
                 </div>
             {% endblock %}
+
         </div>
     </sw-card>
 {% endblock %}

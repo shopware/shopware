@@ -593,6 +593,22 @@ Component.register('sw-category-detail', {
             }).catch(() => {
                 this.isLoading = false;
 
+                if (this.landingPage.salesChannels.length === 0) {
+                    const shopwareError = new Shopware.Classes.ShopwareError(
+                        {
+                            code: 'landing_page_sales_channel_blank',
+                            detail: 'This value should not be blank.',
+                            status: '400'
+                        }
+                    );
+
+                    Shopware.State.dispatch('error/addApiError',
+                        {
+                            expression: `landing_page.${this.landingPage.id}.salesChannels`,
+                            error: shopwareError
+                        });
+                }
+
                 this.createNotificationError({
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
@@ -657,6 +673,18 @@ Component.register('sw-category-detail', {
 
                 return Promise.resolve();
             }));
+        },
+
+        onLandingPageDelete() {
+            Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
+                landingPagesToDelete: null
+            });
+        },
+
+        onCategoryDelete() {
+            Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
+                categoriesToDelete: null
+            });
         }
     }
 });

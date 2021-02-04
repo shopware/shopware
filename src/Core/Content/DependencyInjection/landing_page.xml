@@ -47,5 +47,11 @@
             <argument type="service" id="Shopware\Core\Content\LandingPage\SalesChannel\SalesChannelLandingPageDefinition"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12032"/>
         </service>
+
+        <service id="Shopware\Core\Content\LandingPage\LandingPageValidator">
+            <argument type="service" id="validator"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12032"/>
+        </service>
     </services>
 </container>

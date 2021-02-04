@@ -3,6 +3,7 @@ import './sw-category-tree.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-category-tree', {
     template,
@@ -55,6 +56,10 @@ Component.register('sw-category-tree', {
     },
 
     computed: {
+        ...mapState('swCategoryDetail', [
+            'categoriesToDelete'
+        ]),
+
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
@@ -85,6 +90,18 @@ Component.register('sw-category-tree', {
     },
 
     watch: {
+        categoriesToDelete(value) {
+            if (value === undefined) {
+                return;
+            }
+
+            this.$refs.categoryTree.onDeleteElements(value);
+
+            Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
+                categoriesToDelete: undefined
+            });
+        },
+
         category(newVal, oldVal) {
             // load data when path is available
             if (!oldVal && this.isLoadingInitialData) {
@@ -113,8 +130,12 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
+            if (this.category !== null) {
+                this.openInitialTree();
+            }
+
             if (!this.categoryId) {
-                this.loadRootCategories().then(() => {
+                this.loadRootCategories().finally(() => {
                     this.isLoadingInitialData = false;
                 });
             }

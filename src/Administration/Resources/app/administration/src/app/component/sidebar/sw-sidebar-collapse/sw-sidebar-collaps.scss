@@ -17,7 +17,7 @@ $sw-sidebar-collapse-font-size-title: $font-size-default;
 
     .sw-sidebar-collapse__title {
         font-size: $sw-sidebar-collapse-font-size-title;
-        font-weight: normal;
+        font-weight: $font-weight-regular;
         margin: 0 25px 0;
     }
 

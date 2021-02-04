@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -37,16 +38,16 @@ class CustomFieldTestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-            (new IdField('parent_id', 'parentId'))->addFlags(new PrimaryKey()),
-            new ParentFkField(self::class),
-            (new StringField('name', 'name'))->setFlags(new Inherited()),
-            (new TranslatedField('customTranslated'))->setFlags(new Inherited()),
-            (new CustomFields('custom', 'custom'))->setFlags(new Inherited()),
-            new TranslationsAssociationField(CustomFieldTestTranslationDefinition::class, 'attribute_test_id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            (new IdField('parent_id', 'parentId'))->addFlags(new ApiAware(), new PrimaryKey()),
+            (new ParentFkField(self::class))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new Inherited()),
+            (new TranslatedField('customTranslated'))->addFlags(new Inherited()),
+            (new CustomFields('custom', 'custom'))->addFlags(new Inherited()),
+            (new TranslationsAssociationField(CustomFieldTestTranslationDefinition::class, 'attribute_test_id'))->addFlags(new ApiAware()),
             //parent - child inheritance
-            new ParentAssociationField(self::class, 'id'),
-            new ChildrenAssociationField(self::class),
+            (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
+            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
         ]);
     }
 }

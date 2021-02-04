@@ -80,7 +80,7 @@ class ApiVersionConverterTest extends TestCase
             new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
-            'http://localhost',
+            'http://localhost/api/v3',
             1
         );
         $result = json_decode($result, true);
@@ -103,7 +103,7 @@ class ApiVersionConverterTest extends TestCase
             new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
-            'http://localhost',
+            'http://localhost/api/v3',
             2
         );
         $result = json_decode($result, true);
@@ -126,7 +126,7 @@ class ApiVersionConverterTest extends TestCase
             new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
-            'http://localhost',
+            'http://localhost/api/v3',
             1
         );
 
@@ -147,7 +147,7 @@ class ApiVersionConverterTest extends TestCase
             new Criteria(),
             $deprecatedDefinition,
             $this->getDeprecatedEntity(),
-            'http://localhost',
+            'http://localhost/api/v3',
             2
         );
 

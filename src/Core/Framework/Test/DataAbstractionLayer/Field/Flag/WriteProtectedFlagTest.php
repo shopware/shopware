@@ -49,7 +49,7 @@ CREATE TABLE `_test_nullable_reference` (
   `relation_id` binary(16) NOT NULL,
   PRIMARY KEY `pk` (`wp_id`, `relation_id`)
 );
-            
+
 CREATE TABLE `_test_nullable_translation` (
   `_test_nullable_id` binary(16) NOT NULL,
   `language_id` binary(16) NOT NULL,

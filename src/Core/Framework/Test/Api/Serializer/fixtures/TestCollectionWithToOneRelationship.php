@@ -614,6 +614,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures['data'][0]['relationships']['cmsSections'],
             $fixtures['data'][0]['relationships']['cmsPages'],
             $fixtures['data'][0]['relationships']['documents'],
+            $fixtures['data'][0]['relationships']['tags'],
 
             $fixtures['data'][1]['attributes']['userId'],
             $fixtures['data'][1]['attributes']['mediaType'],
@@ -635,6 +636,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures['data'][1]['relationships']['cmsSections'],
             $fixtures['data'][1]['relationships']['cmsPages'],
             $fixtures['data'][1]['relationships']['documents'],
+            $fixtures['data'][1]['relationships']['tags'],
 
             $fixtures['included'][0]
         );
@@ -665,6 +667,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures[0]['cmsSections'],
             $fixtures[0]['cmsPages'],
             $fixtures[0]['documents'],
+            $fixtures[0]['tags'],
 
             $fixtures[1]['userId'],
             $fixtures[1]['user'],
@@ -685,6 +688,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures[1]['cmsBlocks'],
             $fixtures[1]['cmsSections'],
             $fixtures[1]['cmsPages'],
+            $fixtures[1]['tags'],
             $fixtures[1]['documents']
         );
 

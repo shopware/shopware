@@ -109,6 +109,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
                 $language,
                 $currencyId
             );
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
         }
 
         $this->validateLogin($request, $context);

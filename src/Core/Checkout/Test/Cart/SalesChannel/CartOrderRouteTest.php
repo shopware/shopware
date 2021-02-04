@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -72,7 +73,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderEmptyCart(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         $this->browser
             ->request(
@@ -88,7 +89,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderOneProduct(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         // Fill product
         $this->browser
@@ -130,7 +131,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderWithComment(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         // Fill product
         $this->browser
@@ -174,7 +175,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderWithAffiliateAndCampaignTracking(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         // Fill product
         $this->browser
@@ -220,7 +221,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderWithAffiliateTrackingOnly(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         // Fill product
         $this->browser
@@ -265,7 +266,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderWithCampaignTrackingOnly(): void
     {
-        $this->login();
+        $this->createCustomerAndLogin();
 
         // Fill product
         $this->browser
@@ -308,6 +309,123 @@ class CartOrderRouteTest extends TestCase
         static::assertSame('test campaign code', $response['campaignCode']);
     }
 
+    public function testContextTokenExpiring(): void
+    {
+        /**
+         * - login
+         * - add product p1
+         * - simulate context token expiring
+         * - check for new context token
+         * - cart is empty
+         * - add product p2
+         * - login
+         * - check for new context token
+         * - cart should contain both products
+         */
+        $connection = $this->getContainer()->get(Connection::class);
+        $this->productRepository->create([
+            [
+                'id' => $this->ids->create('p2'),
+                'productNumber' => $this->ids->get('p2'),
+                'stock' => 10,
+                'name' => 'Test p2',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturerId' => $this->ids->get('manufacturerId'),
+                'taxId' => $this->ids->get('tax'),
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], $this->ids->context);
+
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $this->createCustomerAndLogin($email, $password);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+        $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($originalToken);
+        $data = json_decode($response->getContent(), true);
+        static::assertCount(1, $data['lineItems']);
+
+        $interval = new \DateInterval($this->getContainer()->getParameter('shopware.api.store.context_lifetime'));
+        $intervalInSeconds = (new \DateTime())->setTimeStamp(0)->add($interval)->getTimeStamp();
+        $intervalInDays = $intervalInSeconds / 86400 + 1;
+
+        // expire $originalToken context
+        $connection->executeUpdate(
+            '
+            UPDATE sales_channel_api_context
+            SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
+            ['intervalInDays' => -$intervalInDays]
+        );
+
+        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+
+        $response = $this->browser->getResponse();
+        $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
+
+        // we should get a new token and it should be different from the expired token context
+        static::assertNotNull($guestToken);
+        static::assertNotEquals($originalToken, $guestToken);
+
+        $data = json_decode($response->getContent(), true);
+        static::assertEmpty($data['lineItems']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p2'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p2'),
+                        ],
+                    ],
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+        $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertSame($guestToken, $token);
+
+        $data = json_decode($response->getContent(), true);
+        static::assertCount(1, $data['lineItems']);
+
+        // the cart should be merged on login and a new token should be created
+        $this->login($email, $password);
+
+        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+
+        $response = $this->browser->getResponse();
+        $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        $data = json_decode($response->getContent(), true);
+        static::assertCount(2, $data['lineItems']);
+
+        static::assertNotSame($guestToken, $mergedToken);
+        static::assertNotSame($originalToken, $mergedToken);
+    }
+
     private function createTestData(): void
     {
         $this->addCountriesToSalesChannel();
@@ -329,12 +447,17 @@ class CartOrderRouteTest extends TestCase
         ], $this->ids->context);
     }
 
-    private function login(): void
+    private function createCustomerAndLogin($email = null, $password = null): void
     {
-        $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
+        $email = $email ?? (Uuid::randomHex() . '@example.com');
+        $password = $password ?? 'shopware';
         $this->createCustomer($password, $email);
 
+        $this->login($email, $password);
+    }
+
+    private function login($email = null, $password = null): void
+    {
         $this->browser
             ->request(
                 'POST',

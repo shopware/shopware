@@ -56,13 +56,13 @@ class ScheduledTaskDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            (new StringField('scheduled_task_class', 'scheduledTaskClass', 512))->setFlags(new Required()),
-            (new IntField('run_interval', 'runInterval', 0))->setFlags(new Required()),
-            (new StringField('status', 'status'))->setFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new Required()),
+            (new StringField('scheduled_task_class', 'scheduledTaskClass', 512))->addFlags(new Required()),
+            (new IntField('run_interval', 'runInterval', 0))->addFlags(new Required()),
+            (new StringField('status', 'status'))->addFlags(new Required()),
             new DateTimeField('last_execution_time', 'lastExecutionTime'),
-            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
+            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required()),
 
             (new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'))->addFlags(new SetNullOnDelete()),
         ]);

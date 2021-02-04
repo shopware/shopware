@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\ApiVersioning\fixtures\Entities\v3\Ag
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -37,12 +38,12 @@ class BundlePriceDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('bundle_id', 'bundleId', BundleDefinition::class))->addFlags(new Required()),
-            (new PriceField('price', 'price'))->addFlags(new Required()),
-            (new IntField('quantity_start', 'quantityStart'))->addFlags(new Required()),
-            new IntField('quantity_end', 'quantityEnd'),
-            new ManyToOneAssociationField('bundle', 'bundle_id', BundleDefinition::class, 'id', false),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('bundle_id', 'bundleId', BundleDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new PriceField('price', 'price'))->addFlags(new ApiAware(), new Required()),
+            (new IntField('quantity_start', 'quantityStart'))->addFlags(new ApiAware(), new Required()),
+            (new IntField('quantity_end', 'quantityEnd'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('bundle', 'bundle_id', BundleDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
     }
 }

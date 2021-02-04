@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -44,24 +45,22 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields = parent::defineFields();
 
         $fields->add(
-            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new Runtime())
+            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
-            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Runtime())
+            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
-            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new Runtime())
+            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
-            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new Runtime())
+            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
-            (new BoolField('is_new', 'isNew'))->addFlags(new Runtime())
+            (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime())
         );
-
         $fields->add(
-            (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))
-                ->addFlags(new Runtime())
+            (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())
         );
 
         return $fields;

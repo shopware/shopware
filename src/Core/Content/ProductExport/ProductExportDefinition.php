@@ -47,13 +47,13 @@ class ProductExportDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
             (new FkField('storefront_sales_channel_id', 'storefrontSalesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_domain_id', 'salesChannelDomainId', SalesChannelDomainDefinition::class))->addFlags(new Required()),
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
-            (new StringField('file_name', 'fileName'))->setFlags(new Required()),
+            (new StringField('file_name', 'fileName'))->addFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new StringField('encoding', 'encoding'))->addFlags(new Required()),
             (new StringField('file_format', 'fileFormat'))->addFlags(new Required()),
@@ -65,7 +65,6 @@ class ProductExportDefinition extends EntityDefinition
             (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml()),
             (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml()),
             (new BoolField('paused_schedule', 'pausedSchedule')),
-
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

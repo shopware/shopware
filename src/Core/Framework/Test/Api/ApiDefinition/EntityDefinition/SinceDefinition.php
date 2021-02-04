@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -21,7 +22,7 @@ class SinceDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new IdField('id', 'id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslatio
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -47,9 +48,9 @@ class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefiniti
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new IntField('position', 'position'),
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new IntField('position', 'position'))->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

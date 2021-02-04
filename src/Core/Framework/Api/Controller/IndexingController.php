@@ -45,7 +45,7 @@ class IndexingController extends AbstractController
      * @Since("6.4.0.0")
      * Iterates the indexer
      *
-     * @Route("/api/v{version}/_action/indexing/{indexer}", name="api.action.indexing.iterate", methods={"POST"})
+     * @Route("/api/_action/indexing/{indexer}", name="api.action.indexing.iterate", methods={"POST"})
      */
     public function iterate(string $indexer, Request $request): JsonResponse
     {

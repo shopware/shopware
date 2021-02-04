@@ -135,10 +135,6 @@ describe('Minimal install', () => {
         // @frw in Administration: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index');
-        });
-
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.get('.sw-first-run-wizard__welcome-image').should('be.visible');
@@ -149,9 +145,6 @@ describe('Minimal install', () => {
         // @frw: skip data-import
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/data-import');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Data import');
 
@@ -164,9 +157,6 @@ describe('Minimal install', () => {
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
 
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/mailer/selection');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Mailer configuration');
 
@@ -177,9 +167,6 @@ describe('Minimal install', () => {
 
         // @frw: skip paypal
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/paypal/info');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
 
@@ -190,27 +177,18 @@ describe('Minimal install', () => {
 
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/plugins');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Plugins');
         cy.get('.sw-button span').contains('Next').click();
 
         // @frw: skip account login
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/shopware/account');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--disabled span').contains('Shopware');
         cy.get('.sw-button span').contains('Skip').click();
 
         // @frw: finish
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/first/run/wizard/index/finish');
-        });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--disabled span').contains('Shopware');
 

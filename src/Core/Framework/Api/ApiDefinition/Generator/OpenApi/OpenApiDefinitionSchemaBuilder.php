@@ -13,9 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -187,9 +187,13 @@ class OpenApiDefinitionSchemaBuilder
             return false;
         }
 
-        /** @var ReadProtected|null $readProtected */
-        $readProtected = $field->getFlag(ReadProtected::class);
-        if ($readProtected && !$readProtected->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class)) {
+        /** @var ApiAware|null $flag */
+        $flag = $field->getFlag(ApiAware::class);
+        if ($flag === null) {
+            return false;
+        }
+
+        if (!$flag->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class)) {
             return false;
         }
 

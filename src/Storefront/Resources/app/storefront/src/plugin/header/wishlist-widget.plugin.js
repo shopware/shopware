@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class WishlistWidgetPlugin extends Plugin {
     init() {
@@ -44,24 +45,41 @@ export default class WishlistWidgetPlugin extends Plugin {
         this.$emitter.subscribe('Wishlist/onProductRemoved', (event) => {
             this._renderCounter();
 
-            this._stopWishlistLoading(event.detail.productId);
+            this._reInitWishlistButton(event.detail.productId);
         });
 
         this.$emitter.subscribe('Wishlist/onProductAdded', (event) => {
             this._renderCounter();
 
-            this._stopWishlistLoading(event.detail.productId);
+            this._reInitWishlistButton(event.detail.productId);
         });
+
+        const listingEl = DomAccess.querySelector(document, '.cms-element-product-listing-wrapper', false);
+
+        if (listingEl) {
+            const listingPlugin = window.PluginManager.getPluginInstanceFromElement(listingEl, 'Listing');
+
+            listingPlugin.$emitter.subscribe('Listing/afterRenderResponse', () => {
+                window.PluginManager.getPluginInstances('AddToWishlist').forEach((pluginInstance) => {
+                    pluginInstance.initStateClasses();
+                });
+            })
+        }
     }
 
     /**
      * @private
      */
-    _stopWishlistLoading(productId) {
-        const buttonEl = document.querySelector('.product-wishlist-' + productId);
+    _reInitWishlistButton(productId) {
+        const buttonElements = DomAccess.querySelectorAll(document, '.product-wishlist-' + productId, false)
 
-        if (buttonEl) {
-            buttonEl.classList.remove('product-wishlist-loading');
+        if (!buttonElements) {
+            return;
         }
+
+        buttonElements.forEach((el) => {
+            const plugin = window.PluginManager.getPluginInstanceFromElement(el, 'AddToWishlist');
+            plugin.initStateClasses();
+        });
     }
 }

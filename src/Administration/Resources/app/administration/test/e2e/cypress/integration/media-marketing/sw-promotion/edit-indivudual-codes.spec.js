@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -95,5 +95,63 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('#addPromotionOffcanvasCart').click();
         cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
+    });
+
+    it('@marketing: use invalid individual promotion codes', () => {
+        const page = new ProductPageObject();
+
+        // Active code in promotion
+        cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
+        cy.get('input[name="sw-field--promotion-active"]').should('be.visible');
+        cy.get('input[name="sw-field--promotion-active"]').click();
+        cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
+            .type('{esc}');
+        cy.get('input[name="sw-field--promotion-useCodes"]').click();
+        cy.get('input[name="sw-field--promotion-useIndividualCodes"]').click();
+
+        // Set individual code
+        cy.get('.sw-promotion-code-form__link-manage-individual').should('be.visible');
+        cy.get('.sw-promotion-code-form__link-manage-individual').click();
+
+        cy.get('.sw-promotion-code-form__modal-individual').should('be.visible');
+        cy.get('#sw-field--promotion-individualCodePattern').typeAndCheck('my-code');
+        cy.get('.sw-promotion-individualcodes__top-bar > .sw-button')
+            .click();
+
+        cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible');
+
+        cy.get('#sw-field--promotion-individualCodePattern').clear().typeAndCheck('code-%d');
+        cy.get('#sw-field--generateCount').clear().typeAndCheck(11);
+        cy.get('.sw-promotion-individualcodes__top-bar > .sw-button')
+            .click();
+
+        cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible');
+
+        cy.get('#sw-field--promotion-individualCodePattern').clear().typeAndCheck('code-%s');
+        cy.get('#sw-field--generateCount').clear().typeAndCheck(27);
+        cy.get('.sw-promotion-individualcodes__top-bar > .sw-button')
+            .click();
+
+        cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible');
+    });
+
+    it('@marketing: create promotion with promotion name', () => {
+        cy.get('a[href="#/sw/promotion/create"]').click();
+
+        // Create promotion
+        cy.get('.sw-promotion-detail').should('be.visible');
+        cy.get('input[name="sw-field--promotion-active"]').click();
+        cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
+            .type('{esc}');
+        cy.get('input[name="sw-field--promotion-useCodes"]').click();
+        cy.get('input[name="sw-field--promotion-useIndividualCodes"]').click();
+
+        // Set individual code
+        cy.get('.sw-promotion-code-form__link-manage-individual').should('be.visible');
+        cy.get('.sw-promotion-code-form__link-manage-individual').click();
+
+        cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible');
     });
 });

@@ -25,7 +25,7 @@
     "@babel/plugin-proposal-numeric-separator",
     "@babel/plugin-proposal-throw-expressions"
   ],
-  "comments": false,
+  "comments": true,
   "env": {
     "test": {
       "presets": [

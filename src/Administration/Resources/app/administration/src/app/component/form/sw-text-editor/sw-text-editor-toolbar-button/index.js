@@ -17,7 +17,7 @@ Component.register('sw-text-editor-toolbar-button', {
 
         disabled: {
             type: Boolean,
-            requred: false,
+            required: false,
             default: false
         },
 

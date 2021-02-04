@@ -101,8 +101,6 @@ class CustomerEntity extends Entity
     protected $title;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     *
      * @var array|null
      */
     protected $vatIds;
@@ -318,8 +316,6 @@ class CustomerEntity extends Entity
     protected $boundSalesChannel;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
@@ -479,17 +475,11 @@ class CustomerEntity extends Entity
         $this->title = $title;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function getVatIds(): ?array
     {
         return $this->vatIds;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10559)
-     */
     public function setVatIds(?array $vatIds): void
     {
         $this->vatIds = $vatIds;
@@ -916,17 +906,11 @@ class CustomerEntity extends Entity
         $this->boundSalesChannel = $boundSalesChannel;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;

@@ -62,7 +62,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $this->repository->create([$data[$id]], $this->context);
 
         $record = $this->connection->fetchAssoc(
-            'SELECT * 
+            'SELECT *
                         FROM mail_header_footer mhf
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id
                         WHERE id = :id',
@@ -92,7 +92,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
-            'SELECT * 
+            'SELECT *
                         FROM mail_header_footer mhf
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
@@ -158,7 +158,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $this->repository->upsert(array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
-            'SELECT * 
+            'SELECT *
                         FROM mail_header_footer mhf
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
@@ -196,7 +196,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
         $this->repository->delete($ids, $this->context);
 
         $records = $this->connection->fetchAll(
-            'SELECT * 
+            'SELECT *
                         FROM mail_header_footer mhf
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );

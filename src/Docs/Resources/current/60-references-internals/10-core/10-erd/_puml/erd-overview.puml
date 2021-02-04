@@ -114,6 +114,7 @@ Table(ShopwareCoreSystemUnit, "Shopware\Core\System\Unit\n(Units)") {
 }
 Table(ShopwareCoreSystemUser, "Shopware\Core\System\User\n(Admin Accounts)") {
    user Table
+   user_config Table
    user_access_key Table
    user_recovery Table
 }
@@ -242,6 +243,8 @@ Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)
    customer_group Table
    customer_group_registration_sales_channels Table
    customer_tag Table
+   customer_wishlist Table
+   customer_wishlist_product Table
 }
 Table(ShopwareCoreCheckoutDocument, "Shopware\Core\Checkout\Document\n(Printed works)") {
    document Table
@@ -416,9 +419,9 @@ ShopwareStorefront --> ShopwareCoreContentMedia
 ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutOrder --> ShopwareCoreContentProduct
+ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
-ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
 ShopwareCoreContentProductStream --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemDeliveryTime
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreSystemDeliveryTime

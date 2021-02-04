@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
@@ -27,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_10549)
- *
  * @RouteScope(scopes={"store-api"})
  */
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
@@ -148,8 +147,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
 
-        $now = (new \DateTime())->sub(new \DateInterval('PT2H'));
-
         $upsertData = [];
 
         /** @var string $id * */
@@ -166,7 +163,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-                'createdAt' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 
@@ -185,7 +181,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
+        /** @var Statement $stmt */
+        $stmt = $query->execute();
 
-        return FetchModeHelper::keyPair($query->execute()->fetchAll());
+        return FetchModeHelper::keyPair($stmt->fetchAll());
     }
 }

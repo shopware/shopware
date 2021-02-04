@@ -649,6 +649,7 @@
       "cmsLayoutAssignmentModal": {
         "infoText": "The layout will be displayed in your shop, as soon as you assign it to an active category.",
         "infoTextShopPages": "You can use this layout for categories and for shop pages such as TOS, imprint, error pages etc.",
+        "infoTextProductDetailPages": "The layout can only be seen in your shop when you assign it to an active product.",
         "labelCategories": "Categories",
         "placeholderCategories": "Choose categories...",
         "labelSalesChannel": "Sales Channel",
@@ -656,13 +657,17 @@
         "resetOptionSalesChannel": "All Sales Channels",
         "helpTextSalesChannel": "Layouts assigned to specific Sales Channels will override layout assignments in \"All Sales Channels\".",
         "labelShopPages": "Shop pages",
-        "confirmChangesConfirm": "Confirm",
+        "confirmChanges": "Apply",
+        "confirmChangesConfirm": "Apply",
         "confirmChangesRestorePrev": "Discard",
         "confirmChangesTextCategories": "You have removed layout assignments from categories. If you confirm these changes, those categories will no longer have a layout assigned.",
         "confirmChangesTextCategoriesAssignedLayouts": "Some of the selected categories already have a layout assigned. If you proceed those previous assignments will be replaced with the current layout.",
+        "confirmChangesTextProducts": "You have removed layout assignments from products. If you confirm these changes, those products will no longer have a layout assigned.",
+        "confirmChangesTextProductsAssignedLayouts": "Some of the selected products already have a layout assigned. If you proceed the previous assignments will be replaced with the current layout.",
         "confirmChangesTextShopPages": "You have removed layout assignments from shop pages. If you confirm these changes, those shop pages will no longer have a layout assigned",
+        "confirmChangesTextGeneral": "Select \"Apply\" if you want to overwrite the previous layout assignments.<br>Select \"Discard\" if you want to restore the previous layout assignments.<br>Select \"Cancel\" if you want to continue editing the layout assignments.",
         "confirmChangesText": "Do you want to apply your changes?",
-        "confirmChangesTitle": "Confirm changes",
+        "confirmChangesTitle": "Confirm assignment",
         "shopPagesLoadError": "Unable to load shop pages",
         "shopPagesSaveError": "Unable to save shop pages",
         "tabCategories": "Categories",
@@ -677,7 +682,23 @@
           "maintenancePage": "Maintenance pages",
           "contactPage": "Contact forms",
           "newsletterPage": "Newsletter pages"
+        },
+        "products": {
+          "productAssignmentHeadline": "Product assignment",
+          "productAssignmentPlaceholder": "Search and assign products...",
+          "productAssignmentLabel": "Products",
+          "productAssignmentEmptyStateDescription": "No products assigned",
+          "productStreamAssignmentEmptyStateDescription": "No dynamic product group assigned",
+          "columnNameLabel": "Name",
+          "columnManufacturerLabel": "Manufacturer"
         }
+      },
+      "cmsMissingElementModal": {
+        "headline": "Missing elements",
+        "title": "The element <span>{element}</span> is missing in this product detail page. | The elements <span>{element}</span> are missing in this product detail page.",
+        "subtitle": "Customers visiting this page will miss out on important product information.",
+        "paragraph": "Do you want to save the layout anyway?",
+        "buttonSave": "Save layout"
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",

@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Seo\MainCategory;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -53,18 +52,17 @@ class MainCategoryDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('category_id', 'categoryId', CategoryDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(CategoryDefinition::class))->addFlags(new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-
+            (new FkField('category_id', 'categoryId', CategoryDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(CategoryDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class),
-            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
         ]);
     }
 }

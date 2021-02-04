@@ -41,7 +41,7 @@ describe('Tax: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--4 ${page.elements.taxColumnName}`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.taxColumnName}`).should('be.visible')
             .contains('Very high tax');
     });
 
@@ -71,7 +71,7 @@ describe('Tax: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`).should('be.visible')
             .contains('Still high tax');
     });
 

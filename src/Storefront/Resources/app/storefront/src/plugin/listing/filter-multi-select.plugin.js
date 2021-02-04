@@ -212,6 +212,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
     disableFilter() {
         const mainFilterButton = DomAccess.querySelector(this.el, this.options.mainFilterButtonSelector);
         mainFilterButton.classList.add('disabled');
+        mainFilterButton.setAttribute('disabled', 'disabled');
         mainFilterButton.setAttribute('title', this.options.snippets.disabledFilterText);
     }
 
@@ -221,6 +222,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
     enableFilter() {
         const mainFilterButton = DomAccess.querySelector(this.el, this.options.mainFilterButtonSelector);
         mainFilterButton.classList.remove('disabled');
+        mainFilterButton.removeAttribute('disabled');
         mainFilterButton.removeAttribute('title');
     }
 

@@ -50,7 +50,7 @@ Component.register('sw-product-clone-modal', {
                 .then(this.verifyVariants);
         },
 
-        cloneParent(number) {
+        async cloneParent(number) {
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
@@ -61,11 +61,10 @@ Component.register('sw-product-clone-modal', {
                 }
             };
 
-            return this.repository
-                .clone(this.product.id, Shopware.Context.api, behavior)
-                .then((clone) => {
-                    return { id: clone.id, productNumber: number.number };
-                });
+            await this.repository.save(this.product, Shopware.Context.api);
+            const clone = await this.repository.clone(this.product.id, Shopware.Context.api, behavior);
+
+            return { id: clone.id, productNumber: number.number };
         },
 
         verifyVariants(duplicate) {

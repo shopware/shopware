@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\Cms;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -51,25 +53,20 @@ class CmsPageDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-
-            new TranslatedField('name'),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            new StringField('entity', 'entity'),
-            new JsonField('config', 'config', [
-                new StringField('background_color', 'backgroundColor'),
-            ]),
-
-            new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class),
-
-            new TranslatedField('customFields'),
-
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
+            (new JsonField('config', 'config', [
+                (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
+            ]))->addFlags(new ApiAware()),
+            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new LockedField(),
 
-            (new OneToManyAssociationField('sections', CmsSectionDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
-            new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),
-
-            new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false),
+            (new OneToManyAssociationField('sections', CmsSectionDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
         ]);
@@ -77,6 +74,12 @@ class CmsPageDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
                 (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_12032')) {
+            $collection->add(
+                (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete())
             );
         }
 

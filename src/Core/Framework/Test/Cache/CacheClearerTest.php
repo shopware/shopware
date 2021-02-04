@@ -153,4 +153,22 @@ class CacheClearerTest extends TestCase
         static::assertNotEquals($id, $cacheItem);
         static::assertInstanceOf(TaxEntity::class, $cacheItem);
     }
+
+    public function testUrlGeneratorCacheGetsCleared(): void
+    {
+        $cacheClearer = $this->getContainer()->get(CacheClearer::class);
+
+        touch(sprintf('%s%sUrlGenerator.php', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
+        touch(sprintf('%s%sUrlGenerator.php.meta', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));
+
+        $urlGeneratorCacheFileFinder = (new Finder())->in($this->getKernel()->getCacheDir())->files()->name('UrlGenerator.php*');
+
+        static::assertCount(2, $urlGeneratorCacheFileFinder);
+
+        $cacheClearer->clear();
+
+        foreach ($urlGeneratorCacheFileFinder->getIterator() as $generatorFile) {
+            static::assertFileNotExists($generatorFile);
+        }
+    }
 }

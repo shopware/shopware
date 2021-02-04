@@ -62,9 +62,9 @@ class EntityForeignKeyResolver
      *
      * @throws \RuntimeException
      */
-    public function getAffectedDeleteRestrictions(EntityDefinition $definition, array $ids, Context $context): array
+    public function getAffectedDeleteRestrictions(EntityDefinition $definition, array $ids, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
     {
-        return $this->fetch($definition, $ids, RestrictDelete::class, $context);
+        return $this->fetch($definition, $ids, RestrictDelete::class, $context, $restrictDeleteOnlyFirstLevel);
     }
 
     /**
@@ -110,7 +110,7 @@ class EntityForeignKeyResolver
     /**
      * @throws InvalidUuidException
      */
-    private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context): array
+    private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
     {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return [];
@@ -139,7 +139,7 @@ class EntityForeignKeyResolver
                 continue;
             }
 
-            $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context);
+            $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context, $restrictDeleteOnlyFirstLevel);
 
             $result = array_merge($result, $affected);
         }
@@ -147,8 +147,14 @@ class EntityForeignKeyResolver
         return $result;
     }
 
-    private function fetchAssociation(array $ids, EntityDefinition $root, AssociationField $association, string $class, Context $context): array
-    {
+    private function fetchAssociation(
+        array $ids,
+        EntityDefinition $root,
+        AssociationField $association,
+        string $class,
+        Context $context,
+        bool $restrictDeleteOnlyFirstLevel = false
+    ): array {
         if (empty($ids)) {
             return [];
         }
@@ -235,8 +241,12 @@ class EntityForeignKeyResolver
             $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
         }
 
+        // Only include entities directly associated with the definition
+        if ($restrictDeleteOnlyFirstLevel && $class === RestrictDelete::class) {
+            return $formatted;
+        }
         // call recursion for nested cascades
-        $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context);
+        $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context, $restrictDeleteOnlyFirstLevel);
 
         return array_merge($formatted, $nested);
     }

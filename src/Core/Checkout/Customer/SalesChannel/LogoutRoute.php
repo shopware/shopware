@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -77,25 +78,45 @@ class LogoutRoute extends AbstractLogoutRoute
      */
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
-        $salesChannelId = $context->getSalesChannel()->getId();
-        if ($this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
+        /** @var CustomerEntity $customer */
+        $customer = $context->getCustomer();
+        if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken());
-        } else {
-            $newToken = Random::getAlphanumericString(32);
 
-            if ((bool) $data->get('replace-token')) {
-                $newToken = $this->contextPersister->replace($context->getToken(), $context);
-            }
+            $event = new CustomerLogoutEvent($context, $customer);
+            $this->eventDispatcher->dispatch($event);
 
-            $context->assign([
-                'token' => $newToken,
-            ]);
+            return new ContextTokenResponse($context->getToken());
         }
 
-        $event = new CustomerLogoutEvent($context, $context->getCustomer());
+        $newToken = Random::getAlphanumericString(32);
+        if ((bool) $data->get('replace-token')) {
+            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        }
+
+        $context->assign([
+            'token' => $newToken,
+        ]);
+
+        $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);
 
         return new ContextTokenResponse($context->getToken());
+    }
+
+    private function shouldDelete(SalesChannelContext $context): bool
+    {
+        $config = $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
+
+        if ($config) {
+            return true;
+        }
+
+        if ($context->getCustomer() === null) {
+            return true;
+        }
+
+        return $context->getCustomer()->getGuest();
     }
 }

@@ -34,7 +34,7 @@ class ProductLoadedSubscriberTest extends TestCase
     /**
      * @dataProvider propertyCases
      */
-    public function testSortProperties(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    public function testSortProperties(array $product, array $expected, array $unexpected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
@@ -71,6 +71,10 @@ class ProductLoadedSubscriberTest extends TestCase
                 static::assertEquals($option['id'], $optionElements[$optionId]->getId());
                 static::assertEquals($option['name'], $optionElements[$optionId]->getName());
             }
+        }
+
+        foreach ($unexpected as $unexpectedGroup) {
+            static::assertArrayNotHasKey($unexpectedGroup['id'], $sortedProperties);
         }
     }
 
@@ -118,6 +122,12 @@ class ProductLoadedSubscriberTest extends TestCase
                             'groupId' => $ids->get('taste'),
                             'group' => ['id' => $ids->get('taste'), 'name' => 'taste'],
                         ],
+                        [
+                            'id' => $ids->get('hiddenValue'),
+                            'name' => 'hiddenValue',
+                            'groupId' => $ids->get('hidden'),
+                            'group' => ['id' => $ids->get('hidden'), 'name' => 'hidden', 'visibleOnProductDetailPage' => false],
+                        ],
                     ],
                 ]),
                 [
@@ -132,6 +142,19 @@ class ProductLoadedSubscriberTest extends TestCase
                             $ids->get('sweet') => [
                                 'id' => $ids->get('sweet'),
                                 'name' => 'sweet',
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    [
+                        'id' => $ids->get('hidden'),
+                        'name' => 'hidden',
+                        'visibleOnProductDetailPage' => false,
+                        'options' => [
+                            $ids->get('hiddenValue') => [
+                                'id' => $ids->get('hiddenValue'),
+                                'name' => 'hiddenValue',
                             ],
                         ],
                     ],
@@ -206,6 +229,7 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ],
+                [],
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria()),
                 false,

@@ -19,11 +19,13 @@ class PluginAclTest extends TestCase
     private const PLUGIN_ACL_PRODUCT_VIEWER = 'SwagTestPluginAclProductViewer';
     private const PLUGIN_ACL_PRODUCT_WRITER = 'SwagTestPluginAclProductWriter';
     private const PLUGIN_ACL_PRODUCT_VIEWER_ADDITIONAL = 'SwagTestPluginAclAdditionalProductViewer';
+    private const PLUGIN_ACL_OPEN_TO_ALL = 'SwagTestPluginAclOpenToAllRead';
 
     private const PLUGINS_TO_LOAD = [
         self::PLUGIN_ACL_PRODUCT_VIEWER,
         self::PLUGIN_ACL_PRODUCT_WRITER,
         self::PLUGIN_ACL_PRODUCT_VIEWER_ADDITIONAL,
+        self::PLUGIN_ACL_OPEN_TO_ALL,
     ];
 
     /**
@@ -100,6 +102,46 @@ class PluginAclTest extends TestCase
         $enrichedAclRole = $event->getEntities()[0];
 
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedAclRole->getPrivileges());
+    }
+
+    public function testAclPluginOpenToAllDeactivated(): void
+    {
+        $this->deactivatePlugin(self::PLUGIN_ACL_OPEN_TO_ALL);
+
+        $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
+
+        $event = new EntityLoadedEvent(
+            $this->createMock(AclRoleDefinition::class),
+            $aclRoles,
+            Context::createDefaultContext()
+        );
+
+        $this->pluginAclSubscriber->onAclRoleLoaded($event);
+
+        /** @var AclRoleEntity $enrichedAclRole */
+        $enrichedAclRole = $event->getEntities()[0];
+
+        static::assertSame(['product.viewer', 'product:read'], $enrichedAclRole->getPrivileges());
+    }
+
+    public function testAclPluginOpenToAllActivated(): void
+    {
+        $this->activatePlugin(self::PLUGIN_ACL_OPEN_TO_ALL);
+
+        $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
+
+        $event = new EntityLoadedEvent(
+            $this->createMock(AclRoleDefinition::class),
+            $aclRoles,
+            Context::createDefaultContext()
+        );
+
+        $this->pluginAclSubscriber->onAclRoleLoaded($event);
+
+        /** @var AclRoleEntity $enrichedAclRole */
+        $enrichedAclRole = $event->getEntities()[0];
+
+        static::assertSame(['product.viewer', 'product:read', 'open_to_all:read'], $enrichedAclRole->getPrivileges());
     }
 
     public function testAclPluginOtherRolesUnaffected(): void

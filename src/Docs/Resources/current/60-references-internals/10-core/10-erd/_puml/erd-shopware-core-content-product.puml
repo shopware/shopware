@@ -84,6 +84,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    packUnitPlural translated
    customFields translated
    customSearchKeywords translated
+   canonicalProductId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -166,8 +167,8 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    points float
    status bool
    comment longText
-   updatedAt updatedAt
    not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -318,6 +319,8 @@ ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
 }
 ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "order_line_item") {
 }
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product") {
+}
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
 ForeignTable(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set") {
@@ -365,6 +368,7 @@ ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinit
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition

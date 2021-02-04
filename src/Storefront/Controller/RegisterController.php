@@ -235,6 +235,10 @@ class RegisterController extends StorefrontController
 
         $this->addFlash('success', $this->trans('account.doubleOptInRegistrationSuccessfully'));
 
+        if ($redirectTo = $queryDataBag->get('redirectTo')) {
+            return $this->redirectToRoute($redirectTo);
+        }
+
         return $this->redirectToRoute('frontend.account.home.page');
     }
 

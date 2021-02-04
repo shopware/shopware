@@ -45,6 +45,12 @@
                             :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')">
                         </sw-switch-field>
                     {% endblock %}
+
+                    {% block sw_data_grid_settings_additional_settings %}
+                        <slot name="additionalSettings">
+                            {% block sw_data_grid_settings_additional_settings_slot %}{% endblock %}
+                        </slot>
+                    {% endblock %}
                 </div>
             {% endblock %}
 

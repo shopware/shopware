@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
 class UserEntity extends Entity
@@ -94,6 +95,11 @@ class UserEntity extends Entity
     protected $accessKeys;
 
     /**
+     * @var UserConfigCollection|null
+     */
+    protected $configs;
+
+    /**
      * @var StateMachineHistoryCollection|null
      */
     protected $stateMachineHistoryEntries;
@@ -112,6 +118,11 @@ class UserEntity extends Entity
      * @var string|null
      */
     protected $storeToken;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    protected $lastUpdatedPasswordAt;
 
     /**
      * @var array|null
@@ -268,6 +279,16 @@ class UserEntity extends Entity
         $this->accessKeys = $accessKeys;
     }
 
+    public function getConfigs(): ?UserConfigCollection
+    {
+        return $this->configs;
+    }
+
+    public function setConfigs(UserConfigCollection $configs): void
+    {
+        $this->configs = $configs;
+    }
+
     public function getCustomFields(): ?array
     {
         return $this->customFields;
@@ -346,5 +367,15 @@ class UserEntity extends Entity
     public function setUpdatedOrders(OrderCollection $updatedOrders): void
     {
         $this->updatedOrders = $updatedOrders;
+    }
+
+    public function getLastUpdatedPasswordAt(): ?\DateTimeInterface
+    {
+        return $this->lastUpdatedPasswordAt;
+    }
+
+    public function setLastUpdatedPasswordAt(\DateTimeInterface $lastUpdatedPasswordAt): void
+    {
+        $this->lastUpdatedPasswordAt = $lastUpdatedPasswordAt;
     }
 }

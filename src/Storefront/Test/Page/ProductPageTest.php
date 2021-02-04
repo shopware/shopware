@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -200,6 +202,94 @@ class ProductPageTest extends TestCase
 
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testSlotOverwrite(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $cmsPageId = Uuid::randomHex();
+        $firstSlotId = Uuid::randomHex();
+        $secondSlotId = Uuid::randomHex();
+        $productCmsPageData = [
+            'cmsPage' => [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
+                        'position' => 0,
+                        'blocks' => [
+                            [
+                                'type' => 'text',
+                                'position' => 0,
+                                'slots' => [
+                                    [
+                                        'id' => $firstSlotId,
+                                        'type' => 'text',
+                                        'slot' => 'content',
+                                        'config' => [
+                                            'content' => [
+                                                'source' => 'static',
+                                                'value' => 'initial',
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'id' => $secondSlotId,
+                                        'type' => 'text',
+                                        'slot' => 'content',
+                                        'config' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'slotConfig' => [
+                $firstSlotId => [
+                    'content' => [
+                        'source' => 'static',
+                        'value' => 'overwrittenByProduct',
+                    ],
+                ],
+                $secondSlotId => [
+                    'content' => [
+                        'source' => 'static',
+                        'value' => 'overwrittenByProduct',
+                    ],
+                ],
+            ],
+        ];
+
+        $product = $this->getRandomProduct($context, 10, false, $productCmsPageData);
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+        $cmsPage = $page->getCmsPage();
+        $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrittenByProduct')]);
+
+        static::assertEquals(
+            $productCmsPageData['slotConfig'][$firstSlotId],
+            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getConfig()
+        );
+
+        static::assertEquals(
+            $fieldConfigCollection,
+            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($firstSlotId)->getFieldConfig()
+        );
+
+        static::assertEquals(
+            $productCmsPageData['slotConfig'][$secondSlotId],
+            $cmsPage->getSections()->first()->getBlocks()->getSlots()->get($secondSlotId)->getConfig()
+        );
     }
 
     /**

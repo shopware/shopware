@@ -353,4 +353,16 @@ EOD
 __EMPTY__
 EOD
     ,
+    'Content/LandingPage' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Content/Mail' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/V6_4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

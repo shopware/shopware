@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -205,10 +206,10 @@ class TestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new IdField('id', 'id'),
-            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true),
-            new OneToManyAssociationField('one_to_many', self::class, 'test_id'),
-            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('one_to_many', self::class, 'test_id'))->addFlags(new ApiAware()),
+            (new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'))->addFlags(new ApiAware()),
         ]);
     }
 }

@@ -372,6 +372,12 @@ class OpenApiSchemaBuilder
                     'in' => 'header',
                     'name' => PlatformRequest::HEADER_ACCESS_KEY,
                 ]),
+                'ContextToken' => new SecurityScheme([
+                    'securityScheme' => 'ContextToken',
+                    'type' => 'apiKey',
+                    'in' => 'header',
+                    'name' => PlatformRequest::HEADER_CONTEXT_TOKEN,
+                ]),
             ];
         }
 

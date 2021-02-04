@@ -7,9 +7,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-/**
- * @internal (flag:FEATURE_NEXT_10549)
- */
 class CustomerWishlistProductEntity extends Entity
 {
     use EntityIdTrait;

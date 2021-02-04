@@ -9,7 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 class StoreHandshake implements AppHandshakeInterface
 {

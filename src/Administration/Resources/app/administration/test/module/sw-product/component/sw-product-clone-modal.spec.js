@@ -14,7 +14,8 @@ function createWrapper() {
                 create: () => ({
                     clone: jest.fn(() => Promise.resolve({
                         id: '1a2b3c'
-                    }))
+                    })),
+                    save: () => Promise.resolve()
                 })
             },
             numberRangeService: {

@@ -144,17 +144,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         return $this->getIndexer($name) !== null;
     }
 
-    private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
-    {
-        if ($useQueue || $message->forceQueue()) {
-            $this->messageBus->dispatch($message);
-
-            return;
-        }
-        $this->handle($message);
-    }
-
-    private function getIndexer(string $name): ?EntityIndexer
+    public function getIndexer(string $name): ?EntityIndexer
     {
         foreach ($this->indexer as $indexer) {
             if ($indexer->getName() === $name) {
@@ -163,6 +153,16 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         return null;
+    }
+
+    private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
+    {
+        if ($useQueue || $message->forceQueue()) {
+            $this->messageBus->dispatch($message);
+
+            return;
+        }
+        $this->handle($message);
     }
 
     private function iterateIndexer(string $name, $offset, bool $useQueue): ?EntityIndexingMessage

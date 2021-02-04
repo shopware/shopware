@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
+use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
@@ -43,9 +44,9 @@ class RefreshAppCommandTest extends TestCase
         $display = $commandTester->getDisplay();
 
         // header
-        static::assertRegExp('/.*Plugin\s+Label\s+Version\s+Author\s+\n.*/', $display);
+        static::assertRegExp('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
         // content
-        static::assertRegExp('/.*SwagApp\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+        static::assertRegExp('/.*withoutPermissions\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
     }
 
     public function testRefreshWithForce(): void
@@ -58,9 +59,9 @@ class RefreshAppCommandTest extends TestCase
         $display = $commandTester->getDisplay();
 
         // header
-        static::assertRegExp('/.*Plugin\s+Label\s+Version\s+Author\s+\n.*/', $display);
+        static::assertRegExp('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
         // content
-        static::assertRegExp('/.*SwagApp\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+        static::assertRegExp('/.*withPermissions\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
     }
 
     public function testRefreshCancel(): void
@@ -84,7 +85,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertEquals(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
-        static::assertStringContainsString('[CAUTION] App "SwagApp" should be installed', $display);
+        static::assertStringContainsString('[CAUTION] App "withPermissions" should be installed', $display);
         // header permissions
         static::assertRegExp('/.*Resource\s+Privileges\s+\n.*/', $display);
         // content permissions
@@ -93,9 +94,9 @@ class RefreshAppCommandTest extends TestCase
         static::assertRegExp('/.*order\s+read\s+\n.*/', $display);
 
         // header app list
-        static::assertRegExp('/.*Plugin\s+Label\s+Version\s+Author\s+\n.*/', $display);
+        static::assertRegExp('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
         // content app list
-        static::assertRegExp('/.*SwagApp\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+        static::assertRegExp('/.*withPermissions\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
     }
 
     public function testRefreshWithPermissionsOnInstallCancel(): void
@@ -108,7 +109,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertEquals(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
-        static::assertStringContainsString('[CAUTION] App "SwagApp" should be installed', $display);
+        static::assertStringContainsString('[CAUTION] App "withPermissions" should be installed', $display);
         // header permissions
         static::assertRegExp('/.*Resource\s+Privileges\s+\n.*/', $display);
         // content permissions
@@ -122,7 +123,7 @@ class RefreshAppCommandTest extends TestCase
     public function testRefreshWithPermissionsOnUpdate(): void
     {
         $this->appRepository->create([[
-            'name' => 'SwagApp',
+            'name' => 'withPermissions',
             'path' => __DIR__ . '/_fixtures/withPermissions',
             'version' => '0.9.0',
             'label' => 'test',
@@ -146,7 +147,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertEquals(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
-        static::assertStringContainsString('[CAUTION] App "SwagApp" should be updated', $display);
+        static::assertStringContainsString('[CAUTION] App "withPermissions" should be updated', $display);
         // header permissions
         static::assertRegExp('/.*Resource\s+Privileges\s+\n.*/', $display);
         // content permissions
@@ -155,15 +156,15 @@ class RefreshAppCommandTest extends TestCase
         static::assertRegExp('/.*order\s+read\s+\n.*/', $display);
 
         // header app list
-        static::assertRegExp('/.*Plugin\s+Label\s+Version\s+Author\s+\n.*/', $display);
+        static::assertRegExp('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
         // content app list
-        static::assertRegExp('/.*SwagApp\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+        static::assertRegExp('/.*withPermissions\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
     }
 
     public function testRefreshWithPermissionsOnUpdateCancel(): void
     {
         $this->appRepository->create([[
-            'name' => 'SwagApp',
+            'name' => 'withPermissions',
             'path' => __DIR__ . '/_fixtures/withPermissions',
             'version' => '0.9.0',
             'label' => 'test',
@@ -187,7 +188,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertEquals(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
-        static::assertStringContainsString('[CAUTION] App "SwagApp" should be updated', $display);
+        static::assertStringContainsString('[CAUTION] App "withPermissions" should be updated', $display);
         // header permissions
         static::assertRegExp('/.*Resource\s+Privileges\s+\n.*/', $display);
         // content permissions
@@ -220,12 +221,40 @@ class RefreshAppCommandTest extends TestCase
         $display = $commandTester->getDisplay();
 
         // header
-        static::assertRegExp('/.*Failed\s+Reason\s+\n.*/', $display);
+        static::assertRegExp('/.*App\s+Reason\s+\n.*/', $display);
         // content
-        static::assertRegExp('/.*SwagApp\s+The app provided a invalid response\s+\n.*/', $display);
+        static::assertRegExp('/.*registrationFailure\s+The app provided an invalid response\s+\n.*/', $display);
 
         $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
         static::assertEquals(0, $registeredApps->getTotal());
+    }
+
+    public function testRefreshValidationFailure(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->setInputs(['yes', 'yes']);
+
+        $commandTester->execute([]);
+
+        static::assertEquals(1, $commandTester->getStatusCode());
+        $display = $commandTester->getDisplay();
+
+        static::assertStringContainsString('[ERROR] The app "validationFailures" is invalid:', $display);
+        static::assertStringContainsString('[ERROR] The app "validationFailure" is invalid:', $display);
+
+        $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
+        static::assertEquals(0, $registeredApps->getTotal());
+    }
+
+    public function testRefreshInvalidAppWithNoValidate(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->execute(['-f' => true, '--no-validate' => true]);
+
+        // header app list
+        static::assertRegExp('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $commandTester->getDisplay());
+        // content app list
+        static::assertRegExp('/.*validationFailures\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $commandTester->getDisplay());
     }
 
     private function createCommand(string $appFolder): RefreshAppCommand
@@ -242,7 +271,8 @@ class RefreshAppCommandTest extends TestCase
                 ),
                 $this->getContainer()->get(AppLifecycle::class)
             ),
-            new AppPrinter($this->appRepository)
+            new AppPrinter($this->appRepository),
+            $this->getContainer()->get(ValidateAppCommand::class)
         );
     }
 }

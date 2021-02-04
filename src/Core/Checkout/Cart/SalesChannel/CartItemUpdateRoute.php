@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -34,11 +36,17 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      */
     private $lineItemFactory;
 
-    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;
         $this->cartCalculator = $cartCalculator;
         $this->lineItemFactory = $lineItemFactory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractCartItemUpdateRoute
@@ -71,8 +79,9 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         $cart->markModified();
 
         $cart = $this->cartCalculator->calculate($cart, $context);
-
         $this->cartPersister->save($cart, $context);
+
+        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $request->request->get('items', []), $context));
 
         return new CartResponse($cart);
     }

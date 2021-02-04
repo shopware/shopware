@@ -8,6 +8,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -50,18 +51,18 @@ class ProductConfiguratorSettingDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
-            new FkField('media_id', 'mediaId', MediaDefinition::class),
-            (new FkField('property_group_option_id', 'optionId', PropertyGroupOptionDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('property_group_option_id', 'optionId', PropertyGroupOptionDefinition::class))->addFlags(new ApiAware(), new Required()),
             new JsonField('price', 'price'),
-            new IntField('position', 'position'),
+            (new IntField('position', 'position'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
-            new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id', false),
-            new CustomFields(),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

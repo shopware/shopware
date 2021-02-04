@@ -1,6 +1,6 @@
 {% block sw_customer_base_form %}
     <div class="sw-customer-base-form">
-        <sw-container v-if="feature.isActive('FEATURE_NEXT_10559')" columns="repeat(auto-fit, minmax(250px, 1fr))"
+        <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))"
                       gap="0px 32px">
             <sw-container columns="1fr 1fr" class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full">
                 {% block sw_customer_base_form_first_salutation_field %}
@@ -104,7 +104,8 @@
                     :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
                     :value="customer.salesChannelId"
                     @change="onSalesChannelChange"
-                    :error="customerSalesChannelIdError">
+                    :error="customerSalesChannelIdError"
+                    required>
                 </sw-entity-single-select>
             {% endblock %}
 
@@ -125,7 +126,8 @@
                     :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
                     :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
                     :error="customerCustomerNumberError"
-                    v-model="customer.customerNumber">
+                    v-model="customer.customerNumber"
+                    required>
                 </sw-text-field>
             {% endblock %}
         </sw-container>

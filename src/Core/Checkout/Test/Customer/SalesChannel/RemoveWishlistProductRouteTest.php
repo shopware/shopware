@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
@@ -50,8 +49,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -85,7 +82,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     public function testDeleteProductShouldReturnSuccess(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productId = $this->createProduct($this->context);
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 
@@ -103,7 +99,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productData = $this->createProduct($this->context);
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
@@ -122,7 +117,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     public function testDeleteProductShouldThrowCustomerNotLoggedInException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', Random::getAlphanumericString(12));
         $productId = Uuid::randomHex();
 
@@ -142,7 +136,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     public function testDeleteProductShouldThrowCustomerWishlistNotFoundException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productId = $this->createProduct($this->context);
 
         $this->browser
@@ -160,7 +153,6 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     public function testDeleteProductShouldThrowWishlistProductNotFoundException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productId = $this->createProduct($this->context);
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 

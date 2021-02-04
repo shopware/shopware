@@ -7,9 +7,11 @@
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
-                      class="sw-price-field__gross"
+                      class="sw-price-field__gross" {# TODO: check selectors #}
+                      :allowEmpty="allowEmpty"
                       :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
                       :label="labelGross"
+                      :helpText="grossHelpText"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
@@ -41,9 +43,11 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
-                      class="sw-price-field__net"
+                      class="sw-price-field__net" {# TODO: check selectors #}
+                      :allowEmpty="allowEmpty"
                       :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
                       :label="labelNet"
+                      :helpText="netHelpText"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"

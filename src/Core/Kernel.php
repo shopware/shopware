@@ -274,6 +274,7 @@ class Kernel extends HttpKernel
                 'kernel.shopware_version' => $this->shopwareVersion,
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
                 'kernel.plugin_dir' => $pluginDir,
+                'kernel.app_dir' => rtrim($this->getProjectDir(), '/') . '/custom/apps',
                 'kernel.active_plugins' => $activePluginMeta,
                 'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
                 'kernel.supported_api_versions' => [2, 3, 4],

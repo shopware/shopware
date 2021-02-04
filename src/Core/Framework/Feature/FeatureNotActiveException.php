@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) Exception moved to Shopware\Core\Framework\Feature\Exception
+ */
 class FeatureNotActiveException extends ShopwareHttpException
 {
     public function __construct(string $feature, ?\Throwable $previous = null)

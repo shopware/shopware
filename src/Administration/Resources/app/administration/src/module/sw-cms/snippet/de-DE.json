@@ -649,6 +649,7 @@
       "cmsLayoutAssignmentModal": {
         "infoText": "Das Layout ist erst in Deinem Shop zu sehen, wenn Du es einer aktiven Kategorie zugewiesen hast.",
         "infoTextShopPages": "Du kannst dieses Layout sowohl für Kategorien verwenden als auch für Shopseiten wie AGB, Impressum, Fehlerseiten etc.",
+        "infoTextProductDetailPages": "Das Layout ist erst in Deinem Shop zu sehen, wenn du es einem aktiven Produkt zuweist.",
         "labelCategories": "Kategorien",
         "placeholderCategories": "Wähle Kategorien aus...",
         "labelSalesChannel": "Verkaufskanal",
@@ -656,13 +657,17 @@
         "resetOptionSalesChannel": "Alle Verkaufskanäle",
         "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
         "labelShopPages": "Shopseiten",
+        "confirmChanges": "Übernehmen",
         "confirmChangesConfirm": "Übernehmen",
         "confirmChangesRestorePrev": "Verwerfen",
         "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
         "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
+        "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
+        "confirmChangesTextProductsAssignedLayouts": "Einige der ausgewählten Produkte haben bereits ein Layout zugewiesen. Wenn Sie fortfahren, werden die vorherigen Zuweisungen durch das aktuelle Layout ersetzt.",
         "confirmChangesTextShopPages": "Du hast Layout-Zuweisungen von Shopseiten entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Shopseiten kein Layout mehr zugewiesen.",
+        "confirmChangesTextGeneral": "Wähle \"Übernehmen\", wenn Du die bisherigen Layout-Zuweisungen überschreiben möchtest.<br>Wähle \"Verwerfen\", wenn Du die vorherigen Layout-Zuweisungen wiederherstellen möchtest.<br>Wähle \"Abbrechen\", wenn Du die Layout-Zuweisungen weiter bearbeiten möchtest.",
         "confirmChangesText": "Möchtest Du Deine Änderungen übernehmen?",
-        "confirmChangesTitle": "Änderungen bestätigen",
+        "confirmChangesTitle": "Layout-Zuweisung bestätigen",
         "shopPagesLoadError": "Shopseiten konnten nicht geladen werden",
         "shopPagesSaveError": "Shopseiten konnten nicht gespeichert werden",
         "tabCategories": "Kategorien",
@@ -677,7 +682,23 @@
           "maintenancePage": "Wartungsseiten",
           "contactPage": "Kontaktformulare",
           "newsletterPage": "Newsletterseiten"
+        },
+        "products": {
+          "productAssignmentHeadline": "Produkt-Zuweisung",
+          "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
+          "productAssignmentLabel": "Produkte",
+          "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
+          "productStreamAssignmentEmptyStateDescription": "Keine dynamische Produktgruppe zugewiesen",
+          "columnNameLabel": "Name",
+          "columnManufacturerLabel": "Hersteller"
         }
+      },
+      "cmsMissingElementModal": {
+        "headline": "Fehlende Elemente",
+        "title": "Das Element <span>{element}</span> fehlt in dieser Produkt-Detailseite. | Die Elemente <span>{element}</span> fehlen in dieser Produkt-Detailseite.",
+        "subtitle": "Kunden, die diese Seite besuchen, erhalten möglicherweise nicht alle wichtigen Produkt-Informationen.",
+        "paragraph": "Möchtest Du das Layout trotzdem speichern?",
+        "buttonSave": "Layout speichern"
       },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",

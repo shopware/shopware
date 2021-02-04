@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class RangeFilter extends Filter
+class RangeFilter extends SingleFieldFilter
 {
     public const LTE = 'lte';
 

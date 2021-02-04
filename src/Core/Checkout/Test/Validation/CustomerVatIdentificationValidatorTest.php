@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Validation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -15,11 +14,6 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-    }
 
     public function testValidateVatIds(): void
     {

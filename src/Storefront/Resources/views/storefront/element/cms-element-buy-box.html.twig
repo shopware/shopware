@@ -1,0 +1,30 @@
+{% block element_buy_box %}
+    {% set config = element.fieldConfig.elements %}
+
+    {% set buyBoxOptions = {
+        elementId: element.id
+    } %}
+
+    {% if element.data.product %}
+        <div class="cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}"
+             data-buy-box="true"
+             data-buy-box-options='{{ buyBoxOptions|json_encode }}'>
+
+            {% block element_buy_box_inner %}
+                {% if config.alignment.value %}
+                    <div class="cms-element-alignment{% if config.alignment.value == "center" %} align-self-center{% elseif config.alignment.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                {% endif %}
+                    {% sw_include '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' with {
+                        'product': element.data.product,
+                        'configuratorSettings': element.data.configuratorSettings,
+                        'totalReviews': element.data.totalReviews,
+                        'elementId': element.id,
+                        'pageType': cmsPage.type
+                    } %}
+                {% if config.alignment.value %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -16,19 +14,14 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyExtension;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyRelationships;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithSelfReference;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\System\User\UserDefinition;
 
 class JsonSalesChannelApiEncoderTest extends TestCase
 {
@@ -64,12 +57,8 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     {
         return [
             [MediaDefinition::class, new TestBasicStruct()],
-            [UserDefinition::class, new TestBasicWithToManyRelationships()],
             [MediaDefinition::class, new TestBasicWithToOneRelationship()],
-            [MediaFolderDefinition::class, new TestCollectionWithSelfReference()],
             [MediaDefinition::class, new TestCollectionWithToOneRelationship()],
-            [RuleDefinition::class, new TestInternalFieldsAreFiltered()],
-            [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()],
         ];
     }
 

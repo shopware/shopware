@@ -79,6 +79,12 @@ Component.register('sw-tree-item', {
             default: false
         },
 
+        shouldShowActiveState: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         activeFocusId: {
             type: String,
             required: false,
@@ -101,6 +107,18 @@ Component.register('sw-tree-item', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        allowCreateWithoutPosition: {
+            type: Boolean,
+            default: false,
+            required: false
+        },
+
+        allowDuplicate: {
+            type: Boolean,
+            required: false,
+            default: false
         },
 
         getItemUrl: {
@@ -346,6 +364,15 @@ Component.register('sw-tree-item', {
             this.parentScope.addElement(item, pos);
         },
 
+        duplicateElement(contextItem) {
+            this.parentScope.duplicateElement(contextItem);
+        },
+
+        onDuplicate(item) {
+            this.duplicateElement(item);
+            this.openTreeItem(true);
+        },
+
         editElementName() {
             this.$nextTick(() => {
                 const elementNameField = this.$el.querySelector('.sw-tree-detail__edit-tree-item input');
@@ -381,6 +408,14 @@ Component.register('sw-tree-item', {
             }
 
             return item.data.name;
+        },
+
+        getActiveIconColor(item) {
+            if (item.data && item.data.active) {
+                return item.data.active === true ? '#37d046' : '#d1d9e0';
+            }
+
+            return '#d1d9e0';
         },
 
         showItemUrl(item) {

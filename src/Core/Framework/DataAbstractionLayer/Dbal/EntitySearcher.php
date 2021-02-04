@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
 /**
  * Used for all search operations in the system.
@@ -23,17 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
  */
 class EntitySearcher implements EntitySearcherInterface
 {
-    use CriteriaQueryHelper;
-
     /**
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var SqlQueryParser
-     */
-    private $queryParser;
 
     /**
      * @var EntityDefinitionQueryHelper
@@ -41,27 +31,18 @@ class EntitySearcher implements EntitySearcherInterface
     private $queryHelper;
 
     /**
-     * @var SearchTermInterpreter
+     * @var CriteriaQueryBuilder
      */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
+    private $criteriaQueryBuilder;
 
     public function __construct(
         Connection $connection,
-        SqlQueryParser $queryParser,
         EntityDefinitionQueryHelper $queryHelper,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
         $this->connection = $connection;
-        $this->queryParser = $queryParser;
         $this->queryHelper = $queryHelper;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
+        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -85,7 +66,7 @@ class EntitySearcher implements EntitySearcherInterface
             );
         }
 
-        $query = $this->buildQueryByCriteria($query, $definition, $criteria, $context);
+        $query = $this->criteriaQueryBuilder->build($query, $definition, $criteria, $context);
 
         if (!empty($criteria->getIds())) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
@@ -154,26 +135,6 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
-    protected function getParser(): SqlQueryParser
-    {
-        return $this->queryParser;
-    }
-
-    protected function getDefinitionHelper(): EntityDefinitionQueryHelper
-    {
-        return $this->queryHelper;
-    }
-
-    protected function getInterpreter(): SearchTermInterpreter
-    {
-        return $this->interpreter;
-    }
-
-    protected function getScoreBuilder(): EntityScoreQueryBuilder
-    {
-        return $this->scoreBuilder;
-    }
-
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void
     {
         //requires total count for query? add save SQL_CALC_FOUND_ROWS
@@ -204,7 +165,7 @@ class EntitySearcher implements EntitySearcherInterface
     {
         if ($criteria->getGroupFields()) {
             foreach ($criteria->getGroupFields() as $grouping) {
-                $accessor = $this->getDefinitionHelper()->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
+                $accessor = $this->queryHelper->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
 
                 $query->addGroupBy($accessor);
             }

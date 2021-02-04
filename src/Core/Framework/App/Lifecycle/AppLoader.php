@@ -7,8 +7,12 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppLoader extends AbstractAppLoader
 {
     /**
@@ -49,12 +53,15 @@ class AppLoader extends AbstractAppLoader
 
         $finder = new Finder();
         $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in app root folders
             ->name('manifest.xml');
 
         $manifests = [];
         foreach ($finder->files() as $xml) {
             try {
-                $manifests[] = Manifest::createFromXmlFile($xml->getPathname());
+                $manifest = Manifest::createFromXmlFile($xml->getPathname());
+
+                $manifests[$manifest->getMetadata()->getName()] = Manifest::createFromXmlFile($xml->getPathname());
             } catch (XmlParsingException $e) {
                 //nth, if app is already registered it will be deleted
             }
@@ -88,5 +95,10 @@ class AppLoader extends AbstractAppLoader
         }
 
         return $this->configReader->read($configPath);
+    }
+
+    public function deleteApp(string $technicalName): void
+    {
+        (new Filesystem())->remove($this->appDir . '/' . $technicalName);
     }
 }

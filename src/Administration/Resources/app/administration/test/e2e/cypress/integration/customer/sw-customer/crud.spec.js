@@ -55,11 +55,6 @@ describe('Customer: Test crud operations', () => {
         cy.get(page.elements.customerMailInput).type('tester@example.com');
 
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
-
             // check vat id field not exists in customer address form
             cy.get('.sw-customer-address-form input#vatId').should('not.be.visible');
 
@@ -131,10 +126,6 @@ describe('Customer: Test crud operations', () => {
         cy.get('#sw-field--customer-lastName').clear().type('Weasley');
 
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
 
             // check vat id field exists in customer base form and type
             cy.get('.sw-customer-card__metadata input#vatId').should('be.visible');

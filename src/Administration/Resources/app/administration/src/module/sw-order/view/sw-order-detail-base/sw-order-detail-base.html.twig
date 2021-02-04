@@ -125,7 +125,11 @@
                                                     <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
                                                     <dd>
                                                         <sw-order-saveable-field type="number"
-                                                                                 v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
+                                                                                 v-tooltip="{
+                                                                                    showDelay: 300,
+                                                                                    message: shippingCostsDetail,
+                                                                                    disabled: taxStatus === 'tax-free'
+                                                                                 }"
                                                                                  :editable="isEditing"
                                                                                  :value="delivery.shippingCosts.totalPrice"
                                                                                  @value-change="onShippingChargeEdited">

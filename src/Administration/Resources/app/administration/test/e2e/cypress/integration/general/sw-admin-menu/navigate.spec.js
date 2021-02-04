@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Administration: Check module navigation', () => {
     beforeEach(() => {
@@ -111,7 +111,8 @@ describe('Administration: Check module navigation', () => {
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer'
+            mainMenuId: 'sw-customer',
+            subMenuId: 'sw-customer-index'
         });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -128,7 +129,8 @@ describe('Administration: Check module navigation', () => {
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order'
+            mainMenuId: 'sw-order',
+            subMenuId: 'sw-order-index'
         });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

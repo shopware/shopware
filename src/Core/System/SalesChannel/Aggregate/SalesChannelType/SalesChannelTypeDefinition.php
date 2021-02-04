@@ -43,7 +43,6 @@ class SalesChannelTypeDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-
             new StringField('cover_url', 'coverUrl'),
             new StringField('icon_name', 'iconName'),
             new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
@@ -53,7 +52,6 @@ class SalesChannelTypeDefinition extends EntityDefinition
             new TranslatedField('descriptionLong'),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(SalesChannelTypeTranslationDefinition::class, 'sales_channel_type_id'))->addFlags(new Required()),
-
             new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'type_id', 'id'),
         ]);
     }

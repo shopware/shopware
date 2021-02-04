@@ -31,7 +31,16 @@
       "placeholderName": "Gib einen Produktnamen ein ...",
       "placeholderDescriptionLong": "Gib eine Produktbeschreibung ein ...",
       "placeholderId": "Gib eine Produktnummer ein ...",
-      "placeholderManufacturer": "Gib einen Produkthersteller ein ..."
+      "placeholderManufacturer": "Gib einen Produkthersteller ein ...",
+      "productNumberHelpText": {
+        "label": "Produktnummern können helfen, Deine Produkte zu identifizieren und zu verwalten. Dazu solltest Du eine durchgängige Struktur für Deine Produktnummern verwenden. Du kannst Produktnummer-Templates in den {link} definieren.",
+        "linkText": "Einstellungen"
+      },
+      "highlightHelpText": {
+        "label": "Hervorgehobene Produkte werden in Produktlisten mit einem farbigen Etikett und der Aufschrift \"Tipp\" markiert. Du kannst die Farbe des Etiketts mit der Einstellung \"Notice\" in den {themesLink} Einstellungen ändern. Die Aufschrift kannst Du über den entsprechenden {snippetLink} anpassen.",
+        "themeLinkText": "Themes",
+        "snippetLinkText": "Textbaustein"
+      }
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
@@ -41,7 +50,8 @@
       "placeholderSearchKeywords": "Gib Schlagwörter ein, die diese Produkt finden ...",
       "textAddSearchKeyword": "Hier klicken, um Schlagwörter hinzuzufügen",
       "textEnterValidSearchKeyword": "Suchbare Schlagwörter",
-      "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden."
+      "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden.",
+      "helpTextTags": "Tags sind nur für den internen Gebrauch gedacht. Sie helfen dabei, Produkte zu gruppieren, Regeln anzuwenden oder dienen als individuelle Suchbegriffe."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -62,7 +72,11 @@
       "placeholderPackUnitPlural": "Verpackungseinheit Mehrzahl eingeben ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
-      "optionMetre": "Meter"
+      "optionMetre": "Meter",
+      "taxRateHelpText": {
+        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
+        "linkText": "Einstellungen"
+      }
     },
     "seoForm": {
       "labelMetaTitle": "Meta-Titel",
@@ -131,8 +145,12 @@
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
-      "cardTitleSeo": "SEO",
-      "cardTitleLayout": "Layout-Zuweisung"
+      "cardTitleSeo": "SEO"
+    },
+    "specifications": {
+      "cardTitleMeasuresPackaging": "Measures & Packaging",
+      "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
+      "cardTitleCustomFields": "Zusatzfelder"
     },
     "reviewForm": {
       "labelStatus": "Sichtbar",
@@ -166,6 +184,7 @@
       "columnPrice": "Preis (brutto / netto)",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
+      "settingShowListPrices": "Zeige Streichpreise",
       "toolbarLabel": "Regeln"
     },
     "list": {
@@ -213,9 +232,11 @@
       "buttonSaveDuplicate": "Speichern und duplizieren",
       "buttonSaveAndNew": "Speichern und neues erstellen",
       "tabGeneral": "Allgemein",
+      "tabSpecifications": "Specifications",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",
+      "tabLayout": "Layout",
       "tabCrossSelling": "Cross Selling",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
@@ -234,12 +255,15 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
+      "columnType": "Typ",
       "selectRule": "Bedingungsregel auswählen ...",
       "advancedPricesInherited": "Dieses Produkt hat vererbte Preise vom Hauptprodukt.",
       "linkAdvancedPricesOfParent": "Zeige die Preise des Hauptprodukts",
       "inheritSwitchLabel": "Nutze die erweiterten Preise des Hauptprodukts",
-      "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden."
-
+      "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden.",
+      "advancedListPricePriceLabel": "Preis",
+      "advancedListPriceLabel": "Streichpreis",
+      "advancedPriceDisabledTooltip": "Der Start-Wert bei der ersten Preisstaffel muss den Wert 1 haben."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
@@ -333,6 +357,12 @@
         "save": "Speichern"
       }
     },
+    "layout": {
+      "title": "Layout-Zuweisung",
+      "subtitle": "Du kannst die Anzeige der Produkt-Detailseite mit eigenen Layouts anpassen.  Wenn Du kein eigenes Layout zuweisen möchtest, wird das Standard-Layout für Produkt-Detailseiten verwendet.",
+      "textNoConfig": "Das aktuell ausgewählte Layout hat keine bearbeitbaren Elemente.",
+      "textContentInfo": "Standard-Produktblöcke werden automatisch mit Produktdaten befüllt. Diese Inhalte werden daher hier nicht aufgelistet."
+    },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",
       "buttonAddCrossSelling": "Neues Cross Selling hinzufügen",
@@ -381,6 +411,19 @@
       "textChangeLayout": "Layout ändern",
       "textCreateNewLayout": "Neues Layout erstellen",
       "textEditInDesigner": "Im Designer bearbeiten"
+    },
+    "filters": {
+      "activeFilter": {
+        "label": "Aktiv",
+        "placeholder": "Wähle einen Status ..."
+      },
+      "imagesFilter": {
+        "label": "Bild",
+        "placeholder": "Wähle einen Bildstatus ..."
+      }
+    },
+    "notification": {
+      "notificationSaveErrorProductNoAlreadyExists": "Die Produktnummer \"{productNo}\" ist bereits vergeben."
     }
   },
   "sw-privileges": {

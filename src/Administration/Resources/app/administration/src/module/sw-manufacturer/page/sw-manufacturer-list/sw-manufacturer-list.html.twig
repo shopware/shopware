@@ -59,15 +59,22 @@
                         <sw-entity-listing
                             class="sw-manufacturer-list__grid"
                             detailRoute="sw.manufacturer.detail"
-                            :isLoading="!manufacturers"
+                            :isLoading="isLoading"
                             :columns="manufacturerColumns"
                             :repository="manufacturerRepository"
                             :items="manufacturers"
+                            :criteriaLimit="limit"
                             @update-records="updateTotal"
+                            @page-change="onPageChange"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            @column-sort="onSortColumn"
+                            :disableDataFetching="true"
                             :allowEdit="acl.can('product_manufacturer.editor')"
                             :allowInlineEdit="acl.can('product_manufacturer.editor')"
                             :allowDelete="acl.can('product_manufacturer.deleter')"
-                            :showSelections="acl.can('product_manufacturer.deleter')">
+                            :showSelections="acl.can('product_manufacturer.deleter')"
+                            identifier="sw-manufacturer-list">
                             {% block sw_manufacturer_list_grid_columns_name_preview %}
                                 <template #preview-name="{ item }">
                                     <sw-media-preview-v2 :source="item.mediaId"></sw-media-preview-v2>

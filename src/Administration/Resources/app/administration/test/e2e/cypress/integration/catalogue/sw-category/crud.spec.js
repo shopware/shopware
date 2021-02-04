@@ -33,17 +33,17 @@ describe('Category: Create several categories', () => {
         }).as('editCategory');
 
         // Add category before root one
-        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
+        cy.get(`${page.elements.categoryTreeItemInner}__icon`).should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__sub-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
         );
-        cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
-        cy.get(`${page.elements.categoryTreeItem}__content input`).then(($btn) => {
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
             if ($btn) {
-                cy.get(`${page.elements.categoryTreeItem}__content input`).should('be.visible');
-                cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
+                cy.get(`${page.elements.categoryTreeItemInner}__content input`).should('be.visible');
+                cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
             }
         });
 
@@ -54,12 +54,12 @@ describe('Category: Create several categories', () => {
         });
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
-                cy.get('.sw-tree-actions__headline').click();
+                cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
             } else {
-                cy.get('.sw-confirm-field__button--cancel').click();
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
         cy.contains('Categorian').click();
 
         // Assign category and set it active

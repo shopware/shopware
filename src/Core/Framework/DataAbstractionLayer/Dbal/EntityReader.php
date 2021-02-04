@@ -30,15 +30,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityReader implements EntityReaderInterface
 {
-    use CriteriaQueryHelper;
-
     public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
     public const FOREIGN_KEYS = 'foreignKeys';
     public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
@@ -64,29 +60,22 @@ class EntityReader implements EntityReaderInterface
     private $parser;
 
     /**
-     * @var SearchTermInterpreter
+     * @var CriteriaQueryBuilder
      */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
+    private $criteriaQueryBuilder;
 
     public function __construct(
         Connection $connection,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
         SqlQueryParser $parser,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
         $this->connection = $connection;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
+        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
@@ -109,21 +98,6 @@ class EntityReader implements EntityReaderInterface
     protected function getParser(): SqlQueryParser
     {
         return $this->parser;
-    }
-
-    protected function getDefinitionHelper(): EntityDefinitionQueryHelper
-    {
-        return $this->queryHelper;
-    }
-
-    protected function getInterpreter(): SearchTermInterpreter
-    {
-        return $this->interpreter;
-    }
-
-    protected function getScoreBuilder(): EntityScoreQueryBuilder
-    {
-        return $this->scoreBuilder;
     }
 
     private function _read(
@@ -283,7 +257,7 @@ class EntityReader implements EntityReaderInterface
     {
         $table = $definition->getEntityName();
 
-        $query = $this->buildQueryByCriteria(
+        $query = $this->criteriaQueryBuilder->build(
             new QueryBuilder($this->connection),
             $definition,
             $criteria,
@@ -666,7 +640,7 @@ class EntityReader implements EntityReaderInterface
         // but at this point the order by will be moved to an sub select where we don't have a group state, the `state` prevents this behavior
         $query->addState(self::MANY_TO_MANY_LIMIT_QUERY);
 
-        $query = $this->buildQueryByCriteria(
+        $query = $this->criteriaQueryBuilder->build(
             $query,
             $association->getToManyReferenceDefinition(),
             $fieldCriteria,
@@ -781,7 +755,7 @@ class EntityReader implements EntityReaderInterface
         Criteria $fieldCriteria
     ): array {
         //build query based on provided association criteria (sortings, search, filter)
-        $query = $this->buildQueryByCriteria(
+        $query = $this->criteriaQueryBuilder->build(
             new QueryBuilder($this->connection),
             $association->getReferenceDefinition(),
             $fieldCriteria,

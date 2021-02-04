@@ -3,10 +3,13 @@
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +60,18 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             )
         );
 
-        $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
-        $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
+        if (!Feature::isActive('FEATURE_NEXT_10552') || $pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
+            $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
+            $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
+
+            return;
+        }
+
+        foreach ($pattern->getTokenTerms() as $terms) {
+            $criteria->addFilter(new AndFilter([
+                new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()),
+                new EqualsAnyFilter('product.searchKeywords.keyword', $terms),
+            ]));
+        }
     }
 }

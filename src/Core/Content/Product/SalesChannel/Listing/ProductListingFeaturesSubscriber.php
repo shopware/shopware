@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -517,29 +516,27 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $filters->add($this->getShippingFreeFilter($request));
         $filters->add($this->getPropertyFilter($request));
 
-        if (Feature::isActive('FEATURE_NEXT_10536')) {
-            if (!$request->request->get('manufacturer-filter', true)) {
-                $filters->remove('manufacturer');
-            }
+        if (!$request->request->get('manufacturer-filter', true)) {
+            $filters->remove('manufacturer');
+        }
 
-            if (!$request->request->get('price-filter', true)) {
-                $filters->remove('price');
-            }
+        if (!$request->request->get('price-filter', true)) {
+            $filters->remove('price');
+        }
 
-            if (!$request->request->get('rating-filter', true)) {
-                $filters->remove('rating');
-            }
+        if (!$request->request->get('rating-filter', true)) {
+            $filters->remove('rating');
+        }
 
-            if (!$request->request->get('shipping-free-filter', true)) {
-                $filters->remove('shipping-free');
-            }
+        if (!$request->request->get('shipping-free-filter', true)) {
+            $filters->remove('shipping-free');
+        }
 
-            if (!$request->request->get('property-filter', true)) {
-                $filters->remove('properties');
+        if (!$request->request->get('property-filter', true)) {
+            $filters->remove('properties');
 
-                if ($request->request->get('property-whitelist', null)) {
-                    $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
-                }
+            if ($request->request->get('property-whitelist', null)) {
+                $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
             }
         }
 

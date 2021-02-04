@@ -274,19 +274,14 @@ Component.register('sw-text-editor-toolbar', {
                 });
             }
 
+            this.keepSelection();
+
             if (button.handler) {
-                this.keepSelection();
-
                 button.handler(button, parent);
-
-                this.range = document.getSelection().getRangeAt(0);
-                this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;
 
                 return;
             }
-
-            this.keepSelection();
 
             this.$emit('text-style-change', button.type, button.value);
 

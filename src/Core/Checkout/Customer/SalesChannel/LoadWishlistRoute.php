@@ -28,8 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_10549)
- *
  * @RouteScope(scopes={"store-api"})
  */
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
@@ -136,7 +134,11 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         $event = new CustomerWishlistLoaderCriteriaEvent($criteria, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $products = $this->productRepository->search($criteria, $context);
+        $products = $context->getContext()->disableCache(
+            function () use ($criteria, $context) {
+                return $this->productRepository->search($criteria, $context);
+            }
+        );
 
         $event = new CustomerWishlistProductListingResultEvent($request, $products, $context);
         $this->eventDispatcher->dispatch($event);

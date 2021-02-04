@@ -8,7 +8,10 @@ Shopware.Service('privileges')
                 privileges: [
                     'currency:read',
                     'currency_country_rounding:read',
-                    'country:read'
+                    'country:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

@@ -25,34 +25,28 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
     private function updateCurrency(Connection $connection): void
     {
         try {
-            /** var Doctrine\DBAL\Driver\Statement  $englishLanguageId  */
             $englishLanguageId = $connection->createQueryBuilder()
                 ->select('lang.id')
                 ->from('language', 'lang')
                 ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
                 ->where('loc.code = :englishLocale')
                 ->setParameter(':englishLocale', 'en-GB')
-                ->execute();
+                ->execute()
+                ->fetchColumn();
 
-            if ($englishLanguageId && !\is_int($englishLanguageId)) {
-                $englishLanguageId = $englishLanguageId->fetchColumn();
-            }
-            if (!$englishLanguageId) {
+            if ($englishLanguageId === false) {
                 return;
             }
 
-            /** var Doctrine\DBAL\Driver\Statement  $enSwedishCurrencyTranslationUnchanged  */
             $enSwedishCurrencyTranslationUnchanged = $connection->createQueryBuilder()
                 ->select('currency_id')
                 ->from('currency_translation')
                 ->where('language_id = :englishLocale AND short_name = :swedishKronaShortName AND updated_at IS NULL ')
                 ->setParameters([':englishLocale' => $englishLanguageId, ':swedishKronaShortName' => 'SEK'])
-                ->execute();
-            if ($enSwedishCurrencyTranslationUnchanged && !\is_int($enSwedishCurrencyTranslationUnchanged)) {
-                $enSwedishCurrencyTranslationUnchanged = $enSwedishCurrencyTranslationUnchanged->fetchColumn();
-            }
+                ->execute()
+                ->fetchColumn();
 
-            if (!$enSwedishCurrencyTranslationUnchanged) {
+            if ($enSwedishCurrencyTranslationUnchanged === false) {
                 return;
             }
         } catch (\Exception $e) {

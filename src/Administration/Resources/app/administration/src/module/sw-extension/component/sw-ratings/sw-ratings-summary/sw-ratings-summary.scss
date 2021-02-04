@@ -1,0 +1,47 @@
+@import "~scss/variables";
+
+.sw-ratings-summary {
+    font-size: $font-size-small;
+    max-width: 450px;
+
+    .sw-ratings-summary__grid {
+        display: grid;
+        grid-template-columns: 50px auto;
+        grid-template-rows: auto auto;
+        column-gap: 18px;
+
+        .sw-ratings-summary__progress-bars {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-gap: 13px;
+            align-items: center;
+            font-size: $font-size-extra-small;
+
+            .sw-progress-bar {
+                height: 4px;
+
+                .sw-progress-bar__value {
+                    background-color: #667f99;
+                }
+
+                .sw-progress-bar__total {
+                    background: $color-gray-200;
+                }
+            }
+        }
+
+        .sw-ratings-summary__rows {
+            display: grid;
+            grid-auto-rows: 13px;
+            grid-gap: 4px;
+            align-items: center;
+        }
+
+        .sw-ratings-summary__average {
+            font-size: 40px;
+            margin-bottom: 25px;
+            line-height: 0.8;
+            word-break: keep-all;
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{% block sw_extension_store_index %}
+    <sw-meteor-page class="sw-extension-store-index" hideIcon>
+        {% block sw_extension_store_index_slots %}
+            {% block sw_extension_store_index_slot_search_bar %}
+                <template #search-bar>
+                    {% block sw_extension_store_index_search_bar %}
+                        <sw-search-bar @search="updateSearch" :initialSearchType="$tc('sw-extension.mainMenu.mainMenuItemExtensionStore')"></sw-search-bar>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_index_slot_tabs %}
+                <template #page-tabs>
+                    {% block sw_extension_store_index_tabs %}
+                        {% block sw_extension_store_index_tabs_extensions_app %}
+                            <sw-tabs-item :route="{ name: 'sw.extension.store.listing.app' }">
+                                {{ $tc('sw-extension.store.tabs.apps') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_extension_store_index_tabs_extensions_theme %}
+                            <sw-tabs-item :route="{ name: 'sw.extension.store.listing.theme' }">
+                                {{ $tc('sw-extension.store.tabs.themes') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_extension_store_index_slot_default %}
+                <template #default>
+                    {% block sw_extension_store_index_content %}
+                        <router-view></router-view>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-meteor-page>
+{% endblock %}

@@ -45,6 +45,10 @@
         margin-bottom: 0;
     }
 
+    .sw-list-price-field__vertical {
+        gap: 8px;
+    }
+
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
         height: auto;
         padding: 5px 20px 10px 20px;
@@ -52,18 +56,31 @@
 
     .sw-data-grid .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
         display: flex;
-        flex-wrap: wrap;
-        align-items: flex-end;
-        height: 70px;
-    }
-
-    .sw-data-grid.is--compact .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
         flex-wrap: nowrap;
         align-items: center;
+        margin-bottom: 5px;
 
         .sw-product-detail-context-prices__inherited-icon {
             margin-right: 10px;
         }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-product-detail-context-prices__type-label {
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+    }
+
+    input[name="sw-field--item-quantityEnd"] {
+        text-align: center;
+    }
+
+    .sw-data-grid.is--compact .sw-product-detail-context-prices__type-label {
+        gap: 18px;
     }
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {

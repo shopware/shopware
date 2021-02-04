@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -110,7 +109,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
 
-        if (Feature::isActive('FEATURE_NEXT_10559') && $vatIds = $data->get('vatIds')) {
+        if ($vatIds = $data->get('vatIds')) {
             $customerData['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
         }
 

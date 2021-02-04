@@ -102,7 +102,13 @@
         "productAssignmentTypeStreamPlaceholder": "Search and assign dynamic product groups...",
         "alertManualAssignedProductsOnAssignmentTypeStream": "There are still manually assigned products in this category. Those products will not be visible in this category but may be visible in parent categories.",
         "dynamicProductGroupDetailLinkText": "Dynamic product group details",
-        "dynamicProductGroupInvalidMessage": "The selected dynamic product group is not valid. Please verify your dynamic product group details."
+        "dynamicProductGroupInvalidMessage": "The selected dynamic product group is not valid. Please verify your dynamic product group details.",
+        "dynamicProductGroupHelpText": {
+          "label": "Products belong to a dynamic product group if they meet the conditions of that product group. Conditions can be defined within the {link} module.",
+          "linkText": "dynamic product groups",
+          "videoUrl": "",
+          "videoLink": ""
+        }
       }
     },
     "modal": {
@@ -111,10 +117,63 @@
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
     }
   },
+  "sw-landing-page": {
+    "view": {
+      "general": "General",
+      "cms": "Content"
+    },
+    "general": {
+      "treeHeadSelected": "{count} selected",
+      "buttonCreate": "Create landing page",
+      "treeHeadline": "Landing Pages",
+      "actions": {
+        "withoutPosition": "New landing page"
+      }
+    },
+    "base": {
+      "general": {
+        "labelName": "Name",
+        "headlineInformationCard": "General",
+        "isActiveLabel": "Category active",
+        "labelTags": "Tags",
+        "labelTagsPlaceholder": "Enter tags individually..."
+      },
+      "seo": {
+        "title": "SEO",
+        "labelSalesChannel": "Sales Channels",
+        "labelMetaTitle": "Meta title",
+        "labelMetaDescription": "Meta description",
+        "labelKeywords": "SEO keywords",
+        "labelUrl": "SEO URL",
+        "placeholderSalesChannel": "Chose a sales channel...",
+        "placeholderMetaTitle": "Enter meta title...",
+        "placeholderMetaDescription": "Enter a meta description...",
+        "placeholderKeywords": "Enter one or more keywords...",
+        "placeholderUrl": "Enter a URL..."
+      },
+      "cms": {
+        "title": "Layout assignment",
+        "changeLayout": "Change layout",
+        "changeLayoutEmpty": "Assign layout",
+        "editInPagebuilder": "Edit in designer",
+        "editInPagebuilderEmpty": "Create new layout",
+        "editContent": "Edit content",
+        "defaultTitle": "Default layout",
+        "defaultDesc": "Category page"
+      }
+    },
+    "modal": {
+      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
+    }
+  },
   "sw-privileges": {
     "permissions": {
       "category": {
         "label": "Categories"
+      },
+      "landingPage": {
+        "label": "Landing Pages"
       }
     }
   }

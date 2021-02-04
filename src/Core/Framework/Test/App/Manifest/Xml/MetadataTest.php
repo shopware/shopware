@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 
 class MetadataTest extends TestCase
 {
@@ -12,7 +13,7 @@ class MetadataTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
 
         $metaData = $manifest->getMetadata();
-        static::assertEquals('SwagApp', $metaData->getName());
+        static::assertEquals('test', $metaData->getName());
         static::assertEquals('shopware AG', $metaData->getAuthor());
         static::assertEquals('(c) by shopware AG', $metaData->getCopyright());
         static::assertEquals('MIT', $metaData->getLicense());
@@ -56,5 +57,23 @@ class MetadataTest extends TestCase
 
         $array = $metaData->toArray('en-GB');
         static::assertEquals([], $array['description']);
+    }
+
+    public function testValidateTranslationsReturnsMissingTranslationErrorIfTranslationIsMissing(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/invalidTranslations/manifest.xml');
+        $error = $manifest->getMetadata()->validateTranslations();
+
+        static::assertInstanceOf(MissingTranslationError::class, $error);
+        static::assertEquals('Missing translations for "Metadata":
+- label: de-DE, fr-FR', $error->getMessage());
+    }
+
+    public function testValidateTranslationsReturnsNull(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/test/manifest.xml');
+        $error = $manifest->getMetadata()->validateTranslations();
+
+        static::assertNull($error);
     }
 }

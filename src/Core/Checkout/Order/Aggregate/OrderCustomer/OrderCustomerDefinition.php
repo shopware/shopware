@@ -4,12 +4,11 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -54,25 +53,24 @@ class OrderCustomerDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
             new FkField('customer_id', 'customerId', CustomerDefinition::class),
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new Required()),
 
-            (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
-            (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
-            (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('company', 'company'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            new StringField('title', 'title'),
-            (new StringField('customer_number', 'customerNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new CustomFields(),
+            (new StringField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new StringField('title', 'title'))->addFlags(new ApiAware()),
+            (new StringField('customer_number', 'customerNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new CustomFields())->addFlags(new ApiAware()),
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
-            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(0.5), new ReadProtected(SalesChannelApiSource::class)),
-            new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false),
+            (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(0.5)),
+            (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new RemoteAddressField('remote_address', 'remoteAddress'),
         ]);
     }

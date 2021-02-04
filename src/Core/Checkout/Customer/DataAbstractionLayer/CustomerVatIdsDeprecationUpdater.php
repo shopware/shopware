@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - class will be removed in 6.4.0
+ * @deprecated tag:v6.4.0 - class will be removed in 6.4.0
  */
 class CustomerVatIdsDeprecationUpdater
 {

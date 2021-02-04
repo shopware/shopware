@@ -6,6 +6,7 @@
                     <sw-inherit-wrapper
                         v-model="product.taxId"
                         :inheritedValue="parentProduct.taxId"
+                        :helpText="taxRateHelpText"
                         :label="$tc('sw-product.priceForm.labelTaxRate')"
                         class="sw-product-price-form__tax-rate"
                         ref="taxIdInheritation"
@@ -26,7 +27,7 @@
                                     :key="tax.id"
                                     :value="tax.id"
                                     :selected="currentValue === tax.id">
-                                    {{ tax.name }}
+                                    {{ getTaxLabel(tax) }}
                                 </option>
                             </sw-field>
 

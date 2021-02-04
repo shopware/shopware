@@ -8,6 +8,7 @@ import EntityHydrator from './entity-hydrator.data';
 import Repository from './repository.data';
 import ErrorResolver from './error-resolver.data';
 import ErrorStore from './error-store.data';
+import FilterFactory from './filter-factory.data';
 
 export default {
     ChangesetGenerator,
@@ -19,5 +20,6 @@ export default {
     EntityHydrator,
     Repository,
     ErrorResolver,
-    ErrorStore
+    ErrorStore,
+    FilterFactory
 };

@@ -24,6 +24,16 @@ function createWrapper() {
                         id: '3cd4',
                         sectionPosition: 'sidebar',
                         type: 'foo-bar'
+                    },
+                    {
+                        id: '5ef6',
+                        sectionPosition: 'sidebar',
+                        type: 'foo-bar-removed'
+                    },
+                    {
+                        id: '7gh8',
+                        sectionPosition: 'main',
+                        type: 'foo-bar-removed'
                     }
                 ]
             }
@@ -40,7 +50,14 @@ function createWrapper() {
             $store: Shopware.State._store
         },
         provide: {
-            repositoryFactory: {}
+            repositoryFactory: {},
+            cmsService: {
+                getCmsBlockRegistry: () => {
+                    return {
+                        'foo-bar': {}
+                    };
+                }
+            }
         }
     });
 }

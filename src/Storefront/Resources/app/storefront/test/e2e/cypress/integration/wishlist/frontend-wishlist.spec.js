@@ -3,8 +3,8 @@ import AccountPageObject from "../../support/pages/account.page-object";
 const page = new AccountPageObject();
 
 const customer = {
-    firstName: 'Y',
-    lastName: 'Tran',
+    firstName: 'John',
+    lastName: 'Doe',
     email: "tester@example.com",
     password: "shopware"
 };
@@ -30,8 +30,10 @@ const product = {
     },
 };
 
-describe('Wishlist: for wishlist', () => {
+describe('Wishlist: for wishlist page', () => {
     beforeEach(() => {
+        cy.setCookie('wishlist-enabled', '1');
+
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -50,7 +52,7 @@ describe('Wishlist: for wishlist', () => {
         });
 
         return cy.createCustomerFixtureStorefront(customer).then(() => {
-            return cy.createProductFixture(product).then(() => {
+            return cy.createProductFixture(product).then(response => {
                 return cy.setProductWishlist({
                     productId: response.id,
                     customer: {
@@ -67,8 +69,6 @@ describe('Wishlist: for wishlist', () => {
     it.skip('@wishlist does some simple testing of the wishlist', () => {
         // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549')
-
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
@@ -77,11 +77,91 @@ describe('Wishlist: for wishlist', () => {
         cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
     });
 
+    it('@wishlist does load wishlist page on guest state', () => {
+        cy.server();
+        cy.route({
+            url: '/wishlist/guest-pagelet',
+            method: 'post'
+        }).as('guestPagelet');
+
+        cy.visit('/');
+
+        cy.window().then((win) => {
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
+            cy.visit('/wishlist');
+
+            cy.title().should('eq', 'Your wishlist');
+
+            cy.wait('@guestPagelet').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+            cy.get('.product-wishlist-form [type="submit"]').click();
+
+            cy.wait('@guestPagelet').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+                expect(win.localStorage.getItem('wishlist-' + win.salesChannelId)).to.equal(null)
+            });
+
+            cy.get('.cms-listing-row').find('h1').contains('Your wishlist is empty')
+            cy.get('.cms-listing-row').find('p').contains('Keep an eye on products you like by adding them to your wishlist.');
+        });
+    });
+
+    it('@wishlist add to cart button work on guest page', () => {
+        cy.server();
+        cy.route({
+            url: '/wishlist/guest-pagelet',
+            method: 'post'
+        }).as('guestPagelet');
+
+        cy.route({
+            url: '/checkout/line-item/add',
+            method: 'post'
+        }).as('add-to-cart');
+
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('offcanvas');
+
+        cy.visit('/');
+
+        cy.window().then(win => {
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
+
+            cy.visit('/wishlist');
+
+            cy.title().should('eq', 'Your wishlist')
+
+            cy.wait('@guestPagelet').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+                cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+                cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
+                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
+
+                cy.wait('@add-to-cart').then(xhr => {
+                    expect(xhr).to.have.property('status', 200);
+                });
+
+                cy.wait('@offcanvas').then(xhr => {
+                    expect(xhr).to.have.property('status', 200);
+                    cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
+                    cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
+
+                    // Wishlist product should still exist
+                    cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+                    cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                });
+            });
+        });
+    });
+
     it.skip('@wishlist remove product of wishlist', () => {
         // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549')
-
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();

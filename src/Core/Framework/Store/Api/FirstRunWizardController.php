@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
  * @RouteScope(scopes={"api"})
  */
 class FirstRunWizardController extends AbstractStoreController

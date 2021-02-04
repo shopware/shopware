@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
@@ -81,7 +82,7 @@ class PasswordFieldTest extends TestCase
     public function testValueIsRequiredOnInsert(): void
     {
         $field = new PasswordField('password', 'password');
-        $field->addFlags(new Required());
+        $field->addFlags(new ApiAware(), new Required());
 
         $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], false, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);
@@ -112,7 +113,7 @@ class PasswordFieldTest extends TestCase
     public function testValueIsRequiredOnUpdate(): void
     {
         $field = new PasswordField('password', 'password');
-        $field->addFlags(new Required());
+        $field->addFlags(new ApiAware(), new Required());
 
         $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class)->getEntityName(), [], true, false, false, []);
         $kvPair = new KeyValuePair('password', null, true);

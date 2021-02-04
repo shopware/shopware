@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -94,6 +95,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/order_flat")
      *     )
      * )
+     * @LoginRequired(allowGuest=true)
      * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"})
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
@@ -166,8 +168,11 @@ class CartOrderRoute extends AbstractCartOrderRoute
     {
         $affiliateCode = $data->get(OrderService::AFFILIATE_CODE_KEY);
         $campaignCode = $data->get(OrderService::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
+        if ($affiliateCode) {
             $cart->setAffiliateCode($affiliateCode);
+        }
+
+        if ($campaignCode) {
             $cart->setCampaignCode($campaignCode);
         }
     }

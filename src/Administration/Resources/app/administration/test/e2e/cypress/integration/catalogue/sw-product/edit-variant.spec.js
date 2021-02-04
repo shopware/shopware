@@ -62,6 +62,16 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__body').contains('.2');
         cy.get('.sw-data-grid__body').contains('.3');
 
+        // Edit one variant and verify it can be saved save
+        cy.get('.sw-data-grid__body').contains('Red').click();
+        cy.get('.product-basic-form .sw-inheritance-switch').eq(0).click();
+        cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('New Product name');
+        cy.get(page.elements.productSaveAction).click();
+        // Verify updated product
+        cy.wait('@productCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
         // Verify in storefront
         cy.visit('/');
         cy.get('input[name=search]').type('Product name');

@@ -1,9 +1,16 @@
 import template from './sw-users-permissions-user-create.html.twig';
 
 const { Component } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-detail', {
     template,
+
+    computed: {
+        ...mapPropertyErrors('user', [
+            'password'
+        ])
+    },
 
     methods: {
         loadUser() {

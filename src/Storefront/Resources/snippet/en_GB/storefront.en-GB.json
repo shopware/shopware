@@ -55,7 +55,7 @@
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
-    "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT ID you have entered has not the correct format",
+    "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",
@@ -213,9 +213,9 @@
     "addressDefaultChanged": "Default address has been changed.",
     "addressDefaultNotChanged": "Default address could not be changed.",
     "addressSaved": "Address has been saved.",
-    "inactiveAccountAlert": "Your customer account has not been activated yet. We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete the registration!",
+    "inactiveAccountAlert": "Your customer account has not been activated yet. We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete the sign-up!",
     "optInGuestAlert": "Thank you for your interest! You will receive a confirmation email shortly. Click on the link in it to confirm your email address.",
-    "optInRegistrationAlert": "Thank you for signing up! You will receive a confirmation email shortly. Click on the link in it to complete the registration.",
+    "optInRegistrationAlert": "Thank you for signing up! You will receive a confirmation email shortly. Click on the link in it to complete the sign-up.",
     "optInSuccessAlert": "We just sent you a confirmation email.",
     "ordersWelcome": "Your recent orders:",
     "ordersInfoEmpty": "You have not ordered yet.",
@@ -304,8 +304,8 @@
     "companyNamePlaceholder": "Enter company...",
     "companyDepartmentLabel": "Department",
     "companyDepartmentPlaceholder": "Enter department...",
-    "companyVatLabel": "VAT ID",
-    "companyVatPlaceholder": "VAT ID"
+    "companyVatLabel": "VAT Reg.No.",
+    "companyVatPlaceholder": "VAT Reg.No."
   },
   "checkout": {
     "itemCounter": "{1} 1 item|]1,Inf[ %count% items",
@@ -443,7 +443,7 @@
     "subscribeOption": "Subscribe to newsletter",
     "unsubscribeOption": "Unsubscribe from newsletter",
     "formSubmit": "Save",
-    "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the registration process, search your inbox for our confirmation email and click on the link provided with it.",
+    "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the sign-up process, search your inbox for our confirmation email and click on the link provided with it.",
     "subscriptionPersistedInfo": "If you did not received an email, please repeat the process or contact our support team.",
     "subscriptionRevokeSuccess": "You have unsubscribed from the newsletter.",
     "subscriptionConfirmationSuccess": "You have subscribed to the newsletter.",
@@ -530,6 +530,7 @@
     "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
   "wishlist": {
+    "cartTitle": "Your wishlist",
     "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
     "itemAddedSuccess": "You have successfully added the product into the wishlist.",

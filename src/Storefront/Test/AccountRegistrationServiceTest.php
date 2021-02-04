@@ -11,7 +11,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -147,7 +146,6 @@ class AccountRegistrationServiceTest extends TestCase
 
     public function testRegistrationWithBusinessAccountAndVatIdRequired(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
         $this->systemConfigService->set('core.loginRegistration.showAccountTypeSelection', true);
 
         $guestData = $this->getRegistrationData();

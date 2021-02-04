@@ -47,6 +47,7 @@ class DefinitionValidator
         'order.billingAddress',
         'order.createdBy',
         'order.updatedBy',
+        'product_search_config.excludedTerms',
         'integration.writeAccess',
     ];
 

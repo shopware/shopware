@@ -83,7 +83,6 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="validator.constraint_validator"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10559"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5">
@@ -124,6 +123,11 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
             <argument type="service" id="slugify"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -229,6 +233,7 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute" public="true">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">
@@ -256,12 +261,10 @@
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute" public="true">
@@ -269,26 +272,22 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="customer_wishlist_product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerWishlistProductExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute" public="true">
@@ -297,7 +296,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\CustomerValueResolver">

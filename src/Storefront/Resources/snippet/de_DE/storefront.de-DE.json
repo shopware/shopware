@@ -177,7 +177,7 @@
     "passwordChangeNoSuccess": "Passwort konnte nicht geändert werden.",
     "passwordHashNotFound": "Der Link zum Zurücksetzen des Passworts scheint defekt zu sein.",
     "passwordHashExpired": "Der Link zum Zurücksetzen des Passworts ist nicht mehr gültig. Bitte fordern Sie einen neuen Link an.",
-    "recoveryMailSend": "Wenn die angegebene E-Mail-Adresse registriert ist, wurde ein Bestätigungs-E-Mail mit einem Link versandt, mit dem Sie Ihr Passwort zurücksetzen können.",
+    "recoveryMailSend": "Wenn die angegebene E-Mail-Adresse registriert ist, wurde eine Bestätigungs-E-Mail mit einem Link versandt, mit dem Sie Ihr Passwort zurücksetzen können.",
     "profilePasswordCreateNew": "Neues Passwort",
     "profilePasswordCurrent": "Aktuelles Passwort",
     "profileRecoverPasswordTitle": "Passwort-Wiederherstellung",
@@ -530,6 +530,7 @@
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
   "wishlist": {
+    "cartTitle": "Ihr Merkzettel",
     "headline": "Ihr Merkzettel",
     "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
     "itemAddedSuccess": "Sie haben das Produkt erfolgreich in den Merkzettel eingefügt.",

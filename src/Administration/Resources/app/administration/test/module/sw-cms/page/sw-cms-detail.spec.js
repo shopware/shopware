@@ -26,7 +26,8 @@ function createWrapper(privileges = []) {
             'sw-cms-sidebar': true,
             'sw-loader': true,
             'sw-cms-section': true,
-            'sw-cms-layout-assignment-modal': true
+            'sw-cms-layout-assignment-modal': true,
+            'sw-cms-missing-element-modal': true
         },
         mocks: {
             $store: Shopware.State._store,
@@ -253,5 +254,63 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(SaveSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
         expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeFalsy();
+    });
+
+    it('should show the missing element modal when saving a product detail page layout', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isSaveable: false,
+            page: {
+                type: 'product_detail',
+                name: 'Product page',
+                categories: [],
+                sections: [{
+                    blocks: [{
+                        slots: [
+                            { type: 'buy-box' }
+                        ]
+                    }]
+                }]
+            }
+        });
+
+        wrapper.vm.onSave();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.missingElements).toEqual(['productDescriptionReviews', 'crossSelling']);
+        expect(wrapper.vm.showMissingElementModal).toBe(true);
+        expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeTruthy();
+    });
+
+    it('should not show the missing element modal when saving a product detail page layout', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isSaveable: true,
+            page: {
+                type: 'product_detail',
+                name: 'Product page',
+                categories: [],
+                sections: [{
+                    blocks: [{
+                        slots: [
+                            { type: 'buy-box', config: {} },
+                            { type: 'product-description-reviews', config: {} },
+                            { type: 'cross-selling', config: {} }
+                        ]
+                    }]
+                }]
+            }
+        });
+
+        wrapper.vm.onSave();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.missingElements).toEqual([]);
+        expect(wrapper.vm.showMissingElementModal).toBe(false);
+        expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeFalsy();
     });
 });

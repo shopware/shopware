@@ -10,7 +10,10 @@ Shopware.Service('privileges')
                     'property_group:read',
                     'media_default_folder:read',
                     'media_folder:read',
-                    'media:read'
+                    'media:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

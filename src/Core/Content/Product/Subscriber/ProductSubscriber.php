@@ -50,7 +50,7 @@ class ProductSubscriber implements EventSubscriberInterface
         foreach ($properties as $option) {
             $origin = $option->getGroup();
 
-            if (!$origin) {
+            if (!$origin || !$origin->getVisibleOnProductDetailPage()) {
                 continue;
             }
             $group = clone $origin;

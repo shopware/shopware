@@ -3,14 +3,22 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class StoreService
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
@@ -40,12 +48,30 @@ class StoreService
      */
     private $instanceId;
 
-    final public function __construct(SystemConfigService $configService, OpenSSLVerifier $openSSLVerifier, string $shopwareVersion, ?string $instanceId)
-    {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
+     * @var MockHandler
+     */
+    private $mockHandler;
+
+    final public function __construct(
+        SystemConfigService $configService,
+        OpenSSLVerifier $openSSLVerifier,
+        string $shopwareVersion,
+        ?string $instanceId,
+        EntityRepositoryInterface $languageRepository,
+        MockHandler $mockHandler
+    ) {
         $this->configService = $configService;
         $this->openSSLVerifier = $openSSLVerifier;
         $this->shopwareVersion = $shopwareVersion;
         $this->instanceId = $instanceId;
+        $this->languageRepository = $languageRepository;
+        $this->mockHandler = $mockHandler;
     }
 
     /**
@@ -75,15 +101,22 @@ class StoreService
         return $this->shopwareVersion;
     }
 
-    public function createClient(): Client
+    public function createClient(bool $verifySignature = true): Client
     {
         $stack = HandlerStack::create();
-        $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
-            return $this->verifyResponseSignature($response);
-        }));
+
+        if ($verifySignature) {
+            $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
+                return $this->verifyResponseSignature($response);
+            }));
+        }
 
         $config = $this->getClientBaseConfig();
         $config['handler'] = $stack;
+
+        if (\defined('TEST_PROJECT_DIR')) {
+            $config['handler'] = $this->mockHandler;
+        }
 
         return new Client($config);
     }
@@ -101,16 +134,29 @@ class StoreService
             'event' => $eventName,
         ];
 
-        $client = new Client($this->getClientBaseConfig());
-
         try {
-            $response = $client->post('/swplatform/tracking/events', ['json' => $payload]);
+            $response = $this->createClient()->post('/swplatform/tracking/events', ['json' => $payload]);
 
             return json_decode($response->getBody()->getContents(), true);
         } catch (\Exception $e) {
         }
 
         return null;
+    }
+
+    public function getLanguageByContext(Context $context): string
+    {
+        $criteria = new Criteria([$context->getLanguageId()]);
+        $criteria->addAssociation('locale');
+
+        /** @var LanguageEntity $language */
+        $language = $this->languageRepository->search($criteria, $context)->first();
+
+        if ($language->getLocale() !== null) {
+            return $language->getLocale()->getCode();
+        }
+
+        return 'en-GB';
     }
 
     private function getClientBaseConfig(): array

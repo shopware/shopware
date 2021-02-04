@@ -63,6 +63,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener">
+        </service>
+
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
@@ -88,6 +91,7 @@
             <argument type="service" id="messenger.listener.stop_worker_on_restart_signal_listener"/>
             <argument type="service" id="messenger.listener.stop_worker_on_sigterm_signal_listener"/>
             <argument type="service" id="messenger.listener.dispatch_pcntl_signal_listener"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

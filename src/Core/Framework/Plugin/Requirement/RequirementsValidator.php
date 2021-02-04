@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\ConflictingPackageExcep
 use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
+use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 class RequirementsValidator
 {
@@ -150,6 +151,11 @@ class RequirementsValidator
         $packages = array_merge($packages, (new PlatformRepository())->getPackages());
 
         foreach ($packages as $package) {
+            // Ignore Shopware plugins. They are checked separately in `validateInstalledPlugins`
+            if ($package->getType() === PluginFinder::COMPOSER_TYPE) {
+                continue;
+            }
+
             $pluginDependencies['require'] = $this->checkRequirement(
                 $pluginDependencies['require'],
                 $package->getName(),
@@ -264,7 +270,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginRequirements[$installedName]->getConstraint();
-
         if ($constraint === null || $installedVersion === null) {
             return $pluginRequirements;
         }
@@ -297,7 +302,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginConflicts[$targetName]->getConstraint();
-
         if ($constraint === null || $installedVersion === null) {
             return $pluginConflicts;
         }

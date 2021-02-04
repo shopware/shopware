@@ -1,10 +1,10 @@
 {% block sw_admin_menu_item %}
     <li v-if="showMenuItem"
         class="sw-admin-menu__navigation-list-item"
-        :class="getItemName(entry.id || entryPath)"
-        @click="$emit('menu-item-click', entry, $event.currentTarget)"
-        @mouseover="$emit('menu-item-hover', entry, $event.currentTarget, parentEntries)"
-        @mouseleave="$emit('menu-item-leave', entry, $event.currentTarget, parentEntries)">
+        :class="getElementClasses(entry.id || entryPath)"
+        :style="{ 'border-color': borderColor }"
+        @click.prevent="$emit('menu-item-click', entry, $event.target)"
+        @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)">
 
         {% block sw_admin_menu_item_router_link %}
             <router-link v-if="entryPath"
@@ -22,10 +22,18 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                    <span class="sw-admin-menu__navigation-link-label"
+                          :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ getEntryLabel }}
+
+                        <sw-icon v-if="entry.level > 1 && entry.children.length"
+                                 name="default-arrow-head-right"
+                                 size="8"
+                                 class="sw-admin-menu__navigation-link-icon"></sw-icon>
                     </span>
                 {% endblock %}
+
+                <slot name="additional-text"></slot>
             </router-link>
         {% endblock %}
 
@@ -46,10 +54,13 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                    <span :class="collapsibleText ? 'collapsible-text' : ''">
+                    <span class="sw-admin-menu__navigation-link-label"
+                          :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
                     </span>
                 {% endblock %}
+
+                <slot name="additional-text"></slot>
             </a>
         {% endblock %}
 
@@ -68,19 +79,27 @@
                 {% endblock %}
 
                 {% block sw_admin_menu_item_text %}
-                     <span :class="collapsibleText ? 'collapsible-text' : ''">
+                     <span class="sw-admin-menu__navigation-link-label"
+                           :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
                      </span>
+                {% endblock %}
+
+                <slot name="additional-text"></slot>
+
+                {% block sw_admin_menu_item_arrow_indicator %}
+                    <sw-icon v-if="entry.level > 1" name="default-arrow-head-right"></sw-icon>
                 {% endblock %}
             </span>
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
-            <ul v-if="sidebarExpanded && children.length > 0" class="sw-admin-menu__sub-navigation-list">
+            <ul v-if="children.length > 0" class="sw-admin-menu__sub-navigation-list">
                 <sw-admin-menu-item v-for="entry in children"
-                                    :class="entry.id || entryPath"
                                     :entry="entry"
+                                    :borderColor="borderColor"
                                     :key="entry.id || entryPath"
+                                    @menu-item-enter="onSubMenuItemEnter"
                                     :displayIcon="false">
                 </sw-admin-menu-item>
             </ul>

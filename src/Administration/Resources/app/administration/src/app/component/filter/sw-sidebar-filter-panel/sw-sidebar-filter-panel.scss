@@ -1,0 +1,61 @@
+@import "~scss/variables";
+
+$headline-color:   $color-darkgray-200;
+$border-color:     $color-gray-300;
+$navigation-width: 64px;
+$content-width:    400px;
+
+.sw-sidebar-filter-panel {
+    width: $content-width;
+    height: 100%;
+    display: grid;
+    grid-template-rows: $navigation-width 1fr;
+    border-left: 1px solid $border-color;
+    overflow: hidden;
+
+    .sw-sidebar-filter-panel__headline {
+        display: grid;
+        grid-template-columns: 1fr 32px;
+        align-content: center;
+        border-bottom: 1px solid $color-gray-300;
+        padding: 0 25px;
+    }
+
+    .sw-sidebar-filter-panel__title {
+        display: inline;
+        margin: 0 20px 0 0;
+        font-size: 18px;
+        color: $headline-color;
+    }
+
+    .sw-sidebar-filter-panel__close-button {
+        color: $headline-color;
+        height: 24px;
+        width: 24px;
+        justify-self: end;
+        background: none;
+        border: none;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .sw-sidebar-filter-panel__content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sw-sidebar-filter-panel__scrollable-container {
+        position: absolute;
+        width: $content-width;
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    a {
+        font-size: 14px;
+        color: $color-shopware-brand-500;
+        text-decoration: underline;
+    }
+}

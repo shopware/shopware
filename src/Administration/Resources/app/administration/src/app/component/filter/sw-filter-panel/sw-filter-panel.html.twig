@@ -1,0 +1,66 @@
+{% block sw_sidebar_filter_panel %}
+    <sw-sidebar-filter-panel
+        icon="default-action-filter"
+        :title="$tc('sw-filter-panel.titleSidebarItemFilter')">
+        {% block sw_filter_panel %}
+            <div class="sw-filter-panel">
+                {% block sw_filter_panel_item %}
+                    <div class="sw-filter-panel__item" v-for="filter in filters" :key="filter.name">
+                        <div v-if="false"></div>
+
+                        {% block sw_filter_panel_extension_point %} {% endblock %}
+
+                        <sw-boolean-filter
+                            v-else-if="filter.type === 'boolean-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-boolean-filter>
+
+                        <sw-existence-filter
+                            v-else-if="filter.type === 'existence-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-existence-filter>
+
+                        <sw-multi-select-filter
+                            v-else-if="filter.type === 'multi-select-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-multi-select-filter>
+
+                        <sw-date-filter
+                            v-else-if="filter.type === 'date-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-date-filter>
+
+                        <sw-string-filter
+                            v-else-if="filter.type === 'string-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-string-filter>
+
+                        <sw-number-filter
+                            v-else-if="filter.type === 'number-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-number-filter>
+
+                        <sw-price-filter
+                            v-else-if="filter.type === 'price-filter'"
+                            :filter="filter"
+                            @updateFilter="updateFilter"
+                            @resetFilter="resetFilter">
+                        </sw-price-filter>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </sw-sidebar-filter-panel>
+{% endblock %}

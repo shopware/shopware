@@ -145,10 +145,10 @@ class HookableEventFactoryTest extends TestCase
             'id',
             'versionId',
         ];
-        sort($actualUpdatedFields);
-        sort($expectedUpdatedFields);
 
-        static::assertEquals($expectedUpdatedFields, $actualUpdatedFields);
+        foreach ($expectedUpdatedFields as $field) {
+            static::assertContains($field, $actualUpdatedFields);
+        }
     }
 
     public function testCreatesHookableEntityDelete(): void
@@ -235,6 +235,8 @@ class HookableEventFactoryTest extends TestCase
             'operation' => 'update',
             'primaryKey' => $id,
             'updatedFields' => [
+                'parentVersionId',
+                'productManufacturerVersionId',
                 'updatedAt',
                 'id',
                 'versionId',
@@ -288,6 +290,8 @@ class HookableEventFactoryTest extends TestCase
             'operation' => 'update',
             'primaryKey' => $id,
             'updatedFields' => [
+                'parentVersionId',
+                'productManufacturerVersionId',
                 'updatedAt',
                 'id',
                 'versionId',

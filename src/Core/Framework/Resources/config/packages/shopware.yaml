@@ -29,7 +29,8 @@ shopware:
         max_limit: 500
         api_browser:
             auth_required: true
-
+        store:
+            context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
     admin_worker:
         enable_admin_worker: true
         poll_interval: 30
@@ -71,15 +72,9 @@ shopware:
             - name: FEATURE_NEXT_10549
               major: false
               description: "save cart or products on wishlist"
-            - name: FEATURE_NEXT_10559
-              major: false
-              description: "vat handling for companies"
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_10536
-              major: false
-              description: "filter settings per category"
             - name: FEATURE_NEXT_10539
               major: false
               description: "prevent deletion of used rules"
@@ -91,6 +86,10 @@ shopware:
               default: false
               major: true
               description: "reduce request payload of cms listing"
+            - name: FEATURE_NEXT_10550
+              default: false
+              major: false
+              description: "add rich-text editor with variables"
             - name: FEATURE_NEXT_12016
               default: false
               major: false
@@ -98,6 +97,10 @@ shopware:
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"
+            - name: FEATURE_NEXT_10553
+              default: false
+              major: false
+              description: "From prices for variant products"
             - name: FEATURE_NEXT_12108
               default: false
               major: true
@@ -106,17 +109,13 @@ shopware:
               default: false
               major: true
               description: "custom search index and ranking"
-            - name: FEATURE_NEXT_10820
-              default: false
-              major: true
-              description: "add same canonical url for variants"
             - name: FEATURE_NEXT_12553
               default: false
               major: true
               description: "Improve template hierarchy resolving"
             - name: FEATURE_NEXT_12608
               default: false
-              major: false
+              major: true
               description: "App System Store"
             - name: FEATURE_NEXT_7365
               default: false
@@ -126,10 +125,30 @@ shopware:
               default: false
               major: true
               description: "Rule detail page assignments tab"
+            - name: FEATURE_NEXT_12032
+              default: false
+              major: true
+              description: "Add landing pages"
+            - name: FEATURE_NEXT_12246
+              default: false
+              major: true
+              description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
             - name: FEATURE_NEXT_12942
               default: false
               major: true
               description: "Add maximum width for logo"
+            - name: FEATURE_NEXT_12957
+              default: false
+              major: true
+              description: "Separate plugin download and update action"
+            - name: FEATURE_NEXT_9831
+              default: false
+              major: false
+              description: "Filters & Search for Admin Grids"
+            - name: FEATURE_NEXT_12429
+              default: false
+              major: true
+              description: "Improve product UX"
 
     logger:
         file_rotation_count: 14

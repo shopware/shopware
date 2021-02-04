@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,9 +43,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $request = $resolverContext->getRequest();
         $context = $resolverContext->getSalesChannelContext();
 
-        if (Feature::isActive('FEATURE_NEXT_10536')) {
-            $this->restrictFilters($slot, $request);
-        }
+        $this->restrictFilters($slot, $request);
 
         if ($this->isCustomSorting($slot)) {
             $this->restrictSortings($request, $slot);

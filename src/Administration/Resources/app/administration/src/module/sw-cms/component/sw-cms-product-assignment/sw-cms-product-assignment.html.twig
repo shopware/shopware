@@ -1,0 +1,149 @@
+{% block sw_entity_many_to_many_assignment_card %}
+    <div class="sw-cms-product-assignment" v-bind="$attrs">
+        {% block sw_cms_product_assignment_content %}
+            <div class="sw-cms-product-assignment__select-container">
+                {% block sw_cms_product_assignment_select %}
+                    <slot name="select">
+                        <sw-select-base
+                            v-bind="$attrs"
+                            v-on="$listeners"
+                            class="sw-cms-product-assignment-select"
+                            ref="selectBase"
+                            :disabled="disabled"
+                            :label="selectLabel"
+                            :isLoading="isLoadingResults"
+                            @select-expanded="onSelectExpanded"
+                            @select-collapsed="onSelectCollapsed">
+
+                            <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                                {% block sw_cms_product_assignment_search_field %}
+                                    <input ref="searchInput"
+                                           tabindex="-1"
+                                           :placeholder="placeholder"
+                                           :value="searchTerm"
+                                           :disabled="disabled"
+                                           @input="onSearchTermChange">
+                                {% endblock %}
+                            </template>
+
+                            <template #results-list>
+                                {% block sw_cms_product_assignment_results_list%}
+                                    <sw-select-result-list
+                                        ref="swSelectResultList"
+                                        :options="resultCollection"
+                                        :isLoading="isLoadingResults"
+                                        :emptyMessage="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
+                                        :focusEl="$refs.searchInput"
+                                        @paginate="paginateResult"
+                                        @item-select="onItemSelect">
+
+                                        {% block sw_cms_product_assignment_results_list_before %}
+                                            <template #before-item-list>
+                                                {% block sw_cms_product_assignment_results_list_before_content %}
+                                                    <slot name="before-item-list"></slot>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_cms_product_assignment_results_list_result %}
+                                            <template #result-item="{ item, index }">
+                                                {% block sw_cms_product_assignment_results_list_result_content %}
+                                                    <slot name="result-item"
+                                                          v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }">
+
+                                                        {% block sw_cms_product_assignment_results_list_list_item %}
+                                                            <li is="sw-select-result"
+                                                                :selected="isSelected(item)"
+                                                                @item-select="onItemSelect"
+                                                                v-bind="{ item, index }">
+
+                                                                {% block sw_cms_product_assignment_results_list_list_item_label %}
+                                                                    <slot name="result-label-property"
+                                                                          v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
+
+                                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                                                           :text="getKey(item, `translated.${labelProperty}`)"
+                                                                                           :searchTerm="searchTerm">
+                                                                        </sw-highlight-text>
+
+                                                                        <template v-else>
+                                                                            {{ getKey(item, `translated.${labelProperty}`) }}
+                                                                        </template>
+                                                                    </slot>
+                                                                {% endblock %}
+                                                            </li>
+                                                        {% endblock %}
+                                                    </slot>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_cms_product_assignment_results_list_after %}
+                                            <template #after-item-list>
+                                                {% block sw_cms_product_assignment_results_list_after_content %}
+                                                    <slot name="after-item-list"></slot>
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
+                                    </sw-select-result-list>
+                                {% endblock %}
+                            </template>
+                        </sw-select-base>
+                    </slot>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_product_assignment_grid %}
+            <sw-data-grid
+                class="sw-cms-product-assignment__grid"
+                :dataSource="gridData"
+                :isLoading="isLoadingGrid"
+                :columns="columns"
+                :v-bind="$attrs"
+                :showSelection="false"
+                :plainAppearance="true">
+
+                {% block sw_cms_product_assignment_grid_column %}
+                    <template v-for="column in columns" v-slot:[`column-${column.property}`]="columnProps">
+                        {% block sw_cms_product_assignment_grid_column_content %}
+                            <slot :name="`column-${column.property}`"
+                                  v-bind="{ ...columnProps, searchTerm, highlightSearchTerm }"></slot>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_cms_product_assignment_grid_column_actions %}
+                    <template #actions="{ item }">
+                        {% block sw_cms_product_assignment_grid_column_actions_content %}
+                            <sw-context-menu-item
+                                variant="danger"
+                                :disabled="disabled"
+                                @click="removeFromGrid(item)">
+                                {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_cms_product_assignment_grid_footer %}
+                    <template #pagination>
+                        {% block sw_cms_product_assignment_grid_footer_content %}
+                            <sw-pagination
+                                v-if="total > 0"
+                                v-bind="{ limit, page, total }"
+                                :steps="steps"
+                                :autoHide="false"
+                                @page-change="paginateGrid">
+                            </sw-pagination>
+
+                            <div v-else class="sw-cms-product-assignment__empty-state">
+                                <slot name="empty-state"></slot>
+                            </div>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-data-grid>
+        {% endblock %}
+    </div>
+{% endblock %}

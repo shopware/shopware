@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 
+/**
+ * @deprecated tag:v6.4.0 - Read protection (blacklisting) is deprecated, please use ApiAware (whitelisting)
+ */
 class ReadProtected extends Flag
 {
     private const BASE_URLS = [

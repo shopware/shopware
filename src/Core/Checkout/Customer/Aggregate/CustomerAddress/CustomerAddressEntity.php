@@ -74,7 +74,7 @@ class CustomerAddressEntity extends Entity
     protected $street;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - Will be removed
+     * @deprecated tag:v6.4.0 - Will be removed
      *
      * @var string|null
      */
@@ -241,7 +241,7 @@ class CustomerAddressEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - Will be removed
+     * @deprecated tag:v6.4.0 - Will be removed
      */
     public function getVatId(): ?string
     {
@@ -249,7 +249,7 @@ class CustomerAddressEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - Will be removed
+     * @deprecated tag:v6.4.0 - Will be removed
      */
     public function setVatId(string $vatId): void
     {

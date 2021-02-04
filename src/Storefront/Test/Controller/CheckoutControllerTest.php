@@ -123,7 +123,7 @@ class CheckoutControllerTest extends TestCase
         static::assertStringContainsString('/account/order/edit', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
     }
 
-    public function testAffiliateOrder(): void
+    public function testAffiliateAndCampaignTracking(): void
     {
         $request = $this->createRequest();
         $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
@@ -133,6 +133,28 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+    }
+
+    public function testAffiliateTracking(): void
+    {
+        $request = $this->createRequest();
+        $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
+
+        $order = $this->performOrder('', false, $request);
+
+        static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+        static::assertNull($order->getAffiliateCode());
+    }
+
+    public function testCampaignOrderTracking(): void
+    {
+        $request = $this->createRequest();
+        $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
+
+        $order = $this->performOrder('', false, $request);
+
+        static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
+        static::assertNull($order->getCampaignCode());
     }
 
     public function testOrderWithEmptyCartDoesNotResultIn400StatusCode(): void

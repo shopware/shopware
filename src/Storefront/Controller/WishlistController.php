@@ -10,14 +10,15 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractMergeWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,36 +55,71 @@ class WishlistController extends StorefrontController
      */
     private $mergeWishlistProductRoute;
 
+    /**
+     * @var GuestWishlistPageLoader
+     */
+    private $guestPageLoader;
+
+    /**
+     * @var GuestWishlistPageletLoader
+     */
+    private $guestPageletLoader;
+
     public function __construct(
         WishlistPageLoader $wishlistPageLoader,
         AbstractLoadWishlistRoute $wishlistLoadRoute,
         AbstractAddWishlistProductRoute $addWishlistRoute,
         AbstractRemoveWishlistProductRoute $removeWishlistProductRoute,
-        AbstractMergeWishlistProductRoute $mergeWishlistProductRoute
+        AbstractMergeWishlistProductRoute $mergeWishlistProductRoute,
+        GuestWishlistPageLoader $guestPageLoader,
+        GuestWishlistPageletLoader $guestPageletLoader
     ) {
         $this->wishlistPageLoader = $wishlistPageLoader;
         $this->wishlistLoadRoute = $wishlistLoadRoute;
         $this->addWishlistRoute = $addWishlistRoute;
         $this->removeWishlistProductRoute = $removeWishlistProductRoute;
         $this->mergeWishlistProductRoute = $mergeWishlistProductRoute;
+        $this->guestPageLoader = $guestPageLoader;
+        $this->guestPageletLoader = $guestPageletLoader;
     }
 
     /**
      * @Since("6.3.4.0")
-     * @LoginRequired()
-     * @Route("/wishlist", name="frontend.wishlist.page", methods={"GET"})
+     * @Route("/wishlist", name="frontend.wishlist.page", options={"seo"="false"}, methods={"GET"})
      */
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        if ($context->getCustomer()) {
+            $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        } else {
+            $page = $this->guestPageLoader->load($request, $context);
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
     }
 
     /**
+     * @Since("6.3.5.0")
+     * @Route("/wishlist/guest-pagelet", name="frontend.wishlist.guestPage.pagelet", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function guestPagelet(Request $request, SalesChannelContext $context): Response
+    {
+        if ($context->getCustomer()) {
+            throw new NotFoundHttpException();
+        }
+
+        $pagelet = $this->guestPageletLoader->load($request, $context);
+
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig',
+            ['page' => $pagelet, 'searchResult' => $pagelet->getSearchResult()->getObject()]
+        );
+    }
+
+    /**
      * @Since("6.3.4.0")
      * @LoginRequired()
-     * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxPagination(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -101,10 +137,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             $res = $this->wishlistLoadRoute->load($request, $context, new Criteria(), $customer);
         } catch (CustomerWishlistNotFoundException $exception) {
@@ -143,10 +175,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxAdd(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         $this->addWishlistRoute->add($productId, $context, $customer);
 
         return new JsonResponse([
@@ -161,10 +189,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxRemove(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         $this->removeWishlistProductRoute->delete($productId, $context, $customer);
 
         return new JsonResponse([
@@ -179,10 +203,6 @@ class WishlistController extends StorefrontController
      */
     public function addAfterLogin(string $productId, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             $this->addWishlistRoute->add($productId, $context, $customer);
 
@@ -203,10 +223,6 @@ class WishlistController extends StorefrontController
      */
     public function ajaxMerge(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10549')) {
-            throw new NotFoundHttpException();
-        }
-
         try {
             $this->mergeWishlistProductRoute->merge($requestDataBag, $context, $customer);
 

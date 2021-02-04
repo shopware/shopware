@@ -15,10 +15,10 @@ Component.register('sw-settings-tax-list', {
     data() {
         return {
             tax: null,
-            sortBy: 'name',
+            sortBy: 'position',
             isLoading: false,
             sortDirection: 'ASC',
-            naturalSorting: true,
+            naturalSorting: false,
             showDeleteModal: false
         };
     },
@@ -39,10 +39,14 @@ Component.register('sw-settings-tax-list', {
         getList() {
             const criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;
-            this.naturalSorting = this.sortBy === 'tax.name';
+            this.naturalSorting = this.sortBy === 'name';
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            if (this.sortBy !== 'name') {
+                // Add second sorting, to make sorting deterministic
+                criteria.addSorting(Criteria.sort('name', 'ASC', true));
+            }
 
             this.taxRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
@@ -98,6 +102,14 @@ Component.register('sw-settings-tax-list', {
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate'
             }];
+        },
+
+        isShopwareDefaultTax(tax) {
+            return this.$te(`global.tax-rates.${tax.name}`, 'en-GB');
+        },
+
+        getLabel(tax) {
+            return this.isShopwareDefaultTax(tax) ? this.$tc(`global.tax-rates.${tax.name}`) : tax.name;
         }
     }
 });

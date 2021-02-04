@@ -34,7 +34,7 @@ So, as our content is not automatically reloaded by default on switching the lan
 `language switch's` change event:
 
 ```twig
-<sw-language-switch @change="changeLanguage"></sw-language-switch>
+<sw-language-switch @on-change="changeLanguage"></sw-language-switch>
 ``` 
 ```javascript
 import template from './foobar-list.html.twig';
@@ -93,7 +93,7 @@ To change the language on a detail page, you will have to add the `language swit
 In the listing, you will have to provide reloading logic by listening to the `change` event:
 
 ```twig
-<sw-language-switch @change="loadItem"></sw-language-switch>
+<sw-language-switch @on-change="loadItem"></sw-language-switch>
 ``` 
 
 ```javascript
@@ -141,7 +141,7 @@ To prevent data loss, a modal will give you the opportunity to save unsaved chan
 ```twig
 <sw-language-switch :saveChangesFunction="saveOnLanguageChange"
                     :abortChangeFunction="abortOnLanguageChange"
-                    @change="loadItem">
+                    @on-change="loadItem">
 </sw-language-switch>
 ``` 
 

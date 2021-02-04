@@ -51,17 +51,21 @@ describe('WishlistWidgetPlugin tests', () => {
         wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductsLoaded');
         expect(wishlistWidgetPlugin._wishlistStorage.getCurrentCounter).toHaveBeenCalled();
 
-        wishlistWidgetPlugin._stopWishlistLoading = jest.fn();
+        wishlistWidgetPlugin._reInitWishlistButton = jest.fn();
         wishlistWidgetPlugin._wishlistStorage.getCurrentCounter = jest.fn();
-        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductAdded');
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductAdded', {
+            productId: 'product-01'
+        });
         expect(wishlistWidgetPlugin._wishlistStorage.getCurrentCounter).toHaveBeenCalled();
-        expect(wishlistWidgetPlugin._stopWishlistLoading).toHaveBeenCalled();
+        expect(wishlistWidgetPlugin._reInitWishlistButton).toHaveBeenCalled();
 
-        wishlistWidgetPlugin._stopWishlistLoading = jest.fn();
+        wishlistWidgetPlugin._reInitWishlistButton = jest.fn();
         wishlistWidgetPlugin._wishlistStorage.getCurrentCounter = jest.fn();
-        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductRemoved');
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductRemoved', {
+            productId: 'product-01'
+        });
         expect(wishlistWidgetPlugin._wishlistStorage.getCurrentCounter).toHaveBeenCalled();
-        expect(wishlistWidgetPlugin._stopWishlistLoading).toHaveBeenCalled();
+        expect(wishlistWidgetPlugin._reInitWishlistButton).toHaveBeenCalled();
     });
 });
 

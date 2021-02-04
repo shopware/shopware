@@ -2,23 +2,31 @@
 @import "~scss/mixins";
 
 $sw-admin-menu-color-text-secondary: darken($color-gray-300, 20%);
-$sw-admin-menu-color-text-primary: $color-white;
 $sw-admin-menu-width-expanded: 300px;
 $sw-admin-menu-width-collapsed: 80px;
 $sw-admin-menu-width-flyout: 220px;
 $sw-admin-menu-z-index-flyout: $z-index-flyout;
 $sw-admin-menu-z-index-off-canvas: $z-index-off-canvas;
-$sw-admin-menu-transition: .4s cubic-bezier(.50, .32, .01, 1);
-$sw-admin-menu-off-canvas-transition: .4s cubic-bezier(0.3, 0, 0.15, 1);
-$sw-admin-menu-sub-menu-transition: .35s cubic-bezier(.50, .32, .01, 1);
-$sw-admin-menu-flyout-transition: .2s cubic-bezier(.50, .32, .01, 1);
+$sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
+$sw-admin-menu-off-canvas-transition: 0.4s cubic-bezier(0.3, 0, 0.15, 1);
+$sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
+$sw-admin-menu-flyout-transition: 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-color-active: lighten($color-menu-start, 3%);
 $sw-admin-menu-color-hover: lighten($color-menu-start, 6%);
 $sw-admin-menu-shop-status-ok: $color-emerald-500;
 
+$sw-admin-menu-background: #243758;
+$sw-admin-menu-background-hover: #293f65;
+$sw-admin-menu-divider: #344865;
+$sw-admin-menu-background-active-first-level: #172b4f;
+$sw-admin-menu-background-active-hover: #1a315b;
+$sw-admin-menu-background-active-second-level: #0d2145;
+$sw-admin-menu-color-text-primary: #bcc9dc;
+$sw-admin-menu-active-text: $color-white;
+
 .sw-admin-menu {
+    background: $sw-admin-menu-background;
     width: $sw-admin-menu-width-collapsed;
-    background: linear-gradient(to bottom, $color-menu-start, $color-menu-end);
     transition: width $sw-admin-menu-transition;
     height: 100%;
     display: flex;
@@ -40,16 +48,38 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .collapsible-text {
-        transition: opacity $sw-admin-menu-transition,
-                    transform $sw-admin-menu-transition;
+        transition:
+            opacity $sw-admin-menu-transition,
+            transform $sw-admin-menu-transition;
         transform: translateX(-50px);
         opacity: 0;
         display: inline-block;
         white-space: nowrap;
+        width: 100%;
+        position: relative;
+
+        .sw-admin-menu__navigation-link-icon {
+            position: absolute;
+            right: -20px;
+            top: 8px;
+            margin: 0;
+        }
     }
 
     &.is--expanded {
         width: $sw-admin-menu-width-expanded;
+
+        .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
+            background: $sw-admin-menu-background-active-first-level;
+        }
+
+        .sw-admin-menu__navigation-link.router-link-active {
+            background: $sw-admin-menu-background-active-second-level;
+
+            .collapsible-text {
+                color: $sw-admin-menu-active-text;
+            }
+        }
 
         .collapsible-text {
             opacity: 1;
@@ -68,6 +98,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     .sw-admin-menu__user-name,
     .sw-admin-menu__user-type {
         @include truncate();
+
         max-width: 200px;
     }
 
@@ -113,7 +144,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__headline {
-        color: $sw-admin-menu-color-text-secondary;
+        color: $sw-admin-menu-active-text;
         width: $sw-admin-menu-width-collapsed;
         transition: width $sw-admin-menu-transition;
         font-weight: 600;
@@ -123,7 +154,7 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__headline-action {
-        color: $sw-admin-menu-color-text-secondary;
+        color: $sw-admin-menu-color-text-primary;
         padding: 12px 30px;
         position: absolute;
         top: 0;
@@ -161,33 +192,30 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
 
     .sw-admin-menu__navigation-link {
         color: $sw-admin-menu-color-text-primary;
-        display: block;
+        display: flex;
+        align-items: baseline;
         padding: 12px 30px;
         text-decoration: none;
         font-size: 14px;
-        font-weight: 600;
         line-height: 24px;
         cursor: pointer;
 
-        &:hover,
-        &.router-link-active {
-            background: $sw-admin-menu-color-active;
+        &:hover {
+            color: #fff;
         }
 
-        &.router-link-active + .sw-admin-menu__sub-navigation-list {
-            opacity: 1;
+        .sw-icon {
+            flex-shrink: 0;
+        }
 
-            .sw-admin-menu__navigation-link {
-                padding-top: 8px;
-                padding-bottom: 8px;
-                height: 40px;
-                opacity: 1;
-            }
+        .sw-admin-menu__navigation-link-label {
+            @include truncate();
+
+            flex-grow: 1;
         }
     }
 
     .sw-admin-menu__navigation-link-icon {
-        color: $sw-admin-menu-color-text-secondary;
         width: 20px;
         margin: 0 24px 0 0;
         vertical-align: middle;
@@ -196,27 +224,23 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__sub-navigation-list {
-        background: $sw-admin-menu-color-active;
         transition: all $sw-admin-menu-sub-menu-transition;
         display: block;
         list-style: none;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        opacity: 0;
 
         .sw-admin-menu__navigation-link {
             padding-left: 77px;
-            padding-top: 0;
-            padding-bottom: 0;
             font-weight: normal;
             transition: all $sw-admin-menu-sub-menu-transition;
-            opacity: 0;
-            height: 0;
+        }
+    }
 
-            &:hover {
-                background-color: $sw-admin-menu-color-hover;
-            }
+    .sw-admin-menu__navigation-list-item {
+        .sw-admin-menu__navigation-list-item {
+            display: none;
         }
     }
 
@@ -227,51 +251,8 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
         font-weight: bold;
     }
 
-    .sw-admin-menu__flyout {
-        background-color: $sw-admin-menu-color-active;
-        min-width: $sw-admin-menu-width-flyout;
-        z-index: $sw-admin-menu-z-index-flyout;
-        position: absolute;
-        top: 0;
-        left: 80px;
-
-        .sw-admin-menu__flyout-item {
-            border-left: 2px solid $sw-admin-menu-color-text-secondary;
-
-            .sw-admin-menu__navigation-link {
-                padding: 0 30px;
-                height: 48px;
-                line-height: 48px;
-                font-weight: normal;
-                text-overflow: ellipsis;
-
-                &:hover {
-                    background-color: $sw-admin-menu-color-hover;
-                }
-            }
-        }
-
-
-    }
-
-    .sw-admin-menu__flyout-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .sw-admin-menu__flyout-label {
-        color: $sw-admin-menu-color-text-primary;
-        border-left: 2px solid $sw-admin-menu-color-text-secondary;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 0 30px;
-        height: 48px;
-        line-height: 48px;
-    }
-
     .sw-admin-menu__toggle {
-        color: $sw-admin-menu-color-text-secondary;
+        color: $sw-admin-menu-color-text-primary;
         font-family: $font-family-default;
         display: block;
         padding: 12px 32px;
@@ -291,7 +272,6 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
         }
 
         .sw-icon {
-            color: $sw-admin-menu-color-text-secondary;
             margin: 0 20px 0 0;
             vertical-align: middle;
             position: relative;
@@ -299,10 +279,10 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
         }
 
         &:hover {
-            color: $sw-admin-menu-color-text-primary;
+            color: $sw-admin-menu-active-text;
 
             .sw-icon {
-                color: $sw-admin-menu-color-text-primary;
+                color: $sw-admin-menu-active-text;
             }
         }
     }
@@ -312,19 +292,23 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__user-actions-toggle {
-        background: lighten($color-menu-start, 1%);
+        background: $sw-admin-menu-background-active-first-level;
         padding: 25px 20px;
         display: flex;
         cursor: pointer;
         position: relative;
 
         .sw-loader {
-            background: lighten($color-menu-start, 1%);
+            background: $sw-admin-menu-background-active-first-level;
         }
 
         &:hover,
         &.is--active {
-            background: $sw-admin-menu-color-active;
+            background: $sw-admin-menu-background-active-hover;
+        }
+
+        .sw-admin-menu__navigation-list-item:hover {
+            background: $sw-admin-menu-background-active-second-level;
         }
     }
 
@@ -340,18 +324,22 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__user-actions-indicator {
-        color: $sw-admin-menu-color-text-secondary;
         position: absolute;
         right: 10px;
         top: 50%;
         margin-top: -8px;
+        color: $sw-admin-menu-color-text-primary;
+
+        &:hover {
+            color: $sw-admin-menu-active-text;
+        }
     }
 
     .sw-admin-menu__user-name {
-        color: $sw-admin-menu-color-text-primary;
         margin-top: 2px;
         font-size: 14px;
         font-weight: 600;
+        color: $sw-admin-menu-active-text;
     }
 
     .sw-admin-menu__user-type {
@@ -361,12 +349,11 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__user-actions {
-        background: $sw-admin-menu-color-active;
         width: $sw-admin-menu-width-expanded;
         display: none;
 
         .sw-admin-menu__navigation-list-item {
-            background: $sw-admin-menu-color-active;
+            background: $sw-admin-menu-background-active-first-level;
         }
 
         .sw-admin-menu__navigation-link {
@@ -379,12 +366,13 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     }
 
     .sw-admin-menu__user-actions-label {
-        color: $sw-admin-menu-color-text-primary;
         font-weight: 600;
         font-size: 14px;
         padding: 0 30px;
         height: 48px;
         line-height: 48px;
+        background: $sw-admin-menu-background-active-first-level;
+        color: $sw-admin-menu-active-text;
     }
 
     &.is--collapsed {
@@ -412,5 +400,142 @@ $sw-admin-menu-shop-status-ok: $color-emerald-500;
     .flyout-leave-to {
         opacity: 0;
         transform: translateX(-8px);
+    }
+
+    // Flyout holder
+    .sw-admin-menu_flyout-holder {
+        position: absolute;
+        left: $sw-admin-menu-width-expanded;
+        width: $sw-admin-menu-width-flyout;
+        top: 0;
+        display: block;
+        z-index: $sw-admin-menu-z-index-flyout;
+        background: $sw-admin-menu-background;
+        list-style: none;
+
+        .sw-admin-menu__navigation-list-item {
+            border-left: 2px solid transparent;
+            position: relative;
+        }
+
+        .collapsible-text {
+            opacity: 1;
+            transform: translateX(-8px);
+        }
+    }
+
+    // Flyout in collapsed mode
+    &.is--collapsed .sw-admin-menu_flyout-holder {
+        left: $sw-admin-menu-width-collapsed;
+    }
+
+    // Active menu item
+    .sw-admin-menu__navigation-link.router-link-active {
+        background: $sw-admin-menu-background-active-first-level;
+
+        .collapsible-text {
+            color: $sw-admin-menu-active-text;
+        }
+    }
+
+    // Separator between plugin & core entries
+    .navigation-list-item__type-plugin .collapsible-text::before {
+        background: $sw-admin-menu-divider;
+        content: '';
+        display: block;
+        margin-top: -10px;
+        width: 90%;
+        top: -2px;
+        position: absolute;
+        height: 1px;
+    }
+
+    .navigation-list-item__type-plugin ~ .navigation-list-item__type-plugin .collapsible-text::before {
+        display: none;
+    }
+
+    // Entry is not active but flyout is open
+    .sw-admin-menu__navigation-list-item.is--flyout-enabled {
+        background: $sw-admin-menu-background-hover;
+
+        .collapsible-text {
+            color: $sw-admin-menu-active-text;
+        }
+    }
+
+    // Entry is expanded
+    .sw-admin-menu__navigation-list-item.is--entry-expanded {
+        background: $sw-admin-menu-background-active-first-level;
+
+        .collapsible-text,
+        &:hover .collapsible-text {
+            color: $sw-admin-menu-color-text-primary;
+        }
+
+        &:hover .router-link-active .collapsible-text {
+            color: $sw-admin-menu-active-text;
+        }
+
+        & > .sw-admin-menu__navigation-link .collapsible-text {
+            color: $sw-admin-menu-active-text;
+        }
+
+        &:hover {
+            background: $sw-admin-menu-background-active-first-level;
+        }
+
+        .sw-admin-menu__navigation-list-item {
+            background: $sw-admin-menu-background-active-first-level;
+            display: block;
+        }
+
+        // Hide all sub menus except the first level
+        .sw-admin-menu__sub-navigation-list {
+            display: none;
+        }
+
+        // First level expanded
+        & > .sw-admin-menu__sub-navigation-list {
+            display: block;
+        }
+    }
+
+    .sw-admin-menu__navigation-list-item:hover {
+        background: $sw-admin-menu-background-hover;
+
+        .collapsible-text {
+            color: $sw-admin-menu-active-text;
+        }
+    }
+
+    .navigation-list-item__level-2:hover,
+    .navigation-list-item__level-2.is--flyout-enabled {
+        & > .sw-admin-menu__navigation-link {
+            background: $sw-admin-menu-background-hover;
+
+            .collapsible-text {
+                color: $sw-admin-menu-active-text;
+            }
+        }
+
+        .sw-admin-menu__sub-navigation-list {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            background: $sw-admin-menu-background;
+
+            .sw-admin-menu__navigation-list-item {
+                display: block;
+
+                &:hover {
+                    background: $sw-admin-menu-background-hover;
+                }
+            }
+
+            .sw-admin-menu__navigation-link {
+                padding: 12px 30px;
+            }
+        }
     }
 }

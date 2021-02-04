@@ -4,5 +4,103 @@ import './sw-promotion-v2-discounts.scss';
 const { Component } = Shopware;
 
 Component.register('sw-promotion-v2-discounts', {
-    template
+    template,
+
+    inject: [
+        'acl',
+        'repositoryFactory'
+    ],
+
+    mixins: [
+        'notification'
+    ],
+
+    props: {
+        promotion: {
+            type: Object,
+            required: true
+        }
+    },
+
+    data() {
+        return {
+            isActive: false,
+            newDiscount: null,
+            selectedDiscountType: 'basic',
+            showDiscountModal: false
+        };
+    },
+
+    computed: {
+        promotionDiscountRepository() {
+            return this.repositoryFactory.create('promotion_discount');
+        }
+    },
+
+    methods: {
+        onButtonClick() {
+            this.isActive = !this.isActive;
+        },
+
+        onChangeSelection(value) {
+            this.selectedDiscountType = value;
+        },
+
+        onDeleteDiscount(discountId) {
+            this.promotion.discounts = this.promotion.discounts.filter(discount => discount.id !== discountId);
+        },
+
+        onShowDiscountModal() {
+            this.newDiscount = this.createNewDiscount();
+            this.showDiscountModal = true;
+        },
+
+        onCloseDiscountModal() {
+            this.newDiscount = null;
+            this.selectedDiscountType = 'basic';
+            this.showDiscountModal = false;
+        },
+
+        onFinishDiscountModal() {
+            if (this.newDiscount.type === 'free') {
+                Object.assign(this.newDiscount, {
+                    type: 'percentage',
+                    value: 100,
+                    applierKey: 'SELECT'
+                });
+            }
+
+            this.promotion.discounts.push(this.newDiscount);
+            this.onCloseDiscountModal();
+        },
+
+        createNewDiscount() {
+            const discount = this.promotionDiscountRepository.create(Shopware.Context.api);
+            Object.assign(discount, {
+                promotionId: this.promotion.id,
+                value: 0,
+                considerAdvancedRules: false,
+                sorterKey: 'PRICE_ASC',
+                usageKey: 'ALL'
+            });
+
+            return discount;
+        },
+
+        getScope(discount) {
+            const typeMapping = {
+                cart: 'basic',
+                delivery: 'shipping-discount',
+                setgroup: 'buy-x-get-y'
+            };
+
+            return typeMapping[discount.scope.split('-')[0]];
+        },
+
+        getTitle(type, pageTitle) {
+            return this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.prefixTitle`, 0, {
+                title: this.$tc(`sw-promotion-v2.detail.discounts.wizard.${type}.title${pageTitle}`)
+            });
+        }
+    }
 });

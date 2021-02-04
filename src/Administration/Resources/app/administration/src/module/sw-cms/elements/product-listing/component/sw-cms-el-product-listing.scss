@@ -7,6 +7,11 @@
         gap: 30px;
     }
 
+    .sw-cms-el-product-box__media {
+        height: auto;
+        max-height: 200px;
+    }
+
     .sw-cms-el-product-listing__pagination {
         display: grid;
         grid-template-columns: repeat(auto-fit, 40px);

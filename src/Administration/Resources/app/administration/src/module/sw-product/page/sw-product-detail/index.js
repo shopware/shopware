@@ -4,9 +4,10 @@ import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { hasOwnProperty } = Shopware.Utils.object;
+const { Criteria, ChangesetGenerator } = Shopware.Data;
+const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const type = Shopware.Utils.types;
 
 Component.register('sw-product-detail', {
     template,
@@ -66,6 +67,10 @@ Component.register('sw-product-detail', {
         ]),
 
         ...mapPageErrors(errorConfiguration),
+
+        ...mapState('cmsPageState', [
+            'currentPage'
+        ]),
 
         identifier() {
             return this.productTitle;
@@ -175,6 +180,13 @@ Component.register('sw-product-detail', {
             criteria
                 .addSorting(Criteria.sort('createdAt', 'ASC'))
                 .addFilter(Criteria.equalsAny('name', ['Default', 'Standard']));
+
+            return criteria;
+        },
+
+        taxCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(Criteria.sort('position'));
 
             return criteria;
         },
@@ -323,7 +335,9 @@ Component.register('sw-product-detail', {
                     gross: 0
                 }];
 
-                this.product.featureSet = this.defaultFeatureSet;
+                if (this.defaultFeatureSet && this.defaultFeatureSet.length > 0) {
+                    this.product.featureSetId = this.defaultFeatureSet[0].id;
+                }
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
@@ -373,7 +387,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
+            return this.taxRepository.search(this.taxCriteria, Shopware.Context.api).then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);
@@ -439,6 +453,8 @@ Component.register('sw-product-detail', {
                 return new Promise((res) => res());
             }
 
+            this.validateProductListPrices();
+
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {
@@ -451,7 +467,46 @@ Component.register('sw-product-detail', {
 
             this.isSaveSuccessful = false;
 
+            const pageOverrides = this.getCmsPageOverrides();
+
+            if (type.isPlainObject(pageOverrides)) {
+                this.product.slotConfig = cloneDeep(pageOverrides);
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
+        },
+
+        validateProductListPrices() {
+            this.product.prices.forEach(advancedPrice => {
+                this.validateListPrices(advancedPrice.price);
+            });
+            this.validateListPrices(this.product.price);
+        },
+
+        validateListPrices(prices) {
+            if (!prices) {
+                return;
+            }
+
+            prices.forEach(price => {
+                if (!price.listPrice) {
+                    return;
+                }
+
+                if (!price.listPrice.gross && !price.listPrice.net) {
+                    price.listPrice = null;
+                    return;
+                }
+
+                if (!price.listPrice.gross) {
+                    price.listPrice.gross = 0;
+                    return;
+                }
+
+                if (!price.listPrice.net) {
+                    price.listPrice.net = 0;
+                }
+            });
         },
 
         onSaveFinished(response) {
@@ -496,6 +551,21 @@ Component.register('sw-product-detail', {
                     }
 
                     default: {
+                        const errorCode = Shopware.Utils.get(response, 'response.data.errors[0].code');
+
+                        if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
+                            const titleSaveError = this.$tc('global.default.error');
+                            const messageSaveError = this.$t(
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', { productNo: response.response.data.errors[0].meta.parameters.number }
+                            );
+
+                            this.createNotificationError({
+                                title: titleSaveError,
+                                message: messageSaveError
+                            });
+                            break;
+                        }
+
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
                             'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
@@ -654,6 +724,54 @@ Component.register('sw-product-detail', {
             }
 
             return true;
+        },
+
+        getCmsPageOverrides() {
+            if (this.currentPage === null) {
+                return null;
+            }
+
+            const changesetGenerator = new ChangesetGenerator();
+            const { changes } = changesetGenerator.generate(this.currentPage);
+
+            const slotOverrides = {};
+            if (changes === null || !type.isArray(changes.sections)) {
+                return slotOverrides;
+            }
+
+            changes.sections.forEach((section) => {
+                if (!type.isArray(section.blocks)) {
+                    return;
+                }
+
+                section.blocks.forEach((block) => {
+                    if (!type.isArray(block.slots)) {
+                        return;
+                    }
+
+                    block.slots.forEach((slot) => {
+                        if (!type.isPlainObject(slot.config)) {
+                            return;
+                        }
+
+                        const slotConfig = {};
+
+                        Object.keys(slot.config).forEach((key) => {
+                            if (!slot.config[key].value) {
+                                return;
+                            }
+
+                            slotConfig[key] = slot.config[key];
+                        });
+
+                        if (Object.keys(slotConfig).length > 0) {
+                            slotOverrides[slot.id] = slotConfig;
+                        }
+                    });
+                });
+            });
+
+            return slotOverrides;
         }
     }
 });

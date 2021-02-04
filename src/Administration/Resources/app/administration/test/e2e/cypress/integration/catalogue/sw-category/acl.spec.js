@@ -132,23 +132,23 @@ describe('Category: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.categoryTreeItem}__before-action`,
             page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
         );
-        cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
-        cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
 
         // Verify category
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.get('.sw-confirm-field__button-list').then((btn) => {
+        cy.get('.sw-category-tree__inner .sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
-                cy.get('.sw-tree-actions__headline').click();
+                cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
             } else {
-                cy.get('.sw-confirm-field__button--cancel').click();
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(2)`).contains('Categorian');
     });
 
     it('@catalogue: can delete category', () => {

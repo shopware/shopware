@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('indexing_enabled')->end()
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
+                ->scalarNode('throw_exception')->end()
             ->end();
 
         return $treeBuilder;

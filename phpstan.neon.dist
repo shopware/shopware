@@ -6,7 +6,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
     tmpDir: ../var/cache/phpstan
     paths:
         - src
@@ -34,10 +34,51 @@ parameters:
         - src/Core/TestBootstrap.php
 
     ignoreErrors:
+        # Needs a PHPStan extension to be recognised properly. See https://jira.shopware.com/browse/NEXT-13038
+        - '#Cannot call method fetch.*\(\) on Doctrine\\DBAL\\Driver\\Statement\|int#'
+        - '#Cannot call method rowCount\(\) on Doctrine\\DBAL\\Driver\\Statement\|int#'
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
+        # For BC in Store api routes
+        - '#Method Shopware\\Core\\Content\\Category\\SalesChannel\\AbstractNavigationRoute::load\(\) invoked with 5 parameters, 4 required\.#'
+        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\AbstractProductListingRoute::load\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*Route::load\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractCustomerRoute::load\(\) invoked with 4 parameters, 2 required\.#'
+        - '#Method .*AbstractChangeCustomerProfileRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangeEmailRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangePasswordRoute::change\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractChangePaymentMethodRoute::change\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*AbstractDeleteAddressRoute::delete\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractRemoveWishlistProductRoute::delete\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractDeleteCustomerRoute::delete\(\) invoked with 2 parameters, 1 required\.#'
+        - '#Method .*AbstractAddWishlistProductRoute::add\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractMergeWishlistProductRoute::merge\(\) invoked with 3 parameters, 2 required\.#'
+        - '#Method .*AbstractSwitchDefaultAddressRoute::swap\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*AbstractUpsertAddressRoute::upsert\(\) invoked with 4 parameters, 3 required\.#'
+        -
+            message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
+            path: src/Core/**/SalesChannel/**Route.php
+        -
+            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addData\(\) has parameter \$value with no typehint specified#'
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
+        -
+            message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addTemplateData\(\) has parameter \$value with no typehint specified#'
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
+
+        # For BC in Entity repository clone
+        - '#Method .*EntityRepositoryInterface::clone\(\) invoked with 4 parameters, 2-3 required\.#'
+        -
+            message: '#PHPDoc tag @param references unknown parameter: \$behavior#'
+            path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
+        # For BC in Store-API routes
+        -
+            message: '#Method Shopware\\Core\\Checkout\\Customer\\SalesChannel\\Abstract.*Route::.*\(\) has no return typehint specified#'
+            paths:
+                - src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
+                - src/Core/Checkout/Customer/SalesChannel/AbstractLogoutRoute.php
+
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -56,8 +97,35 @@ parameters:
             path: src/Core/Framework/Api/Controller/CacheController.php
         # Invalid phpdoc in OpenAPI Library
         -
+             message: '#Strict comparison using#'
+             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        -
+             message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
+             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        # For BC in SalesChannelContextService get
+        - '#Method Shopware\\Core\\System\\SalesChannel\\Context\\SalesChannelContextServiceInterface::get\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
+            message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailBeforeSentEvent\\:\\:__construct\\(\\) has parameter \\$message with no typehint specified\\.$#"
+            count: 1
+            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeSentEvent.php
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
             message: '#Strict comparison using#'
             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        -
+            message: "#^Parameter \\#1 \\$data of class Swift_Attachment constructor expects string\\|Swift_OutputByteStream\\|null, string\\|false given\\.$#"
+            count: 1
+            path: src/Core/Content/Mail/Service/MailFactory.php
+
+        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
+        -
+            message: "#^Parameter \\#3 \\$contentType of class Swift_Attachment constructor expects string\\|null, string\\|false given\\.$#"
+            count: 1
+            path: src/Core/Content/Mail/Service/MailFactory.php
         -
             message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php

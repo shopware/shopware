@@ -88,6 +88,21 @@ class StoreApiService extends ApiService {
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
             .then((response) => {
+                /**
+                 * @feature-deprecated flag:FEATURE_NEXT_12957
+                 *
+                 * This early return should be removed with the feature flag, so executing the separate update
+                 * request will become the default behaviour. Currently the update is triggered on the server
+                 * side with every /_action/store/download request.
+                 */
+                if (!Shopware.Feature.isActive('FEATURE_NEXT_12957')) {
+                    return response;
+                }
+
+                return this.httpClient
+                    .post('/_action/plugin/update', null, { params, headers });
+            })
+            .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }

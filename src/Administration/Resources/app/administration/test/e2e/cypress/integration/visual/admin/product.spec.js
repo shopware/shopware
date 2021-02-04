@@ -62,6 +62,8 @@ describe('Product: Visual tests', () => {
             .click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         cy.contains('.sw-select-result', 'All customers').click();
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('#rule').contains('All customers');
 
         cy.takeSnapshot('Product detail - Advanced prices', '.sw-product-detail-context-prices');
     });

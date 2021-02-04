@@ -82,7 +82,7 @@ Component.register('sw-settings-snippet-list', {
             );
 
             if (this.term) {
-                this.criteria.setTerm(this.term);
+                criteria.setTerm(this.term);
             }
 
             return criteria;
@@ -299,7 +299,13 @@ Component.register('sw-settings-snippet-list', {
         onSearch(term) {
             this.term = term;
             this.page = 1;
-            this.initializeSnippetSet();
+
+            this.updateRoute({
+                term: term,
+                page: 1
+            }, {
+                ids: this.queryIds
+            });
         },
 
         backRoutingError() {
@@ -383,8 +389,7 @@ Component.register('sw-settings-snippet-list', {
 
         onSelectionChanged(selection) {
             this.snippetSelection = selection;
-            this.selectionCount = Object.keys(selection).length;
-            this.hasResetableItems = this.selectionCount === 0;
+            this.hasResetableItems = Object.keys(selection).length === 0;
         },
 
         onConfirmReset(fullSelection) {
@@ -505,29 +510,22 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onSortColumn(column) {
-            if (column.dataIndex !== this.sortBy) {
-                this.sortBy = column.dataIndex;
-                this.sortDirection = 'ASC';
-                this.getList();
-                return;
-            }
-
-            if (this.sortDirection === 'ASC') {
+            if (this.sortDirection === 'ASC' && column.dataIndex === this.sortBy) {
                 this.sortDirection = 'DESC';
             } else {
                 this.sortDirection = 'ASC';
             }
-
-            this.getList();
+            this.updateRoute({
+                sortDirection: this.sortDirection,
+                sortBy: column.dataIndex
+            }, {
+                ids: this.queryIds
+            });
         },
 
-        onPageChange(opts) {
-            this.page = opts.page;
-            this.limit = opts.limit;
-            this.updateRoute({
-                page: this.page
-            }, {
-                ids: this.$route.query.ids
+        onPageChange({ page, limit }) {
+            this.updateRoute({ page, limit }, {
+                ids: this.queryIds
             });
         },
 

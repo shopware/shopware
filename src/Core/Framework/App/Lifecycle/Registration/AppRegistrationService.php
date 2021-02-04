@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppRegistrationService
 {
     /**
@@ -126,7 +129,7 @@ class AppRegistrationService
 
         $proof = $data['proof'] ?? '';
         if (!hash_equals($handshake->fetchAppProof(), trim($proof))) {
-            throw new AppRegistrationException('The app provided a invalid response');
+            throw new AppRegistrationException('The app provided an invalid response');
         }
 
         return $data;

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 interface AppHandshakeInterface
 {

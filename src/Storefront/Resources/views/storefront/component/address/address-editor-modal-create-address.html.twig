@@ -53,24 +53,13 @@
                                         'parentSelector': 'form'
                                     } %}
 
-                                    {% if feature('FEATURE_NEXT_10559') %}
-                                        {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                            'data': address,
-                                            'prefix': 'address',
-                                            'scope': 'parent',
-                                            'parentSelector': 'form',
-                                            'showFormCompany': true
-                                        } %}
-                                    {% else %}
-                                        {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                            'data': address,
-                                            'prefix': 'address',
-                                            'scope': 'parent',
-                                            'parentSelector': 'form',
-                                            'showFormCompany': true,
-                                            'showVatIdField': true
-                                        } %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                        'data': address,
+                                        'prefix': 'address',
+                                        'scope': 'parent',
+                                        'parentSelector': 'form',
+                                        'showFormCompany': true
+                                    } %}
                                 {% endblock %}
 
                                 {% block component_address_address_editor_modal_create_address_required_hint %}

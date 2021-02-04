@@ -108,7 +108,7 @@
             "individual": {
               "title": "Individual promotion codes",
               "labelPattern": "Pattern",
-              "helpTextPattern": "Create a custom code pattern. Use placeholders like %s for characters and %d for digits. Example: code-%s%s%d',",
+              "helpTextPattern": "Create a custom code pattern. Use placeholders like \"%s\" for characters and \"%d\" for digits. Example: code-%s%s%d.",
               "labelCount": "Count",
               "buttonGenerate": "Save and generate codes",
               "labelNoCodesExist": "No individual codes",
@@ -123,9 +123,12 @@
                 "successGeneratedTitle": "Success.",
                 "successGeneratedMessage": "Generated {count} new codes.",
                 "successDeletedTitle": "Code deleted.",
-                "errorDeletedTitle": "Error while deleting code."
+                "errorDeletedTitle": "Error while deleting code.",
+                "warningFormatCodes": "Invalid code pattern, please adjust your pattern and use placeholders like \"%s\" for characters and \"%d\" for digits.",
+                "warningNotAllowPattern": "The pattern you entered does not allow to generate {generateCount} codes. Please adjust your pattern in order to generate the desired amount of codes."
               }
-            }
+            },
+            "warningEmptyPromotionName": "No promotion name, please fill in a promotion name before generating promotion codes again."
           }
         },
         "preconditions": {

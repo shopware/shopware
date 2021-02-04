@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin, Utils, Filter } = Shopware;
 
 Component.register('sw-cms-el-image-gallery', {
     template,
@@ -52,6 +52,10 @@ Component.register('sw-cms-el-image-gallery', {
 
         isProductPage() {
             return Utils.get(this.cmsPageState, 'currentPage.type', '') === 'product_detail';
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         }
     },
 
@@ -77,7 +81,12 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         'element.config.sliderItems.value': {
-            handler() {
+            handler(value) {
+                if (!value) {
+                    this.element.config.sliderItems.value = [];
+                    return;
+                }
+
                 this.$nextTick(() => {
                     this.setGalleryLimit();
                 });
@@ -98,10 +107,17 @@ Component.register('sw-cms-el-image-gallery', {
             this.initElementConfig('image-gallery');
             this.initElementData('image-gallery');
 
-            if (this.isProductPage) {
-                this.element.config.sliderItems.source = 'mapped';
-                this.element.config.sliderItems.value = 'product.media';
+            if (!this.isProductPage || Utils.get(this.element, 'translated.config')) {
+                return;
             }
+
+            this.element.config.sliderItems.source = 'mapped';
+            this.element.config.sliderItems.value = 'product.media';
+            this.element.config.navigationDots.value = 'inside';
+            this.element.config.zoom.value = true;
+            this.element.config.fullScreen.value = true;
+            this.element.config.displayMode.value = 'contain';
+            this.element.config.minHeight.value = '430px';
         },
 
         mountedComponent() {
@@ -110,9 +126,9 @@ Component.register('sw-cms-el-image-gallery', {
 
         getPlaceholderItems() {
             return [
-                { url: '/administration/static/img/cms/preview_mountain_large.jpg' },
-                { url: '/administration/static/img/cms/preview_glasses_large.jpg' },
-                { url: '/administration/static/img/cms/preview_plant_large.jpg' }
+                { url: this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg') },
+                { url: this.assetFilter('administration/static/img/cms/preview_glasses_large.jpg') },
+                { url: this.assetFilter('administration/static/img/cms/preview_plant_large.jpg') }
             ];
         },
 

@@ -1,0 +1,38 @@
+{% block sw_review_creation_inputs %}
+    <div class="sw-review-creation-inputs">
+        {% block sw_review_creation_inputs_grid %}
+            <div class="sw-review-creation-inputs__grid">
+                {% block sw_review_creation_inputs_headline %}
+                    <sw-field
+                        type="text"
+                        :label="$tc('sw-extension-store.component.sw-ratings.sw-review-creation-inputs.labelHeadline')"
+                        :placeholder="$tc('sw-extension-store.component.sw-ratings.sw-review-creation-inputs.placeholderHeadline')"
+                        v-model="headline"
+                        :error="errors.headlineError"
+                        required>
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_review_creation_inputs_rating %}
+                    <div class="sw-review-creation-inputs__rating">
+                        {% block sw_review_creation_inputs_rating_select %}
+                            <sw-select-rating
+                                v-model="rating"
+                                :error="errors.ratingError"
+                                required
+                                :label="$tc('sw-extension-store.component.sw-ratings.sw-review-creation-inputs.labelRating')">
+                            </sw-select-rating>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_review_creation_inputs_review_field %}
+            <sw-textarea-field
+                :label="$tc('sw-extension-store.component.sw-ratings.sw-review-creation-inputs.labelText')"
+                v-model="text">
+            </sw-textarea-field>
+        {% endblock %}
+    </div>
+{% endblock %}

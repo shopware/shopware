@@ -21,6 +21,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
+use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,16 +33,11 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppLifecycle extends AbstractAppLifecycle
 {
-    private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [
-        'sw-entity-single-select',
-        'sw-entity-multi-id-select',
-        'sw-media-field',
-        'sw-text-editor',
-        'sw-snippet-field',
-    ];
-
     /**
      * @var EntityRepositoryInterface
      */
@@ -102,6 +98,11 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $systemConfigService;
 
+    /*
+     * @var ConfigValidator
+     */
+    private $configValidator;
+
     /**
      * @var string
      */
@@ -120,6 +121,7 @@ class AppLifecycle extends AbstractAppLifecycle
         AppStateService $appStateService,
         EntityRepositoryInterface $languageRepository,
         SystemConfigService $systemConfigService,
+        ConfigValidator $configValidator,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -135,6 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister = $templatePersister;
         $this->languageRepository = $languageRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->configValidator = $configValidator;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -240,7 +243,14 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $config = $this->appLoader->getConfiguration($app);
         if ($config) {
-            $this->verifyConfig($config);
+            $errors = $this->configValidator->validate($manifest, null);
+            $configError = $errors->first();
+
+            if ($configError) {
+                // only one error can be in the returned collection
+                throw new InvalidAppConfigurationException($configError);
+            }
+
             $this->systemConfigService->saveConfig(
                 $config,
                 $app->getName() . '.config.',
@@ -364,18 +374,5 @@ class AppLifecycle extends AbstractAppLifecycle
         $locale = $language->getLocale();
 
         return $locale->getCode();
-    }
-
-    private function verifyConfig(array $config): void
-    {
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                // Rendering of custom admin components via <component> element is not allowed for apps
-                // as it may lead to code execution by apps in the administration
-                if (\array_key_exists('componentName', $element) && !\in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)) {
-                    throw new InvalidAppConfigurationException($element['componentName']);
-                }
-            }
-        }
     }
 }

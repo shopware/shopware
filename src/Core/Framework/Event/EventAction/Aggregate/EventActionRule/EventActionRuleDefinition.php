@@ -30,7 +30,6 @@ class EventActionRuleDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('event_action_id', 'eventActionId', EventActionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('rule_id', 'ruleId', RuleDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('eventAction', 'event_action_id', EventActionDefinition::class, 'id', false),
             new ManyToOneAssociationField('rule', 'rule_id', RuleDefinition::class, 'id', false),
         ]);

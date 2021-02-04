@@ -1,7 +1,9 @@
 .sw-order-product-select {
     width: 100%;
 
-    .sw-product-variant-info {
-        margin-bottom: -5px;
+    &__single-select.sw-entity-single-select {
+        .sw-product-variant-info {
+            top: 0;
+        }
     }
 }

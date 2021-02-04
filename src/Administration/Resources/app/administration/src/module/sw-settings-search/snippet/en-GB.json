@@ -1,0 +1,57 @@
+{
+  "sw-settings-search": {
+    "general": {
+      "mainMenuItemGeneral": "Search",
+      "textHeadline": "Search settings"
+    },
+    "page": {
+      "generalTab": "General",
+      "liveSearchTab": "Live search"
+    },
+    "generalTab": {
+      "labelSearchBehaviour": "Search behaviour",
+      "textTitleSearchBehaviour": "Predefine your storefront search behaviour.",
+      "labelSearchAndCondition": "“AND” Search",
+      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find products that contain both keywords \"jeans\" and \"summer\".",
+      "labelSearchOrCondition": "“OR” Search",
+      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
+      "labelMinimalSearchTerm": "Minimal search term length",
+      "labelSearchableContent": "Searchable content",
+      "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Storefront go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
+      "buttonResetDefault": "Reset to default",
+      "linkExample": "Show example",
+      "buttonAddContent": "Add content",
+      "labelGeneralTab": "General",
+      "labelCustomFieldsTab": "Custom fields",
+      "textEmptyStateSearchableContent": "No searchable content added yet.",
+      "titleExampleModal": "Search ranking example",
+      "modal": {
+        "textExplain": "Below you'll find three fictional search results for the search term \"jeans\". Searchable are product titles (ranking score 100), product descriptions (ranking score 50) and product tags (ranking score 20).",
+        "textTitle": "Title",
+        "textSuperJeans": "super jeans",
+        "textDescription": "Description",
+        "textFancyJeans": "fancy jeans",
+        "textTag": "Tag",
+        "textJeans": "Jeans",
+        "textTotal": "Total",
+        "textProductRankedFirstScore": "The product ranked first has a search hit in every searchable entity, resulting in a total ranking score of 170.",
+        "textFancyPants": "fancy pants",
+        "textProductRankedSecondScore": "The product ranked second has search hits for product title and product tags, resulting in a total ranking score of 120.",
+        "textSuperPants": "Super pants",
+        "textProductRankedThirdScore": "The product ranked third has only one hit in product tags, resulting in a total ranking score of 20."
+      }
+    },
+    "notification": {
+      "saveSuccess": "The configuration has been saved.",
+      "saveError": "An error occured while saving your configuration."
+    },
+    "liveSearchTab": {}
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_search_config": {
+        "label": "Product Search"
+      }
+    }
+  }
+}

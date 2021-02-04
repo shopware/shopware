@@ -357,11 +357,28 @@ class RecalculationServiceTest extends TestCase
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
 
         $productName = 'Test';
         $productPrice = 10.0;
         $productTaxRate = 19.0;
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $critera = new Criteria();
+        $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
+
+        $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
+        $deliveries = $orderDeliveryRepository->search($critera, $versionContext);
+
+        /** @var CalculatedPrice $newShippingCosts */
+        $newShippingCosts = $deliveries->first()->getShippingCosts();
+
+        // tax is now mixed
+        static::assertSame(2, $newShippingCosts->getCalculatedTaxes()->count());
+        static::assertSame(19.0, $newShippingCosts->getCalculatedTaxes()->first()->getTaxRate());
+        static::assertSame(5.0, $newShippingCosts->getCalculatedTaxes()->last()->getTaxRate());
     }
 
     public function testAddProductToOrderWithCustomerComment(): void
@@ -605,7 +622,10 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(5.0, $newShippingCosts->getUnitPrice());
         static::assertSame(5.0, $newShippingCosts->getTotalPrice());
 
-        static::assertSame(0, $newShippingCosts->getCalculatedTaxes()->count());
+        // tax is now mixed
+        static::assertSame(2, $newShippingCosts->getCalculatedTaxes()->count());
+        static::assertSame(19.0, $newShippingCosts->getCalculatedTaxes()->first()->getTaxRate());
+        static::assertSame(5.0, $newShippingCosts->getCalculatedTaxes()->last()->getTaxRate());
     }
 
     public function testForeachLoopInCalculateDeliveryFunction(): void

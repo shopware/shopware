@@ -8,10 +8,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 trait ImportTranslationsTrait
 {
-    protected function importTranslation(string $table, Translations $translations, Connection $connection): void
+    protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult
     {
-        $ids = array_merge($this->getLanguageIds($connection, 'en-GB'), [Defaults::LANGUAGE_SYSTEM]);
-        $ids = array_unique(array_filter($ids));
+        $germanIds = $this->getLanguageIds($connection, 'de-DE');
+        $englishIds = array_diff(
+            array_merge($this->getLanguageIds($connection, 'en-GB'), [Defaults::LANGUAGE_SYSTEM]),
+            $germanIds
+        );
 
         $columns = [];
         $values = [];
@@ -32,7 +35,7 @@ trait ImportTranslationsTrait
             'REPLACE INTO #table# (#columns#) VALUES (#values#)'
         );
 
-        foreach ($ids as $id) {
+        foreach ($englishIds as $id) {
             $data = array_merge($translations->getEnglish(), [
                 'language_id' => Uuid::fromHexToBytes($id),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -41,8 +44,7 @@ trait ImportTranslationsTrait
             $connection->executeUpdate($sql, $data);
         }
 
-        $ids = $this->getLanguageIds($connection, 'de-DE');
-        foreach ($ids as $id) {
+        foreach ($germanIds as $id) {
             $data = array_merge($translations->getGerman(), [
                 'language_id' => Uuid::fromHexToBytes($id),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -50,6 +52,8 @@ trait ImportTranslationsTrait
 
             $connection->executeUpdate($sql, $data);
         }
+
+        return new TranslationWriteResult($englishIds, $germanIds);
     }
 
     protected function getLanguageIds(Connection $connection, string $locale): array
@@ -62,6 +66,6 @@ trait ImportTranslationsTrait
                 AND locale.code = :locale
         ', ['locale' => $locale]);
 
-        return array_column($ids, 'id');
+        return array_unique(array_filter(array_column($ids, 'id')));
     }
 }

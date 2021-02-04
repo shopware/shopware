@@ -92,9 +92,9 @@ class ProductPageLoader
      * @throws MissingRequestParameterException
      * @throws ProductNotFoundException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): ProductPage
+    public function load(Request $request, SalesChannelContext $context): ProductPage
     {
-        $page = $this->genericLoader->load($request, $salesChannelContext);
+        $page = $this->genericLoader->load($request, $context);
         $page = ProductPage::createFrom($page);
 
         $productId = $request->attributes->get('productId');
@@ -112,25 +112,25 @@ class ProductPageLoader
             ->getAssociation('media')
             ->addSorting(new FieldSorting('position'));
 
-        $result = $this->productDetailRoute->load($productId, $request, $salesChannelContext, $criteria);
+        $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
 
         $page->setProduct($product);
         $page->setConfiguratorSettings($result->getConfigurator());
 
         $request->request->set('parentId', $product->getParentId());
-        $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
+        $reviews = $this->productReviewLoader->load($request, $context);
         $reviews->setParentId($product->getParentId() ?? $product->getId());
 
         $page->setReviews($reviews);
 
-        $page->setCrossSellings($this->crossSellingRoute->load($productId, $salesChannelContext)->getResult());
+        $page->setCrossSellings($this->crossSellingRoute->load($productId, $context)->getResult());
 
         /** @var string $cmsPageId */
         $cmsPageId = $product->getCmsPageId();
 
-        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $salesChannelContext)) {
-            $this->loadSlotData($cmsPage, $salesChannelContext, $product, $request);
+        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPageId !== null && $cmsPage = $this->getCmsPage($cmsPageId, $context)) {
+            $this->loadSlotData($cmsPage, $context, $product, $request);
             $page->setCmsPage($cmsPage);
         }
 
@@ -138,7 +138,7 @@ class ProductPageLoader
         $this->loadMetaData($page);
 
         $this->eventDispatcher->dispatch(
-            new ProductPageLoadedEvent($page, $salesChannelContext, $request)
+            new ProductPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

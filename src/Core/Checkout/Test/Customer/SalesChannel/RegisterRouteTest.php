@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -458,8 +457,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationCommercialAccountWithVatIds(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'billingAddress' => [
@@ -503,8 +500,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationCommercialAccountWithVatIdsIsEmpty(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'billingAddress' => [
@@ -550,8 +545,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->getContainer()->get(Connection::class)
             ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
 
@@ -582,8 +575,6 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationBusinessAccountWithVatIdsMatchRegex(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->getContainer()->get(Connection::class)
             ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
 

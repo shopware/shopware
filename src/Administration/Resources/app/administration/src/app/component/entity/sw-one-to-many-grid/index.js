@@ -130,6 +130,38 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             });
         },
 
+        deleteItems() {
+            const selection = Object.values(this.selection);
+            if (this.localMode) {
+                selection.forEach((selectedProxy) => {
+                    this.collection.remove(selectedProxy.id);
+                });
+
+                this.resetSelection();
+
+                // records will be saved with the root record
+                return Promise.resolve();
+            }
+
+            this.isBulkLoading = true;
+            const selectedIds = selection.map(selectedProxy => selectedProxy.id);
+
+            return this.repository.syncDeleted(selectedIds, this.result.context).then(() => {
+                return this.deleteItemsFinish();
+            }).catch(() => {
+                return this.deleteItemsFinish();
+            });
+        },
+
+        deleteItemsFinish() {
+            this.resetSelection();
+            this.isBulkLoading = false;
+            this.showBulkDeleteModal = false;
+            this.$emit('items-delete-finish');
+
+            return this.load();
+        },
+
         sort(column) {
             if (this.localMode) {
                 this.$emit('column-sort', column);

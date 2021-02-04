@@ -128,7 +128,7 @@ class ProductEntity extends Entity
     protected $deliveryTime;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $restockTime;
 
@@ -335,6 +335,13 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var array|null
+     */
+    protected $slotConfig;
+
+    /**
      * @var ProductSearchKeywordCollection|null
      */
     protected $searchKeywords;
@@ -465,22 +472,16 @@ class ProductEntity extends Entity
     protected $customSearchKeywords;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10549)
-     *
      * @var CustomerWishlistCollection|null
      */
     protected $wishlists;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     *
      * @var string|null
      */
     protected $canonicalProductId;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     *
      * @var ProductEntity|null
      */
     protected $canonicalProduct;
@@ -874,12 +875,12 @@ class ProductEntity extends Entity
         $this->listingPrices = $listingPrices;
     }
 
-    public function getRestockTime(): int
+    public function getRestockTime(): ?int
     {
         return $this->restockTime;
     }
 
-    public function setRestockTime(int $restockTime): void
+    public function setRestockTime(?int $restockTime): void
     {
         $this->restockTime = $restockTime;
     }
@@ -971,6 +972,22 @@ class ProductEntity extends Entity
     public function setCmsPageId(string $cmsPageId): void
     {
         $this->cmsPageId = $cmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getSlotConfig(): ?array
+    {
+        return $this->slotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setSlotConfig(array $slotConfig): void
+    {
+        $this->slotConfig = $slotConfig;
     }
 
     public function getParent(): ?ProductEntity
@@ -1393,49 +1410,31 @@ class ProductEntity extends Entity
         $this->customSearchKeywords = $customSearchKeywords;
     }
 
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
     public function getWishlists(): ?CustomerWishlistCollection
     {
         return $this->wishlists;
     }
 
-    /**
-     *  @internal (flag:FEATURE_NEXT_10549)
-     */
     public function setWishlists(CustomerWishlistCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function getCanonicalProductId(): ?string
     {
         return $this->canonicalProductId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function setCanonicalProductId(string $canonicalProductId): void
     {
         $this->canonicalProductId = $canonicalProductId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function getCanonicalProduct(): ?ProductEntity
     {
         return $this->canonicalProduct;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10820)
-     */
     public function setCanonicalProduct(ProductEntity $product): void
     {
         $this->canonicalProduct = $product;

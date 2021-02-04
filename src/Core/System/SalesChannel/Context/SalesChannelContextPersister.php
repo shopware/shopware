@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
@@ -19,10 +20,16 @@ class SalesChannelContextPersister
 
     private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
+    /**
+     * @var string
+     */
+    private $lifetimeInterval;
+
+    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, ?string $lifetimeInterval = 'P1D')
     {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+        $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
     }
 
     public function save(string $token, array $parameters, string $salesChannelId, ?string $customerId = null): void
@@ -34,12 +41,14 @@ class SalesChannelContextPersister
         unset($parameters['token']);
 
         $this->connection->executeUpdate(
-            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`) VALUES (:token, :payload, :salesChannelId, :customerId)',
+            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
+                VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
             [
                 'token' => $token,
                 'payload' => json_encode($parameters),
                 'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                 'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }
@@ -60,11 +69,13 @@ class SalesChannelContextPersister
 
         $affected = $this->connection->executeUpdate(
             'UPDATE `sales_channel_api_context`
-                   SET `token` = :newToken
+                   SET `token` = :newToken,
+                       `updated_at` = :updatedAt
                    WHERE `token` = :oldToken',
             [
                 'newToken' => $newToken,
                 'oldToken' => $oldToken,
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -76,6 +87,7 @@ class SalesChannelContextPersister
                 'payload' => json_encode([]),
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannel()->getId()),
                 'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
+                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
 
@@ -133,7 +145,12 @@ class SalesChannelContextPersister
 
         $context = $customerContext ?? array_shift($data);
 
+        $updatedAt = new \DateTimeImmutable($context['updated_at']);
+        $expiredTime = $updatedAt->add(new \DateInterval($this->lifetimeInterval));
+
         $payload = array_filter(json_decode($context['payload'], true));
+        $now = new \DateTimeImmutable();
+        $payload['expired'] = $expiredTime < $now;
 
         if ($customerId) {
             $payload['token'] = $context['token'];

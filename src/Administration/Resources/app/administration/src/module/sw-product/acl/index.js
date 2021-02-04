@@ -44,7 +44,10 @@ Shopware.Service('privileges')
                     'shipping_method:read',
                     'product_tag:read',
                     'product_feature_set:read',
-                    'cms_page:read'
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update',
+                    Shopware.Service('privileges').getPrivileges('cms.viewer')
                 ],
                 dependencies: []
             },

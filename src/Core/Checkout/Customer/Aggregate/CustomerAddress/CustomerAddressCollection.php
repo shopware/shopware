@@ -61,7 +61,7 @@ class CustomerAddressCollection extends EntityCollection
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - Will be removed and use CustomerCollection:getListVatIds() instead
+     * @deprecated tag:v6.4.0 - Will be removed and use CustomerCollection:getListVatIds() instead
      */
     public function getVatIds(): array
     {
@@ -71,7 +71,7 @@ class CustomerAddressCollection extends EntityCollection
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10559) tag:v6.4.0 - Will be removed and use CustomerCollection:filterByVatId() instead
+     * @deprecated tag:v6.4.0 - Will be removed and use CustomerCollection:filterByVatId() instead
      */
     public function filterByVatId(string $id): self
     {

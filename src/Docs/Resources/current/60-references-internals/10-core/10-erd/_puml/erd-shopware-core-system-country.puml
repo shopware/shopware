@@ -33,6 +33,9 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    iso3 string
    displayStateInRegistration bool
    forceStateInRegistration bool
+   companyTaxFree bool
+   checkVatIdPattern bool
+   vatIdPattern string
    customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt

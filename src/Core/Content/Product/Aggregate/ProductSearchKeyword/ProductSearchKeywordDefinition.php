@@ -50,15 +50,11 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
-
             (new StringField('keyword', 'keyword'))->addFlags(new Required()),
             (new FloatField('ranking', 'ranking'))->addFlags(new Required()),
-
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ]);

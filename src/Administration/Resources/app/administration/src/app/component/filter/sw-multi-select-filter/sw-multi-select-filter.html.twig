@@ -1,0 +1,15 @@
+{% block sw_multi_select_fiter %}
+    <sw-base-filter :title="filter.label"
+                    :showResetButton="!!values.length"
+                    @resetFilter="resetFilter">
+        {% block sw_multi_select_fiter_content %}
+            <sw-entity-multi-select
+                :labelProperty="filter.labelProperty"
+                :placeholder="filter.placeholder"
+                :entityName="filter.schema.entity"
+                :entityCollection="values"
+                @change="changeValue">
+            </sw-entity-multi-select>
+        {% endblock %}
+    </sw-base-filter>
+{% endblock %}

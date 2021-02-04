@@ -50,18 +50,25 @@ class ContactFormRoute extends AbstractContactFormRoute
      */
     private $cmsSlotRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salutationRepository;
+
     public function __construct(
         DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $cmsSlotRepository
+        EntityRepositoryInterface $cmsSlotRepository,
+        EntityRepositoryInterface $salutationRepository
     ) {
         $this->contactFormValidationFactory = $contactFormValidationFactory;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
         $this->cmsSlotRepository = $cmsSlotRepository;
+        $this->salutationRepository = $salutationRepository;
     }
 
     public function getDecorated(): AbstractContactFormRoute
@@ -116,6 +123,13 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
 
         $this->validateContactForm($data, $context);
+
+        $salutationCriteria = new Criteria([$data->get('salutationId')]);
+        $salutationSearchResult = $this->salutationRepository->search($salutationCriteria, $context->getContext());
+
+        if ($salutationSearchResult->count() !== 0) {
+            $data->set('salutation', $salutationSearchResult->first());
+        }
 
         foreach ($receivers as $mail) {
             $event = new ContactFormEvent(

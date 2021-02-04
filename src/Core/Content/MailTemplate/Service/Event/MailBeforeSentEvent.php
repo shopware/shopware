@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
@@ -22,7 +23,9 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
     private $data;
 
     /**
-     * @var \Swift_Message
+     * @var \Swift_Message|Email
+     *
+     * @feature-deprecated flag:FEATURE_NEXT_12246 remove \Swift_Message Annotation on Feature Release
      */
     private $message;
 
@@ -31,8 +34,18 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
      */
     private $context;
 
-    public function __construct(array $data, \Swift_Message $message, Context $context)
+    /**
+     * @feature-deprecated flag:FEATURE_NEXT_12246 set TypeHint to Email on Feature Release
+     */
+    public function __construct(array $data, /*\Swift_Message|Email*/ $message, Context $context)
     {
+        /* @feature-deprecated flag:FEATURE_NEXT_12246 remove type check when TypeHint is implemented */
+        if (!($message instanceof \Swift_Message) && !($message instanceof Email)) {
+            throw new \InvalidArgumentException(
+                'second argument $message has to be of type \Swift_Message or Symfony\Component\Mime\Email'
+            );
+        }
+
         $this->data = $data;
         $this->message = $message;
         $this->context = $context;
@@ -55,7 +68,12 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
         return $this->data;
     }
 
-    public function getMessage(): \Swift_Message
+    /**
+     * @feature-deprecated flag:FEATURE_NEXT_12246 set ReturnType to Email on Feature Release
+     *
+     * @return \Swift_Message|Email
+     */
+    public function getMessage()
     {
         return $this->message;
     }

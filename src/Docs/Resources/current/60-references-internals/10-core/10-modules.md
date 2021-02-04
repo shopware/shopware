@@ -125,6 +125,18 @@ Mass imports and exports through files
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-importexport.md)
 
+#### LandingPage <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/LandingPage)
+
+__EMPTY__
+
+#### Mail <span class="tip is--primary">Custom Extendable</span>
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Mail)
+
+__EMPTY__
+
 #### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate)
@@ -353,6 +365,12 @@ Webhooks
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/Traits)
 
 Traits for different migration operations
+
+#### V6_4 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_4)
+
+__EMPTY__
 
 ### System Bundle
 

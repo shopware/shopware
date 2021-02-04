@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 abstract class AbstractAppUrlChangeStrategy
 {

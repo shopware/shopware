@@ -102,7 +102,6 @@ Module.register('sw-customer', {
         id: 'sw-customer',
         label: 'sw-customer.general.mainMenuItemGeneral',
         color: '#F88962',
-        path: 'sw.customer.index',
         icon: 'default-avatar-multiple',
         position: 40,
         privilege: 'customer.viewer'

@@ -103,8 +103,13 @@ class ExportController
 
         $context = $this->contextFactory->create('', $productExport->getSalesChannelDomain()->getSalesChannelId());
 
-        $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
+
+        // if file not present or interval = live
+        if (!$this->fileSystem->has($filePath) || $productExport->getInterval() === 0) {
+            $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
+        }
+
         if (!$this->fileSystem->has($filePath)) {
             $exportNotGeneratedException = new ExportNotGeneratedException();
             $this->logException($context->getContext(), $exportNotGeneratedException);

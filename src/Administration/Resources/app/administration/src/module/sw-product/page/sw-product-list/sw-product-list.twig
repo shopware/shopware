@@ -68,8 +68,12 @@
                                            :allowEdit="acl.can('product.editor')"
                                            :allowDelete="acl.can('product.deleter')"
                                            :allowInlineEdit="acl.can('product.editor')"
+                                           :sortBy="sortBy"
+                                           :sortDirection="sortDirection"
+                                           :criteriaLimit="limit"
                                            @column-sort="onColumnSort"
-                                           @paginate="onColumnSort"
+                                           @page-change="onPageChange"
+                                           :disableDataFetching="true"
                                            @inline-edit-save="onInlineEditSave"
                                            @selection-change="updateSelection"
                                            @update-records="updateTotal">
@@ -79,13 +83,13 @@
                                         <sw-media-preview-v2 :source="item.cover ? item.cover.media : null"></sw-media-preview-v2>
                                     </template>
                                 {% endblock %}
-                                
+
                                 <template #column-name="{ item, isInlineEdit }">
                                     <sw-text-field v-if="isInlineEdit"
                                         v-model="item.name"
                                         size="small">
                                     </sw-text-field>
-                                
+
                                     <div v-else>
                                         <sw-button v-if="productHasVariants(item)"
                                             class="sw-product-list__variant-indicator"
@@ -96,7 +100,7 @@
                                                     size="14px">
                                                 </sw-icon>
                                         </sw-button>
-                                        
+
                                         <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                                             {{ item.translated ? item.translated.name : item.name }}
                                         </router-link>
@@ -199,7 +203,6 @@
         {% block sw_product_list_sidebar %}
             <template #sidebar>
                 <sw-sidebar>
-
                     {% block sw_product_list_sidebar_refresh %}
                         <sw-sidebar-item
                             icon="default-arrow-360-left"
@@ -207,6 +210,14 @@
                             @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+
+                    <sw-filter-panel
+                        v-if="feature.isActive('FEATURE_NEXT_9831')"
+                        entity="product"
+                        @criteria-changed="updateCriteria"
+                        :filters="listFilters"
+                        :defaults="['active-filter']">
+                    </sw-filter-panel>
                 </sw-sidebar>
             </template>
         {% endblock %}

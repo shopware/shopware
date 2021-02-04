@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
@@ -120,28 +121,10 @@ class WriteCommandExtractor
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
-            $kvPair = $stack->pop($field->getPropertyName());
+            $kvPair = $this->getKeyValuePair($field, $stack, $existence);
 
-            // not in data stack?
             if ($kvPair === null) {
-                if ($field->is(Inherited::class) && $existence->isChild()) {
-                    //inherited field of a child is never required
-                    continue;
-                }
-
-                $create = !$existence->exists() || $existence->childChangedToParent();
-
-                if ($this->isUpdateAtFieldCase($create, $field)) {
-                    //update statement
-                    continue;
-                }
-
-                if ($this->isCreatedAtFieldCase($field)) {
-                    //not required and childhood not changed
-                    continue;
-                }
-
-                $kvPair = new KeyValuePair($field->getPropertyName(), null, true);
+                continue;
             }
 
             try {
@@ -160,6 +143,39 @@ class WriteCommandExtractor
         }
 
         return $stack->getResultAsArray();
+    }
+
+    private function getKeyValuePair(Field $field, DataStack $stack, EntityExistence $existence): ?KeyValuePair
+    {
+        $kvPair = $stack->pop($field->getPropertyName());
+
+        // not in data stack?
+        if ($kvPair !== null) {
+            return $kvPair;
+        }
+
+        if ($field instanceof ReferenceVersionField && $field->is(Required::class)) {
+            return new KeyValuePair($field->getPropertyName(), null, true);
+        }
+
+        if ($field->is(Inherited::class) && $existence->isChild()) {
+            //inherited field of a child is never required
+            return null;
+        }
+
+        $create = !$existence->exists() || $existence->childChangedToParent();
+
+        if ($this->isUpdateAtFieldCase($create, $field)) {
+            //update statement
+            return null;
+        }
+
+        if ($this->isCreatedAtFieldCase($field)) {
+            //not required and childhood not changed
+            return null;
+        }
+
+        return new KeyValuePair($field->getPropertyName(), null, true);
     }
 
     private function isUpdateAtFieldCase(bool $create, Field $field): bool

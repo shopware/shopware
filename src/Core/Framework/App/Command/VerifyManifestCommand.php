@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\ManifestValidator;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Webhook\Exception\HookableValidationException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,6 +14,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @deprecated tag:v6.4.0.0 - Use `Shopware\Core\Framework\App\Command\ValidateAppCommand` instead
+ */
 class VerifyManifestCommand extends Command
 {
     protected static $defaultName = 'app:verify';
@@ -38,7 +41,6 @@ class VerifyManifestCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
-        $context = Context::createDefaultContext();
 
         /** @var array<string> $manifestPaths */
         $manifestPaths = $input->getArgument('manifests');
@@ -47,23 +49,36 @@ class VerifyManifestCommand extends Command
             $manifestPaths = $this->findManifestsPaths();
         }
 
-        $invalidCount = 0;
+        $invalids = $this->verify($manifestPaths);
 
+        if (\count($invalids) > 0) {
+            foreach ($invalids as $invalid) {
+                $io->error($invalid);
+            }
+
+            return 1;
+        }
+
+        $io->success('all files valid');
+
+        return 0;
+    }
+
+    public function verify(array $manifestPaths): array
+    {
+        $context = Context::createDefaultContext();
+
+        $invalids = [];
         foreach ($manifestPaths as $manifestPath) {
             try {
                 $manifest = Manifest::createFromXmlFile($manifestPath);
                 $this->manifestValidator->validate($manifest, $context);
-            } catch (XmlParsingException | HookableValidationException $e) {
-                $io->error($e->getMessage());
-                ++$invalidCount;
+            } catch (XmlParsingException | AppValidationException $e) {
+                $invalids[] = $e->getMessage();
             }
         }
-        if ($invalidCount > 0) {
-            return 1;
-        }
-        $io->success('all files valid');
 
-        return 0;
+        return $invalids;
     }
 
     protected function configure(): void

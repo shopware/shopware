@@ -6,17 +6,23 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
+use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -39,14 +45,35 @@ class CmsController extends StorefrontController
      */
     private $listingRoute;
 
+    /**
+     * @var AbstractProductDetailRoute
+     */
+    private $productRoute;
+
+    /**
+     * @var ProductReviewLoader
+     */
+    private $productReviewLoader;
+
+    /**
+     * @var ProductCombinationFinder
+     */
+    private $combinationFinder;
+
     public function __construct(
         AbstractCmsRoute $cmsRoute,
         AbstractCategoryRoute $categoryRoute,
-        AbstractProductListingRoute $listingRoute
+        AbstractProductListingRoute $listingRoute,
+        AbstractProductDetailRoute $productRoute,
+        ProductReviewLoader $productReviewLoader,
+        ProductCombinationFinder $combinationFinder
     ) {
         $this->cmsRoute = $cmsRoute;
         $this->categoryRoute = $categoryRoute;
         $this->listingRoute = $listingRoute;
+        $this->productRoute = $productRoute;
+        $this->productReviewLoader = $productReviewLoader;
+        $this->combinationFinder = $combinationFinder;
     }
 
     /**
@@ -131,5 +158,59 @@ class CmsController extends StorefrontController
         }
 
         return new JsonResponse($mapped);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     * @Since("6.3.5.0")
+     * @HttpCache()
+     *
+     * Route to load the cms element buy box product config which assigned to the provided product id.
+     * Product id is required to load the slot config for the buy box
+     *
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true})
+     *
+     * @throws MissingRequestParameterException
+     * @throws ProductNotFoundException
+     */
+    public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10078')) {
+            throw new NotFoundHttpException();
+        }
+
+        if (!$productId) {
+            throw new MissingRequestParameterException('Parameter productId missing');
+        }
+
+        /** @var string $switchedOption */
+        $switchedOption = $request->query->get('switched');
+
+        /** @var string $elementId */
+        $elementId = $request->query->get('elementId');
+
+        /** @var array $newOptions */
+        $newOptions = json_decode($request->query->get('options'), true);
+
+        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
+
+        $newProductId = $redirect->getVariantId();
+
+        $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
+        $product = $result->getProduct();
+        $configurator = $result->getConfigurator();
+
+        $request->request->set('parentId', $product->getParentId());
+        $request->request->set('productId', $product->getId());
+        $reviews = $this->productReviewLoader->load($request, $context);
+        $reviews->setParentId($product->getParentId() ?? $product->getId());
+
+        return $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
+            'product' => $product,
+            'configuratorSettings' => $configurator,
+            'totalReviews' => $reviews->getTotalReviews(),
+            'elementId' => $elementId,
+        ]);
     }
 }

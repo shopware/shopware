@@ -1,0 +1,126 @@
+{% block buy_widget_configurator %}
+    <div class="product-detail-configurator">
+        {% if elementId is defined and elementId is not null and pageType != 'product_detail' %}
+            {% set config = {
+                url: url('frontend.cms.buybox.switch', { productId: product.parentId }),
+                elementId: elementId,
+                pageType: pageType
+            } %}
+        {% else %}
+            {% set config = {
+                url: url('frontend.detail.switch', { productId: product.parentId }),
+                pageType: pageType
+            } %}
+        {% endif %}
+
+        {% block buy_widget_configurator_form %}
+            <form data-variant-switch="true" data-variant-switch-options="{{ config|json_encode }}">
+
+                {% block buy_widget_configurator_csrf %}
+                    {% if elementId is defined and elementId is not null %}
+                        {{ sw_csrf('frontend.cms.buybox.switch') }}
+                    {% else %}
+                        {{ sw_csrf('frontend.detail.switch') }}
+                    {% endif %}
+                {% endblock %}
+
+                {% block buy_widget_configurator_groups %}
+                    {% for group in configuratorSettings %}
+                        {% block buy_widget_configurator_group %}
+                            <div class="product-detail-configurator-group">
+                                {% block buy_widget_configurator_group_title %}
+                                    <div class="product-detail-configurator-group-title">
+                                        {% block buy_widget_configurator_group_title_text %}
+                                            {{ group.translated.name }}
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block buy_widget_configurator_options %}
+                                    <div class="product-detail-configurator-options">
+                                        {% for option in group.options %}
+                                            {% if elementId is defined and elementId is not null %}
+                                                {% set optionIdentifier = [group.id, option.id, elementId]|join('-') %}
+                                            {% else %}
+                                                {% set optionIdentifier = [group.id, option.id]|join('-') %}
+                                            {% endif %}
+
+                                            {% set isActive = false %}
+                                            {% set isCombinableCls = 'is-combinable' %}
+
+                                            {% if option.id in product.optionIds %}
+                                                {% set isActive = true %}
+                                            {% endif %}
+
+                                            {% if not option.combinable %}
+                                                {% set isCombinableCls = false %}
+                                            {% endif %}
+
+                                            {% if option.configuratorSetting.media %}
+                                                {% set displayType = 'media' %}
+                                                {% set media = option.configuratorSetting.media %}
+                                            {% else %}
+                                                {% set displayType = group.displayType %}
+                                                {% if option.media %}
+                                                    {% set media = option.media %}
+                                                {% else %}
+                                                    {% set media = false %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% block buy_widget_configurator_option %}
+                                                <div class="product-detail-configurator-option">
+                                                    {% block buy_widget_configurator_option_radio %}
+                                                        <input type="radio"
+                                                               name="{{ group.id }}"
+                                                               value="{{ option.id }}"
+                                                               class="product-detail-configurator-option-input{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
+                                                               title="{{ optionIdentifier }}"
+                                                               id="{{ optionIdentifier }}"
+                                                               {% if isActive %}checked="checked"{% endif %}>
+
+                                                        {% block buy_widget_configurator_option_radio_label %}
+                                                            <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %} is-display-{{ displayType }}"
+                                                                {% if displayType == 'color' and option.colorHexCode %}
+                                                                    style="background-color: {{ option.colorHexCode }}"
+                                                                {% endif %}
+                                                                   title="{{ option.translated.name }}"
+                                                                   for="{{ optionIdentifier }}">
+
+                                                                {% if displayType == 'media' and media %}
+                                                                    {% block buy_widget_configurator_option_radio_label_media %}
+                                                                        {% sw_thumbnails 'configurator-option-img-thumbnails' with {
+                                                                            media: media,
+                                                                            sizes: {
+                                                                                'default': '52px'
+                                                                            },
+                                                                            attributes: {
+                                                                                'class': 'product-detail-configurator-option-image',
+                                                                                'alt': option.translated.name,
+                                                                                'title': option.translated.name
+                                                                            }
+                                                                        } %}
+                                                                    {% endblock %}
+                                                                {% elseif displayType == 'text' or
+                                                                    (displayType == 'media' and not media) or
+                                                                    (displayType == 'color' and not option.colorHexCode) %}
+                                                                    {% block buy_widget_configurator_option_radio_label_text %}
+                                                                        {{ option.translated.name }}
+                                                                    {% endblock %}
+                                                                {% endif %}
+                                                            </label>
+                                                        {% endblock %}
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        {% endfor %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    {% endfor %}
+                {% endblock %}
+            </form>
+        {% endblock %}
+    </div>
+{% endblock %}

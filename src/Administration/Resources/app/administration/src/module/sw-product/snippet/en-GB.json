@@ -31,7 +31,16 @@
       "placeholderName": "Enter product title...",
       "placeholderDescriptionLong": "Enter product description...",
       "placeholderId": "Enter product number...",
-      "placeholderManufacturer": "Enter product manufacturer..."
+      "placeholderManufacturer": "Enter product manufacturer...",
+      "productNumberHelpText": {
+        "label": "Product numbers help you identify and manage your products. To achieve this, try and keep a consistent structure in your product numbers. You can define product number templates in {link}.",
+        "linkText": "settings"
+      },
+      "highlightHelpText": {
+        "label": "Highlighted products are marked with a brightly coloured label and the word \"Tip\" in all product listings. You can adjust the label's colour by changing the option \"Notice\" in {themeLink} settings. You can also alter the label's text by editing the corresponding {snippetLink}.",
+        "themeLinkText": "themes",
+        "snippetLinkText": "text snippet"
+      }
     },
     "categoryForm": {
       "labelCategory": "Categories",
@@ -41,7 +50,8 @@
       "placeholderSearchKeywords": "Enter keywords that find this product...",
       "textAddSearchKeyword": "Click here to add search keyword",
       "textEnterValidSearchKeyword": "Searchable keywords",
-      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords."
+      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords.",
+      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -62,7 +72,11 @@
       "placeholderPackUnitPlural": "Enter packaging unit in plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
-      "optionMetre": "Metre"
+      "optionMetre": "Metre",
+      "taxRateHelpText": {
+        "label": "Adjust the applicable VAT rate. A default VAT rate and up to two reduced rates are predefined for most countries. You can check and alter the actual VAT rates or add additional rates and country assignments in {link}.",
+        "linkText": "settings"
+      }
     },
     "seoForm": {
       "labelMetaTitle": "Meta title",
@@ -131,8 +145,12 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO",
-      "cardTitleLayout": "Layout assignment"
+      "cardTitleSeo": "SEO"
+    },
+    "specifications": {
+      "cardTitleMeasuresPackaging": "Measures & Packaging",
+      "cardTitleEssentialCharacteristics": "Essential Characteristics",
+      "cardTitleCustomFields": "Custom fields"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -166,6 +184,7 @@
       "columnPrice": "Price (gross / net)",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete",
+      "settingShowListPrices": "Show list prices",
       "toolbarLabel": "Rules"
     },
     "list": {
@@ -213,8 +232,10 @@
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
+      "tabSpecifications": "Specifications",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",
+      "tabLayout": "Layout",
       "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
@@ -234,11 +255,15 @@
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
+      "columnType": "Type",
       "selectRule": "Select a conditional rule...",
       "advancedPricesInherited": "This product has inherited prices from its parent.",
       "linkAdvancedPricesOfParent": "Show prices of parent product",
       "inheritSwitchLabel": "Use advanced prices from parent product",
-      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant."
+      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
+      "advancedListPricePriceLabel": "Price",
+      "advancedListPriceLabel": "List price",
+      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1."
     },
     "properties": {
       "cardTitleProperties": "Available properties",
@@ -332,6 +357,12 @@
         "save": "Save"
       }
     },
+    "layout": {
+      "title": "Layout assignment",
+      "subtitle": "You may change product detail pages by assigning custom layouts. If no custom layout is assigned here, the default layout will be used.",
+      "textNoConfig": "The current selected layout does not have any editable elements",
+      "textContentInfo": "Default product blocks are filled with product data automatically. The actual contents are thus not listed here."
+    },
     "crossselling": {
       "cardTitleCrossSelling": "Cross Selling",
       "buttonAddCrossSelling": "Add new Cross Selling",
@@ -380,6 +411,19 @@
       "textChangeLayout": "Change layout",
       "textCreateNewLayout": "Create new layout",
       "textEditInDesigner": "Edit in designer"
+    },
+    "filters": {
+      "activeFilter": {
+        "label": "Active",
+        "placeholder": "Select a status..."
+      },
+      "imagesFilter": {
+        "label": "Images",
+        "placeholder": "Select an image status..."
+      }
+    },
+    "notification": {
+      "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."
     }
   },
   "sw-privileges": {

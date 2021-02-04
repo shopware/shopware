@@ -742,4 +742,16 @@ EOD
 __EMPTY__
 EOD
     ,
+    Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition::class => <<<'EOD'
+Saving config of user.
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

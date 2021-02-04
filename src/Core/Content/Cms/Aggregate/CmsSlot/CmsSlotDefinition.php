@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -52,23 +53,20 @@ class CmsSlotDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
 
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            (new StringField('slot', 'slot'))->addFlags(new Required()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('slot', 'slot'))->addFlags(new ApiAware(), new Required()),
+            (new LockedField())->addFlags(new ApiAware()),
+            (new TranslatedField('config'))->addFlags(new ApiAware()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
-            new LockedField(),
+            (new JsonField('data', 'data'))->addFlags(new ApiAware(), new Runtime(), new WriteProtected()),
 
-            new TranslatedField('config'),
-            new TranslatedField('customFields'),
-
-            (new JsonField('data', 'data'))->addFlags(new Runtime(), new WriteProtected()),
-
-            (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false),
-
-            new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'),
+            (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new ApiAware()),
         ]);
     }
 }

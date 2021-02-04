@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class Webhook extends XmlElement
 {
     /**

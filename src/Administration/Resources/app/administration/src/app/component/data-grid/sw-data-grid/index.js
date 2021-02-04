@@ -2,6 +2,7 @@ import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
@@ -27,6 +28,10 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-data-grid', {
     template,
+
+    inject: [
+        'repositoryFactory'
+    ],
 
     props: {
         dataSource: {
@@ -165,6 +170,7 @@ Component.register('sw-data-grid', {
             currentSortDirection: this.sortDirection,
             currentNaturalSorting: this.naturalSorting,
             loading: this.isLoading,
+            currentSetting: {},
             currentColumns: [],
             columnIndex: null,
             selection: {},
@@ -223,6 +229,23 @@ Component.register('sw-data-grid', {
 
                 return acc;
             }, true);
+        },
+
+        userConfigRepository() {
+            return this.repositoryFactory.create('user_config');
+        },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
+
+        userGridSettingCriteria() {
+            const criteria = new Criteria();
+            const configurationKey = `grid.setting.${this.identifier}`;
+            criteria.addFilter(Criteria.equals('key', configurationKey));
+            criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
+
+            return criteria;
         }
     },
 
@@ -271,7 +294,6 @@ Component.register('sw-data-grid', {
     methods: {
         createdComponent() {
             this.initGridColumns();
-            this.initCompactModeAndShowPreviews();
         },
 
         mountedComponent() {
@@ -285,23 +307,29 @@ Component.register('sw-data-grid', {
         },
 
         initGridColumns() {
-            let columns = this.getDefaultColumns();
-
-            if (this.identifier) {
-                const storageItem = window.localStorage.getItem(this.localStorageItemKey);
-
-                if (storageItem !== null) {
-                    const parsedStorageItem = JSON.parse(storageItem);
-
-                    columns = parsedStorageItem.columns || parsedStorageItem;
-                }
-            }
-
-            this.currentColumns = columns;
-
+            this.currentColumns = this.getDefaultColumns();
             this.findResizeColumns();
+
+            if (!this.identifier) {
+                return;
+            }
+            this.findUserSetting();
         },
 
+        findUserSetting() {
+            return this.userConfigRepository.search(this.userGridSettingCriteria, Shopware.Context.api).then((response) => {
+                if (!response.length) {
+                    return;
+                }
+                this.currentSetting = response[0];
+                const gridColumns = response[0].value;
+                this.currentColumns = utils.get(gridColumns, 'columns', gridColumns);
+                this.compact = utils.get(gridColumns, 'compact', this.compact);
+                this.previews = utils.get(gridColumns, 'previews', this.previews);
+            });
+        },
+
+        // @deprecated tag:v6.4.0 - Will be removed
         initCompactModeAndShowPreviews() {
             if (!this.identifier) {
                 return;
@@ -350,13 +378,32 @@ Component.register('sw-data-grid', {
             });
         },
 
+        createUserGridSetting() {
+            const newUserGrid = this.userConfigRepository.create(Shopware.Context.api);
+            newUserGrid.key = `grid.setting.${this.identifier}`;
+            newUserGrid.userId = this.currentUser && this.currentUser.id;
+            this.currentSetting = newUserGrid;
+        },
+
         saveUserSettings() {
             if (!this.identifier) {
                 return;
             }
 
-            const userSettings = { columns: this.currentColumns, compact: this.compact, previews: this.previews };
-            window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(userSettings));
+            if (!this.currentSetting.id) {
+                this.createUserGridSetting();
+            }
+
+            this.currentSetting.value = {
+                columns: this.currentColumns,
+                compact: this.compact,
+                previews: this.previews
+            };
+            this.userConfigRepository.save(this.currentSetting, Shopware.Context.api).then(() => {
+                if (this.currentSetting.isNew()) {
+                    this.findUserSetting();
+                }
+            });
         },
 
         getHeaderCellClasses(column, index) {

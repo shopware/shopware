@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @internal (flag:FEATURE_NEXT_10549)
- */
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
     /**

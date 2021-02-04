@@ -118,6 +118,16 @@
                             </sw-tabs-item>
                         {% endblock %}
 
+                        {% block sw_product_detail_content_tabs_specifications %}
+                            <sw-tabs-item
+                                v-if="feature.isActive('FEATURE_NEXT_12429')"
+                                class="sw-product-detail__tab-specifications"
+                                :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
+                                :title="$tc('sw-product.detail.tabSpecifications')">
+                                {{ $tc('sw-product.detail.tabSpecifications') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
                         {% block sw_product_detail_content_tabs_advanced_prices %}
                             <sw-tabs-item
                                 class="sw-product-detail__tab-advanced-prices"
@@ -127,8 +137,21 @@
                             </sw-tabs-item>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.5.0 - The tab content will be moved to "sw-product-detail-specifications" component, like following:
+                            {% block sw_product_detail_specifications %}
+                                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                                    ...
+                                    {% block sw_product_detail_specifications_properties %}
+                                        <sw-product-detail-properties>
+                                        </sw-product-detail-properties>
+                                    {% endblock %}
+                                    ...
+                                </div>
+                            {% endblock %}
+                        #}
                         {% block sw_product_detail_content_tabs_advanced_properties %}
                             <sw-tabs-item
+                                v-if="!feature.isActive('FEATURE_NEXT_12429')"
                                 class="sw-product-detail__tab-properties"
                                 :route="{ name: 'sw.product.detail.properties', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabProperties')">
@@ -143,6 +166,16 @@
                                 :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                                 :title="$tc('sw-product.detail.tabVariation')">
                                 {{ $tc('sw-product.detail.tabVariation') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_product_detail_content_tabs_layout %}
+                            <sw-tabs-item
+                                v-if="feature.isActive('FEATURE_NEXT_10078') && !isChild"
+                                class="sw-product-detail__tab-layout"
+                                :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
+                                :title="$tc('sw-product.detail.tabLayout')">
+                                {{ $tc('sw-product.detail.tabLayout') }}
                             </sw-tabs-item>
                         {% endblock %}
 
@@ -164,7 +197,10 @@
                 {% endblock %}
 
                 {% block sw_product_detail_content_clone_modal %}
-                    <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
+                    <sw-product-clone-modal v-if="cloning"
+                        :product="product"
+                        @clone-finish="onDuplicateFinish">
+                    </sw-product-clone-modal>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

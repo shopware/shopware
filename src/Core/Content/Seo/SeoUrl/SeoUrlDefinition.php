@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrl;
 
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -45,26 +44,23 @@ class SeoUrlDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-            (new IdField('foreign_key', 'foreignKey'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new IdField('foreign_key', 'foreignKey'))->addFlags(new ApiAware(), new Required()),
 
-            (new StringField('route_name', 'routeName', 50))->addFlags(new Required()),
-            (new StringField('path_info', 'pathInfo', 750))->addFlags(new Required()),
-            (new StringField('seo_path_info', 'seoPathInfo', 750))->addFlags(new Required()),
+            (new StringField('route_name', 'routeName', 50))->addFlags(new ApiAware(), new Required()),
+            (new StringField('path_info', 'pathInfo', 750))->addFlags(new ApiAware(), new Required()),
+            (new StringField('seo_path_info', 'seoPathInfo', 750))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('is_canonical', 'isCanonical'))->addFlags(new ApiAware()),
+            (new BoolField('is_modified', 'isModified'))->addFlags(new ApiAware()),
+            (new BoolField('is_deleted', 'isDeleted'))->addFlags(new ApiAware()),
 
-            new BoolField('is_canonical', 'isCanonical'),
-            new BoolField('is_modified', 'isModified'),
-            new BoolField('is_deleted', 'isDeleted'),
-
-            (new StringField('url', 'url'))->addFlags(new Runtime()),
-
-            new CustomFields(),
-
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime()),
+            (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
 
-            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false)),
         ]);
     }
 }

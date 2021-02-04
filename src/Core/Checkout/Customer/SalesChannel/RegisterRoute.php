@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -134,6 +133,7 @@ class RegisterRoute extends AbstractRegisterRoute
      *      @OA\Parameter(name="affiliateCode", description="Affilicate Code", in="query", @OA\Schema(type="string")),
      *      @OA\Parameter(name="campaignCode", description="Campaign Code", in="query", @OA\Schema(type="string")),
      *      @OA\Parameter(name="password", description="Password", in="query", @OA\Schema(type="string")),
+     *      @OA\Parameter(name="acceptedDataProtection", description="Accepted Data Protection policy", in="query", @OA\Schema(type="boolean")),
      *      @OA\Parameter(name="billingAddress", description="Billingaddress", in="query", @OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Parameter(name="shippingAddress", description="Shippingaddress", in="query", @OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
      *      @OA\Response(
@@ -179,7 +179,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
             $customer['company'] = $billingAddress['company'];
 
-            if (Feature::isActive('FEATURE_NEXT_10559') && $data->get('vatIds')) {
+            if ($data->get('vatIds')) {
                 /* @var array $vatIds */
                 $vatIds = $data->get('vatIds');
                 $customer['vatIds'] = empty($vatIds) ? null : $vatIds;
@@ -200,7 +200,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl')));
+            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl'), $data->get('redirectTo')));
         } elseif (!$customerEntity->getGuest()) {
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customerEntity));
         } else {
@@ -235,9 +235,13 @@ class RegisterRoute extends AbstractRegisterRoute
         return $response;
     }
 
-    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url): Event
+    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
     {
         $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+
+        if ($redirectTo) {
+            $url .= '&redirectTo=' . $redirectTo;
+        }
 
         if ($customer->getGuest()) {
             $event = new DoubleOptInGuestOrderEvent($customer, $context, $url);
@@ -297,23 +301,25 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($accountType, false, $context));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10559')) {
-            $billingAddress = $addressData->all();
+        $billingAddress = $addressData->all();
 
-            if ($data->get('vatIds') instanceof DataBag) {
-                $vatIds = array_filter($data->get('vatIds')->all());
-                $data->set('vatIds', $vatIds);
+        if ($data->get('vatIds') instanceof DataBag) {
+            $vatIds = array_filter($data->get('vatIds')->all());
+            $data->set('vatIds', $vatIds);
+        }
+
+        if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
+                $definition->add('vatIds', new NotBlank());
             }
 
-            if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-                if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
-                    $definition->add('vatIds', new NotBlank());
-                }
+            $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                ['countryId' => $billingAddress['countryId']]
+            ));
+        }
 
-                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                    ['countryId' => $billingAddress['countryId']]
-                ));
-            }
+        if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannel()->getId())) {
+            $definition->add('acceptedDataProtection', new NotBlank());
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);

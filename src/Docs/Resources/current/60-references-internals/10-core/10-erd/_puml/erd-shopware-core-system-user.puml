@@ -34,8 +34,17 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(email) string
    active bool
    admin bool
+   lastUpdatedPasswordAt dateTime
    customFields customFields
    storeToken string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition, "user_config\n(User Config)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(key) string
+   value json
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -75,6 +84,7 @@ ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition

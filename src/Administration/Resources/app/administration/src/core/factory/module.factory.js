@@ -181,6 +181,8 @@ function registerModule(moduleId, module) {
         }
 
         module.navigation = module.navigation.filter((navigationEntry) => {
+            navigationEntry.moduleType = module.type;
+
             if (Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
                 warn(
                     'ModuleFactory',
@@ -214,6 +216,14 @@ function registerModule(moduleId, module) {
                     'The navigation entry needs a property called "label"'
                 );
                 return false;
+            }
+
+            if (module.type === 'plugin') {
+                if (navigationEntry.position) {
+                    navigationEntry.position += 1000;
+                } else {
+                    navigationEntry.position = 1000;
+                }
             }
 
             return true;

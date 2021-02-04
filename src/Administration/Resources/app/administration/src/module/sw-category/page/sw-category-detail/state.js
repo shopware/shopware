@@ -5,12 +5,17 @@ export default {
 
     state() {
         return {
+            landingPage: null,
             category: null,
             customFieldSets: []
         };
     },
 
     mutations: {
+        setActiveLandingPage(state, { landingPage }) {
+            state.landingPage = landingPage;
+        },
+
         setActiveCategory(state, { category }) {
             state.category = category;
         },
@@ -21,6 +26,21 @@ export default {
     },
 
     actions: {
+        setActiveLandingPage({ commit }, payload) {
+            commit('setActiveLandingPage', payload);
+        },
+
+        loadActiveLandingPage({ commit }, { repository, id, apiContext }) {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('tags');
+            criteria.addAssociation('salesChannels');
+
+            return repository.get(id, apiContext, criteria).then((landingPage) => {
+                commit('setActiveLandingPage', { landingPage });
+            });
+        },
+
         setActiveCategory({ commit }, payload) {
             commit('setActiveCategory', payload);
         },

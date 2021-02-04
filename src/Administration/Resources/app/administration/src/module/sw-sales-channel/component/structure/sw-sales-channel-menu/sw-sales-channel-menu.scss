@@ -1,0 +1,16 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-sales-channel-menu {
+    .sw-sales-channel-menu-domain-link {
+        margin-left: 16px;
+        background: none;
+        border: none;
+        outline: none;
+        cursor: inherit;
+
+        .sw-sales-channel-menu-domain-link__icon {
+            color: darken($color-gray-300, 20%);
+        }
+    }
+}

@@ -13,12 +13,18 @@ export default class VariantSwitchPlugin extends Plugin {
 
     static options = {
         url: '',
-        radioFieldSelector: '.product-detail-configurator-option-input'
+        elementId: '',
+        pageType: '',
+        radioFieldSelector: '.product-detail-configurator-option-input',
+        selectFieldSelector: '.product-detail-configurator-select-input'
     };
 
     init() {
         this._httpClient = new HttpClient();
-        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector);
+        this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector, false);
+        this._selectFields = DomAccess.querySelectorAll(this.el, this.options.selectFieldSelector, false);
+        this._elementId = this.options.elementId;
+        this._pageType = this.options.pageType;
 
         this._ensureFormElement();
         this._preserveCurrentValues();
@@ -43,13 +49,15 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        Iterator.iterate(this._radioFields, field => {
-            if (VariantSwitchPlugin._isFieldSerializable(field)) {
-                if (field.dataset) {
-                    field.dataset.variantSwitchValue = field.value;
+        if(this._radioFields) {
+            Iterator.iterate(this._radioFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    if (field.dataset) {
+                        field.dataset.variantSwitchValue = field.value;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -74,10 +82,19 @@ export default class VariantSwitchPlugin extends Plugin {
 
         this.$emitter.publish('onChange');
 
-        this._redirectToVariant({
+        const query = {
             switched: switchedOptionId,
-            options: selectedOptions
-        });
+            options: JSON.stringify(selectedOptions)
+        };
+
+        if (this._elementId && this._pageType !== 'product_detail') {
+            const url = this.options.url + '?' + queryString.stringify({ ...query, elementId: this._elementId });
+            document.$emitter.publish('updateBuyWidget', { url, elementId: this._elementId });
+
+            return;
+        }
+
+        this._redirectToVariant(query);
     }
 
     /**
@@ -103,13 +120,24 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        Iterator.iterate(this._radioFields, field => {
-            if (VariantSwitchPlugin._isFieldSerializable(field)) {
-                if (field.checked) {
-                    serialized[field.name] = field.value;
+        if(this._radioFields) {
+            Iterator.iterate(this._radioFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    if (field.checked) {
+                        serialized[field.name] = field.value;
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        if(this._selectFields) {
+            Iterator.iterate(this._selectFields, field => {
+                if (VariantSwitchPlugin._isFieldSerializable(field)) {
+                    const selectedOption = [...field.options].find(option => option.selected);
+                    serialized[field.name] = selectedOption.value;
+                }
+            });
+        }
 
         return serialized;
     }
@@ -149,8 +177,6 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _redirectToVariant(data) {
         PageLoadingIndicatorUtil.create();
-
-        data.options = JSON.stringify(data.options);
 
         const url = this.options.url + '?' + queryString.stringify(data);
 

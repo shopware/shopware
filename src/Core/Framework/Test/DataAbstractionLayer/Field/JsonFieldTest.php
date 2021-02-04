@@ -41,15 +41,16 @@ class JsonFieldTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _test_nullable;
+DROP TABLE IF EXISTS `_test_nullable`;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
-  `data` longtext NULL,
-  `root` longtext NULL,
-  `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3) NULL,
-  PRIMARY KEY `id` (`id`)
-);
+  `data` longtext CHARACTER SET utf8mb4,
+  `root` longtext CHARACTER SET utf8mb4,
+  `created_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 EOF;
         $this->connection->executeUpdate($nullableTable);
         $this->connection->beginTransaction();

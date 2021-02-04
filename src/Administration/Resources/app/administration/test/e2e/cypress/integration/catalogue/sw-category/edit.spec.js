@@ -112,4 +112,40 @@ describe('Category: Edit categories', () => {
         cy.get('.sw-category-detail__product-stream-select .sw-entity-single-select__selection-text')
             .should('contain', '2nd Product stream');
     });
+
+    it('@catalogue: switch to other category without saving and applied changes', () => {
+        cy.createCategoryFixture({
+            parent: {
+                name: 'ParentCategory',
+                active: true
+            }
+        }).then(() => {
+            cy.reload();
+
+            // Select root category
+            cy.get('.sw-tree-item__label')
+                .contains('Home')
+                .click();
+
+            // Modify the category name
+            cy.get('#categoryName').clearTypeAndCheck('New Home');
+
+            // Select a different category without saving
+            cy.get('.sw-tree-item__label')
+                .contains('ParentCategory')
+                .click();
+
+            // The change warning modal should be visible
+            cy.get('.sw-modal').should('be.visible');
+            cy.get('.sw-modal .sw-discard-changes-modal-delete-text').should('be.visible');
+
+            // Select keep editing to stay on current category
+            cy.get('.sw-modal .sw-modal__footer .sw-button')
+                .contains('Keep editing')
+                .click();
+
+            // Verify the modified category name is still present
+            cy.get('#categoryName').should('have.value', 'New Home');
+        });
+    });
 });

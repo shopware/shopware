@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -59,8 +58,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testInsertNewValueWithCustomerAddressVatId(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer([
             'defaultShippingAddress' => [
                 'vatId' => 'test',
@@ -84,8 +81,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testInsertNewValueWithCustomerAddressVatIdIsNull(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer();
 
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');
@@ -105,8 +100,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testInsertNewValueWithCustomerVatIds(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer([
             'vatIds' => ['GR123123123'],
         ]);
@@ -129,8 +122,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testUpdateCustomerAddressVatIdToNewValue(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer([
             'defaultShippingAddress' => [
                 'vatId' => 'test',
@@ -159,8 +150,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testUpdateCustomerAddressVatIdNotNullToNull(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer([
             'defaultShippingAddress' => [
                 'vatId' => 'test',
@@ -188,8 +177,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testUpdateCustomerAddressVatIdNullToNewValue(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10559', $this);
-
         $this->createCustomer();
 
         $customerAddressRepository = $this->getContainer()->get('customer_address.repository');

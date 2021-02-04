@@ -125,7 +125,11 @@
                                                         <dd>
                                                             <sw-order-saveable-field type="number"
                                                                                      editable
-                                                                                     v-tooltip="{ showDelay: 300, message: shippingCostsDetail }"
+                                                                                     v-tooltip="{
+                                                                                        showDelay: 300,
+                                                                                        message: shippingCostsDetail,
+                                                                                        disabled: taxStatus === 'tax-free'
+                                                                                     }"
                                                                                      :value="cartDelivery.shippingCosts.totalPrice"
                                                                                      @value-change="onShippingChargeEdited">
                                                                 {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName) }}

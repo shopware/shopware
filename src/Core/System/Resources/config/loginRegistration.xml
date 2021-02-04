@@ -7,14 +7,14 @@
 
         <input-field type="int">
             <name>passwordMinLength</name>
-            <label>Minimum password length (registration)</label>
+            <label>Minimum password length (log-in)</label>
             <label lang="de-DE">Passwort-Mindestlänge (Registrierung)</label>
         </input-field>
 
         <input-field type="bool">
             <name>customerIpAddressesNotAnonymously</name>
-            <label>Store customer IP addresses not anonymously</label>
-            <label lang="de-DE">Kunden-IP-Adressen nicht anonym speichern</label>
+            <label>Save customer ID addresses in plain text</label>
+            <label lang="de-DE">Kunden-IP-Adressen in Klartext speichern</label>
         </input-field>
 
         <input-field type="bool">
@@ -27,22 +27,22 @@
             <name>requireEmailConfirmation</name>
             <label>Email address must be entered twice</label>
             <label lang="de-DE">E-Mail-Adresse muss zweimal eingegeben werden</label>
-            <helpText>Email address is queried twice to avoid input errors.</helpText>
-            <helpText lang="de-DE">E-Mail-Adresse wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
+            <helpText>Email address has to be filled in twice to avoid errors.</helpText>
+            <helpText lang="de-DE">Die E-Mail-Adresse wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>doubleOptInRegistration</name>
-            <label>Double opt in registration</label>
-            <label lang="de-DE">Double-Opt-In-Registrierung</label>
-            <helpText>Activates double opt in for registrations.</helpText>
-            <helpText lang="de-DE">Aktiviert Double-Opt-In für Registrierungen.</helpText>
+            <label>Double opt-in on sign-up</label>
+            <label lang="de-DE">Double-Opt-In für Registrierungen</label>
+            <helpText>Double opt-in for new customers.</helpText>
+            <helpText lang="de-DE">Aktiviert Double-Opt-In bei der Neukunden-Registrierung.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>doubleOptInGuestOrder</name>
             <label>Double opt in guest order</label>
-            <label lang="de-DE">Double-Opt-In-Gast-Bestellung</label>
+            <label lang="de-DE">Double-Opt-In für Gast-Bestellungen</label>
             <helpText>Activates double opt in for guest orders.</helpText>
             <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
         </input-field>
@@ -51,7 +51,7 @@
             <name>requirePasswordConfirmation</name>
             <label>Password must be entered twice</label>
             <label lang="de-DE">Passwort muss zweimal eingegeben werden</label>
-            <helpText>Password is queried twice to avoid input errors.</helpText>
+            <helpText>Password has to be filled in twice to avoid input errors.</helpText>
             <helpText lang="de-DE">Passwort wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
         </input-field>
 
@@ -82,7 +82,7 @@
         <input-field type="bool">
             <name>showAccountTypeSelection</name>
             <label>Show selection between company and customer account</label>
-            <label lang="de-DE">Auswahl zwischen Firmen- und Kundenkonto anzeigen</label>
+            <label lang="de-DE">Auswahl zwischen Geschäfts- und Kundenkonto anzeigen</label>
         </input-field>
 
         <input-field type="bool">
@@ -113,8 +113,8 @@
             <name>invalidateSessionOnLogOut</name>
             <label>Clear session data on log out</label>
             <label lang="de-DE">Sitzungsdaten bei Abmeldung löschen</label>
-            <helpText>When the setting is activated, the cart won't be saved and can't be restored after login</helpText>
-            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden</helpText>
+            <helpText>When the setting is activated, the cart won't be saved and can't be restored after login.</helpText>
+            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -124,10 +124,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>requireDataProtectionCheckbox</name>
+            <label>Data protection information must be accepted via a checkbox</label>
+            <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>vatIdFieldRequired</name>
-            <label>VAT ID field required</label>
-            <label lang="de-DE">Umsatzsteuer-ID als Pflichtfeld behandeln</label>
-            <flag>FEATURE_NEXT_10559</flag>
+            <label>VAT Reg.No. required</label>
+            <label lang="de-DE">Umsatzsteuer-Id als Pflichtfeld behandeln</label>
         </input-field>
     </card>
 </config>

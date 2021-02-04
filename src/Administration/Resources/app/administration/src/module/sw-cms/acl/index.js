@@ -22,7 +22,8 @@ Shopware.Service('privileges')
                     'product_media:read',
                     'delivery_time:read',
                     'product_cross_selling:read',
-                    'product_cross_selling_assigned_products:read'
+                    'product_cross_selling_assigned_products:read',
+                    'product_manufacturer:read'
                 ],
                 dependencies: []
             },

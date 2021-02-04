@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\Aggregate;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -41,10 +42,10 @@ class ThemeTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('description', 'description'),
-            new JsonField('labels', 'labels'),
-            new JsonField('help_texts', 'helpTexts'),
-            new CustomFields(),
+            (new StringField('description', 'description'))->addFlags(new ApiAware()),
+            (new JsonField('labels', 'labels'))->addFlags(new ApiAware()),
+            (new JsonField('help_texts', 'helpTexts'))->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }
 }

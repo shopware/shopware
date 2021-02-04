@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
@@ -47,7 +47,8 @@ describe('Customer group: Test crud operations', () => {
         // Check usage of customer group in customer
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer'
+            mainMenuId: 'sw-customer',
+            subMenuId: 'sw-customer-index'
         });
         cy.get('.sw-customer-list__content').should('be.visible');
         cy.get('a[href="#/sw/customer/create"]').click();

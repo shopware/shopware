@@ -51,12 +51,10 @@
                                 {% endblock %}
 
                                 {% block component_account_register_company_fields %}
-                                    {% if feature('FEATURE_NEXT_10559') %}
-                                        {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
-                                            'prefix': 'billingAddress',
-                                            'address': data.get('billingAddress')
-                                        } %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
+                                        'prefix': 'billingAddress',
+                                        'address': data.get('billingAddress')
+                                    } %}
                                 {% endblock %}
 
                                 {% set formGroupMail %}
@@ -262,19 +260,10 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_billing_fields %}
-                                            {% if feature('FEATURE_NEXT_10559') %}
-                                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                    'prefix': 'billingAddress',
-                                                    'data': data.get('billingAddress')
-                                                } %}
-                                            {% else %}
-                                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                    'prefix': 'billingAddress',
-                                                    'data': data.get('billingAddress'),
-                                                    'showFormCompany': true,
-                                                    'showVatIdField': true
-                                                } %}
-                                            {% endif %}
+                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                'prefix': 'billingAddress',
+                                                'data': data.get('billingAddress'),
+                                            } %}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -323,19 +312,10 @@
                                                     {% endblock %}
 
                                                     {% block component_account_register_address_shipping_fields_address %}
-                                                        {% if feature('FEATURE_NEXT_10559') %}
-                                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                                'prefix': 'shippingAddress',
-                                                                'data': data.get('shippingAddress')
-                                                            } %}
-                                                        {% else %}
-                                                            {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                                'prefix': 'shippingAddress',
-                                                                'data': data.get('shippingAddress'),
-                                                                'showFormCompany': true,
-                                                                'showVatIdField': true
-                                                            } %}
-                                                        {% endif %}
+                                                        {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                                            'prefix': 'shippingAddress',
+                                                            'data': data.get('shippingAddress')
+                                                        } %}
                                                     {% endblock %}
                                                 {% endblock %}
                                             </div>

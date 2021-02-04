@@ -1,0 +1,70 @@
+{% block sw_extension_permissions_details_modal %}
+    <sw-modal class="sw-extension-permissions-details-modal" v-on="$listeners" :title="modalTitle">
+        {% block sw_extension_permissions_details_modal_content %}
+            {% block sw_extension_permissions_details_modal_table %}
+                <table class="sw-extension-permissions-details-modal__table">
+                    {% block sw_extension_permissions_details_modal_table_head %}
+                        <thead class="sw-extension-permissions-details-modal__operations">
+                            {% block sw_extension_permissions_details_modal_table_head_row %}
+                                <tr class="sw-extension-permissions-details-modal__grid-columns">
+                                    <td></td>
+                                    <td v-for="operation in operations" class="sw-extension-permissions-details-modal__operation">
+                                        {{ operation.label }}
+                                    </td>
+                                </tr>
+                            {% endblock %}
+                        </thead>
+                    {% endblock %}
+
+                    {% block sw_extension_permissions_details_modal_table_body %}
+                        <tbody>
+                            {% block sw_extension_permissions_details_modal_table_permissions %}
+                                <template v-for="(permissionCategory, category) in permissions">
+                                    {% block sw_extension_permissions_details_modal_permissions_category %}
+                                        <tr class="sw-extension-permissions-details-modal__category" :id="`permission-${category}`">
+                                            <td>{{ categoryLabel(category) }}</td>
+                                        </tr>
+                                    {% endblock %}
+
+                                    {% block sw_extension_permissions_details_modal_permission_row %}
+                                        <tr v-for="(permissions, entity) in permissionCategory"
+                                            class="sw-extension-permissions-details-modal__grid-columns">
+                                            {% block sw_extension_permissions_details_modal_permission_entity %}
+                                                <td>{{ entityLabel(category, entity) }}</td>
+                                            {% endblock %}
+
+                                            {% block sw_extension_permissions_details_modal_permission_operation %}
+                                                <td v-for="operation in operations"
+                                                    class="sw-extension-permissions-details-modal__operation">
+                                                    <sw-icon v-if="permissions.includes(operation.operation)"
+                                                             name="small-default-checkmark-line-medium"
+                                                             small color="#37D046">
+                                                    </sw-icon>
+
+                                                    <sw-icon v-else
+                                                             name="small-default-x-line-medium"
+                                                             small color="#DE294C">
+                                                    </sw-icon>
+                                                </td>
+                                            {% endblock %}
+                                        </tr>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </tbody>
+                    {% endblock %}
+                </table>
+            {% endblock %}
+        {% endblock %}
+
+        {% block sw_extension_permissions_details_modal_footer %}
+            <template #modal-footer>
+                {% block sw_extension_permissions_details_modal_footer_inner %}
+                    <sw-button variant="primary" @click="close" size="small">
+                        {{ $tc('global.sw-modal.labelClose') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

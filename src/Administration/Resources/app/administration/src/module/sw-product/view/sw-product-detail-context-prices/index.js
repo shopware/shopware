@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-context-prices', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -18,7 +18,8 @@ Component.register('sw-product-detail-context-prices', {
         return {
             rules: [],
             totalRules: 0,
-            isInherited: false
+            isInherited: false,
+            showListPrices: {}
         };
     },
 
@@ -128,13 +129,14 @@ Component.register('sw-product-detail-context-prices', {
                     allowResize: true,
                     primary: false,
                     rawData: false,
-                    width: '250px'
+                    width: '250px',
+                    multiLine: true
                 };
             });
         },
 
         pricesColumns() {
-            return [
+            const priceColumns = [
                 {
                     property: 'quantityStart',
                     label: 'sw-product.advancedPrices.columnFrom',
@@ -152,8 +154,17 @@ Component.register('sw-product-detail-context-prices', {
                     rawData: false,
                     width: '95px'
                 },
-                ...this.currencyColumns
+                {
+                    property: 'type',
+                    label: 'sw-product.advancedPrices.columnType',
+                    visible: true,
+                    allowResize: true,
+                    width: '95px',
+                    multiLine: true
+                }
             ];
+
+            return [...priceColumns, ...this.currencyColumns];
         }
     },
 
@@ -224,8 +235,18 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: this.defaultCurrency.id,
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net
+                net: this.defaultPrice.net,
+                listPrice: null
             }];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice.gross,
+                    linked: this.defaultPrice.listPrice.linked,
+                    net: this.defaultPrice.listPrice.net
+                };
+            }
 
             this.product.prices.add(newPriceRule);
 
@@ -314,8 +335,18 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: currency.id,
                 gross: this.convertPrice(defaultPrice.gross, currency),
                 linked: defaultPrice.linked,
-                net: this.convertPrice(defaultPrice.net, currency)
+                net: this.convertPrice(defaultPrice.net, currency),
+                listPrice: null
             };
+
+            if (defaultPrice.listPrice) {
+                newPrice.listPrice = {
+                    currencyId: currency.id,
+                    gross: this.convertPrice(defaultPrice.listPrice.gross, currency),
+                    linked: defaultPrice.listPrice.linked,
+                    net: this.convertPrice(defaultPrice.listPrice.net, currency)
+                };
+            }
 
             // add price to rule.price
             this.$set(rule.price, rule.price.length, newPrice);
@@ -369,8 +400,18 @@ Component.register('sw-product-detail-context-prices', {
                 currencyId: this.defaultCurrency.id,
                 gross: this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net
+                net: this.defaultPrice.net,
+                listPrice: null
             }];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.gross : null,
+                    linked: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.linked : true,
+                    net: this.defaultPrice.listPrice ? this.defaultPrice.listPrice.net : null
+                };
+            }
 
             this.product.prices.add(newPriceRule);
         },
@@ -413,6 +454,19 @@ Component.register('sw-product-detail-context-prices', {
 
         removeInheritance() {
             this.isInherited = false;
+        },
+
+        onChangeShowListPrices(value, ruleId) {
+            this.$set(this.showListPrices, ruleId, value);
+        },
+
+        getStartQuantityTooltip(itemIndex, quantity) {
+            return {
+                message: this.$tc('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
+                width: 275,
+                showDelay: 200,
+                disabled: !this.feature.isActive('FEATURE_NEXT_10553') || (itemIndex !== 0 || quantity !== 1)
+            };
         }
     }
 });

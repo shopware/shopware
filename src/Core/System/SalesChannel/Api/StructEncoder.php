@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Collection;
@@ -178,13 +178,17 @@ class StructEncoder
         $definition = $this->definitionRegistry->getByEntityName($type);
 
         $field = $definition->getField($property);
-        if (!$field || !$field->is(ReadProtected::class)) {
+        if (!$field) {
             return false;
         }
 
-        /** @var ReadProtected $protection */
-        $protection = $field->getFlag(ReadProtected::class);
-        if (!$protection->isSourceAllowed(SalesChannelApiSource::class)) {
+        /** @var ApiAware|null $flag */
+        $flag = $field->getFlag(ApiAware::class);
+        if ($flag === null) {
+            return true;
+        }
+
+        if (!$flag->isSourceAllowed(SalesChannelApiSource::class)) {
             return true;
         }
 

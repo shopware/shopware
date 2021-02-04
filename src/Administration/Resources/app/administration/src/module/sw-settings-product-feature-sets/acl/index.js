@@ -8,7 +8,10 @@ Shopware.Service('privileges')
                 privileges: [
                     'product_feature_set:read',
                     'custom_field:read',
-                    'property_group:read'
+                    'property_group:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

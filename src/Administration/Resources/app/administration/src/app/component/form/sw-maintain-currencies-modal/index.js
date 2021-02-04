@@ -125,7 +125,8 @@ Component.register('sw-maintain-currencies-modal', {
                 currencyId: currency.id,
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,
-                net: this.convertPrice(this.defaultPrice.net, currency)
+                net: this.convertPrice(this.defaultPrice.net, currency),
+                listPrice: null
             };
 
             if (this.defaultPrice.listPrice) {

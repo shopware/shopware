@@ -38,15 +38,13 @@ class ConflictingPackageTest extends TestCase
     public function testValidateConflictsSpecificMessage(): void
     {
         $plugin = $this->createTestPlugin(__FUNCTION__);
-        $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
 
-        $template = '#.*"%s" conflicts with plugin/package "%s == 6\.[0-9]+\.[0-9]+\.[0-9]+.*#im';
+        $regexTemplate = '#.*"%s" conflicts with plugin/package "%s == 6\.[0-9]+\.[0-9]+\.[0-9]+.*#im';
 
         $this->expectExceptionMessageRegExp(sprintf(
-            $template,
+            $regexTemplate,
             preg_quote($plugin->getComposerName(), '#'),
-            preg_quote('shopware/core', '#'),
-            preg_quote($shopwareVersion, '#')
+            preg_quote('shopware/core', '#')
         ));
         $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
     }
@@ -70,6 +68,7 @@ class ConflictingPackageTest extends TestCase
         $plugin->setPath($path);
         $plugin->setManagedByComposer(false);
         $plugin->setComposerName($kebab);
+        $plugin->setVersion('1.0.0');
 
         return $plugin;
     }

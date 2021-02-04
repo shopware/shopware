@@ -35,13 +35,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
@@ -357,12 +360,42 @@ class CriteriaParser
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         $bool = new BoolQuery();
-        foreach ($filter->getQueries() as $nested) {
+        if (\count($filter->getQueries()) === 0) {
+            return $bool;
+        }
+
+        if (\count($filter->getQueries()) === 1) {
             $bool->add(
-                $this->parseFilter($nested, $definition, $root, $context),
+                $this->parseFilter($filter->getQueries()[0], $definition, $root, $context),
                 BoolQuery::MUST_NOT
             );
+
+            return $bool;
         }
+
+        switch ($filter->getOperator()) {
+            case MultiFilter::CONNECTION_OR:
+                $multiFilter = new OrFilter();
+
+                break;
+            case MultiFilter::CONNECTION_XOR:
+                $multiFilter = new XOrFilter();
+
+                break;
+            default: // AND FILTER
+                $multiFilter = new AndFilter();
+
+                break;
+        }
+
+        foreach ($filter->getQueries() as $query) {
+            $multiFilter->addQuery($query);
+        }
+
+        $bool->add(
+            $this->parseFilter($multiFilter, $definition, $root, $context),
+            BoolQuery::MUST_NOT
+        );
 
         return $bool;
     }

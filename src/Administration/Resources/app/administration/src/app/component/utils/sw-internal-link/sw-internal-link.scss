@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-internal-link {
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 6px;
+    align-items: center;
+    text-decoration: none;
+    color: $color-shopware-brand-500;
+    font-size: $font-size-small;
+
+    &:hover {
+        color: $color-shopware-brand-600;
+    }
+
+    &.sw-internal-link--inline {
+        display: inline;
+    }
+}

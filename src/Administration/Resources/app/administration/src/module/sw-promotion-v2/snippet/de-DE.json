@@ -24,6 +24,7 @@
             },
             "tabs": {
                 "tabGeneral": "Allgemein",
+                "tabConditions": "Bedingungen",
                 "tabDiscounts": "Rabatte"
             },
             "codeChangeModal": {
@@ -59,14 +60,130 @@
                     "individual": {
                         "description": "Individuelle Aktionscodes",
                         "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
-                        "generateButton": "Erstelle Aktionscodes"
+                        "generateButton": "Erstelle Aktionscodes",
+                        "searchPlaceholder": "Durchsuche Aktionscodes ...",
+                        "addButton": "Füge Aktionscodes hinzu",
+                        "columnCode": "Code",
+                        "columnRedeemed": "Eingelöst",
+                        "columnCustomer": "Kunde",
+                        "textDeleteConfirm": "Möchtest Du den Aktionscode \"{code}\" wirklich löschen? | Möchtest Du diese {count} Aktionscodes wirklich löschen?",
+                        "openCustomer": "Kunde öffnen",
+                        "routingError": "Der Kunde \"{name}\" konnte nicht gefunden werden.",
+                        "addCodesModal": {
+                            "title": "Neue Aktionscodes hinzufügen",
+                            "description": "Neue Aktionscodes verwenden dasselbe Präfix, Suffix und Muster, das zur Erzeugung früherer Aktionscodes verwendet wurde.",
+                            "addCodesButton": "Aktionscodes hinzufügen",
+                            "codeAmountLabel": "Anzahl neuer Aktionscodes"
+                        },
+                        "generateModal": {
+                            "title": "Erzeuge neue Aktionscodes",
+                            "buttonGenerate": "Erzeuge Aktionscodes",
+                            "warning": "Durch das Generieren neuer Codes werden alle vorhandenen Codes für diese Aktion gelöscht. Gelöschte Codes sind ungültig und können nicht mehr verwendet werden.",
+                            "description": "Aktionscodes werden aus einer zufälligen Zusammenstellung von Großbuchstaben und Ziffern erzeugt. Du kannst aber individuelle Pre- bzw. Suffixe oder auch ein komplett eigenes Muster verwenden. In der Code-Vorschau kannst Du sehen, wie sich Dein Muster auswirkt.",
+                            "labelPrefix": "Präfix",
+                            "placeholderPrefix": "Gib einen Präfix an ...",
+                            "labelCodeLength": "Zeichenlänge des Aktionscodes",
+                            "labelSuffix": "Suffix",
+                            "placeholderSuffix": "Gib einen Suffix an ...",
+                            "labelCustomPattern": "Eigenes Muster",
+                            "placeholderCustomPattern": "Gib ein eigenes Muster an",
+                            "helpTextCustomPattern": "Beachte, dass nur ein aufeinanderfolgender Satz an Variablen umgewandelt werden kann.<br><br>Mögliche Variablen:<br>- %d - Ziffern (0-9)<br>- %s - Buchstaben (A-Z)",
+                            "labelUseCustomPattern": "Eigenes Muster nutzen",
+                            "labelPreview": "Aktionscode-Vorschau",
+                            "labelCodeAmount": "Anzahl der Aktionscodes",
+                            "notComplexEnoughException": "Die angeforderte Anzahl von Aktionscodes konnte nicht erstellt werden. Stelle sicher, dass das Muster ausreichend komplex ist. Um zu gewährleisten, dass die Aktionscodes ausreichend zufällig sind, dürfen höchstens 50% aller möglichen Codes generiert werden.",
+                            "alreadyInUseException": "Das gewählte Code-Muster existiert bereits in einer anderen Aktion. Bitte gebe ein anderes Muster an.",
+                            "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schief gelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
+                        }
                     }
+                }
+            },
+            "conditions": {
+                "preConditions": {
+                    "cardTitlePreConditions": "Voraussetzungen",
+                    "cardTitleRuleConditions": "Regelbasierte Bedingungen",
+                    "labelPromotionExclusions": "Nicht kombinieren mit",
+                    "placeholderPromotionExclusions": "Aktion hinzufügen ...",
+                    "labelPromotionSalesChannel": "Verkaufskanäle",
+                    "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ...",
+                    "labelCustomerSelect": "Kunden-Regeln",
+                    "placeholderCustomerSelect": "Wähle Kunden-Regeln aus ...",
+                    "labelCartConditionSelect": "Warenkorb-Regeln",
+                    "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
+                    "labelOrderConditionSelect": "Bestellungs-Regeln",
+                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
+
                 }
             },
             "discounts": {
                 "emptyStateTitle": "Noch keinen Rabatt angelegt.",
-                "emptyStateButton": "Rabatt anlegen"
+                "addDiscountButton": "Rabatt anlegen",
+                "wizard": {
+                    "basic": {
+                        "prefixTitle": "Einfacher Rabatt - {title}",
+                        "titleDiscountType": "Rabatt-Typ",
+                        "titleProductRules": "Produkt-Regeln",
+                        "description": "Definiere zuerst den Rabatt-Typ. Trigger, die diesen Rabatt aktivieren, kannst Du auf der nächsten Seite setzen."
+                    },
+                    "shipping-discount": {
+                        "prefixTitle": "Versand-Rabatt - {title}"
+                    },
+                    "buy-x-get-y": {
+                        "prefixTitle": "Kaufe X erhalte Y - {title}",
+                        "titleDiscountType": "Rabatt-Typ"
+                    }
+                },
+                "settings": {
+                    "discountType": {
+                        "form": {
+                            "labelDiscountType": "Rabatt-Typ",
+                            "labelValue": "Preis | Prozentwert",
+                            "labelMaxDiscountValue": "Maximaler Rabattwert",
+                            "labelApplyDiscountTo": "Rabatt anwenden auf",
+                            "labelApplyTo": "Anwenden auf",
+                            "discountTypeSelection": {
+                                "displayFixedPrice": "Festgelegter Preis",
+                                "displayFixedDiscount": "Absolut",
+                                "displayPercentage": "Prozentual",
+                                "displayFree": "Kostenloses Produkt"
+                            },
+                            "applyDiscountTo": {
+                                "displayTotalPrice": "Gesamtpreis",
+                                "displayProductPrice": "Produktpreis"
+                            }
+                        }
+                    },
+                    "ruleSelection": {
+                        "description": "Wähle oder erstelle Regeln um Produkte zu definieren, die für den Rabatt in Frage kommen.",
+                        "labelSelection": "Regelauswahl",
+                        "placeholderSelection": "Wähle eine Regel aus ..."
+                    }
+                }
+            },
+            "discount-selection": {
+                "modalTitle": "Neuer Rabatt",
+                "description": "Rabatte können als Brutto- oder Nettowert, als feste Summe oder als Prozentsatz angewendet werden. Es ist möglich, einzelne Produkte, ein Produktsortiment oder Versandkosten zu rabattieren.",
+                "basic": {
+                    "name": "Basis-Rabatt",
+                    "description": "Rabattiere ganze Warenkörbe oder eine ausgewählte Gruppe von Produkten."
+                },
+                "shipping-discount": {
+                    "name": "Versand-Rabatt",
+                    "description": "Rabattiere die Versandkosten oder biete kostenlosen Versand über optionale Produkt-Trigger an."
+                },
+                "buy-x-get-y": {
+                    "name": "X kaufen, Y bekommen",
+                    "description": "Lege einen Rabatt fest, der aktiviert wird, wenn ein bestimmtes Produkt oder bestimmte Produkte in den Warenkorb gelegt werden."
+                }
+            },
+            "shipping-discount-trigger": {
+                "modalTitle": "Versand-Rabatt - Trigger (optional)",
+                "description": "Du kannst den Rule Builder verwenden, um individuelle Rabatt-Trigger zu erstellen. Definiere Schwellenwerte, z.B. eine bestimmte Anzahl von Produkten oder einen bestimmten Warenkorbwert, die Rabatte auslösen. Du kannst sogar verschachtelte Trigger-Kaskaden erstellen.",
+                "labelUseTrigger": "Verwende Trigger"
             }
+        },
+        "ruleSelect": {
+            "labelAddNewRule": "Neue Regel erstellen"
         }
     }
 }

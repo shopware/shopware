@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -57,14 +58,14 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $propertyBaseName = lcfirst(implode('', $propertyBaseName));
 
         $baseFields = [
-            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getClass(), 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ];
 
         if ($this->isVersionAware()) {
-            $baseFields[] = (new ReferenceVersionField($translatedDefinition->getClass()))->setFlags(new PrimaryKey(), new Required());
+            $baseFields[] = (new ReferenceVersionField($translatedDefinition->getClass()))->addFlags(new PrimaryKey(), new Required());
         }
 
         return $baseFields;

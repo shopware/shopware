@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -124,7 +125,7 @@ abstract class EntityDefinition
             $extension->extendFields($new);
 
             foreach ($new as $field) {
-                $field->addFlags(new Extension());
+                $field->addFlags(new ApiAware(), new Extension());
 
                 if ($field instanceof AssociationField) {
                     $fields->add($field);
@@ -164,7 +165,7 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Runtime())
+                    (new JsonField('translated', 'translated'))->addFlags(new ApiAware(), new Computed(), new Runtime())
                 );
 
                 break;
@@ -317,8 +318,8 @@ abstract class EntityDefinition
     protected function defaultFields(): array
     {
         return [
-            new CreatedAtField(),
-            new UpdatedAtField(),
+            (new CreatedAtField())->addFlags(new ApiAware()),
+            (new UpdatedAtField())->addFlags(new ApiAware()),
         ];
     }
 

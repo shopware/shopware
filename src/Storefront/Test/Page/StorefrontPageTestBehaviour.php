@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
+use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,6 +45,20 @@ trait StorefrontPageTestBehaviour
         TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
         TestCase::assertSame($request, $event->getRequest());
         TestCase::assertSame($page, $event->getPage());
+    }
+
+    public static function assertPageletEvent(
+        string $expectedClass,
+        PageletLoadedEvent $event,
+        SalesChannelContext $salesChannelContext,
+        Request $request,
+        Struct $page
+    ): void {
+        TestCase::assertInstanceOf($expectedClass, $event);
+        TestCase::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        TestCase::assertSame($salesChannelContext->getContext(), $event->getContext());
+        TestCase::assertSame($request, $event->getRequest());
+        TestCase::assertSame($page, $event->getPagelet());
     }
 
     abstract protected function getPageLoader();

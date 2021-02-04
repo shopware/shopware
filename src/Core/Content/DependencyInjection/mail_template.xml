@@ -24,12 +24,26 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <!-- feature-deprecated flag:FEATURE_NEXT_12246 remove service on feature release -->
         <service id="Shopware\Core\Content\MailTemplate\Service\MailSender" public="true">
+            <tag name="deprecated" flag="FEATURE_NEXT_12246" version="tag:v6.4.0"/>
             <argument type="service" id="core_mailer"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" public="true">
+            <tag name="deprecated" flag="FEATURE_NEXT_12246" version="tag:v6.4.0"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Mail\Service\MailSender" public="true">
+            <argument type="service" id="mailer.mailer"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12246"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
             <argument type="service" id="validator"/>
             <argument type="service" id="shopware.filesystem.public"/>
         </service>
@@ -62,7 +76,9 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <!-- feature-deprecated flag:FEATURE_NEXT_12246 remove service on feature release -->
         <service id="Shopware\Core\Content\MailTemplate\Service\MailService">
+            <tag name="deprecated" flag="FEATURE_NEXT_12246" version="tag:v6.4.0"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" />
@@ -76,9 +92,27 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
+        <service id="Shopware\Core\Content\Mail\Service\MailService">
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailFactory" />
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailSender" />
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12246"/>
+        </service>
+
         <service id="Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber">
             <tag name="kernel.event_subscriber"/>
+            <!-- feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) remove argument MailService on feature release -->
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+            <!-- @internal tag:v6.4.0 (flag:FEATURE_NEXT_12246) remove on-invalid=null on feature release -->
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService" on-invalid="null"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="media.repository"/>

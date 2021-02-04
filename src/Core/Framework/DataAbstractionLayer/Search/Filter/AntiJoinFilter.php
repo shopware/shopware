@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed
+ */
 class AntiJoinFilter extends MultiFilter
 {
     /**

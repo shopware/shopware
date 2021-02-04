@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -52,21 +53,21 @@ class DocumentBaseConfigDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new Required()),
-            new FkField('logo_id', 'logoId', DocumentTypeDefinition::class),
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('logo_id', 'logoId', MediaDefinition::class))->addFlags(new ApiAware()),
 
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            new StringField('filename_prefix', 'filenamePrefix'),
-            new StringField('filename_suffix', 'filenameSuffix'),
-            (new BoolField('global', 'global'))->addFlags(new Required()),
-            new NumberRangeField('document_number', 'documentNumber'),
-            new JsonField('config', 'config'),
-            new CreatedAtField(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('filename_prefix', 'filenamePrefix'))->addFlags(new ApiAware()),
+            (new StringField('filename_suffix', 'filenameSuffix'))->addFlags(new ApiAware()),
+            (new BoolField('global', 'global'))->addFlags(new ApiAware(), new Required()),
+            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
+            (new JsonField('config', 'config'))->addFlags(new ApiAware()),
+            (new CreatedAtField())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id')),
-            new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'),
+            (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }

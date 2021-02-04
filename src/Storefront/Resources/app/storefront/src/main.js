@@ -84,6 +84,8 @@ import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import WishlistPersistStoragePlugin from 'src/plugin/wishlist/persist-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
+import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
+import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -106,18 +108,6 @@ PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
-
-if (Feature.isActive('FEATURE_NEXT_10549') && window.wishlistEnabled) {
-    if (window.customerLoggedInState) {
-        PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
-    } else {
-        PluginManager.register('WishlistStorage', WishlistLocalStoragePlugin, '[data-wishlist-storage]');
-    }
-
-    PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');
-    PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
-}
-
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
@@ -162,6 +152,22 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
+
+if (window.wishlistEnabled) {
+    if (window.customerLoggedInState) {
+        PluginManager.register('WishlistStorage', WishlistPersistStoragePlugin, '[data-wishlist-storage]');
+    } else {
+        PluginManager.register('WishlistStorage', WishlistLocalStoragePlugin, '[data-wishlist-storage]');
+        PluginManager.register('GuestWishlistPage', GuestWishlistPagePlugin, '[data-guest-wishlist-page]');
+    }
+
+    PluginManager.register('AddToWishlist', AddToWishlistPlugin, '[data-add-to-wishlist]');
+    PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
+}
+
+if (Feature.isActive('FEATURE_NEXT_10078')) {
+    PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
+}
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -889,6 +890,42 @@ EOF;
         static::assertEquals($id, $content['data'][0]['id']);
     }
 
+    public function testSearchNonTokenizeTerm(): void
+    {
+        // Create two customers with different email but same suffix example.com
+        $this->createCustomer();
+        $ids = $this->createCustomer();
+
+        $data = [
+            'page' => 1,
+            'limit' => 5,
+            'sort' => [
+                [
+                    'field' => 'customerNumber',
+                    'order' => 'desc',
+                ],
+            ],
+            'term' => $ids->get('email') . '@example.com',
+        ];
+
+        $this->getBrowser()->request('POST', '/api/search/customer', $data);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertEquals(1, $content['meta']['total']);
+        static::assertEquals($ids->get('customer'), $content['data'][0]['id']);
+
+        $data['term'] = 'example.com';
+
+        $this->getBrowser()->request('POST', '/api/search/customer', $data);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertEquals(2, $content['meta']['total']);
+    }
+
     public function testSearch(): void
     {
         $id = Uuid::randomHex();
@@ -1740,8 +1777,7 @@ EOF;
 
     public function testWriteExtensionWithExtensionKey(): void
     {
-        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
@@ -1817,8 +1853,7 @@ EOF;
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
     {
-        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('testSeoUrls', SeoUrlDefinition::class, 'sales_channel_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(SalesChannelDefinition::class)->getFields()->addNewField($field);
 
@@ -1995,38 +2030,7 @@ EOF;
 
     public function testGetBillingAddress(): void
     {
-        $ids = new IdsCollection();
-
-        $data = [
-            'id' => $ids->get('customer'),
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $ids->get('address'),
-            'defaultShippingAddressId' => $ids->get('address'),
-            'addresses' => [
-                [
-                    'id' => $ids->get('address'),
-                    'customerId' => $ids->get('customer'),
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-        $this->getContainer()->get('customer.repository')
-            ->create([$data], $ids->getContext());
+        $ids = $this->createCustomer();
 
         $this->getBrowser()->request('POST', '/api/search/customer/' . $ids->get('customer') . '/default-billing-address');
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
@@ -2035,6 +2039,36 @@ EOF;
         static::assertArrayHasKey('data', $response);
         static::assertCount(1, $response['data']);
         static::assertEquals($ids->get('address'), $response['data'][0]['id']);
+    }
+
+    public function testAccessDeniedAfterChangingUserPassword(): void
+    {
+        $browser = $this->getBrowser();
+
+        /** @var Connection $connection */
+        $connection = $browser->getContainer()->get(Connection::class);
+        $admin = TestUser::createNewTestUser($connection, ['product:read']);
+
+        $admin->authorizeBrowser($browser);
+
+        $browser->request('POST', '/api/search/product', []);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $userRepository = $this->getContainer()->get('user.repository');
+
+        // Change user password
+        $userRepository->update([[
+            'id' => $admin->getUserId(),
+            'password' => Uuid::randomHex(),
+        ]], Context::createDefaultContext());
+
+        $browser->request('POST', '/api/search/product', []);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), $response->getContent());
+        $jsonResponse = \json_decode($response->getContent(), true);
+        static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 
     private function createSalesChannel(string $id): void
@@ -2080,5 +2114,43 @@ EOF;
         $criteria->setLimit(1);
 
         return $languageRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+    }
+
+    private function createCustomer(): IdsCollection
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('customer'),
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => $ids->get('email') . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $ids->get('address'),
+            'defaultShippingAddressId' => $ids->get('address'),
+            'addresses' => [
+                [
+                    'id' => $ids->get('address'),
+                    'customerId' => $ids->get('customer'),
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+        $this->getContainer()->get('customer.repository')
+            ->create([$data], $ids->getContext());
+
+        return $ids;
     }
 }

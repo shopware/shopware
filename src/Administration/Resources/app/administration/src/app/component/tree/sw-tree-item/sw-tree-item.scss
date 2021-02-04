@@ -67,14 +67,14 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
     &.is--no-checkbox {
         .sw-tree-item__element {
-            grid-template-columns: 30px 0 20px auto 30px;
+            grid-template-columns: 30px 0 20px auto 50px;
         }
     }
 
     .sw-tree-item__element {
         height: 42px;
         display: grid;
-        grid-template-columns: 30px 24px 20px auto 30px;
+        grid-template-columns: 30px 24px 20px auto 50px;
         grid-column-gap: 2px;
         align-items: center;
         align-content: center;
@@ -190,7 +190,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
     height: 42px;
     display: grid;
     color: $sw-tree-item-color-text;
-    grid-template-columns: 30px 24px 20px auto 30px;
+    grid-template-columns: 30px 24px 20px auto 50px;
     grid-column-gap: 2px;
     align-items: center;
     align-content: center;

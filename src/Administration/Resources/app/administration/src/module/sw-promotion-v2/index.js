@@ -1,4 +1,14 @@
-import './component/sw-promotion-v2-individual-codes-behavior';
+import './component/discount/sw-promotion-v2-settings-discount-type';
+import './component/discount/sw-promotion-v2-settings-rule-selection';
+import './component/discount/sw-promotion-v2-wizard-discount-selection';
+import './component/discount/sw-promotion-v2-wizard-description';
+import './component/discount/sw-promotion-v2-wizard-shipping-discount-trigger';
+
+import './component/promotion-codes/sw-promotion-v2-generate-codes-modal';
+import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
+
+import './component/sw-promotion-v2-rule-select';
+import './component/sw-promotion-v2-sales-channel-select';
 
 import './init/services.init';
 
@@ -7,6 +17,7 @@ import './page/sw-promotion-v2-list';
 
 import './view/sw-promotion-v2-detail-base';
 import './view/sw-promotion-v2-discounts';
+import './view/sw-promotion-v2-conditions';
 
 const { Module } = Shopware;
 
@@ -75,6 +86,14 @@ Module.register('sw-promotion-v2', {
                 base: {
                     component: 'sw-promotion-v2-detail-base',
                     path: 'base',
+                    meta: {
+                        parentPath: 'sw.promotion.v2.index',
+                        privilege: 'promotion.viewer'
+                    }
+                },
+                conditions: {
+                    component: 'sw-promotion-v2-conditions',
+                    path: 'conditions',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',
                         privilege: 'promotion.viewer'

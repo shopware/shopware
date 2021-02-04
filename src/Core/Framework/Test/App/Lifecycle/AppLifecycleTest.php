@@ -102,7 +102,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals(
             base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
@@ -156,7 +156,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagAppMinimal', $apps->first()->getName());
+        static::assertEquals('minimal', $apps->first()->getName());
     }
 
     public function testInstallWithoutDescription(): void
@@ -168,7 +168,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('withoutDescription', $apps->first()->getName());
         static::assertNull($apps->first()->getDescription());
     }
 
@@ -201,7 +201,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals('Test for App System', $apps->first()->getDescription());
     }
 
@@ -214,14 +214,14 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagAppConfig', $apps->first()->getName());
+        static::assertEquals('withConfig', $apps->first()->getName());
         static::assertTrue($apps->first()->isConfigurable());
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->resetInternalSystemConfigCache();
         static::assertEquals([
-            'SwagAppConfig.config.email' => 'no-reply@shopware.de',
-        ], $systemConfigService->getDomain('SwagAppConfig.config'));
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
     }
 
     public function testInstallThrowsIfConfigContainsComponentElement(): void
@@ -350,7 +350,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals(
             base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
@@ -476,7 +476,7 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('test', $apps->first()->getName());
         static::assertEquals(
             base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
@@ -571,7 +571,7 @@ class AppLifecycleTest extends TestCase
 
         $this->appRepository->create([[
             'id' => $id,
-            'name' => 'SwagAppConfig',
+            'name' => 'withConfig',
             'path' => $path,
             'version' => '0.0.1',
             'label' => 'test',
@@ -600,8 +600,8 @@ class AppLifecycleTest extends TestCase
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->resetInternalSystemConfigCache();
         static::assertEquals([
-            'SwagAppConfig.config.email' => 'no-reply@shopware.de',
-        ], $systemConfigService->getDomain('SwagAppConfig.config'));
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
@@ -618,7 +618,7 @@ class AppLifecycleTest extends TestCase
 
         $this->appRepository->create([[
             'id' => $id,
-            'name' => 'SwagAppConfig',
+            'name' => 'withConfig',
             'path' => $path,
             'version' => '0.0.1',
             'label' => 'test',
@@ -643,14 +643,14 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set('SwagAppConfig.config.email', 'my-shop@test.com');
+        $systemConfigService->set('withConfig.config.email', 'my-shop@test.com');
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
         $this->resetInternalSystemConfigCache();
         static::assertEquals([
-            'SwagAppConfig.config.email' => 'my-shop@test.com',
-        ], $systemConfigService->getDomain('SwagAppConfig.config'));
+            'withConfig.config.email' => 'my-shop@test.com',
+        ], $systemConfigService->getDomain('withConfig.config'));
     }
 
     public function testDelete(): void

@@ -8,6 +8,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -46,25 +47,23 @@ class MailTemplateDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $fields = new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class))->setFlags(new Required()),
-            new BoolField('system_default', 'systemDefault'),
+            (new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class))->addFlags(new Required()),
+            (new BoolField('system_default', 'systemDefault'))->addFlags(new ApiAware()),
 
             // translatable fields
-            new TranslatedField('senderName'),
-            (new TranslatedField('description'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('subject'))->setFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new TranslatedField('contentHtml'),
-            new TranslatedField('contentPlain'),
-            new TranslatedField('customFields'),
+            (new TranslatedField('senderName'))->addFlags(new ApiAware()),
+            (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('subject'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('contentHtml'))->addFlags(new ApiAware()),
+            (new TranslatedField('contentPlain'))->addFlags(new ApiAware()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
-            (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))
-                ->addFlags(new Required()),
+            (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToOneAssociationField('mailTemplateType', 'mail_template_type_id', MailTemplateTypeDefinition::class, 'id'))
-                ->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))
-                ->addFlags(new CascadeDelete()),
+                ->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete()),
         ]);
 
         return $fields;

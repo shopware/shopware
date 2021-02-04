@@ -53,9 +53,9 @@ Table(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDe
    name translated
    not_null(technicalName) string
    availableEntities json
+   customFields translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
-   customFields translated
    translated json
 }
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition, "mail_template_type_translation\n((Translations))") {

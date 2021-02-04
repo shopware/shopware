@@ -1,0 +1,27 @@
+{% block page_product_detail_configurator_group_select %}
+    {% block page_product_detail_configurator_group_select_title %}
+        <label class="product-detail-configurator-group-title" for="{{ group.id }}">
+            {% block page_product_detail_configurator_group_title_text %}
+                {{ group.translated.name }}
+            {% endblock %}
+        </label>
+        {% block page_product_detail_configurator_select %}
+            <select name="{{ group.id }}" id="{{ group.id }}" class="custom-select product-detail-configurator-select-input">
+                {% for option in group.options %}
+
+                    {% set selected = false %}
+
+                    {% if option.id in page.product.optionIds %}
+                        {% set selected = true %}
+                    {% endif %}
+
+                    {% block page_product_detail_configurator_select_option %}
+                        <option value="{{ option.id }}"{% if selected %} selected="selected"{% endif %}>
+                            {{ option.translated.name }}
+                        </option>
+                    {% endblock %}
+                {% endfor %}
+            </select>
+        {% endblock %}
+    {% endblock %}
+{% endblock %}

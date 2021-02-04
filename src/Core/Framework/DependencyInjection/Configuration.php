@@ -42,6 +42,7 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->scalarNode('visibility')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
@@ -111,6 +112,11 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('api'))->getRootNode();
         $rootNode
             ->children()
+            ->arrayNode('store')
+                ->children()
+                ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                ->end()
+            ->end()
             ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()

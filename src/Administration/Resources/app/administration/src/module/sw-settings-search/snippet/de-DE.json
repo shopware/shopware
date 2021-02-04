@@ -1,0 +1,57 @@
+{
+  "sw-settings-search": {
+    "general": {
+      "mainMenuItemGeneral": "Suche",
+      "textHeadline": "Such-Einstellungen"
+    },
+    "page": {
+      "generalTab": "Allgemein",
+      "liveSearchTab": "Echtzeit-Suche"
+    },
+    "generalTab": {
+      "labelSearchBehaviour": "Such-Verhalten",
+      "textTitleSearchBehaviour": "Lege ein Such-Verhalten für Deine Storefront fest.",
+      "labelSearchAndCondition": "“UND”-Suche",
+      "textSearchAndConditionExplain": "Suchergebnisse beinhalten jeden einzelnen eingegebenen Suchbegriff. \nBeispiel: \"Jeans Sommer\" findet Produkte die beide Schlagwörter \"jeans\" und \"sommer\" enthalten.",
+      "labelSearchOrCondition": "“ODER”-Suche",
+      "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe. \nBeispiel: \"Jeans Sommer\" findet Produkte die entweder das Schlagwort \"jeans\" oder das Schlagwort \"sommer\" enthalten.",
+      "labelMinimalSearchTerm": "Minimale Suchbegrifflänge",
+      "labelSearchableContent": "Durchsuchbare Inhalte",
+      "textDescriptionSearchableContent": "Durchsuchbare Inhalte findest Du in der Tabelle hierunter. Du kannst die möglichen Suchergebnisse in Deiner Storefront anpassen, indem Du Inhalte von der Suche ausschließt, oder das Suchranking einzelner Elemente anpasst. Höher eingestufte Elemente haben einen höheren \"Suchwert\" und werden in den Suchergebnissen weiter oben angezeigt.",
+      "buttonResetDefault": "Standardwerte wiederherstellen",
+      "linkExample": "Beispiel anzeigen",
+      "buttonAddContent": "Inhalte hinzufügen",
+      "labelGeneralTab": "Allgemein",
+      "labelCustomFieldsTab": "Zusatzfelder",
+      "textEmptyStateSearchableContent": "Noch kein durchsuchbarer Inhalt hinzugefügt.",
+      "titleExampleModal": "Suchranking-Beispiel",
+      "modal": {
+        "textExplain": "Unten findest Du drei Ranking-Beispiele für die Suche nach dem Begriff \"jeans\". Durchsucht werden Produkt-Titel (Ranking-Punktzahl: 100), Produkt-Beschreibungen (Ranking-Punktzahl: 50) und Produkt-Tags (Ranking-Punktzahl: 20).",
+        "textTitle": "Titel",
+        "textSuperJeans": "super jeans",
+        "textDescription": "Beschreibung",
+        "textFancyJeans": "fancy jeans",
+        "textTag": "Tag",
+        "textJeans": "Jeans",
+        "textTotal": "Gesamtanzahl",
+        "textProductRankedFirstScore": "Im Suchranking an erster Stelle erscheint das Produkt, das einen Suchtreffer in allen drei durchsuchbaren Elementen erzielt und damit eine Ranking-Punktzahl von 170 erhält.",
+        "textFancyPants": "fancy pants",
+        "textProductRankedSecondScore": "Im Suchranking an zweiter Stelle erscheint das Produkt, das je einen Suchtreffer in Produkt-Titel und Produkt-Tags erzielt und damit eine Ranking-Punktzahl von 120 erhält.",
+        "textSuperPants": "super pants",
+        "textProductRankedThirdScore": "Im Suchranking an dritter Stelle erscheint das Produkt, das nur einen Suchtreffer in Produkt-Tags erzielt und damit eine Ranking-Punktzahl von 20 erhält."
+      }
+    },
+    "notification": {
+      "saveSuccess": "Konfiguration gespeichert.",
+      "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten."
+    },
+    "liveSearchTab": {}
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_search_config": {
+        "label": "Produkt Suche"
+      }
+    }
+  }
+}

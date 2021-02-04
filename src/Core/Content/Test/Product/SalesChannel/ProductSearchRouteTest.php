@@ -4,11 +4,17 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductSearchRouteTest extends TestCase
 {
@@ -25,10 +31,37 @@ class ProductSearchRouteTest extends TestCase
      */
     private $ids;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var SearchKeywordUpdater
+     */
+    private $searchKeywordUpdater;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var EntityRepositoryInterface
+     */
+    private $productSearchConfigRepository;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var string
+     */
+    private $productSearchConfigId;
+
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+            $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
+            $this->productSearchConfigId = $this->getProductSearchConfigId();
 
+            $this->resetSearchKeywordUpdaterConfig();
+        }
         $this->createData();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -37,10 +70,19 @@ class ProductSearchRouteTest extends TestCase
         ]);
 
         $this->setVisibilities();
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->setupProductsForImplementSearch();
+        }
     }
 
     public function testFindingProductsByTerm(): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->productSearchConfigRepository->update([
+                ['id' => $this->productSearchConfigId, 'andLogic' => false],
+            ], $this->ids->context);
+        }
+
         $this->browser->request(
             'POST',
             '/store-api/search?search=Product-Test',
@@ -59,6 +101,12 @@ class ProductSearchRouteTest extends TestCase
 
     public function testNotFindingProducts(): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->productSearchConfigRepository->update([
+                ['id' => $this->productSearchConfigId, 'andLogic' => false],
+            ], $this->ids->context);
+        }
+
         $this->browser->request(
             'POST',
             '/store-api/search?search=YAYY',
@@ -85,6 +133,206 @@ class ProductSearchRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @dataProvider searchOrCases
+     */
+    public function testSearchOr(string $term, array $expected): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], $this->ids->context);
+
+        $this->proceedTestSearch($term, $expected);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @dataProvider searchAndCases
+     */
+    public function testSearchAnd(string $term, array $expected): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10552', $this);
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => true],
+        ], $this->ids->context);
+
+        $this->proceedTestSearch($term, $expected);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    public function searchAndCases(): array
+    {
+        return [
+            [
+                'Incredible Plastic Duoflex',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                'Incredible Plastic',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                'Incredible-%Plastic     ',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                'Incredible$^%&%$&$Plastic     ',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                '(๑★ .̫ ★๑)Incredible$^%&%$&$Plastic(๑★ .̫ ★๑)     ',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                '‰€€Incredible$^%&%$&$Plastic‰€€     ',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                '³²¼¼³¬½{¬]Incredible³²¼¼³¬½{¬]$^%&%$&$Plastic     ',
+                ['Incredible Plastic Duoflex'],
+            ],
+            [
+                'astic Concrete',
+                ['Fantastic Concrete Comveyer'],
+            ],
+            [
+                'astic cop',
+                ['Rustic Copper Drastic Plastic', 'Fantastic Copper Ginger Vitro'],
+            ],
+            [
+                '9095345345',
+                [
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                'a b c d',
+                [],
+            ],
+            [
+                '@#%%#$ #$#@$ f@#$#$',
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    public function searchOrCases(): array
+    {
+        return [
+            [
+                'astic',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Concrete Comveyer',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                'Incredible Copper Vitro',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                'Incredible-Copper-Vitro',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                'Incredible%$^$%^Copper%$^$^$%^Vitro',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                '(๑★ .̫ ★๑)Incredible%$^$%^Copper%$^$^$%^Vitro‰€€',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                '‰€€Incredible%$^$%^Copper%$^$^$%^Vitro‰€€',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                '³²¼¼³¬½{¬]Incredible%$^$%^Copper%$^$^$%^Vitro‰€€³²¼¼³¬½{¬]',
+                [
+                    'Rustic Copper Drastic Plastic',
+                    'Incredible Plastic Duoflex',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                '        Fantastic            ',
+                [
+                    'Fantastic Concrete Comveyer',
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                '9095345345',
+                [
+                    'Fantastic Copper Ginger Vitro',
+                ],
+            ],
+            [
+                'a b c d',
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function proceedTestSearch(string $term, array $expected): void
+    {
+        $this->browser->request(
+            'POST',
+            '/store-api/search?search=' . $term,
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        /** @var array $entites */
+        $entites = $response['elements'];
+        $resultProductName = array_map(function ($product) {
+            return $product['name'];
+        }, $entites);
+
+        sort($expected);
+        sort($resultProductName);
+
+        static::assertEquals($expected, array_values($resultProductName));
     }
 
     private function createData(): void
@@ -156,5 +404,93 @@ class ProductSearchRouteTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->update($products, $this->ids->context);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function setupProductsForImplementSearch(): void
+    {
+        /** @var EntityRepositoryInterface $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productIds = [];
+        $productsName = [
+            'Rustic Copper Drastic Plastic',
+            'Incredible Plastic Duoflex',
+            'Fantastic Concrete Comveyer',
+            'Fantastic Copper Ginger Vitro',
+        ];
+        $productsNumber = [
+            '123123123',
+            '765752342',
+            '834157484',
+            '9095345345',
+        ];
+
+        foreach ($productsName as $index => $name) {
+            $productId = Uuid::randomHex();
+            $productIds[] = $productId;
+
+            $product = [
+                'id' => $productId,
+                'name' => $name,
+                'productNumber' => $productsNumber[$index],
+                'stock' => 1,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 19.99, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => ['id' => $productId, 'name' => 'shopware AG'],
+                'tax' => ['id' => $this->getValidTaxId(), 'name' => 'testTaxRate', 'taxRate' => 15],
+                'categories' => [
+                    ['id' => $productId, 'name' => 'Random category'],
+                ],
+                'visibilities' => [
+                    [
+                        'id' => $productId,
+                        'salesChannelId' => $this->ids->get('sales-channel'),
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ];
+
+            $productRepository->create([$product], $this->ids->context);
+        }
+        $this->searchKeywordUpdater->update($productIds, $this->ids->context);
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'minSearchLength' => 3],
+        ], $this->ids->context);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function getProductSearchConfigId(): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('languageId', $this->ids->getContext()->getLanguageId())
+        );
+
+        return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function resetSearchKeywordUpdaterConfig(): void
+    {
+        $class = new \ReflectionClass($this->searchKeywordUpdater);
+        $property = $class->getProperty('decorated');
+        $property->setAccessible(true);
+        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+
+        $class = new \ReflectionClass($searchKeywordUpdaterInner);
+        $property = $class->getProperty('config');
+        $property->setAccessible(true);
+        $property->setValue(
+            $searchKeywordUpdaterInner,
+            []
+        );
     }
 }

@@ -27,17 +27,17 @@ export default class PrivilegesService {
      * @returns {Array}
      */
     filterPrivilegesRoles(privileges) {
-        const onlyRoles = privileges.filter(privilegeKey => this._existsPrivilege(privilegeKey));
+        const onlyRoles = privileges.filter(privilegeKey => this.existsPrivilege(privilegeKey));
 
         return onlyRoles.filter((role, index) => onlyRoles.indexOf(role) === index);
     }
 
     /**
-     * @private
+     * @public
      * @param privilegeKey {String}
      * @returns {boolean}
      */
-    _existsPrivilege(privilegeKey) {
+    existsPrivilege(privilegeKey) {
         const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.some(privilegeMapping => {

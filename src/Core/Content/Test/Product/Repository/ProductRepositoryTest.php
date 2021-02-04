@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
+use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -69,12 +71,24 @@ class ProductRepositoryTest extends TestCase
      */
     private $context;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     *
+     * @var SearchKeywordUpdater
+     */
+    private $searchKeywordUpdater;
+
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product.repository');
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
+            $this->resetSearchKeywordUpdaterConfig();
+        }
     }
 
     public function testWritePrice(): void
@@ -1721,8 +1735,10 @@ class ProductRepositoryTest extends TestCase
         static::assertContains($categoryId, $categories->getIds());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('category.products.price', $parentPrice['gross']));
-        $criteria->addFilter(new EqualsFilter('category.products.parentId', null));
+        $criteria->addFilter(new AndFilter([
+            new EqualsFilter('category.products.price', $parentPrice['gross']),
+            new EqualsFilter('category.products.parentId', null),
+        ]));
 
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);
@@ -2856,6 +2872,25 @@ class ProductRepositoryTest extends TestCase
                 ],
             ],
             Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10552)
+     */
+    private function resetSearchKeywordUpdaterConfig(): void
+    {
+        $class = new \ReflectionClass($this->searchKeywordUpdater);
+        $property = $class->getProperty('decorated');
+        $property->setAccessible(true);
+        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+
+        $class = new \ReflectionClass($searchKeywordUpdaterInner);
+        $property = $class->getProperty('config');
+        $property->setAccessible(true);
+        $property->setValue(
+            $searchKeywordUpdaterInner,
+            []
         );
     }
 }

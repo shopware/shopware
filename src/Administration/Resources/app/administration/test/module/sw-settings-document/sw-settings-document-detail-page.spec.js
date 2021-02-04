@@ -90,8 +90,22 @@ const createWrapper = (customOptions, privileges = []) => {
             'sw-card': true,
             'sw-container': true,
             'sw-form-field-renderer': true,
-            'sw-checkbox-field': true,
+            'sw-checkbox-field': {
+                template: `
+                    <div class="sw-field--checkbox">
+                        <div class="sw-field--checkbox__content">
+                            <div class="sw-field__checkbox">
+                                <input type="checkbox" />
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
             'sw-entity-multi-id-select': true,
+            'sw-entity-multi-select': true,
+            'sw-select-base': true,
+            'sw-base-field': true,
+            'sw-field-error': true,
             'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
             'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] }
         },
@@ -212,6 +226,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
         expect(wrapper.find('#sw-media-field').props().disabled).toEqual(false);
@@ -295,7 +312,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         await wrapper.vm.$nextTick();
 
-        const companyFormFields = wrapper.vm.getCompanyFormFields;
+        const companyFormFields = wrapper.vm.companyFormFields;
 
         expect(
             companyFormFields.map(item => item && item.name).includes('companyPhone')
@@ -315,5 +332,31 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 }
             })
         );
+    });
+
+    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
+        const wrapper = createWrapper({}, ['document.editor']);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            isShowDisplayNoteDelivery: true,
+            documentConfig: {
+                config: {
+                    deliveryCountries: [
+                        '0110c22a5a92481aa8722a782dfc2573',
+                        '0143d24eb0264eb89cc34f50d427b828'
+                    ]
+                }
+            }
+        });
+
+        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
+            '.sw-settings-document-detail__field_additional_note_delivery input'
+        );
+
+        displayAdditionalNoteDeliveryCheckbox.setChecked();
+
+        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
+        expect(wrapper.vm.documentConfig.config.deliveryCountries.length).toEqual(2);
     });
 });

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -13,9 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -32,6 +30,9 @@ use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class AppDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app';
@@ -77,20 +78,13 @@ class AppDefinition extends EntityDefinition
             (new BoolField('configurable', 'configurable'))->addFlags(new Required()),
             new StringField('privacy', 'privacy'),
             (new StringField('version', 'version'))->addFlags(new Required()),
-            (new BlobField('icon', 'iconRaw'))
-                ->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
+            (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
-            (new StringField('app_secret', 'appSecret'))
-                ->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
-
+            (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ListField('modules', 'modules', JsonField::class),
-
             new ListField('cookies', 'cookies', JsonField::class),
 
-            (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(
-                new Required(),
-                new CascadeDelete()
-            ),
+            (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),
             new TranslatedField('description'),
             new TranslatedField('privacyPolicyExtensions'),

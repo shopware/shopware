@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>invalidManifestName</name>
+        <label>Swag App Test</label>
+        <label lang="fr-FR">Swag App Test</label>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <webhooks>
+        <webhook name="hook1" url="https://test.com/hook" event="checkout.customer.before.login"/>
+        <webhook name="hook2" url="https://test.com/hook2" event="checkout.order.placed"/>
+        <webhook name="hook3" url="https://test.com/hook3" event="product.written"/>
+        <webhook name="hook4NotAllowed" url="https://test.com/hook4" event="tax.written"/>
+    </webhooks>
+</manifest>

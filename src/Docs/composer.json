@@ -30,7 +30,7 @@
         "symfony/console": "~4.4.13",
         "symfony/dependency-injection": "~4.4.13",
         "symfony/filesystem": "~4.4.13",
-        "symfony/finder": "~4.4.13",
+        "symfony/finder": "~4.4.13 !=4.4.19",
         "symfony/http-kernel": "~4.4.13"
     }
 }

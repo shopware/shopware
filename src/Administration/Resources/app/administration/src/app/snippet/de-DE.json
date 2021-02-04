@@ -15,6 +15,7 @@
       "cancel": "Abbrechen",
       "delete": "Löschen",
       "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
       "error": "Fehler",
       "warning": "Warnung",
       "save": "Speichern",
@@ -109,7 +110,7 @@
     },
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
-      "linkMinimizeMenu": "Menü minimieren",
+      "linkMinimizeMenu": "Menü einklappen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "administrator": "Administrator",
@@ -164,6 +165,7 @@
     },
     "sw-list-price-field": {
       "labelListPriceGross": "Streichpreis (Brutto)",
+      "helpTextListPriceGross": "Streichpreise weisen auf ein preisreduziertes Produkt hin. Der Streichpreis zeigt den ursprünglichen Preis als durchgestrichenen, roten Text an. Der gültige Preis wird daneben in der Standardtextfarbe dargestellt.",
       "labelListPriceNet": "Streichpreis (Netto)"
     },
     "sw-text-editor": {
@@ -676,6 +678,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
+      "landing_page": "Landing Page",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
@@ -701,13 +704,13 @@
       "checkout_customer_logout": "Kunde meldet sich ab",
       "checkout_customer_register": "Kundenkonto wurde registriert",
       "checkout_order_placed": "Bestellung ist eingegangen",
-      "contact_form_send":  "Kontaktformular wurde verschickt",
+      "contact_form_send": "Kontaktformular wurde verschickt",
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
       "customer_recovery_request": "Kunde fordert neues Passwort an",
-      "mail_after_create_message":  "E-Mail wurde erzeugt",
+      "mail_after_create_message": "E-Mail wurde erzeugt",
       "mail_before_send": "E-Mail wird gesendet",
-      "mail_sent":  "E-Mail wurde gesendet",
+      "mail_sent": "E-Mail wurde gesendet",
       "newsletter_confirm": "Newsletteranmeldung wurde bestätigt",
       "newsletter_register": "Newsletteranmeldung wurde registriert",
       "newsletter_update": "Newsletteranmeldung wurde aktualisiert",
@@ -755,6 +758,11 @@
       "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
       "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
       "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
+    },
+    "tax-rates": {
+      "Standard rate": "Standard-Satz",
+      "Reduced rate": "Ermäßigter Satz",
+      "Reduced rate 2": "Stark ermäßigter Satz"
     }
   },
   "sw-text-editor-toolbar": {
@@ -788,6 +796,7 @@
       "blockquote": "Zitat",
       "text-color": "Textfarbe",
       "bold": "Fett",
+      "data-mapping": "Variable einfügen",
       "italic": "Kursiv",
       "underline": "Unterstrichen",
       "strikethrough": "Durchgestrichen",
@@ -892,6 +901,9 @@
   },
   "sw-image-slider": {
     "imageAlt": "Bild {index} / {total}"
+  },
+  "sw-confirm-modal": {
+    "defaultText": "Möchtest Du wirklich fortfahren?"
   },
   "sw-rule-modal": {
     "modalTitleNew": "Neue globale Regel erstellen",
@@ -1048,5 +1060,35 @@
         "error": "Keine Änderung durchgeführt."
       }
     }
+  },
+  "sw-wizard": {
+    "backButton": "Zurück",
+    "closeButton": "Schließen",
+    "finishButton": "Abschließen",
+    "nextButton": "Weiter"
+  },
+  "sw-meteor": {
+    "navigation": {
+      "backButton": "Zurück"
+    }
+  },
+  "sw-base-filter": {
+    "resetButton": "Zurücksetzen"
+  },
+  "sw-boolean-filter": {
+    "placeholder": "Alle",
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "sw-existence-filter": {
+    "placeholder": "Alle",
+    "noCriteria": "Kein {criteriaName}",
+    "hasCriteria": "Hat {criteriaName}"
+  },
+  "sw-filter-panel": {
+    "titleSidebarItemFilter": "Filter"
+  },
+  "sw-sidebar-filter-panel": {
+    "resetButton": "Alle zurücksetzen"
   }
 }

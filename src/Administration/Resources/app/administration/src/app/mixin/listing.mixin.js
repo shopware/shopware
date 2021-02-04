@@ -63,6 +63,7 @@ Mixin.register('listing', {
             if (this.disableRouteParams) {
                 return;
             }
+
             const query = this.$route.query;
 
             if (types.isEmpty(query)) {

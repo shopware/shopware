@@ -1,0 +1,24 @@
+<div class="sw-extension-my-extensions-listing">
+    <sw-loader v-if="isLoading"></sw-loader>
+
+    <div v-if="!isLoading" class="sw-extension-my-extensions-listing__listing-grid">
+
+        <sw-meteor-card v-if="!extensionList.length" class="sw-extension-my-extensions-listing__empty-state">
+            <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
+            <h3>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.titleEmptyState') }}</h3>
+            <p>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.textEmptyState') }}</p>
+            <sw-button @click="openStore" variant="ghost">
+                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
+            </sw-button>
+        </sw-meteor-card>
+
+        <template v-for="entry in extensionList">
+            <component
+                :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                :key="entry.name"
+                :extension="entry"
+                @updateList="updateList">
+            </component>
+        </template>
+    </div>
+</div>

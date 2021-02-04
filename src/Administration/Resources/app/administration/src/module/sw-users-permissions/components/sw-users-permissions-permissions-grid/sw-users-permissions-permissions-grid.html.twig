@@ -49,7 +49,7 @@
                                  :class="'sw-users-permissions-permissions-grid__role_' + role"
                                  class="sw-users-permissions-permissions-grid__checkbox-wrapper">
                                 {% block sw_users_permissions_permissions_grid_parent_roles_field %}
-                                    <sw-checkbox-field
+                                    <sw-checkbox-field v-if="parentRoleHasChildRoles(permission.value, role)"
                                         :value="areAllChildrenRolesSelected(permission.value, role)"
                                         :ghostValue="areSomeChildrenRolesSelected(permission.value, role)"
                                         @change="toggleAllChildrenWithRole(permission.value, role)"
@@ -96,10 +96,10 @@
                                         :value="isPermissionSelected(permission.key, role)"
                                         :disabled="isPermissionDisabled(permission.key, role) || disabled"
                                         v-tooltip="{
-                                        message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
-                                        disabled: !isPermissionDisabled(permission.key, role) || disabled,
-                                        showOnDisabledElements: false
-                                    }"
+                                            message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
+                                            disabled: !isPermissionDisabled(permission.key, role) || disabled,
+                                            showOnDisabledElements: false
+                                        }"
                                         @change="changePermission(permission.key, role)"
                                         type="checkbox">
                                     </sw-checkbox-field>

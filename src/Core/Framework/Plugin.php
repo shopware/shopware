@@ -96,6 +96,16 @@ abstract class Plugin extends Bundle
         return true;
     }
 
+    /**
+     * Some plugins need to provide 3rd party dependencies.
+     * If needed, return true and Shopware will execute `composer require` during the plugin installation.
+     * When the plugins gets uninstalled, Shopware executes `composer remove`
+     */
+    public function executeComposerCommands(): bool
+    {
+        return false;
+    }
+
     final public function removeMigrations(): void
     {
         // namespace should not start with `shopware`

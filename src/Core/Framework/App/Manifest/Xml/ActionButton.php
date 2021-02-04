@@ -4,8 +4,13 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ */
 class ActionButton extends XmlElement
 {
+    public const TRANSLATABLE_FIELDS = ['label'];
+
     /**
      * @var array
      */
@@ -52,7 +57,14 @@ class ActionButton extends XmlElement
     {
         $data = parent::toArray($defaultLocale);
 
-        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
+        foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {
+            $translatableField = self::kebabCaseToCamelCase($TRANSLATABLE_FIELD);
+
+            $data[$translatableField] = $this->ensureTranslationForDefaultLanguageExist(
+                $data[$translatableField],
+                $defaultLocale
+            );
+        }
 
         return $data;
     }
@@ -100,7 +112,8 @@ class ActionButton extends XmlElement
                 continue;
             }
 
-            if ($child->tagName === 'label') {
+            // translated
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

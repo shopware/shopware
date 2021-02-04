@@ -38,24 +38,24 @@ function mockMailTemplateData() {
     return [
         {
             id: 'mailTemplate1',
-            description: 'Shopware Default Template',
-            subject: 'Your order with {{ salesChannel.name }} is in process',
+            description: 'Shopware default template',
+            subject: 'Your order with {{ salesChannel.name }} is being processed.',
             mailTemplateTypeId: '5',
             mailTemplateType: {
                 id: '89',
-                name: 'Double opt in guest order',
+                name: 'Double opt-in on guest orders',
                 translated: {
-                    name: 'Double opt in guest order'
+                    name: 'Double opt-in on guest orders'
                 }
             },
             translated: {
-                description: 'Shopware Default Template'
+                description: 'Shopware default template'
             }
         },
         {
             id: 'mailTemplate2',
             description: 'Registration confirmation',
-            subject: 'Your order with {{ salesChannel.name }} is in process',
+            subject: 'Your order with {{ salesChannel.name }} is being processed.',
             mailTemplateTypeId: '5',
             mailTemplateType: {
                 id: '89',

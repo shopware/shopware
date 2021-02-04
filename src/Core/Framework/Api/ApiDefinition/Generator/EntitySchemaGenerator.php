@@ -181,11 +181,17 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 ];
 
             case $field instanceof ManyToManyAssociationField:
+                $reference = $field->getToManyReferenceDefinition();
+                $localField = $definition->getFields()->getByStorageName($field->getLocalField());
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_many',
                     'entity' => $field->getToManyReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
+                    'localField' => $localField ? $localField->getPropertyName() : null,
+                    'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
             case $field instanceof OneToOneAssociationField:

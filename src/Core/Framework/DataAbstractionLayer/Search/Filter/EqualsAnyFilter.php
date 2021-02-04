@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-class EqualsAnyFilter extends Filter
+class EqualsAnyFilter extends SingleFieldFilter
 {
     /**
      * @var string

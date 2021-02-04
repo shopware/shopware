@@ -207,11 +207,6 @@ describe('Account: Register via account menu', () => {
 
     it('@registration: Trigger validation error with account type selection', () => {
         cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10559')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_10559\' flag');
-                return;
-            }
-
             cy.authenticate().then((result) => {
                 const requestConfig = {
                     headers: {

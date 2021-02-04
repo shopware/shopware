@@ -82,25 +82,6 @@ class PaymentMethodRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
 
-    public function testAssociations(): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/payment-method',
-                [
-                    'associations' => [
-                        'availabilityRule' => [],
-                    ],
-                ]
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        static::assertSame(2, $response['total']);
-        static::assertNotEmpty($response['elements'][0]['availabilityRule']);
-    }
-
     private function createData(): void
     {
         $data = [

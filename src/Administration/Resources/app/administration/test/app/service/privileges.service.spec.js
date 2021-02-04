@@ -366,8 +366,8 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        expect(privilegesService._existsPrivilege('system.core_update')).toBeTruthy();
-        expect(privilegesService._existsPrivilege('system.not_exists')).toBeFalsy();
+        expect(privilegesService.existsPrivilege('system.core_update')).toBeTruthy();
+        expect(privilegesService.existsPrivilege('system.not_exists')).toBeFalsy();
     });
 
     it('should filter only matching privileges', async () => {

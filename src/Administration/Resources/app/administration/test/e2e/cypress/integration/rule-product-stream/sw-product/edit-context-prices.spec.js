@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -16,7 +16,7 @@ describe('Product: Editing context prices', () => {
             });
     });
 
-    it('@base @rule: creates context price rules', () => {
+    it('@base @rule @product: creates context price rules', () => {
         const page = new ProductPageObject();
         const priceGroup = '.context-price-group';
         const priceCell = '.sw-data-grid__cell--price';
@@ -56,6 +56,13 @@ describe('Product: Editing context prices', () => {
         cy.get(`${emptySelectRule}`)
             .typeSingleSelect('All customers', `${emptySelectRule}`);
 
+        // Disable list prices
+        cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
+        cy.get('.sw-context-menu__content > :nth-child(1)').should('be.visible');
+        cy.contains('Show list prices').should('be.visible');
+        cy.contains('Show list prices').click();
+        cy.get('.sw-data-grid__cell-content > .sw-context-button > .sw-button').click();
+
         // change quantityEnd of first rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
             .scrollIntoView()
@@ -71,7 +78,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .clear()
             .type(`${priceGross02EUR}{enter}`)
-            .blur();
+        .blur();
 
         // Add price link in third rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock`)
@@ -88,7 +95,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .clear()
             .type(`${priceGross11USD}{enter}`)
-            .blur();
+        .blur();
 
         // Duplicate Price Rule
         cy.get(`${priceGroup}-0 .sw-product-detail-context-prices__toolbar-duplicate`)

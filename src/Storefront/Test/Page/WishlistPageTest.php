@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Page;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,8 +25,6 @@ class WishlistPageTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 

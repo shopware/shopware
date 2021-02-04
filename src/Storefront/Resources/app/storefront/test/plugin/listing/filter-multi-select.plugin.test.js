@@ -6,6 +6,8 @@
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 
+let mockElement = null;
+
 describe('FilterMultiSelect tests', () => {
     let filterMultiSelectPlugin = undefined;
 
@@ -17,7 +19,7 @@ describe('FilterMultiSelect tests', () => {
 
         window.router = [];
 
-        const mockElement = document.createElement('div');
+        mockElement = document.createElement('div');
 
         const cmsElementProductListingWrapper = document.createElement('div');
         cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
@@ -100,5 +102,39 @@ describe('FilterMultiSelect tests', () => {
         expect(templateButton.getAttribute('disabled')).toBeNull();
         expect(templateButton.getAttribute('title')).toBeNull();
         expect(templateButton.classList.contains('disabled')).toBe(false);
+    });
+
+    test('element selection property is updated correctly when setValuesFromUrl is called', () => {
+        filterMultiSelectPlugin.selection = ['red', 'blue', 'yellow'];
+        filterMultiSelectPlugin.options.name = 'color';
+
+        filterMultiSelectPlugin.selection.forEach(color => {
+            const mockCheckedElementInput = document.createElement('Input');
+            mockCheckedElementInput.classList.add('filter-multi-select-checkbox');
+            mockCheckedElementInput.setAttribute('id', color);
+            mockCheckedElementInput.checked = true;
+
+            mockElement.appendChild(mockCheckedElementInput);
+        })
+
+        const mockUncheckElementInput = document.createElement('Input');
+        mockUncheckElementInput.classList.add('filter-multi-select-checkbox');
+        mockUncheckElementInput.setAttribute('id', 'pink');
+
+        mockElement.appendChild(mockUncheckElementInput);
+
+        expect(mockUncheckElementInput.checked).toBe(false);
+
+        filterMultiSelectPlugin.setValuesFromUrl({
+            color: 'blue|pink'
+        });
+
+        expect(mockUncheckElementInput.checked).toBe(true);
+
+        expect(document.getElementById('blue').checked).toBe(true);
+        expect(document.getElementById('red').checked).toBe(false);
+        expect(document.getElementById('yellow').checked).toBe(false);
+
+        expect(filterMultiSelectPlugin.selection.sort()).toEqual(['blue', 'pink'].sort());
     });
 });

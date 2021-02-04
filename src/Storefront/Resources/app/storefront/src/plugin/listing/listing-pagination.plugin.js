@@ -70,4 +70,16 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     getLabels() {
         return [];
     }
+
+    setValuesFromUrl(params) {
+        let stateChanged = false;
+        this.tempValue = 1;
+
+        if (params.p && parseInt(params.p) !== parseInt(this.tempValue)) {
+            this.tempValue = parseInt(params.p);
+            stateChanged = true;
+        }
+
+        return stateChanged;
+    }
 }

@@ -125,7 +125,7 @@ abstract class EntityDefinition
             $extension->extendFields($new);
 
             foreach ($new as $field) {
-                $field->addFlags(new ApiAware(), new Extension());
+                $field->addFlags(new Extension());
 
                 if ($field instanceof AssociationField) {
                     $fields->add($field);

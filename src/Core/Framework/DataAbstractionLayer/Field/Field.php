@@ -71,6 +71,9 @@ abstract class Field extends Struct
         foreach ($flags as $flag) {
             $this->flags[\get_class($flag)] = $flag;
         }
+        if (!$this->is(ApiAware::class)) {
+            $this->addFlags(new ApiAware(AdminApiSource::class));
+        }
 
         return $this;
     }

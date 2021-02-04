@@ -125,6 +125,13 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
+        // See if return to Admin was successful
+        cy.get('.sw-desktop').should('be.visible');
+
+        cy.location().should((loc) => {
+            expect(loc.hash).to.eq('#/sw/dashboard/index');
+        });
+
         // @frw in Administration: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 

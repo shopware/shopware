@@ -29,7 +29,7 @@ default:
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
-        - git -C platform checkout master
+        - git -C platform checkout trunk
         - git -C platform checkout $CI_COMMIT_SHA
         - >
             if [ "$(git ls-remote origin $CI_DEV_BRANCH | wc -l)" == 1 ]; then
@@ -44,7 +44,7 @@ default:
                 echo "Development Branch: $CI_TARGET_BRANCH_NAME (implicit by merge request target branch)";
                 git checkout $CI_TARGET_BRANCH_NAME;
               else
-                echo "Development Branch: master (fallback)";
+                echo "Development Branch: trunk (fallback)";
               fi
             fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
@@ -119,7 +119,7 @@ PHP Unit:
           - "Migration*.php"
           - "**/Migration*.php"
           - "src/Core/Framework/Resources/config/packages/shopware.yaml"
-      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(master|6\..+)$/) && $EACH_MR == "true"'
+      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/) && $EACH_MR == "true"'
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         when: manual
@@ -145,7 +145,7 @@ Javascript analysis:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
@@ -172,7 +172,7 @@ PHP analysis:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
     stage: unit
     services:
@@ -202,7 +202,7 @@ Check generated Docs:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
     stage: unit
     services:
@@ -236,7 +236,7 @@ Administration (Jest):
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - pipelines
     stage: unit
@@ -257,7 +257,7 @@ Storefront (Jest):
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - pipelines
     stage: unit
@@ -282,7 +282,7 @@ Validate snippets:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/**/snippet/**/*.json
@@ -430,7 +430,7 @@ Component Library:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Administration/**/*
@@ -460,7 +460,7 @@ Generating docs:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Docs/**/*
@@ -487,7 +487,7 @@ RIPS security:
     before_script: []
     allow_failure: true
     only:
-        - master
+        - trunk
         - schedules
     script:
         - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
@@ -501,7 +501,7 @@ Symfony security check:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
@@ -529,7 +529,7 @@ NPM security check:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
@@ -554,7 +554,7 @@ NPM security check:
     allow_failure: true
     before_script: []
     only:
-        - master
+        - trunk
         - /^6\..*$/
     dependencies:
         - PHPUnit (MySQL)
@@ -573,7 +573,7 @@ Upload Component Library:
     before_script: []
     only:
         refs:
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Administration/**/*
@@ -586,36 +586,3 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
-
-Create Major MR:
-    stage: Deploy
-    image: curlimages/curl:7.72.0
-    rules:
-    -   if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "master"'
-    allow_failure: true
-    variables:
-        GIT_STRATEGY: none
-    before_script: []
-    script:
-        - >
-            CI_NEW_MASTER_MAJOR_BRANCH=master-for-major-$(echo $CI_COMMIT_TIMESTAMP | grep -oE '(^[^:]*)');
-            X_TOTAL=$(curl -I --header "Private-Token: $CREATE_MR_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/?state=opened&labels=Update%20Major" | grep 'x-total:');
-            if [ "$X_TOTAL" == "x-total: 0" ]; then
-                echo "There is no open merge request to major branch. Will create one";
-                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
-                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
-                echo "Create MR with Data:";
-                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
-                echo $DATA;
-                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
-                echo "MR Created";
-            else
-                echo "There is already an open merge request for master to major:"$X_TOTAL;
-                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
-                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
-                echo "Create MR in development with Data:";
-                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "WIP: [CI] Update major - '$CI_COMMIT_TIMESTAMP'", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::development", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
-                echo $DATA;
-                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
-                echo "MR Created";
-            fi

@@ -16,15 +16,9 @@ class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractProductListRoute
-     */
-    private $productListRoute;
+    private AbstractProductListRoute $productListRoute;
 
     public function __construct(
         AbstractProductListRoute $productListRoute,
@@ -39,6 +33,7 @@ class GuestWishlistPageletLoader
         $page = new GuestWishlistPagelet();
 
         $criteria = $this->createCriteria($request);
+        $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
 
         if (empty($criteria->getIds())) {
             $response = new ProductListResponse(new EntitySearchResult(
@@ -69,7 +64,7 @@ class GuestWishlistPageletLoader
             throw new \InvalidArgumentException('Argument $productIds is not an array');
         }
 
-        $productIds = array_filter($productIds, function ($productId) {
+        $productIds = array_filter($productIds, static function ($productId) {
             return Uuid::isValid($productId);
         });
 

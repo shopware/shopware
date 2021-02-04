@@ -26,20 +26,11 @@ class WishlistPageLoader
 
     private const DEFAULT_PAGE = 1;
 
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractLoadWishlistRoute
-     */
-    private $wishlistLoadRoute;
+    private AbstractLoadWishlistRoute $wishlistLoadRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
@@ -60,6 +51,7 @@ class WishlistPageLoader
     public function load(Request $request, SalesChannelContext $context, CustomerEntity $customer): WishlistPage
     {
         $criteria = $this->createCriteria($request);
+        $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
 
         $page = $this->genericLoader->load($request, $context);
         $page = WishlistPage::createFrom($page);

@@ -326,7 +326,7 @@ E2E:
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
         # TODO: fix api prefix
-        - npm i @shopware-ag/e2e-testsuite-platform@2.0.0-alpha.0 --prefix $E2E_BASE_PATH
+        - npm i git://github.com/pweyck/e2e-testsuite-platform#test --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"

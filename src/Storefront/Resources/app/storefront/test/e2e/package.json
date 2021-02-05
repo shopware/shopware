@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "2.0.0-alpha.0",
+    "@shopware-ag/e2e-testsuite-platform": "git://github.com/pweyck/e2e-testsuite-platform#test",
     "cypress-multi-reporters": "^1.2.3",
     "mocha": "^7.0.0",
     "mochawesome": "^4.1.0",

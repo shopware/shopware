@@ -141,4 +141,36 @@ class CustomerRepositoryTest extends TestCase
             $result->getDataFieldOfId($recordC, '_score')
         );
     }
+
+    public function testDeleteCustomerWithTags(): void
+    {
+        $customerId = Uuid::randomHex();
+        $salutation = $this->getValidSalutationId();
+        $this->repository->create([
+            [
+                'id' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'firstName' => 'not',
+                    'lastName' => 'not',
+                    'city' => 'not',
+                    'street' => 'not',
+                    'zipcode' => 'not',
+                    'salutationId' => $salutation,
+                    'country' => ['name' => 'not'],
+                ],
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => 'test@example.com',
+                'password' => 'not',
+                'lastName' => 'not',
+                'firstName' => 'test',
+                'salutationId' => $salutation,
+                'customerNumber' => 'not',
+                'tags' => [['name' => 'testTag']],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->repository->delete([['id' => $customerId]], Context::createDefaultContext());
+    }
 }

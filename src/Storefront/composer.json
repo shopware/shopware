@@ -14,11 +14,13 @@
     "config": {
         "platform": {
             "php": "7.4.0"
-        }
+        },
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.4.x-dev"
+            "dev-master": "6.4.x-dev",
+            "dev-trunk": "6.4.x-dev"
         }
     },
     "require": {

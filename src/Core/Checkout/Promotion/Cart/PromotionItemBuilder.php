@@ -33,7 +33,7 @@ class PromotionItemBuilder
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      */
-    public function buildPlaceholderItem(string $code, int $currencyPrecision): LineItem
+    public function buildPlaceholderItem(string $code): LineItem
     {
         // void duplicate codes with other items
         // that might not be from the promotion scope
@@ -48,7 +48,7 @@ class PromotionItemBuilder
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing
-        $item->setPriceDefinition(new PercentagePriceDefinition(0, $currencyPrecision));
+        $item->setPriceDefinition(new PercentagePriceDefinition(0));
 
         return $item;
     }
@@ -61,7 +61,7 @@ class PromotionItemBuilder
      * @throws InvalidQuantityException
      * @throws UnknownPromotionDiscountTypeException
      */
-    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, string $currencyId, float $currencyFactor = 1.0): LineItem
+    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
     {
         //get the rules collection of discount
         $discountRuleCollection = $discount->getDiscountRules();
@@ -92,19 +92,19 @@ class PromotionItemBuilder
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 $promotionValue = -$this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId, $currencyFactor);
-                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId, $currencyFactor));
-                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 

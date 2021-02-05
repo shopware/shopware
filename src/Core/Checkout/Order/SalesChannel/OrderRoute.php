@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
-use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -37,29 +35,15 @@ class OrderRoute extends AbstractOrderRoute
     private $orderRepository;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    /**
-     * @var OrderDefinition
-     */
-    private $orderDefinition;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $promotionRepository;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
-        OrderDefinition $salesChannelOrderDefinition,
         EntityRepositoryInterface $promotionRepository
     ) {
         $this->orderRepository = $orderRepository;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
-        $this->orderDefinition = $salesChannelOrderDefinition;
         $this->promotionRepository = $promotionRepository;
     }
 
@@ -89,15 +73,10 @@ class OrderRoute extends AbstractOrderRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/order_flat"))
      *     )
      * )
-     * @Route(path="/store-api/v{version}/order", name="store-api.order", methods={"GET", "POST"})
+     * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): OrderRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->orderDefinition, $context->getContext());
-        }
-
         $criteria->addFilter(new EqualsFilter('order.salesChannelId', $context->getSalesChannel()->getId()));
 
         $criteria->getAssociation('documents')

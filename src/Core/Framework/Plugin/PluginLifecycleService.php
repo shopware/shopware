@@ -238,8 +238,6 @@ class PluginLifecycleService
             $this->shopwareVersion,
             $plugin->getVersion(),
             $this->createMigrationCollection($pluginBaseClass),
-            $keepUserData,
-            /* @deprecated tag:v6.4.0 */
             $keepUserData
         );
         $uninstallContext->setAutoMigrate(false);
@@ -249,7 +247,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
-        if (!$uninstallContext->keepMigrations()) {
+        if (!$uninstallContext->keepUserData()) {
             $pluginBaseClass->removeMigrations();
         }
 

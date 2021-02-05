@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
+Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
    primary_key(id) id
    not_null(name) string
    not_null(path) string
@@ -56,7 +56,7 @@ TranslationTable(ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDe
    primary_key(appId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition, "app_action_button\n(App action buttons)") {
+Table(ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition, "app_action_button\n(__EMPTY__)") {
    primary_key(id) id
    not_null(entity) string
    not_null(view) string
@@ -76,7 +76,7 @@ TranslationTable(ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionB
    primary_key(appActionButtonId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareCoreFrameworkAppTemplateTemplateDefinition, "app_template\n(App templates)") {
+Table(ShopwareCoreFrameworkAppTemplateTemplateDefinition, "app_template\n(__EMPTY__)") {
    primary_key(id) id
    not_null(template) longText
    not_null(path) string

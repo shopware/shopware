@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Sync;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionNotAllowedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -160,7 +159,7 @@ class SyncService implements SyncServiceInterface
 
         foreach ($records as $index => $record) {
             try {
-                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
+                $record = $this->convertToApiVersion($record, $definition, $index);
 
                 $result = $repository->upsert([$record], $context);
                 $results[$index] = [
@@ -196,7 +195,7 @@ class SyncService implements SyncServiceInterface
 
         foreach ($records as $index => $record) {
             try {
-                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
+                $record = $this->convertToApiVersion($record, $definition, $index);
 
                 $result = $repository->delete([$record], $context);
                 $results[$index] = [
@@ -220,16 +219,11 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function convertToApiVersion(array $record, EntityDefinition $definition, int $apiVersion, int $writeIndex)
+    private function convertToApiVersion(array $record, EntityDefinition $definition, int $writeIndex): array
     {
         $exception = new ApiConversionException();
 
-        if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
-            $exception->add(new ApiConversionNotAllowedException($definition->getEntityName(), $apiVersion), "/${writeIndex}");
-            $exception->tryToThrow();
-        }
-
-        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
+        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $exception, "/${writeIndex}");
         $exception->tryToThrow();
 
         return $converted;
@@ -240,7 +234,10 @@ class SyncService implements SyncServiceInterface
         if ($exception instanceof WriteException) {
             foreach ($exception->getExceptions() as $innerException) {
                 if ($innerException instanceof WriteConstraintViolationException) {
-                    $innerException->setPath(preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath()));
+                    $path = preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath());
+                    if ($path !== null) {
+                        $innerException->setPath($path);
+                    }
                 }
             }
 
@@ -252,14 +249,19 @@ class SyncService implements SyncServiceInterface
 
     private function getWrittenEntities(?EntityWrittenContainerEvent $result): array
     {
-        if (!$result) {
+        if ($result === null) {
             return [];
         }
 
         $entities = [];
 
+        $events = $result->getEvents();
+        if ($events === null) {
+            return [];
+        }
+
         /** @var EntityWrittenEvent $event */
-        foreach ($result->getEvents() as $event) {
+        foreach ($events as $event) {
             $entity = $event->getEntityName();
 
             if (!isset($entities[$entity])) {

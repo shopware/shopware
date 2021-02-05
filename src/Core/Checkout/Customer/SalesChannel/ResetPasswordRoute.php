@@ -103,7 +103,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
      *          description=""
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
+     * @Route(path="/store-api/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
      */
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {

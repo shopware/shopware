@@ -58,7 +58,7 @@ class ErrorPageTest extends TestCase
         $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $this->errorLayoutId = $this->createPage();
-        $this->systemConfigService->set('core.basicInformation.404Page', $this->errorLayoutId);
+        $this->systemConfigService->set('core.basicInformation.http404Page', $this->errorLayoutId);
     }
 
     public function testItDoesLoad404CmsLayoutPageIn404Case(): void

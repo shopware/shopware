@@ -37,10 +37,7 @@ class AdminOrderCartService
         return $this->cartService->recalculate($cart, $context);
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - $salesChannelId will be required
-     */
-    public function addPermission(string $token, string $permission, ?string $salesChannelId = null): void
+    public function addPermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);
 
@@ -52,10 +49,7 @@ class AdminOrderCartService
         $this->contextPersister->save($token, $payload, $salesChannelId);
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - $salesChannelId will be required
-     */
-    public function deletePermission(string $token, string $permission, ?string $salesChannelId = null): void
+    public function deletePermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);
         $payload[SalesChannelContextService::PERMISSIONS][$permission] = false;

@@ -1,0 +1,17 @@
+/*
+Shipping method
+==============================================
+Custom styling for shipping form used e.g. on account and checkout pages.
+*/
+
+.shipping-method-description > p {
+    color: $border-color;
+}
+
+.shipping-method-image {
+    max-height: 24px;
+    max-width: 100%;
+    margin-right: $spacer-xs;
+    margin-left: $spacer-xs;
+    float: right;
+}

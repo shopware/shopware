@@ -1,6 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import 'src/app/mixin/notification.mixin';
 import 'src/module/sw-cms/component/sw-cms-layout-assignment-modal';

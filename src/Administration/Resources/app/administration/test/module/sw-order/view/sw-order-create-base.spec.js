@@ -36,6 +36,11 @@ function createWrapper() {
             'sw-order-line-items-grid-sales-channel': true,
             'sw-switch-field': true
         },
+        provide: {
+            feature: {
+                isActive: () => true
+            }
+        },
         mocks: {
             $tc: v => v,
             $store: Shopware.State._store
@@ -160,7 +165,7 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountTotal');
-        expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountGrandTotal');
+        expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmount');
     });
 
     it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {

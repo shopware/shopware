@@ -15,22 +15,16 @@ class OrderRouteResponse extends StoreApiResponse
     protected $object;
 
     /**
-     * @var array
+     * @var array<string, bool>
      */
     protected $paymentChangeable = [];
 
-    /**
-     * @deprecated tag:v6.4.0 - Use `getPaymentsChangeable` and `getOrders`
-     */
     public function getObject(): Struct
     {
-        return new OrderRouteResponseStruct($this->object, $this->paymentChangeable);
-
-        // @deprecated tag:v6.4.0 - `OrderRouteResponseStruct` will be removed
-//        return new ArrayStruct([
-//            'orders' => $this->object,
-//            'paymentChangeable' => $this->paymentChangeable
-//        ], 'order-route-response-struct');
+        return new ArrayStruct([
+            'orders' => $this->object,
+            'paymentChangeable' => $this->paymentChangeable,
+        ], 'order-route-response-struct');
     }
 
     public function getOrders(): EntitySearchResult

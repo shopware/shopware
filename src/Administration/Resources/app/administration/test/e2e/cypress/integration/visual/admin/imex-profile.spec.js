@@ -22,15 +22,14 @@ describe('Import/Export - Profiles:  Visual tests', () => {
     it('@visual: check appearance of basic im/ex profile workflow', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/import-export-profile',
+            url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'post'
         }).as('saveData');
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Import export - Profiles overview',
-            '.sw-import-export-view-profiles__listing'
-        );
+            '.sw-import-export-view-profiles__listing');
 
         // Perform create new profile action
         cy.get('.sw-import-export-view-profiles__create-action').click();

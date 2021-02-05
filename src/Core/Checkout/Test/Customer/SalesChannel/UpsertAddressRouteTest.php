@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class UpsertAddressRouteTest extends TestCase
 {
@@ -54,7 +53,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -81,7 +80,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address',
+                '/store-api/account/address',
                 $data
             );
 
@@ -107,7 +106,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address',
+                '/store-api/account/address',
                 []
             );
 
@@ -122,7 +121,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 []
             );
 
@@ -132,7 +131,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/list-address',
+                '/store-api/account/list-address',
                 [
                 ]
             );
@@ -144,7 +143,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'PATCH',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address/' . $addressId,
+                '/store-api/account/address/' . $addressId,
                 $address
             );
 
@@ -155,7 +154,7 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/list-address',
+                '/store-api/account/list-address',
                 [
                 ]
             );

@@ -11,8 +11,6 @@
         {% if showFormCompany %}
             {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
                 {% set accountTypeRequired = true %}
-                {# @deprecated tag:v6.4.0 - Variable "accounTypeRequired" will be removed. Use "accountTypeRequired" instead #}
-                {% set accounTypeRequired = true %}
             {% endif %}
 
             {% if shopware.config.core.loginRegistration.showAccountTypeSelection or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}

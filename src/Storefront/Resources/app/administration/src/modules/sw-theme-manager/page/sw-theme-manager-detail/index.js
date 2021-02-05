@@ -1,10 +1,7 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-/** @deprecated tag:v6.4.0 - use Shopware.Application instead */
-// eslint-disable-next-line no-unused-vars
-const { Application } = Shopware;
+const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
@@ -88,10 +85,6 @@ Component.register('sw-theme-manager-detail', {
             };
         },
 
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
         themeId() {
             return this.$route.params.id;
         },
@@ -156,11 +149,6 @@ Component.register('sw-theme-manager-detail', {
                 this.structuredThemeFields = fields;
             });
 
-            /** @deprecated tag:v6.4.0 */
-            this.themeService.getFields(this.themeId).then((fields) => {
-                this.themeFields = fields;
-            });
-
             this.themeService.getConfiguration(this.themeId).then((config) => {
                 this.themeConfig = config.fields;
                 this.baseThemeConfig = cloneDeep(config.fields);
@@ -197,10 +185,12 @@ Component.register('sw-theme-manager-detail', {
         },
 
         successfulUpload(mediaItem, context) {
-            this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
-                this.setMediaItem(media, context);
-                return true;
-            });
+            this.mediaRepository
+                .get(mediaItem.targetId, Shopware.Context.api)
+                .then((media) => {
+                    this.setMediaItem(media, context);
+                    return true;
+                });
         },
 
         removeMediaItem(field) {

@@ -50,6 +50,21 @@ class ShippingMethodCollection extends EntityCollection
         return new ShippingMethodPriceCollection($prices);
     }
 
+    /**
+     * Sorts the selected shipping method first
+     * If a different default shipping method is defined, it will be sorted second
+     * All other shipping methods keep their respective sorting
+     */
+    public function sortShippingMethodsByPreference(SalesChannelContext $context): void
+    {
+        $ids = array_merge(
+            [$context->getShippingMethod()->getId(), $context->getSalesChannel()->getShippingMethodId()],
+            $this->getIds()
+        );
+
+        $this->sortByIdArray($ids);
+    }
+
     public function getApiAlias(): string
     {
         return 'shipping_method_collection';

@@ -7,6 +7,7 @@
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
+                      class="sw-price-field__gross" {# TODO: check selectors #}
                       :allowEmpty="allowEmpty"
                       :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
                       :label="labelGross"
@@ -14,10 +15,9 @@
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
-                      class="sw-price-field-gross"
-                      :digits="currency.decimalPrecision"
+                      :digits="20"
                       :error="grossError"
-                      @input-change="onPriceGrossChange"
+                      @change="onPriceGrossChange"
                       :disabled="isDisabled"
                       :name="grossFieldName"
                       v-bind="$attrs"
@@ -43,6 +43,7 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
+                      class="sw-price-field__net" {# TODO: check selectors #}
                       :allowEmpty="allowEmpty"
                       :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
                       :label="labelNet"
@@ -50,9 +51,8 @@
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
-                      class="sw-price-field-net"
-                      @input-change="onPriceNetChange"
-                      :digits="currency.decimalPrecision"
+                      @change="onPriceNetChange"
+                      :digits="20"
                       :error="netError"
                       :disabled="isInherited || disabled"
                       :name="netFieldName"

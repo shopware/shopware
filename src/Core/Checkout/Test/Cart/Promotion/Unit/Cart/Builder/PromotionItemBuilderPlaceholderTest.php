@@ -20,7 +20,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildPlaceholderItem('CODE-123', 1);
+        $item = $builder->buildPlaceholderItem('CODE-123');
 
         static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
@@ -37,9 +37,9 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildPlaceholderItem('CODE-123', 1);
+        $item = $builder->buildPlaceholderItem('CODE-123');
 
-        $expectedPriceDefinition = new PercentagePriceDefinition(0, 1);
+        $expectedPriceDefinition = new PercentagePriceDefinition(0);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -57,7 +57,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildPlaceholderItem('CODE-123', 1);
+        $item = $builder->buildPlaceholderItem('CODE-123');
 
         static::assertEquals('CODE-123', $item->getReferencedId());
     }
@@ -75,7 +75,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildPlaceholderItem('CODE-123', 1);
+        $item = $builder->buildPlaceholderItem('CODE-123');
 
         static::assertEquals('promotion-CODE-123', $item->getId());
     }

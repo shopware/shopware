@@ -160,14 +160,14 @@ class AuthController extends StorefrontController
      * @Since("6.0.0.0")
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */
-    public function logout(Request $request, SalesChannelContext $context): Response
+    public function logout(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
         if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.account.login.page');
         }
 
         try {
-            $this->logoutRoute->logout($context);
+            $this->logoutRoute->logout($context, $dataBag);
             $salesChannelId = $context->getSalesChannel()->getId();
             if ($request->hasSession() && $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
                 $request->getSession()->invalidate();

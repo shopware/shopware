@@ -82,13 +82,19 @@ parameters:
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
-             message: '#Unsafe usage of new static\(\)#'
-             path: src/Core/Framework/Struct/Collection.php
+            message: '#Unsafe usage of new static\(\)#'
+            path: src/Core/Framework/Struct/Collection.php
+        # Must be fixed with a custom rule
+        - '#Cannot call method fetch.*\(\) on Doctrine\\DBAL\\Driver\\Statement\|int#'
+        # We know that the fields exists
+        -
+            message: '#Parameter \#2 \$field of method Shopware\\Elasticsearch\\Framework\\Indexing\\EntityMapper::mapField\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field, Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field\|null given#'
+            path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
         # Exception for CopyBatch file system plugin. It is called via magic method
         - '#Call to an undefined method League\\Flysystem\\FilesystemInterface::copyBatch\(\)\.#'
         -
-             message: '#Access to private property#'
-             path: src/Core/Framework/Api/Controller/CacheController.php
+            message: '#Access to private property#'
+            path: src/Core/Framework/Api/Controller/CacheController.php
         # Invalid phpdoc in OpenAPI Library
         -
              message: '#Strict comparison using#'
@@ -108,6 +114,9 @@ parameters:
 
         # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
         -
+            message: '#Strict comparison using#'
+            path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        -
             message: "#^Parameter \\#1 \\$data of class Swift_Attachment constructor expects string\\|Swift_OutputByteStream\\|null, string\\|false given\\.$#"
             count: 1
             path: src/Core/Content/Mail/Service/MailFactory.php
@@ -117,6 +126,9 @@ parameters:
             message: "#^Parameter \\#3 \\$contentType of class Swift_Attachment constructor expects string\\|null, string\\|false given\\.$#"
             count: 1
             path: src/Core/Content/Mail/Service/MailFactory.php
+        -
+            message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
+            path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
 
 services:
     -

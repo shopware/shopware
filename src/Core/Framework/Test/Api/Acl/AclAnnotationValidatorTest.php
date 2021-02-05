@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
+use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -45,7 +46,7 @@ class AclAnnotationValidatorTest extends TestCase
         $exception = null;
 
         try {
-            $validator->validate(new ControllerEvent($kernel, 'Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController::testRoute', $request, 1));
+            $validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
         } catch (\Exception $e) {
             $exception = $e;
         }

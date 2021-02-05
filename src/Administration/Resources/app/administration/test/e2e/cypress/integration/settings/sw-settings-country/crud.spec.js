@@ -22,7 +22,7 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/country',
+            url: `${Cypress.env('apiPath')}/country`,
             method: 'post'
         }).as('saveData');
 
@@ -59,7 +59,7 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/country/*',
+            url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -87,7 +87,7 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/country/*',
+            url: `${Cypress.env('apiPath')}/country/*`,
             method: 'delete'
         }).as('deleteData');
 

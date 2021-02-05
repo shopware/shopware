@@ -24,7 +24,7 @@ describe('Product: Edit in various ways', () => {
     it('@catalogue: set list price', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/product',
+            url: '/api/search/product',
             method: 'post'
         }).as('saveProduct');
 

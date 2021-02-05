@@ -20,7 +20,7 @@ stages:
 #    -   local: .gitlab/ci/split.yml
 
 default:
-    image: shopware/development:latest
+    image: shopware/development:7.4
     before_script:
         - apt-install jq
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
@@ -127,23 +127,17 @@ PHP Unit:
     parallel:
         matrix:
             -   EACH_MR: 'true'
-                MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "minor", "major"]
-            -   MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE:
-                    - shopware/development:7.3
-                    - shopware/development:7.4
+                MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
-                    - mariadb:10.4
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -159,17 +153,15 @@ Javascript analysis:
     timeout: 1h 00m
     before_script: []
     script:
-        - cd src/Administration/Resources
+        - cd src/Administration/Resources/app/administration
         - npm clean-install
-        - npm run lerna -- bootstrap
-        - cd app/administration
-        - PROJECT_ROOT=$(pwd) npm run lint:junit
+        - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
     artifacts:
         reports:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
-    image: shopware/development:7.2
+    image: shopware/development:7.4
     cache:
         key: "${CI_JOB_NAME}_2"
         paths:
@@ -333,7 +325,8 @@ E2E:
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.2 --prefix $E2E_BASE_PATH
+        # TODO: use proper release
+        - npm i git://github.com/shopware/e2e-testsuite-platform#2.x --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"
@@ -403,15 +396,27 @@ E2E:
                 cypress_usePercy: 'false'
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
-                BROWSER: ['firefox', 'chrome']
+                BROWSER: ['chrome']
+                FEATURE_ALL: ["false", "minor", "major"]
+                cypress_usePercy: 'false'
+            -   SECTION: 'Storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+                cypress_usePercy: 'false'
+            -   SECTION: 'Administration'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
                     - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
                     - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
-                BROWSER: ['firefox', 'chrome']
-                FEATURE_ALL: ["false", "minor", "major"]
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY: "cypress/integration/visual/**/*"
@@ -441,8 +446,7 @@ Component Library:
         name: Component Library
         url: https://component-library.shopware.com
     script:
-        - npm install --prefix src/Administration/Resources/
-        - npm run --prefix src/Administration/Resources lerna -- bootstrap
+        - npm install --prefix src/Administration/Resources/app/administration
         - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
         - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
         - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
@@ -479,7 +483,7 @@ Generating docs:
 
 RIPS security:
     stage: Security
-    image: php:7.3-alpine
+    image: php:7.4-alpine
     before_script: []
     allow_failure: true
     only:
@@ -501,7 +505,7 @@ Symfony security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
+    image: shopware/development:7.4
     variables:
         PLATFORM_PACKAGES: ". src/Core src/Administration src/Docs src/Elasticsearch src/Recovery src/Storefront"
     script:
@@ -529,7 +533,7 @@ NPM security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
+    image: shopware/development:7.4
     before_script: []
     allow_failure: true
     script:
@@ -546,7 +550,7 @@ NPM security check:
 
 .Scrutinizer:
     stage: Deploy
-    image: php:7.3-alpine
+    image: php:7.4-alpine
     allow_failure: true
     before_script: []
     only:

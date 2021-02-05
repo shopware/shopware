@@ -136,7 +136,7 @@ class TranslationTest extends TestCase
 
     public function testEmptyLanguageIdError(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $headerName = $this->getLangHeaderName();
         $langId = '';
 
@@ -150,7 +150,7 @@ class TranslationTest extends TestCase
 
     public function testInvalidUuidLanguageIdError(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $headerName = $this->getLangHeaderName();
         $langId = 'foobar';
 
@@ -172,7 +172,7 @@ class TranslationTest extends TestCase
 
     public function testNonExistingLanguageIdError(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $headerName = $this->getLangHeaderName();
         $langId = Uuid::randomHex();
 
@@ -315,7 +315,7 @@ class TranslationTest extends TestCase
 
     public function testWithOverrideInPatch(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/locale';
+        $baseResource = '/api/locale';
         $id = Uuid::randomHex();
         $langId = Uuid::randomHex();
 
@@ -357,7 +357,7 @@ class TranslationTest extends TestCase
 
     public function testDelete(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $id = Uuid::randomHex();
         $langId = Uuid::randomHex();
 
@@ -403,7 +403,7 @@ class TranslationTest extends TestCase
 
     public function testDeleteSystemLanguageViolation(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $id = Uuid::randomHex();
 
         $categoryData = [
@@ -433,7 +433,7 @@ class TranslationTest extends TestCase
          * This works because the dal does not generate a `DeleteCommand` for the `CategoryTranslation`.
          * The translation is delete by the foreign key delete cascade.
          */
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $id = Uuid::randomHex();
         $rootId = Uuid::randomHex();
 
@@ -459,7 +459,7 @@ class TranslationTest extends TestCase
 
     public function testDeleteNonSystemRootTranslations(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $id = Uuid::randomHex();
         $rootDelete = Uuid::randomHex();
         $this->createLanguage($rootDelete);
@@ -484,7 +484,7 @@ class TranslationTest extends TestCase
 
     public function testDeleteChildLanguageTranslation(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $id = Uuid::randomHex();
         $rootId = Uuid::randomHex();
         $childId = Uuid::randomHex();
@@ -512,7 +512,7 @@ class TranslationTest extends TestCase
 
     public function testMixedTranslationStatus(): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
         $rootLangId = Uuid::randomHex();
         $childLangId = Uuid::randomHex();
         $this->createLanguage($childLangId, $rootLangId);
@@ -574,7 +574,7 @@ class TranslationTest extends TestCase
 
     private function assertTranslationError(array $errors, array $data): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
 
         $categoryData = [
             'id' => Uuid::randomHex(),
@@ -606,7 +606,7 @@ class TranslationTest extends TestCase
 
     private function assertTranslation(array $expectedTranslations, array $data, ?string $langOverride = null, string $entity = 'category'): void
     {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/' . $entity;
+        $baseResource = '/api/' . $entity;
 
         $requestData = $data;
         if (!isset($requestData['id'])) {
@@ -638,7 +638,7 @@ class TranslationTest extends TestCase
 
     private function createLanguage(string $langId, ?string $fallbackId = null): void
     {
-        $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
+        $baseUrl = '/api';
 
         if ($fallbackId) {
             $fallbackLocaleId = Uuid::randomHex();

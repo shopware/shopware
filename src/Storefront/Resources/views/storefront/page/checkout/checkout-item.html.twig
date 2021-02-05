@@ -120,9 +120,6 @@
                                                     {% endif %}
                                                 {% endblock %}
 
-                                                {# @deprecated tag:v6.4.0.0 #}
-                                                {% block page_checkout_item_info_variants %}{% endblock %}
-
                                                 {% block page_checkout_item_info_ordernumber %}
                                                     {% if lineItem.payload.productNumber %}
                                                         <div class="cart-item-ordernumber">

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-media-add-thumbnail-form-lock-color-default: $color-gutenberg;
-$sw-media-add-thumbnail-form-lock-color-locked: $color-shopware-blue;
+$sw-media-add-thumbnail-form-lock-color-default: $color-darkgray-200;
+$sw-media-add-thumbnail-form-lock-color-locked: $color-shopware-brand-500;
 
 .sw-media-add-thumbnail-form {
     display: grid;

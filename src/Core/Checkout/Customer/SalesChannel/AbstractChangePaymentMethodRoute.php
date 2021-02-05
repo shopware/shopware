@@ -14,8 +14,5 @@ abstract class AbstractChangePaymentMethodRoute
 {
     abstract public function getDecorated(): AbstractChangePaymentMethodRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
-     */
-    abstract public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context/*, CustomerEntity $customer*/): SuccessResponse;
+    abstract public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse;
 }

@@ -15,6 +15,7 @@ class CartPriceField extends JsonField
             (new JsonField('calculatedTaxes', 'calculatedTaxes'))->addFlags(new Required()),
             (new JsonField('taxRules', 'taxRules'))->addFlags(new Required()),
             (new FloatField('positionPrice', 'positionPrice'))->addFlags(new Required()),
+            (new FloatField('rawTotal', 'rawTotal'))->setFlags(new Required()),
             (new StringField('taxStatus', 'taxStatus'))->addFlags(new Required()),
         ];
 

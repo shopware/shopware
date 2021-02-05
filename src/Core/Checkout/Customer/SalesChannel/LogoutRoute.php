@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -73,22 +74,24 @@ class LogoutRoute extends AbstractLogoutRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/logout", name="store-api.account.logout", methods={"POST"})
+     * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"})
      */
-    public function logout(SalesChannelContext $context, ?RequestDataBag $data = null): ContextTokenResponse
+    public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
+        /** @var CustomerEntity $customer */
+        $customer = $context->getCustomer();
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken());
 
-            $event = new CustomerLogoutEvent($context, $context->getCustomer());
+            $event = new CustomerLogoutEvent($context, $customer);
             $this->eventDispatcher->dispatch($event);
 
             return new ContextTokenResponse($context->getToken());
         }
 
         $newToken = Random::getAlphanumericString(32);
-        if ($data && (bool) $data->get('replace-token')) {
+        if ((bool) $data->get('replace-token')) {
             $newToken = $this->contextPersister->replace($context->getToken(), $context);
         }
 
@@ -96,7 +99,7 @@ class LogoutRoute extends AbstractLogoutRoute
             'token' => $newToken,
         ]);
 
-        $event = new CustomerLogoutEvent($context, $context->getCustomer());
+        $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);
 
         return new ContextTokenResponse($context->getToken());

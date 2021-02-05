@@ -1,5 +1,3 @@
-import SettingsPageObject from '../../support/pages/module/sw-settings.page-object';
-
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb().then(() => {
@@ -14,7 +12,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
     it('@visual: check appearance of basic im/ex profile workflow', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/import-export-profile',
+            url: '/api/import-export-profile',
             method: 'post'
         }).as('saveData');
 

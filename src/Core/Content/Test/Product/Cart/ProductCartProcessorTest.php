@@ -156,7 +156,7 @@ class ProductCartProcessorTest extends TestCase
         $token = $this->ids->create('token');
         /** @var SalesChannelContextService $salesChannelContextService */
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token);
+        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY);
         /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
@@ -173,7 +173,6 @@ class ProductCartProcessorTest extends TestCase
         );
 
         $payload = $cart->get($product->getId())->getPayload();
-        static::assertEquals(7.5, $payload['purchasePrice']);
         $purchasePrices = json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
@@ -604,7 +603,6 @@ class ProductCartProcessorTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
-            'purchasePrice' => 7.5,
             'purchasePrices' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
                 ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],

@@ -150,17 +150,6 @@ class Feature
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.4.0.0 Use `Feature::resetRegisteredFeatures` and `Feature::registerFeatures`
-     */
-    public static function setRegisteredFeatures(iterable $registeredFeatures, ?string $dumpPath = null): void
-    {
-        self::resetRegisteredFeatures();
-        self::registerFeatures($registeredFeatures, $dumpPath);
-    }
-
-    /**
-     * @internal
      */
     public static function resetRegisteredFeatures(): void
     {

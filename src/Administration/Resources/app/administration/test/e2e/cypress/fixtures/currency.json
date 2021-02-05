@@ -4,5 +4,14 @@
   "name": "ZZ Yen",
   "factor": "01",
   "symbol": "¥",
-  "decimalPrecision": 2
+  "totalRounding": {
+    "decimals": 2,
+    "interval": 0.01,
+    "roundForNet": true
+  },
+  "itemRounding": {
+    "decimals": 2,
+    "interval": 0.01,
+    "roundForNet": true
+  }
 }

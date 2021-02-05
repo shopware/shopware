@@ -168,15 +168,19 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
     private function finalizeExport(ProductExportEntity $productExport, string $filePath): void
     {
         $contextToken = Uuid::randomHex();
-        $this->contextPersister->save($contextToken, [
-            SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
-        ]);
+        $this->contextPersister->save(
+            $contextToken,
+            [
+                SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
+            ],
+            $productExport->getSalesChannelId()
+        );
 
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
             $contextToken,
             $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getSalesChannelDomain()->getCurrencyId()
+            $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
         );
 
         $this->translator->injectSettings(

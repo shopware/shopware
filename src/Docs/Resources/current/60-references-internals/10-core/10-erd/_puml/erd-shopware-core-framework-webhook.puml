@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkWebhookWebhookDefinition, "webhook\n(Webhooks)") {
+Table(ShopwareCoreFrameworkWebhookWebhookDefinition, "webhook\n(__EMPTY__)") {
    primary_key(id) id
    not_null(name) string
    not_null(eventName) string

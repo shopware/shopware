@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -37,26 +36,12 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     private $connection;
 
-    /**
-     * @var SalesChannelCategoryDefinition
-     */
-    private $categoryDefinition;
-
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
         Connection $connection,
-        SalesChannelRepositoryInterface $repository,
-        SalesChannelCategoryDefinition $categoryDefinition,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        SalesChannelRepositoryInterface $repository
     ) {
         $this->categoryRepository = $repository;
         $this->connection = $connection;
-        $this->categoryDefinition = $categoryDefinition;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -87,14 +72,14 @@ class NavigationRoute extends AbstractNavigationRoute
      *          @OA\JsonContent(ref="#/components/schemas/NavigationRouteResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
+     * @Route("/store-api/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
      */
     public function load(
         string $requestActiveId,
         string $requestRootId,
         Request $request,
         SalesChannelContext $context,
-        ?Criteria $criteria = null
+        Criteria $criteria
     ): NavigationRouteResponse {
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
@@ -126,11 +111,6 @@ class NavigationRoute extends AbstractNavigationRoute
         // The availability validation has already been done in the `validate` function.
         if (!$isChild) {
             $activeId = $rootId;
-        }
-
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->categoryDefinition, $context->getContext());
         }
 
         // Load the first two levels without using the activeId in the query, so this can be cached

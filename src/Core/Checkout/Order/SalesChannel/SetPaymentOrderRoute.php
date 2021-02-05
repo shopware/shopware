@@ -87,7 +87,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/order/payment", name="store-api.order.set-payment", methods={"POST"})
+     * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"})
      */
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
@@ -169,7 +169,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $paymentRequest = new Request();
         $paymentRequest->query->set('onlyAvailable', 1);
 
-        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext);
+        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 
         if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
             throw new UnknownPaymentMethodException($paymentMethodId);

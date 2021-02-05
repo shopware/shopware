@@ -90,21 +90,28 @@ class CategoryDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
+
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),
+
             (new FkField('after_category_id', 'afterCategoryId', self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'after_category_version_id'))->addFlags(new ApiAware(), new Required()),
+
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new ApiAware(), new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
+
             (new TranslatedField('breadcrumb'))->addFlags(new ApiAware(), new WriteProtected()),
             (new TreeLevelField('level', 'level'))->addFlags(new ApiAware()),
             (new TreePathField('path', 'path'))->addFlags(new ApiAware()),
             (new ChildCountField())->addFlags(new ApiAware()),
+
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new ApiAware(), new Required()),
             (new BoolField('visible', 'visible'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
+
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new TranslatedField('slotConfig'),
@@ -113,18 +120,22 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware()),
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware()),
             (new TranslatedField('keywords'))->addFlags(new ApiAware()),
+
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
+
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
+
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
-            // Reverse Associations not available in sales-channel-api
+
+            // Reverse Associations not available in store-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id')),
             (new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id')),
             (new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id')),

@@ -1,0 +1,27 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% use '@Framework/documents/includes/position_header.html.twig' %}
+
+{% block table_open %}
+    <div class="letter-body">
+        <div class="document-title-container">
+            {% block document_headline %}{% endblock %}
+        </div>
+        {% if config.displayLineItems %}
+            <div class="line-item-container">
+                {% block document_line_items %}
+                    <table class="line-item-table">
+                        {{ block('position_header') }}
+                        {# will be closed in table_close.html.twig #}
+                {% endblock %}
+        {% endif %}
+{% endblock %}

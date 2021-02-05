@@ -51,6 +51,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    customFields customFields
    createdById createdBy
    updatedById updatedBy
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

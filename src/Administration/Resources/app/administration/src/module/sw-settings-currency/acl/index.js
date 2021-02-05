@@ -7,6 +7,8 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'currency:read',
+                    'currency_country_rounding:read',
+                    'country:read',
                     'user_config:read',
                     'user_config:create',
                     'user_config:update'
@@ -15,7 +17,9 @@ Shopware.Service('privileges')
             },
             editor: {
                 privileges: [
-                    'currency:update'
+                    'currency:update',
+                    'currency_country_rounding:update',
+                    'currency_country_rounding:delete'
                 ],
                 dependencies: [
                     'currencies.viewer'

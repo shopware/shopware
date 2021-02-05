@@ -93,7 +93,7 @@ describe('Order: Test order state', () => {
                                 'Content-Type': 'application/json'
                             },
                             method: 'GET',
-                            url: `/api/v*/_action/document/${documentId}/${documentDeepLink}`
+                            url: `/api/_action/document/${documentId}/${documentDeepLink}`
                         }
                     );
             }).then((xhr) => {

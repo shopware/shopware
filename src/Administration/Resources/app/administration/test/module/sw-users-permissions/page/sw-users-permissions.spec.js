@@ -17,7 +17,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
                     template: '<div><slot name="content"></slot></div>'
                 },
                 'sw-card-view': true,
-                'sw-settings-user-list': true,
+                'sw-users-permissions-user-listing': true,
                 'sw-users-permissions-role-listing': true
             }
         });
@@ -32,7 +32,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
     });
 
     it('should contain the user list', async () => {
-        const userListComponent = wrapper.find('sw-settings-user-list-stub');
+        const userListComponent = wrapper.find('sw-users-permissions-user-listing-stub');
 
         expect(userListComponent.exists()).toBeTruthy();
     });

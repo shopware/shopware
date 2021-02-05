@@ -27,7 +27,7 @@ class StructEncoderTest extends TestCase
     {
         $foo = new MyTestStruct('foo', 'bar');
 
-        $encoded = $this->encoder->encode($foo, 1, new ResponseFields([]));
+        $encoded = $this->encoder->encode($foo, new ResponseFields([]));
 
         static::assertEquals(
             ['foo' => 'foo', 'bar' => 'bar', 'apiAlias' => 'test-struct'],
@@ -39,7 +39,7 @@ class StructEncoderTest extends TestCase
     {
         $foo = new MyTestStruct('foo', 'bar');
 
-        $encoded = $this->encoder->encode($foo, 1, new ResponseFields([
+        $encoded = $this->encoder->encode($foo, new ResponseFields([
             'test-struct' => ['foo'],
         ]));
 
@@ -58,7 +58,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'myExtension'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -84,7 +84,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'myExtension'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -111,7 +111,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'bar'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -147,7 +147,7 @@ class StructEncoderTest extends TestCase
             'another-struct' => ['bar'],
         ]);
 
-        $encoded = $this->encoder->encode($root, 1, $fields);
+        $encoded = $this->encoder->encode($root, $fields);
 
         static::assertEquals(
             [

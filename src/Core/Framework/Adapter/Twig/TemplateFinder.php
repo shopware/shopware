@@ -83,6 +83,7 @@ class TemplateFinder implements TemplateFinderInterface
                 $queue = \array_slice($queue, $index + 1);
             }
 
+            // ??? feature-deprecated?
             // @deprecated tag:v6.4.0 0 - The improved template loading will be active
         } elseif ($source) {
             $index = array_search($source, $queue, true);

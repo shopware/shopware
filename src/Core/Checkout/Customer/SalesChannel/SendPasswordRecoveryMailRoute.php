@@ -99,7 +99,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
+     * @Route(path="/store-api/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
      */
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {

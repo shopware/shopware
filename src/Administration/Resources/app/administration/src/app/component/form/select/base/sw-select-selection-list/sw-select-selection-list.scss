@@ -15,7 +15,7 @@
     .sw-select-selection-list__load-more-button {
         padding: 2px 10px;
         margin: 8px 6px 0 0;
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
         line-height: 26px;
     }
 
@@ -25,7 +25,7 @@
         padding: 12px 16px 12px 8px;
 
         &::placeholder {
-            color: lighten($color-gutenberg, 25%);
+            color: lighten($color-darkgray-200, 25%);
         }
     }
 }

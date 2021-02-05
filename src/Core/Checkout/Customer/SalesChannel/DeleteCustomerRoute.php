@@ -57,16 +57,10 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
+     * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
      */
-    public function delete(SalesChannelContext $context, ?CustomerEntity $customer = null): NoContentResponse
+    public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            /** @var CustomerEntity $customer */
-            $customer = $context->getCustomer();
-        }
-
         $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());
 
         $event = new CustomerDeletedEvent($context, $customer);

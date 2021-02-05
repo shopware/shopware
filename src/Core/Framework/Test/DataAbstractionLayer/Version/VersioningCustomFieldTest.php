@@ -121,6 +121,7 @@ class VersioningCustomFieldTest extends TestCase
                     ],
                 ],
                 'taxStatus' => 'gross',
+                'rawTotal' => 1000.00,
             ],
             'shippingCosts' => [
                 'unitPrice' => 0.0,

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class DeleteAddressRouteTest extends TestCase
 {
@@ -52,7 +51,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -80,7 +79,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address',
+                '/store-api/account/address',
                 $data
             );
 
@@ -90,7 +89,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/list-address',
+                '/store-api/account/list-address',
                 [
                 ]
             );
@@ -101,7 +100,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address/' . $addressId
+                '/store-api/account/address/' . $addressId
             );
 
         static::assertSame(204, $this->browser->getResponse()->getStatusCode());
@@ -109,7 +108,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/list-address',
+                '/store-api/account/list-address',
                 [
                 ]
             );
@@ -122,7 +121,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 []
             );
 
@@ -133,7 +132,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address/' . $billingAddressId
+                '/store-api/account/address/' . $billingAddressId
             );
 
         static::assertNotSame(204, $this->browser->getResponse()->getStatusCode());
@@ -144,7 +143,7 @@ class DeleteAddressRouteTest extends TestCase
         $this->browser
             ->request(
                 'DELETE',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/address/' . $shippingAddressId
+                '/store-api/account/address/' . $shippingAddressId
             );
 
         static::assertNotSame(204, $this->browser->getResponse()->getStatusCode());

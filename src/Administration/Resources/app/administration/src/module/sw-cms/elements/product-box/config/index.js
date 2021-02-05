@@ -1,4 +1,4 @@
-import Criteria from 'src/core/data-new/criteria.data';
+import Criteria from 'src/core/data/criteria.data';
 import template from './sw-cms-el-config-product-box.html.twig';
 import './sw-cms-el-config-product-box.scss';
 

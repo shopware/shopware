@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
-use Shopware\Core\Framework\Routing\SalesChannelApiRouteScope;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -53,7 +53,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->isRequestScoped($request, SalesChannelApiRouteScope::class)) {
+        if (!$this->isRequestScoped($request, StoreApiRouteScope::class)) {
             return;
         }
 

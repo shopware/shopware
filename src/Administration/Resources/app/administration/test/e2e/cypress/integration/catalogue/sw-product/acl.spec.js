@@ -125,7 +125,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveProduct');
 
@@ -171,11 +171,11 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product',
+            url: `${Cypress.env('apiPath')}/product`,
             method: 'post'
         }).as('saveProduct');
         cy.route({
-            url: '/api/v*/_action/calculate-price',
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');
 
@@ -206,11 +206,11 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
         cy.get('#sw-field--product-taxId').select('Standard rate');
-        cy.get('.sw-list-price-field .sw-price-field-gross').eq(0).type('10');
+        cy.get('.sw-list-price-field .sw-price-field__gross input').eq(0).type('10').blur();
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {
-            cy.get('.sw-list-price-field .sw-price-field-net input').eq(0).should('have.value', '8.4');
+            cy.get('.sw-list-price-field .sw-price-field__net input').eq(0).should('have.value', '8.4033613445378');
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');
@@ -246,7 +246,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'delete'
         }).as('deleteData');
 

@@ -1,3 +1,4 @@
+// merge 16.11.2020
 /*
 import polyfills
  */
@@ -35,6 +36,7 @@ import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 import CookieConfigurationPlugin from 'src/plugin/cookie/cookie-configuration.plugin';
 import ScrollUpPlugin from 'src/plugin/scroll-up/scroll-up.plugin';
 import CollapseFooterColumnsPlugin from 'src/plugin/collapse/collapse-footer-columns.plugin';
+import CollapseCheckoutConfirmMethodsPlugin from 'src/plugin/collapse/collapse-checkout-confirm-methods.plugin';
 import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
@@ -61,8 +63,7 @@ import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plug
 import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
 import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
-// @deprecated tag:v6.4.0 - Will be replaced with new rating plugin
-import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
+import FilterRatingSelectPlugin from 'src/plugin/listing/filter-rating-select.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
@@ -110,6 +111,7 @@ PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
+PluginManager.register('CollapseCheckoutConfirmMethods', CollapseCheckoutConfirmMethodsPlugin, '[data-collapse-checkout-confirm-methods]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
@@ -139,8 +141,7 @@ PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boole
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
-// @deprecated tag:v6.4.0 - Will be replaced with new rating plugin
-PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
+PluginManager.register('FilterRatingSelect', FilterRatingSelectPlugin, '[data-filter-rating-select]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
 PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');

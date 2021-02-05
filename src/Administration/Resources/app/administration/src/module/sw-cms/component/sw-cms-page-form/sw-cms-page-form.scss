@@ -30,7 +30,7 @@
 
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         &:last-child {
             margin-bottom: 0;
@@ -58,12 +58,12 @@
     .sw-cms-page-form__block-card + .sw-cms-page-form__block-card {
         margin-top: 60px;
     }
-    
+
     .sw-cms-page-form__block-card.is--empty {
         box-sizing: border-box;
         height: 230px;
     }
-    
+
     .sw-cms-page-form__empty-state-text {
         text-align: center;
         height: 20px;

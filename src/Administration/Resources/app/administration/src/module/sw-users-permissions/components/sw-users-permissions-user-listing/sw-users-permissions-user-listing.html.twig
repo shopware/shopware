@@ -122,8 +122,8 @@
                                         :copyAble="false"
                                         autocomplete="new-password"
                                         @keypress.enter="onConfirmDelete(item)"
-                                        :label="$tc('sw-settings-user.user-detail.passwordConfirmation.labelConfirmPassword')"
-                                        :placeholder="$tc('sw-settings-user.user-detail.passwordConfirmation.placeholderConfirmPassword')">
+                                        :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+                                        :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')">
                                     </sw-password-field>
                                 {% endblock %}
 
@@ -140,7 +140,7 @@
                                                        :disabled="!confirmPassword"
                                                        variant="danger"
                                                        size="small">
-                                                {{ $tc('sw-settings-user.user-grid.labelButtonDelete') }}
+                                                {{ $tc('sw-users-permissions.users.user-grid.labelButtonDelete') }}
                                             </sw-button>
                                         {% endblock %}
                                     </template>

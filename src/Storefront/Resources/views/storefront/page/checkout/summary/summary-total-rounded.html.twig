@@ -1,0 +1,13 @@
+{% block page_checkout_summary_total_rounded %}
+    {% block page_checkout_summary_total_rounded_label %}
+        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total-rounded">
+            {{ "checkout.summaryTotalPriceRounded"|trans|sw_sanitize }}
+        </dt>
+    {% endblock %}
+
+    {% block page_checkout_summary_total_rounded_value %}
+        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total-rounded">
+            {{ summary.price.totalPrice|currency(decimals=decimals) }}{{ "general.star"|trans|sw_sanitize }}
+        </dd>
+    {% endblock %}
+{% endblock %}

@@ -290,7 +290,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class MyController extends AbstractController
 {
     /**
-     * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
+     * @Route("/api/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
     public function myFirstApi(Request $request, Context $context): JsonResponse
     {
@@ -405,7 +405,7 @@ class MyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
+     * @Route("/api/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
     public function myFirstApi(Request $request, Context $context): JsonResponse
     {

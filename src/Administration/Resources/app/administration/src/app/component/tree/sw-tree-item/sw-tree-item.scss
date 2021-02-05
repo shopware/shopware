@@ -1,8 +1,8 @@
 @import "~scss/variables";
 
-$sw-tree-item-color-border: $color-steam-cloud;
-$sw-tree-item-color-background: $color-iron;
-$sw-tree-item-color-text: $color-gutenberg;
+$sw-tree-item-color-border: $color-gray-300;
+$sw-tree-item-color-background: $color-gray-50;
+$sw-tree-item-color-text: $color-darkgray-200;
 
 .sw-tree-item {
     &.is--dragging {
@@ -41,10 +41,10 @@ $sw-tree-item-color-text: $color-gutenberg;
         user-select: none;
         pointer-events: none;
         background: $color-white;
-        box-shadow: 0 0 5px 1px $color-shopware-blue;
+        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
 
         .sw-tree-item__child-count {
-            background: $color-shopware-blue;
+            background: $color-shopware-brand-500;
             color: $color-white;
         }
 
@@ -88,7 +88,7 @@ $sw-tree-item-color-text: $color-gutenberg;
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
     }
@@ -99,20 +99,20 @@ $sw-tree-item-color-text: $color-gutenberg;
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
     }
 
     &.is--marked-inactive {
         .sw-tree-item__label {
-            color: lighten($color-gutenberg, 30);
+            color: lighten($color-darkgray-200, 30);
         }
     }
 
     &.is--focus {
         > .sw-tree-item__element {
-            background-color: lighten($color-shopware-blue, 40);
+            background-color: lighten($color-shopware-brand-500, 40);
         }
     }
 
@@ -180,7 +180,7 @@ $sw-tree-item-color-text: $color-gutenberg;
             }
 
             .sw-tree-item__children {
-                border-left: 1px solid $color-steam-cloud;
+                border-left: 1px solid $color-gray-300;
             }
         }
     }
@@ -202,7 +202,7 @@ $sw-tree-item-color-text: $color-gutenberg;
 
         .sw-tree-item__icon,
         .sw-tree-item__content {
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
     }
 
@@ -219,10 +219,10 @@ $sw-tree-item-color-text: $color-gutenberg;
         user-select: none;
         pointer-events: none;
         background: $color-white;
-        box-shadow: 0 0 5px 1px $color-shopware-blue;
+        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
 
         .sw-tree-item__child-count {
-            background: $color-shopware-blue;
+            background: $color-shopware-brand-500;
             color: $color-white;
         }
 
@@ -252,8 +252,8 @@ $sw-tree-item-color-text: $color-gutenberg;
         font-size: 12px;
         text-align: center;
         border-radius: $border-radius-default;
-        background: $color-light-gray;
-        color: $color-kashmir;
+        background: $color-gray-100;
+        color: $color-darkgray-200;
     }
 
     .sw-field--checkbox {

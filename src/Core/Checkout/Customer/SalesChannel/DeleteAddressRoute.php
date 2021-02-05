@@ -56,17 +56,11 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
+     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
      */
-    public function delete(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): NoContentResponse
+    public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            /** @var CustomerEntity $customer */
-            $customer = $context->getCustomer();
-        }
-
-        $this->validateAddress($addressId, $context);
+        $this->validateAddress($addressId, $context, $customer);
 
         if ($addressId === $customer->getDefaultBillingAddressId()
             || $addressId === $customer->getDefaultShippingAddressId()) {

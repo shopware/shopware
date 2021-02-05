@@ -8,6 +8,7 @@ const dollarPrice = {
     gross: 123,
     linked: false
 };
+
 const euroPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     net: 152.33644859813083,
@@ -62,7 +63,7 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', async () => {
+    it('should render correctly', async () => {
         const wrapper = setup();
         expect(wrapper.element).toMatchSnapshot();
     });
@@ -86,12 +87,12 @@ describe('components/form/sw-price-field', () => {
     it('should calculate price based on default price', async () => {
         const wrapper = setup({ price: [euroPrice] });
         const dollarPriceConverted = {
-            gross: (euroPrice.gross * currency.factor).toFixed(2),
-            net: (euroPrice.net * currency.factor).toFixed(2)
+            gross: euroPrice.gross * currency.factor,
+            net: euroPrice.net * currency.factor
         };
 
-        expect(`${wrapper.vm.priceForCurrency.gross}`).toEqual(dollarPriceConverted.gross);
-        expect(`${wrapper.vm.priceForCurrency.net}`).toEqual(dollarPriceConverted.net);
+        expect(wrapper.vm.priceForCurrency.gross).toEqual(dollarPriceConverted.gross);
+        expect(wrapper.vm.priceForCurrency.net + 0.0).toEqual(dollarPriceConverted.net);
     });
 
     it('should remove the inheritation when matching currency price exists', async () => {
@@ -131,7 +132,7 @@ describe('components/form/sw-price-field', () => {
             price: [euroPrice]
         });
 
-        const expectedNetPrice = (euroPrice.net * currency.factor).toFixed(2);
+        const expectedNetPrice = (euroPrice.net * currency.factor);
 
         expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
     });
@@ -152,7 +153,7 @@ describe('components/form/sw-price-field', () => {
             netHelpText: 'help for net price'
         });
 
-        expect(wrapper.find('.sw-price-field-gross').attributes().helptext).toBe('help for gross price');
-        expect(wrapper.find('.sw-price-field-net').attributes().helptext).toBe('help for net price');
+        expect(wrapper.find('.sw-price-field__gross').attributes().helptext).toBe('help for gross price');
+        expect(wrapper.find('.sw-price-field__net').attributes().helptext).toBe('help for net price');
     });
 });

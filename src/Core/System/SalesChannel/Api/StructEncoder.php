@@ -5,7 +5,6 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -22,44 +21,37 @@ class StructEncoder
     private $definitionRegistry;
 
     /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    /**
      * @var Serializer
      */
     private $serializer;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        ApiVersionConverter $apiVersionConverter,
         Serializer $serializer
     ) {
         $this->definitionRegistry = $definitionRegistry;
-        $this->apiVersionConverter = $apiVersionConverter;
         $this->serializer = $serializer;
     }
 
-    public function encode(Struct $struct, int $apiVersion, ResponseFields $fields): array
+    public function encode(Struct $struct, ResponseFields $fields): array
     {
         $data = [];
 
         if ($struct instanceof AggregationResultCollection) {
             foreach ($struct as $key => $item) {
-                $data[$key] = $this->encodeStruct($item, $apiVersion, $fields);
+                $data[$key] = $this->encodeStruct($item, $fields);
             }
 
             return $data;
         }
 
         if ($struct instanceof EntitySearchResult) {
-            $data = $this->encodeStruct($struct, $apiVersion, $fields);
+            $data = $this->encodeStruct($struct, $fields);
 
             if (isset($data['elements'])) {
                 $entities = [];
                 foreach ($struct as $item) {
-                    $entities[] = $this->encodeStruct($item, $apiVersion, $fields);
+                    $entities[] = $this->encodeStruct($item, $fields);
                 }
                 $data['elements'] = $entities;
             }
@@ -75,16 +67,16 @@ class StructEncoder
 
         if ($struct instanceof Collection) {
             foreach ($struct as $item) {
-                $data[] = $this->encodeStruct($item, $apiVersion, $fields);
+                $data[] = $this->encodeStruct($item, $fields);
             }
 
             return $data;
         }
 
-        return $this->encodeStruct($struct, $apiVersion, $fields);
+        return $this->encodeStruct($struct, $fields);
     }
 
-    private function encodeStruct(Struct $struct, int $apiVersion, ResponseFields $fields)
+    private function encodeStruct(Struct $struct, ResponseFields $fields)
     {
         /** @var array<string, mixed> $data */
         $data = $this->serializer->normalize($struct);
@@ -93,7 +85,7 @@ class StructEncoder
 
         foreach ($data as $property => $value) {
             if ($property === 'extensions') {
-                $data[$property] = $this->encodeExtensions($struct, $apiVersion, $fields, $value);
+                $data[$property] = $this->encodeExtensions($struct, $fields, $value);
 
                 if (empty($data[$property])) {
                     unset($data[$property]);
@@ -102,7 +94,7 @@ class StructEncoder
                 continue;
             }
 
-            if (!$this->isAllowed($alias, $property, $apiVersion, $fields) && !$fields->hasNested($alias, $property)) {
+            if (!$this->isAllowed($alias, $property, $fields) && !$fields->hasNested($alias, $property)) {
                 unset($data[$property]);
 
                 continue;
@@ -118,7 +110,7 @@ class StructEncoder
             }
 
             if ($object instanceof Struct) {
-                $data[$property] = $this->encode($object, $apiVersion, $fields);
+                $data[$property] = $this->encode($object, $fields);
 
                 continue;
             }
@@ -127,7 +119,7 @@ class StructEncoder
             if ($this->isStructArray($object)) {
                 $array = [];
                 foreach ($object as $key => $item) {
-                    $array[$key] = $this->encodeStruct($item, $apiVersion, $fields);
+                    $array[$key] = $this->encodeStruct($item, $fields);
                 }
 
                 $data[$property] = $array;
@@ -135,7 +127,7 @@ class StructEncoder
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $apiVersion, $fields);
+            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $fields);
         }
 
         $data['apiAlias'] = $struct->getApiAlias();
@@ -143,7 +135,7 @@ class StructEncoder
         return $data;
     }
 
-    private function encodeNestedArray(string $alias, string $prefix, array $data, int $apiVersion, ResponseFields $fields): array
+    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
     {
         if (!$fields->hasNested($alias, $prefix)) {
             return $data;
@@ -152,7 +144,7 @@ class StructEncoder
         foreach ($data as $property => $value) {
             $accessor = $prefix . '.' . $property;
 
-            if (!$this->isAllowed($alias, $accessor, $apiVersion, $fields)) {
+            if (!$this->isAllowed($alias, $accessor, $fields)) {
                 unset($data[$property]);
 
                 continue;
@@ -162,22 +154,22 @@ class StructEncoder
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $apiVersion, $fields);
+            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields);
         }
 
         return $data;
     }
 
-    private function isAllowed(string $type, string $property, int $apiVersion, ResponseFields $fields): bool
+    private function isAllowed(string $type, string $property, ResponseFields $fields): bool
     {
-        if ($this->isProtected($type, $property, $apiVersion)) {
+        if ($this->isProtected($type, $property)) {
             return false;
         }
 
         return $fields->isAllowed($type, $property);
     }
 
-    private function isProtected(string $type, string $property, int $apiVersion): bool
+    private function isProtected(string $type, string $property): bool
     {
         if (!$this->definitionRegistry->has($type)) {
             return false;
@@ -187,7 +179,7 @@ class StructEncoder
 
         $field = $definition->getField($property);
         if (!$field) {
-            return !$this->apiVersionConverter->isAllowed($type, $property, $apiVersion);
+            return false;
         }
 
         /** @var ApiAware|null $flag */
@@ -200,17 +192,17 @@ class StructEncoder
             return true;
         }
 
-        return !$this->apiVersionConverter->isAllowed($type, $property, $apiVersion);
+        return false;
     }
 
-    private function encodeExtensions(Struct $struct, int $apiVersion, ResponseFields $fields, array $value): array
+    private function encodeExtensions(Struct $struct, ResponseFields $fields, array $value): array
     {
         $alias = $struct->getApiAlias();
 
         $extensions = array_keys($value);
 
         foreach ($extensions as $name) {
-            if (!$this->isAllowed($alias, $name, $apiVersion, $fields)) {
+            if (!$this->isAllowed($alias, $name, $fields)) {
                 unset($value[$name]);
 
                 continue;
@@ -221,7 +213,7 @@ class StructEncoder
                 continue;
             }
 
-            $value[$name] = $this->encode($extension, $apiVersion, $fields);
+            $value[$name] = $this->encode($extension, $fields);
         }
 
         return $value;

@@ -42,6 +42,8 @@ class LineItemTransformer
             $productId = $lineItem->getReferencedId();
         }
 
+        $definition = $lineItem->getPriceDefinition();
+
         $data = [
             'id' => $id,
             'identifier' => $lineItem->getId(),
@@ -56,7 +58,7 @@ class LineItemTransformer
             'stackable' => $lineItem->isStackable(),
             'position' => $position,
             'price' => $lineItem->getPrice(),
-            'priceDefinition' => $lineItem->getPriceDefinition(),
+            'priceDefinition' => $definition,
             'parentId' => $parentId,
             'coverId' => $lineItem->getCover() ? $lineItem->getCover()->getId() : null,
             'payload' => $lineItem->getPayload(),

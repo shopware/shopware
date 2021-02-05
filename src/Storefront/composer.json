@@ -13,19 +13,18 @@
     },
     "config": {
         "platform": {
-            "php": "7.2.9"
-        },
-        "sort-packages": true
+            "php": "7.4.0"
+        }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.3.x-dev"
+            "dev-master": "6.4.x-dev"
         }
     },
     "require": {
         "cocur/slugify": "4.0.0",
         "doctrine/dbal": "2.10.1",
-        "ezyang/htmlpurifier": "4.13.0",
+        "ezyang/htmlpurifier": "4.12.0",
         "padaliyajay/php-autoprefixer": "1.2",
         "scssphp/scssphp": "1.0.6",
         "shopware/core": "*",

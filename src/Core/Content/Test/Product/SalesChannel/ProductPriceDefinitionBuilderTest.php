@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -59,6 +60,8 @@ class ProductPriceDefinitionBuilderTest extends TestCase
                 'decimalPrecision' => 2,
                 'shortName' => 'TE',
                 'name' => 'Test',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             ],
         ], $this->salesChannelContext->getContext());
     }

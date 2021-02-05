@@ -1,0 +1,83 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block summary %}
+    {% block document_sum %}
+        <div class="sum-container">
+            {% block document_sum_table %}
+                <table class="sum-table">
+                    {% block document_sum_table_inner %}
+                        {% block document_sum_total_net %}
+                            <tr>
+                                {% block document_sum_total_net_label %}
+                                    <td class="align-right">{{ 'document.lineItems.totalNet'|trans|sw_sanitize }}</td>
+                                {% endblock %}
+                                {% block document_sum_total_net_price %}
+                                    <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                                {% endblock %}
+                            </tr>
+                        {% endblock %}
+
+                        {% block document_sum_taxes %}
+                            {% for calculatedTax in order.price.calculatedTaxes.sortByTax %}
+                                <tr>
+                                    {% block document_sum_tax_label %}
+                                        <td class="align-right">{{ 'document.lineItems.tax'|trans({'%taxRate%': calculatedTax.taxRate})|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_tax_rate %}
+                                        <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+                            {% endfor %}
+                        {% endblock %}
+
+                        {% block document_sum_total %}
+                            {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+
+                            {% if displayRounded %}
+                                <tr>
+                                    {% block document_sum_total_raw_label %}
+                                        <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_total_raw_price %}
+                                        <td class="align-right">{{ order.price.rawTotal|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+
+                                <tr class="bold">
+                                    {% block document_sum_total_rounded_label %}
+                                        <td class="align-right">{{ 'document.lineItems.roundedTotal'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_total_rounded_price %}
+                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals) }}</td>
+                                    {% endblock %}
+                                </tr>
+
+                            {% else %}
+
+                                <tr class="bold">
+                                    {% block document_sum_total_label %}
+                                        <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+
+                                    {% block document_sum_total_price %}
+                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+                            {% endif %}
+
+                        {% endblock %}
+                    {% endblock %}
+                </table>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

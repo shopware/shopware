@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class AppUrlChangeControllerTest extends TestCase
@@ -21,7 +20,7 @@ class AppUrlChangeControllerTest extends TestCase
 
     public function testGetAvailableStrategies(): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/strategies';
+        $url = '/api/app-system/app-url-change/strategies';
         $this->getBrowser()->request('GET', $url);
         $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
@@ -36,7 +35,7 @@ class AppUrlChangeControllerTest extends TestCase
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/resolve';
+        $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
             $url,
@@ -55,7 +54,7 @@ class AppUrlChangeControllerTest extends TestCase
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/resolve';
+        $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
             $url,
@@ -77,7 +76,7 @@ class AppUrlChangeControllerTest extends TestCase
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/resolve';
+        $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
             $url
@@ -101,7 +100,7 @@ class AppUrlChangeControllerTest extends TestCase
             'value' => Uuid::randomHex(),
         ]);
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/url-difference';
+        $url = '/api/app-system/app-url-change/url-difference';
         $this->getBrowser()->request('GET', $url);
         $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
@@ -119,7 +118,7 @@ class AppUrlChangeControllerTest extends TestCase
             'value' => Uuid::randomHex(),
         ]);
 
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/url-difference';
+        $url = '/api/app-system/app-url-change/url-difference';
         $this->getBrowser()->request('GET', $url);
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());

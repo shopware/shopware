@@ -12,21 +12,6 @@ class SnippetApiService extends ApiService {
     }
 
     /**
-     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js save() function instead
-     *
-     * @returns {Promise<T>}
-     */
-    save(snippet) {
-        this.showDeprecationWarning('save');
-
-        if (!snippet.hasOwnProperty('id') || snippet.id === null) {
-            return this.create(snippet);
-        }
-
-        return this.updateById(snippet.id, snippet);
-    }
-
-    /**
      * @returns {Promise<T>}
      */
     getByKey(translationKey, page, limit, isCustom = false) {

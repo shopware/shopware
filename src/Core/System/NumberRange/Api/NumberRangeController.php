@@ -30,7 +30,7 @@ class NumberRangeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/number-range/reserve/{type}/{saleschannel?}", name="api.action.number-range.reserve", methods={"GET"})
+     * @Route("/api/_action/number-range/reserve/{type}/{saleschannel?}", name="api.action.number-range.reserve", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */
     public function reserve(string $type, ?string $saleschannel, Context $context, Request $request): JsonResponse
@@ -44,7 +44,7 @@ class NumberRangeController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/number-range/preview-pattern/{type}", defaults={"type"="default"}, name="api.action.number-range.preview-pattern", methods={"GET"})
+     * @Route("/api/_action/number-range/preview-pattern/{type}", defaults={"type"="default"}, name="api.action.number-range.preview-pattern", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */
     public function previewPattern(string $type, Request $request): JsonResponse

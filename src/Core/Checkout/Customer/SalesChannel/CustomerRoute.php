@@ -3,11 +3,9 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -23,28 +21,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerRoute extends AbstractCustomerRoute
 {
     /**
-     * @var CustomerDefinition
-     */
-    private $customerDefinition;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
-        CustomerDefinition $customerDefinition,
-        EntityRepositoryInterface $customerRepository,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        EntityRepositoryInterface $customerRepository
     ) {
-        $this->customerDefinition = $customerDefinition;
         $this->customerRepository = $customerRepository;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     public function getDecorated(): AbstractCustomerRoute
@@ -68,21 +52,11 @@ class CustomerRoute extends AbstractCustomerRoute
      *     )
      * )
      * @LoginRequired(allowGuest=true)
-     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
+     * @Route("/store-api/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null, ?CustomerEntity $customer = null): CustomerResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customerEntity): CustomerResponse
     {
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->customerDefinition, $context->getContext());
-        }
-
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
-        $criteria->setIds([$customer->getId()]);
+        $criteria->setIds([$customerEntity->getId()]);
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
 

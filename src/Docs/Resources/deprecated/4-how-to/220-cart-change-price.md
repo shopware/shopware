@@ -189,12 +189,10 @@ class OverwrittenPriceCollector implements CartDataCollectorInterface, CartProce
             $price = $data->get($key);
 
             // build new price definition
-            $definition = new QuantityPriceDefinition(
+            $definition = QuantityPriceDefinition::create(
                 $price->getPrice(),
                 $product->getPrice()->getTaxRules(),
-                $context->getCurrency()->getDecimalPrecision(),
-                $product->getPrice()->getQuantity(),
-                true
+                $product->getPrice()->getQuantity()
             );
 
             // build CalculatedPrice over calculator class for overwitten price

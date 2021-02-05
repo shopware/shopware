@@ -46,8 +46,6 @@ Component.register('sw-order-state-history-card', {
             modalConfirmed: false,
             currentActionName: null,
             currentStateType: null,
-            /** @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action". */
-            mailTemplatesExist: false,
             technicalName: ''
         };
     },
@@ -256,16 +254,6 @@ Component.register('sw-order-state-history-card', {
             return criteria;
         },
 
-        isMailTemplateAssigned(technicalName) {
-            this.technicalName = technicalName;
-
-            const mailTemplates = this.order.salesChannel.mailTemplates;
-
-            return mailTemplates.find((mailTemplate) => {
-                return mailTemplate.mailTemplateType.technicalName === technicalName;
-            });
-        },
-
         buildTransitionOptions(stateMachineName, allTransitions, possibleTransitions) {
             const entries = allTransitions.filter((entry) => {
                 return entry.stateMachine.technicalName === stateMachineName;
@@ -302,13 +290,6 @@ Component.register('sw-order-state-history-card', {
                 this.currentActionName = actionName;
                 this.currentStateType = 'orderState';
 
-                const matchedTransactionOption = this.orderOptions
-                    .find((orderOption) => orderOption.id === actionName);
-
-                this.mailTemplatesExist = this.isMailTemplateAssigned(
-                    `order.state.${matchedTransactionOption.stateName}`
-                );
-
                 this.showModal = true;
 
                 return;
@@ -330,13 +311,6 @@ Component.register('sw-order-state-history-card', {
                 this.currentActionName = actionName;
                 this.currentStateType = 'orderTransactionState';
 
-                const matchedTransactionOption = this.transactionOptions
-                    .find((transactionOption) => transactionOption.id === actionName);
-
-                this.mailTemplatesExist = this.isMailTemplateAssigned(
-                    `order_transaction.state.${matchedTransactionOption.stateName}`
-                );
-
                 this.showModal = true;
                 return;
             }
@@ -353,21 +327,10 @@ Component.register('sw-order-state-history-card', {
                 this.currentActionName = actionName;
                 this.currentStateType = 'orderDeliveryState';
 
-                const matchedTransactionOption = this.deliveryOptions
-                    .find((deliveryOption) => deliveryOption.id === actionName);
-
-                this.mailTemplatesExist = this.isMailTemplateAssigned(
-                    `order_delivery.state.${matchedTransactionOption.stateName}`
-                );
-
                 this.showModal = true;
                 return;
             }
             this.modalConfirmed = false;
-        },
-
-        removeLastMailTemplate() {
-            this.order.salesChannel.mailTemplates.pop();
         },
 
         onLeaveModalClose() {
@@ -375,8 +338,6 @@ Component.register('sw-order-state-history-card', {
             this.currentActionName = null;
             this.currentStateType = null;
             this.showModal = false;
-
-            this.removeLastMailTemplate();
         },
 
         onLeaveModalConfirm(docIds, sendMail = true) {

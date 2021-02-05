@@ -2,7 +2,6 @@ import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
 const { Component, Application } = Shopware;
-const utils = Shopware.Utils;
 
 /**
  * @public
@@ -236,36 +235,24 @@ Component.register('sw-price-field', {
         },
 
         onPriceGrossChange(value) {
-            this.priceForCurrency.gross = value;
-
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
-                this.onPriceGrossChangeDebounce(value);
+                this.$emit('price-gross-change', value);
+                this.$emit('change', this.priceForCurrency);
+
+                this.convertGrossToNet(value);
             }
         },
-
-        onPriceGrossChangeDebounce: utils.debounce(function onPriceGrossChange(value) {
-            this.$emit('price-gross-change', value);
-            this.$emit('change', this.priceForCurrency);
-
-            this.convertGrossToNet(value);
-        }, 500),
 
         onPriceNetChange(value) {
-            this.priceForCurrency.net = value;
-
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
-                this.onPriceNetChangeDebounce(value);
+                this.$emit('price-net-change', value);
+                this.$emit('change', this.priceForCurrency);
+
+                this.convertNetToGross(value);
             }
         },
-
-        onPriceNetChangeDebounce: utils.debounce(function onPriceNetChange(value) {
-            this.$emit('price-net-change', value);
-            this.$emit('change', this.priceForCurrency);
-
-            this.convertNetToGross(value);
-        }, 500),
 
         convertNetToGross(value) {
             if (Number.isNaN(value)) {
@@ -324,7 +311,13 @@ Component.register('sw-price-field', {
                     price: this.priceForCurrency[outputType],
                     output: outputType
                 }).then(({ data }) => {
-                    resolve(data.calculatedTaxes[0].tax);
+                    let tax = 0;
+
+                    data.calculatedTaxes.forEach((item) => {
+                        tax += item.tax;
+                    });
+
+                    resolve(tax);
                     this.$emit('price-calculate', false);
                 });
                 return true;
@@ -332,15 +325,13 @@ Component.register('sw-price-field', {
         },
 
         convertPrice(value) {
-            const calculatedPrice = value * this.currency.factor;
-            const priceRounded = calculatedPrice.toFixed(this.currency.decimalPrecision);
-            return Number(priceRounded);
+            return value * this.currency.factor;
         },
 
         keymonitor(event) {
             if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
+                const value = event.target.value;
+                event.target.value = value.replace(/,/, '.');
             }
         }
     }

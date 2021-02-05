@@ -66,7 +66,7 @@ class ErrorController extends StorefrontController
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
             $salesChannelId = $context->getSalesChannel()->getId();
-            $cmsErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.404Page', $salesChannelId);
+            $cmsErrorLayoutId = $this->systemConfigService->getString('core.basicInformation.http404Page', $salesChannelId);
             if ($cmsErrorLayoutId !== '' && $is404StatusCode) {
                 $errorPage = $this->errorPageLoader->load($cmsErrorLayoutId, $request, $context);
 

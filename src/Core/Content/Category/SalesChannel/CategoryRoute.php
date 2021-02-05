@@ -82,7 +82,7 @@ class CategoryRoute extends AbstractCategoryRoute
      *     ),
      * )
      *
-     * @Route("/store-api/v{version}/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
+     * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {

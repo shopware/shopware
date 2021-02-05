@@ -267,12 +267,12 @@ class BundleCartProcessor implements CartProcessorInterface, CartDataCollectorIn
 
         switch ($bundleData->getDiscountType()) {
             case self::DISCOUNT_TYPE_ABSOLUTE:
-                $priceDefinition = new AbsolutePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
+                $priceDefinition = AbsolutePriceDefinition::create($bundleData->getDiscount() * -1);
                 $label = 'Absolute bundle voucher';
                 break;
 
             case self::DISCOUNT_TYPE_PERCENTAGE:
-                $priceDefinition = new PercentagePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
+                $priceDefinition = PercentagePriceDefinition::create($bundleData->getDiscount() * -1);
                 $label = sprintf('Percentual bundle voucher (%s%%)', $bundleData->getDiscount());
                 break;
 
@@ -585,19 +585,13 @@ private function createDiscount(BundleEntity $bundleData, SalesChannelContext $c
 
     switch ($bundleData->getDiscountType()) {
         case self::DISCOUNT_TYPE_ABSOLUTE:
-            $priceDefinition = new AbsolutePriceDefinition(
-                $bundleData->getDiscount() * -1, 
-                $context->getContext()->getCurrencyPrecision()
-            );
+            $priceDefinition = AbsolutePriceDefinition::create($bundleData->getDiscount() * -1);
 
             $label = 'Absolute bundle voucher';
             break;
 
         case self::DISCOUNT_TYPE_PERCENTAGE:
-            $priceDefinition = new PercentagePriceDefinition(
-                $bundleData->getDiscount() * -1, 
-                $context->getContext()->getCurrencyPrecision()
-            );
+            $priceDefinition = PercentagePriceDefinition::create($bundleData->getDiscount() * -1);
 
             $label = sprintf('Percentual bundle voucher (%s%%)', $bundleData->getDiscount());
             break;

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -18,15 +17,9 @@ class ListingPriceUpdater
      */
     private $connection;
 
-    /**
-     * @var PriceRounding
-     */
-    private $priceRounding;
-
-    public function __construct(Connection $connection, PriceRounding $priceRounding)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->priceRounding = $priceRounding;
     }
 
     public function update(array $ids, Context $context): void
@@ -264,14 +257,8 @@ class ListingPriceUpdater
             $default,
             [
                 'currencyId' => $currency['id'],
-                'gross' => $this->priceRounding->round(
-                    $default['gross'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
-                'net' => $this->priceRounding->round(
-                    $default['net'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
+                'gross' => $default['gross'] * $currency['factor'],
+                'net' => $default['net'] * $currency['factor'],
             ]
         );
     }

@@ -41,19 +41,21 @@ describe('Product: Edit list prices of context prices', () => {
                 .typeSingleSelect('All customers', `${emptySelectRule}`);
 
             cy.get('.sw-product-detail-context-prices__toolbar').should('be.visible');
-            cy.get('#sw-field--item-quantityEnd').should('be.visible');
-            cy.get('#sw-field--item-quantityEnd').type('3');
-            cy.get('#sw-field--item-quantityEnd').type('{enter}');
+            cy.get('[placeholder="∞"').should('be.visible');
+            cy.get('[placeholder="∞"').type('3');
+            cy.get('[placeholder="∞"').type('{enter}');
 
             cy.get('.sw-data-grid__row--1').should('be.visible');
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-gross')
-                .type('100');
+                .type('100')
+                .type('{enter}');
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-net')
-                .should('have.value', '84.03');
+                .should('have.value', '84.033613445378');
             cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-gross')
-                .type('100');
+                .type('100')
+                .type('{enter}');
             cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-EUR .sw-list-price-field__list-price #sw-price-field-net')
-                .should('have.value', '84.03');
+                .should('have.value', '84.033613445378');
 
             cy.get(page.elements.productSaveAction).click();
 

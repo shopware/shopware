@@ -1,5 +1,5 @@
 const { Application } = Shopware;
-const { ErrorStore } = Shopware.DataDeprecated;
+const { ErrorStore } = Shopware.Data;
 const utils = Shopware.Utils;
 
 class VuexErrorStore {

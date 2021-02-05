@@ -63,7 +63,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
      *          )
      *     )
      * )
-     * @Route("/store-api/v{version}/category", name="store-api.category.search", methods={"GET", "POST"})
+     * @Route("/store-api/category", name="store-api.category.search", methods={"GET", "POST"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {

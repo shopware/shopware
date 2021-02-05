@@ -18,11 +18,11 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.3.x-dev"
+            "dev-master": "6.4.x-dev"
         }
     },
     "require": {
-        "php": ">=7.2.0",
+        "php": "~7.4",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -137,7 +137,7 @@
     },
     "config": {
         "platform": {
-           "php": "7.2.9"
+           "php": "7.4.0"
         },
         "preferred-install": {
             "*": "dist"

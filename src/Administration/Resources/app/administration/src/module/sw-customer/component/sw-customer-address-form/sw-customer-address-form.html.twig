@@ -106,6 +106,7 @@
                     </sw-text-field>
                 {% endblock %}
 
+                {# ??? caused alot of e2e errors #}
                 {# @deprecated tag:v6.4.0 #}
                 {% block sw_customer_address_form_zipcode_city_container %}
                     {% block sw_customer_address_form_zipcode_field %}
@@ -131,10 +132,6 @@
                             v-model="address.city">
                         </sw-text-field>
                     {% endblock %}
-                {% endblock %}
-
-                {# @deprecated tag:v6.4.0 #}
-                {% block sw_customer_address_form_placeholder %}
                 {% endblock %}
 
                 {% block sw_customer_address_form_country_field %}

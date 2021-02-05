@@ -11,14 +11,14 @@
 
     &__toolbar {
         padding: 25px 35px;
-        background-color: $color-light-gray;
-        border-bottom: 1px solid $color-steam-cloud;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
     }
 
     .sw-empty-state {
         min-height: 250px;
         background-color: $color-white;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         border-top: 0;
         border-radius: 0 $border-radius-default $border-radius-default 0;
     }

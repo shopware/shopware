@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -22,7 +22,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax',
+            url: `${Cypress.env('apiPath')}/tax`,
             method: 'post'
         }).as('saveData');
 
@@ -51,7 +51,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax/*',
+            url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -81,7 +81,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax/*',
+            url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'delete'
         }).as('deleteData');
 

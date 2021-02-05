@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';

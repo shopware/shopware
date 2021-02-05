@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -181,9 +182,18 @@ class EntityForeignKeyResolver
         });
 
         foreach ($primaryKeys as $field) {
+            if (!$field instanceof StorageAware) {
+                continue;
+            }
+            $storageName = $field->getStorageName();
+
+            if (!$field instanceof Field) {
+                continue;
+            }
+
             $vars = [
                 '#root#' => EntityDefinitionQueryHelper::escape($alias),
-                '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
+                '#field#' => EntityDefinitionQueryHelper::escape($storageName),
                 '#property#' => $field->getPropertyName(),
             ];
 

@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ShippingPageObject from '../../../support/pages/module/sw-shipping.page-object';
 
@@ -22,7 +22,7 @@ describe('Shipping: Edit in various ways', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method/*',
+            url: `${Cypress.env('apiPath')}/shipping-method/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -73,29 +73,29 @@ describe('Shipping: Edit in various ways', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--quantityEnd input`).should('have.value', '6');
         cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(0).should('have.value', '7.42');
         cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(1).should('have.value', '3');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '198.37');
-        cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '80.2');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '198.37369999999999');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '80.205');
 
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--quantityStart input`).should('have.value', '6');
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--quantityEnd input`).should('have.value', '12');
         cy.get(`${page.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(0).should('have.value', '6');
         cy.get(`${page.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(1).should('have.value', '2.8');
         cy.get(`${page.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '160.41');
-        cy.get(`${page.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '74.86');
+        cy.get(`${page.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '74.85799999999999');
 
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--quantityStart input`).should('have.value', '13');
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--quantityEnd input`).should('have.value', '25');
         cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(0).should('have.value', '5');
         cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(1).should('have.value', '2.4');
-        cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '133.68');
-        cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '64.16');
+        cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '133.675');
+        cy.get(`${page.elements.dataGridRow}--2 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '64.164');
 
         cy.get(`${page.elements.dataGridRow}--3 .sw-data-grid__cell--quantityStart input`).should('have.value', '25');
         cy.get(`${page.elements.dataGridRow}--3 .sw-data-grid__cell--quantityEnd input`).should('have.value', '');
         cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(0).should('have.value', '4.6');
         cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(1).should('have.value', '1.9');
-        cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '122.98');
-        cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '50.8');
+        cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '122.981');
+        cy.get(`${page.elements.dataGridRow}--3 .sw-settings-shipping-price-matrix__price input`).eq(3).should('have.value', '50.796499999999995');
 
         cy.get('.sw-settings-shipping-price-matrices__actions button').should('be.enabled');
 

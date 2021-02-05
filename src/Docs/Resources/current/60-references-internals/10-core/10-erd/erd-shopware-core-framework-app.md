@@ -1,26 +1,26 @@
-[titleEn]: <>(App system)
+[titleEn]: <>(__EMPTY__)
 [hash]: <>(article:internals_core_erd_framework_app)
 
 [Back to modules](./../10-modules.md)
 
-Provides the technical basis and extension points for the app system.
+__EMPTY__
 
-![App system](./dist/erd-shopware-core-framework-app.png)
+![__EMPTY__](./dist/erd-shopware-core-framework-app.png)
 
 
 ### Table `app`
 
-Represents an installed app in the system.
+__EMPTY__
 
 
 ### Table `app_action_button`
 
-A single action button that an app has registered.
+__EMPTY__
 
 
 ### Table `app_template`
 
-A template change provided by an app.
+__EMPTY__
 
 
 [Back to modules](./../10-modules.md)

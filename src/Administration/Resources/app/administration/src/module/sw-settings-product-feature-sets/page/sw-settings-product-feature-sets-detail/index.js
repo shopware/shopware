@@ -1,6 +1,6 @@
 import template from './sw-settings-product-feature-sets-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-product-feature-sets-detail', {
@@ -45,11 +45,6 @@ Component.register('sw-settings-product-feature-sets-detail', {
             return this.placeholder(this.productFeatureSet, 'name');
         },
 
-        // @deprecated tag:v6.4.0.0
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         productFeatureSetsRepository() {
             return this.repositoryFactory.create('product_feature_set');
         },
@@ -79,7 +74,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
         },
 
         ...mapPropertyErrors(
-            'product_feature_set',
+            'productFeatureSet',
             ['name', 'description', 'features.id']
         )
     },

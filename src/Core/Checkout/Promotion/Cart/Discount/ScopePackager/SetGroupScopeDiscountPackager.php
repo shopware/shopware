@@ -27,14 +27,6 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
         $this->groupBuilder = $groupBuilder;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 function will be removed
-     */
-    public function getResultContext(): string
-    {
-        return self::RESULT_CONTEXT_PACKAGE;
-    }
-
     public function getDecorated(): DiscountPackager
     {
         throw new DecorationPatternException(self::class);

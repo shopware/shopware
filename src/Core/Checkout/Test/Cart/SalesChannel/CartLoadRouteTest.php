@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class CartLoadRouteTest extends TestCase
@@ -64,7 +63,7 @@ class CartLoadRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart',
+                '/store-api/checkout/cart',
                 [
                 ]
             );
@@ -103,7 +102,7 @@ class CartLoadRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart',
+                '/store-api/checkout/cart',
                 [
                 ]
             );

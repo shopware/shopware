@@ -171,11 +171,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry">
-            <argument type="tagged" tag="shopware.sales_channel.product_listing.sorting" />
-            <argument type="service" id="translator" />
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
         </service>
@@ -222,7 +217,6 @@
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="product_sorting.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -242,17 +236,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\SalesChannelCrossSellingController" public="true">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
@@ -265,21 +248,13 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer">
@@ -296,9 +271,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument>%shopware.deployment.blue_green%</argument>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -312,7 +285,6 @@
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater">

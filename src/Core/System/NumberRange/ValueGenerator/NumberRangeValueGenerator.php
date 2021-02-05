@@ -191,7 +191,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             if ($startPattern === true) {
                 $patternArg = explode('_', $patternPart);
                 $pattern = array_shift($patternArg);
-                $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
+                $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver((string) $pattern);
                 if ($patternResolver) {
                     $generated .= $patternResolver->resolve($this->configuration, $patternArg, $preview);
                 } else {

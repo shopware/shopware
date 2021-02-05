@@ -86,7 +86,7 @@
     </xs:complexType>
     <xs:simpleType name="name">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[a-zA-Z0-9]{4,}"/>
+            <xs:pattern value="[a-zA-Z][a-zA-Z0-9]*"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

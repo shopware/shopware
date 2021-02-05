@@ -44,26 +44,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
-     *
-     * @dataProvider getMatchingRuleTestData
-     */
-    public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
-    {
-        $this->rule->assign([
-            'amount' => $amount,
-            'operator' => $operator,
-        ]);
-
-        $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemAmount),
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertEquals($expected, $match);
-    }
-
-    /**
      * @dataProvider getMatchingRuleTestData
      */
     public function testIfMatchesCorrectWithLineItemPurchasePriceGross(string $operator, float $amount, float $lineItemPurchasePriceGross, bool $expected): void
@@ -127,34 +107,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
             'match / operator lower than equals / same price' => [LineItemPurchasePriceRule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher price' => [LineItemPurchasePriceRule::OPERATOR_LTE, 100, 200, false],
         ];
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
-     *
-     * @dataProvider getCartRuleScopeTestData
-     */
-    public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
-    {
-        $this->rule->assign([
-            'amount' => $amount,
-            'operator' => $operator,
-        ]);
-
-        $cart = new Cart('test', Uuid::randomHex());
-
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($lineItemAmount1));
-        $lineItemCollection->add($this->createLineItem($lineItemAmount2));
-
-        $cart->setLineItems($lineItemCollection);
-
-        $match = $this->rule->match(new CartRuleScope(
-            $cart,
-            $this->createMock(SalesChannelContext::class)
-        ));
-
-        static::assertEquals($expected, $match);
     }
 
     /**
@@ -223,15 +175,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
         ));
 
         static::assertFalse($match);
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
-     */
-    private function createLineItem(float $purchasePrice): LineItem
-    {
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
-            ->setPayloadValue('purchasePrice', $purchasePrice);
     }
 
     private function createLineItemWithPurchasePrice(

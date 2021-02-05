@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class NavigationLoaderTest extends TestCase
@@ -77,7 +76,6 @@ class NavigationLoaderTest extends TestCase
     public function testTreeBuilderWithSimpleTree(): void
     {
         $loader = new NavigationLoader(
-            $this->createMock(SalesChannelRepository::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(NavigationRoute::class)
         );

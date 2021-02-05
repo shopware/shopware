@@ -1,9 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-
-const { StateDeprecated, DataDeprecated } = Shopware;
-const LanguageStore = DataDeprecated.LanguageStore;
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
@@ -79,9 +76,6 @@ const createWrapper = (privileges = []) => {
 
                     return privileges.includes(identifier);
                 }
-            },
-            feature: {
-                isActive: () => true
             }
         },
         mocks: {
@@ -148,13 +142,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     let wrapper;
     beforeEach(() => {
         wrapper = createWrapper();
-
-        const languageStore = new LanguageStore(
-            'languageService',
-            DataDeprecated.EntityProxy,
-            Shopware.Utils.createId()
-        );
-        StateDeprecated.registerStore('language', languageStore);
     });
 
     afterEach(() => {

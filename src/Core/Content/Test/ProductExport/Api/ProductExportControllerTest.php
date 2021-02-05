@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,7 +34,7 @@ class ProductExportControllerTest extends TestCase
     {
         $this->createProductStream();
 
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = '/api/_action/product-export/validate';
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
@@ -59,7 +58,7 @@ class ProductExportControllerTest extends TestCase
     {
         $this->createProductStream();
 
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = '/api/_action/product-export/validate';
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
@@ -81,7 +80,7 @@ class ProductExportControllerTest extends TestCase
 
     public function testValidateFalseDomain(): void
     {
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $url = '/api/_action/product-export/validate';
 
         $this->getBrowser()->request('POST', $url, [
             'salesChannelId' => Uuid::randomHex(),

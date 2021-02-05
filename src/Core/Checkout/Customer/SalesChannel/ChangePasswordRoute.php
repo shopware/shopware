@@ -96,15 +96,10 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/change-password", name="store-api.account.change-password", methods={"POST"})
+     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"})
      */
-    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): ContextTokenResponse
+    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $this->validatePasswordFields($requestDataBag, $context);
 
         $customerData = [

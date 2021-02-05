@@ -4,7 +4,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
 
 .sw-block-field {
     .sw-block-field__block {
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         border-radius: $border-radius-default;
         overflow: hidden;
     }
@@ -26,7 +26,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         font-family: $font-family-default;
         line-height: 22px;
         transition: $sw-field-transition;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         outline: none;
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -38,32 +38,32 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         }
 
         &:disabled {
-            background: $color-light-gray;
-            border-color: $color-steam-cloud;
+            background: $color-gray-100;
+            border-color: $color-gray-300;
             cursor: default !important;
         }
 
         &::placeholder {
-            color: lighten($color-gutenberg, 25%);
+            color: lighten($color-darkgray-200, 25%);
         }
     }
 
     &.has--focus {
         .sw-block-field__block {
-            border-color: $color-shopware-blue;
-            box-shadow: 0 0 4px lighten($color-shopware-blue, 30%);
+            border-color: $color-shopware-brand-500;
+            box-shadow: 0 0 4px lighten($color-shopware-brand-500, 30%);
         }
     }
 
     &.has--error {
         .sw-block-field__block {
-            border-color: $color-crimson;
+            border-color: $color-crimson-500;
         }
     }
 
     &.has--error.has--focus {
         .sw-block-field__block {
-            box-shadow: 0 0 4px lighten($color-crimson, 30%);
+            box-shadow: 0 0 4px lighten($color-crimson-500, 30%);
         }
     }
 

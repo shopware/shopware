@@ -129,7 +129,7 @@ Mass imports and exports through files
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/LandingPage)
 
-Landing pages
+__EMPTY__
 
 #### Mail <span class="tip is--primary">Custom Extendable</span>
 
@@ -137,7 +137,7 @@ Landing pages
 
 __EMPTY__
 
-#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate)
 

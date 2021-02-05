@@ -60,6 +60,7 @@
                                            @column-sort="onSortColumn"
                                            :sortBy="sortBy"
                                            :sortDirection="sortDirection"
+                                           @inline-edit-save="onInlineEditSave"
                                            :allowInlineEdit="acl.can('product_feature_sets.editor')"
                                            :allowEdit="acl.can('product_feature_sets.editor')"
                                            :allowView="acl.can('product_feature_sets.viewer')"

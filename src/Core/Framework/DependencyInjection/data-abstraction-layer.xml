@@ -93,7 +93,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument>%shopware.api.max_limit%</argument>
         </service>
 
@@ -104,12 +103,6 @@
         </service>
 
         <!-- EntityDefinition[] -->
-        <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelApiController" public="true">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-        </service>
-
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator"/>
@@ -223,8 +216,6 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder"/>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ListingPriceFieldAccessorBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder"/>
-
             <tag name="shopware.field_accessor_builder" priority="-50"/>
         </service>
 
@@ -316,6 +307,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="validator" />
 
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CashRoundingConfigFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>
         </service>
 

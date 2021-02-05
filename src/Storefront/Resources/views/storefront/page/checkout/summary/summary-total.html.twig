@@ -1,0 +1,13 @@
+{% block page_checkout_summary_total %}
+    {% block page_checkout_summary_total_label %}
+        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total">
+            {{ "checkout.summaryTotalPrice"|trans|sw_sanitize }}
+        </dt>
+    {% endblock %}
+
+    {% block page_checkout_summary_total_value %}
+        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
+            {{ summary.price.totalPrice|currency }}{% if page.cart.price.taxStatus == "gross" %}{{ "general.star"|trans|sw_sanitize|trim }}{% endif %}
+        </dd>
+    {% endblock %}
+{% endblock %}

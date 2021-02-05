@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class ProductReviewRouteTest extends TestCase
 {
@@ -156,6 +155,6 @@ class ProductReviewRouteTest extends TestCase
 
     private function getUrl()
     {
-        return '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $this->ids->get('product') . '/reviews';
+        return '/store-api/product/' . $this->ids->get('product') . '/reviews';
     }
 }

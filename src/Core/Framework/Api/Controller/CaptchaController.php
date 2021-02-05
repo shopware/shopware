@@ -28,7 +28,7 @@ class CaptchaController extends AbstractController
      * @Since("6.2.0.0")
      * Returns the IDs of all available captchas
      *
-     * @Route("/api/v{version}/_action/captcha_list", name="api.action.captcha.list", methods={"GET"})
+     * @Route("/api/_action/captcha_list", name="api.action.captcha.list", methods={"GET"})
      */
     public function list(): JsonResponse
     {

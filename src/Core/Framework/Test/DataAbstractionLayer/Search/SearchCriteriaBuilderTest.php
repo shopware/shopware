@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -43,7 +41,7 @@ class SearchCriteriaBuilderTest extends TestCase
     {
         $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->url = '/api/v' . PlatformRequest::API_VERSION;
+        $this->url = '/api';
     }
 
     /**
@@ -442,8 +440,7 @@ class SearchCriteriaBuilderTest extends TestCase
     private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
-        $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $maxLimit);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

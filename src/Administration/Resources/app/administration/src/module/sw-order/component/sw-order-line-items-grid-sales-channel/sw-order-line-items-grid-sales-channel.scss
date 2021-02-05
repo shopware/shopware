@@ -1,8 +1,8 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-order-line-item-grid-trash: $color-crimson;
-$sw-order-line-item-border: $color-steam-cloud;
+$sw-order-line-item-grid-trash: $color-crimson-500;
+$sw-order-line-item-border: $color-gray-300;
 
 .sw-order-line-items-grid-sales-channel {
     .sw-icon {

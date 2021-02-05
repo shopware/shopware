@@ -62,7 +62,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -78,7 +78,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -95,7 +95,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -119,7 +119,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -137,7 +137,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -161,7 +161,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'customerComment' => '  test comment  ',
                 ]
@@ -181,7 +181,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -205,7 +205,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'affiliateCode' => 'test affiliate code',
                     'campaignCode' => 'test campaign code',
@@ -227,7 +227,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -251,7 +251,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'affiliateCode' => 'test affiliate code',
                 ]
@@ -272,7 +272,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -296,7 +296,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'campaignCode' => 'test campaign code',
                 ]
@@ -346,7 +346,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -376,7 +376,7 @@ class CartOrderRouteTest extends TestCase
             ['intervalInDays' => -$intervalInDays]
         );
 
-        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+        $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
         $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
@@ -392,7 +392,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -414,7 +414,7 @@ class CartOrderRouteTest extends TestCase
         // the cart should be merged on login and a new token should be created
         $this->login($email, $password);
 
-        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+        $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
         $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
@@ -461,7 +461,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,

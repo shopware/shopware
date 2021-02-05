@@ -39,9 +39,6 @@ Component.register('sw-users-permissions-user-detail', {
             integrations: [],
             currentIntegration: null,
             mediaItem: null,
-
-            // @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic
-            changePasswordModal: false,
             newPassword: '',
             newPasswordConfirm: '',
             isEmailUsed: false,
@@ -262,7 +259,6 @@ Component.register('sw-users-permissions-user-detail', {
             this.integrationService.generateKey().then((response) => {
                 newKey.accessKey = response.accessKey;
                 newKey.secretAccessKey = response.secretAccessKey;
-                newKey.writeAccess = false;
                 this.currentIntegration = newKey;
                 this.isModalLoading = false;
                 this.showSecretAccessKey = true;
@@ -401,34 +397,6 @@ Component.register('sw-users-permissions-user-detail', {
             }
 
             this.$set(this.user, 'password', password);
-        },
-
-        /**
-         * @deprecated tag:v6.4.0
-         */
-        onChangePassword() {
-            this.changePasswordModal = true;
-        },
-
-        /**
-         * @deprecated tag:v6.4.0
-         */
-        onClosePasswordModal() {
-            this.newPassword = '';
-            this.newPasswordConfirm = '';
-            this.changePasswordModal = false;
-        },
-
-        /**
-         * @deprecated tag:v6.4.0
-         */
-        async onSubmit() {
-            this.user.password = this.newPassword;
-            this.newPassword = '';
-            this.newPasswordConfirm = '';
-            await this.onSave();
-            this.user.password = '';
-            this.changePasswordModal = false;
         },
 
         onShowDetailModal(id) {

@@ -74,7 +74,7 @@ describe('Category: Test ACL privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
 

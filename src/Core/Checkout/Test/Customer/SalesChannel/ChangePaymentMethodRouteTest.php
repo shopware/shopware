@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class ChangePaymentMethodRouteTest extends TestCase
 {
@@ -56,7 +55,7 @@ class ChangePaymentMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -73,7 +72,7 @@ class ChangePaymentMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-payment-method/xxxx',
+                '/store-api/account/change-payment-method/xxxx',
                 [
                 ]
             );
@@ -86,7 +85,7 @@ class ChangePaymentMethodRouteTest extends TestCase
 
     public function testChangePayment(): void
     {
-        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer');
+        $this->browser->request('GET', '/store-api/account/customer');
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment'), $customer['defaultPaymentMethodId']);
@@ -94,7 +93,7 @@ class ChangePaymentMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-payment-method/' . $this->ids->get('payment2'),
+                '/store-api/account/change-payment-method/' . $this->ids->get('payment2'),
                 [
                 ]
             );
@@ -103,7 +102,7 @@ class ChangePaymentMethodRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer');
+        $this->browser->request('GET', '/store-api/account/customer');
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment2'), $customer['defaultPaymentMethodId']);

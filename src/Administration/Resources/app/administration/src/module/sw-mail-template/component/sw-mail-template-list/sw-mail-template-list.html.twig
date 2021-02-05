@@ -36,12 +36,6 @@
                 :skeletonItemAmount="skeletonItemAmount"
                 @update-records="updateRecords">
 
-                <template #column-salesChannels.salesChannel.name="{ item }">
-                    {% block sw_mail_template_list_columns_sales_channels_label %}
-                        {{  getSalesChannelsString(item) }}
-                    {% endblock %}
-                </template>
-
                 <template #more-actions="{ item }">
                     {% block sw_mail_template_list_grid_columns_actions_duplicate %}
                         <sw-context-menu-item

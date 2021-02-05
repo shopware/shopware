@@ -7,7 +7,7 @@
         line-height: 16px;
         font-size: 14px;
         margin-bottom: 8px;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
 
         label {
             flex-grow: 1;
@@ -20,13 +20,13 @@
 
     &.is--inherited {
         .sw-inherit-wrapper__toggle-wrapper {
-            color: $color-purple;
+            color: $color-module-purple-900;
         }
     }
 
     &.is--required .sw-inherit-wrapper__toggle-wrapper label::after {
         content: "*";
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 
     .sw-card__title {
@@ -38,17 +38,17 @@
         }
 
         &.sw-card__title__inherited {
-            color: $color-purple;
+            color: $color-module-purple-900;
         }
     }
 
     .sw-card__inherited .sw-card__content {
-        border-color: $color-purple;
+        border-color: $color-module-purple-900;
     }
 
     .sw-card__toolbar {
-        border-top-color: $color-purple;
-        border-left-color: $color-purple;
-        border-right-color: $color-purple;
+        border-top-color: $color-module-purple-900;
+        border-left-color: $color-module-purple-900;
+        border-right-color: $color-module-purple-900;
     }
 }

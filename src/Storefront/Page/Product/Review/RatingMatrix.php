@@ -23,13 +23,6 @@ class RatingMatrix extends Struct
     protected $totalReviewCount = 0;
 
     /**
-     * @var int
-     *
-     * @deprecated tag:v6.4.0 use $pointSum instead
-     */
-    protected $totalPoints = 0;
-
-    /**
      * @var float
      */
     protected $pointSum = 0;
@@ -47,7 +40,6 @@ class RatingMatrix extends Struct
                 $rawRatingKey = (float) $rating->getKey();
 
                 if ($points === (int) round($rawRatingKey)) {
-                    $this->totalPoints += ($points * $rating->getCount());
                     $this->pointSum += ($rawRatingKey * $rating->getCount());
 
                     $this->totalReviewCount += $rating->getCount();
@@ -79,14 +71,6 @@ class RatingMatrix extends Struct
     public function getTotalReviewCount(): int
     {
         return $this->totalReviewCount;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 use the getPointSum() method instead
-     */
-    public function getTotalPoints(): int
-    {
-        return $this->totalPoints;
     }
 
     public function getPointSum(): float

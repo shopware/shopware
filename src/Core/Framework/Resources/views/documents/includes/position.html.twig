@@ -1,0 +1,79 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block position %}
+    {% set class = '' %}
+    {% if level > 0 %}
+        {% set class = " nested level-" ~ level %}
+    {% endif %}
+
+    <tr class="line-item{{ class }}{% if first %} first{% endif %}">
+        {% block document_line_item_table_rows %}
+            {% block document_line_item_table_row_position %}
+                {% if config.displayLineItemPosition %}
+                    <td>{{ prefix ~ position }}</td>
+                {% endif %}
+            {% endblock %}
+
+            {% block document_line_item_table_row_product_number %}
+                {% if lineItem.payload.productNumber %}
+                    <td>{{ lineItem.payload.productNumber }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endblock %}
+
+            {% block document_line_item_table_row_label %}
+                    <td class="line-item-breakable">
+                        {% if level > 0 %}
+                            {% for i in 1..level %}
+                                <span class="wrapper-wrapper">
+                                    <span class="label-wrapper level-{{ i }}">&nbsp;</span>
+                                </span>
+                            {% endfor %}
+                        {% endif %}
+
+                        <span class="line-item-label level-{{ level }}">{{ lineItem.label }}</span>
+                        {% if lineItem.payload.options|length >= 1 %}
+                            <br/>
+                            {% for option in lineItem.payload.options %}
+                                {{ option.group }}: {{ option.option }}
+                                {% if lineItem.payload.options|last != option %}
+                                    {{ " | " }}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+            {% endblock %}
+
+            {% block document_line_item_table_row_quantity %}
+                <td class="align-right">{{ lineItem.quantity }}</td>
+            {% endblock %}
+
+            {% block document_line_item_table_prices %}
+                {% if config.displayPrices %}
+                    {% block document_line_item_table_row_tax_rate %}
+                        <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
+                        <td class="align-right">{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }}%{% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                    {% endblock %}
+                    {% block document_line_item_row_table_unit_price %}
+                        <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                    {% endblock %}
+                    {% block document_line_item_table_row_total_price %}
+                        {% if level <= 0 %}
+                            <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                        {% endif %}
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+        {% endblock %}
+    </tr>
+{% endblock %}

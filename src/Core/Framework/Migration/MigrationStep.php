@@ -55,14 +55,13 @@ abstract class MigrationStep
     }
 
     /**
-     * BACKWARD triggers are executed when the new application works with the new Database
-     * and has to keep it rollback-safe
+     * @internal this method is kept because we don't want hard breaks in old migrations
      *
      * @deprecated tag:v6.4.0 use createTrigger instead
      */
     protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
-        $this->addTrigger($connection, $name, $table, $time, $event, $statements, '');
+        @trigger_error('addBackwardTrigger is not supported anymore. Use createTrigger instead', \E_USER_DEPRECATED);
     }
 
     protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void

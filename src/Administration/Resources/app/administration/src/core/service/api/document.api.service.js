@@ -55,7 +55,7 @@ class DocumentApiService extends ApiService {
      */
     generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {
         // eslint-disable-next-line max-len
-        return `${context.apiPath}/v${this.getApiVersion()}/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
+        return `${context.apiPath}/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 
     getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {
@@ -87,7 +87,7 @@ class DocumentApiService extends ApiService {
      */
     generateDocumentLink(documentId, documentDeepLink, context, download = false) {
         // eslint-disable-next-line max-len
-        return `${context.apiPath}/v${this.getApiVersion()}/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
+        return `${context.apiPath}/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
     }
 }
 

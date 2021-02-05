@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
@@ -24,7 +24,7 @@ function navigateToOrder(page) {
     }).as('orderRecalculateCall');
 
     cy.route({
-        url: '/api/v*/order-line-item/**',
+        url: `${Cypress.env('apiPath')}/order-line-item/**`,
         method: 'delete'
     }).as('deleteLineItemCall');
 
@@ -166,12 +166,12 @@ describe('Order: Read order', () => {
             .parent()
             .parent()
             .parent()
-            .within(($row) => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('1'); });
+            .within(() => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('1'); });
         cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Awesome product')
             .parent()
             .parent()
             .parent()
-            .within(($row) => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('10'); });
+            .within(() => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('10'); });
     });
 
     it('@base @order: can add custom products', () => {
@@ -266,13 +266,13 @@ describe('Order: Read order', () => {
         navigateToOrder(page);
 
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(($card) => {
+        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
             // assert that one row exists
             cy.get('.sw-data-grid__body').children().should('have.length', 1);
 
             // delete the only item
             cy.get('.sw-data-grid__select-all').click();
-            cy.get('.sw-data-grid__bulk').within(($bulkEdit) => {
+            cy.get('.sw-data-grid__bulk').within(() => {
                 cy.get('.link').click();
             });
 
@@ -289,7 +289,7 @@ describe('Order: Read order', () => {
         });
 
         // assert that the item is still gone after saving
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(($card) => {
+        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
             cy.get('.sw-data-grid__body').children().should('have.length', 0);
         });
     });

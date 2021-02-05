@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);

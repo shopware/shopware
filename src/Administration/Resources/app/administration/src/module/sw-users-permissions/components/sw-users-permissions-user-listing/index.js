@@ -1,8 +1,7 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-// @deprecated tag:v6.4.0.0 for StateDeprecated
-const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
+const { Component, Data, Mixin, State } = Shopware;
 const { Criteria } = Data;
 
 Component.register('sw-users-permissions-user-listing', {
@@ -39,11 +38,6 @@ Component.register('sw-users-permissions-user-listing', {
     },
 
     computed: {
-        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
-        userStore() {
-            return StateDeprecated.getStore('user');
-        },
-
         userRepository() {
             return this.repositoryFactory.create('user');
         },
@@ -51,10 +45,7 @@ Component.register('sw-users-permissions-user-listing', {
         currentUser: {
             get() {
                 return State.get('session').currentUser;
-            },
-            /** deprecated tag:v6.4.0 will be read only in v.6.4.0 */
-            set() {}
-
+            }
         },
 
         userCriteria() {
@@ -94,9 +85,6 @@ Component.register('sw-users-permissions-user-listing', {
     },
 
     methods: {
-        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
-        createdComponent() { /* nth because deprecated */ },
-
         getItemToDelete(item) {
             if (!this.itemToDelete) {
                 return false;
@@ -149,8 +137,8 @@ Component.register('sw-users-permissions-user-listing', {
                 verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
             } catch (e) {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                    title: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
                 });
             } finally {
                 this.confirmPassword = '';
@@ -181,20 +169,6 @@ Component.register('sw-users-permissions-user-listing', {
 
         onCloseDeleteModal() {
             this.itemToDelete = null;
-        },
-
-        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
-        verifyUserToken() {
-            let verifiedToken;
-            try {
-                verifiedToken = this.loginService.verifyUserToken(this.confirmPassword);
-            } catch (e) {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
-                });
-            }
-            return verifiedToken;
         }
     }
 });

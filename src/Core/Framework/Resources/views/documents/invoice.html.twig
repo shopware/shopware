@@ -1,11 +1,23 @@
+{#
+
+Notice for plugins and theme developer:
+
+This template can be extended over sw_extends.
+The blocks from the templates in the /includes folder can be overwritten directly in this template
+
+#}
+
 {% sw_extends '@Framework/documents/base.html.twig' %}
 
-{% set shippingAddress = order.deliveries.first.getShippingOrderAddress %}
-
-{% block document_title_tag %}{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}{% endblock %}
+{% block document_title_tag %}
+    {% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}
+{% endblock %}
 
 {% block document_headline %}
-    <h1>{% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}</h1>
+    <h1 class="headline">
+        {% trans with {'%invoiceNumber%': config.custom.invoiceNumber} %}document.invoiceHeadline{% endtrans %}
+        ({{ counter.page }}/{{ pages }})
+    </h1>
 {% endblock %}
 
 {% block document_footer_fourth_column %}
@@ -60,7 +72,9 @@
     {% endblock %}
 {% endblock %}
 
-{% block document_shipping_address %}
+{% set shippingAddress = order.deliveries.first.getShippingOrderAddress %}
+
+{% block shipping_address %}
     {% if config.displayDivergentDeliveryAddress %}
         <div class="shipping-address-container">
             <br><p class="bold">{{ 'document.shippingAddress'|trans|sw_sanitize }}</p>

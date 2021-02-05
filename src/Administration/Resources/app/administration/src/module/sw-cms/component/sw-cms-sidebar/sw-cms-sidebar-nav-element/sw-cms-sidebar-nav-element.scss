@@ -7,15 +7,15 @@
     align-content: center;
     padding: 8px 4px 8px 14px;
     margin: 8px 0;
-    border: 1px solid $color-steam-cloud;
-    background: $color-light-gray;
-    color: $color-gutenberg;
+    border: 1px solid $color-gray-300;
+    background: $color-gray-100;
+    color: $color-darkgray-200;
     border-radius: 4px;
     cursor: move;
 
     &.is--drag-element {
-        border: 1px solid $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+        border: 1px solid $color-shopware-brand-500;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
 
         .navigator-element__action-duplicate,
         .navigator-element__action-delete {
@@ -33,7 +33,7 @@
         cursor: pointer;
 
         &:hover {
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
     }
 }

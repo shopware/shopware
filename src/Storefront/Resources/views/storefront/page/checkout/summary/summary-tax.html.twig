@@ -1,0 +1,19 @@
+{% block page_checkout_summary_taxes %}
+    {% for taxItem in summary.price.calculatedTaxes %}
+        {% block page_checkout_summary_tax %}
+            {% block page_checkout_summary_tax_label %}
+                <dt class="col-7 checkout-aside-summary-label summary-tax">
+                    {{ "checkout.summaryTax"|trans({
+                        '%rate%': taxItem.taxRate
+                    })|sw_sanitize }}
+                </dt>
+            {% endblock %}
+
+            {% block page_checkout_summary_tax_value %}
+                <dd class="col-5 checkout-aside-summary-value summary-tax">
+                    {{ taxItem.tax|currency }}
+                </dd>
+            {% endblock %}
+        {% endblock %}
+    {% endfor %}
+{% endblock %}

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ImportExportLogApiTest extends TestCase
@@ -247,7 +246,7 @@ class ImportExportLogApiTest extends TestCase
             $addPath = '/search';
         }
 
-        return '/api/v' . PlatformRequest::API_VERSION . $addPath . '/import-export-log/';
+        return '/api' . $addPath . '/import-export-log/';
     }
 
     /**

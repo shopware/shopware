@@ -26,7 +26,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
             cy.server();
             cy.route({
-                url: '/api/v*/shipping-method/*',
+                url: '*/shipping-method/*',
                 method: 'patch'
             }).as('saveShippingMethod');
 

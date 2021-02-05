@@ -39,9 +39,7 @@ class StoreApiResponseListener implements EventSubscriberInterface
             $event->getRequest()->get('includes', [])
         );
 
-        $version = $event->getRequest()->attributes->getInt('version');
-
-        $encoded = $this->encoder->encode($response->getObject(), $version, $fields);
+        $encoded = $this->encoder->encode($response->getObject(), $fields);
 
         $event->setResponse(new JsonResponse($encoded, $response->getStatusCode(), $response->headers->all()));
     }

@@ -82,14 +82,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
     {
         $contextToken = Uuid::randomHex();
-        $this->contextPersister->save($contextToken, [
-            SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
-        ]);
+        $this->contextPersister->save(
+            $contextToken,
+            [
+                SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
+            ],
+            $productExport->getSalesChannelId()
+        );
 
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
             $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId()
+            $productExport->getSalesChannelDomain()->getLanguageId(),
+            $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
         );
 
         $this->translator->injectSettings(

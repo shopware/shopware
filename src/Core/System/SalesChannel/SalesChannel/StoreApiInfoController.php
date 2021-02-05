@@ -42,40 +42,39 @@ class StoreApiInfoController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
+     * @Route("/store-api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
-    public function info(int $version): JsonResponse
+    public function info(): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $version);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
 
         return new JsonResponse($data);
     }
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
+     * @Route("/store-api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
      */
-    public function openApiSchema(int $version): JsonResponse
+    public function openApiSchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $version);
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
 
         return new JsonResponse($data);
     }
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/store-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
+     * @Route("/store-api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
      */
-    public function infoHtml(Request $request, int $version): Response
+    public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
         $response = new Response($this->twig->render(
             '@Framework/swagger.html.twig',
             [
                 'schemaUrl' => 'store-api.info.openapi3',
-                'apiVersion' => $version,
                 'cspNonce' => $nonce,
             ]
         ));

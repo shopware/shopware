@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductDetailRouteTest extends TestCase
@@ -178,6 +177,6 @@ class ProductDetailRouteTest extends TestCase
 
     private function getUrl()
     {
-        return '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $this->ids->get('product');
+        return '/store-api/product/' . $this->ids->get('product');
     }
 }

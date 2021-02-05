@@ -10,7 +10,8 @@
             <sw-number-field
                 :disabled="disabled"
                 size="medium"
-                :step="0.01"
+                :min="0"
+                :digits="20"
                 v-model="amount">
             </sw-number-field>
         {% endblock %}

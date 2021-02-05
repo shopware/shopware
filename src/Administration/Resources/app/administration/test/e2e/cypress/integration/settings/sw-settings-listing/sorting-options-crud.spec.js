@@ -69,7 +69,7 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-data-grid__cell--priority .sw-data-grid__cell-content').contains('1');
 
         cy.route({
-            url: '/api/v*/product-sorting',
+            url: `${Cypress.env('apiPath')}/product-sorting`,
             method: 'post'
         }).as('saveData');
 
@@ -142,7 +142,7 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         cy.route({
-            url: '/api/v*/product-sorting/*',
+            url: `${Cypress.env('apiPath')}/product-sorting/*`,
             method: 'delete'
         }).as('deleteRequest');
 

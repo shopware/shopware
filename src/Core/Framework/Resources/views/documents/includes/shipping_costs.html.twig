@@ -1,0 +1,49 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block shipping_costs %}
+    {% block document_line_item_table_shipping %}
+        {% if billingAddress.additionalAddressLine1 %}<br>{% endif %}
+        {% if billingAddress.additionalAddressLine2 %}<br>{% endif %}
+
+        <tr class="line-item">
+            {% block document_line_item_table_shipping_position %}
+                {% if config.displayLineItemPosition %}
+                    <td>{{ position }}</td>
+                {% endif %}
+            {% endblock %}
+
+            {% block document_line_item_table_shipping_number %}
+                <td>{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }}</td>
+            {% endblock %}
+
+            {% block document_line_item_table_shipping_label %}
+                <td class="line-item-breakable">{{ order.deliveries.first.shippingMethod.name }}</td>
+            {% endblock %}
+
+            {% block document_line_item_table_shipping_quantity %}
+                <td class="align-right">1</td>
+            {% endblock %}
+
+            {% block document_line_item_table_shipping_tax %}
+                <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }}%{% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+            {% endblock %}
+
+            {% block document_line_item_table_unit_price %}
+                <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode) }}</td>
+            {% endblock %}
+
+            {% block document_line_item_table_total_price %}
+                <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode) }}</td>
+            {% endblock %}
+        </tr>
+    {% endblock %}
+{% endblock %}

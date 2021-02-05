@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$headline-color:   $color-kashmir;
-$border-color:     $color-steam-cloud;
+$headline-color:   $color-darkgray-200;
+$border-color:     $color-gray-300;
 $navigation-width: 64px;
 $content-width:    400px;
 
@@ -55,7 +55,7 @@ $content-width:    400px;
 
     a {
         font-size: 14px;
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
         text-decoration: underline;
     }
 }

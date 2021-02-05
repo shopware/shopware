@@ -2,14 +2,17 @@ name: PHPUnit
 
 on:
     push:
-      branches:
-          - master
+        branches:
+            - '6.2'
+            - master
     pull_request:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        php: ['7.4']
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
     env:
       DEVELOPMENT_BRANCH: master
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
@@ -42,6 +45,18 @@ jobs:
         git checkout -
         cd ..
         git reset --hard @
+
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        tools: composer, prestissimo
+        coverage: none
+
+    - name: Start MySQL
+      run: ./development/platform/.github/setup-db.sh mysql:5.7
+
+    - name: Start Elasticsearch
+      run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
     - name: Install Shopware
       run: |

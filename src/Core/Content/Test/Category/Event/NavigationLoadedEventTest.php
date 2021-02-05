@@ -42,20 +42,4 @@ class NavigationLoadedEventTest extends TestCase
 
         $this->loader->load($navigationId, $context, $navigationId);
     }
-
-    public function testEventDispatchedForLoadLevel(): void
-    {
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
-
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(NavigationLoadedEvent::class, $listener);
-
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
-        $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
-
-        $this->loader->loadLevel($navigationId, $context);
-    }
 }

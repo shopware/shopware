@@ -38,7 +38,7 @@ class SnippetController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/snippet-set", name="api.action.snippet-set.getList", methods={"POST"})
+     * @Route("/api/_action/snippet-set", name="api.action.snippet-set.getList", methods={"POST"})
      */
     public function getList(Request $request, Context $context): Response
     {
@@ -55,7 +55,7 @@ class SnippetController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/{version}/_action/snippet/filter", name="api.action.snippet.get.filter", methods={"GET"})
+     * @Route("/api/_action/snippet/filter", name="api.action.snippet.get.filter", methods={"GET"})
      */
     public function getFilterItems(Context $context): Response
     {
@@ -69,7 +69,7 @@ class SnippetController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/{version}/_action/snippet-set/baseFile", name="api.action.snippet-set.base-file", methods={"GET"})
+     * @Route("/api/_action/snippet-set/baseFile", name="api.action.snippet-set.base-file", methods={"GET"})
      */
     public function getBaseFiles(): Response
     {
@@ -83,7 +83,7 @@ class SnippetController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/{version}/_action/snippet-set/author", name="api.action.snippet-set.author", methods={"GET"})
+     * @Route("/api/_action/snippet-set/author", name="api.action.snippet-set.author", methods={"GET"})
      */
     public function getAuthors(Context $context): Response
     {

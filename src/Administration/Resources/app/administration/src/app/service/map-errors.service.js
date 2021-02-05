@@ -1,22 +1,5 @@
 const { string } = Shopware.Utils;
 
-/** @deprecated tag:v6.4.0 use mapPropertyError instead */
-export function mapApiErrors(subject, properties = []) {
-    Shopware.Utils.debug.warn(
-        'mapApiErrors',
-        'The componentHelper "mapApiErrors" is deprecated and ' +
-        'will be removed in 6.4.0 - use "mapPropertyErrors" instead'
-    );
-
-    // Only for unit testing
-    if (process && process.env && process.env.NODE_ENV === 'test') {
-        return this.mapPropertyErrors(subject, properties);
-    }
-
-    /* istanbul ignore next */
-    return mapPropertyErrors(subject, properties);
-}
-
 export function mapPropertyErrors(entityName, properties = []) {
     const computedValues = {};
 

@@ -76,7 +76,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',
-                    url: '/api/v3/_action/sync',
+                    url: '/api/_action/sync',
                     qs: {
                         response: true
                     },
@@ -101,7 +101,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
 
         // use the search box and check if term gets set (in the function)
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Pep');
-        
+
         cy.testListing({
             searchTerm: 'Pep',
             sorting: {

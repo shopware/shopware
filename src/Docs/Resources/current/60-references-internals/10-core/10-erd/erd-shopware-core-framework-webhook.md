@@ -1,16 +1,16 @@
-[titleEn]: <>(Webhooks)
+[titleEn]: <>(__EMPTY__)
 [hash]: <>(article:internals_core_erd_framework_webhook)
 
 [Back to modules](./../10-modules.md)
 
-Functionality to dispatch events via webhooks to external systems.
+__EMPTY__
 
-![Webhooks](./dist/erd-shopware-core-framework-webhook.png)
+![__EMPTY__](./dist/erd-shopware-core-framework-webhook.png)
 
 
 ### Table `webhook`
 
-The configuration for a webhook that should be dispatched to an external system.
+__EMPTY__
 
 
 [Back to modules](./../10-modules.md)

@@ -95,14 +95,14 @@ POST /store-api/v3/account/register
 Whether you have double opt in registration enabled or not the account of your customer is enabled or not.
 This route gives a loggedin `sw-context-token` when double optin is disabled, otherwise the confirmation returns the loggedin token.
 
-If double opt in registration is enabled you need to use this route: `/store-api/v{version}/account/register-confirm` to activate the account of your customer.
+If double opt in registration is enabled you need to use this route: `/store-api/account/register-confirm` to activate the account of your customer.
 
 This route needs two parameters: 
 * `hash`: the hast to verify the user account
 * `em`: the email of your customer
 
 ```
-POST /store-api/v{version}/account/register-confirm
+POST /store-api/account/register-confirm
 
 {
     "hash": "e43b79ef0ee5461786a3744fcff1e162",

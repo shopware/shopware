@@ -37,7 +37,7 @@ class PdfGenerator implements FileGeneratorInterface
 
         /*
          * Dompdf creates and destroys a lot of objects. The garbage collector slows the process down by ~50% for
-         * PHP <7.3
+         * PHP <7.3 and still some ms for 7.4
          */
         $gcEnabledAtStart = gc_enabled();
         if ($gcEnabledAtStart) {

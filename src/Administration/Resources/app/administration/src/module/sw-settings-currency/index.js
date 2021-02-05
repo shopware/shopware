@@ -1,5 +1,7 @@
 import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
+import './component/sw-settings-price-rounding';
+import './component/sw-settings-currency-country-modal';
 
 import './acl';
 

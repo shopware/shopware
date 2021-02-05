@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\PlatformRequest;
 
 class BusinessEventEncoder
 {
@@ -116,8 +115,7 @@ class BusinessEventEncoder
             new Criteria(),
             $definition,
             $property,
-            '/sales-channel-api/v',
-            PlatformRequest::API_VERSION
+            '/store-api'
         );
     }
 

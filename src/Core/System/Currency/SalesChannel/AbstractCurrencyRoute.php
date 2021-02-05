@@ -14,8 +14,5 @@ abstract class AbstractCurrencyRoute
 {
     abstract public function getDecorated(): AbstractCurrencyRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
-     */
-    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): CurrencyRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse;
 }

@@ -116,11 +116,6 @@ Component.register('sw-checkbox-field', {
     methods: {
         onChange(changeEvent) {
             this.$emit('change', changeEvent.target.checked);
-        },
-
-        // @deprecated tag:v6.4.0.0
-        restoreInheritance() {
-            this.$emit('change', null);
         }
     }
 });

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Migration\Api\MigrationController;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class MigrationControllerTest extends TestCase
@@ -35,7 +34,7 @@ class MigrationControllerTest extends TestCase
     {
         $client = $this->getBrowser();
 
-        $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
+        $url = '/api/_action/database/sync-migration';
 
         $client->request('POST', $url, ['identifier' => self::INTEGRATION_IDENTIFIER()]);
 
@@ -48,7 +47,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate',
+            '/api/_action/database/migrate',
             ['until' => \PHP_INT_MAX]
         );
 
@@ -61,7 +60,7 @@ class MigrationControllerTest extends TestCase
 
         $client->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate-destructive',
+            '/api/_action/database/migrate-destructive',
             ['until' => \PHP_INT_MAX]
         );
 

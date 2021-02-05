@@ -165,14 +165,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
     private function getConfig(SalesChannelContext $context): array
     {
-        $config = array_merge(
+        return array_merge(
             $this->getDefaultConfiguration(),
             $this->systemConfigService->all($context->getSalesChannel()->getId())
         );
-
-        /* @deprecated tag:v6.4.0 - Use core.listing.showReview instead */
-        $config['detail']['showReviews'] = $config['core']['listing']['showReview'];
-
-        return $config;
     }
 }

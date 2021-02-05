@@ -112,8 +112,6 @@
         "labelButtonCancel": "Abbrechen",
         "labelButtonChangePassword": "Ändern",
         "labelButtonSave": "Speichern",
-        "writeAccess": "Schreiben",
-        "readAccess": "Lesen",
         "contextMenuEdit": "Bearbeiten",
         "contextMenuDelete": "Löschen",
         "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
@@ -121,6 +119,15 @@
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
         "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die kein \"Administrator\" sind.",
+        "passwordConfirmation": {
+          "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+          "labelConfirmPassword": "Passwort",
+          "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
+          "labelButtonCancel": "Abbrechen",
+          "labelButtonConfirm": "Bestätigen",
+          "notificationPasswordErrorTitle": "Fehler",
+          "notificationPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein."
+        },
         "modal": {
           "detailModalTitle": "Integration anlegen",
           "detailModalTitleEdit": "Bearbeiten",
@@ -135,9 +142,6 @@
           "idFieldLabel": "Zugangs-ID",
           "secretFieldLabel": "Sicherheitsschlüssel",
           "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
-          "permissions": "Berechtigungen",
-          "readAccessFieldLabel": "Lesen (Standard)",
-          "writeAccessFieldLabel": "Schreiben (optional)",
           "messageSaveSuccess": "Integration erfolgreich gespeichert.",
           "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
           "messageCreateNewError": "Die Integration konnte nicht erstellt werden."

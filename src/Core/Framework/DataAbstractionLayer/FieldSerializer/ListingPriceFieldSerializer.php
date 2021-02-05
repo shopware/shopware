@@ -49,11 +49,6 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
 
         $value = json_decode((string) $value, true);
 
-        // @deprecated tag:v6.4.0 - old data structure are no longer supported, if will be removed
-        if (isset($value['structs'])) {
-            return new ListingPriceCollection();
-        }
-
         $structs = [];
         foreach ($value as $ruleId => $rows) {
             if ($ruleId === 'default') {

@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -336,7 +335,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $this->createTestData('navigation-test');
         $productId = $this->createTestProduct('test');
 
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $this->ids->get('test-product-id'), [
+        $this->getBrowser()->request('PATCH', '/api/product/' . $this->ids->get('test-product-id'), [
             'categories' => [
                 ['id' => $this->ids->get('navigation-2')],
                 ['id' => $this->ids->get('navigation-test-2')],
@@ -345,7 +344,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        $this->browser->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
+        $this->browser->request('POST', '/store-api/product/' . $productId);
         $response = $this->browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
 

@@ -100,7 +100,7 @@ class ContactFormRoute extends AbstractContactFormRoute
      *          description="Message sent"
      *     )
      * )
-     * @Route("/store-api/v{version}/contact-form", name="store-api.contact.form", methods={"POST"})
+     * @Route("/store-api/contact-form", name="store-api.contact.form", methods={"POST"})
      */
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {

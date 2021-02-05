@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -45,23 +45,16 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $routeScopeRegistry;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
         RequestContextResolverInterface $decorated,
         SalesChannelContextServiceInterface $contextService,
         EventDispatcherInterface $eventDispatcher,
-        RouteScopeRegistry $routeScopeRegistry,
-        LoggerInterface $logger
+        RouteScopeRegistry $routeScopeRegistry
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
         $this->routeScopeRegistry = $routeScopeRegistry;
-        $this->logger = $logger;
     }
 
     public function resolve(SymfonyRequest $request): void
@@ -80,10 +73,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $this->contextTokenRequired($request) === true
             && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
         ) {
-            //@deprecated tag:v6.4.0 will throw exception if no context token is provided
-            $this->logger->critical('With 6.4.0 a context token is required to call this route.');
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
-            //throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
+            throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
         }
 
         if (

@@ -64,22 +64,6 @@ class MigrationCommandTest extends TestCase
         static::assertSame(2, $this->getMigrationCount());
     }
 
-    /**
-     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
-     */
-    public function testCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
-    {
-        static::assertSame(0, $this->getMigrationCount());
-
-        $tester = new CommandTester($this->getCommand());
-
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
-
-        // assert deprecation notice is shown
-        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
-        static::assertSame(2, $this->getMigrationCount());
-    }
-
     public function testCommandMigrateMultipleIdentifiers(): void
     {
         static::assertSame(0, $this->getMigrationCount(true));
@@ -166,22 +150,6 @@ class MigrationCommandTest extends TestCase
 
         $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
-        static::assertSame(2, $this->getMigrationCount());
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
-     */
-    public function testDestructiveCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
-    {
-        static::assertSame(0, $this->getMigrationCount());
-
-        $tester = new CommandTester($this->getDestructiveCommand());
-
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
-
-        // assert deprecation notice is shown
-        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
         static::assertSame(2, $this->getMigrationCount());
     }
 

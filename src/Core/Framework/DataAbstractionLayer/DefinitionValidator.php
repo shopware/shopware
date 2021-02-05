@@ -48,6 +48,7 @@ class DefinitionValidator
         'order.createdBy',
         'order.updatedBy',
         'product_search_config.excludedTerms',
+        'integration.writeAccess',
     ];
 
     private const PLURAL_EXCEPTIONS = [

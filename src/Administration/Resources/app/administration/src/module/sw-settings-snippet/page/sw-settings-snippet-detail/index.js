@@ -9,9 +9,7 @@ Component.register('sw-settings-snippet-detail', {
     template,
 
     inject: [
-        'snippetService', // @deprecated tag:v6.4.0.0
         'snippetSetService',
-        'userService', // @deprecated tag:v6.4.0.0
         'repositoryFactory',
         'acl'
     ],
@@ -51,6 +49,10 @@ Component.register('sw-settings-snippet-detail', {
             return this.translationKey;
         },
 
+        snippetRepository() {
+            return this.repositoryFactory.create('snippet');
+        },
+
         snippetSetRepository() {
             return this.repositoryFactory.create('snippet_set');
         },
@@ -84,14 +86,10 @@ Component.register('sw-settings-snippet-detail', {
             return null;
         },
 
-        /* @deprecated tag:v6.4.0 will be read only in v.6.4.0 */
         currentAuthor: {
             get() {
                 return this._currentAuthor ||
                     `user/${Shopware.State.get('session').currentUser.username}`;
-            },
-            set(currentAuthor) {
-                this._currentAuthor = currentAuthor;
             }
         }
     },
@@ -134,31 +132,44 @@ Component.register('sw-settings-snippet-detail', {
             });
         },
 
-        applySnippetsToDummies(data) {
-            const snippets = this.snippets;
-            const patchedSnippets = [];
-            snippets.forEach((snippet) => {
-                const newSnippet = data.find(item => item.setId === snippet.setId);
-                if (newSnippet) {
-                    snippet = newSnippet;
+        applySnippetsToDummies(snippets) {
+            const dummySnippets = this.snippets;
+
+            dummySnippets.forEach(dummySnippet => {
+                const realSnippet = snippets.find(snippet => dummySnippet.setId === snippet.setId);
+
+                if (realSnippet) {
+                    dummySnippet.author = realSnippet.author;
+                    dummySnippet.id = realSnippet.id;
+                    dummySnippet.value = realSnippet.value;
+                    dummySnippet.origin = realSnippet.origin;
+                    dummySnippet.translationKey = realSnippet.translationKey;
+                    dummySnippet.setId = realSnippet.setId;
+
+                    if (realSnippet.id) {
+                        dummySnippet._isNew = false;
+                    }
                 }
-                patchedSnippets.push(snippet);
+
+                return dummySnippet;
             });
-            this.snippets = patchedSnippets;
-            this.isAddedSnippet = data.some(item => item.author.startsWith('user/') || item.author === '');
+
+            this.isAddedSnippet = snippets.some(snippet => snippet.author.startsWith('user/') || snippet.author === '');
         },
 
         createSnippetDummy() {
             const snippets = [];
             this.sets.forEach((set) => {
-                snippets.push({
-                    author: this.currentAuthor,
-                    id: null,
-                    value: null,
-                    origin: null,
-                    translationKey: this.translationKey,
-                    setId: set.id
-                });
+                const snippetDummy = this.snippetRepository.create(Shopware.Context.api);
+
+                snippetDummy.author = this.currentAuthor;
+                snippetDummy.id = null;
+                snippetDummy.value = null;
+                snippetDummy.origin = null;
+                snippetDummy.translationKey = this.translationKey;
+                snippetDummy.setId = set.id;
+
+                snippets.push(snippetDummy);
             });
 
             return snippets;
@@ -211,7 +222,9 @@ Component.register('sw-settings-snippet-detail', {
                 if (snippet.translationKey !== this.translationKey) {
                     // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
-                        responses.push(this.snippetService.delete(snippet.id));
+                        responses.push(
+                            this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                        );
                     }
 
                     if (snippet.value === null || snippet.value === '') {
@@ -220,10 +233,20 @@ Component.register('sw-settings-snippet-detail', {
 
                     snippet.translationKey = this.translationKey;
                     snippet.id = null;
-                    responses.push(this.snippetService.save(snippet));
-                } else if (snippet.origin !== snippet.value || snippet.origin.length <= 0) {
+
+                    responses.push(
+                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                    );
+                } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
-                    responses.push(this.snippetService.save(snippet));
+                    responses.push(
+                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                    );
+                } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
+                    // There's no need to keep a snippet which is exactly like the file-snippet, so delete
+                    responses.push(
+                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                    );
                 }
             });
 

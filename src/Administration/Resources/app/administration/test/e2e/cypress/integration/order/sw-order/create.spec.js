@@ -26,7 +26,7 @@ describe('Order: Create order', () => {
 
         // network requests
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'post'
         }).as('addLineItem');
 
@@ -119,12 +119,12 @@ describe('Order: Create order', () => {
         }).as('createCustomerCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'post'
         }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'patch'
         }).as('updateLineItem');
 
@@ -475,7 +475,7 @@ describe('Order: Create order', () => {
         // start server
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'post'
         }).as('addLineItem');
 
@@ -560,7 +560,7 @@ describe('Order: Create order', () => {
 
         // network requests
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'post'
         }).as('addLineItem');
 

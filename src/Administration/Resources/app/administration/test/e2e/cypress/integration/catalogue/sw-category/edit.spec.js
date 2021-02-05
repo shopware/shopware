@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
 
@@ -66,7 +66,7 @@ describe('Category: Edit categories', () => {
     it('@catalogue: assign dynamic product group', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
 

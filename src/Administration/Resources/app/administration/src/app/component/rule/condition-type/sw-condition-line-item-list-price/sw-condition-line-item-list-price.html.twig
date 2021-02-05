@@ -10,7 +10,8 @@
             <sw-number-field
                 size="medium"
                 :disabled="disabled"
-                :step="0.01"
+                :min="0"
+                :digits="20"
                 numberType="float"
                 v-model="amount">
             </sw-number-field>

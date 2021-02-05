@@ -90,15 +90,10 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
+     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
      */
-    public function change(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
+    public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $validation = $this->customerProfileValidationFactory->update($context);
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {

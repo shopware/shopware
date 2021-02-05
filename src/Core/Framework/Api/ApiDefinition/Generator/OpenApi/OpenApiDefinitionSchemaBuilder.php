@@ -6,7 +6,6 @@ use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Schema;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -37,19 +36,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class OpenApiDefinitionSchemaBuilder
 {
     /**
-     * @var ApiVersionConverter
-     */
-    private $converter;
-
-    public function __construct(ApiVersionConverter $converter)
-    {
-        $this->converter = $converter;
-    }
-
-    /**
      * @return Schema[]
      */
-    public function getSchemaByDefinition(EntityDefinition $definition, string $path, bool $forSalesChannel, int $version, bool $onlyFlat = false): array
+    public function getSchemaByDefinition(EntityDefinition $definition, string $path, bool $forSalesChannel, bool $onlyFlat = false): array
     {
         $attributes = [];
         $requiredAttributes = [];
@@ -62,9 +51,8 @@ class OpenApiDefinitionSchemaBuilder
         $extensions = [];
         $extensionRelationships = [];
 
-        /** @var Field $field */
         foreach ($definition->getFields() as $field) {
-            if (!$this->shouldFieldBeIncluded($definition, $field, $forSalesChannel, $version)) {
+            if (!$this->shouldFieldBeIncluded($field, $forSalesChannel)) {
                 continue;
             }
 
@@ -95,7 +83,7 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             if ($field instanceof JsonField) {
-                $attributes[] = $this->resolveJsonField($field, $version);
+                $attributes[] = $this->resolveJsonField($field);
 
                 continue;
             }
@@ -106,14 +94,14 @@ class OpenApiDefinitionSchemaBuilder
                 $attr->readOnly = true;
             }
 
-            if ($this->isDeprecated($field, $version)) {
+            if ($this->isDeprecated($field)) {
                 $attr->deprecated = true;
             }
 
             $attributes[] = $attr;
         }
 
-        $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath, $version);
+        $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
 
         if (!empty($extensionAttributes)) {
             $attributes['extensions'] = new Property([
@@ -191,7 +179,7 @@ class OpenApiDefinitionSchemaBuilder
         return $schema;
     }
 
-    private function shouldFieldBeIncluded(EntityDefinition $definition, Field $field, bool $forSalesChannel, int $version): bool
+    private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
             || $field->getPropertyName() === 'id'
@@ -206,10 +194,6 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         if (!$flag->isSourceAllowed($forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class)) {
-            return false;
-        }
-
-        if (!$this->converter->isAllowed($definition->getEntityName(), $field->getPropertyName(), $version)) {
             return false;
         }
 
@@ -303,7 +287,7 @@ class OpenApiDefinitionSchemaBuilder
      *
      * @return Property[]
      */
-    private function getExtensions(array $extensions, string $path, int $version): array
+    private function getExtensions(array $extensions, string $path): array
     {
         $attributes = [];
         foreach ($extensions as $field) {
@@ -319,7 +303,7 @@ class OpenApiDefinitionSchemaBuilder
             }
 
             if ($field instanceof JsonField) {
-                $schema = $this->resolveJsonField($field, $version);
+                $schema = $this->resolveJsonField($field);
             }
 
             if ($schema === null) {
@@ -330,7 +314,7 @@ class OpenApiDefinitionSchemaBuilder
                 $schema->readOnly = true;
             }
 
-            if ($this->isDeprecated($field, $version)) {
+            if ($this->isDeprecated($field)) {
                 $schema->deprecated = true;
             }
 
@@ -340,7 +324,7 @@ class OpenApiDefinitionSchemaBuilder
         return $attributes;
     }
 
-    private function resolveJsonField(JsonField $jsonField, int $version): Property
+    private function resolveJsonField(JsonField $jsonField): Property
     {
         if ($jsonField instanceof ListField) {
             $definition = new Property([
@@ -363,7 +347,7 @@ class OpenApiDefinitionSchemaBuilder
 
         foreach ($jsonField->getPropertyMapping() as $field) {
             if ($field instanceof JsonField) {
-                $definition->properties[] = $this->resolveJsonField($field, $version);
+                $definition->properties[] = $this->resolveJsonField($field);
 
                 continue;
             }
@@ -382,7 +366,7 @@ class OpenApiDefinitionSchemaBuilder
             $definition->readOnly = true;
         }
 
-        if ($this->isDeprecated($jsonField, $version)) {
+        if ($this->isDeprecated($jsonField)) {
             $definition->deprecated = true;
         }
 
@@ -481,11 +465,11 @@ class OpenApiDefinitionSchemaBuilder
         return false;
     }
 
-    private function isDeprecated(Field $field, int $version): bool
+    private function isDeprecated(Field $field): bool
     {
         /** @var Deprecated|null $deprecated */
         $deprecated = $field->getFlag(Deprecated::class);
-        if ($deprecated && $deprecated->isDeprecatedInVersion($version)) {
+        if ($deprecated) {
             return true;
         }
 

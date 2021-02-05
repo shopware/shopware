@@ -34,18 +34,6 @@ Component.register('sw-radio-field', {
         Mixin.getByName('remove-api-error')
     ],
 
-    data() {
-        return {
-            /** @deprecated tag:v6.4.0 */
-            currentValue: this.value
-        };
-    },
-
-    watch: {
-        /** @deprecated tag:v6.4.0 */
-        value() { this.currentValue = this.value; }
-    },
-
     props: {
         bordered: {
             type: Boolean,

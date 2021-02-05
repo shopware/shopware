@@ -68,7 +68,7 @@ route is part of and __needs to be set for every route__:
 class MyController extends AbstractController
 {
     /**
-     * @Route("/api/v{version}/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
+     * @Route("/api/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
      */
     public function doSomething(Request $request, Context $context): JsonResponse
     {
@@ -84,7 +84,7 @@ The `RouteScope` may also be set per route:
 ```php
 /**
  * @RouteScope(scopes={"api"})
- * @Route("/api/v{version}/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
+ * @Route("/api/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
  */
 ```
 
@@ -93,7 +93,7 @@ A `Route` can have multiple `RouteScopes`:
 ```php
 /**
  * @RouteScope(scopes={"storefront", "custom-scope"})
- * @Route("/api/v{version}/swag/fetch-a-thing", name="api.action.swag.fetch-a-thing", methods={"GET"})
+ * @Route("/api/swag/fetch-a-thing", name="api.action.swag.fetch-a-thing", methods={"GET"})
  */
 ```
 
@@ -188,7 +188,7 @@ an example of a Store API controller:
 class SwagExampleRoute
 {
     /**
-     * @Route("/store-api/v{version}/swag-example/{entityId}", methods={"POST"})
+     * @Route("/store-api/swag-example/{entityId}", methods={"POST"})
      * @OA\Post(...)
      */
     public function load(string $entityId, Request $request, SalesChannelContext $salesChannelContext): SwagExampleResponse

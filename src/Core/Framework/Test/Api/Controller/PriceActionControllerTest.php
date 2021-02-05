@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Test\TaxFixtures;
 use Symfony\Component\Serializer\Serializer;
 
@@ -38,7 +37,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testPriceMissingExecption(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -48,7 +47,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxIdMissingException(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', ['price' => 10]);
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate', ['price' => 10]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
@@ -59,7 +58,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxNotFoundException(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate', [
             'price' => 10,
             'taxId' => Uuid::randomHex(),
         ]);
@@ -105,10 +104,10 @@ class PriceActionControllerTest extends TestCase
 
         static::assertEquals(
             new CalculatedPrice(
-                10,
-                10,
+                10.002,
+                10.002,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(1.9, 19, 10.0),
+                    new CalculatedTax(1.9003800000000002, 19, 10.002),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),
@@ -180,7 +179,7 @@ class PriceActionControllerTest extends TestCase
                 10,
                 20,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(3.19, 19, 20),
+                    new CalculatedTax(3.19327731092437, 19, 20),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),
@@ -205,7 +204,7 @@ class PriceActionControllerTest extends TestCase
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(2.26, 19, 11.9),
+                    new CalculatedTax(2.261, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),
@@ -217,10 +216,7 @@ class PriceActionControllerTest extends TestCase
 
     private function sendRequest(array $data): CalculatedPrice
     {
-        $url = sprintf(
-            '/api/v%s/_action/calculate-price',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/_action/calculate-price';
         $this->getBrowser()->request('POST', $url, $data);
 
         $response = $this->getBrowser()->getResponse()->getContent();

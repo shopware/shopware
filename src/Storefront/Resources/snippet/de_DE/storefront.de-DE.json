@@ -340,6 +340,7 @@
     "summaryPositionPrice": "Zwischensumme",
     "summaryShipping": "Versandkosten",
     "summaryTotalPrice": "Gesamtsumme",
+    "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "proceedLink": "Weiter zur Kasse",
@@ -398,6 +399,8 @@
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
     "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
+    "collapseTriggerMore": "Mehr zeigen",
+    "collapseTriggerLess": "Weniger zeigen",
     "product-not-found": "Das Produkt wurde nicht gefunden."
   },
   "listing": {
@@ -419,6 +422,7 @@
     "filterRatingActiveLabelStart": "Mindestens",
     "filterRatingActiveLabelEndSingular": "Stern",
     "filterRatingActiveLabelEnd": "Sterne",
+    "filterRatingAndMore": "& mehr",
     "filterRangeMinLabel": "Minimal",
     "filterRangeMaxLabel": "Maximal",
     "filterRangeActiveMinLabel": "Preis ab",

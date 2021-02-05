@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class SalesChannelContextPersisterTest extends TestCase
@@ -46,9 +48,10 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
             'payload' => json_encode($expected),
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
         ]);
 
-        static::assertSame($expected, $this->contextPersister->load($token));
+        static::assertSame($expected, $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
     }
 
     public function testLoadByCustomerId(): void
@@ -65,7 +68,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        static::assertSame([], $this->contextPersister->load($token));
+        static::assertSame([], $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
     }
 
     public function testLoadCustomerNotExisting(): void
@@ -84,9 +87,9 @@ class SalesChannelContextPersisterTest extends TestCase
             'expired' => false,
         ];
 
-        $this->contextPersister->save($token, $expected);
+        $this->contextPersister->save($token, $expected, Defaults::SALES_CHANNEL);
 
-        static::assertSame($expected, $this->contextPersister->load($token));
+        static::assertSame($expected, $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
     }
 
     public function testSaveNewCustomerContextWithoutExistingCustomer(): void
@@ -120,12 +123,17 @@ class SalesChannelContextPersisterTest extends TestCase
                 'first' => 'test',
                 'second' => 'second test',
             ]),
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
         ]);
 
-        $this->contextPersister->save($token, [
-            'second' => 'overwritten',
-            'third' => 'third test',
-        ]);
+        $this->contextPersister->save(
+            $token,
+            [
+                'second' => 'overwritten',
+                'third' => 'third test',
+            ],
+            Defaults::SALES_CHANNEL
+        );
 
         $expected = [
             'expired' => false,
@@ -134,7 +142,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'third' => 'third test',
         ];
 
-        $actual = $this->contextPersister->load($token);
+        $actual = $this->contextPersister->load($token, Defaults::SALES_CHANNEL);
         ksort($actual);
 
         static::assertSame($expected, $actual);
@@ -226,7 +234,10 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $newToken = $this->contextPersister->replace($token);
+        $context = $this->createMock(SalesChannelContext::class);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $context->method('getSalesChannel')->willReturn($salesChannel);
+        $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));
         static::assertFalse($this->contextExists($token));
@@ -242,15 +253,20 @@ class SalesChannelContextPersisterTest extends TestCase
                 'first' => 'test',
                 'second' => 'second test',
             ]),
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
         ]);
 
-        $newToken = $this->contextPersister->replace($token);
+        $context = $this->createMock(SalesChannelContext::class);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $context->method('getSalesChannel')->willReturn($salesChannel);
+
+        $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->contextExists($newToken));
         static::assertFalse($this->contextExists($token));
     }
 
-    public function testRepalceUpdatesCartTokenToo(): void
+    public function testReplaceUpdatesCartTokenToo(): void
     {
         $token = Random::getAlphanumericString(32);
 
@@ -270,7 +286,11 @@ class SalesChannelContextPersisterTest extends TestCase
 
         static::assertTrue($this->cartExists($token));
 
-        $newToken = $this->contextPersister->replace($token);
+        $context = $this->createMock(SalesChannelContext::class);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $context->method('getSalesChannel')->willReturn($salesChannel);
+
+        $newToken = $this->contextPersister->replace($token, $context);
 
         static::assertTrue($this->cartExists($newToken));
         static::assertFalse($this->cartExists($token));

@@ -4,10 +4,10 @@ namespace Shopware\Core\System\Test\Currency\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class CurrencyRouteTest extends TestCase
 {
@@ -45,7 +45,7 @@ class CurrencyRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/currency',
+                '/store-api/currency',
                 [
                 ]
             );
@@ -62,7 +62,7 @@ class CurrencyRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/currency',
+                '/store-api/currency',
                 [
                     'includes' => [
                         'currency' => ['isoCode'],
@@ -82,7 +82,7 @@ class CurrencyRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/currency',
+                '/store-api/currency',
                 [
                     'limit' => 1,
                 ]
@@ -104,6 +104,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             ],
             [
                 'id' => $this->ids->create('currency2'),
@@ -113,6 +115,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'yay',
                 'factor' => 1,
                 'symbol' => 'B',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             ],
         ];
 

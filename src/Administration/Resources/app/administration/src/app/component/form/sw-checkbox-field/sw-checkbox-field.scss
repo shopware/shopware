@@ -1,11 +1,11 @@
 @import "~scss/variables";
 
-$sw-field-color-text: $color-gutenberg;
-$sw-field-color-focus: $color-shopware-blue;
+$sw-field-color-text: $color-darkgray-200;
+$sw-field-color-focus: $color-shopware-brand-500;
 $sw-field-color-background: $color-white;
-$sw-field-color-border: $color-steam-cloud;
-$sw-field-color-error: $color-crimson;
-$sw-field-color-inherited: $color-purple;
+$sw-field-color-border: $color-gray-300;
+$sw-field-color-error: $color-crimson-500;
+$sw-field-color-inherited: $color-module-purple-900;
 
 .sw-field--checkbox {
     margin-bottom: 22px;
@@ -49,8 +49,8 @@ $sw-field-color-inherited: $color-purple;
             }
 
             &:disabled ~ .sw-field__checkbox-state {
-                background: $color-light-gray;
-                border-color: $color-steam-cloud;
+                background: $color-gray-100;
+                border-color: $color-gray-300;
                 color: lighten($sw-field-color-text, 40%);
             }
 
@@ -64,8 +64,8 @@ $sw-field-color-inherited: $color-purple;
             }
 
             &:checked:disabled ~ .sw-field__checkbox-state {
-                background: $color-light-gray;
-                border-color: $color-steam-cloud;
+                background: $color-gray-100;
+                border-color: $color-gray-300;
                 color: lighten($sw-field-color-text, 40%);
 
                 .sw-icon {
@@ -99,20 +99,20 @@ $sw-field-color-inherited: $color-purple;
     &.sw-field__checkbox--ghost {
         .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
             background-color: transparent;
-            border: 1px solid $color-shopware-blue;
+            border: 1px solid $color-shopware-brand-500;
 
             .sw-icon {
                 display: inline-block;
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
         }
 
         &.is--disabled {
             .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
-                border: 1px solid $color-steam-cloud;
+                border: 1px solid $color-gray-300;
 
                 .sw-icon {
-                    color: $color-steam-cloud;
+                    color: $color-gray-300;
                 }
             }
         }
@@ -150,7 +150,7 @@ $sw-field-color-inherited: $color-purple;
 
     &.is--bordered {
         border-radius: 4px;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         padding: 16px;
     }
 }

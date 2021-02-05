@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
@@ -123,6 +124,13 @@ class OrderDefinition extends EntityDefinition
             new ManyToOneAssociationField('createdBy', 'created_by_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
         ]);
+
+        $fields->add(
+            new CashRoundingConfigField('item_rounding', 'itemRounding')
+        );
+        $fields->add(
+            new CashRoundingConfigField('total_rounding', 'totalRounding')
+        );
 
         return $fields;
     }

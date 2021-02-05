@@ -41,6 +41,14 @@ const orderMock = {
     price: {
         calculatedTaxes: [],
         taxStatus: 'gross'
+    },
+    totalRounding: {
+        interval: 0.01,
+        decimals: 2
+    },
+    itemRounding: {
+        interval: 0.01,
+        decimals: 2
     }
 };
 
@@ -96,6 +104,9 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {
@@ -190,6 +201,6 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
         const orderSummary = wrapper.find('.sw-order-detail__summary');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountTotal');
-        expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountGrandTotal');
+        expect(orderSummary.text()).toContain('sw-order.detailBase.summaryLabelAmount');
     });
 });

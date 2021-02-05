@@ -340,6 +340,7 @@
     "summaryPositionPrice": "Total",
     "summaryShipping": "Shipping costs",
     "summaryTotalPrice": "Grand total",
+    "summaryTotalPriceRounded": "Rounded total",
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "proceedLink": "Proceed to checkout",
@@ -398,6 +399,8 @@
     "customerCommentLabel": "Would you like to tell us anything about your order?",
     "customerCommentPlaceholder": "Comment here...",
     "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
+    "collapseTriggerMore": "Show more",
+    "collapseTriggerLess": "Show less",
     "product-not-found": "The product could not be found."
   },
   "listing": {
@@ -419,6 +422,7 @@
     "filterRatingActiveLabelStart": "At least",
     "filterRatingActiveLabelEndSingular": "star",
     "filterRatingActiveLabelEnd": "stars",
+    "filterRatingAndMore": "& more",
     "filterRangeMinLabel": "Minimum",
     "filterRangeMaxLabel": "Maximum",
     "filterRangeActiveMinLabel": "Price from",

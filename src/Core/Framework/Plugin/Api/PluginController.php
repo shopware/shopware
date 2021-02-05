@@ -68,7 +68,7 @@ class PluginController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/upload", name="api.action.plugin.upload", methods={"POST"})
+     * @Route("/api/_action/plugin/upload", name="api.action.plugin.upload", methods={"POST"})
      */
     public function uploadPlugin(Request $request, Context $context): Response
     {
@@ -94,9 +94,9 @@ class PluginController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/delete", name="api.action.plugin.delete", methods={"POST"})
+     * @Route("/api/_action/plugin/delete", name="api.action.plugin.delete", methods={"POST"})
      */
-    public function deletePlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
+    public function deletePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
@@ -113,14 +113,13 @@ class PluginController extends AbstractController
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
-            $plugin,
-            $version
+            $plugin
         ));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/refresh", name="api.action.plugin.refresh", methods={"POST"})
+     * @Route("/api/_action/plugin/refresh", name="api.action.plugin.refresh", methods={"POST"})
      */
     public function refreshPlugin(Request $request, Context $context): Response
     {
@@ -131,9 +130,9 @@ class PluginController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/install", name="api.action.plugin.install", methods={"POST"})
+     * @Route("/api/_action/plugin/install", name="api.action.plugin.install", methods={"POST"})
      */
-    public function installPlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
+    public function installPlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
@@ -142,16 +141,15 @@ class PluginController extends AbstractController
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
-            $plugin,
-            $version
+            $plugin
         ));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/uninstall", name="api.action.plugin.uninstall", methods={"POST"})
+     * @Route("/api/_action/plugin/uninstall", name="api.action.plugin.uninstall", methods={"POST"})
      */
-    public function uninstallPlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
+    public function uninstallPlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
         $keepUserData = (bool) $queryParams->get('keepUserData', 1);
@@ -161,16 +159,15 @@ class PluginController extends AbstractController
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
-            $plugin,
-            $version
+            $plugin
         ));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/activate", name="api.action.plugin.activate", methods={"POST"})
+     * @Route("/api/_action/plugin/activate", name="api.action.plugin.activate", methods={"POST"})
      */
-    public function activatePlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
+    public function activatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
@@ -179,16 +176,15 @@ class PluginController extends AbstractController
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
-            $plugin,
-            $version
+            $plugin
         ));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/deactivate", name="api.action.plugin.deactivate", methods={"POST"})
+     * @Route("/api/_action/plugin/deactivate", name="api.action.plugin.deactivate", methods={"POST"})
      */
-    public function deactivatePlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
+    public function deactivatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
@@ -197,14 +193,13 @@ class PluginController extends AbstractController
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
-            $plugin,
-            $version
+            $plugin
         ));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/plugin/update", name="api.action.plugin.update", methods={"POST"})
+     * @Route("/api/_action/plugin/update", name="api.action.plugin.update", methods={"POST"})
      */
     public function updatePlugin(QueryDataBag $queryParams, Context $context): JsonResponse
     {

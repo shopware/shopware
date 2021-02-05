@@ -61,7 +61,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/cart", name="store-api.checkout.cart.read", methods={"GET", "POST"})
+     * @Route("/store-api/checkout/cart", name="store-api.checkout.cart.read", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {

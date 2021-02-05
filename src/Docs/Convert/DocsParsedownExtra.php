@@ -110,7 +110,7 @@ class DocsParsedownExtra extends \ParsedownExtra
             throw new \RuntimeException(sprintf('Unable to find the stop of %s in %s', $namespace, $includeFile));
         }
 
-        return \array_slice($lines, $start, $stop - $start);
+        return (array) \array_slice($lines, $start, $stop - $start);
     }
 
     protected function docsRenderIncludeContents(array $slicedLines): void

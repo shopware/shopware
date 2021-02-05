@@ -8,37 +8,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 abstract class DiscountPackager
 {
     /**
-     * Use this context if your result filter should be based
-     * on the whole found packages of your packager.
-     *
-     * @deprecated tag:v6.4.0 - constant will be removed in this version
-     */
-    public const RESULT_CONTEXT_PACKAGE = 'package';
-
-    /**
-     * Use this context if the result filter should be based
-     * on each line item inside your package.
-     *
-     * @deprecated tag:v6.4.0 - constant will be removed in this version
-     */
-    public const RESULT_CONTEXT_LINEITEM = 'lineitem';
-
-    /**
      * This function should return the decorated core service.
      * This ensures that when new functions are implemented in this class, decorations will continue to work
      */
     abstract public function getDecorated(): DiscountPackager;
-
-    /**
-     * Gets the scope of this packager for filtering.
-     * This defines, what should actually be filtered from the result, either the
-     * line items directly, or the resulting packages that are returned.
-     * In case of a CartPackager, the line items in the single package should be filtered.
-     * In case of a GroupPackager, the whole groups should be filtered that have been found.
-     *
-     * @deprecated tag:v6.4.0 - function will be removed in this version
-     */
-    abstract public function getResultContext(): string;
 
     /**
      * This function is used to get the line items that match the configured scope and product rules of the provided discount.

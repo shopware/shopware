@@ -5,13 +5,13 @@
     grid-auto-rows: 120px 40px;
     padding: 10px 10px 0 10px;
     background: $color-white;
-    border: 1px solid $color-steam-cloud;
+    border: 1px solid $color-gray-300;
     border-radius: 4px;
     position: relative;
 
     &.is--disabled {
         &:hover {
-            border: 1px solid $color-steam-cloud;
+            border: 1px solid $color-gray-300;
             box-shadow: none;
             cursor: not-allowed;
         }
@@ -30,7 +30,7 @@
     .sw-theme-list-item__image {
         background: center center no-repeat $color-white;
         background-size: 90% 90%;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         border-radius: 4px;
         height: 120px;
 
@@ -53,7 +53,7 @@
     }
 
     .sw-theme-list-item__locked{
-        color: $color-steam-cloud;
+        color: $color-gray-300;
     }
 
     .sw-theme-list-item__status {
@@ -61,7 +61,7 @@
         height: 8px;
         border-radius: 100%;
         margin-top: 1px;
-        background: $color-steam-cloud;
+        background: $color-gray-300;
 
         &.is--active {
             background: $color-module-green-900;
@@ -69,7 +69,7 @@
     }
 
     .sw-theme-list-item__title {
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;

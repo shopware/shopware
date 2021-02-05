@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StoreApiProxyController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +38,11 @@ class StoreApiProxyControllerTest extends TestCase
      */
     private $ids;
 
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
     public function setUp(): void
     {
         $this->customerRepository = $this->getContainer()->get('customer.repository');
@@ -45,42 +51,42 @@ class StoreApiProxyControllerTest extends TestCase
 
     public function testSalutation(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation');
+        $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertSame('salutation', $json[0]['apiAlias']);
+        static::assertSame('salutation', $json['elements'][0]['apiAlias']);
     }
 
     public function testSalutationWithPreviousRequestInStack(): void
     {
         $this->getContainer()->get('request_stack')->push(new Request());
 
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation');
+        $response = $this->request('GET', '/store-api/salutation');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertSame('salutation', $json[0]['apiAlias']);
+        static::assertSame('salutation', $json['elements'][0]['apiAlias']);
     }
 
     public function testSalutationLimitWorksInQuery(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation?limit=1');
+        $response = $this->request('GET', '/store-api/salutation?limit=1');
 
         static::assertSame(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertCount(1, $json);
+        static::assertCount(1, $json['elements']);
     }
 
     public function testSalutationLimitWorksInBody(): void
     {
-        $response = $this->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/salutation', [
+        $response = $this->request('POST', '/store-api/salutation', [
             'limit' => 1,
         ]);
 
@@ -88,12 +94,12 @@ class StoreApiProxyControllerTest extends TestCase
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertCount(1, $json);
+        static::assertCount(1, $json['elements']);
     }
 
     public function test404WillBeForwarded(): void
     {
-        $response = $this->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/');
+        $response = $this->request('GET', '/store-api/');
         static::assertSame(404, $response->getStatusCode());
     }
 
@@ -115,7 +121,7 @@ class StoreApiProxyControllerTest extends TestCase
     {
         $customerId = $this->createCustomer('shopware', 'store-api-proxy@localhost.de');
 
-        $this->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/account/login', [
+        $this->request('POST', '/store-api/account/login', [
             'username' => 'store-api-proxy@localhost.de',
             'password' => 'shopware',
         ]);
@@ -123,8 +129,9 @@ class StoreApiProxyControllerTest extends TestCase
         static::assertTrue($this->request->getSession()->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $token = $this->request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $tokenData = $this->getContainer()->get(SalesChannelContextPersister::class)
+            ->load($token, $this->salesChannelContext->getSalesChannelId(), $customerId);
 
-        $tokenData = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
         static::assertArrayHasKey('customerId', $tokenData);
         static::assertSame($customerId, $tokenData['customerId']);
     }
@@ -142,13 +149,13 @@ class StoreApiProxyControllerTest extends TestCase
             $query['path'] = $url;
         }
 
-        $context = $this->createSalesChannelContext();
+        $this->salesChannelContext = $this->createSalesChannelContext();
 
         $this->request = new Request($query, $body);
         $this->request->setMethod($method);
         $this->request->server->set('REQUEST_URI', \is_array($urlComponents) ? $urlComponents['path'] : $url);
         $this->request->setSession(new Session(new MockArraySessionStorage()));
 
-        return $this->getContainer()->get(StoreApiProxyController::class)->proxy($this->request, $context);
+        return $this->getContainer()->get(StoreApiProxyController::class)->proxy($this->request, $this->salesChannelContext);
     }
 }

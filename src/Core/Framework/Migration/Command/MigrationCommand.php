@@ -72,14 +72,6 @@ class MigrationCommand extends Command
 
         $this->io = new ShopwareStyle($input, $output);
 
-        /*
-         * @deprecated tag:v6.4.0 Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.
-         */
-        if (!$until && is_numeric(end($identifiers))) {
-            $until = (int) array_pop($identifiers);
-            $this->io->note('Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.');
-        }
-
         if (!$until && !$input->getOption('all')) {
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
         }

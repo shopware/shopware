@@ -34,15 +34,9 @@ class JsonApiEncodingResult implements \JsonSerializable
      */
     protected $baseUrl;
 
-    /**
-     * @var int
-     */
-    private $apiVersion;
-
-    public function __construct(string $baseUrl, int $apiVersion)
+    public function __construct(string $baseUrl)
     {
         $this->baseUrl = $baseUrl;
-        $this->apiVersion = $apiVersion;
     }
 
     public function getBaseUrl(): string
@@ -139,10 +133,5 @@ class JsonApiEncodingResult implements \JsonSerializable
     public function getMetaData(): array
     {
         return $this->metaData;
-    }
-
-    public function getApiVersion(): int
-    {
-        return $this->apiVersion;
     }
 }

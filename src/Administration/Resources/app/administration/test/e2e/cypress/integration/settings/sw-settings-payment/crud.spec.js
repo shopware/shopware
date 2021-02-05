@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import PaymentPageObject from '../../../support/pages/module/sw-payment.page-object';
 
@@ -22,7 +22,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/payment-method',
+            url: `${Cypress.env('apiPath')}/payment-method`,
             method: 'post'
         }).as('saveData');
 
@@ -51,7 +51,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/payment-method/*',
+            url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -83,7 +83,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/payment-method/*',
+            url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'delete'
         }).as('deleteData');
 

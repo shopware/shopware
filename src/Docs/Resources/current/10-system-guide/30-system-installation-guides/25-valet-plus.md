@@ -14,8 +14,8 @@ This is a modified version of the [official Installation Guide](https://github.c
 
 1. Update Homebrew via `brew update`
 2. Add the Homebrew PHP tap for Valet+ via `brew tap henkrehorst/php`
-3. Install PHP 7.2 using Homebrew via `brew install valet-php@7.2`
-4. Link your PHP version using the `brew link valet-php@7.2 --force` command
+3. Install PHP 7.4 using Homebrew via `brew install valet-php@7.4`
+4. Link your PHP version using the `brew link valet-php@7.4 --force` command
 
 ## Installing Valet+
 
@@ -43,7 +43,7 @@ This is a modified version of the [official Installation Guide](https://github.c
 
  ### Install Error: "*The process has been signaled with signal 9*"
 
- This is due to `valet fix` uninstalling `valet-php@7.2` for some reason. You can fix it by reinstalling Valet-PHP (Step 3 + 4 of "Installing Valet-PHP").
+ This is due to `valet fix` uninstalling `valet-php@7.4` for some reason. You can fix it by reinstalling Valet-PHP (Step 3 + 4 of "Installing Valet-PHP").
  Make sure to **NOT** run `valet fix` afterwards and just proceed with `valet install`
  
  ### Missing Elasticsearch stub fix

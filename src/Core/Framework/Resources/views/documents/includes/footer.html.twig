@@ -1,0 +1,84 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block footer %}
+    {% if config.displayFooter %}
+
+        <footer>
+            {% if config.displayPageCount %}
+                <div class="page-count">
+                    {% block document_page_count %}
+                        {{ 'document.page'|trans({'%pageNumber%': '<span class="pagenum"></span>'})|sw_sanitize }}
+                    {% endblock %}
+                </div>
+            {% endif %}
+            {% block document_footer %}
+                {% block document_footer_first_column %}
+                    <ul>
+                        {% block document_footer_company_name %}
+                            {% if config.companyName %} <li class="bold">{{ config.companyName }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_tax_number %}
+                            {% if config.taxNumber %}<li>{{ 'document.taxNumber'|trans({'%taxNumber%': config.taxNumber})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_vat_id %}
+                            {% if config.vatId %}<li>{{ 'document.vatId'|trans({'%vatId%': config.vatId})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_tax_office %}
+                            {% if config.taxOffice %}<li>{{ 'document.taxOffice'|trans({'%taxOffice%': config.taxOffice})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                    </ul>
+                {% endblock %}
+
+                {% block document_footer_second_column %}
+                    <ul>
+                        {% block document_footer_bank_account %}
+                            {% if config.companyName %}<li class="bold">{{ 'document.bankAccount'|trans|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_bank_name %}
+                            {% if config.bankName %}<li>{{ config.bankName }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_bank_iban %}
+                            {% if config.bankIban %}<li>{{ 'document.bankIban'|trans({'%bankIban%': config.bankIban})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_bank_bic %}
+                            {% if config.bankBic %}<li>{{ 'document.bankBic'|trans({'%bankBic%': config.bankBic})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                    </ul>
+                {% endblock %}
+
+                {% block document_footer_third_column %}
+                    <ul>
+                        {% block document_footer_place_of_jurisdiction %}
+                            {% if config.placeOfJurisdiction %}<li>{{ 'document.placeOfJurisdiction'|trans({'%placeOfJurisdiction%': config.placeOfJurisdiction})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                        {% block document_footer_place_of_fulfillment %}
+                            {% if config.placeOfFulfillment %}<li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment})|sw_sanitize }}</li>{% endif %}
+                        {% endblock %}
+                    </ul>
+                {% endblock %}
+
+                {% block document_footer_fourth_column %}
+                    <ul>
+                        {% if config.executiveDirector %}
+                            {% block document_footer_ceo %}
+                                <li class="bold">{{ 'document.ceo'|trans|sw_sanitize }}</li>
+                            {% endblock %}
+                            {% block document_footer_ceo_name %}
+                                <li>{{ config.executiveDirector }}</li>
+                            {% endblock %}
+                        {% endif %}
+                    </ul>
+                {% endblock %}
+            {% endblock %}
+        </footer>
+    {% endif %}
+{% endblock %}

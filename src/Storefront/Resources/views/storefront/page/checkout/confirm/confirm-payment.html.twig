@@ -15,116 +15,12 @@
                 </div>
             {% endblock %}
 
-            {# @deprecated tag:v6.4.0.0 renamed to page_checkout_change_payment_form #}
-            {# will include new component/payment/payment-form.html.twig in v6.4.0.0 #}
-            {% block page_checkout_confirm_payment_current %}
-                <p class="confirm-payment-current">
-
-                    {# @deprecated tag:v6.4.0.0 removed #}
-                    {% block page_checkout_confirm_payment_current_image %}
-                        {% if context.paymentMethod.media %}
-                            {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
-                                media: context.paymentMethod.media,
-                                sizes: {
-                                    'default': '100px'
-                                },
-                                attributes: {
-                                    'class': 'payment-method-image',
-                                    'alt': (context.paymentMethod.media.translated.alt ?: context.paymentMethod.translated.name),
-                                    'title': (context.paymentMethod.media.translated.title ?: context.paymentMethod.translated.name)
-                                }
-                            } %}
-                        {% endif %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.4.0.0 removed #}
-                    {% block page_checkout_confirm_payment_current_text %}
-                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
-
-                        {# @deprecated tag:v6.4.0.0 removed #}
-                        {% block page_checkout_confirm_payment_invalid_tooltip %}{% endblock %}
-
-                        {% if paymentMethodInvalid %}
-                            {{ "checkout.confirmSelectionNone"|trans|sw_sanitize }}
-                        {% else %}
-                            {{ context.paymentMethod.translated.name }}
-                        {% endif %}
-
-                    {% endblock %}
-                </p>
-            {% endblock %}
-
-            {# @deprecated tag:v6.4.0.0 removed #}
-            {% block page_checkout_confirm_payment_modal_toggle %}
-                <button type="button"
-                        class="btn btn-light"
-                        data-toggle="modal"
-                        data-backdrop="static"
-                        {% if page.paymentChangeable is not null and page.paymentChangeable == false %}
-                            disabled="disabled"
-                        {% endif %}
-                        data-target="#confirmPaymentModal">
-
-                    {% if paymentMethodInvalid %}
-                        {{ "checkout.confirmChoosePayment"|trans|sw_sanitize }}
-                    {% else %}
-                        {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
-                    {% endif %}
-                </button>
-            {% endblock %}
-
-            {# @deprecated tag:v6.4.0.0 removed #}
-            {% block page_checkout_confirm_payment_modal %}
-                <div class="modal fade confirm-payment-modal"
-                     id="confirmPaymentModal"
-                     tabindex="-1"
-                     role="dialog">
-                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
-                         role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <div class="modal-title h5">
-                                    {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
-                                </div>
-                                <button type="button"
-                                        class="modal-close close"
-                                        data-dismiss="modal"
-                                        aria-label="Close">
-                                    <span aria-hidden="true">
-                                        {% sw_icon 'x' style { 'size': 'sm' } %}
-                                    </span>
-                                </button>
-                            </div>
-
-                            {# @deprecated tag:v6.4.0.0 removed #}
-                            {% block page_checkout_confirm_payment_modal_body %}
-                                <div class="modal-body">
-
-                                    {# @deprecated tag:v6.4.0.0 removed #}
-                                    {% block page_checkout_confirm_payment_form %}
-
-                                        {# @deprecated tag:v6.4.0.0 removed #}
-                                        {% block page_checkout_confirm_payment_form_csrf %}{% endblock %}
-
-                                        {# @deprecated tag:v6.4.0.0 removed #}
-                                        {% block page_checkout_confirm_payment_form_redirect %}{% endblock %}
-
-                                        {# @deprecated tag:v6.4.0.0 removed #}
-                                        {% block page_checkout_confirm_payment_form_fields %}{% endblock %}
-
-                                        {# @deprecated tag:v6.4.0.0 removed #}
-                                        {% block page_checkout_confirm_payment_form_submit %}{% endblock %}
-
-                                        {# @deprecated tag:v6.4.0.0 removed #}
-                                        {% block page_checkout_confirm_payment_cancel %}{% endblock %}
-                                    {% endblock %}
-
-                                    {% sw_include '@Storefront/storefront/page/checkout/change-payment-modal.html.twig' with { 'redirect': 'frontend.checkout.confirm.page', 'action':  'frontend.checkout.configure'} %}
-                                </div>
-                            {% endblock %}
-                        </div>
-                    </div>
-                </div>
+            {% block page_checkout_change_payment_form %}
+                {% sw_include '@Storefront/storefront/component/payment/payment-form.html.twig' with {
+                    'action': 'frontend.checkout.configure',
+                    'actionPath': path('frontend.checkout.configure'),
+                    'redirect': 'frontend.checkout.confirm.page'
+                } %}
             {% endblock %}
         </div>
     </div>

@@ -28,7 +28,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     {
         $definition = $this->registerDefinition(SimpleDefinition::class);
 
-        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false, 1)), true);
+        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false)), true);
 
         static::assertSame('Added since version: 6.0.0.0', $build['simple']['description']);
         static::assertSame('Added since version: 6.3.9.9', $build['simple']['allOf'][1]['properties']['i_am_a_new_field']['description']);
@@ -38,7 +38,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
     {
         $definition = $this->registerDefinition(SinceDefinition::class);
 
-        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false, 1)), true);
+        $build = json_decode(json_encode($this->service->getSchemaByDefinition($definition, '', false)), true);
 
         static::assertSame('Added since version: 6.3.9.9', $build['since']['description']);
         static::assertArrayNotHasKey('description', $build['since']['allOf'][1]['properties']['id']);

@@ -27,7 +27,7 @@ class ProductActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
+     * @Route("/api/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
      *
      * @return JsonResponse
      */

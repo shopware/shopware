@@ -1,6 +1,6 @@
 @import '~scss/variables';
 
-$sw-seo-url-template-card-color-preview: $color-kashmir;
+$sw-seo-url-template-card-color-preview: $color-darkgray-200;
 $sw-seo-url-template-card-font-size-preview: $font-size-small;
 
 .sw-seo-url-template-card {
@@ -26,15 +26,15 @@ $sw-seo-url-template-card-font-size-preview: $font-size-small;
 
             &.icon--default {
                 &-basic-checkmark-line {
-                    color: $color-emerald;
+                    color: $color-emerald-500;
                 }
 
                 &-badge-warning {
-                    color: $color-pumpkin-spice;
+                    color: $color-pumpkin-spice-500;
                 }
 
                 &-basic-x-line {
-                    color: $color-crimson;
+                    color: $color-crimson-500;
                 }
             }
         }

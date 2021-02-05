@@ -63,7 +63,7 @@ class ProductListListRoute extends AbstractProductListRoute
      *          )
      *     )
      * )
-     * @Route("/store-api/v{version}/product", name="store-api.product.search", methods={"GET", "POST"})
+     * @Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context): ProductListResponse
     {

@@ -471,8 +471,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'svgIcons',
-            'stateDeprecated'
+            'svgIcons'
         ];
 
         const initContainer = this.getContainer('init');

@@ -245,7 +245,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
-            <argument type="tagged" tag="shopware.snippet.file"/>
+            <argument type="collection" />
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileLoader"/>
         </service>
 
@@ -374,7 +374,6 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Administration\Service\AdminOrderCartService">
@@ -404,10 +403,6 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRouteScope">
-            <tag name="shopware.route_scope"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Routing\SalesChannelApiRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
 

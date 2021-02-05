@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Address\Listing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -75,7 +76,7 @@ class AddressListingPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): AddressListingPage
+    public function load(Request $request, SalesChannelContext $salesChannelContext, CustomerEntity $customer): AddressListingPage
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
@@ -87,7 +88,7 @@ class AddressListingPageLoader
 
         $criteria = (new Criteria())->addSorting(new FieldSorting('firstName', FieldSorting::ASCENDING));
 
-        $page->setAddresses($this->listAddressRoute->load($criteria, $salesChannelContext)->getAddressCollection());
+        $page->setAddresses($this->listAddressRoute->load($criteria, $salesChannelContext, $customer)->getAddressCollection());
 
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
@@ -105,9 +106,9 @@ class AddressListingPageLoader
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
+    private function getSalutations(SalesChannelContext $context): SalutationCollection
     {
-        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
+        $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
         $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();

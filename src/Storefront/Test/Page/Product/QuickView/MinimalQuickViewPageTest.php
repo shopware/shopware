@@ -81,7 +81,6 @@ class MinimalQuickViewPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(MinimalQuickViewPage::class, $page);
-        static::assertInstanceOf(MinimalQuickViewPageCriteriaEvent::class, $event);
     }
 
     protected function getPageLoader(): MinimalQuickViewPageLoader

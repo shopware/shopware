@@ -84,9 +84,8 @@ class AccountProfileController extends StorefrontController
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function index(Request $request, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
         $page = $this->overviewPageLoader->load($request, $context, $customer);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
@@ -120,10 +119,9 @@ class AccountProfileController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function saveProfile(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changeCustomerProfileRoute->change($data, $context, $customer);
 
             $this->addFlash('success', $this->trans('account.profileUpdateSuccess'));
@@ -143,10 +141,9 @@ class AccountProfileController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function saveEmail(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context, $customer);
 
             $this->addFlash('success', $this->trans('account.emailChangeSuccess'));
@@ -168,7 +165,7 @@ class AccountProfileController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function savePassword(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
             /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
@@ -191,10 +188,9 @@ class AccountProfileController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function deleteProfile(Request $request, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->deleteCustomerRoute->delete($context, $customer);
             $this->addFlash('success', $this->trans('account.profileDeleteSuccessAlert'));
         } catch (\Exception $exception) {

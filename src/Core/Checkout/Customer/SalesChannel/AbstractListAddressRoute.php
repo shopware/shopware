@@ -11,10 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 abstract class AbstractListAddressRoute
 {
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
-     */
-    abstract public function load(Criteria $criteria, SalesChannelContext $context/*, CustomerEntity $customer*/): ListAddressRouteResponse;
+    abstract public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse;
 
     abstract public function getDecorated(): AbstractListAddressRoute;
 }

@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -239,11 +238,6 @@ class SalesChannelEntity extends Entity
      * @var ProductVisibilityCollection|null
      */
     protected $productVisibilities;
-
-    /**
-     * @var MailTemplateSalesChannelCollection|null
-     */
-    protected $mailTemplates;
 
     /**
      * @var string|null
@@ -715,16 +709,6 @@ class SalesChannelEntity extends Entity
     public function setProductVisibilities(ProductVisibilityCollection $productVisibilities): void
     {
         $this->productVisibilities = $productVisibilities;
-    }
-
-    public function getMailTemplates(): ?MailTemplateSalesChannelCollection
-    {
-        return $this->mailTemplates;
-    }
-
-    public function setMailTemplates(MailTemplateSalesChannelCollection $mailTemplates): void
-    {
-        $this->mailTemplates = $mailTemplates;
     }
 
     public function getCustomerGroupId(): string

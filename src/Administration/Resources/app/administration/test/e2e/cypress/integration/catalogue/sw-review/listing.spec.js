@@ -45,7 +45,7 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',
-                    url: '/api/v3/_action/sync',
+                    url: '/api/_action/sync',
                     qs: {
                         response: true
                     },
@@ -100,7 +100,7 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',
-                    url: '/api/v3/_action/sync',
+                    url: '/api/_action/sync',
                     qs: {
                         response: true
                     },

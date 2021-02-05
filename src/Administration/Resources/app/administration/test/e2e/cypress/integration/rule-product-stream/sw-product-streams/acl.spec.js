@@ -212,7 +212,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
             }).as('deleteData');
 
             cy.route({
-                url: '/api/v*/_action/sync',
+                url: '/api/_action/sync',
                 method: 'post'
             }).as('deleteMultipleData');
 

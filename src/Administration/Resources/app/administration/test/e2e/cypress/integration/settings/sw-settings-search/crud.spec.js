@@ -21,7 +21,7 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-search-config/*',
+            url: '/api/product-search-config/*',
             method: 'patch'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-search-config/*',
+            url: '/api/product-search-config/*',
             method: 'patch'
         }).as('saveData');
 

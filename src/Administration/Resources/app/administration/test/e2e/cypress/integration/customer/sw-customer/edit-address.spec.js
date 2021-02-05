@@ -210,7 +210,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/search/customer/**/addresses`,
+            url: '/api/search/customer/**/addresses',
             method: 'post'
         }).as('searchAddresses');
         cy.route({

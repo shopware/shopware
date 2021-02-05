@@ -50,7 +50,7 @@ describe('Test if breadcrumb works correctly', () => {
             });
     });
 
-    // TODO: fix with NEXT-12987
+    // TODO: fix with NEXT-13614
     it.skip('@breadcrumb: Check if correct category types are clickable', () => {
         cy.get('.nav-link.main-navigation-link').contains('Test category 1').trigger('mouseenter').then(() => {
             cy.get('.navigation-flyout-content').should('be.visible');

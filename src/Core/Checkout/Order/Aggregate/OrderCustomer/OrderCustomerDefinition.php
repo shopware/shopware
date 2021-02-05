@@ -71,8 +71,7 @@ class OrderCustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(0.5)),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            // TODO: ok @oli?
-            (new RemoteAddressField('remote_address', 'remoteAddress'))->addFlags(new ApiAware()),
+            new RemoteAddressField('remote_address', 'remoteAddress'),
         ]);
     }
 }

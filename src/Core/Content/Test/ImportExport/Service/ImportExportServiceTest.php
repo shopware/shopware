@@ -179,6 +179,7 @@ class ImportExportServiceTest extends TestCase
         static::assertSame($profile['enclosure'], $actualConfig->get('enclosure'));
         static::assertSame($profile['sourceEntity'], $actualConfig->get('sourceEntity'));
         static::assertSame($profile['fileType'], $actualConfig->get('fileType'));
+        static::assertSame($profile['name'], $actualConfig->get('profileName'));
 
         $expectedMapping = MappingCollection::fromIterable($profile['mapping']);
         static::assertEquals($expectedMapping, $actualConfig->getMapping());

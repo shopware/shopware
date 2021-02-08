@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -52,10 +53,30 @@ class MigrationLoaderTest extends TestCase
 
     public function testTheInterface(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_12349', $this);
+
         $collection = $this->loader->collect('core');
 
         static::assertInstanceOf(MigrationCollection::class, $collection);
         static::assertSame('core', $collection->getName());
+        static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
+        static::assertGreaterThan(1, \count($collection->getMigrationSteps()));
+    }
+
+    public function testTheInterfaceNew(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12349', $this);
+
+        $collection = $this->loader->collect('core');
+
+        static::assertInstanceOf(MigrationCollection::class, $collection);
+        static::assertSame('core', $collection->getName());
+        static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
+        static::assertCount(0, $collection->getMigrationSteps());
+
+        $collection = $this->loader->collect('core.V6_3');
+        static::assertInstanceOf(MigrationCollection::class, $collection);
+        static::assertSame('core.V6_3', $collection->getName());
         static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
         static::assertGreaterThan(1, \count($collection->getMigrationSteps()));
     }

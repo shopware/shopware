@@ -12,11 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 trait FilesystemBehaviour
 {
-    /**
-     * @var Filesystem[]
-     */
-    private $filesystems;
-
     public function getFilesystem(string $serviceId): Filesystem
     {
         return $this->getContainer()->get($serviceId);

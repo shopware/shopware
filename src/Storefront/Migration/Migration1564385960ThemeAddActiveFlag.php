@@ -2,25 +2,9 @@
 
 namespace Shopware\Storefront\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1564385960ThemeAddActiveFlag extends MigrationStep
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12349) tag:6.5.0.0 - Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1564385960ThemeAddActiveFlag extends \Shopware\Storefront\Migration\V6_3\Migration1564385960ThemeAddActiveFlag
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1564385960;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `theme` ADD `active` TINYINT(1) NOT NULL DEFAULT 1 AFTER `config_values`;');
-        $connection->executeUpdate('
-            UPDATE `media_default_folder` SET `association_fields` = \'[\"media\"]\' WHERE `entity` = \'theme\';
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

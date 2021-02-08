@@ -2,33 +2,9 @@
 
 namespace Shopware\Storefront\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1555406153SalesChannelTheme extends MigrationStep
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12349) tag:6.5.0.0 - Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1555406153SalesChannelTheme extends \Shopware\Storefront\Migration\V6_3\Migration1555406153SalesChannelTheme
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1555406153;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->exec('
-            CREATE TABLE `sales_channel_theme` (
-              `sales_channel_id`    BINARY(16)      NOT NULL,
-              `theme_name`          VARCHAR(255)    NOT NULL,
-              `created_at`          DATETIME(3)     NOT NULL,
-              `updated_at`          DATETIME(3)     NULL,
-              PRIMARY KEY (`sales_channel_id`, `theme_name`),
-              UNIQUE `uniq.sales_channel_theme.sales_channel_id` (`sales_channel_id`),
-              CONSTRAINT `fk.sales_channel_theme.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
-                REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            )
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

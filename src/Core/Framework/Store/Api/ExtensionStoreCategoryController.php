@@ -28,7 +28,7 @@ class ExtensionStoreCategoryController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/store-categories", name="api.extension.store_categories", Methods={"GET"})
+     * @Route("/api/_action/extension/store-categories", name="api.extension.store_categories", Methods={"GET"})
      */
     public function getCategories(Context $context): JsonResponse
     {

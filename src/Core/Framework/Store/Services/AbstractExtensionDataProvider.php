@@ -12,7 +12,7 @@ abstract class AbstractExtensionDataProvider
 {
     abstract public function getListing(ExtensionCriteria $criteria, Context $context): ExtensionCollection;
 
-    abstract public function getListingFilters(Context $context): array;
+    abstract public function getListingFilters(array $parameters, Context $context): array;
 
     abstract public function getExtensionDetails(int $id, Context $context): ExtensionStruct;
 

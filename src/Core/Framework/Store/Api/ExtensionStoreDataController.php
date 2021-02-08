@@ -75,9 +75,11 @@ class ExtensionStoreDataController extends AbstractController
      * @Since("6.4.0.0")
      * @Route("/api/_action/extension/store-filters", name="api.extension.store_filters", Methods={"GET"})
      */
-    public function listingFilters(Context $context): JsonResponse
+    public function listingFilters(Request $request, Context $context): JsonResponse
     {
-        return new JsonResponse($this->extensionDataProvider->getListingFilters($context));
+        return new JsonResponse(
+            $this->extensionDataProvider->getListingFilters($request->query->all(), $context)
+        );
     }
 
     /**

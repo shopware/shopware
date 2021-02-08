@@ -85,6 +85,10 @@ class LineItemCustomFieldRule extends Rule
     {
         $customFields = $lineItem->getPayloadValue('customFields');
 
+        if ($customFields === null) {
+            return false;
+        }
+
         $actual = $this->getValue($customFields, $this->renderedField);
         if ($actual === null) {
             return false;

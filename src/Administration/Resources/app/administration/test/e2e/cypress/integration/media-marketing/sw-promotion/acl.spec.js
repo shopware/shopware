@@ -83,6 +83,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         cy.get(page.elements.smartBarHeader)
             .contains('Thunder Tuesday');
+        cy.get('#sw-field--promotion-name').should('be.visible');
         cy.get('#sw-field--promotion-name').should('have.value', 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('not.be.disabled');
 
@@ -112,6 +113,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('New promotion name');
     });

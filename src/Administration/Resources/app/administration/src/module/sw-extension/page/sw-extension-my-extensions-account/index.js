@@ -1,5 +1,6 @@
 import template from './sw-extension-my-extensions-account.html.twig';
 import './sw-extension-my-extensions-account.scss';
+import extensionErrorHandler from '../../service/extension-error-handler.service';
 
 const { State, Mixin } = Shopware;
 
@@ -13,7 +14,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['systemConfigApiService'],
+    inject: ['systemConfigApiService', 'shopwareExtensionService'],
 
     data() {
         return {
@@ -37,7 +38,7 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
             },
 
             set(shopwareId) {
-                State.dispatch('shopwareExtensions/storeShopwareId', shopwareId);
+                State.commit('shopwareExtensions/storeShopwareId', shopwareId);
             }
         }
     },
@@ -57,31 +58,56 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
                 .then((response) => {
                     this.shopwareId = response['core.store.shopwareId'] || null;
                 }).then(() => {
-                    State.dispatch('shopwareExtensions/checkLogin');
+                    this.shopwareExtensionService.checkLogin();
                 }).finally(() => {
                     this.isLoading = false;
                 });
         },
 
         logout() {
-            State.dispatch('shopwareExtensions/logoutShopwareUser');
+            return Shopware.Service('storeService').logout()
+                .then(() => {
+                    Shopware.State.commit('shopwareExtensions/storeShopwareId', null);
+                    Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+                })
+                .catch((errorResponse) => {
+                    const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
+                    Shopware.State.commit('shopwareExtensions/pluginErrorsMapped', mappedErrors);
+
+                    throw errorResponse;
+                });
         },
 
         login() {
             this.isLoading = true;
 
-            return State.dispatch(
-                'shopwareExtensions/loginShopwareUser', {
-                    shopwareId: this.form.shopwareId,
-                    password: this.form.password
-                }
-            ).then(() => {
+            return this.loginShopwareUser({
+                shopwareId: this.form.shopwareId,
+                password: this.form.password
+            }).then(() => {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage')
                 });
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        loginShopwareUser({ shopwareId, password }) {
+            return Shopware.Service('storeService').login(shopwareId, password)
+                .then(() => {
+                    Shopware.State.commit('shopwareExtensions/storeShopwareId', shopwareId);
+                    return this.shopwareExtensionService.checkLogin();
+                })
+                .catch((errorResponse) => {
+                    Shopware.State.commit('shopwareExtensions/storeShopwareId', null);
+                    Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+
+                    const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
+                    Shopware.State.commit('shopwareExtensions/pluginErrorsMapped', mappedErrors);
+
+                    throw errorResponse;
+                });
         },
 
         showErrorNotification({ type, payload }) {

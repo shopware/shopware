@@ -109,7 +109,7 @@ Shopware.Component.register('sw-license-violation', {
             return this.getPluginViolation();
         },
 
-        deactivateTempoarary() {
+        deactivateTemporary() {
             this.licenseViolationService.saveTimeToLocalStorage(this.licenseViolationService.key.showViolationsKey);
 
             this.readNotice = false;
@@ -124,6 +124,19 @@ Shopware.Component.register('sw-license-violation', {
             }
 
             this.addLoading('fetchPlugins');
+
+            if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
+                const extensionDataService = Shopware.Service('extensionStoreDataService');
+
+                extensionDataService.getInstalledExtensions(Shopware.Context.api)
+                    .then((response) => {
+                        this.plugins = response;
+                    })
+                    .finally(() => {
+                        this.finishLoading('fetchPlugins');
+                    });
+                return;
+            }
 
             this.pluginRepository.search(this.pluginCriteria, Shopware.Context.api)
                 .then((response) => {
@@ -155,7 +168,7 @@ Shopware.Component.register('sw-license-violation', {
             return this.licenseViolationService.forceDeletePlugin(this.pluginService, matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-plugin.list.messageDeleteSuccess')
+                        message: this.$tc('sw-license-violation.successfullyDeleted')
                     });
 
                     return this.reloadViolations();

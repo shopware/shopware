@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -67,7 +66,7 @@ class StoreControllerTest extends TestCase
             $pluginLifecycleService ?? $this->getPluginLifecycleServiceMock(),
             $this->getContainer()->get('user.repository'),
             $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get(RequestCriteriaBuilder::class)
+            null
         );
     }
 

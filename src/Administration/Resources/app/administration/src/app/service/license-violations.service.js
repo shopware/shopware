@@ -151,24 +151,49 @@ export default function createLicenseViolationsService(storeService) {
         localStorage.removeItem(responseCacheKey);
     }
 
-    async function forceDeletePlugin(pluginService, plugin) {
-        try {
-            const isActive = plugin.active;
-            const isInstalled = plugin.installedAt !== null;
+    async function forceDeletePlugin(pluginService, extension) {
+        if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
+            const extensionApiService = Shopware.Service('shopwareExtensionService');
+            const cacheService = Shopware.Service('cacheApiService');
 
-            if (isActive) {
-                await pluginService.deactivate(plugin.name);
+            try {
+                const isActive = extension.active;
+                const isInstalled = extension.installedAt !== null;
+
+                if (isActive) {
+                    await extensionApiService.deactivateExtension(extension.name, extension.type);
+                    await cacheService.clear();
+                }
+
+                if (isInstalled) {
+                    await extensionApiService.uninstallExtension(extension.name, extension.type);
+                }
+
+                await extensionApiService.removeExtension(extension.name, extension.type);
+
+                return true;
+            } catch (error) {
+                throw new Error(error);
             }
+        } else {
+            try {
+                const isActive = extension.active;
+                const isInstalled = extension.installedAt !== null;
 
-            if (isInstalled) {
-                await pluginService.uninstall(plugin.name);
+                if (isActive) {
+                    await pluginService.deactivate(extension.name);
+                }
+
+                if (isInstalled) {
+                    await pluginService.uninstall(extension.name);
+                }
+
+                await pluginService.delete(extension.name);
+
+                return true;
+            } catch (error) {
+                throw new Error(error);
             }
-
-            await pluginService.delete(plugin.name);
-
-            return true;
-        } catch (error) {
-            throw new Error(error);
         }
     }
 

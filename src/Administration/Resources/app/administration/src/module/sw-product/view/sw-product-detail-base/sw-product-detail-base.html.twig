@@ -87,8 +87,7 @@
                                     :key="isInherited"
                                     :isInherited="isInherited"
                                     :disabled="isInherited || !acl.can('product.editor')"
-                                    @media-drop="$emit('media-drop', $event)"
-                                    @cover-change="$emit('cover-change', $event)">
+                                    @media-open="onOpenMediaModal">
                                 </sw-product-media-form>
                             {% endblock %}
                         </sw-card>
@@ -96,6 +95,16 @@
 
                 </template>
             </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_detail_base_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                :initialFolderId="mediaDefaultFolderId"
+                :entityContext="product.getEntityName()"
+                @media-modal-selection-change="onAddMedia"
+                @modal-close="onCloseMediaModal">
+            </sw-media-modal-v2>
         {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}

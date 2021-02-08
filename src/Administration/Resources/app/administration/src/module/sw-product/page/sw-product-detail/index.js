@@ -246,7 +246,12 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
+            /**
+             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
+             * the function that called it was deleted.
+             */
             this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
+
             this.$root.$on('media-remove', (mediaId) => {
                 this.removeMediaItem(mediaId);
             });
@@ -256,7 +261,12 @@ Component.register('sw-product-detail', {
         },
 
         destroyedComponent() {
+            /**
+             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
+             * the function that called it was deleted.
+             */
             this.$root.$off('sidebar-toggle-open');
+
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
         },
@@ -427,6 +437,10 @@ Component.register('sw-product-detail', {
             this.initState();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "openMediaSidebar" will be removed because
+         * the function that called it was deleted.
+         */
         openMediaSidebar() {
             // Check if we have a reference to the component before calling a method
             if (!hasOwnProperty(this.$refs, 'mediaSidebarItem')
@@ -611,6 +625,10 @@ Component.register('sw-product-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onAddItemToProduct" will be removed because
+         * its relevant view will be removed when feature flag "FEATURE_NEXT_12429" got active.
+         */
         onAddItemToProduct(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
@@ -633,6 +651,10 @@ Component.register('sw-product-detail', {
             return true;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "addMedia" will be removed because
+         * the function that called it was deleted.
+         */
         addMedia(mediaItem) {
             Shopware.State.commit('swProductDetail/setLoading', ['media', true]);
 
@@ -685,6 +707,10 @@ Component.register('sw-product-detail', {
             }
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "_checkIfMediaIsAlreadyUsed" will be removed because
+         * the function that called it was deleted.
+         */
         _checkIfMediaIsAlreadyUsed(mediaId) {
             return this.product.media.some((productMedia) => {
                 return productMedia.mediaId === mediaId;

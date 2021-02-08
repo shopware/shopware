@@ -32,7 +32,8 @@ describe('Product: Visual tests', () => {
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
 
         // Check net price calculation
-        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
+        const rate = Cypress.env('locale') === 'en-GB' ? 'Standard rate' : 'Standard-Satz';
+        cy.get('select[name=sw-field--product-taxId]').select(rate);
         cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-gross').type('10');
         cy.wait('@calculatePrice').then(() => {
             cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-net').should('have.value', '8.4');

@@ -14,20 +14,11 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
  */
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService
 {
-    /**
-     * @var StoreClient
-     */
-    private $client;
+    private StoreClient $client;
 
-    /**
-     * @var LicenseLoader
-     */
-    private $licenseLoader;
+    private LicenseLoader $licenseLoader;
 
-    /**
-     * @var ExtensionDownloader
-     */
-    private $extensionDownloader;
+    private ExtensionDownloader $extensionDownloader;
 
     public function __construct(
         StoreClient $client,
@@ -60,9 +51,7 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
 
         $this->client->orderCart($cart, $context);
 
-        $extensionNames = $this->getExtensionNamesFromCart($cart);
-
-        foreach ($extensionNames as $name) {
+        foreach ($this->getExtensionNamesFromCart($cart) as $name) {
             $this->extensionDownloader->download($name, $context);
         }
     }
@@ -86,8 +75,6 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
     }
 
     /**
-     * @var array<string, array<array<string, string>>>
-     *
      * @return array<string>
      */
     private function getExtensionNamesFromCart(CartStruct $cart): array

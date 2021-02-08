@@ -26,6 +26,8 @@ $sw-select-result-list-transition: all ease-in-out 0.2s;
     background-color: $color-white;
     font-size: $font-size-small;
     font-family: $font-family-default;
+    padding: 8px;
+    border-radius: 4px;
 
     .sw-select-result-list__item-list {
         list-style: none;

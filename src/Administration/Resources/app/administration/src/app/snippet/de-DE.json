@@ -453,6 +453,10 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "valuePlaceholder": "Bitte auswählen ..."
     },
+    "sw-meteor-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen ..."
+    },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },

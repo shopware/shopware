@@ -1,0 +1,63 @@
+<div class="sw-meteor-single-select">
+    <div class="sw-meteor-single-select__preview" @click="toggleResultList">
+        <span class="sw-meteor-single-select__label">
+            {{ label }}:
+        </span>
+
+        <span class="sw-meteor-single-select__selected-value-label">
+            {{ selectedValueLabel }}
+        </span>
+
+        <sw-icon name="small-arrow-small-down" size="16px"></sw-icon>
+    </div>
+
+    <div class="sw-meteor-single-select__result-list">
+        <sw-select-result-list v-if="isExpanded"
+                               :popoverClasses="['sw-meteor-single-select__popover']"
+                               :popoverResizeWidth="false"
+                               :options="results"
+                               :isLoading="isLoading"
+                               :emptyMessage="$tc('global.sw-meteor-single-select.messageNoResults', 0, { term: searchTerm })"
+                               @paginate="$emit('paginate')"
+                               @item-select="setValue"
+                               @outside-click="closeResultList">
+
+            <template #before-item-list>
+                <slot name="before-item-list">
+                    <sw-simple-search-field
+                        v-model="searchTerm"
+                        @search-term-change="onInputSearchTerm"
+                        size="small"
+                        variant="form"
+                        ref="searchField"
+                    ></sw-simple-search-field>
+                </slot>
+            </template>
+
+            <template #result-item="{ item, index }">
+                <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                    <li is="sw-select-result"
+                        :class="'sw-meteor-select-option--' + item.value"
+                        :selected="isSelected(item)"
+                        @item-select="setValue"
+                        v-bind="{ item, index }">
+                            <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }">
+                                <sw-highlight-text v-if="highlightSearchTerm && !isSelected(item)"
+                                                   :text="getKey(item, labelProperty)"
+                                                   :searchTerm="searchTerm">
+                                </sw-highlight-text>
+
+                                <template v-else>
+                                    {{ getKey(item, labelProperty) }}
+                                </template>
+                            </slot>
+                    </li>
+                </slot>
+            </template>
+
+            <template #after-item-list>
+                <slot name="after-item-list"></slot>
+            </template>
+        </sw-select-result-list>
+    </div>
+</div>

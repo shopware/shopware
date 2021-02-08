@@ -33,7 +33,7 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
+     * @Route("/api/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
      */
     public function purchaseExtension(Request $request, Context $context): JsonResponse
     {
@@ -55,7 +55,7 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
+     * @Route("/api/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
      */
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
@@ -66,7 +66,7 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/license/rate/{extensionId}", name="api.license.rate", methods={"POST"})
+     * @Route("/api/license/rate/{extensionId}", name="api.license.rate", methods={"POST"})
      */
     public function rateLicensedExtension(int $extensionId, Request $request, Context $context): JsonResponse
     {

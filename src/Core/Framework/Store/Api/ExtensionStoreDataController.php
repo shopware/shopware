@@ -31,7 +31,7 @@ class ExtensionStoreDataController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/list", name="api.extension.list", methods={"POST", "GET"})
+     * @Route("/api/_action/extension/list", name="api.extension.list", methods={"POST", "GET"})
      */
     public function getExtensionList(Request $request, Context $context): Response
     {
@@ -53,7 +53,7 @@ class ExtensionStoreDataController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/detail/{id}", name="api.extension.detail", methods={"GET"})
+     * @Route("/api/_action/extension/detail/{id}", name="api.extension.detail", methods={"GET"})
      */
     public function detail(int $id, Context $context): Response
     {
@@ -62,7 +62,7 @@ class ExtensionStoreDataController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/{id}/reviews", name="api.extension.reviews", methods={"GET"})
+     * @Route("/api/_action/extension/{id}/reviews", name="api.extension.reviews", methods={"GET"})
      */
     public function reviews(int $id, Request $request, Context $context): Response
     {
@@ -73,7 +73,7 @@ class ExtensionStoreDataController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/store-filters", name="api.extension.store_filters", Methods={"GET"})
+     * @Route("/api/_action/extension/store-filters", name="api.extension.store_filters", Methods={"GET"})
      */
     public function listingFilters(Context $context): JsonResponse
     {
@@ -82,7 +82,7 @@ class ExtensionStoreDataController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/installed", name="api.extension.installed", methods={"GET"})
+     * @Route("/api/_action/extension/installed", name="api.extension.installed", methods={"GET"})
      */
     public function getInstalledExtensions(Context $context): Response
     {

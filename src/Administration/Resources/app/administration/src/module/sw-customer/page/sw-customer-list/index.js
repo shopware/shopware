@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -28,7 +28,17 @@ Component.register('sw-customer-list', {
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
             campaignCodeFilter: [],
-            showOnlyCustomerGroupRequests: false
+            showOnlyCustomerGroupRequests: false,
+            filterCriteria: [],
+            defaultFilters: [
+                'salutation-filter',
+                'account-status-filter',
+                'default-payment-method-filter',
+                'group-filter',
+                'billing-address-country-filter',
+                'shipping-address-country-filter',
+                'tags-filter'
+            ]
         };
     },
 
@@ -48,32 +58,36 @@ Component.register('sw-customer-list', {
         },
 
         defaultCriteria() {
-            const criteria = new Criteria(this.page, this.limit);
+            const defaultCriteria = new Criteria(this.page, this.limit);
             this.naturalSorting = this.sortBy === 'customerNumber';
 
-            criteria.setTerm(this.term);
+            defaultCriteria.setTerm(this.term);
             if (this.affiliateCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
+                defaultCriteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
             }
             if (this.campaignCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
+                defaultCriteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
 
             if (this.showOnlyCustomerGroupRequests) {
-                criteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
+                defaultCriteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
             }
 
             this.sortBy.split(',').forEach(sortBy => {
-                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
+                defaultCriteria.addSorting(Criteria.sort(sortBy, this.sortDirection, this.naturalSorting));
             });
 
-            criteria
+            defaultCriteria
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
                 .addAssociation('requestedGroup')
                 .addAssociation('salesChannel');
 
-            return criteria;
+            this.filterCriteria.forEach(filter => {
+                defaultCriteria.addFilter(filter);
+            });
+
+            return defaultCriteria;
         },
 
         filterSelectCriteria() {
@@ -86,6 +100,47 @@ Component.register('sw-customer-list', {
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
 
             return criteria;
+        },
+
+        listFilters() {
+            return this.filterFactory.create('customer', {
+                'salutation-filter': {
+                    property: 'salutation',
+                    label: this.$tc('sw-customer.filter.salutation.label'),
+                    placeholder: this.$tc('sw-customer.filter.salutation.placeholder'),
+                    labelProperty: 'displayName'
+                },
+                'account-status-filter': {
+                    property: 'active',
+                    label: this.$tc('sw-customer.filter.status.label'),
+                    placeholder: this.$tc('sw-customer.filter.status.placeholder')
+                },
+                'default-payment-method-filter': {
+                    property: 'defaultPaymentMethod',
+                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
+                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder')
+                },
+                'group-filter': {
+                    property: 'group',
+                    label: this.$tc('sw-customer.filter.customerGroup.label'),
+                    placeholder: this.$tc('sw-customer.filter.customerGroup.placeholder')
+                },
+                'billing-address-country-filter': {
+                    property: 'defaultBillingAddress.country',
+                    label: this.$tc('sw-customer.filter.billingCountry.label'),
+                    placeholder: this.$tc('sw-customer.filter.billingCountry.placeholder')
+                },
+                'shipping-address-country-filter': {
+                    property: 'defaultShippingAddress.country',
+                    label: this.$tc('sw-customer.filter.shippingCountry.label'),
+                    placeholder: this.$tc('sw-customer.filter.shippingCountry.placeholder')
+                },
+                'tags-filter': {
+                    property: 'tags',
+                    label: this.$tc('sw-customer.filter.tags.label'),
+                    placeholder: this.$tc('sw-customer.filter.tags.placeholder')
+                }
+            });
         }
     },
 
@@ -246,6 +301,20 @@ Component.register('sw-customer-list', {
         onChangeRequestedGroupFilter(value) {
             this.showOnlyCustomerGroupRequests = value;
             this.getList();
+        },
+
+        updateCriteria(criteria) {
+            this.page = 1;
+            this.filterCriteria = criteria;
+        }
+    },
+
+    watch: {
+        defaultCriteria: {
+            handler() {
+                this.getList();
+            },
+            deep: true
         }
     }
 });

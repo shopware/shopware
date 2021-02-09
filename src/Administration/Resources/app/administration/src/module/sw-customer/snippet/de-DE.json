@@ -222,6 +222,36 @@
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
       "notificationPasswordLengthErrorMessage": "Das Passwort erfüllt nicht die Mindestlänge von 8 Zeichen."
+    },
+    "filter": {
+      "salutation": {
+        "label": "Anrede",
+        "placeholder": "Anrede auswählen..."
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Status auswählen..."
+      },
+      "defaultPaymentMethod": {
+        "label": "Standardzahlungsart",
+        "placeholder": "Standardzahlungsart auswählen..."
+      },
+      "customerGroup": {
+        "label": "Kundengruppe",
+        "placeholder": "Kundengruppe auswählen..."
+      },
+      "billingCountry": {
+        "label": "Rechnungsland",
+        "placeholder": "Rechnungsländer auswählen..."
+      },
+      "shippingCountry": {
+        "label": "Lieferland",
+        "placeholder": "Lieferländer auswählen..."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Tags auswählen..."
+      }
     }
   },
   "sw-privileges": {

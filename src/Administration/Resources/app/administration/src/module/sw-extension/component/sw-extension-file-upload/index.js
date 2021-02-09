@@ -2,8 +2,7 @@ import template from './sw-extension-file-upload.html.twig';
 import './sw-extension-file-upload.scss';
 import pluginErrorHandler from '../../service/extension-error-handler.service';
 
-const { Component, Mixin, State } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-extension-file-upload', {
     template,
@@ -36,17 +35,8 @@ Component.register('sw-extension-file-upload', {
             const formData = new FormData();
             formData.append('file', files[0]);
 
-            const searchData = {
-                repository: this.repositoryFactory.create('plugin'),
-                criteria: new Criteria(),
-                context: {
-                    ...Shopware.Context.api,
-                    languageId: Shopware.State.get('session').languageId
-                }
-            };
-
             return this.extensionApiService.upload(formData).then(() => {
-                State.dispatch('shopwareExtensions/updateMyExtensions', searchData).then(() => {
+                Shopware.Service('shopwareExtensionService').updateExtensionData().then(() => {
                     return this.createNotificationSuccess({
                         message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess')
                     });

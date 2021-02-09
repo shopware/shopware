@@ -82,12 +82,23 @@ Component.register('sw-extension-store-listing', {
             }
 
             try {
-                await Shopware.State.dispatch('shopwareExtensions/search');
+                await this.search();
             } catch (e) {
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        async search() {
+            const extensionDataService = Shopware.Service('extensionStoreDataService');
+
+            const page = await extensionDataService.getExtensionList(
+                Shopware.State.get('shopwareExtensions').search,
+                { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
+            );
+
+            Shopware.State.commit('shopwareExtensions/setExtensionListing', page);
         },
 
         setPage({ limit, page }) {

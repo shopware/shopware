@@ -280,7 +280,7 @@ Component.register('sw-extension-buy-modal', {
 
         async fetchPlan() {
             this.isLoading = true;
-            await Shopware.State.dispatch('swPlugin/checkLogin');
+            await this.shopwareExtensionService.checkLogin();
             this.isLoading = false;
         },
 

@@ -1,5 +1,3 @@
-import extensionErrorHandler from '../service/extension-error-handler.service';
-
 export default {
     namespaced: true,
 
@@ -39,6 +37,10 @@ export default {
             state.myExtensions.loading = true;
         },
 
+        setLoading(state, value = true) {
+            state.myExtensions.loading = value;
+        },
+
         myExtensions(state, myExtensions) {
             state.myExtensions.data = myExtensions;
             state.myExtensions.loading = false;
@@ -75,79 +77,5 @@ export default {
         },
 
         pluginErrorsMapped() { /* nth */ }
-    },
-
-    actions: {
-        async search({ state, commit }) {
-            const extensionDataService = Shopware.Service('extensionStoreDataService');
-
-            const page = await extensionDataService.getExtensionList(
-                state.search,
-                { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
-            );
-
-            commit('setExtensionListing', page);
-        },
-
-        async updateMyExtensions({ commit }) {
-            commit('loadMyExtensions');
-
-            const extensionDataService = Shopware.Service('extensionStoreDataService');
-
-            await extensionDataService.refreshExtensions();
-
-            const myExtensions = await extensionDataService.getMyExtensions(
-                { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
-            );
-
-            commit('myExtensions', myExtensions);
-        },
-
-        loginShopwareUser({ commit, dispatch }, { shopwareId, password }) {
-            return Shopware.Service('storeService').login(shopwareId, password)
-                .then(() => {
-                    commit('storeShopwareId', shopwareId);
-                    return dispatch('checkLogin');
-                })
-                .catch((errorResponse) => {
-                    commit('storeShopwareId', null);
-                    commit('setLoginStatus', false);
-
-                    const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
-                    commit('pluginErrorsMapped', mappedErrors);
-
-                    throw errorResponse;
-                });
-        },
-
-        storeShopwareId({ commit }, shopwareId) {
-            commit('storeShopwareId', shopwareId);
-        },
-
-        logoutShopwareUser({ commit }) {
-            return Shopware.Service('storeService').logout()
-                .then(() => {
-                    commit('storeShopwareId', null);
-                    commit('setLoginStatus', false);
-                })
-                .catch((errorResponse) => {
-                    const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
-                    commit('pluginErrorsMapped', mappedErrors);
-
-                    throw errorResponse;
-                });
-        },
-
-        checkLogin({ state, commit }) {
-            if (!state.shopwareId) {
-                commit('setLoginStatus', false);
-            }
-
-            Shopware.Service('storeService').checkLogin().then((response) => {
-                commit('setLoginStatus', response.storeTokenExists);
-            }).catch(() => {
-                commit('setLoginStatus', false);
-            });
-        }
     }
 };

@@ -63,9 +63,38 @@ export default class ShopwareExtensionService {
         await this.updateModules();
     }
 
-    async updateExtensionData() {
-        await Shopware.State.dispatch('shopwareExtensions/updateMyExtensions');
-        await this.updateModules();
+    updateExtensionData() {
+        Shopware.State.commit('shopwareExtensions/loadMyExtensions');
+
+        const extensionDataService = Shopware.Service('extensionStoreDataService');
+
+        return extensionDataService.refreshExtensions()
+            .then(() => {
+                return extensionDataService.getMyExtensions(
+                    { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
+                );
+            }).then((myExtensions) => {
+                Shopware.State.commit('shopwareExtensions/myExtensions', myExtensions);
+
+                return this.updateModules();
+            }).catch(e => {
+                return Promise.reject(e);
+            })
+            .finally(() => {
+                Shopware.State.commit('shopwareExtensions/setLoading', false);
+            });
+    }
+
+    checkLogin() {
+        if (!Shopware.State.get('shopwareExtensions').shopwareId) {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+        }
+
+        return Shopware.Service('storeService').checkLogin().then((response) => {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', response.storeTokenExists);
+        }).catch(() => {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+        });
     }
 
     orderVariantsByRecommendation(variants) {

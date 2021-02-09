@@ -139,7 +139,7 @@
                                         <template #column-name="{ item, column }">
                                             <router-link
                                                 :to="{ name: column.routerLink, params: { id: item.id } }">
-                                                <sw-product-variant-info :variations="item.options">
+                                                <sw-product-variant-info :variations="item.options" @click.native="onAbort">
                                                     {{ item.translated.name }}
                                                 </sw-product-variant-info>
                                             </router-link>
@@ -151,7 +151,9 @@
                                             <router-link
                                                 v-if="item.manufacturerId"
                                                 :to="{ name: column.routerLink, params: { id: item.manufacturerId } }">
-                                                {{ item.manufacturer.translated.name }}
+                                                <p @click="onAbort">
+                                                    {{ item.manufacturer.translated.name }}
+                                                </p>
                                             </router-link>
                                             <span v-else></span>
                                         </template>

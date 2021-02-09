@@ -154,6 +154,10 @@ shopware:
               default: false
               major: true
               description: "Group migrations into major versions"
+            - name: FEATURE_NEXT_13273
+              default: false
+              major: true
+              description: "Make CMS entities versionable"
 
     logger:
         file_rotation_count: 14

@@ -134,7 +134,7 @@ class ProductRepositoryTest extends TestCase
                     'shortName' => 'test',
                     'name' => 'name',
                     'symbol' => 'A',
-                    'isoCode' => 'A',
+                    'isoCode' => 'XX',
                     'decimalPrecision' => 2,
                     'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
                     'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),

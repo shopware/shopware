@@ -152,6 +152,9 @@
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields"
     },
+    "seo": {
+      "cardTitleSeo": "SEO"
+    },
     "reviewForm": {
       "labelStatus": "Visible",
       "labelCreatedAt": "Created at",
@@ -236,6 +239,7 @@
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",
       "tabLayout": "Layout",
+      "tabSeo": "SEO",
       "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",

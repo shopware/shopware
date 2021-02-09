@@ -31,6 +31,7 @@ import './view/sw-product-detail-context-prices';
 import './view/sw-product-detail-properties';
 import './view/sw-product-detail-variants';
 import './view/sw-product-detail-layout';
+import './view/sw-product-detail-seo';
 import './view/sw-product-detail-cross-selling';
 import './page/sw-product-list';
 import './page/sw-product-detail';
@@ -144,6 +145,14 @@ Module.register('sw-product', {
                 layout: {
                     component: 'sw-product-detail-layout',
                     path: 'layout',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
+                    }
+                },
+                seo: {
+                    component: 'sw-product-detail-seo',
+                    path: 'seo',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer'

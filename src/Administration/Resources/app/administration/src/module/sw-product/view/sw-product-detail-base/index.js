@@ -66,7 +66,7 @@ Component.register('sw-product-detail-base', {
         ]),
 
         /**
-         * @deprecated tag:v6.5.0- The property "customFieldSetsArray" will be removed because
+         * @deprecated tag:v6.5.0 - The property "customFieldSetsArray" will be removed because
          * its relevant view was moved from this component to `sw-product-detail-specifications` component.
          */
         ...mapState('swProductDetail', {
@@ -230,6 +230,10 @@ Component.register('sw-product-detail-base', {
             this.reloadReviews();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onMainCategoryAdded" will be removed because
+         * its relevant view was moved from this component to `sw-product-detail-seo` component.
+         */
         onMainCategoryAdded(mainCategory) {
             this.product.mainCategories.push(mainCategory);
         },

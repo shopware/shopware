@@ -250,6 +250,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader"/>
+            <argument type="service" id="event_dispatcher"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -18,52 +18,35 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
+use Shopware\Storefront\Page\Wishlist\WishListPageProductCriteriaEvent;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"storefront"})
  */
 class WishlistController extends StorefrontController
 {
-    /**
-     * @var WishlistPageLoader
-     */
-    private $wishlistPageLoader;
+    private WishlistPageLoader $wishlistPageLoader;
 
-    /**
-     * @var AbstractLoadWishlistRoute
-     */
-    private $wishlistLoadRoute;
+    private AbstractLoadWishlistRoute $wishlistLoadRoute;
 
-    /**
-     * @var AbstractAddWishlistProductRoute
-     */
-    private $addWishlistRoute;
+    private AbstractAddWishlistProductRoute $addWishlistRoute;
 
-    /**
-     * @var AbstractRemoveWishlistProductRoute
-     */
-    private $removeWishlistProductRoute;
+    private AbstractRemoveWishlistProductRoute $removeWishlistProductRoute;
 
-    /**
-     * @var AbstractMergeWishlistProductRoute
-     */
-    private $mergeWishlistProductRoute;
+    private AbstractMergeWishlistProductRoute $mergeWishlistProductRoute;
 
-    /**
-     * @var GuestWishlistPageLoader
-     */
-    private $guestPageLoader;
+    private GuestWishlistPageLoader $guestPageLoader;
 
-    /**
-     * @var GuestWishlistPageletLoader
-     */
-    private $guestPageletLoader;
+    private GuestWishlistPageletLoader $guestPageletLoader;
+
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         WishlistPageLoader $wishlistPageLoader,
@@ -72,7 +55,8 @@ class WishlistController extends StorefrontController
         AbstractRemoveWishlistProductRoute $removeWishlistProductRoute,
         AbstractMergeWishlistProductRoute $mergeWishlistProductRoute,
         GuestWishlistPageLoader $guestPageLoader,
-        GuestWishlistPageletLoader $guestPageletLoader
+        GuestWishlistPageletLoader $guestPageletLoader,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->wishlistPageLoader = $wishlistPageLoader;
         $this->wishlistLoadRoute = $wishlistLoadRoute;
@@ -81,6 +65,7 @@ class WishlistController extends StorefrontController
         $this->mergeWishlistProductRoute = $mergeWishlistProductRoute;
         $this->guestPageLoader = $guestPageLoader;
         $this->guestPageletLoader = $guestPageletLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -138,8 +123,11 @@ class WishlistController extends StorefrontController
      */
     public function ajaxList(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
+        $criteria = new Criteria();
+        $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
+
         try {
-            $res = $this->wishlistLoadRoute->load($request, $context, new Criteria(), $customer);
+            $res = $this->wishlistLoadRoute->load($request, $context, $criteria, $customer);
         } catch (CustomerWishlistNotFoundException $exception) {
             return new JsonResponse([]);
         }

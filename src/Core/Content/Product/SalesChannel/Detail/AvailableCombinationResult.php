@@ -16,24 +16,21 @@ class AvailableCombinationResult extends Struct
      */
     protected $optionIds = [];
 
+    /**
+     * @var array
+     */
+    protected $combinations = [];
+
     public function hasCombination(array $optionIds): bool
     {
-        $optionIds = array_values($optionIds);
-        sort($optionIds);
-
-        $hash = md5(json_encode($optionIds));
-
-        return isset($this->hashes[$hash]);
+        return isset($this->hashes[$this->calculateHash($optionIds)]);
     }
 
     public function addCombination(array $optionIds): void
     {
-        $optionIds = array_values($optionIds);
-        sort($optionIds);
-
-        $hash = md5(json_encode($optionIds));
-
+        $hash = $this->calculateHash($optionIds);
         $this->hashes[$hash] = true;
+        $this->combinations[$hash] = $optionIds;
 
         foreach ($optionIds as $id) {
             $this->optionIds[$id] = true;
@@ -47,6 +44,19 @@ class AvailableCombinationResult extends Struct
 
     public function getHashes(): array
     {
-        return $this->hashes;
+        return \array_keys($this->hashes);
+    }
+
+    public function getCombinations(): array
+    {
+        return $this->combinations;
+    }
+
+    private function calculateHash(array $optionIds): string
+    {
+        $optionIds = array_values($optionIds);
+        sort($optionIds);
+
+        return md5((string) json_encode($optionIds));
     }
 }

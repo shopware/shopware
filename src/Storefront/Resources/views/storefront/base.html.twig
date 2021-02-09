@@ -88,9 +88,7 @@
         {% block base_footer %}
             <footer class="footer-main">
                 {% block base_footer_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                    </div>
+                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
                 {% endblock %}
             </footer>
         {% endblock %}

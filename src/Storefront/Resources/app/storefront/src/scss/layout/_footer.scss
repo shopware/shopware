@@ -39,6 +39,10 @@ Contains custom styles for the footer located at the bottom of the page.
 
 .footer-bottom {
     padding: $spacer;
+
+    > .container {
+        padding: 0;
+    }
 }
 
 .footer-vat,
@@ -47,12 +51,21 @@ Contains custom styles for the footer located at the bottom of the page.
     text-align: center;
 }
 
+.footer-service-menu-list {
+    padding: $spacer 0;
+
+    &:empty {
+        padding: 0;
+        margin: 0;
+    }
+}
+
 .footer-service-menu-item {
     display: inline-block;
 }
 
 .footer-service-menu-link {
-    padding: 14px 0;
+    padding: 5px 0;
     display: inline-block;
 }
 
@@ -96,11 +109,5 @@ Contains custom styles for the footer located at the bottom of the page.
     // show collapse content on larger screens
     .footer-column-content.collapse {
         display: block;
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .footer-service-menu-list {
-        display: none;
     }
 }

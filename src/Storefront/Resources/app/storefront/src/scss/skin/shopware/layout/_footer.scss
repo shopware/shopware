@@ -35,26 +35,24 @@ Contains custom skin styles for the footer located at the bottom of the page.
     font-weight: $font-weight-bold;
 }
 
-.footer-service-menu-item {
-    &::after {
-        display: inline-block;
-        height: 10px;
-        width: 1px;
-        border-left: 1px solid $gray-500;
-        content: '';
-        margin: 0 $spacer-sm;
-    }
+.footer-bottom {
+    background: $gray-100;
+}
 
-    &:last-child::after {
-        content: none;
+.footer-service-menu-item {
+    padding-right: $spacer;
+    font-weight: $font-weight-bold;
+
+    &:last-child {
+        padding-right: 0;
     }
 }
 
-@include media-breakpoint-up(md) {
-    .footer-columns {
-        border-bottom: 1px solid $border-color;
-    }
+.footer-service-menu-link {
+    color: inherit;
+}
 
+@include media-breakpoint-up(md) {
     .footer-column {
         border: 0;
     }

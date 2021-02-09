@@ -1,7 +1,8 @@
 {% block sw_multi_select_fiter %}
     <sw-base-filter :title="filter.label"
                     :showResetButton="!!values.length"
-                    @resetFilter="resetFilter">
+                    :active="active"
+                    @filter-reset="resetFilter">
         {% block sw_multi_select_fiter_content %}
             <sw-entity-multi-select
                 :labelProperty="filter.labelProperty"

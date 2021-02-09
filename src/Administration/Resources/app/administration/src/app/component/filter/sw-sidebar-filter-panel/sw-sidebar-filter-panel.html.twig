@@ -1,29 +1,22 @@
 {% block sw_sidebar_filter_panel %}
-    <div v-if="showContent" class="sw-sidebar-filter-panel">
+    <sw-sidebar-item
+        class="sw-sidebar-filter-panel"
+        icon="default-action-filter"
+        :badge="activeFilterNumber"
+        :title="$tc('sw-filter-panel.titleSidebarItemFilter')">
         {% block sw_sidebar_filter_panel_headline %}
-            <div class="sw-sidebar-filter-panel__headline">
-                {% block sw_sidebar_filter_panel_title %}
-                    <div class="sw-sidebar-filter-panel__info">
-                        <h3 class="sw-sidebar-filter-panel__title">{{ title }}</h3>
-                        <a href="#" @click.prevent="resetAll">{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
-                    </div>
-                {% endblock %}
-
-                {% block sw_sidebar_filter_panel_close_button %}
-                    <button class="sw-sidebar-filter-panel__close-button" @click="closeContent" aria-label="closeContent">
-                        <sw-icon name="small-default-x-line-small" size="20px">
-                        </sw-icon>
-                    </button>
-                {% endblock %}
-            </div>
+            <template v-slot:headline-content>
+                <a v-if="activeFilterNumber" @click="resetAll">{{ $tc('sw-sidebar-filter-panel.resetButton') }}</a>
+            </template>
         {% endblock %}
 
         {% block sw_sidebar_filter_panel_content %}
-            <div class="sw-sidebar-filter-panel__content">
-                <div class="sw-sidebar-filter-panel__scrollable-container">
-                    <slot>{% block sw_sidebar_filter_panel_default_slot%}{% endblock %}</slot>
-                </div>
-            </div>
+            <sw-filter-panel
+                ref="filterPanel"
+                @active-filter-number-update="onActiveFilterNumberUpdate"
+                v-on="$listeners"
+                v-bind="$attrs">
+            </sw-filter-panel>
         {% endblock %}
-    </div>
+    </sw-sidebar-item>
 {% endblock %}

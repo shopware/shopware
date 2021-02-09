@@ -34,7 +34,11 @@ Component.register('sw-product-list', {
             product: null,
             cloning: false,
             productEntityVariantModal: false,
-            filterCriteria: []
+            filterCriteria: [],
+            defaultFilters: [
+                'active-filter',
+                'product-without-images-filter'
+            ]
         };
     },
 

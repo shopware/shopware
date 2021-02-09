@@ -211,13 +211,13 @@
                         </sw-sidebar-item>
                     {% endblock %}
 
-                    <sw-filter-panel
+                    <sw-sidebar-filter-panel
                         v-if="feature.isActive('FEATURE_NEXT_9831')"
                         entity="product"
                         @criteria-changed="updateCriteria"
                         :filters="listFilters"
-                        :defaults="['active-filter']">
-                    </sw-filter-panel>
+                        :defaults="defaultFilters">
+                    </sw-sidebar-filter-panel>
                 </sw-sidebar>
             </template>
         {% endblock %}

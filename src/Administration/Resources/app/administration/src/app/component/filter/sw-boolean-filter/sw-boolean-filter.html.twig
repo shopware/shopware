@@ -3,10 +3,10 @@
         <sw-base-filter
             :title="filter.label"
             :showResetButton="!!value"
-            @resetFilter="resetFilter">
+            :active="active"
+            @filter-reset="resetFilter">
             {% block sw_boolean_filter_content %}
                 <sw-select-field :value="value"
-                                 :size="'small'"
                                  :placeholder="filter.placeholder"
                                  @change="changeValue">
                     <option :value="true">{{ $tc('sw-boolean-filter.active') }}</option>

@@ -77,7 +77,8 @@ function createWrapper() {
                     entity: 'entity',
                     referenceField: 'id'
                 }
-            }
+            },
+            active: true
         }
     });
 }
@@ -96,7 +97,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         expect(wrapper.find('.sw-select-selection-list__input').attributes().placeholder).toBe('placeholder');
     });
 
-    it('should emit `updateFilter` event when user choose entity', async () => {
+    it('should emit `filter-update` event when user choose entity', async () => {
         const wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
@@ -111,15 +112,15 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         list.at(0).trigger('click');
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',
             [Criteria.equalsAny('category.id', ['id1'])]
         ]);
 
-        expect(wrapper.emitted().resetFilter).toBeFalsy();
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 
-    it('should emit `resetFilter` event when click Reset button', async () => {
+    it('should emit `filter-reset` event when click Reset button', async () => {
         const wrapper = createWrapper();
 
         const entityCollection = new EntityCollection(null, null, null, new Criteria(), [
@@ -133,7 +134,45 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
-        expect(wrapper.emitted().updateFilter).toBeFalsy();
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-update']).toBeFalsy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should reset the filter value when `active` is false', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        await wrapper.setProps({ active: false });
+
+        expect(wrapper.vm.values.length).toEqual(0);
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should not reset the filter value when `active` is true', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        await wrapper.setProps({ active: true });
+
+        expect(wrapper.vm.values.length).not.toEqual(0);
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

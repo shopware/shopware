@@ -220,6 +220,9 @@ function createWrapper() {
                         return { search: () => Promise.resolve(getCurrencyData()) };
                     }
                 },
+                filterFactory: {
+                    create: () => []
+                },
                 acl: {
                     can: () => true
                 }

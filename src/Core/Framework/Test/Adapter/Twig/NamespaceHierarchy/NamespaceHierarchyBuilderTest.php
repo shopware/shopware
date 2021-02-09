@@ -65,6 +65,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
 
         static::assertEquals([
             'SwagThemeTest',
+            'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',

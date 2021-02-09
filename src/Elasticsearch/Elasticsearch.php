@@ -5,9 +5,11 @@ namespace Shopware\Elasticsearch;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
+use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -24,6 +26,9 @@ class Elasticsearch extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        // Needs to run before the ProfilerPass
+        $container->addCompilerPass(new ElasticsearchProfileCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 5000);
 
         $this->buildConfig($container);
     }

@@ -12,7 +12,6 @@ Component.register('sw-category-detail', {
 
     inject: [
         'acl',
-        'cmsPageService',
         'cmsService',
         'repositoryFactory',
         'seoUrlService',

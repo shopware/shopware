@@ -16,6 +16,7 @@ import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
 import initFilterFactory from 'src/app/init/filter-factory.init';
+import initEntity from 'src/app/init/entity.init';
 
 export default {
     coreMixin: initMixin,
@@ -31,5 +32,6 @@ export default {
     shortcut: initShortcut,
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
-    filterFactory: initFilterFactory
+    filterFactory: initFilterFactory,
+    entity: initEntity
 };

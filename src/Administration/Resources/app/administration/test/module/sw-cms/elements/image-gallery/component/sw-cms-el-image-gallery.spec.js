@@ -60,12 +60,7 @@ function createWrapper(propsOverride, dataOverride) {
         },
         propsData: {
             element: {
-                config: {
-                    sliderItems: {
-                        source: 'static',
-                        value: []
-                    }
-                },
+                config: {},
                 data: {}
             },
             defaultConfig: {
@@ -80,6 +75,30 @@ function createWrapper(propsOverride, dataOverride) {
                 verticalAlign: {
                     source: 'static',
                     value: null
+                },
+                displayMode: {
+                    source: 'static',
+                    value: 'standard'
+                },
+                minHeight: {
+                    source: 'static',
+                    value: '340px'
+                },
+                zoom: {
+                    source: 'static',
+                    value: false
+                },
+                fullScreen: {
+                    source: 'static',
+                    value: false
+                },
+                navigationArrows: {
+                    source: 'static',
+                    value: 'inside'
+                },
+                navigationDots: {
+                    source: 'static'
+
                 }
             },
             ...propsOverride
@@ -120,8 +139,13 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
                         value: sliderItemsConfigMock
                     }
                 },
-                data: {
-                    sliderItems: sliderItemsDataMock
+                translated: {
+                    config: {
+                        sliderItems: {
+                            source: 'static',
+                            value: sliderItemsConfigMock
+                        }
+                    }
                 }
             }
         }, {

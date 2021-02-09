@@ -104,7 +104,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         static::assertCount(1, $apps);
         static::assertEquals('TestApp', $apps->first()->getName());
-        static::assertTrue($apps->first()->isActive());
+        static::assertFalse($apps->first()->isActive());
     }
 
     public function testUninstallWithInvalidName(): void
@@ -201,6 +201,7 @@ class ExtensionLifecycleServiceTest extends TestCase
     public function testExtensionCantBeRemovedIfAThemeIsAssigned(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
+        $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
@@ -232,6 +233,7 @@ class ExtensionLifecycleServiceTest extends TestCase
     public function testExtensionCantBeRemovedIfAChildThemeIsAssigned(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
+        $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
         $theme = $this->themeRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'TestAppTheme')),
@@ -269,6 +271,7 @@ class ExtensionLifecycleServiceTest extends TestCase
     public function testExtensionCanBeRemovedIfThemeIsNotAssigned(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
+        $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
         $themeCriteria = new Criteria();
         $themeCriteria->addFilter(new EqualsFilter('technicalName', 'TestAppTheme'))

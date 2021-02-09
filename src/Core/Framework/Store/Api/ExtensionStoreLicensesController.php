@@ -33,22 +33,6 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/licensed", name="api.extension.licensed", methods={"GET"})
-     */
-    public function getLicensedExtensions(Context $context): Response
-    {
-        $listing = $this->extensionStoreLicensesService->getLicensedExtensions($context);
-
-        return new JsonResponse([
-            'data' => $listing,
-            'meta' => [
-                'total' => $listing->getTotal(),
-            ],
-        ]);
-    }
-
-    /**
-     * @Since("6.4.0.0")
      * @Route("/api/v{version}/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
      */
     public function purchaseExtension(Request $request, Context $context): JsonResponse
@@ -75,9 +59,9 @@ class ExtensionStoreLicensesController extends AbstractController
      */
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
-        return new JsonResponse(
-            $this->extensionStoreLicensesService->cancelSubscription($licenseId, $context)
-        );
+        $this->extensionStoreLicensesService->cancelSubscription($licenseId, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

@@ -133,6 +133,7 @@
                     'frontend.store-api.proxy': '{{ path('frontend.store-api.proxy') }}',
                 };
                 window.storeApiProxyToken = '{{ sw_csrf("frontend.store-api.proxy", {"mode": "token"}) }}';
+                window.salesChannelId = '{{ app.request.attributes.get('sw-sales-channel-id') }}';
             </script>
         {% endblock %}
 

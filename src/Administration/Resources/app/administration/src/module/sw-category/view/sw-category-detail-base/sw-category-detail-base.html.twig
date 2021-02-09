@@ -133,6 +133,7 @@
                                     entity="product_stream"
                                     :disabled="!acl.can('category.editor')"
                                     :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
+                                    :helpText="dynamicProductGroupHelpText"
                                     :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
                                     :error="productStreamInvalidError || categoryProductStreamIdError"
                                     v-model="category.productStreamId">

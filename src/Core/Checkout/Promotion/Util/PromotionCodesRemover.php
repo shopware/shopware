@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 
+/**
+ * @deprecated tag:v6.4.0.0 - Use EntityRepositoryInterface instead
+ */
 class PromotionCodesRemover
 {
     /**

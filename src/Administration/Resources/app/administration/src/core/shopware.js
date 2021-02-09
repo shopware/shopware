@@ -43,6 +43,7 @@ const ApiContextFactory = require('src/core/factory/api-context.factory').defaul
 const AppContextFactory = require('src/core/factory/app-context.factory').default;
 const RouterFactory = require('src/core/factory/router.factory').default;
 const ApiServices = require('src/core/service/api').default;
+const ModuleFilterFactory = require('src/core/data-new/filter-factory.data').default;
 
 const container = new Bottle({
     strict: true
@@ -324,7 +325,8 @@ const Shopware = function Shopware() {
             RepositoryFactory: RepositoryFactory,
             ApiContextFactory: ApiContextFactory,
             AppContextFactory: AppContextFactory,
-            RouterFactory: RouterFactory
+            RouterFactory: RouterFactory,
+            FilterFactory: ModuleFilterFactory
         }
     });
 

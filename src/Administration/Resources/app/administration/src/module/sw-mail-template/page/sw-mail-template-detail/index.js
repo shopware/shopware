@@ -22,7 +22,8 @@ Component.register('sw-mail-template-detail', {
                 return this.allowSave;
             },
             method: 'onSave'
-        }
+        },
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -231,6 +232,10 @@ Component.register('sw-mail-template-detail', {
 
         saveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.mail.template.index' });
         },
 
         onSave() {

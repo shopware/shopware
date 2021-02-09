@@ -17,5 +17,9 @@ module.exports = {
             outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts'),
             outputName: 'administration.junit.xml'
         }]
-    ]
+    ],
+
+    moduleNameMapper: {
+        vue$: 'vue/dist/vue.common.dev.js',
+    }
 };

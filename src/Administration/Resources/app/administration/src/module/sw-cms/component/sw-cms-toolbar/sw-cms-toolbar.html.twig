@@ -19,7 +19,9 @@
         {% block sw_cms_toolbar_language_switch %}
             <div class="sw-cms-toolbar__language-selection">
                 <slot name="language-switch">
+                    {# @deprecated tag:v6.4.0 - use block sw_cms_toolbar_slot_language_switch instead #}
                     {% block sw_cms_toolbar_slot_language_swtich %}{% endblock %}
+                    {% block sw_cms_toolbar_slot_language_switch %}{% endblock %}
                 </slot>
             </div>
         {% endblock %}

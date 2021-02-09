@@ -42,6 +42,22 @@ Component.register('sw-wizard', {
             default() {
                 return 0;
             }
+        },
+
+        leftButtonDisabled: {
+            type: Boolean,
+            required: false,
+            default() {
+                return false;
+            }
+        },
+
+        rightButtonDisabled: {
+            type: Boolean,
+            required: false,
+            default() {
+                return false;
+            }
         }
     },
 

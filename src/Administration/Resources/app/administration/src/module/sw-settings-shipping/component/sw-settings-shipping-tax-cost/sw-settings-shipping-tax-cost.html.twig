@@ -24,10 +24,13 @@
                 validation="required"
                 required
                 entity="tax"
+                :criteria="taxCriteria"
+                :highlightSearchTerm="false"
                 ref="taxIdSelection"
                 :disabled="disabled"
                 :label="$tc('sw-settings-shipping.detail.tax.labelTaxRate')"
                 :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxRate')"
+                :labelCallback="getTaxLabel"
                 :error="shippingMethodTaxIdError">
             </sw-entity-single-select>
         {% endblock %}

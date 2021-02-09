@@ -40,6 +40,7 @@ Component.register('sw-property-detail-base', {
             displayTypes: [
                 { value: 'media', label: this.$tc('sw-property.detail.mediaDisplayType') },
                 { value: 'text', label: this.$tc('sw-property.detail.textDisplayType') },
+                { value: 'select', label: this.$tc('sw-property.detail.selectDisplayType') },
                 { value: 'color', label: this.$tc('sw-property.detail.colorDisplayType') }
             ]
         };

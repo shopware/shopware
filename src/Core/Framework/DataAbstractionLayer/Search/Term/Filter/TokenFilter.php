@@ -72,7 +72,7 @@ class TokenFilter extends AbstractTokenFilter
     {
         $filtered = [];
         foreach ($tokens as $tag) {
-            $tag = trim($tag);
+            $tag = trim((string) $tag);
 
             if (empty($tag) || mb_strlen($tag) < $minSearchTermLength) {
                 continue;

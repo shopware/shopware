@@ -147,10 +147,26 @@ Component.register('sw-list-price-field', {
 
             return {
                 currencyId: this.defaultPrice.currencyId ? this.defaultPrice.currencyId : this.currency.id,
-                gross: 0,
-                net: 0,
+                gross: null,
+                net: null,
                 linked: true
             };
+        },
+
+        isInherited() {
+            const priceForCurrency = Object.values(this.price).find((price) => {
+                return price.currencyId === this.currency.id;
+            });
+
+            return !priceForCurrency;
+        },
+
+        listPriceHelpText() {
+            if (!this.vertical || this.compact) {
+                return null;
+            }
+
+            return this.$tc('global.sw-list-price-field.helpTextListPriceGross');
         }
     },
 

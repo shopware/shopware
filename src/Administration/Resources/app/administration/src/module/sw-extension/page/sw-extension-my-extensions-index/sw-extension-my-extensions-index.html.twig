@@ -1,0 +1,27 @@
+<sw-meteor-page class="sw-extension-store-purchased" hideIcon>
+    <template #smart-bar-header>
+        {{ $tc('sw-extension.mainMenu.purchased') }}
+    </template>
+
+    <template #page-tabs>
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app' }">
+            {{ $tc('sw-extension.my-extensions.tabs.app') }}
+        </sw-tabs-item>
+
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme' }">
+            {{ $tc('sw-extension.my-extensions.tabs.theme') }}
+        </sw-tabs-item>
+
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.account' }">
+            {{ $tc('sw-extension.my-extensions.tabs.shopwareAccount') }}
+        </sw-tabs-item>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-extension-file-upload></sw-extension-file-upload>
+    </template>
+
+    <template #default>
+        <router-view></router-view>
+    </template>
+</sw-meteor-page>

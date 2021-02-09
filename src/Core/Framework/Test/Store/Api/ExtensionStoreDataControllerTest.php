@@ -95,7 +95,10 @@ class ExtensionStoreDataControllerTest extends TestCase
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
 
-        $response = $this->controller->getInstalledExtensions(Context::createDefaultContext());
+        $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '[]'));
+
+        $response = $this->controller->getInstalledExtensions($this->createAdminStoreContext());
         $data = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($data);

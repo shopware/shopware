@@ -36,7 +36,12 @@ Component.register('sw-tax-rule-card', {
             showModal: false,
             showDeleteModal: false,
             currentRule: null,
-            term: ''
+            term: '',
+            page: 1,
+            limit: 25,
+            sortBy: 'country.name',
+            sortDirection: 'ASC',
+            total: undefined
         };
     },
 
@@ -57,8 +62,9 @@ Component.register('sw-tax-rule-card', {
 
         taxRuleCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-            criteria.addSorting(Criteria.sort('country.id', 'ASC'));
-            criteria.addSorting(Criteria.sort('type.position', 'ASC'));
+
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
             criteria.addAssociation('type');
             criteria.addAssociation('country');
             criteria.addFilter(Criteria.equals('taxId', this.tax.id));
@@ -111,6 +117,23 @@ Component.register('sw-tax-rule-card', {
                 this.taxRulesLoading = false;
                 return Promise.resolve();
             });
+        },
+
+        paginate({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
+            this.getList();
+        },
+
+        onColumnSort(column) {
+            if (this.sortDirection === 'ASC' && column.dataIndex === this.sortBy) {
+                this.sortDirection = 'DESC';
+            } else {
+                this.sortDirection = 'ASC';
+            }
+
+            this.sortBy = column.dataIndex;
+            this.getList();
         },
 
         onSearchTermChange(searchTerm) {

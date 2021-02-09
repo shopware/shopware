@@ -211,6 +211,11 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 method: 'delete'
             }).as('deleteData');
 
+            cy.route({
+                url: '/api/v*/_action/sync',
+                method: 'post'
+            }).as('deleteMultipleData');
+
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
 
             // open context menu
@@ -241,8 +246,8 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 .should('be.visible')
                 .click();
 
-            cy.wait('@deleteData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
+            cy.wait('@deleteMultipleData').then((xhr) => {
+                expect(xhr).to.have.property('status', 200);
             });
         });
     });

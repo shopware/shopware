@@ -51,6 +51,11 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
         color: $primary;
         padding-left: 5px;
     }
+
+    &.active {
+        color: $primary;
+        font-weight: $font-weight-bold;
+    }
 }
 
 .navigation-flyout-bar {

@@ -1,0 +1,57 @@
+{% block sw_landing_page_tree %}
+    <div class="sw-landing-page-tree">
+
+        {% block sw_landing_page_tree_inner %}
+            <sw-tree class="sw-landing-page-tree__inner"
+                 v-if="!isLoadingInitialData"
+                 :items="landingPages"
+                 :sortable="false"
+                 :searchable="false"
+                 :translationContext="translationContext"
+                 :onChangeRoute="changeLandingPage"
+                 :disableContextMenu="disableContextMenu"
+                 :allowDeleteCategories="allowDelete"
+                 :activeTreeItemId="landingPageId"
+                 @batch-delete="deleteCheckedItems"
+                 @delete-element="onDeleteLandingPage"
+                 @editing-end="syncLandingPages">
+
+                <template
+                    #items="{
+                        treeItems,
+                        sortable,
+                        draggedItem,
+                        newElementId,
+                        checkItem,
+                        translationContext,
+                        onChangeRoute,
+                        disableContextMenu
+                    }">
+
+                    {% block sw_landing_page_tree_items %}
+                        <sw-tree-item
+                            v-for="item in treeItems"
+                            :key="item.id"
+                            :item="item"
+                            :shouldShowActiveState="true"
+                            :allowDuplicate="true"
+                            :allowCreateWithoutPosition="allowCreate"
+                            :allowDeleteCategories="allowDelete"
+                            :active="item.active"
+                            :translationContext="translationContext"
+                            :onChangeRoute="onChangeRoute"
+                            :sortable="sortable"
+                            :draggedItem="draggedItem"
+                            :disableContextMenu="disableContextMenu"
+                            :displayCheckbox="allowEdit"
+                            :contextMenuTooltipText="contextMenuTooltipText"
+                            :newElementId="newElementId"
+                            :getItemUrl="getLandingPageUrl"
+                            @check-item="checkItem">
+                        </sw-tree-item>
+                    {% endblock %}
+                </template>
+            </sw-tree>
+        {% endblock %}
+    </div>
+{% endblock %}

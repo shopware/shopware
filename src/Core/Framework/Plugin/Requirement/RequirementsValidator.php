@@ -262,7 +262,7 @@ class RequirementsValidator
     private function checkRequirement(
         array $pluginRequirements,
         string $installedName,
-        ConstraintInterface $installedVersion,
+        ?ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginRequirements[$installedName])) {
@@ -270,6 +270,10 @@ class RequirementsValidator
         }
 
         $constraint = $pluginRequirements[$installedName]->getConstraint();
+        if ($constraint === null || $installedVersion === null) {
+            return $pluginRequirements;
+        }
+
         if ($constraint->matches($installedVersion) === false) {
             $exceptionStack->add(
                 new VersionMismatchException($installedName, $constraint->getPrettyString(), $installedVersion->getPrettyString())
@@ -290,7 +294,7 @@ class RequirementsValidator
         array $pluginConflicts,
         string $sourceName,
         string $targetName,
-        ConstraintInterface $installedVersion,
+        ?ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginConflicts[$targetName])) {
@@ -298,6 +302,10 @@ class RequirementsValidator
         }
 
         $constraint = $pluginConflicts[$targetName]->getConstraint();
+        if ($constraint === null || $installedVersion === null) {
+            return $pluginConflicts;
+        }
+
         if ($constraint->matches($installedVersion) === true) {
             $exceptionStack->add(
                 new ConflictingPackageException($sourceName, $targetName, $installedVersion->getPrettyString())

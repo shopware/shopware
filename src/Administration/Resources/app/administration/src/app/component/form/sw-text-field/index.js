@@ -41,6 +41,14 @@ Component.register('sw-text-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        idSuffix: {
+            type: String,
+            required: false,
+            default() {
+                return '';
+            }
         }
     },
 
@@ -86,6 +94,14 @@ Component.register('sw-text-field', {
 
         restoreInheritance() {
             this.$emit('input', null);
+        },
+
+        createInputId(identification) {
+            if (!this.idSuffix || this.idSuffix.length <= 0) {
+                return identification;
+            }
+
+            return `${identification}-${this.idSuffix}`;
         }
     }
 });

@@ -47,7 +47,7 @@ export default class OffCanvasFilter extends Plugin {
             () => {},
             'bottom',
             true,
-            0,
+            OffCanvas.REMOVE_OFF_CANVAS_DELAY(),
             true,
             'offcanvas-filter'
         );

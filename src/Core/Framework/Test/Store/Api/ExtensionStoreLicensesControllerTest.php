@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
 use Shopware\Core\Framework\Store\Exception\InvalidVariantIdException;
 use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
-use Shopware\Core\Framework\Store\Struct\LicenseCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,20 +21,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         parent::setUp();
-    }
-
-    public function testGetLicensedExtensions(): void
-    {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
-        $provider->method('getLicensedExtensions')->willReturn(new LicenseCollection());
-
-        $controller = new ExtensionStoreLicensesController(
-            $provider
-        );
-
-        $response = $controller->getLicensedExtensions(Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEquals('{"data":[],"meta":{"total":0}}', $response->getContent());
     }
 
     public function testPurchaseExtensionWithInvalidExtensionId(): void
@@ -89,15 +74,14 @@ class ExtensionStoreLicensesControllerTest extends TestCase
     public function testCancelSubscription(): void
     {
         $provider = $this->createMock(ExtensionStoreLicensesService::class);
-        $provider->method('cancelSubscription')->willReturn(new LicenseCollection());
+        $provider->method('cancelSubscription');
 
         $controller = new ExtensionStoreLicensesController(
             $provider
         );
 
         $response = $controller->cancelSubscription(1, Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEquals('[]', $response->getContent());
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testRateLicensedExtension(): void

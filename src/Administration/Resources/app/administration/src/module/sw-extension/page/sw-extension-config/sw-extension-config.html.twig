@@ -1,0 +1,19 @@
+<sw-meteor-page class="sw-extension-config" hideIcon>
+    <template #smart-bar-header>
+        {{ namespace }}
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button variant="primary" class="sw-extension-config__save-action" @click.prevent="onSave">
+            {{ $tc('global.default.save') }}
+        </sw-button>
+    </template>
+
+    <template #default>
+        <sw-system-config :domain="domain"
+                          salesChannelSwitchable
+                          :salesChannelId="salesChannelId"
+                          ref="systemConfig">
+        </sw-system-config>
+    </template>
+</sw-meteor-page>

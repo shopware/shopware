@@ -164,7 +164,7 @@ class MyHandler extends AbstractMessageHandler
 ## Consuming Messages
 
 There is a `console` command to start a worker that will receive incoming messages from your transport and dispatch them.
-Simply start the worker with `bin\console messenger:consume-messages default`, where `default` is the transport you want to consume messages from.
+Simply start the worker with `bin/console messenger:consume-messages default`, where `default` is the transport you want to consume messages from.
 There is also an API-Route that let you consume messages for a given transport. 
 Just post to the route `/api/v3/_action/message-queue/consume` and define the transport from which you want to consume messages as the receiver in the requests body:
 ```json

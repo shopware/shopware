@@ -3,14 +3,11 @@
 namespace Shopware\Core\Content\Product\Cms;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
-use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
-use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
@@ -30,17 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal (flag:FEATURE_NEXT_10078)
  */
-class ProductDescriptionReviewsCmsElementResolver extends AbstractCmsElementResolver
+class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
-    private const PRODUCT_DETAIL_ROUTE = 'frontend.detail.page';
-
-    /**
-     * @var AbstractProductDetailRoute
-     */
-    private $productRoute;
 
     /**
      * @var AbstractProductReviewRoute;
@@ -48,21 +39,14 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractCmsElementReso
     private $productReviewRoute;
 
     public function __construct(
-        AbstractProductDetailRoute $productRoute,
         AbstractProductReviewRoute $productReviewRoute
     ) {
-        $this->productRoute = $productRoute;
         $this->productReviewRoute = $productReviewRoute;
     }
 
     public function getType(): string
     {
         return 'product-description-reviews';
-    }
-
-    public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
-    {
-        return null;
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
@@ -73,60 +57,49 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractCmsElementReso
         $config = $slot->getFieldConfig();
         $productConfig = $config->get('product');
 
-        if ($productConfig && $resolverContext instanceof EntityResolverContext && $resolverContext->getRequest()->get('_route') === self::PRODUCT_DETAIL_ROUTE) {
-            $productId = $resolverContext->getRequest()->get('productId');
-            $productConfig->assign([
-                'value' => $productId,
-            ]);
-        }
-
-        if (!$productConfig || $productConfig->getValue() === null) {
+        if ($productConfig === null) {
             return;
         }
-
-        $this->resolveProductFromRemote($data, $resolverContext, $productConfig->getValue());
-    }
-
-    private function resolveProductFromRemote(ProductDescriptionReviewsStruct $struct, ResolverContext $resolverContext, string $productId): void
-    {
-        $context = $resolverContext->getSalesChannelContext();
-
-        $criteria = (new Criteria())
-            ->addAssociation('options.group')
-            ->addAssociation('properties.group');
-
-        $result = $this->productRoute->load($productId, new Request(), $context, $criteria);
-
-        /** @var SalesChannelProductEntity|null $product */
-        $product = $result->getProduct();
-
-        if (!$product) {
-            return;
-        }
-
-        $struct->setProduct($product);
-        $struct->setProductId($product->getId());
 
         $request = $resolverContext->getRequest();
         $ratingSuccess = (bool) $request->get('success', false);
-        $struct->setRatingSuccess($ratingSuccess);
+        $data->setRatingSuccess($ratingSuccess);
 
+        $product = null;
+
+        if ($productConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+        }
+
+        if ($productConfig->isStatic()) {
+            $product = $this->getSlotProduct($slot, $result, $productConfig->getValue());
+        }
+
+        /** @var SalesChannelProductEntity|null $product */
+        if ($product !== null) {
+            $data->setProduct($product);
+            $data->setReviews($this->loadProductReviews($product, $request, $resolverContext->getSalesChannelContext()));
+        }
+    }
+
+    private function loadProductReviews(SalesChannelProductEntity $product, Request $request, SalesChannelContext $context): ProductReviewResult
+    {
         $reviewCriteria = $this->createReviewCriteria($request, $context);
         $reviews = $this->productReviewRoute
-            ->load($productId, $request, $context, $reviewCriteria)
+            ->load($product->getId(), $request, $context, $reviewCriteria)
             ->getResult();
 
         $matrix = $this->getReviewRatingMatrix($reviews);
 
         $reviewResult = ProductReviewResult::createFrom($reviews);
         $reviewResult->setMatrix($matrix);
-        $reviewResult->setProductId($productId);
-        $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
+        $reviewResult->setProductId($product->getId());
+        $reviewResult->setCustomerReview($this->getCustomerReview($product->getId(), $context));
         $reviewResult->setTotalReviews($matrix->getTotalReviewCount());
         $reviewResult->setProductId($product->getId());
         $reviewResult->setParentId($product->getParentId() ?? $product->getId());
 
-        $struct->setReviews($reviewResult);
+        return $reviewResult;
     }
 
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria

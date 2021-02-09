@@ -1,6 +1,7 @@
 ---
 title: Implement wishlist page empty
 issue: NEXT-12809
+flag: FEATURE_NEXT_10549
 ---
 # Storefront
 * Changed wishlist page `Shopware\Storefront\Resources\views\storefront\page\wishlist\index.html.twig` to override block `page_wishlist_headline`.

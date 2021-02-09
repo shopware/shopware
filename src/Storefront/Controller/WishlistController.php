@@ -110,7 +110,10 @@ class WishlistController extends StorefrontController
 
         $pagelet = $this->guestPageletLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['searchResult' => $pagelet->getSearchResult()->getObject()]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig',
+            ['page' => $pagelet, 'searchResult' => $pagelet->getSearchResult()->getObject()]
+        );
     }
 
     /**

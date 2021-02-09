@@ -48,9 +48,10 @@
                         :showSelection="acl.can('review.deleter')"
                         @page-change="onPageChange"
                         @column-sort="onSortColumn"
-                        :disableDataFetching=true
+                        :disableDataFetching="true"
                         :sortBy="sortBy"
-                        :sortDirection="sortDirection">
+                        :sortDirection="sortDirection"
+                        identifier="sw-review-list">
 
                         {% block sw_review_list_content_list_status %}
                             <template #column-status="{ item }">

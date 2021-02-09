@@ -6,9 +6,15 @@ author: Michael Telgmann
 author_github: @mitelg
 ---
 # Core
+* Changed dependency `composer/composer` to version 2
 * Added new method `executeComposerCommands` to `Shopware\Core\Framework\Plugin` to enable composer commands during plugin install/update/uninstall
 ___
 # Upgrade Information
+
+## Update to Composer 2
+Make sure that your `composer.json` file in your plugin matches the requirements of [Composer](https://getcomposer.org/doc/04-schema.md).
+Especially the `name` property should be checked.
+
 ## New option for plugins
 Updating the core dependency `composer/composer` to version 2 enables the possibility to execute composer commands
 during the installation, update and uninstallation of a plugin.

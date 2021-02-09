@@ -1,0 +1,24 @@
+@import '~scss/variables';
+
+.sw-meteor-navigation {
+    display: flex;
+    align-items: center;
+    color: $color-gray-500;
+    font-size: $font-size-small;
+
+    .sw-meteor-navigation__back-arrow {
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .sw-meteor-navigation__link {
+        display: flex;
+        align-items: center;
+        color: $color-gray-500;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

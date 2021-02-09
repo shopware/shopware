@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
+use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\ReviewCollection;
@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ExtensionDataProviderTest extends TestCase
 {
@@ -42,7 +43,7 @@ class ExtensionDataProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         $this->extensionDataProvider = $this->getContainer()->get(AbstractExtensionDataProvider::class);
-        $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+        $this->context = $this->createAdminStoreContext();
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
     }
@@ -80,6 +81,10 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testItReturnsInstalledAppsAsExtensionCollection(): void
     {
+        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
+        $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], '[]'));
+
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
         $installedExtension = $installedExtensions->get('TestApp');
 

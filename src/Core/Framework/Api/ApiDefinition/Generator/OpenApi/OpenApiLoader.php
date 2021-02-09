@@ -64,11 +64,22 @@ class OpenApiLoader
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
+
                 if ($operation instanceof Operation && !\in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
 
                 if ($operation instanceof Operation && \count($operation->tags) > 1) {
+                    if ($api === 'store-api') {
+                        if ($operation->security === UNDEFINED) {
+                            $operation->security = [['ApiKey' => []]];
+                        }
+
+                        if (strpos($operation->_context->comment, '@LoginRequired') !== false) {
+                            $operation->security[] = ['ContextToken' => []];
+                        }
+                    }
+
                     foreach ($operation->tags as $tKey => $tag) {
                         if ($tag === OpenApiSchemaBuilder::API[$api]['name']) {
                             unset($operation->tags[$tKey]);
@@ -134,6 +145,8 @@ class OpenApiLoader
                 foreach ($operation->parameters as $parameterKey => $parameter) {
                     if ($parameter->name === 'Api-Basic-Parameters') {
                         unset($operation->parameters[$parameterKey]);
+
+                        $operation->tags[] = 'supports Criteria filtering';
 
                         $limit = new Property([
                             'property' => 'limit',

@@ -204,6 +204,9 @@ function createWrapper() {
             },
             provide: {
                 numberRangeService: {},
+                feature: {
+                    isActive: () => true
+                },
                 repositoryFactory: {
                     create: (name) => {
                         if (name === 'product') {

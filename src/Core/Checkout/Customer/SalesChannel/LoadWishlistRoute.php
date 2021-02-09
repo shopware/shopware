@@ -140,7 +140,11 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         $event = new CustomerWishlistLoaderCriteriaEvent($criteria, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $products = $this->productRepository->search($criteria, $context);
+        $products = $context->getContext()->disableCache(
+            function () use ($criteria, $context) {
+                return $this->productRepository->search($criteria, $context);
+            }
+        );
 
         $event = new CustomerWishlistProductListingResultEvent($request, $products, $context);
         $this->eventDispatcher->dispatch($event);

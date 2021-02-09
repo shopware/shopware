@@ -124,4 +124,35 @@ describe('components/form/sw-price-field', () => {
         wrapper.vm.convertGrossToNet(parseFloat(''));
         expect(wrapper.vm.priceForCurrency.net).toBe(0);
     });
+
+    it('should calculate values if inherited and price is not set', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.setProps({
+            price: [euroPrice]
+        });
+
+        const expectedNetPrice = (euroPrice.net * currency.factor).toFixed(2);
+
+        expect(wrapper.vm.priceForCurrency.net).toBe(parseFloat(expectedNetPrice, 10));
+    });
+
+    it('should set values to null if not inherited and price is not set', () => {
+        const wrapper = setup({ allowEmpty: false });
+        wrapper.setProps({
+            price: [euroPrice],
+            inherited: false
+        });
+
+        expect(wrapper.vm.priceForCurrency.net).toBeNull();
+    });
+
+    it('should pass down gross and net helptext', () => {
+        const wrapper = setup({
+            grossHelpText: 'help for gross price',
+            netHelpText: 'help for net price'
+        });
+
+        expect(wrapper.find('.sw-price-field-gross').attributes().helptext).toBe('help for gross price');
+        expect(wrapper.find('.sw-price-field-net').attributes().helptext).toBe('help for net price');
+    });
 });

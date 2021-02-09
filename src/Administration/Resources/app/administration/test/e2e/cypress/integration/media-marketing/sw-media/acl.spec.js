@@ -48,7 +48,9 @@ describe('Media: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-media-context-item__show-media-action',
             page.elements.contextMenuButton,
-            '.sw-media-grid-item__item--0'
+            '.sw-media-grid-item__item--0',
+            '',
+            true
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
     });
@@ -81,7 +83,9 @@ describe('Media: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-media-context-item__show-media-action',
             page.elements.contextMenuButton,
-            '.sw-media-grid-item__item--0'
+            '.sw-media-grid-item__item--0',
+            '',
+            true
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('not.exist');
     });
@@ -147,7 +151,9 @@ describe('Media: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             '.sw-media-context-item__show-media-action',
             page.elements.contextMenuButton,
-            '.sw-media-grid-item__item--0'
+            '.sw-media-grid-item__item--0',
+            '',
+            true
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--deleter').should('not.exist');

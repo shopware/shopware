@@ -113,6 +113,7 @@ Table(ShopwareCoreSystemUnit, "Shopware\Core\System\Unit\n(Units)") {
 }
 Table(ShopwareCoreSystemUser, "Shopware\Core\System\User\n(Admin Accounts)") {
    user Table
+   user_config Table
    user_access_key Table
    user_recovery Table
 }

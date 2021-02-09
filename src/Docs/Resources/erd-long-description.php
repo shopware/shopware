@@ -742,4 +742,8 @@ EOD
 __EMPTY__
 EOD
     ,
+    Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition::class => <<<'EOD'
+Saving config of user.
+EOD
+    ,
 ];

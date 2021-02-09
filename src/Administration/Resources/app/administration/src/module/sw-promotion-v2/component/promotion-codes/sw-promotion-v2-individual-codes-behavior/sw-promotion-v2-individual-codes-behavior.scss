@@ -1,0 +1,49 @@
+@import "~scss/variables";
+
+$color-state-positive: $color-emerald-500;
+$color-state-negative: $color-crimson-500;
+
+.sw-promotion-v2-individual-codes-behavior {
+    &__add-codes-action.sw-button--small {
+        margin-right: 6px;
+    }
+
+    &__add-codes-modal {
+        .sw-promotion-v2-individual-codes-behavior__code-amount.sw-field {
+            margin-bottom: 0;
+        }
+    }
+
+    &__description {
+        font-size: $font-size-small;
+        line-height: 22px;
+        margin-bottom: 24px;
+    }
+
+    &__redeemed-state {
+        &.is--active {
+            color: $color-state-positive;
+        }
+
+        &.is--inactive {
+            color: $color-state-negative;
+        }
+    }
+
+    &__redeemed-customer-name {
+        cursor: pointer;
+    }
+
+    &__card.sw-card {
+        margin: 0 -30px -30px;
+
+        .sw-card__content {
+            border: none;
+        }
+
+        .sw-card__toolbar {
+            border-left: none;
+            border-right: none;
+        }
+    }
+}

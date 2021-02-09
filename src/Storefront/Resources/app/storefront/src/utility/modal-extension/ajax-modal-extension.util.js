@@ -33,7 +33,7 @@ export default class AjaxModalExtensionUtil {
      * @private
      */
     _registerEvents() {
-        this._registerAjaxModalExtension();
+        this._registerAjaxModalExtension(document);
     }
 
     /**
@@ -41,8 +41,8 @@ export default class AjaxModalExtensionUtil {
      * and thus need to load the modal content via AJAX
      * @private
      */
-    _registerAjaxModalExtension() {
-        const modalTriggers = document.querySelectorAll(`[data-toggle="modal"][${URL_DATA_ATTRIBUTE}]`);
+    _registerAjaxModalExtension(element) {
+        const modalTriggers = element.querySelectorAll(`[data-toggle="modal"][${URL_DATA_ATTRIBUTE}]`);
         if (modalTriggers) {
             Iterator.iterate(modalTriggers, trigger => trigger.addEventListener('click', this._onClickHandleAjaxModal.bind(this)));
         }
@@ -81,6 +81,7 @@ export default class AjaxModalExtensionUtil {
 
         pseudoModal.open(() => {
             PluginManager.initializePlugins();
+            this._registerAjaxModalExtension(modal);
         });
 
         const modal = pseudoModal.getModal();

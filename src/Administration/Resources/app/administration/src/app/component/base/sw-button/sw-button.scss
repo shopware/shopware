@@ -210,6 +210,20 @@ $sw-button-transition: all 0.15s ease-out;
         }
     }
 
+    &.sw-button--context {
+        border: none;
+        background-color: transparent;
+        color: $color-darkgray-800;
+
+        .sw-icon {
+            color: $color-darkgray-800;
+        }
+
+        &:hover {
+            background-color: $color-gray-100;
+        }
+    }
+
     &.sw-button--block {
         display: block;
         width: 100%;

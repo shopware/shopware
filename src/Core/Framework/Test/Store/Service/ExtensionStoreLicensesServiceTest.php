@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Store\Exception\LicenseNotFoundException;
-use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
@@ -34,13 +32,6 @@ class ExtensionStoreLicensesServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
-    }
-
-    public function testGetLicensedExtensionsWithoutDomain(): void
-    {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, '');
-        static::expectException(StoreLicenseDomainMissingException::class);
-        $this->extensionLicensesService->getLicensedExtensions(Context::createDefaultContext());
     }
 
     public function testGetLicensedExtensions(): void
@@ -78,13 +69,12 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $this->setCancelationResponses();
 
-        $licenseCollection = $this->extensionLicensesService->cancelSubscription(1, $context);
+        $this->extensionLicensesService->cancelSubscription(1, $context);
 
         static::assertEquals(
-            '/swplatform/licenses?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
+            '/swplatform/pluginlicenses/1/cancel?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
             $this->getRequestHandler()->getLastRequest()->getRequestTarget()
         );
-        static::assertEquals(0, $licenseCollection->getTotal());
     }
 
     public function testCancelSubscriptionNotInstalled(): void
@@ -94,27 +84,17 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $this->setCancelationResponses();
 
-        $licenseCollection = $this->extensionLicensesService->cancelSubscription(1, $context);
+        $this->extensionLicensesService->cancelSubscription(1, $context);
 
         static::assertEquals(
-            '/swplatform/licenses?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
+            '/swplatform/pluginlicenses/1/cancel?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
             $this->getRequestHandler()->getLastRequest()->getRequestTarget()
         );
-        static::assertEquals(0, $licenseCollection->getTotal());
     }
 
     public function testCreateRating(): void
     {
         $this->extensionLicensesService->rateLicensedExtension(new ReviewStruct(), $this->getContextWithStoreToken());
-    }
-
-    public function testCancelSubscriptionThrowsExceptionIfLicenseIsNotFound(): void
-    {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-        $this->setLicensesRequest(\file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'));
-
-        static::expectException(LicenseNotFoundException::class);
-        $this->extensionLicensesService->cancelSubscription(-200, $this->getContextWithStoreToken());
     }
 
     private function getContextWithStoreToken(): Context
@@ -145,6 +125,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     private function setResponsesToPurchaseExtension(): void
     {
+        $this->getRequestHandler()->reset();
         $exampleCart = file_get_contents(__DIR__ . '/../_fixtures/responses/example-cart.json');
 
         // createCart will respond with a cart
@@ -154,7 +135,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $this->getRequestHandler()->append(new Response(201, [], null));
 
         // return path to app files from install extension
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip"}'));
+        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
     }
 

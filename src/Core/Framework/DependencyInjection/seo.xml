@@ -134,6 +134,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension">
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <argument type="service" id="category.repository"/>
             <tag name="twig.extension"/>
         </service>
     </services>

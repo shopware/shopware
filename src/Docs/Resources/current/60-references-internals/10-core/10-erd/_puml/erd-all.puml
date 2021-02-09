@@ -523,6 +523,7 @@ Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
    primary_key(id) id
    not_null(taxRate) float
    not_null(name) string
+   not_null(position) int
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -586,6 +587,14 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    lastUpdatedPasswordAt dateTime
    customFields customFields
    storeToken string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition, "user_config\n(User Config)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(key) string
+   value json
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -956,6 +965,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    featureSetId foreignKey
    purchasePrices price
    customSearchKeywords translated
+   canonicalProductId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1298,6 +1308,7 @@ Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(Prop
    not_null(displayType) string
    not_null(sortingType) string
    filterable bool
+   visibleOnProductDetailPage bool
    position translated
    customFields translated
    not_null(createdAt) createdAt
@@ -2238,6 +2249,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefini
 ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreSystemUnitUnitDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition

@@ -44,16 +44,23 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
      */
     private $pluginRepository;
 
+    /**
+     * @var ExtensionListingLoader
+     */
+    private $extensionListingLoader;
+
     public function __construct(
         StoreClient $client,
         ExtensionLoader $extensionLoader,
         EntityRepositoryInterface $appRepository,
-        EntityRepositoryInterface $pluginRepository
+        EntityRepositoryInterface $pluginRepository,
+        ExtensionListingLoader $extensionListingLoader
     ) {
         $this->dataClient = $client;
         $this->extensionLoader = $extensionLoader;
         $this->appRepository = $appRepository;
         $this->pluginRepository = $pluginRepository;
+        $this->extensionListingLoader = $extensionListingLoader;
     }
 
     public function getListing(ExtensionCriteria $criteria, Context $context): ExtensionCollection
@@ -89,7 +96,7 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         ];
     }
 
-    public function getInstalledExtensions(Context $context): ExtensionCollection
+    public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true): ExtensionCollection
     {
         $criteria = new Criteria();
         $criteria->addAssociation('translations');
@@ -101,7 +108,13 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $installedPlugins = $this->pluginRepository->search($criteria, $context)->getEntities();
         $pluginCollection = $this->extensionLoader->loadFromPluginCollection($context, $installedPlugins);
 
-        return $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);
+        $localExtensions = $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);
+
+        if ($loadCloudExtensions) {
+            return $this->extensionListingLoader->load($localExtensions, $context);
+        }
+
+        return $localExtensions;
     }
 
     public function getAppEntityFromTechnicalName(string $technicalName, Context $context): AppEntity

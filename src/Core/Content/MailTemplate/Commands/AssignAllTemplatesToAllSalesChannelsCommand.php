@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AssignAllTemplatesToAllSalesChannelsCommand extends Command
 {
+    public static $defaultName = 'mail-templates:assign-to-saleschannels';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -37,7 +39,6 @@ class AssignAllTemplatesToAllSalesChannelsCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('mail-templates:assign-to-saleschannels')
             ->setDescription('Assignes all mailTemplates to all SaleChannels');
     }
 

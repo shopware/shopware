@@ -1,0 +1,36 @@
+{% block sw_settings_search_searchable_content_general %}
+    <div class="sw-settings-search__searchable-content-general">
+        {% block sw_settings_search_searchable_content_general_empty_state %}
+            <sw-empty-state
+                v-if="isEmpty"
+                :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+                :showDescription="false"
+                :hasActionSlot="true"
+                :absolute="false">
+                <template #icon>
+                    {% block sw_settings_search_searchable_content_general_state_image %}
+                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                    {% endblock %}
+                </template>
+
+                <template #actions>
+                    {% block sw_settings_search_searchable_content_general_empty_state_action %}
+                        <sw-button
+                            variant="ghost"
+                            size="small"
+                            @click="onAddField">
+                            {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-empty-state>
+        {% endblock %}
+
+        {% block sw_settings_search_searchable_content_general_grid %}
+            <sw-entity-listing
+                v-else>
+                {# TODO: NEXT-13010 - Implement "Searchable content" card with API integration #}
+            </sw-entity-listing>
+        {% endblock %}
+    </div>
+{% endblock %}

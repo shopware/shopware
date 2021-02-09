@@ -2,15 +2,15 @@
 
 {% set currencyIsoCode = order.currency.isoCode %}
 
-Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
+Hallo {{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
 <br>
-Ihre Bestellung ist am {{ order.orderDateTime|date }} bei uns eingegangen.<br>
+Ihre Bestellung ist am {{ order.orderDateTime|format_datetime('medium', 'short', locale='de-DE') }} bei uns eingegangen.<br>
 <br>
 Bestellnummer: {{ order.orderNumber }}<br>
 <br>
 Sobald ein Zahlungseingang erfolgt ist, erhalten Sie eine separate Benachrichtigung und Ihre Bestellung wird verarbeitet.<br>
 <br>
-Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}<br>
+Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}<br>
 Über diesen Link können Sie auch die Bestellung bearbeiten, die Zahlungsart wechseln oder nachträglich eine Zahlung durchführen.<br>
 <br>
 <strong>Informationen zu Ihrer Bestellung:</strong><br>
@@ -52,7 +52,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
 <p>
     <br>
     <br>
-    Versandkosten: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    Versandkosten: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
     Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}<br>
         {% for calculatedTax in order.price.calculatedTaxes %}
             {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>
@@ -60,8 +60,8 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
     <strong>Gesamtkosten Brutto: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
     <br>
 
-    <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.name }}<br>
-    {{ delivery.shippingMethod.description }}<br>
+    <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.translated.name }}<br>
+    {{ delivery.shippingMethod.translated.description }}<br>
     <br>
 
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
@@ -70,7 +70,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
     {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
     {{ billingAddress.street }} <br>
     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
-    {{ billingAddress.country.name }}<br>
+    {{ billingAddress.country.translated.name }}<br>
     <br>
 
     <strong>Lieferadresse:</strong><br>
@@ -78,7 +78,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
     {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
     {{ delivery.shippingOrderAddress.street }} <br>
     {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-    {{ delivery.shippingOrderAddress.country.name }}<br>
+    {{ delivery.shippingOrderAddress.country.translated.name }}<br>
     <br>
     {% if billingAddress.vatId %}
         Ihre Umsatzsteuer-ID: {{ billingAddress.vatId }}
@@ -86,7 +86,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
         bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit. <br>
     {% endif %}
     <br/>
-    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
     </br>
     Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 </p>

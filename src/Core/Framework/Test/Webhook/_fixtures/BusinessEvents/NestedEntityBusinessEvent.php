@@ -39,6 +39,7 @@ class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEvent
                     'versionId' => null,
                     'name' => $this->tax->getName(),
                     'taxRate' => (int) $this->tax->getTaxRate(),
+                    'position' => $this->tax->getPosition(),
                     'products' => null,
                     'shippingMethods' => null,
                     'customFields' => null,

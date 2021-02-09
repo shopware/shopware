@@ -27,7 +27,7 @@ class ProductDescriptionReviewsStruct extends Struct
     protected $ratingSuccess;
 
     /**
-     * @var ProductReviewResult
+     * @var ProductReviewResult|null
      */
     protected $reviews;
 
@@ -51,7 +51,7 @@ class ProductDescriptionReviewsStruct extends Struct
         $this->productId = $productId;
     }
 
-    public function getReviews(): ProductReviewResult
+    public function getReviews(): ?ProductReviewResult
     {
         return $this->reviews;
     }

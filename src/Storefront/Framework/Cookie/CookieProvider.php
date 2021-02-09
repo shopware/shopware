@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+use Shopware\Core\Framework\Feature;
+
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
@@ -83,10 +85,15 @@ class CookieProvider implements CookieProviderInterface
      */
     public function getCookieGroups(): array
     {
-        return [
+        $cookieGroups = [
             self::REQUIRED_COOKIES,
             self::STATISTICAL_COOKIES,
-            self::COMFORT_FEATURES_COOKIES,
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_10549')) {
+            $cookieGroups[] = self::COMFORT_FEATURES_COOKIES;
+        }
+
+        return $cookieGroups;
     }
 }

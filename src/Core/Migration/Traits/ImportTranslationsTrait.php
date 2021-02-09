@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 trait ImportTranslationsTrait
 {
-    protected function importTranslation(string $table, Translations $translations, Connection $connection): void
+    protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult
     {
         $germanIds = $this->getLanguageIds($connection, 'de-DE');
         $englishIds = array_diff(
@@ -52,6 +52,8 @@ trait ImportTranslationsTrait
 
             $connection->executeUpdate($sql, $data);
         }
+
+        return new TranslationWriteResult($englishIds, $germanIds);
     }
 
     protected function getLanguageIds(Connection $connection, string $locale): array

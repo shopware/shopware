@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-datepicker';
+import flushPromises from 'flush-promises';
 
 function createWrapper(customOptions = {}) {
     return shallowMount(Shopware.Component.build('sw-datepicker'), {
@@ -59,5 +60,16 @@ describe('src/app/component/form/sw-datepicker', () => {
         const flatpickrInput = wrapper.find('.flatpickr-input');
 
         expect(flatpickrInput.attributes().placeholder).toBe(placeholderText);
+    });
+
+    it('should use the admin locale', async () => {
+        Shopware.State.get('session').currentLocale = 'de-DE';
+        wrapper = createWrapper();
+        expect(wrapper.vm.$data.flatpickrInstance.config.locale).toBe('de');
+
+        Shopware.State.get('session').currentLocale = 'en-GB';
+        await flushPromises();
+
+        expect(wrapper.vm.$data.flatpickrInstance.config.locale).toBe('en');
     });
 });

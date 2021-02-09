@@ -136,9 +136,16 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
-                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedDependencies', null, null, {
+                        message: this.$tc('sw-extension.errors.messageDeactivationFailedDependencies', null, null, {
                             dependency: context.meta.parameters.dependency,
                             dependantNames: context.meta.parameters.dependantNames
+                        })
+                    });
+                } else if (context.code === 'THEME__THEME_ASSIGNMENT') {
+                    this.createNotificationWarning({
+                        message: this.$tc('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
+                            themeName: context.meta.parameters.themeName,
+                            assignments: context.meta.parameters.assignments
                         })
                     });
                 } else {

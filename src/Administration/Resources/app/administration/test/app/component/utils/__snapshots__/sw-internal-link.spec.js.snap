@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/utils/sw-internal-link should renders correctly 1`] = `
+<a
+  class="sw-internal-link"
+>
+  test internal link 
+  <sw-icon-stub
+    name="default-arrow-simple-right"
+    small=""
+  />
+</a>
+`;

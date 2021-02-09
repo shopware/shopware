@@ -19,13 +19,17 @@ Component.register('sw-promotion-v2-detail-base', {
         promotion: {
             type: Object,
             required: false,
-            default: null
+            default() {
+                return null;
+            }
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default() {
+                return false;
+            }
         },
 
         isCreateMode: {
@@ -39,6 +43,8 @@ Component.register('sw-promotion-v2-detail-base', {
             selectedCodeType: '0',
             isGenerating: false,
             isGenerateSuccessful: false,
+            codeSortProperty: 'code',
+            codeSortDirection: 'ASC',
             CODE_TYPES: Object.freeze({
                 NONE: '0',
                 FIXED: '1',
@@ -76,12 +82,39 @@ Component.register('sw-promotion-v2-detail-base', {
 
             if (this.promotion.useCodes && this.promotion.useIndividualCodes) {
                 this.setNewCodeType(this.CODE_TYPES.INDIVIDUAL);
+                this.initialSort();
 
                 return;
             }
 
-            const newCode = typeof this.promotion.useCodes !== 'string' ? '0' : Number(this.promotion.useCodes).toString();
-            this.setNewCodeType(newCode);
+            this.setNewCodeType(this.promotion.useCodes ? this.CODE_TYPES.FIXED : this.CODE_TYPES.NONE);
+        },
+
+        initialSort() {
+            this.promotion.individualCodes.sort((a, b) => {
+                const aValue = a[this.codeSortProperty];
+                const bValue = b[this.codeSortProperty];
+
+                let isBigger = null;
+
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    isBigger = aValue.toUpperCase() > bValue.toUpperCase();
+                }
+
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    isBigger = (aValue - bValue) > 0;
+                }
+
+                if (isBigger !== null) {
+                    if (this.codeSortDirection === 'DESC') {
+                        return isBigger ? -1 : 1;
+                    }
+
+                    return isBigger ? 1 : -1;
+                }
+
+                return 0;
+            });
         },
 
         onChangeCodeType(value) {

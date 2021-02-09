@@ -96,7 +96,8 @@ export default function createCustomFieldService() {
         'customer_address',
         'order',
         'sales_channel',
-        'media'
+        'media',
+        'landing_page'
     ];
 
     return {

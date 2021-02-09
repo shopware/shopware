@@ -40,7 +40,10 @@ Shopware.Service('privileges')
                     'state_machine_history:read',
                     'state_machine:read',
                     'state_machine_state:read',
-                    'user:read'
+                    'user:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

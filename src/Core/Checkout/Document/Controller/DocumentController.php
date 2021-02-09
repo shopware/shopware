@@ -42,7 +42,7 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/document/{documentId}/{deepLinkCode}", defaults={"auth_required"=false}, name="api.action.download.document", methods={"GET"})
+     * @Route("/api/v{version}/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"})
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
@@ -76,7 +76,6 @@ class DocumentController extends AbstractController
      * @Since("6.0.0.0")
      * @Route(
      *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
-     *     defaults={"auth_required"=false},
      *     name="api.action.document.preview",
      *     methods={"GET"}
      * )

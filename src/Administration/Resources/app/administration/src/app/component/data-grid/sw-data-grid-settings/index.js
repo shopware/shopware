@@ -58,6 +58,14 @@ Component.register('sw-data-grid-settings', {
     watch: {
         columns() {
             this.currentColumns = this.columns;
+        },
+
+        compact() {
+            this.currentCompact = this.compact;
+        },
+
+        previews() {
+            this.currentPreviews = this.previews;
         }
     },
 

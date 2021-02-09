@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
@@ -41,8 +41,8 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            LineItemAddedEvent::class => 'onLineItemAdded',
-            LineItemRemovedEvent::class => 'onLineItemRemoved',
+            BeforeLineItemAddedEvent::class => 'onLineItemAdded',
+            BeforeLineItemRemovedEvent::class => 'onLineItemRemoved',
             CheckoutOrderPlacedEvent::class => 'resetCodes',
         ];
     }
@@ -58,7 +58,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * We verify if we have a placeholder line item for a promotion
      * and add that code to our extension list.
      */
-    public function onLineItemAdded(LineItemAddedEvent $event): void
+    public function onLineItemAdded(BeforeLineItemAddedEvent $event): void
     {
         if ($event->getLineItem()->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
             $code = $event->getLineItem()->getReferencedId();
@@ -75,7 +75,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * We verify if it is a promotion item, and also remove that
      * code from our extension, if existing.
      */
-    public function onLineItemRemoved(LineItemRemovedEvent $event): void
+    public function onLineItemRemoved(BeforeLineItemRemovedEvent $event): void
     {
         $cart = $event->getCart();
 

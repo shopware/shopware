@@ -21,7 +21,10 @@ Shopware.Service('privileges')
                     'custom_field:read',
                     'custom_field_set_relation:read',
                     'state_machine_state:read',
-                    'currency:read'
+                    'currency:read',
+                    'user_config:read',
+                    'user_config:create',
+                    'user_config:update'
                 ],
                 dependencies: []
             },

@@ -9,8 +9,32 @@ specific styling for elements dependent on their parent block
     overflow: hidden;
 
     &.bg-image {
+        position: relative;
         background-repeat: no-repeat;
         background-position: 50%;
+    }
+
+    .cms-block-background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        object-fit: none;
+        font-family: 'object-fit: none;';
+
+        &.media-mode--contain {
+            object-fit: contain;
+            font-family: 'object-fit: contain;';
+        }
+
+        &.media-mode--cover {
+            object-fit: cover;
+            font-family: 'object-fit: cover;';
+        }
     }
 
     .cms-block-container {
@@ -150,16 +174,24 @@ specific styling for elements dependent on their parent block
     }
 }
 
-.cms-block-product-heading {
-    .cms-element-product-name {
-        width: 100%;
+.cms-element-product-name {
+    display: inline-block;
+}
+
+.cms-element-manufacturer-logo {
+    justify-content: flex-end;
+
+    .cms-image-link {
+        text-align: right;
         height: 100%;
-        display: flex;
     }
 
-    .cms-element-manufacturer-logo img {
-        max-width: 200px;
-        max-height: 70px;
+    .cms-image-container.is-standard {
+        img {
+            max-width: 200px;
+            max-height: 70px;
+        }
     }
 }
+
 

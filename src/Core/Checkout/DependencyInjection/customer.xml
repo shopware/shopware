@@ -254,6 +254,7 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute" public="true">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">

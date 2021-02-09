@@ -9,6 +9,18 @@
 
         {% block sw_mail_header_footer_detail_actions %}
             <template #smart-bar-actions>
+                {% block sw_mail_header_footer_detail_actions_abort %}
+                    <sw-button
+                        v-tooltip.bottom="{
+                        message: 'ESC',
+                        appearance: 'light'
+                        }"
+                        :disabled="isLoading"
+                        @click="onCancel">
+                        {{ $tc('sw-mail-header-footer.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+                
                 {% block sw_mail_header_footer_detail_actions_save %}
                 <sw-button-process
                     v-tooltip.bottom="tooltipSave"

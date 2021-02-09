@@ -50,8 +50,10 @@
             <name>wishlistEnabled</name>
             <label>Activate wishlist</label>
             <label lang="de-DE">Merkzettel aktivieren</label>
+            <flag>FEATURE_NEXT_10549</flag>
         </input-field>
 
+        <flag>FEATURE_NEXT_10549</flag>
     </card>
 
 </config>

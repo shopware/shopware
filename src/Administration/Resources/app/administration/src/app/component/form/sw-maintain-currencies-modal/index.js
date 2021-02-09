@@ -125,7 +125,8 @@ Component.register('sw-maintain-currencies-modal', {
                 currencyId: currency.id,
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,
-                net: this.convertPrice(this.defaultPrice.net, currency)
+                net: this.convertPrice(this.defaultPrice.net, currency),
+                listPrice: null
             };
 
             if (this.defaultPrice.listPrice) {
@@ -134,13 +135,6 @@ Component.register('sw-maintain-currencies-modal', {
                     gross: this.convertPrice(this.defaultPrice.listPrice.gross, currency),
                     linked: this.defaultPrice.listPrice.linked,
                     net: this.convertPrice(this.defaultPrice.listPrice.net, currency)
-                };
-            } else {
-                price.listPrice = {
-                    currencyId: currency.id,
-                    gross: 0,
-                    linked: true,
-                    net: 0
                 };
             }
 

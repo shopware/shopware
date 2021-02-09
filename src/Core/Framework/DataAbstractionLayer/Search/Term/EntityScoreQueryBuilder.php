@@ -82,6 +82,10 @@ class EntityScoreQueryBuilder
                 $ranking * $term->getOriginal()->getScore() * 0.5
             );
 
+            if ($flag && !$flag->tokenize()) {
+                continue;
+            }
+
             foreach ($term->getTerms() as $part) {
                 $queries[] = new ScoreQuery(
                     new EqualsFilter($select, $part->getTerm()),

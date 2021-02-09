@@ -1,0 +1,16 @@
+{% block sw_base_filter %}
+    <div class="sw-base-filter">
+        {% block sw_base_filter_headline %}
+            <div class="sw-base-filter__headline">
+                <h4 class="sw-base-filter__title">{{ title }}</h4>
+                <a v-if="showResetButton"
+                   class="sw-base-filter__reset"
+                   @click="resetFilter">{{ $tc('sw-base-filter.resetButton') }}</a>
+            </div>
+        {% endblock %}
+
+        {% block sw_base_filter_content %}
+            <slot></slot>
+        {% endblock %}
+    </div>
+{% endblock %}

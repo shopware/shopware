@@ -41,7 +41,10 @@ function createWrapper(privileges = []) {
             cmsPageService: {},
             cmsService: {},
             repositoryFactory: {},
-            seoUrlService: {}
+            seoUrlService: {},
+            feature: {
+                isActive: () => false
+            }
         }
     });
 }

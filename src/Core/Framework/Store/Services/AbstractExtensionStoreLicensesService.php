@@ -12,7 +12,7 @@ abstract class AbstractExtensionStoreLicensesService
 
     abstract public function purchaseExtension(int $extensionId, int $variantId, Context $context): void;
 
-    abstract public function cancelSubscription(int $licenseId, Context $context): LicenseCollection;
+    abstract public function cancelSubscription(int $licenseId, Context $context): void;
 
     abstract public function rateLicensedExtension(ReviewStruct $rating, Context $context): void;
 

@@ -6,6 +6,14 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @method void                 add(ExtensionStruct $entity)
+ * @method void                 set(string $key, ExtensionStruct $entity)
+ * @method ExtensionStruct[]    getIterator()
+ * @method ExtensionStruct[]    getElements()
+ * @method ExtensionStruct|null get(string $key)
+ * @method ExtensionStruct|null first()
+ * @method ExtensionStruct|null last()
  */
 class ExtensionCollection extends Collection
 {
@@ -26,12 +34,11 @@ class ExtensionCollection extends Collection
 
     public function merge(self $collection): self
     {
-        /** @var ExtensionStruct $entity */
         foreach ($collection as $entity) {
-            if ($this->has($entity->getId())) {
+            if ($this->has($entity->getName())) {
                 continue;
             }
-            $this->add($entity);
+            $this->set($entity->getName(), $entity);
         }
 
         return $this;

@@ -49,6 +49,7 @@
                     type="text"
                     :disabled="!allowEdit"
                     :label="$tc('sw-product.basicForm.labelProductNumber')"
+                    :helpText="productNumberHelpText"
                     v-model="product.productNumber">
                 </sw-field>
             {% endblock %}
@@ -111,6 +112,7 @@
                             type="switch"
                             :error="productMarkAsTopsellerError"
                             :mapInheritance="props"
+                            :helpText="highlightHelpText"
                             :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                             :disabled="props.isInherited || !allowEdit"
                             :value="props.currentValue"

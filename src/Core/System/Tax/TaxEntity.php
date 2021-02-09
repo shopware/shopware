@@ -23,6 +23,11 @@ class TaxEntity extends Entity
     protected $name;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var ProductCollection|null
      */
     protected $products;
@@ -60,6 +65,16 @@ class TaxEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getProducts(): ?ProductCollection

@@ -49,8 +49,14 @@ function runTasks(scheduledTaskService, timeout) {
 
 function consumeMessages(messageQueueService, receiver, _setTimeout = setTimeout) {
     messageQueueService.consume(receiver)
-        .then(() => {
-            consumeMessages(messageQueueService, receiver);
+        .then((response) => {
+            // no message handled, set timeout to 20 seconds to send next consume call.
+            // if a message handlded, directly send next consume call.
+            const timeout = response.handledMessages === 0 ? 20000 : 0;
+
+            _setTimeout(() => {
+                consumeMessages(messageQueueService, receiver);
+            }, timeout);
         })
         .catch((error) => {
             _setTimeout(() => {

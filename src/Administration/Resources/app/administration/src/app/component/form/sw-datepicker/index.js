@@ -99,7 +99,7 @@ Component.register('sw-datepicker', {
         },
 
         locale() {
-            return Shopware.State.getters.adminLocaleLanguage;
+            return Shopware.State.getters.adminLocaleLanguage || 'en';
         },
 
         currentFlatpickrConfig() {
@@ -415,7 +415,7 @@ Component.register('sw-datepicker', {
 
             this.defaultConfig = {
                 time_24hr: true,
-                locale: 'en',
+                locale: this.locale,
                 dateFormat,
                 altInput: true,
                 altFormat,

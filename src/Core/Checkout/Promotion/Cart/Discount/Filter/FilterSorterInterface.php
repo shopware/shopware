@@ -8,5 +8,5 @@ interface FilterSorterInterface
 {
     public function getKey(): string;
 
-    public function sort(DiscountPackageCollection $units): DiscountPackageCollection;
+    public function sort(DiscountPackageCollection $packages): DiscountPackageCollection;
 }

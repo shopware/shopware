@@ -124,6 +124,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>requireDataProtectionCheckbox</name>
+            <label>Data protection information must be accepted via a checkbox</label>
+            <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>vatIdFieldRequired</name>
             <label>VAT Reg.No. required</label>
             <label lang="de-DE">Umsatzsteuer-Id als Pflichtfeld behandeln</label>

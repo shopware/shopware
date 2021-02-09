@@ -82,7 +82,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         }
 
         // check delete restrictions before files get removed.
-        $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($this->innerRepo->getDefinition(), $ids, $context);
+        $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($this->innerRepo->getDefinition(), $ids, $context, true);
         if (!empty($restrictions)) {
             throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), [new RestrictDeleteViolation(Uuid::randomHex(), $restrictions)]);
         }

@@ -104,7 +104,7 @@ class ExtensionLoaderTest extends TestCase
         $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), $plugins);
 
         /** @var ExtensionStruct $extension */
-        $extension = $extensions->get(0);
+        $extension = $extensions->get('AppStoreTestPlugin');
 
         static::assertNotNull($extension);
         static::assertEquals('AppStoreTestPlugin', $extension->getName());

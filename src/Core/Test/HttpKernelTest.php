@@ -10,11 +10,24 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HttpKernelTest extends TestCase
 {
+    private $oldUrl;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->oldUrl = $_ENV['DATABASE_URL'];
+        $_ENV['DATABASE_URL'] = str_replace('3306', '1111', $_ENV['DATABASE_URL']);
+    }
+
+    protected function tearDown(): void
+    {
+        $_ENV['DATABASE_URL'] = $this->oldUrl;
+    }
+
     public function testHandleSensitiveDataIsReplaced(): void
     {
         $kernel = $this->getHttpKernel();
 
-        $_ENV['DATABASE_URL'] = str_replace('3306', '1111', $_ENV['DATABASE_URL']);
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Could not connect to the server as ****** with the password ****** with connection string ******');
 
@@ -28,9 +41,7 @@ class HttpKernelTest extends TestCase
         $reflectedProperty->setAccessible(true);
         $reflectedProperty->setValue(TestKernel::class);
 
-        $httpKernel = new HttpKernel('dev', true, \Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager::getClassLoader());
-
-        return $httpKernel;
+        return new HttpKernel('dev', true, \Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager::getClassLoader());
     }
 }
 

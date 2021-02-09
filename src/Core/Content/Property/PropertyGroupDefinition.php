@@ -38,6 +38,8 @@ class PropertyGroupDefinition extends EntityDefinition
 
     public const FILTERABLE = true;
 
+    public const VISIBLE_ON_PRODUCT_DETAIL_PAGE = true;
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -59,6 +61,7 @@ class PropertyGroupDefinition extends EntityDefinition
             'displayType' => self::DISPLAY_TYPE_TEXT,
             'sortingType' => self::SORTING_TYPE_ALPHANUMERIC,
             'filterable' => self::FILTERABLE,
+            'visibleOnProductDetailPage' => self::VISIBLE_ON_PRODUCT_DETAIL_PAGE,
         ];
     }
 
@@ -76,6 +79,7 @@ class PropertyGroupDefinition extends EntityDefinition
             (new StringField('display_type', 'displayType'))->setFlags(new Required()),
             (new StringField('sorting_type', 'sortingType'))->setFlags(new Required()),
             new BoolField('filterable', 'filterable'),
+            new BoolField('visible_on_product_detail_page', 'visibleOnProductDetailPage'),
             new TranslatedField('position'),
             new TranslatedField('customFields'),
             (new OneToManyAssociationField('options', PropertyGroupOptionDefinition::class, 'property_group_id', 'id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

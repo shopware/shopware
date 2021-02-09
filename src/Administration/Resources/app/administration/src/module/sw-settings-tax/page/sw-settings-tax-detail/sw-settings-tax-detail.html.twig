@@ -2,7 +2,7 @@
     <sw-page class="sw-settings-tax-detail">
         {% block sw_settings_tax_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="tax.name">{{ tax.name }}</h2>
+                <h2 v-if="label">{{ label }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-tax.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}
@@ -40,21 +40,22 @@
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
 
                             {% block sw_settings_tax_detail_content_field_name %}
-                                <sw-field
-                                    v-model="tax.name"
-                                    type="text"
+                                <sw-text-field
+                                    :value="label"
+                                    @change="changeName"
                                     required
-                                    :disabled="!acl.can('tax.editor')"
+                                    name="sw-field--tax-name"
+                                    id="sw-field--tax-name"
+                                    :disabled="!acl.can('tax.editor') || isShopwareDefaultTax"
                                     :label="$tc('sw-settings-tax.detail.labelName')"
                                     :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                                     :error="taxNameError">
-                                </sw-field>
+                                </sw-text-field>
                             {% endblock %}
 
                             {% block sw_settings_tax_detail_content_field_tax_rate %}
-                                <sw-field
+                                <sw-number-field
                                     v-model="tax.taxRate"
-                                    type="number"
                                     required
                                     :disabled="!acl.can('tax.editor')"
                                     :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
@@ -65,7 +66,7 @@
                                             <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
                                        </span>
                                     </template>
-                                </sw-field>
+                                </sw-number-field>
                             {% endblock %}
                         </sw-container>
                     </sw-card>

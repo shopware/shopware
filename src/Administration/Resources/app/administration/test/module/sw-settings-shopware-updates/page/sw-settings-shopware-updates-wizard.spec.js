@@ -93,7 +93,28 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             vars: [],
                             extensions: []
                         }
-                    ])
+                    ]),
+                    deactivatePlugins: () => {
+                        const error = new Error();
+
+                        error.response = {
+                            data: {
+                                errors: [
+                                    {
+                                        code: 'THEME__THEME_ASSIGNMENT',
+                                        meta: {
+                                            parameters: {
+                                                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
+                                                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6'
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        };
+
+                        return Promise.reject(error);
+                    }
                 },
                 feature: {
                     isActive: () => true
@@ -209,5 +230,26 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const button = wrapper.find('.smart-bar__actions .sw-button');
 
         expect(button.attributes('disabled')).toBe('disabled');
+    });
+
+    it('should show the correct error message, when theme deactivation fails', async () => {
+        const stopUpdateProcessSpy = jest.spyOn(wrapper.vm, 'stopUpdateProcess');
+        const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+        const translationSpy = jest.spyOn(wrapper.vm, '$tc');
+
+        wrapper.vm.deactivatePlugins(0);
+        await wrapper.vm.$nextTick();
+
+        expect(stopUpdateProcessSpy).toHaveBeenCalled();
+        expect(createNotificationWarningSpy).toHaveBeenCalled();
+        expect(translationSpy).toHaveBeenCalledWith(
+            'sw-extension.errors.messageDeactivationFailedThemeAssignment',
+            null,
+            null,
+            {
+                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
+                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508'
+            }
+        );
     });
 });

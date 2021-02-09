@@ -108,10 +108,6 @@ shopware:
               default: false
               major: true
               description: "custom search index and ranking"
-            - name: FEATURE_NEXT_10820
-              default: false
-              major: true
-              description: "add same canonical url for variants"
             - name: FEATURE_NEXT_12553
               default: false
               major: true
@@ -128,6 +124,14 @@ shopware:
               default: false
               major: true
               description: "Rule detail page assignments tab"
+            - name: FEATURE_NEXT_12032
+              default: false
+              major: true
+              description: "Add landing pages"
+            - name: FEATURE_NEXT_12246
+              default: false
+              major: true
+              description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
             - name: FEATURE_NEXT_12942
               default: false
               major: true
@@ -136,6 +140,14 @@ shopware:
               default: false
               major: true
               description: "Separate plugin download and update action"
+            - name: FEATURE_NEXT_9831
+              default: false
+              major: false
+              description: "Filters & Search for Admin Grids"
+            - name: FEATURE_NEXT_12429
+              default: false
+              major: true
+              description: "Improve product UX"
 
     logger:
         file_rotation_count: 14

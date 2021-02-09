@@ -15,6 +15,7 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "edit": "Edit",
+      "duplicate": "Duplicate",
       "error": "Error",
       "warning": "Warning",
       "save": "Save",
@@ -109,7 +110,7 @@
     },
     "sw-admin-menu": {
       "linkLogout": "Logout",
-      "linkMinimizeMenu": "Minimize menu",
+      "linkMinimizeMenu": "Collapse menu",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "administrator": "Administrator",
@@ -164,6 +165,7 @@
     },
     "sw-list-price-field": {
       "labelListPriceGross": "List price (gross)",
+      "helpTextListPriceGross": "List prices indicate a discounted product. List prices are denoted as the \"original\" price which is crossed out and coloured in red. The actual and discounted price will be displayed alongside in the default text colour.",
       "labelListPriceNet": "List price (net)"
     },
     "sw-text-editor": {
@@ -676,6 +678,7 @@
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
       "user": "User | Users",
+      "landing_page": "Landing Page",
       "delivery_time": "Delivery time | Delivery times",
       "import_export_profile": "Import/Export Profile | Import/Export Profiles",
       "feature_set": "Template | Templates",
@@ -755,6 +758,11 @@
       "state_leave_order_transaction_state_refunded_partially": "Payment leaves status partially refunded",
       "state_leave_order_transaction_state_reminded": "Payment leaves status reminder sent",
       "user_recovery_request": "User recovery request sent"
+    },
+    "tax-rates": {
+      "Standard rate": "Standard rate",
+      "Reduced rate": "Reduced rate",
+      "Reduced rate 2": "Super-reduced rate"
     }
   },
   "sw-text-editor-toolbar": {
@@ -801,7 +809,7 @@
       "insert-unordered-list": "Insert unordered list",
       "insert-ordered-list": "Insert ordered list",
       "link": "Link",
-      "data-mapping": "Data mapping",
+      "data-mapping": "Insert variable",
       "undo": "Undo",
       "redo": "Redo",
       "insert-table": "Insert table",
@@ -894,7 +902,10 @@
   "sw-image-slider": {
     "imageAlt": "Image {index} / {total}"
   },
-  "sw-rule-modal": {
+  "sw-confirm-modal": {
+        "defaultText": "Are you sure you want to proceed?"
+    },
+    "sw-rule-modal": {
     "modalTitleNew": "Create new global rule",
     "modalTitleModify": "Modify global rule",
     "labelDescription": "Description",
@@ -1055,5 +1066,29 @@
     "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
+  },
+  "sw-meteor": {
+    "navigation": {
+      "backButton": "Back"
+    }
+  },
+  "sw-base-filter": {
+    "resetButton": "Reset"
+  },
+  "sw-boolean-filter": {
+    "placeholder": "All",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "sw-existence-filter": {
+    "placeholder": "All",
+    "noCriteria": "No {criteriaName}",
+    "hasCriteria": "Has {criteriaName}"
+  },
+  "sw-filter-panel": {
+    "titleSidebarItemFilter": "Filter"
+  },
+  "sw-sidebar-filter-panel": {
+    "resetButton": "Reset all"
   }
 }

@@ -13,6 +13,10 @@
             <directory name="vendor"/>
             <directory name="platform/src/Recovery"/>
             <directory name="platform/src/Docs/Resources"/>
+            <!-- Ignore UNTIL FEATURE_NEXT_12246 is removed -->
+            <file name="platform/src/Core/Content/MailTemplate/Service/MailSender.php"/>
+            <!-- Ignore UNTIL FEATURE_NEXT_12246 is removed -->
+            <file name="platform/src/Core/Content/MailTemplate/Service/MailSenderInterface.php"/>
         </ignoreFiles>
     </projectFiles>
 

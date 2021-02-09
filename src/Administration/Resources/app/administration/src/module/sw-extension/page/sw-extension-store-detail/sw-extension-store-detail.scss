@@ -1,0 +1,174 @@
+@import "~scss/variables";
+
+.sw-meteor-page.sw-extension-store-detail {
+    .is--wrap-content {
+        word-break: break-word;
+    }
+
+    .sw-extension-store-detail--user-provided-data {
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-top: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        ul,
+        ol {
+            padding-left: 16px;
+        }
+
+        a {
+            color: $color-shopware-brand-500;
+        }
+
+        & > *:first-child {
+            margin-top: 0;
+        }
+
+        & > *:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-extension-store-detail__extension-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: $border-radius-default;
+    }
+
+    .sw-meteor-page__head-area.is--scrolled .sw-extension-store-detail__extension-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .sw-meteor-page__smart-bar-meta {
+        align-self: flex-end;
+        color: $color-gray-500;
+        font-size: $font-size-extra-small;
+    }
+
+    .sw-meteor-page__smart-bar-actions {
+        .sw-extension-store-detail__trial-info {
+            font-size: $font-size-small;
+            font-weight: $font-weight-regular;
+            color: $color-shopware-brand-500;
+            padding: 0;
+            border: none;
+            background: none;
+            line-height: inherit;
+        }
+
+        .sw-extension-store-detail__discounted-price {
+            color: $color-crimson-400;
+            margin-bottom: 0;
+
+            s {
+                margin-left: 4px;
+            }
+        }
+
+        .sw-extension-store-detail__discounted-price-info {
+            color: $color-gray-500;
+            font-size: $font-size-extra-small;
+            margin-top: 0;
+        }
+    }
+
+    .sw-meteor-page__smart-bar-description {
+        color: $color-gray-500;
+        font-size: $font-size-small;
+
+        .sw-extension-store-detail__rating-overview {
+            display: flex;
+            margin-top: 12px;
+            align-items: center;
+
+            & > *:not(:last-child) {
+                margin-right: 0.25em;
+            }
+
+            a,
+            a:active,
+            a:visited {
+                color: $color-shopware-brand-500;
+                text-decoration: underline;
+            }
+        }
+    }
+
+    &.is--theme .sw-extension-store-slider .sw-extension-store-slider__slides {
+        height: 70vw;
+        max-height: 720px;
+    }
+
+    .sw-extension-store-detail__description {
+        &--collapsed {
+            max-height: 300px;
+            overflow-y: hidden;
+        }
+    }
+
+    .sw-extension-store-detail__button-extend-description {
+        margin-top: 16px;
+    }
+
+    .sw-extension-store-detail__details-list {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        justify-items: start;
+        column-gap: 40px;
+    }
+
+    .sw-extension-store-detail__external-link {
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+        text-decoration: underline;
+        cursor: pointer;
+
+        .sw-icon {
+            margin-left: 4px;
+        }
+    }
+
+    .sw-extension-store-detail__faq-question h4 {
+        margin-bottom: 5px;
+    }
+
+    .sw-extension-store-detail__faq-question:not(:last-child) {
+        margin-bottom: 1.5em;
+    }
+
+    .sw-extension-store-detail__changelog-entry {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
+        column-gap: 1em;
+        grid-template-areas:
+            "version changelog"
+            "date changelog";
+    }
+
+    .sw-extension-store-detail__changelog-entry:not(:last-child) {
+        margin-bottom: 48px;
+    }
+
+    .sw-extension-store-detail__changelog-version {
+        grid-area: version;
+        font-size: 20px;
+        justify-self: center;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-extension-store-detail__changelog-creation-date {
+        grid-area: date;
+        justify-self: center;
+        color: $color-gray-500;
+    }
+
+    .sw-extension-store-detail__changelog-text {
+        grid-area: changelog;
+    }
+}

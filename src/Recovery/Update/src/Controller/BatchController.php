@@ -5,6 +5,7 @@ namespace Shopware\Recovery\Update\Controller;
 use Gaufrette\Filesystem;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\Steps\FinishResult;
 use Shopware\Recovery\Common\Steps\MigrationStep;
@@ -46,17 +47,22 @@ class BatchController
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        $shopwareVersion = (string) $this->container->get('shopware.version');
-        $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
-            // only execute safe destructive migrations
-            ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
-            : MigrationCollectionLoader::VERSION_SELECTION_ALL;
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if branch on feature release (keep the collectAllVersion call)
+        if (!Feature::isActive('FEATURE_NEXT_12349')) {
+            $coreMigrations = $migrationCollectionLoader->collect('core');
+        } else {
+            $shopwareVersion = (string) $this->container->get('shopware.version');
+            $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
+                // only execute safe destructive migrations
+                ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
+                : MigrationCollectionLoader::VERSION_SELECTION_ALL;
 
-        $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
-            $shopwareVersion,
-            // only execute safe destructive migrations
-            $versionSelectionMode
-        );
+            $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+                $shopwareVersion,
+                // only execute safe destructive migrations
+                $versionSelectionMode
+            );
+        }
 
         $result = (new MigrationStep($coreMigrations))
             ->run($modus, $offset, $total);

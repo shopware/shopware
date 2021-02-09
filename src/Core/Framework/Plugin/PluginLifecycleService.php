@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -153,7 +152,7 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(
@@ -221,7 +220,7 @@ class PluginLifecycleService
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(
@@ -292,7 +291,7 @@ class PluginLifecycleService
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
 
-        if (Feature::isActive('FEATURE_NEXT_1797') && $pluginBaseClass->executeComposerCommands()) {
+        if ($pluginBaseClass->executeComposerCommands()) {
             $pluginComposerName = $plugin->getComposerName();
             if ($pluginComposerName === null) {
                 throw new PluginComposerJsonInvalidException(

@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
+    container: shopware/development:7.4-composer-2
     env:
       DEVELOPMENT_BRANCH: trunk
 

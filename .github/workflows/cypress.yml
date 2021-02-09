@@ -9,7 +9,7 @@ on:
 jobs:
   Administration:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
+    container: shopware/development:7.4-composer-2
     continue-on-error: true
     strategy:
         matrix:
@@ -81,7 +81,7 @@ jobs:
 
   Storefront:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
+    container: shopware/development:7.4-composer-2
     continue-on-error: true
     env:
       DEVELOPMENT_BRANCH: trunk

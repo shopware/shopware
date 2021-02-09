@@ -1,0 +1,34 @@
+{% block sw_category_entry_point_card %}
+    <sw-card class="sw-category-entry-point-card" :title="$tc('sw-category.base.entry-point-card.cardTitle')">
+
+        {% block sw_category_entry_point_card_selection %}
+            <sw-single-select
+                v-model="selectedEntryPoint"
+                :options="entryPoints"
+                :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
+                :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
+                @change="onEntryPointChange">
+            </sw-single-select>
+        {% endblock %}
+
+        {% block sw_category_entry_point_card_sales_channel_selection %}
+            <sw-category-sales-channel-multi-select
+                v-if="associatedCollection"
+                @change="onSalesChannelChange"
+                :entityCollection="associatedCollection"
+                :disabled="!selectedEntryPoint"
+                :label="$tc('sw-category.base.entry-point-card.labelSalesChannels')"
+                :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')">
+            </sw-category-sales-channel-multi-select>
+        {% endblock %}
+
+        {% block sw_category_entry_point_card_button_configure_home %}
+            <sw-button
+                variant="ghost"
+                size="small"
+                :disabled="selectedEntryPoint !== 'navigationSalesChannels'">
+                {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
+            </sw-button>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

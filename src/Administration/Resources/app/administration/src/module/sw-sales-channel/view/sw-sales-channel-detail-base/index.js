@@ -156,7 +156,8 @@ Component.register('sw-sales-channel-detail-base', {
 
         mainNavigationCriteria() {
             const criteria = new Criteria(1, 10);
-            return criteria.addFilter(Criteria.equals('type', 'page'));
+            return criteria
+                .addFilter(Criteria.equalsAny('type', ['page', 'folder']));
         },
 
         getIntervalOptions() {

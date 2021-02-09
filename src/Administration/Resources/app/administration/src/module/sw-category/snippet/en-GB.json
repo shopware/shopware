@@ -38,10 +38,12 @@
         "types": {
           "title": "Category type",
           "page": "Category",
-          "folder": "Structuring element",
+          "folder": "Entry point",
           "link": "Customisable link",
           "column": "Column",
           "columnHelp": "The category type cannot be changed if the category above is an entry point for the footer navigation",
+          "entrypoint": "Entry point",
+          "pageList": "Page / List",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes."
         }
       },
@@ -55,6 +57,19 @@
         },
         "footerSales": {
           "descriptionGeneral": "You have assigned this category as an entry point for the footer navigation in these Sales Channels:"
+        }
+      },
+      "entry-point-card": {
+        "cardTitle": "Entry point",
+        "labelEntryPoint": "Entry point",
+        "placeholderEntryPoint": "Select entry point...",
+        "labelSalesChannels": "Sales channels",
+        "placeholderSalesChannels": "Select sales channel...",
+        "buttonConfigureHome": "Configure home",
+        "types": {
+          "labelMainNavigation": "Main navigation",
+          "labelFooterNavigation": "Footer navigation",
+          "labelServiceNavigation": "Service navigation"
         }
       },
       "seo": {

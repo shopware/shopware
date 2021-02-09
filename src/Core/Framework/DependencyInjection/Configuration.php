@@ -150,7 +150,7 @@ class Configuration implements ConfigurationInterface
                     ->prototype('scalar')->end()
                 ->end()
                 ->integerNode('poll_interval')
-                    ->defaultValue(30)
+                    ->defaultValue(20)
                 ->end()
                 ->booleanNode('enable_admin_worker')
                     ->defaultValue(true)

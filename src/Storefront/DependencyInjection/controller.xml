@@ -183,6 +183,15 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\LandingPageController">
+            <argument type="service" id="Shopware\Storefront\Page\LandingPage\LandingPageLoader"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12032"/>
+        </service>
+
         <service id="Shopware\Storefront\Controller\RegisterController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>

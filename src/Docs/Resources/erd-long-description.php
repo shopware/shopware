@@ -754,4 +754,15 @@ EOD
 __EMPTY__
 EOD
     ,
+    Shopware\Core\Content\LandingPage\LandingPageDefinition::class => <<<'EOD'
+Landing Pages which are called via the given seo url
+EOD
+    ,
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition::class => '',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition::class => '',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition::class => '',
+    'Shopware\\Core\\Content\\LandingPage' => <<<'EOD'
+Landing Pages which are called via the given seo url
+EOD
+    ,
 ];

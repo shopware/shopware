@@ -1,7 +1,7 @@
 ---
 title: Landing page feature
-issue: NEXT-12016
-flag: FEATURE_NEXT_12016
+issue: NEXT-12032
+flag: FEATURE_NEXT_12032
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com 
 author_github: King-of-Babylon
@@ -12,6 +12,17 @@ author_github: King-of-Babylon
     * `\Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition`
     * `\Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition`
     * `\Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition`
+* Added the landing page indexer, event and message:
+    * `\Shopware\Core\Content\LandingPage\DataAbstractionLayer\LandingPageIndexer`
+    * `\Shopware\Core\Content\LandingPage\LandingPageEvents`
+    * `\Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent`
+    * `\Shopware\Core\Content\LandingPage\DataAbstractionLayer\LandingPageIndexingMessage`
+* Added landing page route for sales channel:
+    * `\Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute`
+    * `\Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException`
+    * `\Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute`
+    * `\Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRouteResponse`
+    * `\Shopware\Core\Content\LandingPage\SalesChannel\SalesChannelLandingPageDefinition`
 ___
 # Administration
 * Added props `shouldShowActiveState`, `allowDuplicate` and `allowCreateWithoutPosition` to `sw-tree-item` component
@@ -35,4 +46,11 @@ ___
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-landing-page-detail-cms/sw-landing-page-detail-cms.scss`
 * Added landing page routes to `sw-category` module
 * Changed `sw-category-tree` handling to `$set` and `$delete` methods
-
+___
+# Storefront
+* Added the landing page controller with the seo url route:
+    * `\Shopware\Storefront\Controller\LandingPageController`
+    * `\Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute`
+    * `\Shopware\Storefront\Page\LandingPage\LandingPage`
+    * `\Shopware\Storefront\Page\LandingPage\LandingPageLoader`
+* Added the `updateLandingPageUrls` method to `\Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener`

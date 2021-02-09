@@ -39,16 +39,16 @@ class CategoryRoute extends AbstractCategoryRoute
     /**
      * @var CategoryDefinition
      */
-    private $definition;
+    private $categoryDefinition;
 
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        CategoryDefinition $definition
+        CategoryDefinition $categoryDefinition
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->cmsPageLoader = $cmsPageLoader;
-        $this->definition = $definition;
+        $this->categoryDefinition = $categoryDefinition;
     }
 
     public function getDecorated(): AbstractCategoryRoute
@@ -102,7 +102,7 @@ class CategoryRoute extends AbstractCategoryRoute
             return new CategoryRouteResponse($category);
         }
 
-        $resolverContext = new EntityResolverContext($context, $request, $this->definition, $category);
+        $resolverContext = new EntityResolverContext($context, $request, $this->categoryDefinition, $category);
 
         $pages = $this->cmsPageLoader->load(
             $request,

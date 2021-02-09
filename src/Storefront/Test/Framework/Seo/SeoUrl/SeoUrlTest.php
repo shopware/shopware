@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -39,6 +41,11 @@ class SeoUrlTest extends TestCase
     private $seoUrlTemplateRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $landingPageRepository;
+
+    /**
      * @var SeoUrlGenerator
      */
     private $seoUrlGenerator;
@@ -48,7 +55,92 @@ class SeoUrlTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
 
+        if (Feature::isActive('FEATURE_NEXT_12032')) {
+            $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
+        }
+
         $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
+    }
+
+    public function testSearchLandingPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12032', $this);
+
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestLandingPage(['salesChannels' => [
+            [
+                'id' => $salesChannelContext->getSalesChannelId(),
+            ],
+        ]]);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var LandingPageEntity $landingPage */
+        $landingPage = $this->landingPageRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        static::assertInstanceOf(SeoUrlCollection::class, $landingPage->getSeoUrls());
+
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $landingPage->getSeoUrls();
+        $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
+        static::assertEquals('coolUrl', $seoUrl->getSeoPathInfo());
+    }
+
+    public function testLandingPageUpdate(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12032', $this);
+
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestLandingPage(['salesChannels' => [
+            [
+                'id' => $salesChannelContext->getSalesChannelId(),
+            ],
+        ]]);
+
+        $this->landingPageRepository->update(
+            [
+                [
+                    'id' => $id,
+                    'url' => 'newUrl',
+                ],
+            ],
+            $salesChannelContext->getContext()
+        );
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var ProductEntity $first */
+        $first = $this->landingPageRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($first);
+
+        // Old seo url
+        /** @var SeoUrlEntity|null $seoUrl */
+        $seoUrl = $first->getSeoUrls()->filterByProperty('seoPathInfo', 'coolUrl')->first();
+        static::assertNotNull($seoUrl);
+
+        static::assertNull($seoUrl->getIsCanonical());
+        static::assertFalse($seoUrl->getIsDeleted());
+
+        static::assertEquals('/landingPage/' . $id, $seoUrl->getPathInfo());
+        static::assertEquals($id, $seoUrl->getForeignKey());
+
+        // New seo url
+        $seoUrl = $first->getSeoUrls()->filterByProperty('seoPathInfo', 'newUrl')->first();
+        static::assertNotNull($seoUrl);
+
+        static::assertTrue($seoUrl->getIsCanonical());
+        static::assertFalse($seoUrl->getIsDeleted());
+
+        static::assertEquals('/landingPage/' . $id, $seoUrl->getPathInfo());
+        static::assertEquals($id, $seoUrl->getForeignKey());
     }
 
     public function testSearchProduct(): void
@@ -104,7 +196,12 @@ class SeoUrlTest extends TestCase
 
         $context = $salesChannelContext->getContext();
 
-        $this->runChecks([], $categoryRepository, $context, $salesChannelId);
+        $cases = [
+            ['expected' => null, 'categoryId' => $childAId],
+            ['expected' => null, 'categoryId' => $childA1Id],
+        ];
+
+        $this->runChecks($cases, $categoryRepository, $context, $salesChannelId);
     }
 
     public function testSearchCategoryWithSalesChannelEntryPoint(): void
@@ -488,6 +585,22 @@ class SeoUrlTest extends TestCase
         $insert = array_merge($insert, $overrides);
 
         $this->productRepository->create([$insert], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    private function createTestLandingPage(array $overrides = []): string
+    {
+        $id = Uuid::randomHex();
+        $insert = [
+            'id' => $id,
+            'name' => 'foo bar',
+            'url' => 'coolUrl',
+        ];
+
+        $insert = array_merge($insert, $overrides);
+
+        $this->landingPageRepository->create([$insert], Context::createDefaultContext());
 
         return $id;
     }

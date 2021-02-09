@@ -37,7 +37,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     /**
      * @var SalesChannelRepositoryInterface
      */
-    private $repository;
+    private $productRepository;
 
     /**
      * @var SystemConfigService
@@ -69,14 +69,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private $productDefinition;
 
     public function __construct(
-        SalesChannelRepositoryInterface $repository,
+        SalesChannelRepositoryInterface $productRepository,
         SystemConfigService $config,
         ProductConfiguratorLoader $configuratorLoader,
         CategoryBreadcrumbBuilder $breadcrumbBuilder,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         SalesChannelProductDefinition $productDefinition
     ) {
-        $this->repository = $repository;
+        $this->productRepository = $productRepository;
         $this->config = $config;
         $this->configuratorLoader = $configuratorLoader;
         $this->breadcrumbBuilder = $breadcrumbBuilder;
@@ -114,7 +114,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
         $criteria->setIds([$productId]);
 
-        $product = $this->repository
+        $product = $this->productRepository
             ->search($criteria, $context)
             ->first();
 
@@ -181,7 +181,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->addSorting(new FieldSorting('product.available'))
             ->setLimit(1);
 
-        $variantId = $this->repository->searchIds($criteria, $context);
+        $variantId = $this->productRepository->searchIds($criteria, $context);
 
         if (\count($variantId->getIds()) > 0) {
             return $variantId->getIds()[0];

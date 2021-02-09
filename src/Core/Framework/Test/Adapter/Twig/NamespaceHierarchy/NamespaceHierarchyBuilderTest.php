@@ -20,6 +20,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
         $appRepository->create([
             [
                 'name' => 'SwagApp',
+                'active' => true,
                 'path' => __DIR__ . '/Manifest/_fixtures/test',
                 'version' => '0.0.1',
                 'label' => 'test',
@@ -36,6 +37,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             ],
             [
                 'name' => 'SwagThemeTest',
+                'active' => true,
                 'path' => __DIR__ . '/Manifest/_fixtures/test',
                 'version' => '0.0.1',
                 'label' => 'test',

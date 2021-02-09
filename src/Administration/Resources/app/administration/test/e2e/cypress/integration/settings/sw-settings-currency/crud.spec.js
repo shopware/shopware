@@ -65,6 +65,7 @@ describe('Currency: Test crud operations', () => {
             method: 'patch'
         }).as('saveData');
 
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             page.elements.contextMenuButton,
@@ -99,6 +100,7 @@ describe('Currency: Test crud operations', () => {
 
         // filter currency via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('ZZ Yen');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
 
         // Delete currency
         cy.clickContextMenuItem(

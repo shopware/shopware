@@ -391,7 +391,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        if ($product->getOptions() === null) {
+        if ($product->getOptionIds() === null) {
             return true;
         }
 

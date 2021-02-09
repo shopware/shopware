@@ -12,7 +12,7 @@ Component.register('sw-extension-privacy-policy-extensions-modal', {
             required: true
         },
 
-        privacyPolicyExtensions: {
+        privacyPolicyExtension: {
             type: String,
             required: true
         }

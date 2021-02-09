@@ -20,7 +20,7 @@ Component.register('sw-extension-buy-modal', {
     props: {
         extension: {
             type: Object,
-            required: false
+            required: true
         }
     },
 

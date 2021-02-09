@@ -346,5 +346,285 @@
         "labelLink": "Firma zuweisen"
       }
     }
+  },
+  "entityCategories": {
+    "admin_user": {
+      "title": "Admin Nutzer",
+      "entities": {
+        "integration": "Integration",
+        "user": "Nutzer",
+        "user_access_key": "Zugangsschlüssel",
+        "user_recovery": "Wiederherstellung"
+      }
+    },
+    "app": {
+      "title": "Apps",
+      "entities": {
+        "app_template": "App-Template",
+        "app": "App",
+        "app_translation": "App-Übersetzung",
+        "app_action_button": "Aktionsbutton",
+        "app_action_button_translation": "Aktionsbutton-Übersetzung"
+      }
+    },
+    "category": {
+      "title": "Kategorien",
+      "entities": {
+        "category": "Kategorie",
+        "category_translation": "Kategorie-Übersetzung",
+        "category_tag": "Kategorie-Tag"
+      }
+    },
+    "cms": {
+      "title": "CMS",
+      "entities": {
+        "cms_block": "Block",
+        "cms_page": "Seite (Layout)",
+        "cms_page_translation": "Seitenübersetzung",
+        "cms_section": "Bereich",
+        "cms_slot": "Slot",
+        "cms_slot_translation": "Slotübersetzung"
+      }
+    },
+    "customer": {
+      "title": "Kunden",
+      "entities": {
+        "customer": "Kunde",
+        "customer_address": "Adresse",
+        "customer_group": "Kundengruppe",
+        "customer_group_translation": "Kundengruppen-Übersetzung",
+        "customer_group_registration_sales_channels": "Registrierungsverkaufskanal von Kundengruppen",
+        "customer_recovery": "Wiederherstellung",
+        "customer_tag": "Tag"
+      }
+    },
+    "custom_fields": {
+      "title": "Custom fields",
+      "entities": {
+        "custom_field": "Zusatzfeld",
+        "custom_field_set": "Zusatzfeld-Set",
+        "custom_field_set_relation": "Zusatzfeld-Set-Relation"
+      }
+    },
+    "documents": {
+      "title": "Dokumente",
+      "entities": {
+        "document": "Dokument",
+        "document_base_config": "Grundeinstellung",
+        "document_base_config_sales_channel": "Grundeinstellung für Verkaufskanäle",
+        "document_type": "Typ",
+        "document_type_translation": "Typ-Übersetzung"
+      }
+    },
+    "google_shopping": {
+      "title": "Google Shopping",
+      "entities": {
+        "swag_google_shopping_account": "Account",
+        "swag_google_shopping_ads_account": "Ads Account",
+        "swag_google_shopping_list_ads_account": "Liste Ads Account",
+        "swag_google_shopping_category": "Kategorie",
+        "swag_google_shopping_merchant_account": "Händler Account"
+      }
+    },
+    "import_export": {
+      "title": "Import/Export",
+      "entities": {
+        "import_export_file": "Datei",
+        "import_export_log": "Log",
+        "import_export_profile": "Profil",
+        "import_export_profile_translation": "Profilübersetzung"
+      }
+    },
+    "mail_templates": {
+      "title": "E-Mail-Vorlagen",
+      "entities": {
+        "mail_header_footer": "Header & Footer",
+        "mail_header_footer_translation": "Header & Footer Übersetzung",
+        "mail_template": "E-Mail-Vorlage",
+        "mail_template_translation": "E-Mail-Vorlage-Übersetzung",
+        "mail_template_media": "Medien",
+        "mail_template_sales_channel": "Verkaufskanal",
+        "mail_template_type": "Typ",
+        "mail_template_type_translation": "Typ-Übersetzung"
+      }
+    },
+    "media": {
+      "title": "Medien",
+      "entities": {
+        "media": "Medium",
+        "media_translation": "Medium-Übersetzung",
+        "media_default_folder": "Standardordner",
+        "media_folder": "Ordner",
+        "media_folder_configuration": "Ordnerkonfiguration",
+        "media_folder_configuration_media_thumbnail_size": "Ordnerkonfiguration-Thumbnailgröße",
+        "media_tag": "Tag",
+        "media_thumbnail": "Thumbnail",
+        "media_thumbnail_size": "Thumbnailgröße"
+      }
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "entities": {
+        "newsletter_recipient": "Empfänger",
+        "newsletter_recipient_tag": "Empfänger-Tag"
+      }
+    },
+    "order": {
+      "title": "Bestellungen",
+      "entities": {
+        "order": "Bestellung",
+        "order_address": "Adresse",
+        "order_customer": "Kunde",
+        "order_delivery": "Lieferung",
+        "order_delivery_position": "Lieferungposition",
+        "order_line_item": "Bestellposition",
+        "order_tag": "Tag",
+        "order_transaction": "Transaktion"
+      }
+    },
+    "other": {
+      "title": "Sonstige",
+      "entities": {
+        "acl_role": "ACL Rolle",
+        "acl_user_role": "ACL Nutzerrolle",
+        "dead_message": "Tote Nachricht",
+        "event_action": "Event-Aktion",
+        "message_queue_stats": "Statistiken der Nachrichtenwarteschlange",
+        "plugin": "Plugin",
+        "scheduled_task": "Geplante Aufgabe"
+      }
+    },
+    "payment": {
+      "title": "Zahlungen",
+      "entities": {
+        "payment_method": "Zahlungsmethode",
+        "payment_method_translation": "Zahlungsmethodenübersetzung"
+      }
+    },
+    "product": {
+      "title": "Produkte",
+      "entities": {
+        "product": "Produkt",
+        "product_category": "Kategorie",
+        "product_category_tree": "Kategoriebaum",
+        "product_configurator_setting": "Produktkonfigurator-Einstellung",
+        "product_cross_selling": "Cross-Selling",
+        "product_cross_selling_translation": "Cross-Selling-Übersetzung",
+        "product_cross_selling_assigned_products": "Cross-Selling zugeordneter Produkte",
+        "product_export": "Produktexport",
+        "product_keyword_dictionary": "Schlagwort-Verzeichnis",
+        "product_manufacturer": "Hersteller",
+        "product_manufacturer_translation": "Herstellerübersetzung",
+        "product_media": "Medien",
+        "product_option": "Produktoptionen",
+        "product_price": "Preis",
+        "product_property": "Produkteigenschaften",
+        "product_review": "Rezension",
+        "product_search_keyword": "Suchwort",
+        "product_stream": "Produktgruppe",
+        "product_tag": "Tag",
+        "product_visibility": "Sichtbarkeit",
+        "product_sorting": "Sortierung",
+        "product_translation": "Produktübersetzung",
+        "product_feature_set": "Feature-Set",
+        "product_feature_set_translation": "Feature-Set-Übersetzung",
+        "product_custom_field_set": "Zusatzfeld-Set"
+      }
+    },
+    "promotion": {
+      "title": "Rabatte & Aktionen",
+      "entities": {
+        "promotion": "Promotion",
+        "promotion_translation": "Promotion-Übersetzung",
+        "promotion_cart_rule": "Kartenregel",
+        "promotion_discount": "Rabatt",
+        "promotion_discount_prices": "Rabattpreise",
+        "promotion_discount_rule": "Rabattregel",
+        "promotion_individual_code": "Aktionscode",
+        "promotion_order_rule": "Bestellregel",
+        "promotion_persona_customer": "Persona-Kunde",
+        "promotion_persona_rule": "Persona-Regel",
+        "promotion_sales_channel": "Verkaufskanal",
+        "promotion_setgroup": "Promotion-Set Gruppe",
+        "promotion_setgroup_rule": "Promotion-Set Gruppenregel"
+      }
+    },
+    "rules": {
+      "title": "Regeln",
+      "entities": {
+        "rule": "Regel",
+        "rule_condition": "Bedingung"
+      }
+    },
+    "sales_channel": {
+      "title": "Verkaufskanäle",
+      "entities": {
+        "sales_channel": "Verkaufkanal",
+        "sales_channel_analytics": "Analysen",
+        "sales_channel_country": "Land",
+        "sales_channel_currency": "Währung",
+        "sales_channel_domain": "Domain",
+        "sales_channel_language": "Sprache",
+        "sales_channel_payment_method": "Zahlungsart",
+        "sales_channel_shipping_method": "Versandart",
+        "sales_channel_translation": "Verkaufkanal-Übersetzung",
+        "sales_channel_type": "Verkaufskanaltyp",
+        "sales_channel_type_translation": "Verkaufskanaltyp-Übersetzung"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "entities": {
+        "country": "Land",
+        "country_state": "Bundesland",
+        "currency": "Währung",
+        "delivery_time": "Lieferzeit",
+        "language": "Sprache",
+        "locale": "Locale",
+        "locale_translation": "Locale-Übersetzung",
+        "number_range": "Nummernkreis",
+        "number_range_sales_channel": "Nummernkreis für Verkaufskanäle",
+        "number_range_state": "Nummernkreis-Status",
+        "number_range_type": "Nummernkreis-Typ",
+        "salutation": "Anrede",
+        "salutation_translation": "Anrede-Übersetzung",
+        "seo_url": "SEO URL",
+        "seo_url_template": "SEO URL Template",
+        "state_machine": "Zustandsautomat",
+        "state_machine_history": "Zustandsautomaten-Historie",
+        "state_machine_state": "Zustandsautomat-Zustand",
+        "state_machine_state_translation": "Zustandsautomaten-Zustands-Übersetzung",
+        "state_machine_transition": "Zustandsautomaten-Übergang",
+        "state_machine_translation": "Zustandsautomaten-Übersetzung",
+        "system_config": "System-Konfiguration",
+        "tax": "Steuern",
+        "tax_rule": "Steuerregel",
+        "tax_rule_type": "Steuerregeltyp",
+        "unit": "Maßeinheit",
+        "version": "Version"
+      }
+    },
+    "social_shopping": {
+      "title": "Social Shopping",
+      "entities": {
+        "swag_social_shopping_sales_channel": "Verkaufskanal",
+        "swag_social_shopping_product_error": "Produktfehler"
+      }
+    },
+    "tag": {
+      "title": "Tags",
+      "entities": {
+        "tag": "Tag"
+      }
+    },
+    "theme": {
+      "title": "Themes",
+      "entities": {
+        "theme": "Theme",
+        "theme_translation": "Theme-Übersetzung",
+        "theme_media": "Medien",
+        "theme_sales_channel": "Verkaufskanal"
+      }
+    }
   }
 }

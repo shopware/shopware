@@ -127,7 +127,7 @@
         "variantCard": {
           "free": "Use free version",
           "rent": "Subscribe for {price} per month",
-          "buy":  "Buy for {price}",
+          "buy": "Buy for {price}",
           "hasTrialPhase": "trial month included"
         },
         "variantSummary": {
@@ -138,7 +138,7 @@
         "purchaseButtonsLabels": {
           "free": "Add extension for free",
           "rent": "Subscribe to extension",
-          "buy":  "Buy extension now"
+          "buy": "Buy extension now"
         },
         "successNotification": {
           "titleSuccess": "Extensions successfully added!",
@@ -190,7 +190,7 @@
           "labelHeadline": "Headline",
           "placeholderHeadline": "Enter a short headline...",
           "labelRating": "Rating",
-          "labelText":  "Review (optional)"
+          "labelText": "Review (optional)"
         },
         "sw-extension-rating-modal": {
           "title": "Create a review"
@@ -344,6 +344,286 @@
       "SAAS_COMPANY__MISSING": {
         "message": "Required company is missing.",
         "labelLink": "Assign company"
+      }
+    }
+  },
+  "entityCategories": {
+    "admin_user": {
+      "title": "Admin user",
+      "entities": {
+        "integration": "Integration",
+        "user": "User",
+        "user_access_key": "Access key",
+        "user_recovery": "Recovery"
+      }
+    },
+    "app": {
+      "title": "Apps",
+      "entities": {
+        "app_template": "App template",
+        "app": "App",
+        "app_translation": "App translation",
+        "app_action_button": "Action button",
+        "app_action_button_translation": "Action button translation"
+      }
+    },
+    "category": {
+      "title": "Categories",
+      "entities": {
+        "category": "Category",
+        "category_translation": "Category translation",
+        "category_tag": "Tag"
+      }
+    },
+    "cms": {
+      "title": "CMS",
+      "entities": {
+        "cms_block": "Block",
+        "cms_page": "Page (layout)",
+        "cms_page_translation": "Page translation",
+        "cms_section": "section",
+        "cms_slot": "slot",
+        "cms_slot_translation": "Slot translation"
+      }
+    },
+    "customer": {
+      "title": "Customer",
+      "entities": {
+        "customer": "Customer",
+        "customer_address": "Address",
+        "customer_group": "Customer group",
+        "customer_group_translation": "Customer group translation",
+        "customer_group_registration_sales_channels": "Customer group registration sales channel",
+        "customer_recovery": "Recovery",
+        "customer_tag": "Tag"
+      }
+    },
+    "custom_fields": {
+      "title": "Custom fields",
+      "entities": {
+        "custom_field": "Custom field",
+        "custom_field_set": "Custom field set",
+        "custom_field_set_relation": "Custom field set relation"
+      }
+    },
+    "documents": {
+      "title": "Documents",
+      "entities": {
+        "document": "Document",
+        "document_base_config": "Base config",
+        "document_base_config_sales_channel": "Base config for sales channels",
+        "document_type": "Type",
+        "document_type_translation": "Type translation"
+      }
+    },
+    "google_shopping": {
+      "title": "Google shopping",
+      "entities": {
+        "swag_google_shopping_account": "Account",
+        "swag_google_shopping_ads_account": "Ads account",
+        "swag_google_shopping_list_ads_account": "List ads account",
+        "swag_google_shopping_category": "Category",
+        "swag_google_shopping_merchant_account": "Merchant account"
+      }
+    },
+    "import_export": {
+      "title": "Import/Export",
+      "entities": {
+        "import_export_file": "File",
+        "import_export_log": "Log",
+        "import_export_profile": "Profile",
+        "import_export_profile_translation": "Profile translation"
+      }
+    },
+    "mail_templates": {
+      "title": "Email templates",
+      "entities": {
+        "mail_header_footer": "Header & footer",
+        "mail_header_footer_translation": "Header & footer translation",
+        "mail_template": "Email template",
+        "mail_template_translation": "Email template translation",
+        "mail_template_media": "Media",
+        "mail_template_sales_channel": "Sales Channel",
+        "mail_template_type": "Type",
+        "mail_template_type_translation": "Type translation"
+      }
+    },
+    "media": {
+      "title": "Media",
+      "entities": {
+        "media": "Media",
+        "media_translation": "Media translation",
+        "media_default_folder": "Default folder",
+        "media_folder": "Folder",
+        "media_folder_configuration": "Folder configuration",
+        "media_folder_configuration_media_thumbnail_size": "Folder configuration - thumbnail size",
+        "media_tag": "Tag",
+        "media_thumbnail": "Thumbnail",
+        "media_thumbnail_size": "Thumbnail size"
+      }
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "entities": {
+        "newsletter_recipient": "Recipient",
+        "newsletter_recipient_tag": "Recipient tag"
+      }
+    },
+    "order": {
+      "title": "Orders",
+      "entities": {
+        "order": "Order",
+        "order_address": "Address",
+        "order_customer": "Customer",
+        "order_delivery": "Delivery",
+        "order_delivery_position": "Delivery position",
+        "order_line_item": "Line item",
+        "order_tag": "Tag",
+        "order_transaction": "Transaction"
+      }
+    },
+    "other": {
+      "title": "Other",
+      "entities": {
+        "acl_role": "ACL role",
+        "acl_user_role": "ACL user role",
+        "dead_message": "Dead message",
+        "event_action": "Event action",
+        "message_queue_stats": "Message queue stats",
+        "plugin": "Plugin",
+        "scheduled_task": "Scheduled tasks"
+      }
+    },
+    "payment": {
+      "title": "Payment",
+      "entities": {
+        "payment_method": "Payment method",
+        "payment_method_translation": "Payment method translation"
+      }
+    },
+    "product": {
+      "title": "Products",
+      "entities": {
+        "product": "Product",
+        "product_category": "Category",
+        "product_category_tree": "Category Tree",
+        "product_configurator_setting": "Configurator setting",
+        "product_cross_selling": "Cross selling",
+        "product_cross_selling_translation": "Cross selling translation",
+        "product_cross_selling_assigned_products": "Cross selling assigned translation",
+        "product_export": "Product export",
+        "product_keyword_dictionary": "Keyword dictionary",
+        "product_manufacturer": "Manufacturer",
+        "product_manufacturer_translation": "Manufacturer translation",
+        "product_media": "Media",
+        "product_option": "Product options",
+        "product_price": "Price",
+        "product_property": "Product properties",
+        "product_review": "Review",
+        "product_search_keyword": "Search keyword",
+        "product_stream": "Product stream",
+        "product_tag": "Tag",
+        "product_visibility": "Visibility",
+        "product_sorting": "Sorting",
+        "product_translation": "Product translation",
+        "product_feature_set": "Feature set",
+        "product_feature_set_translation": "Feature set translation",
+        "product_custom_field_set": "Custom field set"
+      }
+    },
+    "promotion": {
+      "title": "Promotions",
+      "entities": {
+        "promotion": "Promotion",
+        "promotion_translation": "Promotion translation",
+        "promotion_cart_rule": "Card rule",
+        "promotion_discount": "Discount",
+        "promotion_discount_prices": "Discount prices",
+        "promotion_discount_rule": "Discount rule",
+        "promotion_individual_code": "Promotion code",
+        "promotion_order_rule": "Order rule",
+        "promotion_persona_customer": "Persona customer",
+        "promotion_persona_rule": "Persona rule",
+        "promotion_sales_channel": "Sales channel",
+        "promotion_setgroup": "Promotion set group",
+        "promotion_setgroup_rule": "Promotion set group rule"
+      }
+    },
+    "rules": {
+      "title": "Rules",
+      "entities": {
+        "rule": "Rule",
+        "rule_condition": "Rule condition"
+      }
+    },
+    "sales_channel": {
+      "title": "Sales Channels",
+      "entities": {
+        "sales_channel": "Sales Channel",
+        "sales_channel_analytics": "Analytics",
+        "sales_channel_country": "Country",
+        "sales_channel_currency": "Currency",
+        "sales_channel_domain": "Domain",
+        "sales_channel_language": "Language",
+        "sales_channel_payment_method": "Payment method",
+        "sales_channel_shipping_method": "Shipping method",
+        "sales_channel_translation": "Sales Channel translation",
+        "sales_channel_type": "Type",
+        "sales_channel_type_translation": "Type translation"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "entities": {
+        "country": "Country",
+        "country_state": "Country state",
+        "currency": "Currency",
+        "delivery_time": "Delivery time",
+        "language": "Language",
+        "locale": "Locale",
+        "locale_translation": "Locale translation",
+        "number_range": "Number range",
+        "number_range_sales_channel": "Number range Sales Channel",
+        "number_range_state": "Number range state",
+        "number_range_type": "Number range type",
+        "salutation": "Salutation",
+        "salutation_translation": "Salutation translation",
+        "seo_url": "SEO URL",
+        "seo_url_template": "SEO URL template",
+        "state_machine": "State machine",
+        "state_machine_history": "State machine history",
+        "state_machine_state": "State machine state",
+        "state_machine_state_translation": "State machine state translation",
+        "state_machine_transition": "State machine transition",
+        "state_machine_translation": "State machine translation",
+        "system_config": "System config",
+        "tax": "Tax",
+        "tax_rule": "Tax rule",
+        "tax_rule_type": "Tax rule type",
+        "unit": "Unit",
+        "version": "Version"
+      }
+    },
+    "social_shopping": {
+      "title": "Social shopping",
+      "entities": {
+        "swag_social_shopping_sales_channel": "Sales Channel",
+        "swag_social_shopping_product_error": "Product error"
+      }
+    },
+    "tag": {
+      "title": "Tags",
+      "entities": {
+        "tag": "Tag"
+      }
+    },
+    "theme": {
+      "title": "Themes",
+      "entities": {
+        "theme": "Theme",
+        "theme_translation": "Theme translation",
+        "theme_media": "Media",
+        "theme_sales_channel": "Sales Channel"
       }
     }
   }

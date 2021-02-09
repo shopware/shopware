@@ -33,7 +33,7 @@ Shopware.Component.register('sw-extension-my-extensions-index', {
                 query: {
                     term: term || undefined,
                     limit: this.$route.query.limit,
-                    page: this.$route.query.page
+                    page: 1
                 }
             };
 

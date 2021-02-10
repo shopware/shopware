@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -192,6 +193,85 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider parentProductResult
+     */
+    public function testHandleResult(IdsCollection $ids, array $product, Request $request, array $expected): void
+    {
+        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
+            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+        );
+
+        $this->getContainer()->get('category.repository')
+            ->create([['id' => $ids->get('category'), 'name' => 'test', 'parentId' => $parent]], Context::createDefaultContext());
+
+        $categoryId = $product['categories'][0]['id'];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($categoryId, $request, $context, new Criteria())
+            ->getResult();
+
+        $event = new ProductListingResultEvent($request, $listing, $context);
+        $this->eventDispatcher->dispatch($event);
+    }
+
+    public function parentProductResult(): array
+    {
+        $ids = new TestDataCollection();
+
+        $parent = [
+            'id'            => $ids->get('parent'),
+            'name'          => 'parent-product',
+            'productNumber' => $ids->get('parent'),
+            'stock'         => 10,
+            'price'         => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax'           => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $defaults = [
+            'id'            => $ids->get('product'),
+            'name'          => 'test-product',
+            'parent'        => $parent,
+            'productNumber' => $ids->get('product'),
+            'stock'         => 10,
+            'price'         => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax'           => ['name' => 'test', 'taxRate' => 15],
+            'visibilities'  => [
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility'     => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
+            'categories'    => [
+                ['id' => $ids->get('category')],
+            ],
+        ];
+
+        return [
+            [
+                $ids,
+                $defaults,
+                new Request([], ['price-filter' => false]),
+                [
+                    'aggregation' => 'price',
+                    'instanceOf'  => null,
+                ],
+            ],
+        ];
+    }
+    
     /**
      * @dataProvider listSortingProvider
      */

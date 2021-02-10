@@ -48,6 +48,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         static::assertEquals([
             'SwagThemeTest',
+            'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',
@@ -88,6 +89,7 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertEquals([
+            'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',
@@ -129,6 +131,7 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertEquals([
+            'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',
@@ -163,6 +166,7 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertEquals([
+            'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',

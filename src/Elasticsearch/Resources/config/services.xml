@@ -228,6 +228,11 @@
             <tag name="shopware.entity_indexer" priority="1000"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Profiler\DataCollector">
+            <argument type="service" id="Elasticsearch\Client"/>
+            <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
+        </service>
+
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
         <service id="_dummy_es_env_usage" class="iterable" lazy="true">
             <argument>%env(bool:default:default_whitespace:SHOPWARE_ES_ENABLED)%</argument>

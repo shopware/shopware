@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-category-layout-card', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     props: {
         category: {

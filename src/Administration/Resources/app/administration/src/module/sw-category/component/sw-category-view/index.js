@@ -1,15 +1,15 @@
 import template from './sw-category-view.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-category-view', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        'placeholder'
     ],
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     props: {
         isLoading: {
@@ -35,6 +35,14 @@ Component.register('sw-category-view', {
             }
 
             return Shopware.State.get('cmsPageState').currentPage;
+        },
+
+        isPage() {
+            if (this.type === 'folder' || this.type === 'link') {
+                return false;
+            }
+
+            return (this.feature.isActive('FEATURE_NEXT_13504'));
         }
     }
 });

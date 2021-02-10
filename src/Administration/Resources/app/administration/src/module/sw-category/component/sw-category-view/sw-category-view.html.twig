@@ -17,6 +17,16 @@
                     </sw-tabs-item>
                 {% endblock %}
 
+                {% block sw_category_view_tabs_products %}
+                    <sw-tabs-item
+                        v-show="isPage"
+                        class="sw-category-detail__tab-products"
+                        :route="{ name: 'sw.category.detail.products' }"
+                        :title="$tc('sw-category.view.products')">
+                        {{ $tc('sw-category.view.products') }}
+                    </sw-tabs-item>
+                {% endblock %}
+
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
                         v-show="cmsPage"
@@ -30,6 +40,16 @@
                         :route="{ name: 'sw.category.detail.cms' }"
                         :title="$tc('sw-category.view.cms')">
                         {{ $tc('sw-category.view.cms') }}
+                    </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_category_view_tabs_seo %}
+                    <sw-tabs-item
+                        v-show="isPage"
+                        class="sw-category-detail__tab-seo"
+                        :route="{ name: 'sw.category.detail.seo' }"
+                        :title="$tc('sw-category.view.seo')">
+                        {{ $tc('sw-category.view.seo') }}
                     </sw-tabs-item>
                 {% endblock %}
             </sw-tabs>

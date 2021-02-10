@@ -79,6 +79,9 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.onlyOnFeature('FEATURE_NEXT_13504', () => {
+            cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
+        });
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-layout-card__desc-headline').contains('Vierte Wand');
 

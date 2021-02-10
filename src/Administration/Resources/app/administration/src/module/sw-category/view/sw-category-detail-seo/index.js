@@ -1,12 +1,12 @@
-import template from './sw-category-detail-cms.html.twig';
-import './sw-category-detail-cms.scss';
+import template from './sw-category-detail-seo.html.twig';
+import './sw-category-detail-seo.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-category-detail-cms', {
+Component.register('sw-category-detail-seo', {
     template,
 
-    inject: ['feature'],
+    inject: ['acl'],
 
     props: {
         isLoading: {
@@ -18,10 +18,6 @@ Component.register('sw-category-detail-cms', {
     computed: {
         category() {
             return Shopware.State.get('swCategoryDetail').category;
-        },
-
-        cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
         }
     }
 });

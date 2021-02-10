@@ -8,12 +8,9 @@ const { Criteria } = Shopware.Data;
  * @status ready
  * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
  * manager. Use the additional properties to filter the shown media.
- * ??? deprecated/removed
- * Just pass a object created by the CriteriaFactory.
  * @example-type code-only
  * @component-example
- * <sw-sidebar-media-item :useAdditionalSearchCriteria="true"
- *                        :additionalSearchCriteria="getCriteria">
+ * <sw-sidebar-media-item>
  *    <template slot="context-menu-items" slot-scope="media">
  *       <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
  *          Lorem ipsum dolor sit amet
@@ -41,11 +38,6 @@ Component.register('sw-sidebar-media-item', {
             type: Boolean,
             required: false,
             default: false
-        },
-        additionalSearchCriteria: {
-            type: Object,
-            required: false,
-            default: null
         }
     },
 
@@ -182,10 +174,6 @@ Component.register('sw-sidebar-media-item', {
 
             if (!this.term.length) {
                 criteria.addFilter(Criteria.equals('mediaFolderId', this.mediaFolderId));
-            }
-
-            if (this.additionalSearchCriteria) {
-                criteria.addFilter(this.additionalSearchCriteria.getQuery());
             }
 
             if (this.term) {

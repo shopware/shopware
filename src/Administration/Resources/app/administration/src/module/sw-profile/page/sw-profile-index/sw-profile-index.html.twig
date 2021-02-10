@@ -186,9 +186,7 @@
         {% block sw_profile_index_sidebar %}
             <template #sidebar>
                 <sw-sidebar v-if="acl.can('media.editor')" :propagateWidth="true" >
-                    <sw-sidebar-media-item ref="mediaSidebarItem"
-                                           :isParentLoading="isUserLoading"
-                                           :additionalSearchCriteria="userMediaCriteria">
+                    <sw-sidebar-media-item ref="mediaSidebarItem" :isParentLoading="isUserLoading">
                         <template #context-menu-items="media">
                             <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                                 {{ $tc('sw-profile.index.labelUseAsAvatar') }}

@@ -2,9 +2,8 @@
     {% parent %}
 
     {% block sw_bought_extension_card_deactivation_modal %}
-        <sw-extension-deactivation-modal
-            v-if="showDeactivationModal"
-            :extensionName="extension.label"
+        <sw-extension-deactivation-modal v-if="showDeactivationModal"
+            :extensionName="label"
             :isLicensed="license !== null"
             :isLoading="isLoading"
             @modal-close="closeDeactivationModal"
@@ -54,8 +53,7 @@
     {% parent %}
 
     {% block sw_bought_extension_card_rating_modal %}
-        <sw-extension-rating-modal
-            v-if="showRatingModal"
+        <sw-extension-rating-modal v-if="showRatingModal"
             :extension="licensedExtension"
             @modal-close="closeRatingModal">
         </sw-extension-rating-modal>

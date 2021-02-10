@@ -3,18 +3,18 @@
 .sw-extension-review {
     margin-bottom: 20px;
 
-    .sw-extension-review__headline {
+    &__headline {
         font-weight: $font-weight-semi-bold;
         margin-bottom: 0;
     }
 
-    .sw-extension-review__meta-data {
+    &__meta-data {
         color: $color-gray-500;
         margin-top: 8px;
+    }
 
-        .sw-extension-review__comma:not(:last-child)::after {
-            content: ",";
-            margin-left: -3px;
-        }
+    &__comma:not(:last-child)::after {
+        content: ",";
+        margin-left: -3px;
     }
 }

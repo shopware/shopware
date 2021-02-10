@@ -88,7 +88,7 @@ Component.register('sw-base-field', {
         },
 
         hasLabel() {
-            return !!this.label || !!this.helpText || this.isInheritanceField;
+            return !!this.helpText || this.isInheritanceField || this.showLabel;
         },
 
         hasError() {
@@ -107,6 +107,10 @@ Component.register('sw-base-field', {
             return {
                 'is--required': this.required
             };
+        },
+
+        showLabel() {
+            return !!this.label || !!this.$slots.label || !!this.$scopedSlots.label;
         }
     }
 });

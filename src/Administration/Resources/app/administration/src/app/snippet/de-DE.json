@@ -159,6 +159,11 @@
       },
       "caption": "Datei zum Hochladen hierhin ziehen"
     },
+    "sw-gtc-checkbox": {
+      "label": "Ich akzeptiere die",
+      "link": "AGB.",
+      "url": "https://www.shopware.com/de/gtc"
+    },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"

@@ -1,5 +1,5 @@
-.sw-ratings-card {
-    .sw-ratings-card__reviews {
+.sw-extension-ratings-card {
+    &__reviews {
         margin-top: 40px;
         width: calc(100% * (2 / 3));
 
@@ -12,7 +12,7 @@
         }
     }
 
-    .sw-ratings-summary {
+    .sw-extension-ratings-summary {
         width: calc(100% * (2 / 3));
         max-width: inherit;
 
@@ -21,7 +21,7 @@
         }
     }
 
-    .sw-ratings-card__footer-headline {
+    &__footer-headline {
         margin: 52px 0 0 0;
     }
 }

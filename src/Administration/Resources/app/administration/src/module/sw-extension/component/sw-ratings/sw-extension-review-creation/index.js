@@ -1,15 +1,18 @@
-import template from './sw-review-creation.html.twig';
-import './sw-review-creation.scss';
+import template from './sw-extension-review-creation.html.twig';
+import './sw-extension-review-creation.scss';
 
-const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
 const { ShopwareError } = Shopware.Classes;
-
 const { Component } = Shopware;
 
-Component.register('sw-review-creation', {
+/**
+ * @private
+ */
+Component.register('sw-extension-review-creation', {
     template,
 
     mixins: ['sw-extension-error'],
+
+    inject: ['extensionStoreActionService'],
 
     props: {
         extension: {
@@ -100,7 +103,7 @@ Component.register('sw-review-creation', {
 
         async createReview(review) {
             try {
-                await extensionStoreActionService.rateExtension(review);
+                await this.extensionStoreActionService.rateExtension(review);
                 this.isCreatedSuccessful = true;
             } catch (e) {
                 this.showExtensionErrors(e);

@@ -1,13 +1,12 @@
-import template from './sw-ratings-card.html.twig';
-import './sw-ratings-card.scss';
+import template from './sw-extension-ratings-card.html.twig';
+import './sw-extension-ratings-card.scss';
 
-const extensionStoreDataService = Shopware.Service('extensionStoreDataService');
-const startValuePage = 1;
-const startValueLimit = 4;
-const { Component } = Shopware;
-
-Component.register('sw-ratings-card', {
+/**
+ * @private
+ */
+Shopware.Component.register('sw-extension-ratings-card', {
     template,
+
     mixins: ['sw-extension-error'],
 
     props: {
@@ -30,8 +29,8 @@ Component.register('sw-ratings-card', {
         return {
             reviews: [],
             isLoading: false,
-            criteriaPage: startValuePage,
-            criteriaLimit: startValueLimit,
+            criteriaPage: 1,
+            criteriaLimit: 4,
             summary: null,
             numberOfRatings: 0
         };
@@ -44,6 +43,14 @@ Component.register('sw-ratings-card', {
 
         numberOfRatingsHasChanged() {
             return this.numberOfRatings !== this.summary.numberOfRatings;
+        },
+
+        extensionStoreDataService() {
+            return Shopware.Service('extensionStoreDataService');
+        },
+
+        hasReviews() {
+            return this.reviews.length > 0;
         }
     },
 
@@ -58,8 +65,8 @@ Component.register('sw-ratings-card', {
     },
 
     methods: {
-        async createdComponent() {
-            await this.fetchReviews();
+        createdComponent() {
+            this.fetchReviews();
         },
 
         async fetchReviews(isLoadingMore = false) {
@@ -70,8 +77,8 @@ Component.register('sw-ratings-card', {
                 this.summary = summary;
 
                 if (isLoadingMore && this.numberOfRatingsHasChanged) {
-                    this.criteriaPage = startValuePage;
-                    this.criteriaLimit = startValueLimit;
+                    this.criteriaPage = 1;
+                    this.criteriaLimit = 4;
                     this.reviews = [];
                     await this.fetchReviews();
 
@@ -93,7 +100,7 @@ Component.register('sw-ratings-card', {
         },
 
         async getReviews() {
-            return extensionStoreDataService.getReviews(
+            return this.extensionStoreDataService.getReviews(
                 this.criteriaPage,
                 this.criteriaLimit,
                 this.extension.id

@@ -235,13 +235,13 @@
             {% endblock %}
 
             {% block sw_extension_store_detail_card_ratings %}
-                <sw-ratings-card
+                <sw-extension-ratings-card
                     id="ratings-card"
                     :extension="extension"
                     :producerName="extension.producerName"
                     :isInstalledAndLicensed="isLicensed && isInstalled"
                     @update-extension="fetchExtensionAndScrollToRatings">
-                </sw-ratings-card>
+                </sw-extension-ratings-card>
             {% endblock %}
 
             {% block sw_extension_store_detail_card_faq %}

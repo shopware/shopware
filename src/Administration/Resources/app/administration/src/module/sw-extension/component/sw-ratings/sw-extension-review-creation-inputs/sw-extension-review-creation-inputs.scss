@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-.sw-review-creation-inputs {
-    .sw-review-creation-inputs__grid {
+.sw-extension-review-creation-inputs {
+    &__grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
         column-gap: 40px;

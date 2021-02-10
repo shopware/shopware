@@ -159,6 +159,11 @@
       },
       "caption": "Drag a file here to upload"
     },
+    "sw-gtc-checkbox": {
+      "label": "I accept the",
+      "link": "terms and conditions.",
+      "url": "https://www.shopware.com/en/gtc"
+    },
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",
       "labelPriceNet": "Price (net)"

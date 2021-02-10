@@ -14,7 +14,6 @@ Component.register('sw-cms-detail', {
         'entityFactory',
         'entityHydrator',
         'loginService',
-        'cmsPageService',
         'cmsService',
         'cmsDataResolverService',
         'acl',

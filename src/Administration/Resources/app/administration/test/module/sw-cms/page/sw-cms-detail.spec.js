@@ -64,7 +64,6 @@ function createWrapper(privileges = []) {
             entityFactory: {},
             entityHydrator: {},
             loginService: {},
-            cmsPageService: {},
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {

@@ -88,6 +88,24 @@ Component.register('sw-text-editor-toolbar-button', {
             }
 
             this.$emit('menu-toggle', event, button);
+        },
+
+        getDropdownClasses(buttonConfig) {
+            const position = buttonConfig.dropdownPosition || 'right';
+            const positionClass = `is--${position}`;
+
+            return [positionClass];
+        },
+
+        getTooltipConfig(buttonConfig, child) {
+            return {
+                disabled: !child.title,
+                appearance: this.tooltipAppearance,
+                width: 'auto',
+                message: child.title,
+                showDelay: buttonConfig.tooltipShowDelay || 100,
+                hideDelay: buttonConfig.tooltipHideDelay || 100
+            };
         }
     }
 });

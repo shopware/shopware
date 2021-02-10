@@ -122,11 +122,6 @@ components.forEach((config) => {
     return vueComponent;
 });
 
-const stateFactory = Shopware.StateDeprecated;
-Object.keys(VuexModules).forEach((storeModule) => {
-    stateFactory.registerStore(storeModule, VuexModules[storeModule]);
-});
-
 export default ({ app }) => {
     // Apply translations to application
     const messages = { 'en-GB': enGBMessages };

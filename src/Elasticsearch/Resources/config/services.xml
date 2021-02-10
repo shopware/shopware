@@ -46,6 +46,25 @@
                 </parameter>
             </parameter>
         </parameter>
+
+        <parameter key="elasticsearch.index.mapping" type="collection">
+            <parameter key="dynamic_templates" type="collection">
+                <parameter type="collection">
+                    <parameter key="keywords" type="collection">
+                        <parameter key="match_mapping_type">string</parameter>
+                        <parameter key="mapping" type="collection">
+                            <parameter key="type">keyword</parameter>
+                            <parameter key="normalizer">sw_lowercase_normalizer</parameter>
+                            <parameter key="fields" type="collection">
+                                <parameter key="text" type="collection">
+                                    <parameter key="type">text</parameter>
+                                </parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+                </parameter>
+            </parameter>
+        </parameter>
     </parameters>
 
     <services>
@@ -76,6 +95,7 @@
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
+            <argument>%elasticsearch.index.mapping%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">

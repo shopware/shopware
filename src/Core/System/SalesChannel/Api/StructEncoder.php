@@ -137,12 +137,15 @@ class StructEncoder
 
     private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
     {
-        if (!$fields->hasNested($alias, $prefix)) {
+        if ($prefix !== 'translated' && !$fields->hasNested($alias, $prefix)) {
             return $data;
         }
 
         foreach ($data as $property => $value) {
             $accessor = $prefix . '.' . $property;
+            if ($prefix === 'translated') {
+                $accessor = $property;
+            }
 
             if (!$this->isAllowed($alias, $accessor, $fields)) {
                 unset($data[$property]);

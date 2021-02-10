@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -83,6 +84,62 @@ class SalesChannelEntity extends Entity
      * @var int
      */
     protected $navigationCategoryDepth;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var array|null
+     */
+    protected $homeSlotConfig;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $homeCmsPageId;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var CmsPageEntity|null
+     */
+    protected $homeCmsPage;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var bool
+     */
+    protected $homeEnabled;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $homeName;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $homeMetaTitle;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $homeMetaDescription;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $homeKeywords;
 
     /**
      * @var string|null
@@ -699,6 +756,134 @@ class SalesChannelEntity extends Entity
     public function setNavigationCategory(CategoryEntity $navigationCategory): void
     {
         $this->navigationCategory = $navigationCategory;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeSlotConfig(): ?array
+    {
+        return $this->homeSlotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeSlotConfig(?array $homeSlotConfig): void
+    {
+        $this->homeSlotConfig = $homeSlotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeCmsPageId(): ?string
+    {
+        return $this->homeCmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeCmsPageId(?string $homeCmsPageId): void
+    {
+        $this->homeCmsPageId = $homeCmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeCmsPage(): ?CmsPageEntity
+    {
+        return $this->homeCmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeCmsPage(?CmsPageEntity $homeCmsPage): void
+    {
+        $this->homeCmsPage = $homeCmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeEnabled(): bool
+    {
+        return $this->homeEnabled;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeEnabled(bool $homeEnabled): void
+    {
+        $this->homeEnabled = $homeEnabled;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeName(): ?string
+    {
+        return $this->homeName;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeName(?string $homeName): void
+    {
+        $this->homeName = $homeName;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeMetaTitle(): ?string
+    {
+        return $this->homeMetaTitle;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeMetaTitle(?string $homeMetaTitle): void
+    {
+        $this->homeMetaTitle = $homeMetaTitle;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeMetaDescription(): ?string
+    {
+        return $this->homeMetaDescription;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeMetaDescription(?string $homeMetaDescription): void
+    {
+        $this->homeMetaDescription = $homeMetaDescription;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeKeywords(): ?string
+    {
+        return $this->homeKeywords;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeKeywords(?string $homeKeywords): void
+    {
+        $this->homeKeywords = $homeKeywords;
     }
 
     public function getProductVisibilities(): ?ProductVisibilityCollection

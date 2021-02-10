@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class CmsPageDefinition extends EntityDefinition
 {
@@ -87,6 +88,12 @@ class CmsPageDefinition extends EntityDefinition
         Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
             $collection->add((new VersionField())->addFlags(new ApiAware()));
         });
+
+        if (Feature::isActive('FEATURE_NEXT_13504')) {
+            $collection->add(
+                (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete())
+            );
+        }
 
         return $collection;
     }

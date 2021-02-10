@@ -154,6 +154,10 @@ shopware:
               default: false
               major: true
               description: "Group migrations into major versions"
+            - name: FEATURE_NEXT_12158
+              default: false
+              major: false
+              description: "Refactoring of Elasticsearch"
             - name: FEATURE_NEXT_13273
               default: false
               major: true

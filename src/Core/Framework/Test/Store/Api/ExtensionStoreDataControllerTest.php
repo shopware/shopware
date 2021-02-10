@@ -63,7 +63,7 @@ class ExtensionStoreDataControllerTest extends TestCase
         $requestHandler->reset();
         $requestHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json')));
 
-        $response = $this->controller->listingFilters(Context::createDefaultContext());
+        $response = $this->controller->listingFilters(new Request(), Context::createDefaultContext());
 
         static::assertSame(json_encode(json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json'))), $response->getContent());
     }

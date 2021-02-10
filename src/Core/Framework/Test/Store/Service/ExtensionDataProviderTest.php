@@ -59,7 +59,7 @@ class ExtensionDataProviderTest extends TestCase
         $requestHandler->reset();
         $requestHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json')));
 
-        $filters = $this->extensionDataProvider->getListingFilters(Context::createDefaultContext());
+        $filters = $this->extensionDataProvider->getListingFilters([], Context::createDefaultContext());
 
         static::assertSame(json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json'), true), $filters);
     }

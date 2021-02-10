@@ -74,9 +74,9 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         return $extensionListing;
     }
 
-    public function getListingFilters(Context $context): array
+    public function getListingFilters(array $parameters, Context $context): array
     {
-        return $this->dataClient->listListingFilters($context);
+        return $this->dataClient->listListingFilters($parameters, $context);
     }
 
     public function getExtensionDetails(int $id, Context $context): ExtensionStruct

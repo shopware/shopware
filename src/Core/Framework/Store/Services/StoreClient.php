@@ -444,13 +444,13 @@ class StoreClient
         ];
     }
 
-    public function listListingFilters(Context $context): array
+    public function listListingFilters(array $parameters, Context $context): array
     {
         $language = $this->storeService->getLanguageByContext($context);
 
         try {
             $response = $this->getClient()->get(self::SBP_API_LIST_FILTERS, [
-                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'query' => array_merge($this->storeService->getDefaultQueryParameters($language, false), $parameters),
                 'headers' => $this->getHeaders(),
             ]);
         } catch (ClientException $e) {

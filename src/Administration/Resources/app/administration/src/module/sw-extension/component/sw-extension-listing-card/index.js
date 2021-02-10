@@ -5,6 +5,9 @@ const { Utils, Filter } = Shopware;
 
 const { Component } = Shopware;
 
+/**
+ * @private
+ */
 Component.register('sw-extension-listing-card', {
     template,
 
@@ -25,7 +28,7 @@ Component.register('sw-extension-listing-card', {
 
             if (!image) {
                 return {
-                    'background-image': this.defaultThemeAsset
+                    'background-image': `url('${this.assetFilter('/administration/static/img/theme/default_theme_preview.jpg')}')`
                 };
             }
 
@@ -33,10 +36,6 @@ Component.register('sw-extension-listing-card', {
                 'background-image': `url('${image.remoteLink}')`,
                 'background-size': 'cover'
             };
-        },
-
-        defaultThemeAsset() {
-            return `url('${this.assetFilter('/administration/static/img/theme/default_theme_preview.jpg')}')`;
         },
 
         recommendedVariant() {
@@ -70,15 +69,13 @@ Component.register('sw-extension-listing-card', {
         },
 
         isInstalled() {
-            return !!Shopware.State.get('shopwareExtensions').myExtensions.data.find((installedExtension) => {
+            return !!Shopware.State.get('shopwareExtensions').myExtensions.data.some((installedExtension) => {
                 return installedExtension.installedAt && installedExtension.name === this.extension.name;
             });
         },
 
         isLicensed() {
-            const extension = Shopware.State.get('shopwareExtensions').myExtensions.data.find((installedExtension) => {
-                return installedExtension.name === this.extension.name;
-            });
+            const extension = Shopware.State.get('shopwareExtensions').myExtensions.data.find((installedExtension) => installedExtension.name === this.extension.name);
 
             if (extension === undefined) {
                 return false;

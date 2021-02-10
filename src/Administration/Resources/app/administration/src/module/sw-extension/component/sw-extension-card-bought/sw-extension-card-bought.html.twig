@@ -35,13 +35,13 @@
 {% block sw_extension_card_base_context_menu_actions %}
 
     {% block sw_bought_extension_card_context_menu_open_detail %}
-        <sw-context-menu-item v-if="detailLink" :routerLink="detailLink">
+        <sw-context-menu-item class="sw-extension-card-bought__detail-link" v-if="detailLink" :routerLink="detailLink">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
         </sw-context-menu-item>
     {% endblock %}
 
     {% block sw_bought_extension_card_context_menu_rate %}
-        <sw-context-menu-item v-if="isInstalled" @click="openRatingModal">
+        <sw-context-menu-item class="sw-extension-card-bought__rate-link" v-if="isInstalled && extension.storeLicense" @click="openRatingModal">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
         </sw-context-menu-item>
     {% endblock %}

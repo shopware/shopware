@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "2.0.0-beta.1",
+    "@shopware-ag/e2e-testsuite-platform": "2.0.0-beta.4",
     "cypress-multi-reporters": "^1.2.3",
     "mocha": "^7.0.0",
-    "mochawesome": "^4.1.0",
     "mocha-junit-reporter": "^1.23.1",
+    "mochawesome": "^4.1.0",
     "uuid": "3.3.3"
   },
   "devDependencies": {

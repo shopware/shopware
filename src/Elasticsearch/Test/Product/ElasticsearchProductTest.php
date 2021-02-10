@@ -5,13 +5,11 @@ namespace Shopware\Elasticsearch\Test\Product;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -40,14 +38,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -55,13 +57,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -98,7 +97,7 @@ class ElasticsearchProductTest extends TestCase
     private $helper;
 
     /**
-     * @var TestDataCollection
+     * @var IdsCollection
      */
     private $ids;
 
@@ -147,16 +146,8 @@ class ElasticsearchProductTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
-        $elasticsearchRegistry = $this->getContainer()->get(ElasticsearchRegistry::class);
-
-        $extension = new ElasticsearchProductDefinitionExtension(
-            $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(EntityMapper::class),
-            $this->getContainer()->get(CashRounding::class)
-        );
-
-        $rulesProperty = ReflectionHelper::getProperty(ElasticsearchRegistry::class, 'definitions');
-        $rulesProperty->setValue($elasticsearchRegistry, [$extension]);
+        $this->ids = new IdsCollection();
+        $this->ids->set('navi', $this->navigationId);
 
         parent::setUp();
     }
@@ -215,9 +206,10 @@ class ElasticsearchProductTest extends TestCase
 
             $context = Context::createDefaultContext();
 
-            //Instead of indexing the test data in the set-up, we index it in the first test method. So this data does not have to be indexed again in each test.
-            $this->ids = new TestDataCollection($context);
+            $this->client->indices()->delete(['index' => '_all']);
+            $this->client->indices()->refresh(['index' => '_all']);
 
+            $this->ids->set('currency', $this->currencyId);
             $currency = [
                 'id' => $this->currencyId,
                 'name' => 'test',
@@ -238,8 +230,6 @@ class ElasticsearchProductTest extends TestCase
 
             $this->indexElasticSearch();
 
-            $products = $this->ids->prefixed('p');
-
             $languages = $this->languageRepository->searchIds(new Criteria(), $context);
 
             foreach ($languages->getIds() as $languageId) {
@@ -247,11 +237,6 @@ class ElasticsearchProductTest extends TestCase
 
                 $exists = $this->client->indices()->exists(['index' => $index]);
                 static::assertTrue($exists);
-
-                foreach ($products as $id) {
-                    $exists = $this->client->exists(['index' => $index, 'id' => $id]);
-                    static::assertTrue($exists, 'Product with id ' . $id . ' missing');
-                }
             }
 
             return $this->ids;
@@ -265,14 +250,16 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testUpdate(TestDataCollection $ids): void
+    public function testUpdate(IdsCollection $ids): void
     {
         try {
             $this->ids = $ids;
             $context = Context::createDefaultContext();
 
             $this->productRepository->upsert([
-                $this->createProduct('u7', 'update', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+                (new ProductBuilder($this->ids, 'u7', 300))
+                    ->price(100)
+                    ->build(),
             ], $context);
 
             $criteria = new Criteria();
@@ -295,15 +282,15 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEmptySearch(TestDataCollection $data): void
+    public function testEmptySearch(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(\count($data->prefixed('p')), $products->getIds());
+            static::assertCount(\count($data->prefixed('product-')), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -314,18 +301,18 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testPagination(TestDataCollection $data): void
+    public function testPagination(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
             // check pagination
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->setLimit(1);
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
-            static::assertSame(\count($data->prefixed('p')), $products->getTotal());
+            static::assertSame(\count($data->prefixed('product-')), $products->getTotal());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -336,7 +323,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsFilter(TestDataCollection $data): void
+    public function testEqualsFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -357,7 +344,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testRangeFilter(TestDataCollection $data): void
+    public function testRangeFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -378,7 +365,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsAnyFilter(TestDataCollection $data): void
+    public function testEqualsAnyFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -389,7 +376,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(3, $products->getIds());
             static::assertSame(3, $products->getTotal());
-            static::assertContains($data->get('p1'), $products->getIds());
+            static::assertContains($data->get('product-1'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -400,12 +387,12 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMultiNotFilterFilter(TestDataCollection $data): void
+    public function testMultiNotFilterFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addFilter(
                 new NotFilter(
                     NotFilter::CONNECTION_AND,
@@ -420,11 +407,11 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertCount(5, $products->getIds());
             static::assertSame(5, $products->getTotal());
-            static::assertContains($data->get('p2'), $products->getIds());
-            static::assertContains($data->get('p3'), $products->getIds());
-            static::assertContains($data->get('p4'), $products->getIds());
-            static::assertContains($data->get('p5'), $products->getIds());
-            static::assertContains($data->get('p6'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
+            static::assertContains($data->get('product-3'), $products->getIds());
+            static::assertContains($data->get('product-4'), $products->getIds());
+            static::assertContains($data->get('product-5'), $products->getIds());
+            static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -435,7 +422,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testContainsFilter(TestDataCollection $data): void
+    public function testContainsFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -445,7 +432,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
-            static::assertContains($data->get('p3'), $products->getIds());
+            static::assertContains($data->get('product-3'), $products->getIds());
 
             $criteria = new Criteria();
             $criteria->addFilter(new ContainsFilter('product.name', 'subber'));
@@ -460,7 +447,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
-            static::assertContains($data->get('p2'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
 
             $criteria = new Criteria();
             $criteria->addFilter(new ContainsFilter('product.name', 'bber'));
@@ -468,7 +455,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
-            static::assertContains($data->get('p2'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -479,24 +466,24 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSingleGroupBy(TestDataCollection $data): void
+    public function testSingleGroupBy(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addGroupField(new FieldGrouping('stock'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
             static::assertCount(4, $products->getIds());
-            static::assertContains($data->get('p1'), $products->getIds());
-            static::assertContains($data->get('p2'), $products->getIds());
-            static::assertContains($data->get('p3'), $products->getIds());
+            static::assertContains($data->get('product-1'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
+            static::assertContains($data->get('product-3'), $products->getIds());
             static::assertTrue(
-                \in_array($data->get('p4'), $products->getIds(), true)
-                || \in_array($data->get('p5'), $products->getIds(), true)
-                || \in_array($data->get('p6'), $products->getIds(), true)
+                \in_array($data->get('product-4'), $products->getIds(), true)
+                || \in_array($data->get('product-5'), $products->getIds(), true)
+                || \in_array($data->get('product-6'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -508,26 +495,26 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMultiGroupBy(TestDataCollection $data): void
+    public function testMultiGroupBy(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addGroupField(new FieldGrouping('stock'));
             $criteria->addGroupField(new FieldGrouping('purchasePrices'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
             static::assertCount(5, $products->getIds());
-            static::assertContains($data->get('p1'), $products->getIds());
-            static::assertContains($data->get('p2'), $products->getIds());
-            static::assertContains($data->get('p3'), $products->getIds());
-            static::assertContains($data->get('p6'), $products->getIds());
+            static::assertContains($data->get('product-1'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
+            static::assertContains($data->get('product-3'), $products->getIds());
+            static::assertContains($data->get('product-6'), $products->getIds());
 
             static::assertTrue(
-                \in_array($data->get('p4'), $products->getIds(), true)
-                || \in_array($data->get('p5'), $products->getIds(), true)
+                \in_array($data->get('product-4'), $products->getIds(), true)
+                || \in_array($data->get('product-5'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -539,13 +526,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testAvgAggregation(TestDataCollection $data): void
+    public function testAvgAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(new AvgAggregation('avg-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
@@ -569,13 +556,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregation(TestDataCollection $data): void
+    public function testTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(new TermsAggregation('manufacturer-ids', 'product.manufacturerId'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
@@ -612,13 +599,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithAvg(TestDataCollection $data): void
+    public function testTermsAggregationWithAvg(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(
                 new TermsAggregation('manufacturer-ids', 'product.manufacturerId', null, null, new AvgAggregation('avg-price', 'product.price'))
             );
@@ -670,7 +657,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithAssociation(TestDataCollection $data): void
+    public function testTermsAggregationWithAssociation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -713,7 +700,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithLimit(TestDataCollection $data): void
+    public function testTermsAggregationWithLimit(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -748,7 +735,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithSorting(TestDataCollection $data): void
+    public function testTermsAggregationWithSorting(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -796,13 +783,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSumAggregation(TestDataCollection $data): void
+    public function testSumAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(new SumAggregation('sum-price', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
@@ -826,7 +813,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSumAggregationWithTermsAggregation(TestDataCollection $data): void
+    public function testSumAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -881,7 +868,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMaxAggregation(TestDataCollection $data): void
+    public function testMaxAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -911,7 +898,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMaxAggregationWithTermsAggregation(TestDataCollection $data): void
+    public function testMaxAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -966,7 +953,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMinAggregation(TestDataCollection $data): void
+    public function testMinAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -996,7 +983,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMinAggregationWithTermsAggregation(TestDataCollection $data): void
+    public function testMinAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1051,7 +1038,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testCountAggregation(TestDataCollection $data): void
+    public function testCountAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1081,7 +1068,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testCountAggregationWithTermsAggregation(TestDataCollection $data): void
+    public function testCountAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1136,13 +1123,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testStatsAggregation(TestDataCollection $data): void
+    public function testStatsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(new StatsAggregation('price-stats', 'product.price'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
@@ -1169,7 +1156,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testStatsAggregationWithTermsAggregation(TestDataCollection $data): void
+    public function testStatsAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1233,7 +1220,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEntityAggregation(TestDataCollection $data): void
+    public function testEntityAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1267,7 +1254,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEntityAggregationWithTermQuery(TestDataCollection $data): void
+    public function testEntityAggregationWithTermQuery(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1300,7 +1287,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermAlgorithm(TestDataCollection $data): void
+    public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
             $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
@@ -1314,17 +1301,17 @@ class ElasticsearchProductTest extends TestCase
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
                 static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
-                static::assertTrue($products->has($data->get('p6')));
+                static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtolower($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
                 static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
-                static::assertTrue($products->has($data->get('p6')));
+                static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtoupper($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
                 static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
-                static::assertTrue($products->has($data->get('p6')));
+                static::assertTrue($products->has($data->get('product-6')));
             }
         } catch (\Exception $e) {
             static::tearDown();
@@ -1336,18 +1323,18 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testFilterAggregation(TestDataCollection $data): void
+    public function testFilterAggregation(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(
                 new FilterAggregation(
                     'filter',
                     new AvgAggregation('avg-price', 'product.price'),
-                    [new EqualsAnyFilter('product.id', $data->getList(['p1', 'p2']))]
+                    [new EqualsAnyFilter('product.id', $data->getList(['product-1', 'product-2']))]
                 )
             );
 
@@ -1372,7 +1359,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testFilterForProperties(TestDataCollection $data): void
+    public function testFilterForProperties(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -1383,8 +1370,8 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
             static::assertCount(2, $products->getIds());
-            static::assertTrue($products->has($data->get('p1')));
-            static::assertTrue($products->has($data->get('p3')));
+            static::assertTrue($products->has($data->get('product-1')));
+            static::assertTrue($products->has($data->get('product-3')));
 
             // check filter for categories
             $criteria = new Criteria($data->prefixed('p'));
@@ -1393,11 +1380,11 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
             static::assertCount(4, $products->getIds());
-            static::assertTrue($products->has($data->get('p1')));
-            static::assertTrue($products->has($data->get('p2')));
-            static::assertTrue($products->has($data->get('p3')));
-            static::assertTrue($products->has($data->get('p4')));
-            static::assertFalse($products->has($data->get('p5')));
+            static::assertTrue($products->has($data->get('product-1')));
+            static::assertTrue($products->has($data->get('product-2')));
+            static::assertTrue($products->has($data->get('product-3')));
+            static::assertTrue($products->has($data->get('product-4')));
+            static::assertFalse($products->has($data->get('product-5')));
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1408,7 +1395,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testFilterAggregationWithTerms(TestDataCollection $data): void
+    public function testFilterAggregationWithTerms(IdsCollection $data): void
     {
         try {
             $aggregator = $this->createEntityAggregator();
@@ -1449,7 +1436,7 @@ class ElasticsearchProductTest extends TestCase
      * @depends testIndexing
      * @dataProvider dateHistogramProvider
      */
-    public function testDateHistogram(DateHistogramCase $case, TestDataCollection $data): void
+    public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
     {
         try {
             $context = Context::createDefaultContext();
@@ -1573,7 +1560,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testDateHistogramWithNestedAvg(TestDataCollection $data): void
+    public function testDateHistogramWithNestedAvg(IdsCollection $data): void
     {
         try {
             $context = Context::createDefaultContext();
@@ -1637,28 +1624,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testExtensionFilter(TestDataCollection $data): void
-    {
-        try {
-            $searcher = $this->createEntitySearcher();
-            // check simple equals filter
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addFilter(new EqualsFilter('toOne.name', 'test'));
-
-            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(1, $products->getIds());
-            static::assertSame(1, $products->getTotal());
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testFilterPurchasePricesPriceField(TestDataCollection $data): void
+    public function testFilterPurchasePricesPriceField(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -1679,16 +1645,16 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testFilterCustomTextField(TestDataCollection $data): void
+    public function testFilterCustomTextField(IdsCollection $data): void
     {
         try {
-            $criteria = new Criteria();
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addFilter(new EqualsFilter('customFields.testField', 'Silk'));
 
             $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
             static::assertEquals(1, $result->getTotal());
-            static::assertTrue($result->has($data->get('p1')));
+            static::assertTrue($result->has($data->get('product-1')));
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1699,12 +1665,12 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testXorQuery(TestDataCollection $data): void
+    public function testXorQuery(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
-            $criteria = new Criteria();
+            $criteria = new Criteria($data->prefixed('product-'));
 
             $multiFilter = new MultiFilter(
                 MultiFilter::CONNECTION_XOR,
@@ -1727,7 +1693,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testNegativXorQuery(TestDataCollection $data): void
+    public function testNegativXorQuery(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
@@ -1755,12 +1721,12 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTotalWithGroupFieldAndPostFilter(TestDataCollection $data): void
+    public function testTotalWithGroupFieldAndPostFilter(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addGroupField(new FieldGrouping('stock'));
             $criteria->addPostFilter(new EqualsFilter('manufacturerId', $data->get('m2')));
 
@@ -1768,9 +1734,9 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(3, $products->getTotal());
             static::assertCount(3, $products->getIds());
-            static::assertContains($data->get('p2'), $products->getIds());
-            static::assertContains($data->get('p3'), $products->getIds());
-            static::assertContains($data->get('p4'), $products->getIds());
+            static::assertContains($data->get('product-2'), $products->getIds());
+            static::assertContains($data->get('product-3'), $products->getIds());
+            static::assertContains($data->get('product-4'), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1781,17 +1747,17 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testIdsSorting(TestDataCollection $data): void
+    public function testIdsSorting(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
             $expected = [
-                $data->get('p2'),
-                $data->get('p3'),
-                $data->get('p1'),
-                $data->get('p4'),
-                $data->get('p5'),
+                $data->get('product-2'),
+                $data->get('product-3'),
+                $data->get('product-1'),
+                $data->get('product-4'),
+                $data->get('product-5'),
             ];
 
             // check simple equals filter
@@ -1814,22 +1780,22 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSorting(TestDataCollection $data): void
+    public function testSorting(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
             $expected = [
-                $data->get('p4'),
-                $data->get('p5'),
-                $data->get('p2'),
-                $data->get('p1'),
-                $data->get('p6'),
-                $data->get('p3'),
+                $data->get('product-4'),
+                $data->get('product-5'),
+                $data->get('product-2'),
+                $data->get('product-1'),
+                $data->get('product-6'),
+                $data->get('product-3'),
             ];
 
             // check simple equals filter
-            $criteria = new Criteria($data->prefixed('p'));
+            $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addSorting(new FieldSorting('name'));
 
             $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
@@ -1845,13 +1811,13 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMaxLimit(TestDataCollection $data): void
+    public function testMaxLimit(IdsCollection $data): void
     {
         try {
             $searcher = $this->createEntitySearcher();
 
             // check simple equals filter
-            $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'n7', 'n8', 'n9', 'n10', 'n11']));
+            $criteria = new Criteria($data->getList(['product-1', 'product-2', 'product-3', 'product-4', 'product-5', 'product-6', 'n7', 'n8', 'n9', 'n10', 'n11']));
 
             $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
@@ -1866,7 +1832,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testStorefrontListing(TestDataCollection $data): void
+    public function testStorefrontListing(IdsCollection $data): void
     {
         try {
             $this->helper->setEnabled(true);
@@ -1884,7 +1850,6 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($listing->getTotal() > 0);
             static::assertTrue($listing->getAggregations()->has('shipping-free'));
             static::assertTrue($listing->getAggregations()->has('rating'));
-            static::assertTrue($listing->getAggregations()->has('price'));
             static::assertTrue($listing->getAggregations()->has('properties'));
             static::assertTrue($listing->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
@@ -1897,108 +1862,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testPriceSorting(TestDataCollection $data): void
-    {
-        $searcher = $this->createEntitySearcher();
-
-        $expected = array_values($data->getList(['p1', 'p2', 'p3', 'p4', 'p5']));
-
-        // check simple equals filter
-        $criteria = new Criteria($expected);
-        $criteria->addSorting(new FieldSorting('price'));
-        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
-        static::assertEquals($expected, $ids->getIds());
-
-        $criteria = new Criteria($expected);
-        $criteria->addSorting(new FieldSorting('price', FieldSorting::DESCENDING));
-        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
-        static::assertEquals(array_reverse($expected), $ids->getIds());
-
-        $expected = array_values($data->getList(['p2', 'p1', 'p4', 'p5']));
-        $context = new Context(new SystemSource(), [], $this->currencyId);
-
-        $criteria = new Criteria($expected);
-        $criteria->addSorting(new FieldSorting('price', FieldSorting::DESCENDING));
-        $ids = $searcher->search($this->productDefinition, $criteria, $context);
-        static::assertEquals(array_reverse($expected), $ids->getIds());
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testPriceFilter(TestDataCollection $data): void
-    {
-        $searcher = $this->createEntitySearcher();
-
-        $expected = array_values($data->getList(['p3', 'p4', 'p5']));
-
-        // check simple equals filter
-        $criteria = new Criteria($data->all());
-        $criteria->addFilter(
-            new RangeFilter('price', [
-                RangeFilter::GTE => 150,
-                RangeFilter::LTE => 250,
-            ])
-        );
-
-        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
-
-        foreach ($expected as $id) {
-            static::assertTrue($ids->has($id));
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testPriceFilterWithCashRounding(TestDataCollection $data): void
-    {
-        $searcher = $this->createEntitySearcher();
-
-        $expected = array_values($data->getList(['p1', 'p3', 'p4']));
-        $context = new Context(new SystemSource(), [], $this->currencyId);
-
-        // check simple equals filter
-        $criteria = new Criteria($data->all());
-        $criteria->addFilter(
-            new RangeFilter('price', [
-                RangeFilter::GTE => 19.95,
-                RangeFilter::LTE => 20.00,
-            ])
-        );
-
-        $ids = $searcher->search($this->productDefinition, $criteria, $context);
-
-        foreach ($expected as $id) {
-            static::assertTrue($ids->has($id));
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testPriceAggregationWithCashRounding(TestDataCollection $data): void
-    {
-        $context = new Context(new SystemSource(), [], $this->currencyId);
-
-        $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4']));
-        $criteria->addAggregation(new StatsAggregation('price', 'price'));
-
-        $aggregations = $this
-            ->createEntityAggregator()
-            ->aggregate($this->productDefinition, $criteria, $context);
-
-        $result = $aggregations->get('price');
-        static::assertInstanceOf(StatsResult::class, $result);
-
-        static::assertEquals(19.90, $result->getMin());
-        static::assertEquals(20.00, $result->getMax());
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testSortingIsCaseInsensitive(TestDataCollection $data): void
+    public function testSortingIsCaseInsensitive(IdsCollection $data): void
     {
         try {
             $criteria = new Criteria();
@@ -2028,106 +1892,679 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testCheapestPriceFilter(IdsCollection $ids): void
+    {
+        try {
+            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
+
+            $cases = $this->providerCheapestPriceFilter();
+
+            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+            $searcher = $this->createEntitySearcher();
+
+            foreach ($cases as $message => $case) {
+                $affected = array_merge(
+                    $ids->prefixed('p.'),
+                    $ids->prefixed('v.')
+                );
+                $criteria = new Criteria(array_values($affected));
+
+                $criteria->addFilter(
+                    new RangeFilter('product.cheapestPrice', [
+                        RangeFilter::GTE => $case['from'],
+                        RangeFilter::LTE => $case['to'],
+                    ])
+                );
+
+                $context->setRuleIds([]);
+                if (isset($case['rules'])) {
+                    $context->setRuleIds($ids->getList($case['rules']));
+                }
+
+                $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
+
+                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
+
+                foreach ($case['expected'] as $key) {
+                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
+                }
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function providerCheapestPriceFilter()
+    {
+        yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter without rule' => ['from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter without rule' => ['from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 110€ filter without rule' => ['from' => 110, 'to' => 111, 'expected' => ['p.5']];
+        yield 'Test 120€ filter without rule' => ['from' => 120, 'to' => 121, 'expected' => ['v.6.1', 'v.6.2']];
+        yield 'Test 130€ filter without rule' => ['from' => 130, 'to' => 131, 'expected' => ['v.7.1', 'v.7.2']];
+        yield 'Test 140€ filter without rule' => ['from' => 140, 'to' => 141, 'expected' => ['v.8.1', 'v.8.2']];
+        yield 'Test 150€ filter/10 without rule' => ['from' => 150, 'to' => 151, 'expected' => ['v.9.1', 'v.10.2']];
+        yield 'Test 170€ filter without rule' => ['from' => 170, 'to' => 171, 'expected' => ['v.11.1', 'v.11.2']];
+        yield 'Test 180€ filter without rule' => ['from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.12.2']];
+        yield 'Test 190€ filter without rule' => ['from' => 190, 'to' => 191, 'expected' => ['v.13.1', 'v.13.2']];
+        yield 'Test 70€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 130€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
+        yield 'Test 140€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
+        yield 'Test 150€ filter/10 with rule-a' => ['rules' => ['rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
+        yield 'Test 170€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
+        yield 'Test 160€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
+        yield 'Test 210€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1', 'v.13.2']];
+        yield 'Test 220€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
+        yield 'Test 70€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 79€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
+        yield 'Test 90€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
+        yield 'Test 60€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 130€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
+        yield 'Test 140€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
+        yield 'Test 150€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
+        yield 'Test 170€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
+        yield 'Test 160€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
+        yield 'Test 200€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 200, 'to' => 201, 'expected' => ['v.13.2']];
+        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.12.1']];
+        yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2', 'v.13.1']];
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCheapestPriceSorting(IdsCollection $ids): void
+    {
+        try {
+            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
+
+            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+            $cases = $this->providerCheapestPriceSorting();
+
+            foreach ($cases as $message => $case) {
+                $context->setRuleIds($ids->getList($case['rules']));
+
+                $this->assertSorting($message, $ids, $context, $case, FieldSorting::ASCENDING);
+
+                $this->assertSorting($message, $ids, $context, $case, FieldSorting::DESCENDING);
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function providerCheapestPriceSorting()
+    {
+        yield 'Test sorting without rules' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'rules' => [],
+        ];
+
+        yield 'Test sorting with rule a' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'rules' => ['rule-a'],
+        ];
+
+        yield 'Test sorting with rule b' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'rules' => ['rule-b'],
+        ];
+
+        yield 'Test sorting with rule a+b' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'rules' => ['rule-a', 'rule-b'],
+        ];
+
+        yield 'Test sorting with rule b+a' => [
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'rules' => ['rule-b', 'rule-a'],
+        ];
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCheapestPriceAggregation(IdsCollection $ids): void
+    {
+        try {
+            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
+            $affected = array_merge(
+                $ids->prefixed('p.'),
+                $ids->prefixed('v.')
+            );
+            $criteria = new Criteria(array_values($affected));
+            $criteria->addFilter(new OrFilter([
+                new NandFilter([new EqualsFilter('product.parentId', null)]),
+                new EqualsFilter('product.childCount', 0),
+            ]));
+
+            $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
+
+            $context = Context::createDefaultContext();
+
+            $aggregator = $this->createEntityAggregator();
+
+            $cases = $this->providerCheapestPriceAggregation();
+
+            foreach ($cases as $message => $case) {
+                $context->setRuleIds($ids->getList($case['rules']));
+
+                $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
+
+                $aggregation = $result->get('price');
+
+                static::assertInstanceOf(StatsResult::class, $aggregation);
+                static::assertEquals($case['min'], $aggregation->getMin(), sprintf('Case `%s` failed', $message));
+                static::assertEquals($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
     }
 
-    private function createProduct(
-        string $key,
-        string $name,
-        string $taxKey,
-        string $manufacturerKey,
-        array $prices,
-        string $releaseDate,
-        float $purchasePrice,
-        int $stock,
-        array $categoryKeys,
-        array $propertyKeys = [],
-        array $extensions = []
-    ): array {
-        $categories = array_map(function ($categoryKey) {
-            return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
-        }, $categoryKeys);
+    private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
+    {
+        $criteria = new Criteria(array_merge(
+            $ids->prefixed('p.'),
+            $ids->prefixed('v.'),
+        ));
 
-        $mapped = [];
-        foreach ($prices as $currencyId => $price) {
-            $mapped[] = ['currencyId' => $currencyId, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false];
+        $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
+        $criteria->addSorting(new FieldSorting('product.productNumber', $direction));
+
+        $criteria->addFilter(new OrFilter([
+            new NandFilter([new EqualsFilter('product.parentId', null)]),
+            new EqualsFilter('product.childCount', 0),
+        ]));
+
+        $searcher = $this->createEntitySearcher();
+        $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
+
+        $expected = $case['ids'];
+        if ($direction === FieldSorting::DESCENDING) {
+            $expected = array_reverse($expected);
         }
 
-        $properties = [
-            'red' => ['id' => $this->ids->get('red'), 'name' => 'red', 'group' => ['id' => $this->ids->get('color'), 'name' => 'color']],
-            'green' => ['id' => $this->ids->get('green'), 'name' => 'green', 'group' => ['id' => $this->ids->get('color'), 'name' => 'color']],
-            'xl' => ['id' => $this->ids->get('xl'), 'name' => 'red', 'group' => ['id' => $this->ids->get('size'), 'name' => 'size']],
-            'l' => ['id' => $this->ids->get('l'), 'name' => 'red', 'group' => ['id' => $this->ids->get('size'), 'name' => 'size']],
-        ];
+        $actual = array_values($result->getIds());
 
-        $mappedProperties = [];
-        foreach ($propertyKeys as $propertyKey) {
-            if (isset($properties[$propertyKey])) {
-                $mappedProperties[] = $properties[$propertyKey];
-            }
+        foreach ($expected as $index => $key) {
+            $id = $actual[$index];
+            static::assertEquals($ids->get($key), $id, sprintf('Case `%s` failed for %s', $message, $key));
         }
+    }
 
-        $data = [
-            'id' => $this->ids->create($key),
-            'productNumber' => $key,
-            'name' => $name,
-            'stock' => $stock,
-            'price' => $mapped,
-            'manufacturer' => ['id' => $this->ids->create($manufacturerKey), 'name' => $manufacturerKey],
-            'tax' => ['id' => $this->ids->create($taxKey),  'name' => 'test', 'taxRate' => 15],
-            'releaseDate' => $releaseDate,
-            'customFields' => [
-                'testField' => $name,
-            ],
-            'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-            ],
-            'purchasePrices' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / 115 * 100, 'linked' => false],
-            ],
-        ];
-
-        if (!empty($mappedProperties)) {
-            $data['properties'] = $mappedProperties;
-        }
-
-        $categories[] = ['id' => $this->navigationId];
-        $data['categories'] = $categories;
-
-        foreach ($extensions as $extensionKey => $extension) {
-            $data[$extensionKey] = $extension;
-        }
-
-        return $data;
+    private function providerCheapestPriceAggregation()
+    {
+        yield 'With no rules' => ['min' => 60, 'max' => 190, 'rules' => []];
+        yield 'With rule a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a']];
+        yield 'With rule b' => ['min' => 60, 'max' => 200, 'rules' => ['rule-b']];
+        yield 'With rule a+b' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a', 'rule-b']];
+        yield 'With rule b+a' => ['min' => 60, 'max' => 200, 'rules' => ['rule-b', 'rule-a']];
     }
 
     private function createData(): void
     {
-        /** @var EntityRepositoryInterface $repo */
-        $repo = $this->getContainer()->get('product.repository');
+        $products = [
+            (new ProductBuilder($this->ids, 'product-1'))
+                ->name('Silk')
+                ->category('navi')
+                ->customField('testField', 'Silk')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m1')
+                ->price(50)
+                ->releaseDate('2019-01-01 10:11:00')
+                ->purchasePrice(0)
+                ->stock(2)
+                ->category('c1')
+                ->category('c2')
+                ->property('red', 'color')
+                ->property('xl', 'size')
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-2'))
+                ->name('Rubber')
+                ->category('navi')
+                ->customField('testField', 'Rubber')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('c1')
+                ->property('green', 'color')
+                ->property('l', 'size')
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-3'))
+                ->name('Stilk')
+                ->category('navi')
+                ->customField('testField', 'Stilk')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t2')
+                ->manufacturer('m2')
+                ->price(150)
+                ->releaseDate('2019-06-15 13:00:00')
+                ->purchasePrice(100)
+                ->stock(100)
+                ->category('c1')
+                ->category('c3')
+                ->property('red', 'color')
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-4'))
+                ->name('Grouped 1')
+                ->category('navi')
+                ->customField('testField', 'Grouped 1')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t2')
+                ->manufacturer('m2')
+                ->price(200)
+                ->releaseDate('2020-09-30 15:00:00')
+                ->purchasePrice(100)
+                ->stock(300)
+                ->property('green', 'color')
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-5'))
+                ->name('Grouped 2')
+                ->category('navi')
+                ->customField('testField', 'Grouped 2')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(250)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(100)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-6'))
+                ->name('Spachtelmasse of some awesome company')
+                ->category('navi')
+                ->customField('testField', 'Spachtelmasse')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'n7'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'n8'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'n9'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'n10'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'n11'))
+                ->name('Other product')
+                ->category('navi')
+                ->customField('testField', 'Other product')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->manufacturer('m3')
+                ->price(300)
+                ->releaseDate('2021-12-10 11:59:00')
+                ->purchasePrice(200)
+                ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 's1'))
+                ->name('aa')
+                ->category('navi')
+                ->customField('testField', 'aa')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
+            (new ProductBuilder($this->ids, 's2'))
+                ->name('Aa')
+                ->category('navi')
+                ->customField('testField', 'Aa')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
+            (new ProductBuilder($this->ids, 's3'))
+                ->name('AA')
+                ->category('navi')
+                ->customField('testField', 'AA')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
+            (new ProductBuilder($this->ids, 's4'))
+                ->name('Ba')
+                ->category('navi')
+                ->customField('testField', 'Ba')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
+            (new ProductBuilder($this->ids, 's5'))
+                ->name('BA')
+                ->category('navi')
+                ->customField('testField', 'BA')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
+            (new ProductBuilder($this->ids, 's6'))
+                ->name('BB')
+                ->category('navi')
+                ->customField('testField', 'BB')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m2')
+                ->price(100)
+                ->releaseDate('2019-01-01 10:13:00')
+                ->purchasePrice(0)
+                ->stock(10)
+                ->category('cs1')
+                ->build(),
 
-        $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', [Defaults::CURRENCY => 50, $this->currencyId => 19.96], '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['red', 'xl'], ['toOne' => [
-                'name' => 'test',
-            ]]),
-            $this->createProduct('p2', 'Rubber', 't1', 'm2', [Defaults::CURRENCY => 100, $this->currencyId => 19.91], '2019-01-01 10:13:00', 0, 10, ['c1'], ['green', 'l']),
-            $this->createProduct('p3', 'Stilk', 't2', 'm2', [Defaults::CURRENCY => 150, $this->currencyId => 19.94], '2019-06-15 13:00:00', 100, 100, ['c1', 'c3'], ['red']),
-            $this->createProduct('p4', 'Grouped 1', 't2', 'm2', [Defaults::CURRENCY => 200, $this->currencyId => 19.99], '2020-09-30 15:00:00', 100, 300, ['c3'], ['green']),
-            $this->createProduct('p5', 'Grouped 2', 't3', 'm3', [Defaults::CURRENCY => 250], '2021-12-10 11:59:00', 100, 300, [], ['xl']),
-            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n7', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n8', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n9', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n10', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n11', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('s1', 'aa', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s2', 'Aa', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s3', 'AA', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s4', 'Ba', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s5', 'BA', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s6', 'BB', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
-        ], Context::createDefaultContext());
+            // no rule = 70€
+            (new ProductBuilder($this->ids, 'p.1'))
+                ->price(70)
+                ->price(99, null, 'currency')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->build(),
+
+            // no rule = 79€
+            (new ProductBuilder($this->ids, 'p.2'))
+                ->price(80)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.2.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.2.2'))
+                        ->price(79)
+                        ->price(88, null, 'currency')
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 90€
+            (new ProductBuilder($this->ids, 'p.3'))
+                ->price(90)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.3.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.3.2'))
+                        ->price(100)
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 60€
+            (new ProductBuilder($this->ids, 'p.4'))
+                ->price(100)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.4.1'))
+                        ->price(60)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.4.2'))
+                        ->price(70)
+                        ->price(101, null, 'currency')
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 110€  ||  rule-a = 130€
+            (new ProductBuilder($this->ids, 'p.5'))
+                ->price(110)
+                ->prices('rule-a', 130)
+                ->prices('rule-a', 120, 'default', null, 3)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->build(),
+
+            // no rule = 120€  ||  rule-a = 130€
+            (new ProductBuilder($this->ids, 'p.6'))
+                ->price(120)
+                ->prices('rule-a', 150)
+                ->prices('rule-a', 140, 'default', null, 3)
+                ->prices('rule-a', 199, 'currency')
+                ->prices('rule-a', 188, 'currency', null, 3)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.6.1'))
+                        ->prices('rule-a', 140)
+                        ->prices('rule-a', 130, 'default', null, 3)
+                        ->prices('rule-a', 188, 'currency')
+                        ->prices('rule-a', 177, 'currency', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.6.2'))
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 130€  ||   rule-a = 150€
+            (new ProductBuilder($this->ids, 'p.7'))
+                ->price(130)
+                ->prices('rule-a', 150)
+                ->prices('rule-a', 140, 'default', null, 3)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.7.1'))
+                        ->prices('rule-a', 160)
+                        ->prices('rule-a', 150, 'default', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.7.2'))
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 140€  ||  rule-a = 170€
+            (new ProductBuilder($this->ids, 'p.8'))
+                ->price(140)
+                ->prices('rule-a', 160)
+                ->prices('rule-a', 150, 'default', null, 3)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.8.1'))
+                        ->prices('rule-a', 170)
+                        ->prices('rule-a', 160, 'default', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.8.2'))
+                        ->prices('rule-a', 180)
+                        ->prices('rule-a', 170, 'default', null, 3)
+                        ->build()
+                )
+                ->build(),
+
+            // no-rule = 150€   ||   rule-a  = 160€
+            (new ProductBuilder($this->ids, 'p.9'))
+                ->price(150)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.9.1'))
+                        ->prices('rule-a', 170)
+                        ->prices('rule-a', 160, 'default', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.9.2'))
+                        ->price(160)
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 150€  ||  rule-a = 150€
+            (new ProductBuilder($this->ids, 'p.10'))
+                ->price(160)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.10.1'))
+                        ->prices('rule-a', 170)
+                        ->prices('rule-a', 160, 'default', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.10.2'))
+                        ->price(150)
+                        ->build()
+                )
+                ->build(),
+
+            // no-rule = 170  || rule-a = 190  || rule-b = 200
+            (new ProductBuilder($this->ids, 'p.11'))
+                ->price(170)
+                ->prices('rule-a', 190)
+                ->prices('rule-a', 180, 'default', null, 3)
+                ->prices('rule-b', 200)
+                ->prices('rule-b', 190, 'default', null, 3)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.11.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.11.2'))
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 200/180
+            (new ProductBuilder($this->ids, 'p.12'))
+                ->price(180)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.12.1'))
+                        ->prices('rule-a', 220)
+                        ->prices('rule-a', 210, 'default', null, 3)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.12.2'))
+                        ->prices('rule-a', 210)
+                        ->prices('rule-a', 200, 'default', null, 3)
+                        ->prices('rule-b', 200)
+                        ->prices('rule-b', 190, 'default', null, 3)
+                        ->build()
+                )
+                ->build(),
+
+            // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 210/190
+            (new ProductBuilder($this->ids, 'p.13'))
+                ->price(190)
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->prices('rule-a', 230)
+                ->prices('rule-a', 220, 'default', null, 3)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.13.1'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.13.2'))
+                        ->prices('rule-a', 220)
+                        ->prices('rule-a', 210, 'default', null, 3)
+                        ->prices('rule-b', 210)
+                        ->prices('rule-b', 200, 'default', null, 3)
+                        ->build()
+                )
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
     }
 }

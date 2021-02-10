@@ -2,17 +2,21 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
@@ -29,11 +33,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     private $rounding;
 
-    public function __construct(ProductDefinition $definition, EntityMapper $mapper, CashRounding $rounding)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(ProductDefinition $definition, EntityMapper $mapper, Connection $connection, CashRounding $rounding)
     {
         parent::__construct($mapper);
         $this->definition = $definition;
         $this->rounding = $rounding;
+        $this->connection = $connection;
     }
 
     public function getEntityDefinition(): EntityDefinition
@@ -46,8 +56,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $definition = $this->definition;
 
         return [
-            '_source' => ['includes' => ['id', 'price']],
-            'properties' => array_merge(
+            '_source' => ['includes' => ['id']],
+            'properties' => array_replace(
                 $this->mapper->mapFields($definition, $context),
                 [
                     'categoriesRo' => $this->mapper->mapField($definition, $definition->getField('categoriesRo'), $context),
@@ -59,6 +69,15 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'configuratorSettings' => $this->mapper->mapField($definition, $definition->getField('configuratorSettings'), $context),
                 ]
             ),
+            'dynamic_templates' => [
+                [
+                    'cheapest_price' => [
+                        'match_pattern' => 'regex',
+                        'match' => '^cheapest_price_rule',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -75,7 +94,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ;
     }
 
-    public function extendDocuments(array $documents, Context $context): array
+    public function extendDocuments(EntityCollection $collection, array $documents, Context $context): array
     {
         $currencies = $context->getExtension('currencies');
 
@@ -88,18 +107,20 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $purchase = [];
             foreach ($currencies as $currency) {
+                $entity = $collection->get($document['id']);
+
                 $key = 'c_' . $currency->getId();
 
-                $prices[$key] = $this->getCurrencyPrice($document['entity'], $currency);
+                $prices[$key] = $this->getCurrencyPrice($entity, $currency);
 
-                $purchase[$key] = $this->getCurrencyPurchasePrice($document['entity'], $currency);
+                $purchase[$key] = $this->getCurrencyPurchasePrice($entity, $currency);
             }
 
-            $document['document']['price'] = $prices;
-            $document['document']['purchasePrices'] = $purchase;
+            $document['price'] = $prices;
+            $document['purchasePrices'] = $purchase;
         }
 
-        return $documents;
+        return $this->mapCheapestPrices($collection, $documents);
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
@@ -112,6 +133,46 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         );
 
         return $query;
+    }
+
+    private function mapCheapestPrices(EntityCollection $collection, array $documents): array
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10553')) {
+            return $documents;
+        }
+
+        $prices = $this->connection->fetchAll(
+            '
+            SELECT LOWER(HEX(variant.id)) as id, variant.cheapest_price_accessor
+            FROM product variant
+            WHERE variant.id IN (:ids)
+        ',
+            ['ids' => Uuid::fromHexToBytesList($collection->getIds())],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $prices = FetchModeHelper::keyPair($prices);
+
+        foreach ($documents as &$document) {
+            $id = $document['id'];
+
+            if (!isset($prices[$id])) {
+                continue;
+            }
+
+            $price = json_decode($prices[$id], true);
+            foreach ($price as $rule => $currencies) {
+                foreach ($currencies as $currency => $taxes) {
+                    $key = 'cheapest_price_' . $rule . '_' . $currency . '_gross';
+                    $document[$key] = $taxes['gross'];
+
+                    $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
+                    $document[$key] = $taxes['net'];
+                }
+            }
+        }
+
+        return $documents;
     }
 
     private function getCurrencyPrice(ProductEntity $entity, CurrencyEntity $currency): array

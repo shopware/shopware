@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -267,9 +268,13 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         $entities = $definition->extendEntities($entities);
 
-        $documents = $this->createDocuments($definition, $entities, $context);
+        $documents = $this->createDocuments($definition, $entities);
 
         $documents = $this->mapExtensionsToRoot($documents);
+
+        $documents = $definition->extendDocuments($entities, $documents, $context);
+
+        $documents = $this->mapDocuments($documents);
 
         foreach ($toRemove as $id) {
             $documents[] = ['delete' => ['_id' => $id]];
@@ -357,6 +362,8 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         // reset all other indexing processes
         $this->clearIndexingTasks();
 
+        $this->createScripts();
+
         $definitions = $this->registry->getDefinitions();
         $languages = $this->getLanguages();
 
@@ -423,7 +430,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return $documents;
     }
 
-    private function createDocuments(AbstractElasticsearchDefinition $definition, iterable $entities, Context $context): array
+    private function createDocuments(AbstractElasticsearchDefinition $definition, iterable $entities): array
     {
         $documents = [];
 
@@ -432,24 +439,14 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
             $fullText = $definition->buildFullText($entity);
 
+            $document['_unique_identifier'] = $entity->getUniqueIdentifier();
             $document['fullText'] = $fullText->getFullText();
             $document['fullTextBoosted'] = $fullText->getBoosted();
 
-            $documents[$entity->getUniqueIdentifier()] = [
-                'entity' => $entity,
-                'document' => $document,
-            ];
+            $documents[$entity->getUniqueIdentifier()] = $document;
         }
 
-        $documents = $definition->extendDocuments($documents, $context);
-
-        $mapped = [];
-        foreach ($documents as $id => $document) {
-            $mapped[] = ['index' => ['_id' => $id]];
-            $mapped[] = $document['document'];
-        }
-
-        return $mapped;
+        return $documents;
     }
 
     private function parseErrors(array $result): array
@@ -514,6 +511,124 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             ->search($criteria, $context);
 
         return $languages->get($languageId);
+    }
+
+    private function mapDocuments(array $documents): array
+    {
+        $mapped = [];
+        foreach ($documents as $document) {
+            $id = $document['_unique_identifier'];
+            unset($document['_unique_identifier']);
+            $mapped[] = ['index' => ['_id' => $id]];
+            $mapped[] = $document;
+        }
+
+        return $mapped;
+    }
+
+    private function createScripts(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10553')) {
+            return;
+        }
+
+        $script = "
+            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
+                for (accessor in accessors) {
+                    def key = accessor['key'];
+                    if (!doc.containsKey(key) || doc[key].empty) {
+                        continue;
+                    }
+
+                    def factor = accessor['factor'];
+                    def value = doc[key].value * factor;
+
+                    value = Math.round(value * decimals);
+                    value = (double) value / decimals;
+
+                    if (!round) {
+                        return (double) value;
+                    }
+
+                    value = Math.round(value * multiplier);
+
+                    value = (double) value / multiplier;
+
+                    return (double) value;
+                }
+
+                return 0;
+            }
+
+            return getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
+        ";
+
+        $this->client->putScript([
+            'id' => 'cheapest_price',
+            'body' => [
+                'script' => [
+                    'lang' => 'painless',
+                    'source' => $script,
+                ],
+            ],
+        ]);
+
+        $script = "
+            double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
+                for (accessor in accessors) {
+                    def key = accessor['key'];
+                    if (!doc.containsKey(key) || doc[key].empty) {
+                        continue;
+                    }
+
+                    def factor = accessor['factor'];
+                    def value = doc[key].value * factor;
+
+                    value = Math.round(value * decimals);
+                    value = (double) value / decimals;
+
+                    if (!round) {
+                        return (double) value;
+                    }
+
+                    value = Math.round(value * multiplier);
+
+                    value = (double) value / multiplier;
+
+                    return (double) value;
+                }
+
+                return 0;
+            }
+
+            def price = getPrice(params['accessors'], doc, params['decimals'], params['round'], params['multiplier']);
+
+            def match = true;
+            if (params.containsKey('gte')) {
+                match = match && price >= params['gte'];
+            }
+            if (params.containsKey('gt')) {
+                match = match && price > params['gt'];
+            }
+            if (params.containsKey('lte')) {
+                match = match && price <= params['lte'];
+            }
+            if (params.containsKey('lt')) {
+                match = match && price < params['lt'];
+            }
+
+            return match;
+        ";
+
+        $this->client->putScript([
+            'id' => 'cheapest_price_filter',
+            'body' => [
+                'script' => [
+                    'lang' => 'painless',
+                    'source' => $script,
+                ],
+            ],
+        ]);
     }
 
     private function getCurrencies(): EntitySearchResult

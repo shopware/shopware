@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -54,7 +53,7 @@ class JoinFilterTest extends TestCase
 
         $products = [
             (new ProductBuilder($ids, 'product-1', 10, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->manufacturer('manufacturer-1')
                 ->property('red', 'color')
                 ->property('yellow', 'color')
@@ -62,8 +61,8 @@ class JoinFilterTest extends TestCase
                 ->property('L', 'size')
                 ->category('category-1')
                 ->category('category-2')
-                ->prices(Defaults::CURRENCY, 'rule-1', 100)
-                ->prices(Defaults::CURRENCY, 'rule-2', 150)
+                ->prices('rule-1', 100)
+                ->prices('rule-2', 150)
                 ->build(),
 
             (new ProductBuilder($ids, 'product-1-variant', 10, 'tax'))
@@ -71,16 +70,16 @@ class JoinFilterTest extends TestCase
                 ->build(),
 
             (new ProductBuilder($ids, 'product-2', 3, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->manufacturer('manufacturer-2')
                 ->property('red', 'color')
                 ->category('category-1')
                 ->category('category-3')
-                ->prices(Defaults::CURRENCY, 'rule-1', 150)
+                ->prices('rule-1', 150)
                 ->build(),
 
             (new ProductBuilder($ids, 'product-3', 3, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->build(),
         ];
 

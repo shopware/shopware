@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -277,6 +278,10 @@ class ProductListingTest extends TestCase
      */
     private static function assertVariantGroup(EntitySearchResult $result, array $pool): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10553')) {
+            return;
+        }
+
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
             $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {

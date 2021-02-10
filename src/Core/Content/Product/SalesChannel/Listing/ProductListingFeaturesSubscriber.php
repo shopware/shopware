@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -163,6 +164,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
+        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
         $this->setGroupedFlag($event);
 
         $this->groupOptionAggregations($event);
@@ -347,6 +349,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return array_unique(array_filter(array_merge($options, $properties)));
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     private function setGroupedFlag(ProductListingResultEvent $event): void
     {
         /** @var ProductEntity $product */
@@ -355,12 +360,19 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 continue;
             }
 
+            // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
             $product->setGrouped(
                 $this->isGrouped($event->getRequest(), $product)
             );
+            if (Feature::isActive('FEATURE_NEXT_10553')) {
+                $product->setGrouped(false);
+            }
         }
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     private function isGrouped(Request $request, ProductEntity $product): bool
     {
         if ($product->getMainVariantId() !== null) {
@@ -406,7 +418,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             }
         }
 
-        return $count !== \count($product->getOptionIds());
+        return $count !== $product->getOptions()->count();
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void
@@ -636,6 +648,19 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
         if ($max > 0) {
             $range[RangeFilter::LTE] = $max;
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10553')) {
+            return new Filter(
+                'price',
+                !empty($range),
+                [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
+                new RangeFilter('product.cheapestPrice', $range),
+                [
+                    'min' => (float) $request->get('min-price'),
+                    'max' => (float) $request->get('max-price'),
+                ]
+            );
         }
 
         return new Filter(

@@ -1886,11 +1886,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
 
 		-
-			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, array\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingFeaturesSubscriber.php
-
-		-
 			message: "#^Possibly invalid array key type array\\|string\\.$#"
 			count: 3
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingLoader.php
@@ -1971,22 +1966,7 @@ parameters:
 			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
 
 		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php
-
-		-
 			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php
-
-		-
-			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php
-
-		-
-			message: "#^Cannot call method filterByGroupId\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php
 
@@ -3346,11 +3326,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\BlobFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BlobFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\BlobFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/BlobFieldSerializer.php
@@ -3366,11 +3341,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CalculatedPriceFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CalculatedPriceFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CalculatedPriceFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CalculatedPriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CalculatedPriceFieldSerializer.php
@@ -3381,29 +3351,14 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CartPriceFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CartPriceFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CartPriceFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CartPriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CartPriceFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ConfigJsonFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ConfigJsonFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ConfigJsonFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ConfigJsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CustomFieldsSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CustomFieldsSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CustomFieldsSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -3421,19 +3376,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\EmailFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/EmailFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\EmailFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/EmailFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FieldSerializerInterface\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FieldSerializerInterface\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -3471,19 +3416,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -3556,19 +3491,9 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -3609,11 +3534,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$languageId of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteParameterBag\\:\\:setCurrentWriteLanguageId\\(\\) expects string, int\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\VersionDataPayloadFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/VersionDataPayloadFieldSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\VersionDataPayloadFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"

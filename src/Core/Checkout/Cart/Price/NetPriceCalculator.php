@@ -55,7 +55,7 @@ class NetPriceCalculator
             $config
         );
 
-        $reference = $this->calculateReferencePrice($price, $definition->getReferencePriceDefinition(), $config);
+        $reference = $this->calculateReferencePrice($unitPrice, $definition->getReferencePriceDefinition(), $config);
 
         return new CalculatedPrice(
             $unitPrice,

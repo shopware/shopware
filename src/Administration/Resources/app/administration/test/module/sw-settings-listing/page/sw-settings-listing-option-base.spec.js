@@ -9,12 +9,14 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
             id: '2e55a50661ce4f42b188996aebbf6117',
             fields: [
                 {
+                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
                     field: 'product.listingPrices',
                     order: 'desc',
                     position: 0,
                     naturalSorting: 0
                 },
                 {
+                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
                     field: 'product.listingPrices',
                     order: 'desc',
                     position: 0,
@@ -173,12 +175,14 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
         expect(transformedCustomFieldCriterias).toEqual([
             {
+                // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapestPrice
                 field: 'product.listingPrices',
                 naturalSorting: 0,
                 order: 'desc',
                 position: 0
             },
             {
+                // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapestPrice
                 field: 'product.listingPrices',
                 naturalSorting: 0,
                 order: 'desc',

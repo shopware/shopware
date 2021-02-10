@@ -26,6 +26,8 @@
               "releaseDate": "Release date",
               "stock": "Product stock",
               "listingPrices": "Product listing price",
+              "cheapestPrice": "Cheapest price",
+              "price": "Default price",
               "sales": "Units sold"
             },
             "customField": "Custom field",

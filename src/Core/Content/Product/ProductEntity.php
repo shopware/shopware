@@ -19,6 +19,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -263,6 +265,8 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     *
      * @var bool
      */
     protected $grouped = false;
@@ -298,9 +302,20 @@ class ProductEntity extends Entity
     protected $prices;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     *
      * @var ListingPriceCollection|null
      */
     protected $listingPrices;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10553)
+     * The container will be resolved on product.loaded event and
+     * the detected cheapest price will be set for the current context rules
+     *
+     * @var CheapestPrice|CheapestPriceContainer|null
+     */
+    protected $cheapestPrice;
 
     /**
      * @var ProductMediaEntity|null
@@ -485,6 +500,11 @@ class ProductEntity extends Entity
      * @var ProductEntity|null
      */
     protected $canonicalProduct;
+
+    /**
+     * @var CheapestPriceContainer|null
+     */
+    protected $cheapestPriceContainer;
 
     public function __construct()
     {
@@ -865,11 +885,17 @@ class ProductEntity extends Entity
         $this->prices = $prices;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     public function getListingPrices(): ?ListingPriceCollection
     {
         return $this->listingPrices;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     public function setListingPrices(ListingPriceCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
@@ -1100,11 +1126,17 @@ class ProductEntity extends Entity
         $this->configuratorSettings = $configuratorSettings;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     public function setGrouped(bool $grouped): void
     {
         $this->grouped = $grouped;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     public function isGrouped(): bool
     {
         return $this->grouped;
@@ -1438,5 +1470,33 @@ class ProductEntity extends Entity
     public function setCanonicalProduct(ProductEntity $product): void
     {
         $this->canonicalProduct = $product;
+    }
+
+    /**
+     * @return CheapestPrice|CheapestPriceContainer|null
+     *
+     * @internal (flag:FEATURE_NEXT_10553)
+     */
+    public function getCheapestPrice()
+    {
+        return $this->cheapestPrice;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10553)
+     */
+    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
+    {
+        $this->cheapestPrice = $cheapestPrice;
+    }
+
+    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
+    {
+        $this->cheapestPriceContainer = $container;
+    }
+
+    public function getCheapestPriceContainer(): ?CheapestPriceContainer
+    {
+        return $this->cheapestPriceContainer;
     }
 }

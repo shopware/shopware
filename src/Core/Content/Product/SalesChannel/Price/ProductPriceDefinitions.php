@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Use \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator instead
+ */
 class ProductPriceDefinitions extends Struct
 {
     /**

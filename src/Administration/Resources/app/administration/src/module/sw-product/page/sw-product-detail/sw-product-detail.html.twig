@@ -199,6 +199,16 @@
                                 {{ $tc('sw-product.detail.tabCrossSelling') }}
                             </sw-tabs-item>
                         {% endblock %}
+
+                        {% block sw_product_detail_content_tabs_reviews %}
+                            <sw-tabs-item
+                                v-if="feature.isActive('FEATURE_NEXT_12429')"
+                                class="sw-product-detail__tab-reviews"
+                                :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
+                                :title="$tc('sw-product.detail.tabReviews')">
+                                {{ $tc('sw-product.detail.tabReviews') }}
+                            </sw-tabs-item>
+                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 

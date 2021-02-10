@@ -33,6 +33,7 @@ import './view/sw-product-detail-variants';
 import './view/sw-product-detail-layout';
 import './view/sw-product-detail-seo';
 import './view/sw-product-detail-cross-selling';
+import './view/sw-product-detail-reviews';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './acl';
@@ -161,6 +162,14 @@ Module.register('sw-product', {
                 crossSelling: {
                     component: 'sw-product-detail-cross-selling',
                     path: 'cross-selling',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
+                    }
+                },
+                reviews: {
+                    component: 'sw-product-detail-reviews',
+                    path: 'reviews',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer'

@@ -69,4 +69,9 @@ class NullConnection extends Connection
     {
         return $this->originalConnection;
     }
+
+    public function getSchemaManager()
+    {
+        return $this->originalConnection->getSchemaManager();
+    }
 }

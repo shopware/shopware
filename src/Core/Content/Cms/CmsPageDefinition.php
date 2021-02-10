@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 
@@ -82,6 +83,10 @@ class CmsPageDefinition extends EntityDefinition
                 (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete())
             );
         }
+
+        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
+            $collection->add((new VersionField())->addFlags(new ApiAware()));
+        });
 
         return $collection;
     }

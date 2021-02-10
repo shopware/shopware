@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Migration\Test;
 
-use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOMySql\Driver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -16,7 +14,7 @@ class MigrationExecuteQueryTest extends TestCase
 
     public function testExecuteQueryDoesNotPerformWriteOperations(): void
     {
-        $nullConnection = new NullConnection([], new Driver(), new Configuration());
+        $nullConnection = new NullConnection();
         $nullConnection->setOriginalConnection($this->getContainer()->get(Connection::class));
 
         $migrationCollection = $this->getContainer()->get(MigrationCollectionLoader::class)->collectAll();

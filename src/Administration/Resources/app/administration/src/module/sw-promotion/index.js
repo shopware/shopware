@@ -19,6 +19,9 @@ import './acl/index';
 
 const { Module } = Shopware;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12016)
+ */
 Module.register('sw-promotion', {
     type: 'core',
     name: 'promotion',

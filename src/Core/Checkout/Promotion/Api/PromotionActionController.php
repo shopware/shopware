@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @deprecated tag:v6.4.0.0 - Use PromotionCodeService instead
+ * @deprecated tag:v6.5.0.0 - Use PromotionCodeService instead
  * @RouteScope(scopes={"api"})
  */
 class PromotionActionController extends AbstractController

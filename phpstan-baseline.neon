@@ -1971,11 +1971,6 @@ parameters:
 			path: src/Core/Content/Product/SearchKeyword/ProductSearchKeywordAnalyzer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:permute\\(\\) has parameter \\$arg with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php
-
-		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Content\\\\Property\\\\Aggregate\\\\PropertyGroupOption\\\\PropertyGroupOptionCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Subscriber/ProductSubscriber.php

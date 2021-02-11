@@ -3,6 +3,14 @@
         {{ $tc('sw-extension.mainMenu.purchased') }}
     </template>
 
+    <template #search-bar>
+            <sw-search-bar @search="onSearch"
+                           :initialSearchType="$tc('sw-extension.my-extensions.listing.initialSearchType')"
+                           :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')"
+            >
+            </sw-search-bar>
+    </template>
+
     <template #page-tabs>
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app' }">
             {{ $tc('sw-extension.my-extensions.tabs.app') }}

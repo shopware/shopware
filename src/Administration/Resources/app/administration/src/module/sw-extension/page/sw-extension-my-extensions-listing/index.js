@@ -44,11 +44,28 @@ Component.register('sw-extension-my-extensions-listing', {
         extensionListPaginated() {
             const begin = (this.page - 1) * this.limit;
 
-            return this.extensionList.splice(begin, this.limit);
+            return this.extensionListSearched
+                .slice(begin, begin + this.limit);
+        },
+
+        extensionListSearched() {
+            return this.extensionList
+                .filter(extension => {
+                    const searchTerm = this.term && this.term.toLowerCase();
+                    if (!this.term) {
+                        return true;
+                    }
+
+                    const label = extension.label || '';
+                    const name = extension.name || '';
+
+                    return label.toLowerCase().includes(searchTerm) ||
+                        name.toLowerCase().includes(searchTerm);
+                });
         },
 
         total() {
-            return this.extensionList.length || 0;
+            return this.extensionListSearched.length || 0;
         },
 
         limit: {
@@ -66,6 +83,19 @@ Component.register('sw-extension-my-extensions-listing', {
             },
             set(newPage) {
                 this.updateRouteQuery({ page: newPage });
+            }
+        },
+
+        term: {
+            get() {
+                return this.$route.query.term || undefined;
+            },
+
+            set(newTerm) {
+                this.updateRouteQuery({
+                    term: newTerm,
+                    page: 1
+                });
             }
         }
     },

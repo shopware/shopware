@@ -11,6 +11,10 @@
       }
     },
     "my-extensions": {
+      "listing": {
+        "initialSearchType": "Extensions",
+        "placeholderSearchBar": "Search extensions…"
+      },
       "account": {
         "headline": "Shopware Account",
         "isLoggedIn": "Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Showare Account and make sure the correct domain for extensions has been set.",

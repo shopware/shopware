@@ -11,6 +11,10 @@
       }
     },
     "my-extensions": {
+      "listing": {
+        "initialSearchType": "Erweiterungen",
+        "placeholderSearchBar": "Durchsuche alle Erweiterungen…"
+      },
       "account": {
         "headline": "Shopware Account",
         "isLoggedIn": "Das Konto wurde erfolgreich verbunden. Gehe auf die Registerkarte \"App\" oder \"Themes\" und prüfe, ob deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe zu deinem Showare-Konto und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",

@@ -2,9 +2,8 @@ import { difference } from 'lodash/array';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 
-const { EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 
 Shopware.Component.register('sw-cms-layout-assignment-modal', {
     template,
@@ -308,6 +307,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             Promise
                 .all([this.validateCategories(), this.saveShopPages(), this.validateProducts()])
                 .then(() => {
+                    /** @deprecated tag:v6.5.0 event can be removed completely */
                     this.$emit('confirm');
 
                     this.onModalClose();
@@ -324,12 +324,17 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.showConfirmChangesModal = false;
         },
 
-        onDiscardChanges() {
+        async onDiscardChanges() {
             this.discardCategoryChanges();
             this.discardShopPageChanges();
             this.discardProductChanges();
 
             this.closeConfirmChangesModal();
+
+            // Wait until "confirm changes" modal is closed
+            await this.$nextTick();
+
+            this.onModalClose();
         },
 
         discardCategoryChanges() {

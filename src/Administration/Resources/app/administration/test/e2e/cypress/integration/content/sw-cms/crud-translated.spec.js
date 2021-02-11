@@ -72,13 +72,6 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // Shows layout assignment modal the first time saving after the wizard
-        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
-
-        // Confirm without layout
-        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
-
         cy.wait('@reloadPage').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -92,13 +85,6 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-
-            // Shows layout assignment modal the first time saving after the wizard
-            cy.get('.sw-modal').should('be.visible');
-
-            // Confirm without layout
-            cy.get('#sw-language-switch-save-changes-button').click();
-            cy.get('.sw-modal').should('not.exist');
         });
 
         cy.get('.sw-cms-block').should('be.visible');

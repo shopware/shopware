@@ -208,12 +208,8 @@
                     </p>
                 {% endblock %}
 
-                {% block sw_cms_layout_assignment_modal_confirm_changes_text_general %}
-                    <p
-                        class="sw-cms-layout-assignment-modal__confirm-text-general"
-                        v-html="$tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextGeneral')">
-                    </p>
-                {% endblock %}
+                {# @deprecated tag:v6.5.0 twig block can be removed completely #}
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_general %}{% endblock %}
 
                 {% block sw_cms_layout_assignment_modal_confirm_changes_text_products %}
                     <p

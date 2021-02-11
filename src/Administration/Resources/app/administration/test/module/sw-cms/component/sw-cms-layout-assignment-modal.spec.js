@@ -253,7 +253,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because one new category has already an assigned layout
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Confirm changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
@@ -304,7 +303,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because of removed category
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-categories').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Confirm changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
@@ -343,14 +341,16 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because of removed category
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-categories').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Discard changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-discard').trigger('click');
 
+        // Wait for warning modal to disappear
+        await wrapper.vm.$nextTick();
+
         // Verify categories are restored to initial categories
         expect(wrapper.vm.page.categories).toEqual(expect.arrayContaining(mockCategories));
-        expect(wrapper.emitted('modal-close')).toBeFalsy();
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
         expect(wrapper.emitted('confirm')).toBeFalsy();
     });
 
@@ -381,7 +381,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because of removed category
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-categories').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Keep editing
         wrapper.find('.sw-cms-layout-assignment-modal__action-keep-editing').trigger('click');
@@ -462,7 +461,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because of deleted shop page
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-shop-pages').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Confirm changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
@@ -510,7 +508,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Change warning should appear because of deleted shop page
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-shop-pages').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-general').exists()).toBeTruthy();
 
         // Discard changes
         wrapper.find('.sw-cms-layout-assignment-modal__action-changes-discard').trigger('click');
@@ -531,8 +528,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledTimes(0);
 
-        // Main modal should not be closed
-        expect(wrapper.emitted('modal-close')).toBeFalsy();
+        // Main modal should also be closed
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
         expect(wrapper.emitted('confirm')).toBeFalsy();
     });
 

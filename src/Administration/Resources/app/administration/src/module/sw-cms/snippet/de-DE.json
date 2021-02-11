@@ -665,7 +665,6 @@
         "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
         "confirmChangesTextProductsAssignedLayouts": "Einige der ausgewählten Produkte haben bereits ein Layout zugewiesen. Wenn Sie fortfahren, werden die vorherigen Zuweisungen durch das aktuelle Layout ersetzt.",
         "confirmChangesTextShopPages": "Du hast Layout-Zuweisungen von Shopseiten entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Shopseiten kein Layout mehr zugewiesen.",
-        "confirmChangesTextGeneral": "Wähle \"Übernehmen\", wenn Du die bisherigen Layout-Zuweisungen überschreiben möchtest.<br>Wähle \"Verwerfen\", wenn Du die vorherigen Layout-Zuweisungen wiederherstellen möchtest.<br>Wähle \"Abbrechen\", wenn Du die Layout-Zuweisungen weiter bearbeiten möchtest.",
         "confirmChangesText": "Möchtest Du Deine Änderungen übernehmen?",
         "confirmChangesTitle": "Layout-Zuweisung bestätigen",
         "shopPagesLoadError": "Shopseiten konnten nicht geladen werden",

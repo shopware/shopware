@@ -665,7 +665,6 @@
         "confirmChangesTextProducts": "You have removed layout assignments from products. If you confirm these changes, those products will no longer have a layout assigned.",
         "confirmChangesTextProductsAssignedLayouts": "Some of the selected products already have a layout assigned. If you proceed the previous assignments will be replaced with the current layout.",
         "confirmChangesTextShopPages": "You have removed layout assignments from shop pages. If you confirm these changes, those shop pages will no longer have a layout assigned",
-        "confirmChangesTextGeneral": "Select \"Apply\" if you want to overwrite the previous layout assignments.<br>Select \"Discard\" if you want to restore the previous layout assignments.<br>Select \"Cancel\" if you want to continue editing the layout assignments.",
         "confirmChangesText": "Do you want to apply your changes?",
         "confirmChangesTitle": "Confirm assignment",
         "shopPagesLoadError": "Unable to load shop pages",

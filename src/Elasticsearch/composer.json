@@ -28,7 +28,7 @@
         "ext-curl": "*",
         "doctrine/dbal": "2.10.1",
         "elasticsearch/elasticsearch": "7.2.2",
-        "ongr/elasticsearch-dsl": "7.0.0",
+        "ongr/elasticsearch-dsl": "7.1.3",
         "shopware/core": "*",
         "symfony/http-foundation": "~4.4.13",
         "symfony/messenger": "~4.4.13"

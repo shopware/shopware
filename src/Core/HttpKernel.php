@@ -3,11 +3,11 @@
 namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
+use Composer\InstalledVersions;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
-use PackageVersions\Versions;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
@@ -175,11 +175,10 @@ class HttpKernel
             return $this->kernel;
         }
 
-        $versions = Versions::VERSIONS;
-        if (isset($versions['shopware/core'])) {
-            $shopwareVersion = Versions::getVersion('shopware/core');
+        if (InstalledVersions::isInstalled('shopware/platform')) {
+            $shopwareVersion = InstalledVersions::getVersion('shopware/platform');
         } else {
-            $shopwareVersion = Versions::getVersion('shopware/platform');
+            $shopwareVersion = InstalledVersions::getVersion('shopware/core');
         }
 
         $connection = self::getConnection();

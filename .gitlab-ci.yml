@@ -20,7 +20,7 @@ stages:
 #    -   local: .gitlab/ci/split.yml
 
 default:
-    image: shopware/development:7.4
+    image: shopware/development:7.4-composer-2
     before_script:
         - apt-install jq
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
@@ -128,16 +128,16 @@ PHP Unit:
         matrix:
             -   EACH_MR: 'true'
                 MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: shopware/development:7.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
-                DEV_IMAGE: shopware/development:7.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
-                DEV_IMAGE: shopware/development:7.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -161,7 +161,7 @@ Javascript analysis:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
-    image: shopware/development:7.4
+    image: shopware/development:7.4-composer-2
     cache:
         key: "${CI_JOB_NAME}_2"
         paths:
@@ -505,7 +505,7 @@ Symfony security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:7.4
+    image: shopware/development:7.4-composer-2
     variables:
         PLATFORM_PACKAGES: ". src/Core src/Administration src/Docs src/Elasticsearch src/Recovery src/Storefront"
     script:
@@ -533,7 +533,7 @@ NPM security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:7.4
+    image: shopware/development:7.4-composer-2
     before_script: []
     allow_failure: true
     script:

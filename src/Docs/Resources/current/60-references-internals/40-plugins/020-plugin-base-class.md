@@ -291,8 +291,6 @@ class BaseClass extends Plugin
 
 ### executeComposerCommands
 
-__Please note, that this feature is behind the feature flag `FEATURE_NEXT_1797`, which will be available with Shopware 6.4.0.0.__
-
 Switch for executing composer commands during the installation, update and uninstallation of a plugin.
 
 If your plugin provides 3rd party dependencies, override the `executeComposerCommands` method in your plugin base class and return true.

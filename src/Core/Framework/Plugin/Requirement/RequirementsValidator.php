@@ -24,20 +24,11 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 class RequirementsValidator
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private EntityRepositoryInterface $pluginRepo;
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
-    /**
-     * @var Composer
-     */
-    private $pluginComposer;
+    private Composer $pluginComposer;
 
     public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
     {
@@ -262,7 +253,7 @@ class RequirementsValidator
     private function checkRequirement(
         array $pluginRequirements,
         string $installedName,
-        ?ConstraintInterface $installedVersion,
+        ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginRequirements[$installedName])) {
@@ -270,9 +261,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginRequirements[$installedName]->getConstraint();
-        if ($constraint === null || $installedVersion === null) {
-            return $pluginRequirements;
-        }
 
         if ($constraint->matches($installedVersion) === false) {
             $exceptionStack->add(
@@ -294,7 +282,7 @@ class RequirementsValidator
         array $pluginConflicts,
         string $sourceName,
         string $targetName,
-        ?ConstraintInterface $installedVersion,
+        ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (!isset($pluginConflicts[$targetName])) {
@@ -302,9 +290,6 @@ class RequirementsValidator
         }
 
         $constraint = $pluginConflicts[$targetName]->getConstraint();
-        if ($constraint === null || $installedVersion === null) {
-            return $pluginConflicts;
-        }
 
         if ($constraint->matches($installedVersion) === true) {
             $exceptionStack->add(

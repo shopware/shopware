@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.4.0.0 - Use PromotionCodeService instead
+ * @deprecated tag:v6.5.0.0 - Use PromotionCodeService instead
  */
 class PromotionCodesLoader
 {

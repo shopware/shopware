@@ -428,6 +428,12 @@ class EntityDefinitionQueryHelper
             return;
         }
 
+        if ($resolver instanceof AbstractFieldResolver) {
+            $resolver->join(new FieldResolverContext($root, $root, $field, $definition, $definition, $query, $context, null));
+
+            return;
+        }
+
         $resolver->resolve($definition, $root, $field, $query, $context, $this);
     }
 

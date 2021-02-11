@@ -347,7 +347,7 @@ describe('Test product filters get disabled if a combination is not possible', (
         cy.get('.filter-multi-select-rating .filter-multi-select-dropdown')
             .as('ratingList').should('be.visible');
 
-        // Filter by at least 3 stars
+        // Filter by min. 3/5 stars
         cy.get('@ratingList').within(() => {
             // First element(4 stars) should be disabled since we have only a product with a 3 star rating
             cy.get('.filter-rating-select-list-item').should('have.length', 4).eq(0).should('satisfy', ($el) => {
@@ -364,7 +364,7 @@ describe('Test product filters get disabled if a combination is not possible', (
         cy.get('@RatingFilter').click();
 
         // Label for active rating filter should be shown
-        cy.get('.filter-panel-active-container').contains('At least 3 stars').should('be.visible');
+        cy.get('.filter-panel-active-container').contains('min. 3/5 stars').should('be.visible');
 
         // One product should be shown
         cy.get('.product-box').should('have.length', 1);

@@ -10,7 +10,7 @@ This filter item should only be used inside a filter panel.
     opacity: 0;
 
     &:checked ~ .filter-rating-select-item-checkmark {
-        transform: translateY(-5px);
+        transform: translateY(2px);
         opacity: 1;
     }
 }
@@ -78,14 +78,14 @@ This filter item should only be used inside a filter panel.
     position: absolute;
     border: 1px solid $white;
     border-radius: 50%;
-    top: -3px;
-    left: -10px;
+    top: -8px;
+    left: -8px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease-in-out;
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-7px);
 
     .icon {
         width: 10px;
@@ -96,4 +96,8 @@ This filter item should only be used inside a filter panel.
             top: 0;
         }
     }
+}
+
+.filter-multi-select-rating .filter-panel-item-dropdown {
+    padding-bottom: 6px;
 }

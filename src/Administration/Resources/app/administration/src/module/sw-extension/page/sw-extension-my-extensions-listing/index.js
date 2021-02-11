@@ -39,10 +39,46 @@ Component.register('sw-extension-my-extensions-listing', {
 
                 return false;
             });
+        },
+
+        extensionListPaginated() {
+            const begin = (this.page - 1) * this.limit;
+
+            return this.extensionList.splice(begin, this.limit);
+        },
+
+        total() {
+            return this.extensionList.length || 0;
+        },
+
+        limit: {
+            get() {
+                return Number(this.$route.query.limit) || 25;
+            },
+            set(newLimit) {
+                this.updateRouteQuery({ limit: newLimit });
+            }
+        },
+
+        page: {
+            get() {
+                return Number(this.$route.query.page) || 1;
+            },
+            set(newPage) {
+                this.updateRouteQuery({ page: newPage });
+            }
         }
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.updateRouteQuery();
+        },
+
         updateList() {
             this.shopwareExtensionService.updateExtensionData();
         },
@@ -51,6 +87,35 @@ Component.register('sw-extension-my-extensions-listing', {
             this.$router.push({
                 name: 'sw.extension.store.index'
             });
+        },
+
+        updateRouteQuery(query = {}) {
+            const routeQuery = this.$route.query;
+            const limit = query.limit || this.$route.query.limit;
+            const page = query.page || this.$route.query.page;
+            const term = query.term || this.$route.query.term;
+
+            // Create new route
+            const route = {
+                name: this.$route.name,
+                params: this.$route.params,
+                query: {
+                    limit: limit || 25,
+                    page: page || 1,
+                    term: term || undefined
+                }
+            };
+
+            // If query is empty then replace route, otherwise push
+            if (Shopware.Utils.types.isEmpty(routeQuery)) {
+                this.$router.replace(route);
+            } else {
+                this.$router.push(route);
+            }
+        },
+
+        changePage({ page, limit }) {
+            this.updateRouteQuery({ page, limit });
         }
     }
 });

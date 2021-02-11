@@ -12,13 +12,22 @@
             </sw-button>
         </sw-meteor-card>
 
-        <template v-for="entry in extensionList">
-            <component
-                :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                :key="entry.name"
-                :extension="entry"
-                @updateList="updateList">
-            </component>
+        <template v-else>
+            <template v-for="entry in extensionListPaginated">
+                <component
+                    :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                    :key="entry.name"
+                    :extension="entry"
+                    @updateList="updateList">
+                </component>
+            </template>
+
+            <sw-pagination
+                :total="total"
+                :limit="limit"
+                :page="page"
+                @page-change="changePage"
+            ></sw-pagination>
         </template>
     </div>
 </div>

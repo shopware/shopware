@@ -42,6 +42,9 @@
       },
       "values": {
         "active": "Aktiv",
+        "availableStock": "Verfügbarer Bestand",
+        "ratingAverage": "Durchschnittliche Bewertung",
+        "category": "Kategorie",
         "additionalText": "Zusätzlicher Text",
         "allowNotification": "Benachrichtigung erlauben",
         "customFields": "Freitextfelder",
@@ -99,7 +102,8 @@
         "options": "Optionen",
         "properties": "Eigenschaften",
         "property_group": "Gruppe",
-        "property_group_option": "Eigenschafts-Ausprägung"
+        "property_group_option": "Eigenschafts-Ausprägung",
+        "product_manufacturer": "Hersteller"
       }
     },
     "detail": {

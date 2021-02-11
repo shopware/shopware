@@ -3,7 +3,7 @@ name: Javascript analysis
 on:
     push:
       branches:
-          - master
+          - trunk
     pull_request:
 
 jobs:

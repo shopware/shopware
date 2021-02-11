@@ -3,7 +3,7 @@ name: Jest
 on:
     push:
       branches:
-          - master
+          - trunk
     pull_request:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     container: shopware/development:7.4
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: trunk
 
     services:
       mysql:
@@ -37,7 +37,7 @@ jobs:
       run: |
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     container: shopware/development:7.4
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: trunk
 
     services:
       mysql:
@@ -84,7 +84,7 @@ jobs:
       run: |
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @

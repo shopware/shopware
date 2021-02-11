@@ -49,12 +49,24 @@ Component.register('sw-sales-channel-detail-domains', {
             return this.$t('sw-sales-channel.detail.buttonEditDomain');
         },
 
+        snippetSetCriteria() {
+            return (new Criteria())
+                .addSorting(Criteria.sort('name', 'ASC'));
+        },
+
         salesChannelFilterCriteria() {
             const criteria = new Criteria();
 
-            criteria.addAssociation('salesChannels');
+            criteria
+                .addAssociation('salesChannels')
+                .addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannel.id));
+        },
+
+        currencyCriteria() {
+            return (new Criteria())
+                .addSorting(Criteria.sort('name', 'ASC'));
         },
 
         hreflangLocalisationOptions() {

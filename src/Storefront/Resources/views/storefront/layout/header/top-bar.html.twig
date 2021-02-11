@@ -9,8 +9,11 @@
                 {% sw_include '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' %}
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - will be removed, has been moved to footer #}
             {% block layout_header_top_bar_service %}
-                {% sw_include '@Storefront/storefront/layout/header/actions/service-menu-widget.html.twig' %}
+                {% if not feature('FEATURE_NEXT_13504') %}
+                    {% sw_include '@Storefront/storefront/layout/header/actions/service-menu-widget.html.twig' %}
+                {% endif %}
             {% endblock %}
         </nav>
     </div>

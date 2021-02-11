@@ -3,7 +3,7 @@ name: Cypress
 on:
     push:
       branches:
-          - master
+          - trunk
     pull_request:
 
 jobs:
@@ -12,11 +12,11 @@ jobs:
     container: shopware/development:7.4
     continue-on-error: true
     strategy:
-        matrix: 
+        matrix:
             test-directory: ["cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*"]
     env:
-      DEVELOPMENT_BRANCH: master
-   
+      DEVELOPMENT_BRANCH: trunk
+
     services:
         mysql:
          image: mysql:5.7
@@ -40,7 +40,7 @@ jobs:
         /entrypoint supervisord > /dev/null 2>&1 &
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @
@@ -69,8 +69,8 @@ jobs:
           cd development
           chown -R 1000:1000 .
           export CYPRESS_baseUrl=http://localhost:8000
-          npm --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e run cy:run:chrome -- --spec "${{ matrix.test-directory }}" --config numTestsKeptInMemory=0 --env grep=@base --headless	
-    
+          npm --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e run cy:run:chrome -- --spec "${{ matrix.test-directory }}" --config numTestsKeptInMemory=0 --env grep=@base --headless
+
     - uses: actions/upload-artifact@v2
       if: failure()
       with:
@@ -78,13 +78,13 @@ jobs:
         path: |
             development/platform/src/Administration/Resources/app/administration/test/app/build
             development/var/logs
-        
+
   Storefront:
     runs-on: ubuntu-latest
     container: shopware/development:7.4
     continue-on-error: true
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: trunk
 
     services:
         mysql:
@@ -109,7 +109,7 @@ jobs:
         /entrypoint supervisord > /dev/null 2>&1 &
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @

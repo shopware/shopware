@@ -84,6 +84,10 @@ parameters:
             message: "#^Parameter \\#3 \\$contentType of class Swift_Attachment constructor expects string\\|null, string\\|false given\\.$#"
             count: 1
             path: src/Core/Content/Mail/Service/MailFactory.php
+        # storageName could not be null, because the `compile` method is called first
+        -
+            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
+            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
 
 services:
     -

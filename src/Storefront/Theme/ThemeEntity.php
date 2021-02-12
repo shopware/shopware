@@ -74,16 +74,6 @@ class ThemeEntity extends Entity
     protected $customFields;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var ThemeCollection|null
      */
     protected $childThemes;

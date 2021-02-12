@@ -339,13 +339,17 @@ class EntityHydrator
     }
 
     /**
-     * @param string[] $jsonStrings
+     * @param array<string|null> $jsonStrings
      */
     private function mergeJson(array $jsonStrings): string
     {
         $merged = [];
         foreach ($jsonStrings as $string) {
-            $decoded = json_decode((string) $string, true);
+            if ($string === null) {
+                continue;
+            }
+
+            $decoded = json_decode($string, true);
 
             if (!$decoded) {
                 continue;

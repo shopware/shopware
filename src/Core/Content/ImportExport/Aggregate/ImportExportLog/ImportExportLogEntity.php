@@ -91,16 +91,6 @@ class ImportExportLogEntity extends Entity
      */
     protected $failedImportLog;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getActivity(): string
     {
         return $this->activity;

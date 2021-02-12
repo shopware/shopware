@@ -166,7 +166,8 @@ class ImportExport
             }
             $this->importExportService->saveProgress($progress);
 
-            if ($this->importLimit > 0 && ++$processed >= $this->importLimit) {
+            ++$processed;
+            if ($this->importLimit > 0 && $processed >= $this->importLimit) {
                 break;
             }
         }

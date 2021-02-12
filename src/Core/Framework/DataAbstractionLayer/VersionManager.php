@@ -799,7 +799,7 @@ class VersionManager
             return ['id' => $id];
         }, $primaryKeys);
 
-        $nested = $this->resolveParents($parent, $mapped) ?? [];
+        $nested = $this->resolveParents($parent, $mapped);
 
         $entity = $parent->getEntityName();
 
@@ -827,7 +827,7 @@ class VersionManager
                 return ['id' => $id];
             }, $primaryKeys);
 
-            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped) ?? [];
+            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
 
             foreach ($nested as $entity => $primaryKeys) {
                 $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);

@@ -168,7 +168,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $groupings = $criteria->getGroupFields();
 
         if (\count($groupings) === 1) {
-            /** @var FieldGrouping $first */
             $first = array_shift($groupings);
 
             $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);

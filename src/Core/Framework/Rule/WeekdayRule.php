@@ -15,7 +15,7 @@ class WeekdayRule extends Rule
     protected $operator;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $dayOfWeek;
 

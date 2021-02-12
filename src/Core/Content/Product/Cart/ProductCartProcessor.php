@@ -141,7 +141,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($minPurchase);
             }
 
-            $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
+            $available = $product->getCalculatedMaxPurchase();
 
             if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());

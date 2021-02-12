@@ -99,16 +99,6 @@ class NewsletterRecipientEntity extends Entity
     protected $confirmedAt;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var TagCollection|null
      */
     protected $tags;

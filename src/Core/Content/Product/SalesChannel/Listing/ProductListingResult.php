@@ -18,16 +18,6 @@ class ProductListingResult extends EntitySearchResult
     protected $currentFilters = [];
 
     /**
-     * @var int
-     */
-    protected $page;
-
-    /**
-     * @var int
-     */
-    protected $limit;
-
-    /**
      * @var ProductSortingCollection
      */
     protected $availableSortings;
@@ -55,26 +45,6 @@ class ProductListingResult extends EntitySearchResult
     public function setSorting(?string $sorting): void
     {
         $this->sorting = $sorting;
-    }
-
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    public function setPage(int $page): void
-    {
-        $this->page = $page;
-    }
-
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
-
-    public function setLimit(int $limit): void
-    {
-        $this->limit = $limit;
     }
 
     public function getCurrentFilters(): array

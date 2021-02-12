@@ -129,7 +129,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
             $max = (int) $product->getAvailableStock();
         }
 
-        $max = floor((int) $max / ($product->getPurchaseSteps() ?? 1)) * $product->getPurchaseSteps();
+        $max = floor($max / ($product->getPurchaseSteps() ?? 1)) * $product->getPurchaseSteps();
 
         return (int) max($max, 0);
     }

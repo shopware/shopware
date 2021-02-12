@@ -158,7 +158,7 @@ class Entity extends Struct
 
         $class = static::class;
         $class = explode('\\', $class);
-        $class = (string) end($class);
+        $class = end($class);
 
         return $this->_entityName = preg_replace(
             '/_entity$/',

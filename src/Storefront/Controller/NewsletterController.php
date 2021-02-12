@@ -100,7 +100,6 @@ class NewsletterController extends StorefrontController
         $dataBag->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
         $messages = [];
-        $success = null;
 
         if ($subscribed) {
             try {

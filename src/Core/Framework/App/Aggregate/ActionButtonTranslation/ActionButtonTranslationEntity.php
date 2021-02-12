@@ -20,16 +20,6 @@ class ActionButtonTranslationEntity extends Entity
     protected $label;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
-
-    /**
      * @var string
      */
     protected $appActionButtonId;
@@ -57,26 +47,6 @@ class ActionButtonTranslationEntity extends Entity
     public function setLabel(string $label): void
     {
         $this->label = $label;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getLanguageId(): string

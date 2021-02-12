@@ -109,7 +109,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                             continue;
                         }
 
-                        foreach ($additional['resolve'] as $resolve => &$resolvePath) {
+                        foreach ($additional['resolve'] as &$resolvePath) {
                             $resolvePath = $this->addBasePath($resolvePath, $basePath);
                         }
                         unset($resolvePath);

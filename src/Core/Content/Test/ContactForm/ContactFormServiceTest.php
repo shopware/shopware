@@ -52,7 +52,7 @@ class ContactFormServiceTest extends TestCase
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
 
         $validationEventDidRun = false;
-        $validationListenerClosure = function () use (&$validationEventDidRun, $phpunit): void {
+        $validationListenerClosure = static function () use (&$validationEventDidRun): void {
             $validationEventDidRun = true;
         };
 

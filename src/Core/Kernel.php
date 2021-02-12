@@ -376,7 +376,7 @@ class Kernel extends HttpKernel
 
         [$version, $hash] = explode('@', $version);
         $version = ltrim($version, 'v');
-        $version = (string) str_replace('+', '-', $version);
+        $version = str_replace('+', '-', $version);
 
         /*
          * checks if the version is a valid version pattern

@@ -37,11 +37,6 @@ class ImportExportFileEntity extends Entity
     protected $log;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
      * @var string
      */
     protected $accessToken;

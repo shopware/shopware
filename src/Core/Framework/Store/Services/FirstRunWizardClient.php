@@ -171,7 +171,7 @@ final class FirstRunWizardClient
         }
         $failedAt = $this->configService->getString('core.frw.failedAt');
         if ($failedAt !== '') {
-            $failureCount = $this->configService->getInt('core.frw.failureCount') ?? 1;
+            $failureCount = $this->configService->getInt('core.frw.failureCount');
 
             return FrwState::failedState(new \DateTimeImmutable($failedAt), $failureCount);
         }

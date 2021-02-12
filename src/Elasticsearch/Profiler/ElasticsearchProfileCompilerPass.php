@@ -12,7 +12,7 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $esEnabled = (int) $_SERVER['SHOPWARE_ES_ENABLED'] ?? 0;
+        $esEnabled = (int) $_SERVER['SHOPWARE_ES_ENABLED'];
         if (!$container->getParameter('kernel.debug') || $esEnabled === 0) {
             $container->removeDefinition(DataCollector::class);
 

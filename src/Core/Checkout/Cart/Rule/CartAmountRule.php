@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class CartAmountRule extends Rule
 {
     /**
-     * @var float
+     * @var float|null
      */
     protected $amount;
 

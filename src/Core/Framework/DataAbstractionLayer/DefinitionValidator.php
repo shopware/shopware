@@ -746,7 +746,7 @@ class DefinitionValidator
 
         $versionError = $this->validateVersionAwareness($reference, $definition, $association);
         if ($versionError) {
-            $associationViolations[$definition->getClass()][] = $versionError;
+            $violations[$definition->getClass()][] = $versionError;
         }
 
         return $violations;

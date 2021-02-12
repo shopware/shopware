@@ -53,7 +53,7 @@ class IndexingController extends AbstractController
             throw new BadRequestHttpException('Parameter `offset` missing');
         }
 
-        $indexer = $this->registry->getIndexer((string) $indexer);
+        $indexer = $this->registry->getIndexer($indexer);
 
         $offset = ['offset' => $request->get('offset')];
         $message = $indexer ? $indexer->iterate($offset) : null;

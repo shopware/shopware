@@ -140,16 +140,6 @@ class AppEntity extends Entity
     protected $templates;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var CustomFieldSetCollection|null
      */
     protected $customFieldSets;
@@ -297,12 +287,12 @@ class AppEntity extends Entity
         $this->translations = $translations;
     }
 
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }
@@ -355,26 +345,6 @@ class AppEntity extends Entity
     public function setAclRole(?AclRoleEntity $aclRole): void
     {
         $this->aclRole = $aclRole;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getCustomFieldSets(): ?CustomFieldSetCollection

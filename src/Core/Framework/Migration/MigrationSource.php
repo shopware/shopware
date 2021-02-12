@@ -14,7 +14,7 @@ class MigrationSource
     /**
      * @var array<string, string|MigrationSource>
      */
-    private $sources = [];
+    private $sources;
 
     /**
      * @var array
@@ -26,7 +26,7 @@ class MigrationSource
         $this->name = $name;
         $this->sources = $namespaces instanceof \Traversable
             ? iterator_to_array($namespaces)
-            : (array) $namespaces;
+            : $namespaces;
     }
 
     public function addDirectory(string $directory, string $namespace): void

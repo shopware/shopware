@@ -3,7 +3,7 @@ import 'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-container';
 
-describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
+describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     const CreateFirstRunWizardModal = function CreateFirstRunWizardModal() {
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-modal'), {
             stubs: {

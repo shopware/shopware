@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection';
 
-describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
+describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 

@@ -35,6 +35,7 @@
       "tabs": {
         "app": "App",
         "theme": "Theme",
+        "recommendation": "Empfehlungen",
         "shopwareAccount": "Shopware Account"
       },
       "fileUpload": {

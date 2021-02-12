@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\LandingPage;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -77,6 +78,11 @@ class LandingPageEntity extends Entity
      * @var array|null
      */
     protected $slotConfig;
+
+    /**
+     * @var SeoUrlCollection|null
+     */
+    protected $seoUrls;
 
     public function isActive(): bool
     {
@@ -206,5 +212,15 @@ class LandingPageEntity extends Entity
     public function setSlotConfig(?array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
+    }
+
+    public function getSeoUrls(): ?SeoUrlCollection
+    {
+        return $this->seoUrls;
+    }
+
+    public function setSeoUrls(SeoUrlCollection $seoUrls): void
+    {
+        $this->seoUrls = $seoUrls;
     }
 }

@@ -92,6 +92,11 @@ Component.register('sw-seo-url-template-card', {
             }
             criteria.addFilter(Criteria.equals('salesChannelId', salesChannelId));
 
+            // @feature-deprecated(flag:FEATURE_NEXT_12032) - delete the following criteria when the Feature is released
+            criteria.addFilter(Criteria.not('AND', [
+                Criteria.equals('routeName', 'frontend.landing.page')
+            ]));
+
             this.isLoading = true;
 
             this.seoUrlTemplateRepository.search(criteria, Shopware.Context.api).then((response) => {

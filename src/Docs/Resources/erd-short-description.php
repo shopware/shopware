@@ -232,4 +232,9 @@ return [
     Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition::class => 'User Config',
     Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition::class => '__EMPTY__',
     Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition::class => '__EMPTY__',
+    Shopware\Core\Content\LandingPage\LandingPageDefinition::class => '__EMPTY__',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition::class => 'Translations',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition::class => 'M:N Mapping',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition::class => 'M:N Mapping',
+    'Shopware\\Core\\Content\\LandingPage' => 'Landing Pages',
 ];

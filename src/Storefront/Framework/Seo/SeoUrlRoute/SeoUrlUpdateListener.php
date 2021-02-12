@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
+use Shopware\Core\Content\LandingPage\LandingPageEvents;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
@@ -56,6 +58,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         return [
             ProductEvents::PRODUCT_INDEXER_EVENT => 'updateProductUrls',
             CategoryEvents::CATEGORY_INDEXER_EVENT => 'updateCategoryUrls',
+            LandingPageEvents::LANDING_PAGE_INDEXER_EVENT => 'updateLandingPageUrls',
             EntityWrittenContainerEvent::class => 'detectSalesChannelEntryPoints',
         ];
     }
@@ -72,6 +75,11 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         $ids = array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $ids);
+    }
+
+    public function updateLandingPageUrls(LandingPageIndexerEvent $event): void
+    {
+        $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 
     private function getProductChildren(array $ids): array

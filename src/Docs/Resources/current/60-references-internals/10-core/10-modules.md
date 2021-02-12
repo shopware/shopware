@@ -125,7 +125,7 @@ Mass imports and exports through files
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-importexport.md)
 
-#### LandingPage <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### LandingPage <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/LandingPage)
 

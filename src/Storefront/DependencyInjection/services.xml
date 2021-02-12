@@ -168,6 +168,13 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\LandingPage\LandingPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12032"/>
+        </service>
+
         <service id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>

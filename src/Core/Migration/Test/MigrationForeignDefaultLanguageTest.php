@@ -54,7 +54,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
@@ -75,6 +74,13 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
+            }
+        }
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
             }
         }
 
@@ -124,7 +130,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
@@ -171,6 +176,14 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
+            }
+        }
+
         $templateDefault = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
@@ -208,7 +221,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
@@ -246,6 +258,14 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                         'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ]
                 );
+            }
+        }
+
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
             }
         }
 

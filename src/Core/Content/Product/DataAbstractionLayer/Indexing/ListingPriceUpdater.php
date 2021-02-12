@@ -30,7 +30,7 @@ class ListingPriceUpdater
             return;
         }
 
-        $currencies = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, decimal_precision, factor FROM currency');
+        $currencies = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, factor FROM currency');
 
         $currencies = FetchModeHelper::groupUnique($currencies);
 

@@ -108,6 +108,7 @@ const webpackConfig = {
                 devServer: {
                     host: process.env.HOST,
                     port: process.env.PORT,
+                    disableHostCheck: true,
                     open: true,
                     proxy: {
                         '/api': {

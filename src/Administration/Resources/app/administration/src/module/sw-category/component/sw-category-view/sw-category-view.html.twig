@@ -29,11 +29,11 @@
 
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
-                        v-show="cmsPage"
-                        :disabled="!acl.can('category.editor')"
+                        v-show="cmsPage || isPage"
+                        :disabled="!acl.can('category.editor') && !feature.isActive('FEATURE_NEXT_13504')"
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('category.editor'),
+                            disabled: acl.can('category.editor') || feature.isActive('FEATURE_NEXT_13504'),
                             showOnDisabledElements: true
                         }"
                         class="sw-category-detail__tab-cms"

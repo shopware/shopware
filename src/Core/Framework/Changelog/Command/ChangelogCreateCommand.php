@@ -14,9 +14,6 @@ use Symfony\Component\Process\Process;
 
 class ChangelogCreateCommand extends Command
 {
-    /**
-     * @var string
-     */
     protected static $defaultName = 'changelog:create';
 
     /**

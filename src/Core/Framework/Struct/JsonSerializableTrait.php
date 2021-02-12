@@ -14,7 +14,7 @@ trait JsonSerializableTrait
 
     protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
     {
-        foreach ($array as $property => &$value) {
+        foreach ($array as &$value) {
             if ($value instanceof \DateTimeInterface) {
                 $value = $value->format(\DateTime::RFC3339_EXTENDED);
             }

@@ -15,15 +15,12 @@ class ActionEventCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $events = [];
-
         $classes = [];
         /** @var BusinessEventInterface $eventClass */
-        foreach ($this->getEventClasses() as $eventName => $eventClass) {
+        foreach ($this->getEventClasses() as $eventClass) {
             if (!is_subclass_of($eventClass, BusinessEventInterface::class, true)) {
                 continue;
             }
-            $events[$eventName] = $eventClass::getAvailableData()->toArray();
             $classes[] = $eventClass;
         }
 

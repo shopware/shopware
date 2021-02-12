@@ -12,7 +12,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
     protected $data;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $_entityName = 'array-entity';
 

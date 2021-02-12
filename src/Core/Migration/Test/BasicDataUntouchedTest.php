@@ -17,7 +17,7 @@ class BasicDataUntouchedTest extends TestCase
         $file = $loader->findFile(Migration1536233560BasicData::class);
 
         static::assertSame(
-            'b1a13ae960652d4563da0a6eef219f8942d7d1a9',
+            '8e261d82024dd18e01aa6f10fec65f9269ecd5ba',
             sha1_file($file),
             'BasicData migration has changed. This is not allowed.'
         );

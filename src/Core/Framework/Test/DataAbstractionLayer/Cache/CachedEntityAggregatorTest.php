@@ -117,7 +117,8 @@ class CachedEntityAggregatorTest extends TestCase
         $dbalReader->expects(static::exactly(2))
             ->method('aggregate')
             ->willReturnCallback(
-                function ($definition, $criteria, $context) {
+                // Do not remove $_definition, although it is marked as unused. It somehow important
+                static function ($_definition, $criteria) {
                     $configGroupEntity = new PropertyGroupOptionEntity();
                     $configGroupEntity->setUniqueIdentifier('test');
 

@@ -40,7 +40,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
 
         if (!Feature::isActive('FEATURE_NEXT_12553')) {
             $source = explode('/', $source);
-            $source = (string) array_shift($source);
+            $source = array_shift($source);
             $source = ltrim($source, '@');
         }
 

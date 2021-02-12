@@ -293,16 +293,6 @@ class NavigationLoaderTest extends TestCase
 
 class TestTreeAware extends CategoryEntity
 {
-    /**
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $parentId;
-
     public function __construct(string $id, string $parentId)
     {
         $this->id = $id;

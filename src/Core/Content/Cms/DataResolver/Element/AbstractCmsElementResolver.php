@@ -42,7 +42,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
                 if ($value === null) {
-                    $value = $entity->getTranslation((string) $part);
+                    $value = $entity->getTranslation($part);
                 }
             } catch (\InvalidArgumentException $ex) {
                 if (!$smartDetect) {

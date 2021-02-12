@@ -90,12 +90,12 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
             Defaults::LANGUAGE_SYSTEM,
         ]));
         foreach ($languages as $language) {
-            $this->insertTranslation($stateId, $state['translations']['en-GB'], (string) $language, $connection);
+            $this->insertTranslation($stateId, $state['translations']['en-GB'], $language, $connection);
         }
 
         $languages = array_filter([$this->getLanguageId('de-DE', $connection)]);
         foreach ($languages as $language) {
-            $this->insertTranslation($stateId, $state['translations']['de-DE'], (string) $language, $connection);
+            $this->insertTranslation($stateId, $state['translations']['de-DE'], $language, $connection);
         }
 
         foreach ($state['from'] as $fromId) {

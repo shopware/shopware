@@ -11,9 +11,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ChangelogCheckCommand extends Command
 {
-    /**
-     * @var string
-     */
     protected static $defaultName = 'changelog:check';
 
     /**

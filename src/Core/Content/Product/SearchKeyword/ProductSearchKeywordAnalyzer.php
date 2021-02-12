@@ -45,7 +45,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
 
                 if ($isTokenize) {
                     $fieldValue = implode(' ', $values);
-                    $values = $this->tokenizer->tokenize((string) $fieldValue);
+                    $values = $this->tokenizer->tokenize($fieldValue);
 
                     if ($this->tokenFilter) {
                         $values = $this->tokenFilter->filter($values, $context);
@@ -67,7 +67,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $tokens = $this->tokenizer->tokenize((string) $name);
 
             foreach ($tokens as $token) {
-                $keywords->add(new AnalyzedKeyword((string) $token, 700));
+                $keywords->add(new AnalyzedKeyword($token, 700));
             }
         }
 
@@ -109,7 +109,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                 if ($value instanceof EntityCollection) {
                     $values = [];
                     if (!empty($parts)) {
-                        $part = $part . '.' . implode('.', $parts);
+                        $part .= sprintf('.%s', implode('.', $parts));
                     }
                     foreach ($value as $item) {
                         $values = array_merge($values, $this->resolveEntityValue($item, $part));
@@ -126,7 +126,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
                 if ($value === null) {
-                    $value = $entity->getTranslation((string) $part);
+                    $value = $entity->getTranslation($part);
                 }
             } catch (\InvalidArgumentException $ex) {
                 if (!$smartDetect) {

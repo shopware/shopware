@@ -196,16 +196,21 @@ class OrderRoute extends AbstractOrderRoute
     private function checkGuestAuth(OrderEntity $order, Request $request): void
     {
         $orderCustomer = $order->getOrderCustomer();
-        $guest = $orderCustomer !== null && $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
+        if ($orderCustomer === null) {
+            throw new CustomerNotLoggedInException();
+        }
+
+        $guest = $orderCustomer->getCustomer() !== null && $orderCustomer->getCustomer()->getGuest();
         // Throw exception when customer is not guest
         if (!$guest) {
             throw new CustomerNotLoggedInException();
         }
+
         // Verify email and zip code with this order
         if ($request->get('email', false) && $request->get('zipcode', false)) {
-            $billingAddress = $order->getAddresses() !== null ? $order->getAddresses()->get($order->getBillingAddressId()) : null;
+            $orderAddresses = $order->getAddresses();
+            $billingAddress = $orderAddresses !== null ? $orderAddresses->get($order->getBillingAddressId()) : null;
             if ($billingAddress === null
-                || $orderCustomer === null
                 || $request->get('email') !== $orderCustomer->getEmail()
                 || $request->get('zipcode') !== $billingAddress->getZipcode()) {
                 throw new WrongGuestCredentialsException();

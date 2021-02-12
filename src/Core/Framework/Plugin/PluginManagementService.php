@@ -101,7 +101,7 @@ class PluginManagementService
 
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
-        $tempFileName = tempnam(sys_get_temp_dir(), (string) $file->getClientOriginalName());
+        $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
         $tempDirectory = \dirname(realpath($tempFileName));
 
         $tempFile = $file->move($tempDirectory, $tempFileName);

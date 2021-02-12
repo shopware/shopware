@@ -41,16 +41,6 @@ class MailTemplateTypeEntity extends Entity
      */
     protected $customFields;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $updatedAt;
-
     public function getName(): string
     {
         return $this->name;

@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemDimensionLengthRule extends Rule
 {
     /**
-     * @var float
+     * @var float|null
      */
     protected $amount;
 

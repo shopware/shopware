@@ -65,16 +65,6 @@ class ImportExportProfileEntity extends Entity
      */
     protected $translations;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
     public function getName(): string
     {
         return $this->name;

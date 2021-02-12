@@ -30,16 +30,6 @@ class AppTranslationEntity extends Entity
     protected $privacyPolicyExtensions;
 
     /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    /**
      * @var string
      */
     protected $appId;
@@ -87,26 +77,6 @@ class AppTranslationEntity extends Entity
     public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
     {
         $this->privacyPolicyExtensions = $privacyPolicyExtensions;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getAppId(): string

@@ -40,7 +40,7 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
             $licenseCollection->add($this->licenseLoader->loadFromArray($license));
         }
 
-        $licenseCollection->setTotal((int) \count($licensesResponse['data']));
+        $licenseCollection->setTotal(\count($licensesResponse['data']));
 
         return $licenseCollection;
     }

@@ -92,7 +92,8 @@ class SeoUrlGenerator
         $coreExtension = $this->twig->getExtension(EscaperExtension::class);
         $coreExtension->setEscaper(
             self::ESCAPE_SLUGIFY,
-            static function ($twig, $string) use ($slugify) {
+            // Do not remove $_twig, although it is marked as unused. It somehow important
+            static function ($_twig, $string) use ($slugify) {
                 return rawurlencode($slugify->slugify($string));
             }
         );

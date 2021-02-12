@@ -63,7 +63,7 @@ class ThemeCompileCommand extends Command
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context, null, !$input->getOption('keep-assets'));
         }
 
-        $this->io->note(sprintf('Took %f seconds', (float) microtime(true) - $start));
+        $this->io->note(sprintf('Took %f seconds', microtime(true) - $start));
 
         return 0;
     }

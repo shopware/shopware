@@ -59,7 +59,6 @@ class CustomFieldSubscriberTest extends TestCase
      */
     public function testCustomFieldWrittenWithProvider($snippetSets, $customFieldSets, $expectedSnippets, $expectedCount): void
     {
-        $createdSnippetSets = [];
         foreach ($snippetSets as $set) {
             $createdSet = [
                 'id' => Uuid::randomHex(),
@@ -68,13 +67,10 @@ class CustomFieldSubscriberTest extends TestCase
                 'iso' => $set,
             ];
             $this->snippetSetRepository->create([$createdSet], $this->context);
-            $createdSnippetSets[] = $createdSet;
         }
 
-        $createdCustomFieldSets = [];
         foreach ($customFieldSets as $customFieldSet) {
             $this->customFieldSetRepository->upsert([$customFieldSet], $this->context);
-            $createdCustomFieldSets[] = $customFieldSet;
         }
 
         $snippets = FetchModeHelper::group(

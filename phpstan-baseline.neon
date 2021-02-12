@@ -186,11 +186,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Processor.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\CartAmountRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/CartAmountRule.php
-
-		-
 			message: "#^Cannot call method getFreeDelivery\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryInformation\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Rule/CartHasDeliveryFreeItemRule.php
@@ -221,44 +216,14 @@ parameters:
 			path: src/Core/Checkout/Cart/Rule/GoodsPriceRule.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemDimensionHeightRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemDimensionHeightRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemDimensionLengthRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemDimensionLengthRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemDimensionWeightRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemDimensionWeightRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemDimensionWidthRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemDimensionWidthRule.php
-
-		-
 			message: "#^Parameter \\#5 \\$rules of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupDefinition constructor expects Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection, Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Rule/LineItemGroupRule.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemListPriceRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemListPriceRule.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemOfTypeRule\\:\\:\\$lineItemType \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Rule/LineItemOfTypeRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemPurchasePriceRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemPurchasePriceRule.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemRule\\:\\:\\$identifiers \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
@@ -269,16 +234,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemTagRule\\:\\:\\$identifiers \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Rule/LineItemTagRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemTotalPriceRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemTotalPriceRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\LineItemUnitPriceRule\\:\\:\\$amount \\(float\\) does not accept float\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Rule/LineItemUnitPriceRule.php
 
 		-
 			message: "#^Cannot call method getUnitPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
@@ -2871,16 +2826,6 @@ parameters:
 			path: src/Core/Framework/App/ActionButton/Executor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\:\\:getLabel\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/AppEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\:\\:getUpdatedAt\\(\\) should return DateTimeInterface but returns DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/AppEntity.php
-
-		-
 			message: "#^Cannot call method getPermissions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Permissions\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Command/AppPrinter.php
@@ -3401,11 +3346,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Field/CustomFields.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\AbstractFieldSerializer\\:\\:requiresValidation\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php
@@ -3637,21 +3577,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:buildViolation\\(\\) has parameter \\$code with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:buildViolation\\(\\) has parameter \\$invalidValue with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:buildViolation\\(\\) has parameter \\$root with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
 
@@ -4689,11 +4614,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\SalesChannelRule\\:\\:\\$salesChannelIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Rule/SalesChannelRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\WeekdayRule\\:\\:\\$dayOfWeek \\(int\\) does not accept int\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Rule/WeekdayRule.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\ShopwareHttpException\\:\\:parse\\(\\) should return string but returns string\\|null\\.$#"
@@ -6249,11 +6169,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:setParameter\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Event/StorefrontRenderEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\Annotation\\\\HttpCache\\:\\:\\$states \\(array\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/Annotation/HttpCache.php
 
 		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"

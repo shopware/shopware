@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class LineItemUnitPriceRule extends Rule
 {
     /**
-     * @var float
+     * @var float|null
      */
     protected $amount;
 

@@ -31,12 +31,12 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 class Migration1536233560BasicData extends MigrationStep
 {
     /**
-     * @var array
+     * @var array|null
      */
     private $mailTypes;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $deDeLanguageId;
 
@@ -754,7 +754,7 @@ class Migration1536233560BasicData extends MigrationStep
         $GBP = Uuid::randomBytes();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $connection->insert('currency', ['id' => $EUR, 'iso_code' => 'EUR', 'factor' => 1, 'symbol' => '€', 'position' => 1, 'decimal_precision' => 2, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('currency_translation', ['currency_id' => $EUR, 'language_id' => $languageEN, 'short_name' => 'EUR', 'name' => 'Euro', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -779,7 +779,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function createPaymentMethod(Connection $connection): void
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $ruleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0 (Payment)', 'priority' => 100, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -818,7 +818,7 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $connection->insert('shipping_method', ['id' => $standard, 'active' => 1, 'availability_rule_id' => $ruleId, 'delivery_time_id' => $deliveryTimeId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $standard, 'language_id' => $languageEN, 'name' => 'Standard', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -843,7 +843,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function createSalesChannelTypes(Connection $connection): void
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $storefront = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $storefrontApi = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
@@ -861,7 +861,7 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('product_manufacturer', ['id' => $id, 'version_id' => $versionId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -873,7 +873,7 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'type' => CategoryDefinition::TYPE_PAGE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -895,7 +895,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         $id = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $connection->insert('sales_channel', [
             'id' => $id,
@@ -2950,7 +2950,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function createCmsPages(Connection $connection): void
     {
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes($this->deDeLanguageId);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         // cms page

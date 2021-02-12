@@ -283,7 +283,7 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection
     ): void {
-        $associationCriteria = $criteria->getAssociation($association->getPropertyName()) ?? new Criteria();
+        $associationCriteria = $criteria->getAssociation($association->getPropertyName());
 
         if (!$associationCriteria->getTitle() && $criteria->getTitle()) {
             $associationCriteria->setTitle(

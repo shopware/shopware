@@ -17,7 +17,7 @@ class HttpCache extends ConfigurationAnnotation
     private $maxAge;
 
     /**
-     * @var array
+     * @var array|null
      */
     private $states;
 

@@ -19,6 +19,11 @@ class ReferenceVersionField extends FkField
      */
     protected $versionReferenceDefinition;
 
+    /**
+     * @var string|null
+     */
+    protected $storageName;
+
     public function __construct(string $definition, ?string $storageName = null)
     {
         parent::__construct('', '', VersionDefinition::class);
@@ -37,7 +42,7 @@ class ReferenceVersionField extends FkField
 
         $this->versionReferenceDefinition = $registry->get($this->versionReferenceClass);
         $entity = $this->versionReferenceDefinition->getEntityName();
-        $storageName = $this->storageName ?? $entity . '_version_id';
+        $storageName = $this->storageName ?? ($entity . '_version_id');
 
         $propertyName = explode('_', $storageName);
         $propertyName = array_map('ucfirst', $propertyName);

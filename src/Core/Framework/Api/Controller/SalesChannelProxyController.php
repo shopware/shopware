@@ -355,11 +355,11 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        if (!$contextToken) {
+        if ($contextToken === null) {
             $contextToken = Random::getAlphanumericString(32);
         }
 
-        return (string) $contextToken;
+        return $contextToken;
     }
 
     private function clearRequestStackWithBackup(RequestStack $requestStack): array

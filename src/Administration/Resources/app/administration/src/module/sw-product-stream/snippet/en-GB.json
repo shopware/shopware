@@ -42,9 +42,12 @@
       },
       "values": {
         "active": "Active",
+        "availableStock": "Available stock",
+        "ratingAverage": "Rating average",
         "additionalText": "Additional text",
         "allowNotification": "Allow notification",
-        "customFields": "Custom Fields",
+        "customFields": "Custom fields",
+        "category": "Category",
         "categories": "Categories",
         "categoriesRo": "Categories",
         "choose": "Choose",
@@ -99,7 +102,8 @@
         "options": "Options",
         "properties": "Properties",
         "property_group": "Group",
-        "property_group_option": "Property value"
+        "property_group_option": "Property value",
+        "product_manufacturer": "Manufacturer"
       }
     },
     "detail": {

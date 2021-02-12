@@ -119,6 +119,10 @@ describe('Dynamic product group: Test various filters', () => {
         context(`Search property with term ${resultCase.value}`, () => {
             it('@rule: search product property with operator "Is equal to"', () => {
                 cy.window().then((win) => {
+                    if (win.Shopware.Feature.isActive('FEATURE_NEXT_12158')) {
+                        return;
+                    }
+
                     if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12108')) {
                         return;
                     }

@@ -213,6 +213,56 @@ export default function conditionService() {
         ]
     };
 
+    const allowedProperties = [
+        'id'
+    ];
+
+    const entityAllowedProperties = {
+        tag: [
+            'id'
+        ],
+        category: [
+            'id'
+        ],
+        product_manufacturer: [
+            'id'
+        ],
+        property_group_option: [
+            'id'
+        ],
+        property_group: [
+            'id'
+        ],
+        product_visibility: [
+            'id'
+        ],
+        sales_channel: [
+            'id'
+        ],
+        product: [
+            'id',
+            'active',
+            'name',
+            'description',
+            'ratingAverage',
+            'price',
+            'productNumber',
+            'stock',
+            'availableStock',
+            'releaseDate',
+            'tags',
+            'weight',
+            'height',
+            'length',
+            'sales',
+            'manufacturer',
+            'categoriesRo',
+            'shippingFree',
+            'visibilities',
+            'properties'
+        ]
+    };
+
     const productFilterTypes = {
         equals: {
             identifier: 'equals',
@@ -349,6 +399,11 @@ export default function conditionService() {
         addToEntityBlacklist,
         removeFromGeneralBlacklist,
         removeFromEntityBlacklist,
+        isPropertyInAllowList,
+        addToGeneralAllowList,
+        addToEntityAllowList,
+        removeFromGeneralAllowList,
+        removeFromEntityAllowList,
         getConditions,
         getAndContainerData,
         isAndContainer,
@@ -364,6 +419,7 @@ export default function conditionService() {
     };
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) - We will use a allowlist pattern instead of a blacklist
      * @param {?string} definition
      * @param {string} property
      * @returns {boolean}
@@ -374,6 +430,7 @@ export default function conditionService() {
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) - We will use a allowlist pattern instead of a blacklist
      * @param {string[]} properties
      */
     function addToGeneralBlacklist(properties) {
@@ -381,6 +438,7 @@ export default function conditionService() {
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) - We will use a allowlist pattern instead of a blacklist
      * @param {string} entity
      * @param {string[]} properties
      */
@@ -394,6 +452,7 @@ export default function conditionService() {
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) - We will use a allowlist pattern instead of a blacklist
      * @param {string[]} properties
      */
     function removeFromGeneralBlacklist(properties) {
@@ -403,6 +462,7 @@ export default function conditionService() {
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) - We will use a allowlist pattern instead of a blacklist
      * @param {string} entity
      * @param {string[]} properties
      */
@@ -413,6 +473,59 @@ export default function conditionService() {
 
         properties.forEach(entry => {
             entityBlacklist[entity].splice(entityBlacklist[entity].indexOf(entry), 1);
+        });
+    }
+
+    /**
+     * @param {?string} definition
+     * @param {string} property
+     * @returns {boolean}
+     */
+    function isPropertyInAllowList(definition, property) {
+        return allowedProperties.includes(property)
+            || (entityAllowedProperties.hasOwnProperty(definition) && entityAllowedProperties[definition].includes(property));
+    }
+
+    /**
+     * @param {string[]} properties
+     */
+    function addToGeneralAllowList(properties) {
+        allowedProperties.push(...properties);
+    }
+
+    /**
+     * @param {string} entity
+     * @param {string[]} properties
+     */
+    function addToEntityAllowList(entity, properties) {
+        if (entityAllowedProperties[entity]) {
+            entityAllowedProperties[entity].push(...properties);
+            return;
+        }
+
+        entityAllowedProperties[entity] = properties;
+    }
+
+    /**
+     * @param {string[]} properties
+     */
+    function removeFromGeneralAllowList(properties) {
+        properties.forEach(entry => {
+            allowedProperties.splice(allowedProperties.indexOf(entry), 1);
+        });
+    }
+
+    /**
+     * @param {string} entity
+     * @param {string[]} properties
+     */
+    function removeFromEntityAllowList(entity, properties) {
+        if (!entityAllowedProperties[entity]) {
+            return;
+        }
+
+        properties.forEach(entry => {
+            entityAllowedProperties[entity].splice(entityAllowedProperties[entity].indexOf(entry), 1);
         });
     }
 

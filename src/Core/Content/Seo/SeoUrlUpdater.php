@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
@@ -94,7 +95,7 @@ class SeoUrlUpdater
 
             $salesChannel = $salesChannels->get($salesChannelId);
 
-            // generate new  seo urls
+            // generate new seo urls
             $urls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
             // persist seo urls to storage
@@ -196,7 +197,7 @@ class SeoUrlUpdater
     {
         // TODO: optimize to one query
         $result = $this->connection
-            ->executeQuery('SELECT LOWER(HEX(parent_id)) FROM language WHERE id = :id', ['id' => $languageId])
+            ->executeQuery('SELECT LOWER(HEX(parent_id)) FROM language WHERE id = :id', ['id' => Uuid::fromHexToBytes($languageId)])
             ->fetchColumn();
 
         return $result ? (string) $result : null;

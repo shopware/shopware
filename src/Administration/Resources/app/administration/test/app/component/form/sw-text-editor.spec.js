@@ -14,7 +14,7 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-function createWrapper() {
+function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
@@ -23,6 +23,9 @@ function createWrapper() {
 
     return shallowMount(Shopware.Component.build('sw-text-editor'), {
         attachTo: document.getElementById('app'),
+        propsData: {
+            allowInlineDataMapping
+        },
         localVue,
         stubs: {
             'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
@@ -216,7 +219,7 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should handle inserting inline mapping', async () => {
-        wrapper = createWrapper('first second third');
+        wrapper = createWrapper();
 
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
 
@@ -412,5 +415,12 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         const newSelection = document.getSelection().toString();
         expect(newSelection).toBe('{{ category.name }}');
+    });
+
+    it('should not show the inline mapping button when prop does not allow it to', () => {
+        wrapper = createWrapper(false);
+        const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping');
+
+        expect(inlineMappingButton.exists()).toBe(false);
     });
 });

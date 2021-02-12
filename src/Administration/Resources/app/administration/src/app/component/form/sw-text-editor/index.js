@@ -77,6 +77,12 @@ Component.register('sw-text-editor', {
             default: false
         },
 
+        allowInlineDataMapping: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -388,7 +394,11 @@ Component.register('sw-text-editor', {
                     });
                 }
 
-                if (this.feature.isActive('FEATURE_NEXT_10550') && this.availableDataMappings.length > 0) {
+                if (
+                    this.feature.isActive('FEATURE_NEXT_10550') &&
+                    this.allowInlineDataMapping &&
+                    this.availableDataMappings.length > 0
+                ) {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),

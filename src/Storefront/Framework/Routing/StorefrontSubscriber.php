@@ -138,6 +138,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
+                // make sure the session is started in the shopware manner
+                // even if the request is handled by the \Symfony\Component\HttpKernel\HttpCache\HttpCache
+                ['startSession', 9000],
                 ['replaceCsrfToken'],
                 ['setCanonicalUrl'],
             ],

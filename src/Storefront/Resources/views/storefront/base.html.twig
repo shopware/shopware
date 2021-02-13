@@ -160,14 +160,12 @@
 
         {% block base_script_hmr_mode %}
             {% if isHMRMode %}
-                {% set baseUrl = app.request.getScheme() ~ '://' ~ app.request.getHost() %}
-                {% set port = app.request.headers.get('hot-reload-port') %}
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/vendor-node.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/vendor-shared.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/runtime.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/app.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js"></script>
                 {# The storefront entry is a combined entry point which contains all plugins & themes #}
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/storefront.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js"></script>
             {% else %}
                 {% for file in shopware.theme.assets.js %}
                     <script type="text/javascript" src="{{ asset(file, 'theme') }}" async></script>

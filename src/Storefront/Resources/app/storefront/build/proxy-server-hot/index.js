@@ -8,13 +8,13 @@ const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
 module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
-    const proxyUrl = `${proxyHost}:${proxyPort}`;
-
+    const proxyUrl = proxyPort !== 80 && proxyPort !== 443 ? `${proxyHost}:${proxyPort}`: proxyHost;
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
     // Create the HTTP proxy
     const server = createServer((client_req, client_res) => {
         const requestOptions = {
+            host: originalHost,
             port: appPort,
             path: client_req.url,
             method: client_req.method,
@@ -22,10 +22,22 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
                 ...client_req.headers,
                 host: originalUrl,
                 'hot-reload-mode': true,
-                'hot-reload-port': process.env.STOREFRONT_ASSETS_PORT || 9999,
-                'accept-encoding': 'identity'
-            }
+                'accept-encoding': 'identity',
+            },
         };
+
+        // Assets
+        if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
+            requestOptions.host = '127.0.0.1';
+            requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+            requestOptions.path = requestOptions.path.substr(20);
+        }
+
+        // Hot reload updates
+        if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
+            requestOptions.host = '127.0.0.1';
+            requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+        }
 
         // pipe a new request to the client request
         client_req.pipe(
@@ -56,7 +68,7 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
 function openBrowserWithUrl(url) {
     const childProcessOptions = {
         stdio: 'ignore',
-        detached: true
+        detached: true,
     };
 
     try {
@@ -82,7 +94,10 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
     // when request is finished
     response.on('end', () => {
         // replace original url with proxy url
-        const responseBody = responseData.replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`);
+        const responseBody = responseData
+            .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
+            // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
+            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`);
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

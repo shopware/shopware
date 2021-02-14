@@ -10,7 +10,9 @@ Component.register('sw-order-list', {
     inject: [
         'repositoryFactory',
         'stateStyleDataProviderService',
-        'acl'
+        'acl',
+        'filterFactory',
+        'feature'
     ],
 
     mixins: [
@@ -28,7 +30,23 @@ Component.register('sw-order-list', {
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
-            campaignCodeFilter: []
+            campaignCodeFilter: [],
+            filterCriteria: [],
+            defaultFilters: [
+                'document-filter',
+                'status-filter',
+                'payment-status-filter',
+                'delivery-status-filter',
+                'payment-method-filter',
+                'shipping-method-filter',
+                'sales-channel-filter',
+                'billing-country-filter',
+                'customer-group-filter',
+                'shipping-country-filter',
+                'customer-group-filter',
+                'tag-filter',
+                'line-item-filter'
+            ]
         };
     },
 
@@ -62,6 +80,10 @@ Component.register('sw-order-list', {
                 criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
             });
 
+            this.filterCriteria.forEach(filter => {
+                criteria.addFilter(filter);
+            });
+
             criteria.addAssociation('addresses');
             criteria.addAssociation('billingAddress');
             criteria.addAssociation('salesChannel');
@@ -85,6 +107,83 @@ Component.register('sw-order-list', {
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
 
             return criteria;
+        },
+
+        listFilters() {
+            return this.filterFactory.create('order', {
+                'document-filter': {
+                    property: 'documents',
+                    label: this.$tc('sw-order.filters.documentFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.documentFilter.placeholder')
+                },
+                'status-filter': {
+                    property: 'stateMachineState',
+                    criteria: this.getStatusCriteria('order.state'),
+                    label: this.$tc('sw-order.filters.statusFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.statusFilter.placeholder')
+                },
+                'payment-status-filter': {
+                    property: 'transactions.stateMachineState',
+                    criteria: this.getStatusCriteria('order_transaction.state'),
+                    label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder')
+                },
+                'delivery-status-filter': {
+                    property: 'deliveries.stateMachineState',
+                    criteria: this.getStatusCriteria('order_delivery.state'),
+                    label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder')
+                },
+                'payment-method-filter': {
+                    property: 'transactions.paymentMethod',
+                    label: this.$tc('sw-order.filters.paymentMethodFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.paymentMethodFilter.placeholder')
+                },
+                'shipping-method-filter': {
+                    property: 'deliveries.shippingMethod',
+                    label: this.$tc('sw-order.filters.shippingMethodFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.shippingMethodFilter.placeholder')
+                },
+                'sales-channel-filter': {
+                    property: 'salesChannel',
+                    label: this.$tc('sw-order.filters.salesChannelFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.salesChannelFilter.placeholder')
+                },
+                'billing-country-filter': {
+                    property: 'billingAddress.country',
+                    label: this.$tc('sw-order.filters.billingCountryFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.billingCountryFilter.placeholder')
+                },
+                'shipping-country-filter': {
+                    property: 'addresses.country',
+                    label: this.$tc('sw-order.filters.shippingCountryFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.shippingCountryFilter.placeholder')
+                },
+                'customer-group-filter': {
+                    property: 'orderCustomer.customer.group',
+                    label: this.$tc('sw-order.filters.customerGroupFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.customerGroupFilter.placeholder')
+                },
+                'tag-filter': {
+                    property: 'tags',
+                    label: this.$tc('sw-order.filters.tagFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.tagFilter.placeholder')
+                },
+                'line-item-filter': {
+                    property: 'lineItems.product',
+                    label: this.$tc('sw-order.filters.productFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.productFilter.placeholder')
+                }
+            });
+        }
+    },
+
+    watch: {
+        orderCriteria: {
+            handler() {
+                this.getList();
+            },
+            deep: true
         }
     },
 
@@ -266,6 +365,20 @@ Component.register('sw-order-list', {
             return this.orderRepository.delete(id, Shopware.Context.api).then(() => {
                 this.getList();
             });
+        },
+
+        updateCriteria(criteria) {
+            this.page = 1;
+
+            this.filterCriteria = criteria;
+        },
+
+        getStatusCriteria(value) {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equals('stateMachine.technicalName', value));
+
+            return criteria;
         }
     }
 });

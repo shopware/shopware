@@ -319,6 +319,60 @@
       "message": "The following automatic promotions will be disabled:",
       "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
+    },
+    "filters": {
+      "documentFilter": {
+        "label": "Documents",
+        "placeholder": "Select document status..."
+      },
+      "orderDateFilter": {
+        "label": "Order Date",
+        "placeholder": "From... / To..."
+      },
+      "statusFilter": {
+        "label": "Order status",
+        "placeholder": "Select order status..."
+      },
+      "paymentStatusFilter": {
+        "label": "Payment status",
+        "placeholder": "Select payment status..."
+      },
+      "deliveryStatusFilter": {
+        "label": "Delivery status",
+        "placeholder": "Select delivery status..."
+      },
+      "paymentMethodFilter": {
+        "label": "Payment method",
+        "placeholder": "Select payment method..."
+      },
+      "shippingMethodFilter": {
+        "label": "Shipping method",
+        "placeholder": "Select shipping method..."
+      },
+      "salesChannelFilter": {
+        "label": "Sales Channels",
+        "placeholder": "Select Sales Channels..."
+      },
+      "billingCountryFilter": {
+        "label": "Billing country",
+        "placeholder": "Select billing countries..."
+      },
+      "shippingCountryFilter": {
+        "label": "Shipping country",
+        "placeholder": "Select shipping countries..."
+      },
+      "customerGroupFilter": {
+        "label": "Customer group",
+        "placeholder": "Select customer group..."
+      },
+      "tagFilter": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
+      },
+      "productFilter": {
+        "label": "Products",
+        "placeholder": "Select products..."
+      }
     }
   },
   "sw-privileges": {

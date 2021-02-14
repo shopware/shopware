@@ -237,8 +237,18 @@
                         {% endblock %}
 
                         {% block sw_order_list_sidebar_filter %}
-                            <sw-sidebar-item icon="default-action-filter"
-                                             :title="$tc('sw-order.list.titleSidebarItemFilter')">
+                            <sw-sidebar-filter-panel
+                                v-if="feature.isActive('FEATURE_NEXT_9831')"
+                                entity="customer"
+                                :filters="listFilters"
+                                :defaults="defaultFilters"
+                                @criteria-changed="updateCriteria">
+                            </sw-sidebar-filter-panel>
+
+                            <sw-sidebar-item
+                                v-else
+                                icon="default-action-filter"
+                                :title="$tc('sw-order.list.titleSidebarItemFilter')">
 
                                 {% block sw_order_list_sidebar_filter_items %}
 

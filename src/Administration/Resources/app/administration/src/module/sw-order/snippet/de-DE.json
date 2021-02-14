@@ -319,6 +319,60 @@
       "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert:",
       "messageNoItems": "Keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
+    },
+    "filters": {
+      "documentFilter": {
+        "label": "Dokumente",
+        "placeholder": "Dokumentstatus auswählen ..."
+      },
+      "orderDateFilter": {
+        "label": "Bestelldatum",
+        "placeholder": "Von ... / Bis ..."
+      },
+      "statusFilter": {
+        "label": "Bestellstatus",
+        "placeholder": "Bestellstatus auswählen ..."
+      },
+      "paymentStatusFilter": {
+        "label": "Zahlungsstatus",
+        "placeholder": "Zahlungsstatus auswählen ..."
+      },
+      "deliveryStatusFilter": {
+        "label": "Lieferstatus",
+        "placeholder": "Lieferstatus auswählen ..."
+      },
+      "paymentMethodFilter": {
+        "label": "Zahlungsart",
+        "placeholder": "Zahlungsart auswählen ..."
+      },
+      "shippingMethodFilter": {
+        "label": "Versandart",
+        "placeholder": "Versandart auswählen ..."
+      },
+      "salesChannelFilter": {
+        "label": "Verkaufskanäle",
+        "placeholder": "Verkaufskanäle auswählen ..."
+      },
+      "billingCountryFilter": {
+        "label": "Rechnungsland",
+        "placeholder": "Rechnungsländer auswählen ..."
+      },
+      "shippingCountryFilter": {
+        "label": "Lieferland",
+        "placeholder": "Lieferländer auswählen ..."
+      },
+      "customerGroupFilter": {
+        "label": "Kundengruppe",
+        "placeholder": "Kundengruppe auswählen ..."
+      },
+      "tagFilter": {
+        "label": "Tags",
+        "placeholder": "Tags auswählen ..."
+      },
+      "productFilter": {
+        "label": "Produkte",
+        "placeholder": "Produkte auswählen ..."
+      }
     }
   },
   "sw-privileges": {

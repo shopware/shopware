@@ -257,9 +257,14 @@ class MailService extends AbstractMailService
     private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
+            $headerPlain = $mailHeaderFooter->getTranslation('headerPlain') ?? '';
+            $footerPlain = $mailHeaderFooter->getTranslation('footerPlain') ?? '';
+            $headerHtml = $mailHeaderFooter->getTranslation('headerHtml') ?? '';
+            $footerHtml = $mailHeaderFooter->getTranslation('footerHtml') ?? '';
+
             return [
-                'text/plain' => $mailHeaderFooter->getHeaderPlain() . $data['contentPlain'] . $mailHeaderFooter->getFooterPlain(),
-                'text/html' => $mailHeaderFooter->getHeaderHtml() . $data['contentHtml'] . $mailHeaderFooter->getFooterHtml(),
+                'text/plain' => sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
+                'text/html' => sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
             ];
         }
 

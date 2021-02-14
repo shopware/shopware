@@ -258,8 +258,8 @@ class MailService extends AbstractMailService
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [
-                'text/plain' => $mailHeaderFooter->getHeaderPlain() . $data['contentPlain'] . $mailHeaderFooter->getFooterPlain(),
-                'text/html' => $mailHeaderFooter->getHeaderHtml() . $data['contentHtml'] . $mailHeaderFooter->getFooterHtml(),
+                'text/plain' => ($mailHeaderFooter->getTranslation('headerPlain') ?? '') . $data['contentPlain'] . ($mailHeaderFooter->getTranslation('footerPlain') ?? ''),
+                'text/html' => ($mailHeaderFooter->getTranslation('headerHtml') ?? '') . $data['contentHtml'] . ($mailHeaderFooter->getTranslation('footerHtml') ?? ''),
             ];
         }
 

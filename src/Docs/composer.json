@@ -26,7 +26,7 @@
     "require": {
         "cocur/slugify": "4.0.0",
         "erusev/parsedown-extra": "0.8.1",
-        "guzzlehttp/guzzle": "6.5.2",
+        "guzzlehttp/guzzle": "~7.2",
         "shopware/core": "*",
         "symfony/config": "~4.4.13",
         "symfony/console": "~4.4.13",

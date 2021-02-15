@@ -139,8 +139,7 @@ Component.register('sw-my-apps-page', {
                 return;
             }
 
-            if (event.data === this.legacyLoadedMessage ||
-                event.data === this.loadedMessage) {
+            if (event.data === this.loadedMessage) {
                 this.appLoaded = true;
             }
         }

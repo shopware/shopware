@@ -26,10 +26,14 @@ if (isHotMode) {
 }
 
 let hostName;
+const proxyPort = parseInt(process.env.STOREFRONT_PROXY_PORT || 9998);
 
 try {
-    const { protocol, hostname } = new URL(process.env.APP_URL);
+    const { protocol, hostname } = new URL(process.env.PROXY_URL || process.env.APP_URL);
     hostName = `${protocol}//${hostname}`;
+    if (proxyPort !== 80 && proxyPort !== 443) {
+        hostName += `:${proxyPort}`;
+    }
 } catch (e) {
     hostName = undefined;
 }
@@ -40,7 +44,8 @@ let webpackConfig = {
         if (isHotMode) {
             return {
                 contentBase: path.resolve(__dirname, 'dist'),
-                publicPath: `${hostName}${isHotMode ? ':9999' : ''}/`,
+                public: hostName,
+                publicPath: `${hostName}/`,
                 open: false,
                 overlay: {
                     warnings: false,
@@ -54,7 +59,7 @@ let webpackConfig = {
                 compress: false,
                 disableHostCheck: true,
                 port: 9999,
-                host: '0.0.0.0',
+                host: '127.0.0.1',
                 clientLogLevel: 'warning',
                 headers: {
                     'Access-Control-Allow-Origin': '*'
@@ -281,7 +286,7 @@ let webpackConfig = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: './js/[name].js',
-        publicPath: `${hostName}${isHotMode ? ':9999' : ''}/`,
+        publicPath: `${hostName}/`,
         chunkFilename: './js/[name].js'
     },
     performance: {

@@ -112,9 +112,6 @@
       "labelDiscountPeriod": "*Für den ersten Monat - | *Für die ersten {months} Monate - "
     },
     "component": {
-      "sw-extension-gtc-checkbox": {
-        "labelTerms": ""
-      },
       "sw-extension-meteor-page-context-item": {
         "labelButtonMore": "Mehr"
       },

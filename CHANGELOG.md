@@ -233,7 +233,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-8050 - Fix content deleted after block moved](/changelog/release-6-3-4-0/2020-11-06-fix-content-deleted-after-block-moved.md)
 *  [NEXT-10803 - Fix error on product property deletion](/changelog/release-6-3-4-0/2020-11-06-fix-error-on-product-property-deletion.md)
 *  [NEXT-11926 - Introduce a new interface for events containing the SalesChannelContext](/changelog/release-6-3-4-0/2020-11-06-introduce-new-sales-channel-event.md)
-*  [NEXT-7453 - Use custom name prefix for nested routes](/changelog/release-6-3-4-0/2020-11-06-use-custom-name-prefix-for-nested-routes.md)
 *  [NEXT-11743 - create "Description and Reviews" block](/changelog/release-6-3-4-0/2020-11-09-create-description-and-reviews-block.md)
 *  [NEXT-12012 - Fix app installation if system default language is not english or german](/changelog/release-6-3-4-0/2020-11-09-fix-app-install-on-all-languages.md)
 *  [NEXT-11989 - Fix uninstall of apps with custom field sets](/changelog/release-6-3-4-0/2020-11-09-fix-deinstallation-of-apps-with-custom-fields.md)

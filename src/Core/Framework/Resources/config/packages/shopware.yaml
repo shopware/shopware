@@ -60,12 +60,15 @@ shopware:
             - name: FEATURE_NEXT_7453
               major: true
               description: "use custom name prefix for nested routes"
+              # issue: NEXT-12256
             - name: FEATURE_NEXT_8172
               major: true
               description: "prevent plugins to extend the first level menu entries"
+              # issue: NEXT-12267 # TODO: changelog
             - name: FEATURE_NEXT_12009
               major: true
               description: "remove countries from sales channel object inside context"
+              # issue: NEXT-13750
             - name: FEATURE_NEXT_10549
               major: false
               description: "save cart or products on wishlist"
@@ -79,10 +82,12 @@ shopware:
               default: false
               major: true
               description: "correct spelling of a config key"
+              # issue: NEXT-13751
             - name: FEATURE_NEXT_11253
               default: false
               major: true
               description: "reduce request payload of cms listing"
+              # issue: NEXT-13752
             - name: FEATURE_NEXT_10550
               default: false
               major: false
@@ -102,42 +107,52 @@ shopware:
               default: false
               major: true
               description: "show property group in rule builder and dpg"
+              # issue: NEXT-13753
             - name: FEATURE_NEXT_10552
               default: false
               major: true
               description: "custom search index and ranking"
+              # issue: NEXT-13539
             - name: FEATURE_NEXT_12553
               default: false
               major: true
               description: "Improve template hierarchy resolving"
+              # issue: NEXT-13754 # TODO: changelog
             - name: FEATURE_NEXT_12608
               default: false
               major: true
               description: "App System Store"
+              # issue: NEXT-13469
             - name: FEATURE_NEXT_7365
               default: false
               major: true
               description: "single SCSS entry file for plugins"
+              # issue: NEXT-12932
             - name: FEATURE_NEXT_12289
               default: false
               major: true
               description: "Rule detail page assignments tab"
+              # issue: NEXT-12461
             - name: FEATURE_NEXT_12032
               default: false
               major: true
               description: "Add landing pages"
+              # issue: NEXT-13755
             - name: FEATURE_NEXT_12246
               default: false
               major: true
               description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
+              # issue: NEXT-13756
             - name: FEATURE_NEXT_12942
               default: false
               major: true
               description: "Add maximum width for logo"
+              # issue: NEXT-13757
             - name: FEATURE_NEXT_12957
               default: false
               major: true
               description: "Separate plugin download and update action"
+              # issue: NEXT-13758
             - name: FEATURE_NEXT_9831
               default: false
               major: false
@@ -146,10 +161,12 @@ shopware:
               default: false
               major: true
               description: "Improve product UX"
+              # issue: NEXT-13759
             - name: FEATURE_NEXT_12349
               default: false
               major: true
               description: "Group migrations into major versions"
+              # issue: NEXT-13749
             - name: FEATURE_NEXT_12158
               default: false
               major: false
@@ -162,6 +179,7 @@ shopware:
               default: false
               major: true
               description: "Improve category UX"
+              # issue: NEXT-13760
 
     logger:
         file_rotation_count: 14

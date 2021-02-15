@@ -125,7 +125,7 @@ Component.register('sw-extension-buy-modal', {
 
         this.setSelectedVariantId(variantId);
         this.permissionsAccepted = !this.extensionHasPermissions;
-        this.privacyExtensionsAccepted = !this.extension.privacyPolicyExtensions;
+        this.privacyExtensionsAccepted = !this.extension.privacyPolicyExtension;
         this.fetchPlan();
     },
 

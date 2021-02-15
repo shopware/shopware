@@ -220,12 +220,14 @@ class ExtensionLoader
             $icon = $this->appLoader->getIcon($app);
 
             $language = (string) $this->getLocaleCodeFromLanguageId($context);
+            $languageWithMinus = str_replace('_', '-', $language);
+
             $appArray = $app->getMetadata()->toArray($language);
 
             $row = [
-                'description' => isset($appArray['description']) ? $appArray['description'][$language] : '',
+                'description' => isset($appArray['description']) ? $this->getTranslationFromArray($appArray['description'], $language) : '',
                 'name' => $name,
-                'label' => isset($appArray['label']) ? $appArray['label'][$language] : '',
+                'label' => isset($appArray['label']) ? $this->getTranslationFromArray($appArray['label'], $language) : '',
                 'producerName' => $app->getMetadata()->getAuthor(),
                 'license' => $app->getMetadata()->getLicense(),
                 'version' => $app->getMetadata()->getVersion(),
@@ -235,6 +237,8 @@ class ExtensionLoader
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
                 'isTheme' => false,
+                'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $languageWithMinus, 'en-GB') : '',
+                'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row));
@@ -245,14 +249,7 @@ class ExtensionLoader
 
     private function prepareArrayData(array $data, ?string $locale): array
     {
-        $data = $this->replaceCollections($data);
-
-        // the naming for `privacyPolicyExtensions` differs from SBP & shopware, SBP does not use the trailing `s`
-        if (\array_key_exists('privacyPolicyExtension', $data) && !\array_key_exists('privacyPolicyExtensions', $data)) {
-            $data['privacyPolicyExtensions'] = $data['privacyPolicyExtension'];
-        }
-
-        return $this->translateExtensionLanguages($data, $locale);
+        return $this->translateExtensionLanguages($this->replaceCollections($data), $locale);
     }
 
     private function prepareAppData(Context $context, AppEntity $app): array
@@ -275,19 +272,9 @@ class ExtensionLoader
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
             'isTheme' => \in_array($app->getName(), $installedThemeNames, true),
-            'configurable' => false,
-            'privacyPolicyExtensions' => null,
+            'configurable' => $app->isConfigurable(),
+            'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
         ];
-
-        // ToDo: if can be removed when `NEXT-11857` is deployed everywhere
-        if (method_exists($app, 'isConfigurable')) {
-            $data['configurable'] = $app->isConfigurable();
-        }
-
-        // ToDo: if can be removed when `NEXT-12172` is deployed everywhere
-        if (method_exists($app, 'getPrivacyPolicyExtensions')) {
-            $data['privacyPolicyExtensions'] = $app->getPrivacyPolicyExtensions();
-        }
 
         $appTranslations = $app->getTranslations();
 
@@ -365,5 +352,18 @@ class ExtensionLoader
             },
             $translationLocales
         );
+    }
+
+    private function getTranslationFromArray(array $translations, string $currentLanguage, string $fallbackLanguage = self::DEFAULT_LOCALE): ?string
+    {
+        if (isset($translations[$currentLanguage])) {
+            return $translations[$currentLanguage];
+        }
+
+        if (isset($translations[$fallbackLanguage])) {
+            return $translations[$fallbackLanguage];
+        }
+
+        return null;
     }
 }

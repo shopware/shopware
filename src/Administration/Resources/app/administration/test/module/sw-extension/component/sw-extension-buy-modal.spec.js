@@ -155,7 +155,7 @@ describe('src/module/sw-extension/component/sw-extension-buy-modal', () => {
                 discountCampaign: null,
                 extensions: []
             }],
-            privacyPolicyExtensions: 'Don\'t talk about the fight club!'
+            privacyPolicyExtension: 'Don\'t talk about the fight club!'
         });
 
         await wrapper.get('label[for="privacy-extensions-checkbox--test-app"] + button').trigger('click');

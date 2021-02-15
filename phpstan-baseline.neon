@@ -2816,16 +2816,6 @@ parameters:
 			path: src/Core/Framework/App/ActionButton/AppActionLoader.php
 
 		-
-			message: "#^Cannot call method getStatusCode\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Executor.php
-
-		-
-			message: "#^Cannot call method getBody\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/ActionButton/Executor.php
-
-		-
 			message: "#^Cannot call method getPermissions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Permissions\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Command/AppPrinter.php
@@ -4661,11 +4651,6 @@ parameters:
 			path: src/Core/Framework/Store/Command/StoreLoginCommand.php
 
 		-
-			message: "#^Cannot call method getBody\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Exception/StoreApiException.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/Store/Services/FirstRunWizardClient.php
@@ -5874,11 +5859,6 @@ parameters:
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocumentMetadata\\:\\:requireMetadata\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocumentMetadata.php
-
-		-
-			message: "#^Cannot call method getStatusCode\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#"
-			count: 1
-			path: src/Docs/Convert/EntityHandler.php
 
 		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\WikiApiService\\:\\:getOrCreateMissingCategoryTree\\(\\) should return int but returns int\\|null\\.$#"

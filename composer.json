@@ -56,7 +56,7 @@
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "4.13.0",
         "google/cloud-storage": "1.17.0",
-        "guzzlehttp/guzzle": "6.5.2",
+        "guzzlehttp/guzzle": "~7.2",
         "jdorn/sql-formatter": "1.2.17",
         "lcobucci/jwt": "3.3.1",
         "league/flysystem": "1.0.63",

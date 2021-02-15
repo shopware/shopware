@@ -14,7 +14,9 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
-    /** @var int Used to indicate the router that we only need the path info without the sales channel prefix */
+    /**
+     * @var int Used to indicate the router that we only need the path info without the sales channel prefix
+     */
     public const PATH_INFO = 10;
 
     /**

@@ -9,7 +9,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  */
 class Entity extends ConfigurationAnnotation
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $value;
 
     public function getAliasName()

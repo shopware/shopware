@@ -4,13 +4,19 @@ namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 class ProductExportPartialGeneration
 {
-    /** @var int */
+    /**
+     * @var int
+     */
     private $offset;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $productExportId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $salesChannelId;
 
     public function __construct(string $productExportId, string $salesChannelId, int $offset = 0)

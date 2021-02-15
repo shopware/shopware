@@ -31,13 +31,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductExportController extends AbstractController
 {
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $salesChannelDomainRepository;
 
-    /** @var ProductExportGeneratorInterface */
+    /**
+     * @var ProductExportGeneratorInterface
+     */
     private $productExportGenerator;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
     public function __construct(

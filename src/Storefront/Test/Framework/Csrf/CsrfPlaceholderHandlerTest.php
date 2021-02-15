@@ -16,7 +16,9 @@ class CsrfPlaceholderHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /** @var LoaderInterface */
+    /**
+     * @var LoaderInterface
+     */
     private $originalLoader;
 
     /**

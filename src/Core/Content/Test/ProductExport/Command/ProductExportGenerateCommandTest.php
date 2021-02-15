@@ -26,7 +26,9 @@ class ProductExportGenerateCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use CommandTestBehaviour;
 
-    /** @var ProductExportGenerateCommand */
+    /**
+     * @var ProductExportGenerateCommand
+     */
     private $productExportGenerateCommand;
 
     /**
@@ -44,7 +46,9 @@ class ProductExportGenerateCommandTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
     protected function setUp(): void

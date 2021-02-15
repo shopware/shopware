@@ -18,67 +18,109 @@ class ProductExportEntity extends Entity
     public const FILE_FORMAT_CSV = 'csv';
     public const FILE_FORMAT_XML = 'xml';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $productStreamId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $storefrontSalesChannelId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $salesChannelId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $salesChannelDomainId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $currencyId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $fileName;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $accessKey;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $encoding;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $fileFormat;
 
-    /** @var ProductStreamEntity */
+    /**
+     * @var ProductStreamEntity
+     */
     protected $productStream;
 
-    /** @var SalesChannelEntity */
+    /**
+     * @var SalesChannelEntity
+     */
     protected $storefrontSalesChannel;
 
-    /** @var SalesChannelEntity */
+    /**
+     * @var SalesChannelEntity
+     */
     protected $salesChannel;
 
-    /** @var SalesChannelDomainEntity */
+    /**
+     * @var SalesChannelDomainEntity
+     */
     protected $salesChannelDomain;
 
-    /** @var CurrencyEntity */
+    /**
+     * @var CurrencyEntity
+     */
     protected $currency;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $includeVariants;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $generateByCronjob;
 
-    /** @var \DateTimeInterface|null */
+    /**
+     * @var \DateTimeInterface|null
+     */
     protected $generatedAt;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $interval;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $headerTemplate;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $bodyTemplate;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $footerTemplate;
 
     /**

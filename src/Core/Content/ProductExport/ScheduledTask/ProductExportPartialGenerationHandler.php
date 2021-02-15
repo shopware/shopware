@@ -24,37 +24,59 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
-    /** @var SalesChannelContextFactory */
+    /**
+     * @var SalesChannelContextFactory
+     */
     private $salesChannelContextFactory;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $productExportRepository;
 
-    /** @var ProductExportGeneratorInterface */
+    /**
+     * @var ProductExportGeneratorInterface
+     */
     private $productExportGenerator;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $readBufferSize;
 
-    /** @var MessageBusInterface */
+    /**
+     * @var MessageBusInterface
+     */
     private $messageBus;
 
-    /** @var ProductExportFileHandlerInterface */
+    /**
+     * @var ProductExportFileHandlerInterface
+     */
     private $productExportFileHandler;
 
-    /** @var ProductExportRendererInterface */
+    /**
+     * @var ProductExportRendererInterface
+     */
     private $productExportRender;
 
-    /** @var Translator */
+    /**
+     * @var Translator
+     */
     private $translator;
 
-    /** @var SalesChannelContextServiceInterface */
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
     private $salesChannelContextService;
 
-    /** @var SalesChannelContextPersister */
+    /**
+     * @var SalesChannelContextPersister
+     */
     private $contextPersister;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
     public function __construct(

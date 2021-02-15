@@ -17,10 +17,14 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class ShippingMethodValidatorTest extends TestCase
 {
-    /** @var WriteContext */
+    /**
+     * @var WriteContext
+     */
     private $context;
 
-    /** @var ShippingMethodDefinition */
+    /**
+     * @var ShippingMethodDefinition
+     */
     private $shippingMethodDefinition;
 
     public function setUp(): void

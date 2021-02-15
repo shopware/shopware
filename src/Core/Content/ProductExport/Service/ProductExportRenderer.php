@@ -19,13 +19,19 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportRenderer implements ProductExportRendererInterface
 {
-    /** @var StringTemplateRenderer */
+    /**
+     * @var StringTemplateRenderer
+     */
     private $templateRenderer;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
-    /** @var SeoUrlPlaceholderHandlerInterface */
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
     private $seoUrlPlaceholderHandler;
 
     public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher, SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)

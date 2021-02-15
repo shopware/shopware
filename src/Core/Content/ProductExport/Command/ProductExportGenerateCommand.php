@@ -18,10 +18,14 @@ class ProductExportGenerateCommand extends Command
 {
     public static $defaultName = 'product-export:generate';
 
-    /** @var SalesChannelContextFactory */
+    /**
+     * @var SalesChannelContextFactory
+     */
     private $salesChannelContextFactory;
 
-    /** @var ProductExporterInterface */
+    /**
+     * @var ProductExporterInterface
+     */
     private $productExportService;
 
     public function __construct(

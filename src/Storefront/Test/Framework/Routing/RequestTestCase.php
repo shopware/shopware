@@ -6,31 +6,49 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RequestTestCase
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     public $scriptFilename;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $scriptName;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     public $https;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $host;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $uri;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $route;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $salesChannelPrefix;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $method;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $pathInfo;
 
     public function __construct(string $method, string $route, string $scriptFilename, string $scriptName, string $host, string $uri, string $pathInfo, string $salesChannelPrefix = '', bool $https = false)

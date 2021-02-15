@@ -9,7 +9,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  */
 class Acl extends ConfigurationAnnotation
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $value;
 
     public function getAliasName()

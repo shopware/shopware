@@ -8,7 +8,9 @@ class ProductExportRenderHeaderContextEvent extends Event
 {
     public const NAME = 'product_export.render.header_context';
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $context;
 
     public function __construct(array $context)

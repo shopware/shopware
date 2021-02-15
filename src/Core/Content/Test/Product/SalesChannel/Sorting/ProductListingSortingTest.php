@@ -15,7 +15,9 @@ class ProductListingSortingTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productSortingRepository;
 
     public function setUp(): void

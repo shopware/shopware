@@ -30,19 +30,29 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExportController
 {
-    /** @var ProductExporterInterface */
+    /**
+     * @var ProductExporterInterface
+     */
     private $productExportService;
 
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productExportRepository;
 
-    /** @var ProductExportFileHandlerInterface */
+    /**
+     * @var ProductExportFileHandlerInterface
+     */
     private $productExportFileHandler;
 
     /**

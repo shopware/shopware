@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -61,8 +60,6 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigWithPluginAndScriptAndStylePaths(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
-
         $appPath = __DIR__ . '/_fixture/apps/plugin/';
         $this->loadAppsFromDir($appPath);
 

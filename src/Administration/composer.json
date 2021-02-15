@@ -1,6 +1,6 @@
 {
     "name": "shopware/administration",
-    "version": "6.3.5.1",
+    "version": "6.3.5.2",
     "description": "Administration frontend for the Shopware Core",
     "type": "library",
     "license": "MIT",

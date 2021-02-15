@@ -1,6 +1,6 @@
 {
     "name": "shopware/elasticsearch",
-    "version": "6.3.5.1",
+    "version": "6.3.5.2",
     "description": "Elasticsearch for Shopware",
     "type": "library",
     "license": "MIT",

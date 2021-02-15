@@ -1,7 +1,6 @@
 ---
 title: Fix missing error messages from sync-api
 issue: NEXT-13477
-flag: FEATURE_NEXT_10539
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

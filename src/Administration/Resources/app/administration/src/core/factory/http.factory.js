@@ -86,7 +86,6 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
     // Handle sync-api errors
     if (status === 400 &&
-        Shopware.Feature.isActive('FEATURE_NEXT_10539') &&
         Shopware.Utils.get(error, 'response.config.url', '').includes('_action/sync')) {
         if (!data) {
             return;
@@ -138,21 +137,14 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
             const entityName = parameters.entity;
             let blockingEntities = '';
-            if (Shopware.Feature.isActive('FEATURE_NEXT_10539')) {
-                blockingEntities = parameters.usages.reduce((message, usageObject) => {
-                    const times = usageObject.count;
-                    const timesSnippet = $tc('global.default.xTimesIn', times);
-                    const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
-                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                }, '');
-            } else {
-                blockingEntities = parameters.usages.reduce((message, entity) => {
-                    const times = entity.match(/ \(([0-9]*)?\)/, '');
-                    const timesSnippet = $tc('global.default.xTimesIn', times[1]);
-                    const blockingEntitiesSnippet = $tc(`global.entities.${entity.replace(/ \([0-9]*?\)/, '')}`, times[1]);
-                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                }, '');
-            }
+
+            blockingEntities = parameters.usages.reduce((message, usageObject) => {
+                const times = usageObject.count;
+                const timesSnippet = $tc('global.default.xTimesIn', times);
+                const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
+                return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
+            }, '');
+
             Shopware.State.dispatch('notification/createNotification', {
                 variant: 'error',
                 title: $tc('global.default.error'),

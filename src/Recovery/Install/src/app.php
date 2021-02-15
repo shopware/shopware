@@ -573,7 +573,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
     $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
-    // @feature-deprecated (flag:FEATURE_NEXT_10539) Remove if branch on feature release (keep the collectAllVersion call)
+    // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if branch on feature release (keep the collectAllVersion call)
     if (!Feature::isActive('FEATURE_NEXT_12349')) {
         $coreMigrations = $migrationCollectionLoader->collect('core');
     } else {

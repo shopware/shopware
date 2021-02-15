@@ -16,8 +16,8 @@ stages:
     - Security
     - Deploy
 
-#include:
-#    -   local: .gitlab/ci/split.yml
+include:
+    -   local: .gitlab/ci/split.yml
 
 default:
     image: shopware/development:7.4-composer-2

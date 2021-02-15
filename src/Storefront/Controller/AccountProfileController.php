@@ -124,11 +124,11 @@ class AccountProfileController extends StorefrontController
         try {
             $this->changeCustomerProfileRoute->change($data, $context, $customer);
 
-            $this->addFlash('success', $this->trans('account.profileUpdateSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.profileUpdateSuccess'));
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations]);
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
@@ -146,13 +146,13 @@ class AccountProfileController extends StorefrontController
         try {
             $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context, $customer);
 
-            $this->addFlash('success', $this->trans('account.emailChangeSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.emailChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            $this->addFlash('danger', $this->trans('account.emailChangeNoSuccess'));
+            $this->addFlash(self::DANGER, $this->trans('account.emailChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'emailFormViolation' => true]);
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
@@ -171,9 +171,9 @@ class AccountProfileController extends StorefrontController
             /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changePasswordRoute->change($data->get('password')->toRequestDataBag(), $context, $customer);
 
-            $this->addFlash('success', $this->trans('account.passwordChangeSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+            $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
         }
@@ -192,9 +192,9 @@ class AccountProfileController extends StorefrontController
     {
         try {
             $this->deleteCustomerRoute->delete($context, $customer);
-            $this->addFlash('success', $this->trans('account.profileDeleteSuccessAlert'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.profileDeleteSuccessAlert'));
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         if ($request->get('redirectTo') || $request->get('forwardTo')) {

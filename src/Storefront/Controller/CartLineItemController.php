@@ -77,10 +77,10 @@ class CartLineItemController extends StorefrontController
             $cart = $this->cartService->remove($cart, $id, $salesChannelContext);
 
             if (!$this->traceErrors($cart)) {
-                $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
             }
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -115,7 +115,7 @@ class CartLineItemController extends StorefrontController
             // a success flash message
             $addedEvents = $cart->getErrors()->filterInstance(PromotionCartAddedInformationError::class);
             if ($addedEvents->count() > 0) {
-                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.codeAddedSuccessful'));
 
                 return $this->createActionResponse($request);
             }
@@ -125,7 +125,7 @@ class CartLineItemController extends StorefrontController
             // of the cart errors and notices
             $this->traceErrors($cart);
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -151,10 +151,10 @@ class CartLineItemController extends StorefrontController
             $cart = $this->cartService->changeQuantity($cart, $id, (int) $quantity, $salesChannelContext);
 
             if (!$this->traceErrors($cart)) {
-                $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
             }
         } catch (\Exception $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -183,7 +183,7 @@ class CartLineItemController extends StorefrontController
         $data = $idSearchResult->getIds();
 
         if (empty($data)) {
-            $this->addFlash('danger', $this->trans('error.productNotFound', ['%number%' => $number]));
+            $this->addFlash(self::DANGER, $this->trans('error.productNotFound', ['%number%' => $number]));
 
             return $this->createActionResponse($request);
         }
@@ -198,7 +198,7 @@ class CartLineItemController extends StorefrontController
         $cart = $this->cartService->add($cart, $product, $salesChannelContext);
 
         if (!$this->traceErrors($cart)) {
-            $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
+            $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
         }
 
         return $this->createActionResponse($request);
@@ -259,10 +259,10 @@ class CartLineItemController extends StorefrontController
             $cart = $this->cartService->add($cart, $items, $salesChannelContext);
 
             if (!$this->traceErrors($cart)) {
-                $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
             }
         } catch (ProductNotFoundException $exception) {
-            $this->addFlash('danger', $this->trans('error.addToCartError'));
+            $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
         }
 
         return $this->createActionResponse($request);

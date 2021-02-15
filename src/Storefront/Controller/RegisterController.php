@@ -219,7 +219,7 @@ class RegisterController extends StorefrontController
         try {
             $customerId = $this->accountRegistrationService->finishDoubleOptInRegistration($queryDataBag, $context);
         } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException $exception) {
-            $this->addFlash('danger', $this->trans('account.confirmationIsAlreadyDone'));
+            $this->addFlash(self::DANGER, $this->trans('account.confirmationIsAlreadyDone'));
 
             return $this->redirectToRoute('frontend.account.register.page');
         }
@@ -228,12 +228,12 @@ class RegisterController extends StorefrontController
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
 
         if ($customer->getGuest()) {
-            $this->addFlash('success', $this->trans('account.doubleOptInMailConfirmationSuccessfully'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInMailConfirmationSuccessfully'));
 
             return $this->redirectToRoute('frontend.checkout.confirm.page');
         }
 
-        $this->addFlash('success', $this->trans('account.doubleOptInRegistrationSuccessfully'));
+        $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInRegistrationSuccessfully'));
 
         if ($redirectTo = $queryDataBag->get('redirectTo')) {
             return $this->redirectToRoute($redirectTo);
@@ -256,12 +256,12 @@ class RegisterController extends StorefrontController
         }
 
         if ($data->has('guest')) {
-            $this->addFlash('success', $this->trans('account.optInGuestAlert'));
+            $this->addFlash(self::SUCCESS, $this->trans('account.optInGuestAlert'));
 
             return true;
         }
 
-        $this->addFlash('success', $this->trans('account.optInRegistrationAlert'));
+        $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
 
         return true;
     }

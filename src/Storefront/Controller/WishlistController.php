@@ -149,9 +149,9 @@ class WishlistController extends StorefrontController
         try {
             $this->removeWishlistProductRoute->delete($id, $context, $customer);
 
-            $this->addFlash('success', $this->trans('wishlist.itemDeleteSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('wishlist.itemDeleteSuccess'));
         } catch (\Throwable $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);
@@ -195,11 +195,11 @@ class WishlistController extends StorefrontController
         try {
             $this->addWishlistRoute->add($productId, $context, $customer);
 
-            $this->addFlash('success', $this->trans('wishlist.itemAddedSuccess'));
+            $this->addFlash(self::SUCCESS, $this->trans('wishlist.itemAddedSuccess'));
         } catch (DuplicateWishlistProductException $exception) {
-            $this->addFlash('warning', $exception->getMessage());
+            $this->addFlash(self::WARNING, $exception->getMessage());
         } catch (\Throwable $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.home.page');
@@ -219,7 +219,7 @@ class WishlistController extends StorefrontController
                 'type' => 'info', 'content' => $this->trans('wishlist.wishlistMergeHint'),
             ]);
         } catch (\Throwable $exception) {
-            $this->addFlash('danger', $this->trans('error.message-default'));
+            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
         return $this->createActionResponse($request);

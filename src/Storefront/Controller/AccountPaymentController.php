@@ -72,12 +72,12 @@ class AccountPaymentController extends StorefrontController
                 $customer
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
-            $this->addFlash('danger', $this->trans('error.' . $exception->getErrorCode()));
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
 
             return $this->forwardToRoute('frontend.account.payment.page', ['success' => false]);
         }
 
-        $this->addFlash('success', $this->trans('account.paymentSuccess'));
+        $this->addFlash(self::SUCCESS, $this->trans('account.paymentSuccess'));
 
         return new RedirectResponse($this->generateUrl('frontend.account.payment.page'));
     }

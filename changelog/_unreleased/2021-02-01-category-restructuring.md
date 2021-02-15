@@ -8,6 +8,7 @@ author: Krispin Lütjann & Max Stegmeyer
 * Added Navigation settings to `SalesChannelDefinition` and `SalesChannelTranslationDefinition`
 * Added `navigationCategorySalesChannels` to `CmsPageDefinition`
 * Added `EntryPointValidation` for making sure that main categories of Sales Channels cannot be links.
+* Added internal link settings to `CategoryDefinition` and `CategoryTranslationDefinition`
 ___
 # Administration
 * Added `sw-category-detail-products` component in following files:

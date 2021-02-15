@@ -53,6 +53,14 @@ class CategoryDefinition extends EntityDefinition
 
     public const TYPE_FOLDER = 'folder';
 
+    public const LINK_TYPE_EXTERNAL = 'external';
+
+    public const LINK_TYPE_CATEGORY = 'category';
+
+    public const LINK_TYPE_PRODUCT = 'product';
+
+    public const LINK_TYPE_LANDING_PAGE = 'landing_page';
+
     public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
 
     public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
@@ -147,6 +155,12 @@ class CategoryDefinition extends EntityDefinition
         Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
             $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
         });
+
+        if (Feature::isActive('FEATURE_NEXT_13504')) {
+            $collection->add((new TranslatedField('linkType'))->addFlags(new ApiAware()));
+            $collection->add((new TranslatedField('linkNewTab'))->addFlags(new ApiAware()));
+            $collection->add((new TranslatedField('internalLink'))->addFlags(new ApiAware()));
+        }
 
         return $collection;
     }

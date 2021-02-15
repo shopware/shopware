@@ -67,7 +67,6 @@ class WishlistPageTest extends TestCase
         $this->catchEvent(WishlistPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context, $context->getCustomer());
-        dump($page);
 
         static::assertInstanceOf(WishlistPage::class, $page);
         static::assertSame(1, $page->getWishlist()->getProductListing()->getTotal());

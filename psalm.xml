@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    cacheDirectory="var/cache/psalm"
+    cacheDirectory="../var/cache/psalm"
     ensureArrayStringOffsetsExist="true"
     findUnusedVariablesAndParams="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -8,17 +8,22 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="platform/src"/>
+        <directory name="src"/>
         <ignoreFiles>
-            <directory name="vendor"/>
-            <directory name="platform/src/Recovery"/>
-            <directory name="platform/src/Docs/Resources"/>
+            <directory name="../vendor"/>
+            <directory name="src/Recovery"/>
+            <directory name="src/Docs/Resources"/>
             <!-- Ignore UNTIL FEATURE_NEXT_12246 is removed -->
-            <file name="platform/src/Core/Content/MailTemplate/Service/MailSender.php"/>
+            <file name="src/Core/Content/MailTemplate/Service/MailSender.php"/>
             <!-- Ignore UNTIL FEATURE_NEXT_12246 is removed -->
-            <file name="platform/src/Core/Content/MailTemplate/Service/MailSenderInterface.php"/>
+            <file name="src/Core/Content/MailTemplate/Service/MailSenderInterface.php"/>
         </ignoreFiles>
     </projectFiles>
+
+<!--    <plugins>-->
+<!--        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>-->
+<!--        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>-->
+<!--    </plugins>-->
 
     <issueHandlers>
         <!-- Shopware related issues which are ignored -->
@@ -27,45 +32,71 @@
                 <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
             </errorLevel>
         </UnusedMethodCall>
+
         <UnusedFunctionCall>
             <errorLevel type="info">
                 <referencedFunction name="iterator_to_array"/>
             </errorLevel>
         </UnusedFunctionCall>
+
         <InvalidCast>
             <errorLevel type="info">
-                <file name="platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
+                <file name="src/Core/Profiling/Twig/DoctrineExtension.php"/>
+                <file name="src/Core/Framework/Test/Seo/StorefrontSalesChannelTestHelper.php"/>
+                <file name="src/Core/Framework/Test/TestCaseBase/AdminApiTestBehaviour.php"/>
             </errorLevel>
         </InvalidCast>
+
         <UndefinedConstant>
             <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
-                <file name="platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
-                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
-                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
-                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
+                <file name="src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
+                <file name="src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
+                <file name="src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
+                <file name="src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
+                <file name="src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>
+
+        <UndefinedClass>
+            <errorLevel type="info">
+                <referencedClass name="SwagTest\SwagTest"/>
+            </errorLevel>
+        </UndefinedClass>
+
         <UnusedParam>
             <errorLevel type="info">
-                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+                <file name="src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
             </errorLevel>
         </UnusedParam>
+
         <InvalidCatch>
             <errorLevel type="info">
-                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+                <file name="src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
             </errorLevel>
         </InvalidCatch>
+
         <InaccessibleMethod>
             <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
+                <file name="src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
             </errorLevel>
         </InaccessibleMethod>
+
         <UnusedVariable>
             <errorLevel type="info">
-                <file name="platform/src/Storefront/Test/Theme/ThemeTest.php"/>
+                <file name="src/Storefront/Test/Theme/ThemeTest.php"/>
             </errorLevel>
         </UnusedVariable>
+
+        <NonInvariantDocblockPropertyType>
+            <errorLevel type="info">
+                <!-- The property $object typehint in the Responses is more specific than in the parent class-->
+                <file name="src/Core/**/**/**/**/*Response.php"/>
+                <file name="src/Core/**/**/**/*Response.php"/>
+                <file name="src/Core/**/**/*Response.php"/>
+                <!-- The property $storageName could be null here, but is only string in the parent class -->
+                <file name="src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php"/>
+            </errorLevel>
+        </NonInvariantDocblockPropertyType>
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
 
@@ -82,16 +113,9 @@
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
             <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Api/Controller/CacheController.php"/>
+                <file name="src/Core/Framework/Api/Controller/CacheController.php"/>
             </errorLevel>
         </InaccessibleProperty>
-
-        <UnnecessaryVarAnnotation>
-            <errorLevel type="info">
-                <!-- Needed for a smooth transition of the PHPStan update. Could be removed once PHPStan is updated to 0.12.49 -->
-                <file name="platform/src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php"/>
-            </errorLevel>
-        </UnnecessaryVarAnnotation>
 
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
@@ -132,7 +156,8 @@
 
         <MoreSpecificReturnType errorLevel="info"/>
         <LessSpecificReturnStatement errorLevel="info"/>
-        <TypeCoercion errorLevel="info"/>
+        <PropertyTypeCoercion errorLevel="info"/>
+        <ArgumentTypeCoercion errorLevel="info"/>
 
         <PossiblyFalseReference errorLevel="info"/>
         <PossiblyInvalidArrayAccess errorLevel="info"/>

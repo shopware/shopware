@@ -39,35 +39,27 @@ Module.register('sw-settings-rule', {
                     };
                 }
             },
-            ...(() => {
-                if (!Shopware.Feature.isActive('FEATURE_NEXT_12289')) {
-                    return {};
-                }
-
-                return {
-                    redirect: {
-                        name: 'sw.settings.rule.detail.base'
-                    },
-                    children: {
-                        base: {
-                            component: 'sw-settings-rule-detail-base',
-                            path: 'base',
-                            meta: {
-                                parentPath: 'sw.settings.rule.index',
-                                privilege: 'rule.viewer'
-                            }
-                        },
-                        assignments: {
-                            component: 'sw-settings-rule-detail-assignments',
-                            path: 'assignments',
-                            meta: {
-                                parentPath: 'sw.settings.rule.index',
-                                privilege: 'rule.viewer'
-                            }
-                        }
+            redirect: {
+                name: 'sw.settings.rule.detail.base'
+            },
+            children: {
+                base: {
+                    component: 'sw-settings-rule-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.settings.rule.index',
+                        privilege: 'rule.viewer'
                     }
-                };
-            })()
+                },
+                assignments: {
+                    component: 'sw-settings-rule-detail-assignments',
+                    path: 'assignments',
+                    meta: {
+                        parentPath: 'sw.settings.rule.index',
+                        privilege: 'rule.viewer'
+                    }
+                }
+            }
         },
         create: {
             component: 'sw-settings-rule-detail',
@@ -76,27 +68,19 @@ Module.register('sw-settings-rule', {
                 parentPath: 'sw.settings.rule.index',
                 privilege: 'rule.creator'
             },
-            ...(() => {
-                if (!Shopware.Feature.isActive('FEATURE_NEXT_12289')) {
-                    return {};
-                }
-
-                return {
-                    redirect: {
-                        name: 'sw.settings.rule.create.base'
-                    },
-                    children: {
-                        base: {
-                            component: 'sw-settings-rule-detail-base',
-                            path: 'base',
-                            meta: {
-                                parentPath: 'sw.settings.rule.index',
-                                privilege: 'rule.viewer'
-                            }
-                        }
+            redirect: {
+                name: 'sw.settings.rule.create.base'
+            },
+            children: {
+                base: {
+                    component: 'sw-settings-rule-detail-base',
+                    path: 'base',
+                    meta: {
+                        parentPath: 'sw.settings.rule.index',
+                        privilege: 'rule.viewer'
                     }
-                };
-            })()
+                }
+            }
         }
     },
 

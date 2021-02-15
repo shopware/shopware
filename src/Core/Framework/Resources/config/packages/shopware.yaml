@@ -123,11 +123,6 @@ shopware:
               major: true
               description: "App System Store"
             # issue: NEXT-13469
-            - name: FEATURE_NEXT_12289
-              default: false
-              major: true
-              description: "Rule detail page assignments tab"
-              # issue: NEXT-12461
             - name: FEATURE_NEXT_12032
               default: false
               major: true

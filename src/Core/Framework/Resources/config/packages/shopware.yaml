@@ -122,12 +122,7 @@ shopware:
               default: false
               major: true
               description: "App System Store"
-              # issue: NEXT-13469
-            - name: FEATURE_NEXT_7365
-              default: false
-              major: true
-              description: "single SCSS entry file for plugins"
-              # issue: NEXT-12932
+            # issue: NEXT-13469
             - name: FEATURE_NEXT_12289
               default: false
               major: true

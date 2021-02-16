@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
@@ -54,11 +53,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setBasePath($path);
 
         $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        if (Feature::isActive('FEATURE_NEXT_7365')) {
-            $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
-        } else {
-            $config->setStyleFiles(FileCollection::createFromArray($this->getFilesInDir($stylesPath)));
-        }
+        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
 
         $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
         $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));

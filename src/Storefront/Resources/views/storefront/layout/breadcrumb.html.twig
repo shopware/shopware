@@ -2,6 +2,7 @@
     {% if category %}
         {% set breadcrumb = sw_breadcrumb(category) %}
         {% set breadcrumbKeys = breadcrumb|keys %}
+        {% set breadcrumbTypes = sw_breadcrumb_types(breadcrumbKeys, context.context) %}
         {% set categoryId = category.id %}
 
         <nav aria-label="breadcrumb">
@@ -11,21 +12,24 @@
                     itemtype="https://schema.org/BreadcrumbList">
                     {% for key, item in breadcrumb %}
                         {% block layout_breadcrumb_list_item %}
-
                             <li class="breadcrumb-item"
                                 {% if key is same as(categoryId) %}aria-current="page"{% endif %}
                                 itemprop="itemListElement"
                                 itemscope
                                 itemtype="https://schema.org/ListItem">
-                                <a href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"
-                                   class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
-                                   title="{{ item }}"
-                                   itemprop="item">
-                                    <link itemprop="url"
-                                          href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"/>
-                                    <span class="breadcrumb-title" itemprop="name">{{ item }}</span>
-                                </a>
-                                <meta itemprop="position" content="{{ key }}"/>
+                                {% if breadcrumbTypes[key] == 'folder' %}
+                                    <div>{{ item }}</div>
+                                {% else %}
+                                    <a href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"
+                                       class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
+                                       title="{{ item }}"
+                                       itemprop="item">
+                                        <link itemprop="url"
+                                              href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"/>
+                                        <span class="breadcrumb-title" itemprop="name">{{ item }}</span>
+                                    </a>
+                                    <meta itemprop="position" content="{{ key }}"/>
+                                {% endif %}
                             </li>
                         {% endblock %}
 

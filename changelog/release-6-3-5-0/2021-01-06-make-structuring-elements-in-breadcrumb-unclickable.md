@@ -1,6 +1,6 @@
 ---
 title: Make structuring elements in breadcrumb unclickable
-issue: NEXT-12987
+issue: NEXT-12897
 author_github: @Dominik28111
 ---
 # Core

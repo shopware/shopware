@@ -78,7 +78,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
      * )
      *
      * @Entity("landing_page")
-     * @Route("/store-api/landing_page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
+     * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
     public function load(string $landingPageId, Request $request, SalesChannelContext $context, Criteria $criteria): LandingPageRouteResponse
     {

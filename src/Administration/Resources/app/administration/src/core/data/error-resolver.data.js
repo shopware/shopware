@@ -155,6 +155,13 @@ export default class ErrorResolver {
     }
 
     buildAssociationChangeset(entity, changeset, error, associationName) {
+        if (!Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
+            Shopware.State.dispatch('error/addApiError', {
+                expression: this.getErrorPath(entity, associationName),
+                error: new this.ShopwareError(error)
+            });
+        }
+
         return changeset[associationName].map((associationChange) => {
             const association = entity[associationName].find((a) => {
                 return a.id === associationChange.id;

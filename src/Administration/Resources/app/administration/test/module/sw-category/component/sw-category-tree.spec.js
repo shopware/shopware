@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-tree';
 import VueRouter from 'vue-router';
+import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -31,7 +32,8 @@ function createWrapper() {
             'sw-tree-item': true
         },
         mocks: {
-            $tc: v => v
+            $tc: v => v,
+            $store: Shopware.State._store
         },
         provide: {
             syncService: {},
@@ -53,7 +55,7 @@ function createWrapper() {
 
 describe('src/module/sw-category/component/sw-category-tree', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('swCategoryDetail', {});
+        Shopware.State.registerModule('swCategoryDetail', swCategoryState);
     });
 
     it('should be a Vue.js component', async () => {

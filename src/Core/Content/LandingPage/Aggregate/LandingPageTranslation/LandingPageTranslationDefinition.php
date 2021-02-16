@@ -50,7 +50,7 @@ class LandingPageTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('url', 'url'))->addFlags(new ApiAware()),
+            (new StringField('url', 'url'))->addFlags(new ApiAware(), new Required()),
             (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware()),
             (new LongTextField('meta_title', 'metaTitle'))->addFlags(new ApiAware(), new AllowHtml()),
             (new LongTextField('meta_description', 'metaDescription'))->addFlags(new ApiAware(), new AllowHtml()),

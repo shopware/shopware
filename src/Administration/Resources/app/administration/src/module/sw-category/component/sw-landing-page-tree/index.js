@@ -1,7 +1,9 @@
 import template from './sw-landing-page-tree.html.twig';
+import './sw-landing-page-tree.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 // Todo: Will be tested in NEXT-13222
 Component.register('sw-landing-page-tree', {
@@ -57,6 +59,10 @@ Component.register('sw-landing-page-tree', {
     },
 
     computed: {
+        ...mapState('swCategoryDetail', [
+            'landingPagesToDelete'
+        ]),
+
         cmsLandingPageCriteria() {
             const criteria = new Criteria();
             criteria.limit = 500;
@@ -95,6 +101,18 @@ Component.register('sw-landing-page-tree', {
     },
 
     watch: {
+        landingPagesToDelete(value) {
+            if (value === undefined) {
+                return;
+            }
+
+            this.$refs.landingPageTree.onDeleteElements(value);
+
+            Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
+                landingPagesToDelete: undefined
+            });
+        },
+
         landingPage(newVal, oldVal) {
             // load data when path is available
             if (!oldVal && this.isLoadingInitialData) {
@@ -108,7 +126,7 @@ Component.register('sw-landing-page-tree', {
             }
 
             // reload after save
-            if (oldVal && newVal.id === oldVal.id) {
+            if (oldVal && this.landingPageId !== 'create' && newVal.id === oldVal.id) {
                 this.landingPageRepository.get(newVal.id, Shopware.Context.api).then((newLandingPage) => {
                     this.$set(this.loadedLandingPages, newLandingPage.id, newLandingPage);
                 });
@@ -142,6 +160,10 @@ Component.register('sw-landing-page-tree', {
             return this.landingPageRepository.search(this.cmsLandingPageCriteria, Shopware.Context.api).then((result) => {
                 this.addLandingPages(result);
             });
+        },
+
+        checkedElementsCount(count) {
+            this.$emit('landingPage-checked-elements-count', count);
         },
 
         deleteCheckedItems(checkedItems) {
@@ -255,6 +277,13 @@ Component.register('sw-landing-page-tree', {
                 name: this.linkContext,
                 params: { id: landingPage.id }
             }).href;
+        },
+
+        newLandingPageUrl() {
+            return {
+                name: 'sw.category.landingPageDetail',
+                params: { id: 'create' }
+            };
         }
     }
 });

@@ -2,15 +2,20 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
@@ -26,14 +31,72 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonApiEncoderTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->registerDefinition(ExtendedProductDefinition::class);
+        $this->registerDefinitionWithExtensions(
+            ProductDefinition::class,
+            ProductExtension::class
+        );
+
+        $this->productRepository = $this->getContainer()->get('product.repository');
+
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate('
+            DROP TABLE IF EXISTS `extended_product`;
+            CREATE TABLE `extended_product` (
+                `id` BINARY(16) NOT NULL,
+                `name` VARCHAR(255) NULL,
+                `product_id` BINARY(16) NULL,
+                `language_id` BINARY(16) NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
+
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->beginTransaction();
+
+        $this->removeExtension(ProductExtension::class);
+
+        parent::tearDown();
+    }
 
     public function emptyInputProvider(): array
     {
@@ -138,6 +201,100 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringContainsString('"attributes":{}', $actual);
 
         $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+    }
+
+    public function testEncodeEntityWithToOneEntityExtension(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'shopware AG',
+                    'link' => 'https://shopware.com',
+                ],
+                'toOne' => [
+                    'name' => 'test',
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('toOne');
+
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
+        $actual = \json_decode($encodedResponse, true);
+
+        foreach ($actual['included'] as $included) {
+            if ($included['type'] !== 'extension') {
+                continue;
+            }
+            static::assertNotEmpty($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertEquals('extended_product', $included['relationships']['toOne']['data']['type']);
+            static::assertNotEmpty($included['relationships']['toOne']['data']['id']);
+        }
+    }
+
+    public function testEncodeEntityWithToManyEntityExtension(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'shopware AG',
+                    'link' => 'https://shopware.com',
+                ],
+                'oneToMany' => [
+                    [
+                        'name' => 'toMany01',
+                    ],
+                    [
+                        'name' => 'toMany02',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('oneToMany');
+
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
+        $actual = \json_decode($encodedResponse, true);
+
+        foreach ($actual['included'] as $included) {
+            if ($included['type'] !== 'extension') {
+                continue;
+            }
+            static::assertNotEmpty($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertCount(2, $included['relationships']['oneToMany']['data']);
+            static::assertEquals('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
+            static::assertNotEmpty($included['relationships']['oneToMany']['data'][0]['id']);
+        }
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array

@@ -9,7 +9,7 @@
         {% endblock %}
 
         {% block sw_category_detail_cms_form %}
-            <sw-cms-page-form v-if="cmsPage" :page="cmsPage"></sw-cms-page-form>
+            <sw-cms-page-form v-if="cmsPage && acl.can('category.editor')" :page="cmsPage"></sw-cms-page-form>
         {% endblock %}
 
     </div>

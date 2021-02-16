@@ -23,7 +23,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $optionId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $mediaId;
 
@@ -102,12 +102,12 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->option = $option;
     }
 
-    public function getMediaId(): string
+    public function getMediaId(): ?string
     {
         return $this->mediaId;
     }
 
-    public function setMediaId(string $mediaId): void
+    public function setMediaId(?string $mediaId): void
     {
         $this->mediaId = $mediaId;
     }

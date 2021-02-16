@@ -1,10 +1,12 @@
 {% block block_image_highlight_row %}
     {% set columns = 3 %}
+    {% deprecated '@deprecated tag:v6.5.0 - Use "element.id" directly instead.' %}
     {% set id = element.id %}
+
     {% block block_image_highlight_row_left %}
         {% set element = block.slots.getSlot('left') %}
 
-        <div class="col-md-4" data-cms-element-id="{{ id }}">
+        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
             {% block block_image_highlight_row_left_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -14,7 +16,7 @@
     {% block block_image_highlight_row_center %}
         {% set element = block.slots.getSlot('center') %}
 
-        <div class="col-md-4" data-cms-element-id="{{ id }}">
+        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
             {% block block_image_highlight_row_center_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -24,7 +26,7 @@
     {% block block_image_highlight_row_right %}
         {% set element = block.slots.getSlot('right') %}
 
-        <div class="col-md-4" data-cms-element-id="{{ id }}">
+        <div class="col-md-4" data-cms-element-id="{{ element.id }}">
             {% block block_image_highlight_row_right_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}

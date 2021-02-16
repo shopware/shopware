@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductDetailCriteriaEvent;
-use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;

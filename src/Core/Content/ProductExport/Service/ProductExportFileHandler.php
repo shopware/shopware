@@ -8,10 +8,14 @@ use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $exportDirectory;
 
     public function __construct(

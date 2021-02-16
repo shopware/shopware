@@ -13,7 +13,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  */
 class RouteScope extends ConfigurationAnnotation
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $scopes;
 
     public function getAliasName()

@@ -12,13 +12,19 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductExportEventListener implements EventSubscriberInterface
 {
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productExportRepository;
 
-    /** @var ProductExportFileHandlerInterface */
+    /**
+     * @var ProductExportFileHandlerInterface
+     */
     private $productExportFileHandler;
 
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
     public function __construct(

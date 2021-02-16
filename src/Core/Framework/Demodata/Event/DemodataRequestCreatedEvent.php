@@ -8,10 +8,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class DemodataRequestCreatedEvent extends Event
 {
-    /** @var DemodataRequest */
+    /**
+     * @var DemodataRequest
+     */
     private $request;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     public function __construct(DemodataRequest $request, Context $context)

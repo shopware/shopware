@@ -8,7 +8,9 @@ use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 
 class ProductExportValidator implements ProductExportValidatorInterface
 {
-    /** @var ValidatorInterface[] */
+    /**
+     * @var ValidatorInterface[]
+     */
     private $validators;
 
     public function __construct(iterable $validators)

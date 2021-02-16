@@ -6,13 +6,19 @@ use Shopware\Core\Content\ProductExport\Error\Error;
 
 class ProductExportResult
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $content;
 
-    /** @var Error[] */
+    /**
+     * @var Error[]
+     */
     private $errors;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $total;
 
     public function __construct(string $content, array $errors, int $total)

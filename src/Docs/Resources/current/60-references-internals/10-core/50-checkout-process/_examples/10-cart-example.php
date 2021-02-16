@@ -6,7 +6,9 @@ namespace ExampleCreateNew {
 
     class NewCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -28,7 +30,9 @@ namespace ExampleCurrentCart {
 
     class GetCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -53,7 +57,9 @@ namespace ExampleAddToCart {
 
     class AddToCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -82,7 +88,9 @@ namespace ExampleChangeQuantity {
 
     class ChangeQuantityController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -104,7 +112,9 @@ namespace ExampleRemoveItem {
 
     class RemoveController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -126,7 +136,9 @@ namespace ExampleGetDeliveries {
 
     class GetDeliveriesController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -149,7 +161,9 @@ namespace ExampleOrder {
 
     class PlaceOrderController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**

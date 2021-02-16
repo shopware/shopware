@@ -6,13 +6,19 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ErrorMessage extends Struct
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $message;
 
-    /** @var int|null */
+    /**
+     * @var int|null
+     */
     protected $line;
 
-    /** @var int|null */
+    /**
+     * @var int|null
+     */
     protected $column;
 
     public function getMessage(): string

@@ -14,16 +14,24 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
 {
     public const NAME = 'product_export.log';
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $logLevel = Logger::DEBUG;
 
-    /** @var \Throwable */
+    /**
+     * @var \Throwable
+     */
     private $throwable;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $name = self::NAME;
 
     public function __construct(

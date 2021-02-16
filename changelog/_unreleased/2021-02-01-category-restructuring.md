@@ -23,6 +23,13 @@ ___
 * Changed location of seo & seo urls in `sw-category-detail-base` to separate `sw-category-detail-seo` component
 * Changed location of layout assignment in `sw-category-detail-base` to `sw-category-detail-cms` component
 * Added virtual category type `column` for first level categories in the footer navigation entry point
+* Added internal link settings to `sw-category-link-settings`
+* Added new computed properties to `sw-category-link-settings/index.js`
+    * `linkTypeValues`
+    * `entityValues`
+    * `mainType`
+    * `isInternal`
+    * `isExternal`
 ___
 # Storefront
 * Removed service menu from top bar

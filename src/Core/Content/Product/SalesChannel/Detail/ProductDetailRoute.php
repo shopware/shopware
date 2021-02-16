@@ -7,6 +7,8 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductDetailCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -28,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -68,13 +71,19 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $productDefinition;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
         SystemConfigService $config,
         ProductConfiguratorLoader $configuratorLoader,
         CategoryBreadcrumbBuilder $breadcrumbBuilder,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        SalesChannelProductDefinition $productDefinition
+        SalesChannelProductDefinition $productDefinition,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
         $this->config = $config;
@@ -82,6 +91,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $this->breadcrumbBuilder = $breadcrumbBuilder;
         $this->cmsPageLoader = $cmsPageLoader;
         $this->productDefinition = $productDefinition;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -113,6 +123,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $this->addFilters($context, $criteria);
 
         $criteria->setIds([$productId]);
+
+        $this->eventDispatcher->dispatch(
+            new ProductDetailCriteriaEvent($productId, $request, $criteria, $context)
+        );
 
         $product = $this->productRepository
             ->search($criteria, $context)

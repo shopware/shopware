@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingLoader
 {
@@ -35,14 +38,21 @@ class ProductListingLoader
      */
     private $connection;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $systemConfigService,
-        Connection $connection
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->repository = $repository;
         $this->systemConfigService = $systemConfigService;
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
@@ -132,15 +142,7 @@ class ProductListingLoader
             return;
         }
 
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('product.isCloseout', true),
-                    new EqualsFilter('product.available', false),
-                ]
-            )
-        );
+        $criteria->addFilter(new ProductCloseoutFilter());
     }
 
     private function resolvePreviews(array $ids, SalesChannelContext $context): array
@@ -182,6 +184,10 @@ class ProductListingLoader
         $criteria = new Criteria(array_values($mapping));
         $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannel()->getId()));
         $this->handleAvailableStock($criteria, $context);
+
+        $this->eventDispatcher->dispatch(
+            new ProductListingPreviewCriteriaEvent($criteria, $context)
+        );
 
         $available = $this->repository->searchIds($criteria, $context);
 

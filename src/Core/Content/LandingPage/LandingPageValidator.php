@@ -14,7 +14,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class LandingPageValidator implements EventSubscriberInterface
 {
-    /** @var ValidatorInterface */
+    /**
+     * @var ValidatorInterface
+     */
     private $validator;
 
     public function __construct(ValidatorInterface $validator)

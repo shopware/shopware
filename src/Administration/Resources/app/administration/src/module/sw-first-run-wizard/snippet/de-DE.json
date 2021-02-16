@@ -7,6 +7,7 @@
             "buttonNextPayPalInfo": "Konfigurieren",
             "buttonBack": "Zurück",
             "buttonInstall": "Installieren",
+            "buttonActivate": "Aktivieren",
             "buttonFinish": "Fertig",
             "buttonConfigureLater": "Später einstellen",
             "pluginInstalled": "Installiert"
@@ -103,6 +104,18 @@
             "labelCreateDomain": "Erstelle eine neue Shop-Domain",
             "testEnvironment": "Test-Umgebung"
         },
+        "store": {
+          "modalTitle": "Shopware Store",
+          "loadStatusCollect": "Store Informationen werden abgerufen...",
+          "takeMinutes": "Dies kann ein paar Minuten dauern.",
+          "alreadyActivated": "Store ist bereits erfolgreich aktiviert.",
+          "enablingStore": "Aktivieren des Shopware-Stores ... ",
+          "activationErrorTitle": "Fehler bei der Aktivierung",
+          "activationErrorDescription": "Bitte frage deinen Administrator um Hilfe.",
+          "headingOne": "Erkunde und kaufe Erweiterungen einfach -",
+          "headingTwo": "direkt aus deinem eigneen Shopware Shop.",
+          "description": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die du nahtlos in deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse."
+        },
         "finish": {
             "headlineAllDone": "Herzlichen Glückwunsch!",
             "message": "Dein Shopware 6 {edition} ist jetzt verifiziert.",
@@ -114,14 +127,16 @@
             "forumLabel": "Forum",
             "forumUrl": "https://forum.shopware.com/",
             "roadmapLabel": "Roadmap",
-            "roadmapUrl": "https://www.shopware.com/de/roadmap/"
+            "roadmapUrl": "https://www.shopware.com/de/roadmap/",
+            "modalTitle": "Fertig"
         },
         "stepItemTitle": {
             "dataImport": "Daten-Import",
             "mailer": "Mailer-Einstellungen",
             "setupPaypal": "PayPal einrichten",
             "plugins": "Plugins",
-            "shopware": "Shopware Account"
+            "shopware": "Shopware Account",
+            "store": "Shopware Store"
         }
     },
     "sw-privileges": {

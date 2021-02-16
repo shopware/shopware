@@ -8,9 +8,12 @@
     flex-direction: column;
     justify-content: center;
     text-align: center;
+    align-items: center;
+    align-self: center;
 
     .sw-first-run-wizard-mailer-selection__illustration {
         margin-bottom: 24px;
+        width: 175px;
     }
 
     .sw-first-run-wizard-mailer-selection__headline {

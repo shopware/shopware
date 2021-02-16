@@ -78,6 +78,20 @@
     }
   },
   "sw-extension-store": {
+    "landing-page": {
+      "enablingShopwareStore": "Enabling the Shopware Store ...",
+      "takeMinutes": "This may take a few minutes.",
+      "activationErrorTitle": "Error at activation",
+      "activationErrorDescription": "Retry again. If this don't work ask you administrator for help.",
+      "retryButton": "Retry",
+      "activationSuccessTitle": "Activated successfully",
+      "activationSuccessDescription": "Have fun exploring the Shopware Store.",
+      "label": "Now available",
+      "activationDescriptionTitleFirst": "Explore and buy extensions easily -",
+      "activationDescriptionTitleSecond": "right from within your own Shopware shop.",
+      "activationDescriptionTitleDescription": "Activate the all new Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills.",
+      "activate": "Activate"
+    },
     "title": "Store",
     "descriptionTextModule": "Manage your extensions",
     "general": {

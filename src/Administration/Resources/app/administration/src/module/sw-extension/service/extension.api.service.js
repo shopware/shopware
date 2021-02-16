@@ -94,14 +94,4 @@ export default class ExtensionApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
-
-    getLastUpdates() {
-        const headers = this.getBasicHeaders();
-
-        return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/lastUpdates`, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
-    }
 }

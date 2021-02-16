@@ -132,7 +132,7 @@ Component.register('sw-extension-card-base', {
         },
 
         isUpdateable() {
-            if (this.extension && this.extension.latestVersion) {
+            if (!this.extension || this.extension.latestVersion === null) {
                 return false;
             }
 

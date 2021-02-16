@@ -106,7 +106,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                 domain,
                 testEnvironment
             }).then(() => {
-                this.$emit('frw-redirect', 'sw.first.run.wizard.index.finish');
+                this.$emit('frw-redirect', 'sw.first.run.wizard.index.store');
                 return false;
             }).catch((error) => {
                 const msg = error.response.data.errors.pop();

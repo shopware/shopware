@@ -39,7 +39,7 @@ class ModuleLoaderTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testLoadActionButtonsForView(): void
+    public function testLoadModules(): void
     {
         $this->registerModules();
 
@@ -64,12 +64,16 @@ class ModuleLoaderTest extends TestCase
                             'de-DE' => 'Erste App',
                         ],
                         'name' => 'first-module',
+                        'parent' => 'sw-catalogue',
+                        'position' => 50,
                     ],
                     [
                         'label' => [
                             'en-GB' => 'first App second Module',
                         ],
                         'name' => 'second-module',
+                        'parent' => null,
+                        'position' => 1,
                     ],
                 ],
             ],
@@ -84,13 +88,15 @@ class ModuleLoaderTest extends TestCase
                             'en-GB' => 'second App',
                         ],
                         'name' => 'second-app',
+                        'parent' => 'sw-catalogue',
+                        'position' => 50,
                     ],
                 ],
             ],
         ], $loadedModules);
     }
 
-    public function testLoadActionButtonsForViewRetunrsNothingIfAppUrlChangeWasDetected(): void
+    public function testLoadModulesReturnsNothingIfAppUrlChangeWasDetected(): void
     {
         $this->registerModules();
 
@@ -123,6 +129,8 @@ class ModuleLoaderTest extends TestCase
                     ],
                     'source' => 'https://first.app.com',
                     'name' => 'first-module',
+                    'parent' => 'sw-catalogue',
+                    'position' => 50,
                 ],
                 [
                     'label' => [
@@ -130,6 +138,8 @@ class ModuleLoaderTest extends TestCase
                     ],
                     'source' => 'https://first.app.com/second',
                     'name' => 'second-module',
+                    'parent' => null,
+                    'position' => 1,
                 ],
             ],
             'integration' => [
@@ -154,8 +164,10 @@ class ModuleLoaderTest extends TestCase
                     'label' => [
                         'en-GB' => 'second App',
                     ],
-                    'source' => 'https://second.app.com',
+                    'source' => null,
                     'name' => 'second-app',
+                    'parent' => 'sw-catalogue',
+                    'position' => 50,
                 ],
             ],
             'integration' => [
@@ -204,7 +216,7 @@ class ModuleLoaderTest extends TestCase
         $this->validateSource($loadedModules[0]['modules'][1]['source'], 'https://first.app.com/second', 's3cr3t');
         unset($loadedModules[0]['modules'][1]['source']);
 
-        $this->validateSource($loadedModules[1]['modules'][0]['source'], 'https://second.app.com', 's3cr3t2');
+        static::assertNull($loadedModules[1]['modules'][0]['source']);
         unset($loadedModules[1]['modules'][0]['source']);
     }
 

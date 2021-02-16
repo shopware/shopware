@@ -50,9 +50,13 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <label>Do Stuff</label>
             <label lang="de-DE">Mache Dinge</label>
         </action-button>
-        <module name="first-module" source="https://test.com">
+        <module name="first-module" source="https://test.com" parent="sw-test-structure-module" position="10">
             <label>My first own module</label>
             <label lang="de-DE">Mein erstes eigenes Modul</label>
+        </module>
+        <module name="structure-module" parent="sw-catalogue" position="50">
+            <label>My menu entry for modules</label>
+            <label lang="de-DE">Mein Menüeintrag für Module</label>
         </module>
     </admin>
     <permissions>

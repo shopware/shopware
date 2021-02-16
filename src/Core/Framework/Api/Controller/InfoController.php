@@ -193,16 +193,16 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $bundleName = mb_strtolower($bundle->getName());
+            $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
 
-            $styles = array_map(static function (string $filename) use ($package, $bundleName) {
-                $url = 'bundles/' . $bundleName . '/' . $filename;
+            $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
+                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
 
                 return $package->getUrl($url);
             }, $this->getAdministrationStyles($bundle));
 
-            $scripts = array_map(static function (string $filename) use ($package, $bundleName) {
-                $url = 'bundles/' . $bundleName . '/' . $filename;
+            $scripts = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
+                $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
 
                 return $package->getUrl($url);
             }, $this->getAdministrationScripts($bundle));

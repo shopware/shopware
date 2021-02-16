@@ -6,8 +6,10 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,7 +67,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         }
 
         if ($category->getCmsPage()) {
-            $this->loadMetaData($category, $page);
+            $this->loadMetaData($category, $page, $context->getSalesChannel());
 
             $page->setCmsPage($category->getCmsPage());
         }
@@ -85,7 +87,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         return $page;
     }
 
-    private function loadMetaData(CategoryEntity $category, NavigationPage $page): void
+    private function loadMetaData(CategoryEntity $category, NavigationPage $page, SalesChannelEntity $salesChannel): void
     {
         $metaInformation = $page->getMetaInformation();
 
@@ -93,14 +95,23 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             return;
         }
 
-        $metaDescription = $category->getTranslation('metaDescription')
+        $isHome = $salesChannel->getNavigationCategoryId() === $category->getId() && Feature::isActive('FEATURE_NEXT_13504');
+
+        $metaDescription = $isHome && $salesChannel->getTranslation('homeMetaDescription')
+            ? $salesChannel->getTranslation('homeMetaDescription')
+            : $category->getTranslation('metaDescription')
             ?? $category->getTranslation('description');
         $metaInformation->setMetaDescription((string) $metaDescription);
 
-        $metaTitle = $category->getTranslation('metaTitle')
+        $metaTitle = $isHome && $salesChannel->getTranslation('homeMetaTitle')
+            ? $salesChannel->getTranslation('homeMetaTitle')
+            : $category->getTranslation('metaTitle')
             ?? $category->getTranslation('name');
         $metaInformation->setMetaTitle((string) $metaTitle);
 
-        $metaInformation->setMetaKeywords((string) $category->getTranslation('keywords'));
+        $keywords = $isHome && $salesChannel->getTranslation('homeKeywords')
+            ? $salesChannel->getTranslation('homeKeywords')
+            : $category->getTranslation('keywords');
+        $metaInformation->setMetaKeywords((string) $keywords);
     }
 }

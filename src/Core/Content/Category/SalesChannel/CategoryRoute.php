@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -97,6 +98,16 @@ class CategoryRoute extends AbstractCategoryRoute
         $category = $this->loadCategory($navigationId, $context);
 
         $pageId = $category->getCmsPageId();
+        $slotConfig = $category->getTranslation('slotConfig');
+
+        $salesChannel = $context->getSalesChannel();
+        if ($category->getId() === $salesChannel->getNavigationCategoryId()
+            && Feature::isActive('FEATURE_NEXT_13504')
+            && $salesChannel->getHomeCmsPageId()
+        ) {
+            $pageId = $salesChannel->getHomeCmsPageId();
+            $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
+        }
 
         if (!$pageId) {
             return new CategoryRouteResponse($category);
@@ -108,7 +119,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $request,
             $this->createCriteria($pageId, $request),
             $context,
-            $category->getTranslation('slotConfig'),
+            $slotConfig,
             $resolverContext
         );
 
@@ -117,6 +128,7 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         $category->setCmsPage($pages->get($pageId));
+        $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);
     }

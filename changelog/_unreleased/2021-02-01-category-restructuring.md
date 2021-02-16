@@ -4,6 +4,12 @@ issue: NEXT-10540
 flag: FEATURE_NEXT_13504
 author: Krispin Lütjann & Max Stegmeyer
 ---
+# Core
+* Added Navigation settings to `SalesChannelDefinition` and `SalesChannelTranslationDefinition`
+* Added `navigationCategorySalesChannels` to `CmsPageDefinition`
+* Added `EntryPointValidation` for making sure that main categories of Sales Channels cannot be links.
+* Added internal link settings to `CategoryDefinition` and `CategoryTranslationDefinition`
+___
 # Administration
 * Added `sw-category-detail-products` component in following files:
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-category-detail-products/index.js`

@@ -44,6 +44,27 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $slotConfig;
 
     /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $linkType;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var bool|null
+     */
+    protected $linkNewTab;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $internalLink;
+
+    /**
      * @var string|null
      */
     protected $externalLink;
@@ -116,6 +137,54 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getLinkType(): ?string
+    {
+        return $this->linkType;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setLinkType(?string $linkType): void
+    {
+        $this->linkType = $linkType;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getLinkNewTab(): ?bool
+    {
+        return $this->linkNewTab;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setLinkNewTab(?bool $linkNewTab): void
+    {
+        $this->linkNewTab = $linkNewTab;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getInternalLink(): ?string
+    {
+        return $this->internalLink;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setInternalLink(?string $internalLink): void
+    {
+        $this->internalLink = $internalLink;
     }
 
     public function getExternalLink(): ?string

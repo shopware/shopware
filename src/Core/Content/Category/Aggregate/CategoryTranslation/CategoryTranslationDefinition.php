@@ -4,16 +4,19 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
@@ -46,7 +49,7 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new ListField('breadcrumb', 'breadcrumb', StringField::class))->addFlags(new ApiAware(), new WriteProtected()),
             new JsonField('slot_config', 'slotConfig'),
@@ -57,5 +60,13 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware(), new AllowHtml()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_13504')) {
+            $fields->add((new StringField('link_type', 'linkType'))->addFlags(new ApiAware()));
+            $fields->add((new BoolField('link_new_tab', 'linkNewTab'))->addFlags(new ApiAware()));
+            $fields->add((new IdField('internal_link', 'internalLink'))->addFlags(new ApiAware()));
+        }
+
+        return $fields;
     }
 }

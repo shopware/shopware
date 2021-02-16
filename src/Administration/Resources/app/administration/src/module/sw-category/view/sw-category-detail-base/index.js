@@ -155,6 +155,7 @@ Component.register('sw-category-detail-base', {
 
         ...mapPropertyErrors('category', [
             'name',
+            'type',
 
             // @deprecated tag:v6.5.0 - can be removed completely
             'productStreamId',

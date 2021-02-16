@@ -32,6 +32,11 @@ ___
     * `mainType`
     * `isInternal`
     * `isExternal`
+* Added component `sw-category-entry-point-modal`
+* Changed `sw-cms-layout-modal` component to also provide the layout itself with the `modal-layout-select` event as second argument.
+  Internally the methods `onSelection` and `selectItem` now receive the layout itself as a new parameter.
+  Also there is new data for the selected layout named `selectedPageObject` which is send with the `modal-layout-select` event as a second argument
+  (the first argument is still the layout id).
 ___
 # Storefront
 * Removed service menu from top bar

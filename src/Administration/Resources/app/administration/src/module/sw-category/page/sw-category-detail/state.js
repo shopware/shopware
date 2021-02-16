@@ -74,6 +74,9 @@ export default {
                 .addAssociation('serviceSalesChannels')
                 .addAssociation('footerSalesChannels');
 
+            if (Shopware.Feature.isActive('FEATURE_NEXT_13504')) {
+                criteria.addAssociation('navigationSalesChannels.homeCmsPage.previewMedia');
+            }
 
             return repository.get(id, apiContext, criteria).then((category) => {
                 category.isColumn = false;

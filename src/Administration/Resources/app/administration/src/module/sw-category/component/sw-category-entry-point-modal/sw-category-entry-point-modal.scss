@@ -1,7 +1,14 @@
 @import "~scss/variables";
 
-.sw-category-layout-card {
-    .sw-category-layout-card__base-layout {
+.sw-category-entry-point-modal {
+    .sw-category-entry-point-modal__layout-headline,
+    .sw-category-entry-point-modal__seo-headline {
+        font-size: $font-size-large;
+        font-weight: $font-weight-regular;
+    }
+
+    .sw-category-entry-point-modal__base-layout {
+        margin-bottom: 40px;
         display: grid;
         grid-template-columns: min-content 1fr;
         gap: 32px;
@@ -11,37 +18,37 @@
         }
     }
 
-    .sw-category-layout-card__desc {
+    .sw-category-entry-point-modal__desc {
         display: grid;
         grid-template-rows: min-content 1fr min-content;
         align-items: baseline;
 
-        .sw-category-layout-card__desc-headline {
+        .sw-category-entry-point-modal__desc-headline {
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-small;
         }
 
-        .sw-category-layout-card__desc-subheadline {
+        .sw-category-entry-point-modal__desc-subheadline {
             font-size: $font-size-small;
         }
 
-        .sw-category-layout-card__desc-headline.is--empty,
-        .sw-category-layout-card__desc-subheadline.is--empty {
+        .sw-category-entry-point-modal__desc-headline.is--empty,
+        .sw-category-entry-point-modal__desc-subheadline.is--empty {
             color: $color-gray-500;
         }
 
-        .sw-category-layout-card__desc-info {
+        .sw-category-entry-point-modal__desc-info {
             margin-bottom: 16px;
         }
 
-        .sw-category-layout-card__desc-actions {
+        .sw-category-entry-point-modal__desc-actions {
             .sw-button {
                 margin-bottom: 8px;
                 margin-right: 8px;
             }
         }
 
-        .sw-category-layout-card__desc-link {
+        .sw-category-entry-point-modal__desc-link {
             display: flex;
             align-items: center;
             justify-content: flex-end;

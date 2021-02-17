@@ -81,6 +81,14 @@ Component.register('sw-category-detail', {
     },
 
     computed: {
+        categoryType() {
+            if (this.category.isColumn) {
+                return 'column';
+            }
+
+            return this.category.type;
+        },
+
         showEmptyState() {
             return !this.category && !this.landingPage;
         },

@@ -40,6 +40,8 @@
           "page": "Kategorie",
           "folder": "Strukturkategorie",
           "link": "Benutzerdefinierter Link",
+          "column": "Spalte",
+          "columnHelp": "Der Kategorietyp kann nicht geändert werden, wenn die darüberliegende Kategorie ein Einstiegspunkt für die Footer-Navigation ist.",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung."
         }
       },

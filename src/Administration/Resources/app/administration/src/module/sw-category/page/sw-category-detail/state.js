@@ -76,6 +76,23 @@ export default {
 
 
             return repository.get(id, apiContext, criteria).then((category) => {
+                category.isColumn = false;
+                if (category.parentId !== null && Shopware.Feature.isActive('FEATURE_NEXT_13504')) {
+                    const parentCriteria = new Criteria();
+                    parentCriteria.addAssociation('footerSalesChannels');
+                    repository.get(category.parentId, apiContext, parentCriteria).then((parent) => {
+                        category.parent = parent;
+
+                        category.isColumn = category.parent !== undefined
+                            && category.parent.footerSalesChannels !== undefined
+                            && category.parent.footerSalesChannels.length !== 0;
+
+                        commit('setActiveCategory', { category });
+                    });
+
+                    return;
+                }
+
                 commit('setActiveCategory', { category });
             });
         }

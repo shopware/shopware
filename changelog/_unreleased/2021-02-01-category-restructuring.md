@@ -22,6 +22,7 @@ ___
 * Changed location of product assignment in `sw-category-detail-base` to separate `sw-category-detail-products` component
 * Changed location of seo & seo urls in `sw-category-detail-base` to separate `sw-category-detail-seo` component
 * Changed location of layout assignment in `sw-category-detail-base` to `sw-category-detail-cms` component
+* Added virtual category type `column` for first level categories in the footer navigation entry point
 ___
 # Storefront
 * Removed service menu from top bar

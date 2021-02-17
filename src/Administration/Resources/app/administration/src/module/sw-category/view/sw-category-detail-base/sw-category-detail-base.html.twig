@@ -31,11 +31,21 @@
                     <div class="sw-category-detail-base__type-container">
                         {% block sw_category_detail_information_type %}
                             <sw-single-select
+                                v-if="!category.isColumn"
+                                v-model="category.type"
                                 :helpText="$tc('sw-category.base.general.types.help')"
                                 :label="$tc('sw-category.base.general.types.title')"
-                                v-model="category.type"
                                 :disabled="!acl.can('category.editor')"
                                 :error="categoryTypeError"
+                                :options="categoryTypes">
+                            </sw-single-select>
+
+                            <sw-single-select
+                                v-else
+                                value="column"
+                                :helpText="$tc('sw-category.base.general.types.columnHelp')"
+                                :label="$tc('sw-category.base.general.types.title')"
+                                :disabled="true"
                                 :options="categoryTypes">
                             </sw-single-select>
                         {% endblock %}
@@ -80,7 +90,7 @@
             </sw-category-layout-card>
         {% endblock %}
 
-        <template v-if="category.type !== 'link'">
+        <template v-if="category.type !== 'link' && !category.isColumn">
             {% block sw_category_detail_menu %}
                 <sw-category-detail-menu v-bind="{ category, isLoading }"></sw-category-detail-menu>
             {% endblock %}

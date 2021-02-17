@@ -36,7 +36,7 @@ class MailFactory extends AbstractMailFactory
      * @param array $recipients e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
      * @param array $contents   e.g. ['text/plain' => 'Foo', 'text/html' => '<h1>Bar</h1>']
      *
-     * @deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) method will be removed. Use createMail instead.
+     * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) method will be removed. Use createMail instead.
      */
     public function createMessage(
         string $subject,

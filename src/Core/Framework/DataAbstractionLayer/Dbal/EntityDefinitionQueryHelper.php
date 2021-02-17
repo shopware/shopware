@@ -6,13 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
-//@deprecated tag:v6.4.0 - Will be removed
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder;
-//@deprecated tag:v6.4.0 - Will be removed
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinInfo;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -35,21 +29,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntityDefinitionQueryHelper
 {
     public const HAS_TO_MANY_JOIN = 'has_to_many_join';
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     *
-     * @var AntiJoinBuilder
-     */
-    private $antiJoinBuilder;
-
-    public function __construct(
-        // @deprecated tag:v6.4.0 - Will be removed
-        AntiJoinBuilder $antiJoinBuilder
-    ) {
-        //@deprecated tag:v6.4.0 - Will be removed
-        $this->antiJoinBuilder = $antiJoinBuilder;
-    }
 
     public static function escape(string $string): string
     {
@@ -387,39 +366,6 @@ class EntityDefinitionQueryHelper
         }
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function resolveAntiJoinAccessors(
-        string $fieldName,
-        EntityDefinition $definition,
-        string $root,
-        QueryBuilder $parentQueryBuilder,
-        Context $context,
-        array $antiJoinConditions = []
-    ): void {
-        foreach ($antiJoinConditions as $antiJoinIdentifier => $antiJoinCondition) {
-            $select = $this->getFieldAccessor($fieldName, $definition, $root, $context);
-            [$alias, $field] = explode('`.`', $select);
-            $alias = ltrim($alias, '`');
-
-            $selectField = EntityDefinitionQueryHelper::escape($alias) . '.`' . $field;
-
-            $associations = $this->getAssociations($fieldName, $definition, $root);
-            $antiJoinInfo = new AntiJoinInfo($associations, $antiJoinCondition, [$selectField]);
-
-            $this->antiJoinBuilder->join(
-                $definition,
-                JoinBuilderInterface::LEFT_JOIN,
-                $antiJoinInfo,
-                $root,
-                $alias . '_' . $antiJoinIdentifier,
-                $parentQueryBuilder,
-                $context
-            );
-        }
-    }
-
     public function resolveField(Field $field, EntityDefinition $definition, string $root, QueryBuilder $query, Context $context): void
     {
         $resolver = $field->getResolver();
@@ -428,13 +374,7 @@ class EntityDefinitionQueryHelper
             return;
         }
 
-        if ($resolver instanceof AbstractFieldResolver) {
-            $resolver->join(new FieldResolverContext($root, $root, $field, $definition, $definition, $query, $context, null));
-
-            return;
-        }
-
-        $resolver->resolve($definition, $root, $field, $query, $context, $this);
+        $resolver->join(new FieldResolverContext($root, $root, $field, $definition, $definition, $query, $context, null));
     }
 
     /**
@@ -618,14 +558,7 @@ class EntityDefinitionQueryHelper
             return $context->getAlias();
         }
 
-        if ($resolver instanceof AbstractFieldResolver) {
-            return $resolver->join($context);
-        }
-
-        //@deprecated tag:v6.4.0 - Will be removed
-        $resolver->resolve($context->getDefinition(), $context->getAlias(), $context->getField(), $context->getQuery(), $context->getContext(), $this);
-
-        return $context->getAlias() . '.' . $context->getField()->getPropertyName();
+        return $resolver->join($context);
     }
 
     private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void

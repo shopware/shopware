@@ -23,6 +23,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function setUp(): void
     {
+        static::markTestSkipped('vatId was removed');
         parent::setUp();
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());

@@ -21,9 +21,9 @@ Component.register('sw-snippet-field-edit-modal', {
     template,
 
     inject: [
-        // still used wtf?
-        'snippetService', // @deprecated tag:v6.4.0.0
-        'acl'
+        // @Jonas no usage found, still relevant?
+        'acl',
+        'repositoryFactory'
     ],
 
     props: {
@@ -68,6 +68,10 @@ Component.register('sw-snippet-field-edit-modal', {
 
         currentAuthor() {
             return `user/${Shopware.State.get('session').currentUser.username}`;
+        },
+
+        snippetRepository() {
+            return this.repositoryFactory.create('snippet');
         }
     },
 
@@ -123,7 +127,7 @@ Component.register('sw-snippet-field-edit-modal', {
 
                 if (snippet.resetTo !== snippet.value) {
                     // Only save if value differs from original value
-                    responses.push(this.snippetService.save(snippet));
+                    responses.push(this.snippetRepository.save(snippet, Shopware.Context.api));
                 }
             });
 

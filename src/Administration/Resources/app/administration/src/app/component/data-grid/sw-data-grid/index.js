@@ -329,20 +329,6 @@ Component.register('sw-data-grid', {
             });
         },
 
-        // @deprecated tag:v6.4.0 - Will be removed
-        initCompactModeAndShowPreviews() {
-            if (!this.identifier) {
-                return;
-            }
-
-            const storageItem = window.localStorage.getItem(this.localStorageItemKey);
-
-            if (storageItem !== null) {
-                this.compact = JSON.parse(storageItem).compact;
-                this.previews = JSON.parse(storageItem).previews;
-            }
-        },
-
         findResizeColumns() {
             this.hasResizeColumns = this.currentColumns.some((column) => {
                 return column.allowResize;

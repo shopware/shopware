@@ -209,13 +209,6 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Command\VerifyManifestCommand">
-            <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
-            <argument>%shopware.app_dir%</argument>
-
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Core\Framework\App\Command\ValidateAppCommand">
             <argument>%shopware.app_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>

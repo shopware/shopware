@@ -6,9 +6,12 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
+use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -37,57 +40,44 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class RegisterController extends StorefrontController
 {
-    /**
-     * @var AccountLoginPageLoader
-     */
-    private $loginPageLoader;
+    private AccountLoginPageLoader $loginPageLoader;
 
-    /**
-     * @var AccountRegistrationService
-     */
-    private $accountRegistrationService;
+    private CartService $cartService;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CheckoutRegisterPageLoader $registerPageLoader;
 
-    /**
-     * @var CheckoutRegisterPageLoader
-     */
-    private $registerPageLoader;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
 
-    /**
-     * @var AbstractCustomerGroupRegistrationPageLoader
-     */
-    private $customerGroupRegistrationPageLoader;
+    private AbstractRegisterRoute $registerRoute;
+
+    private AbstractRegisterConfirmRoute $registerConfirmRoute;
+
+    private EntityRepositoryInterface $domainRepository;
 
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
-        AccountRegistrationService $accountRegistrationService,
+        AbstractRegisterRoute $registerRoute,
+        AbstractRegisterConfirmRoute $registerConfirmRoute,
         CartService $cartService,
         CheckoutRegisterPageLoader $registerPageLoader,
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $customerRepository,
-        AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader
+        AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader,
+        EntityRepositoryInterface $domainRepository
     ) {
         $this->loginPageLoader = $loginPageLoader;
-        $this->accountRegistrationService = $accountRegistrationService;
         $this->cartService = $cartService;
         $this->registerPageLoader = $registerPageLoader;
         $this->systemConfigService = $systemConfigService;
         $this->customerRepository = $customerRepository;
         $this->customerGroupRegistrationPageLoader = $customerGroupRegistrationPageLoader;
+        $this->registerRoute = $registerRoute;
+        $this->registerConfirmRoute = $registerConfirmRoute;
+        $this->domainRepository = $domainRepository;
     }
 
     /**
@@ -191,7 +181,21 @@ class RegisterController extends StorefrontController
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
-            $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data, $context));
+
+            if ($data->has('guest')) {
+                $data->set('guest', $data->has('guest'));
+            }
+
+            if (!$data->has('storefrontUrl')) {
+                $data->set('storefrontUrl', $this->getConfirmUrl($context));
+            }
+
+            $this->registerRoute->register(
+                $data->toRequestDataBag(),
+                $context,
+                false,
+                $this->getAdditionalRegisterValidationDefinitions($data, $context)
+            );
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
                 throw new MissingRequestParameterException('errorRoute');
@@ -217,7 +221,10 @@ class RegisterController extends StorefrontController
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
         try {
-            $customerId = $this->accountRegistrationService->finishDoubleOptInRegistration($queryDataBag, $context);
+            $customerId = $this->registerConfirmRoute
+                ->confirm($queryDataBag->toRequestDataBag(), $context)
+                ->getCustomer()
+                ->getId();
         } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException $exception) {
             $this->addFlash(self::DANGER, $this->trans('account.confirmationIsAlreadyDone'));
 
@@ -301,5 +308,30 @@ class RegisterController extends StorefrontController
         }
 
         return $data;
+    }
+
+    private function getConfirmUrl(SalesChannelContext $context): string
+    {
+        /** @var string $domainUrl */
+        $domainUrl = $this->systemConfigService
+            ->get('core.loginRegistration.doubleOptInDomain', $context->getSalesChannel()->getId());
+
+        if (!$domainUrl) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
+            $criteria->setLimit(1);
+
+            $domain = $this->domainRepository
+                ->search($criteria, $context->getContext())
+                ->first();
+
+            if (!$domain) {
+                throw new SalesChannelDomainNotFoundException($context->getSalesChannel());
+            }
+
+            $domainUrl = $domain->getUrl();
+        }
+
+        return $domainUrl;
     }
 }

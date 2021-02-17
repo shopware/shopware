@@ -2096,11 +2096,6 @@ parameters:
 			path: src/Core/Content/Seo/Api/SeoActionController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Entity\\\\Dbal\\\\SeoUrlJoinBuilder\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/Entity/Dbal/SeoUrlJoinBuilder.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/HreflangLoader.php
@@ -2971,46 +2966,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php
 
 		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:resolveField\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldResolver/OneToManyAssociationFieldResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\JoinBuilderInterface\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/JoinBuilderInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\ManyToManyJoinBuilder\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/ManyToManyJoinBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\ManyToOneJoinBuilder\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/ManyToOneJoinBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\OneToManyJoinBuilder\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/OneToManyJoinBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\TranslatedJoinBuilder\\:\\:join\\(\\) has parameter \\$field with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/TranslatedJoinBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\TranslatedJoinBuilder\\:\\:getSelectTemplate\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/TranslatedJoinBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\JoinBuilder\\\\TranslatedJoinBuilder\\:\\:getSelectTemplate\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/TranslatedJoinBuilder.php
-
-		-
 			message: "#^Call to an undefined method object\\:\\:getEntityClass\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/DefinitionInstanceRegistry.php
@@ -3762,11 +3717,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$fieldName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:getFieldAccessor\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\SqlQueryParser\\:\\:parseAntiJoin\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
 

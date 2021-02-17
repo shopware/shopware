@@ -3,61 +3,52 @@
 namespace Shopware\Core\Content\Seo\Entity\Dbal;
 
 use Shopware\Core\Content\Seo\Entity\Field\SeoUrlAssociationField;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 
-class SeoUrlAssociationFieldResolver implements FieldResolverInterface
+class SeoUrlAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @var JoinBuilderInterface
-     */
-    private $joinBuilder;
-
-    public function __construct(JoinBuilderInterface $joinBuilder)
+    public function join(FieldResolverContext $context): string
     {
-        $this->joinBuilder = $joinBuilder;
-    }
-
-    public function getJoinBuilder(): JoinBuilderInterface
-    {
-        return $this->joinBuilder;
-    }
-
-    public function resolve(
-        EntityDefinition $definition,
-        string $root,
-        Field $field,
-        QueryBuilder $query,
-        Context $context,
-        EntityDefinitionQueryHelper $queryHelper
-    ): bool {
+        $field = $context->getField();
         if (!$field instanceof SeoUrlAssociationField) {
-            return false;
+            return $context->getAlias();
         }
 
-        $alias = $root . '.' . $field->getPropertyName();
+        $context->getQuery()->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        if ($query->hasState($alias)) {
-            return true;
+        $alias = $context->getAlias() . '.' . $field->getPropertyName();
+        if ($context->getQuery()->hasState($alias)) {
+            return $alias;
         }
 
-        $query->addState($alias);
+        $context->getQuery()->addState($alias);
 
-        $this->getJoinBuilder()->join(
-            $definition,
-            JoinBuilderInterface::LEFT_JOIN,
-            $field,
-            $root,
-            $alias,
-            $query,
-            $context
+        $routeParamKey = 'route_' . Uuid::randomHex();
+        $parameters = [
+            '#source#' => EntityDefinitionQueryHelper::escape($context->getAlias()) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField()),
+            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
+            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+            '#root#' => EntityDefinitionQueryHelper::escape($context->getAlias()),
+        ];
+
+        $context->getQuery()->leftJoin(
+            EntityDefinitionQueryHelper::escape($context->getAlias()),
+            EntityDefinitionQueryHelper::escape($field->getReferenceDefinition()->getEntityName()),
+            EntityDefinitionQueryHelper::escape($alias),
+            str_replace(
+                array_keys($parameters),
+                array_values($parameters),
+                '#source# = #alias#.#reference_column#
+                AND #alias#.route_name = :' . $routeParamKey . '
+                AND #alias#.is_deleted = 0'
+            )
         );
 
-        return true;
+        $context->getQuery()->setParameter($routeParamKey, $field->getRouteName());
+
+        return $alias;
     }
 }

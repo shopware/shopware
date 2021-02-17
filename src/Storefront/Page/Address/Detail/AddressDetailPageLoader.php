@@ -3,14 +3,16 @@
 namespace Shopware\Storefront\Page\Address\Detail;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,27 +41,24 @@ class AddressDetailPageLoader
     private $salutationRoute;
 
     /**
-     * @var AddressService
-     */
-    private $addressService;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
+    private AbstractListAddressRoute $listAddressRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         AbstractCountryRoute $countryRoute,
         AbstractSalutationRoute $salutationRoute,
-        AddressService $addressService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AbstractListAddressRoute $listAddressRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->countryRoute = $countryRoute;
         $this->salutationRoute = $salutationRoute;
-        $this->addressService = $addressService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->listAddressRoute = $listAddressRoute;
     }
 
     /**
@@ -69,7 +68,7 @@ class AddressDetailPageLoader
      * @throws InvalidUuidException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): AddressDetailPage
+    public function load(Request $request, SalesChannelContext $salesChannelContext, CustomerEntity $customer): AddressDetailPage
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
@@ -83,7 +82,7 @@ class AddressDetailPageLoader
 
         $page->setCountries($this->getCountries($salesChannelContext));
 
-        $page->setAddress($this->getAddress($request, $salesChannelContext));
+        $page->setAddress($this->getAddress($request, $salesChannelContext, $customer));
 
         $this->eventDispatcher->dispatch(
             new AddressDetailPageLoadedEvent($page, $salesChannelContext, $request)
@@ -126,12 +125,27 @@ class AddressDetailPageLoader
      * @throws AddressNotFoundException
      * @throws InvalidUuidException
      */
-    private function getAddress(Request $request, SalesChannelContext $salesChannelContext): ?CustomerAddressEntity
+    private function getAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): ?CustomerAddressEntity
     {
         if (!$request->get('addressId')) {
             return null;
         }
+        $addressId = $request->get('addressId');
 
-        return $this->addressService->getById($request->get('addressId'), $salesChannelContext);
+        if (!Uuid::isValid($addressId)) {
+            throw new InvalidUuidException($addressId);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $addressId));
+        $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
+
+        $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
+
+        if (!$address) {
+            throw new AddressNotFoundException($addressId);
+        }
+
+        return $address;
     }
 }

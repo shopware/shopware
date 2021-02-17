@@ -7,8 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -78,12 +79,14 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $container->get(AccountRegistrationService::class),
+            $container->get(RegisterRoute::class),
+            $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $mock,
             $customerRepository,
-            $this->createMock(CustomerGroupRegistrationPageLoader::class)
+            $this->createMock(CustomerGroupRegistrationPageLoader::class),
+            $container->get('sales_channel_domain.repository')
         );
 
         $data = $this->getRegistrationData();
@@ -130,12 +133,14 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $container->get(AccountRegistrationService::class),
+            $container->get(RegisterRoute::class),
+            $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $systemConfigService,
             $customerRepository,
-            $this->createMock(CustomerGroupRegistrationPageLoader::class)
+            $this->createMock(CustomerGroupRegistrationPageLoader::class),
+            $container->get('sales_channel_domain.repository')
         );
 
         $registerController->setContainer($container);
@@ -182,12 +187,14 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $container->get(AccountRegistrationService::class),
+            $container->get(RegisterRoute::class),
+            $container->get(RegisterConfirmRoute::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $systemConfigService,
             $customerRepository,
-            $this->createMock(CustomerGroupRegistrationPageLoader::class)
+            $this->createMock(CustomerGroupRegistrationPageLoader::class),
+            $container->get('sales_channel_domain.repository')
         );
 
         $registerController->setContainer($container);

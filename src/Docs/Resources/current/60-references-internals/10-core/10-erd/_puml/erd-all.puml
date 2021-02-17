@@ -1636,7 +1636,6 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    not_null(street) string
    department string
    title string
-   vatId string
    phoneNumber string
    additionalAddressLine1 string
    additionalAddressLine2 string

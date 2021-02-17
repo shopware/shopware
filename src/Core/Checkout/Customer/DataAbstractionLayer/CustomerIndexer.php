@@ -40,27 +40,18 @@ class CustomerIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
-    /**
-     * @deprecated tag:v6.4.0 - property $customerVatIdsDeprecationUpdater will be removed in 6.4.0
-     *
-     * @var CustomerVatIdsDeprecationUpdater
-     */
-    private $customerVatIdsDeprecationUpdater;
-
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         CacheClearer $cacheClearer,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        CustomerVatIdsDeprecationUpdater $customerVatIdsDeprecationUpdater
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->cacheClearer = $cacheClearer;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->customerVatIdsDeprecationUpdater = $customerVatIdsDeprecationUpdater;
     }
 
     public function getName(): string
@@ -87,12 +78,6 @@ class CustomerIndexer extends EntityIndexer
 
         if (empty($updates)) {
             return null;
-        }
-
-        $customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME);
-
-        if ($customerEvent) {
-            $this->customerVatIdsDeprecationUpdater->updateByEvent($customerEvent);
         }
 
         return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());

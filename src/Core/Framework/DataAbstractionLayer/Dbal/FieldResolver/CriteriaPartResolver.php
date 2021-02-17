@@ -284,16 +284,7 @@ class CriteriaPartResolver
             return $context->getAlias();
         }
 
-        //@deprecated tag:v6.4.0 - Uncomment this line and remove bellow sources
-        //return $resolver->join($context);
-
-        if ($resolver instanceof AbstractFieldResolver) {
-            return $resolver->join($context);
-        }
-
-        $resolver->resolve($context->getDefinition(), $context->getAlias(), $context->getField(), $context->getQuery(), $context->getContext(), $this->helper);
-
-        return $context->getAlias() . '.' . $context->getField()->getPropertyName();
+        return $resolver->join($context);
     }
 
     private function buildRuleWhere(QueryBuilder $query, Context $context, EntityDefinition $definition, string $alias): string

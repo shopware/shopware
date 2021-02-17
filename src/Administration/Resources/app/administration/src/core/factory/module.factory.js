@@ -265,10 +265,8 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
  *
  * @param {Object} routeDefinition
- * ??? feature-deprecated?
- * @param {Array} moduleName @deprecated tag:v6.4.0.0
- * ??? feature-deprecated?
- * @param {String} parentKey @deprecated tag:v6.4.0.0
+ * @param {Array} moduleName @feature-deprecated tag:v6.4.0.0
+ * @param {String} parentKey @feature-deprecated tag:v6.4.0.0
  * @returns {Object}
  */
 function iterateChildRoutes(routeDefinition, moduleName, parentKey) {

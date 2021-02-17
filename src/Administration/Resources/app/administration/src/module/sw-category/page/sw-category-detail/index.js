@@ -63,11 +63,6 @@ Component.register('sw-category-detail', {
             isDisplayingLeavePageWarning: false,
             nextRoute: null,
             currentLanguageId: Shopware.Context.api.languageId,
-            /**
-             * @deprecated tag:v6.4.0 - Will be removed. This is a typo, and the data prop is unused.
-             * Please use "forceDiscardChanges" instead.
-             */
-            discardChanges: false,
             forceDiscardChanges: false,
             categoryCheckedItem: 0,
             landingPageCheckedItem: 0

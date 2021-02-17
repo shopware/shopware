@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -81,8 +80,6 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
             $cart->remove($id);
 
-            /* @deprecated tag:v6.4.0 - The LineItemRemovedEvent will be removed in the future, please use the BeforeLineItemRemovedEvent and AfterLineItemRemovedEvent variants of this event going forward */
-            $this->eventDispatcher->dispatch(new LineItemRemovedEvent($lineItem, $cart, $context));
             $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItem, $cart, $context));
 
             $cart->markModified();

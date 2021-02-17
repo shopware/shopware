@@ -486,14 +486,6 @@ Component.register('sw-settings-document-detail', {
             this.$router.push({ name: 'sw.settings.document.index' });
         },
 
-        /** @deprecated tag:v6.4.0 - Will be removed */
-        onChangeDisplayNoteDelivery() {
-            const documentConfig = cloneDeep(this.documentConfig);
-            if (documentConfig.config && !documentConfig.config.displayAdditionalNoteDelivery) {
-                this.documentConfig.config.deliveryCountries = [];
-            }
-        },
-
         createSalesChannelSelectOptions() {
             this.documentConfigSalesChannelOptionsCollection = new EntityCollection(
                 this.documentConfig.salesChannels.source,

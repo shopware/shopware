@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
-use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -45,11 +45,6 @@ class ProductController extends StorefrontController
     private $minimalQuickViewPageLoader;
 
     /**
-     * @var ProductReviewService
-     */
-    private $productReviewService;
-
-    /**
      * @var SeoUrlPlaceholderHandlerInterface
      */
     private $seoUrlPlaceholderHandler;
@@ -64,11 +59,13 @@ class ProductController extends StorefrontController
      */
     private $systemConfigService;
 
+    private AbstractProductReviewSaveRoute $productReviewSaveRoute;
+
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
-        ProductReviewService $productReviewService,
+        AbstractProductReviewSaveRoute $productReviewSaveRoute,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         ProductReviewLoader $productReviewLoader,
         SystemConfigService $systemConfigService
@@ -76,10 +73,10 @@ class ProductController extends StorefrontController
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
-        $this->productReviewService = $productReviewService;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
         $this->productReviewLoader = $productReviewLoader;
         $this->systemConfigService = $systemConfigService;
+        $this->productReviewSaveRoute = $productReviewSaveRoute;
     }
 
     /**
@@ -154,7 +151,7 @@ class ProductController extends StorefrontController
         $this->checkReviewsActive($context);
 
         try {
-            $this->productReviewService->save($productId, $data, $context);
+            $this->productReviewSaveRoute->save($productId, $data, $context);
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.product.reviews', [
                 'productId' => $productId,

@@ -189,7 +189,7 @@ class ContainerProvider implements ServiceProviderInterface
             return DriverManager::getConnection($options);
         };
 
-        // @deprecated tag:v6.4.0
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove - its replaced by migration.sources
         $container['migration.source'] = static function ($c) {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBundleMigrations = [

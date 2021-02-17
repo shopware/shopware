@@ -12,7 +12,8 @@
             "columnName": "Name",
             "columnValidFrom": "Valid from",
             "columnValidUntil": "Valid until",
-            "messageEmpty": "No promotions yet",
+            "titleEmpty": "No promotions yet.",
+            "descriptionEmpty": "Boost your sales by discounting your products and services.",
             "placeholderSearchBar": "Search promotions...",
             "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
             "titleSidebarItemRefresh": "Refresh"

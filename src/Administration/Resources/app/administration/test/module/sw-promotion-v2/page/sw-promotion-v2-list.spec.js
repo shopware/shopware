@@ -4,6 +4,7 @@ import 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
+    localVue.filter('asset', key => key);
 
     return shallowMount(Shopware.Component.build('sw-promotion-v2-list'), {
         localVue,
@@ -13,7 +14,7 @@ function createWrapper(privileges = []) {
             },
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-empty-state': true
+            'sw-splash-screen': true
         },
         provide: {
             acl: {
@@ -52,22 +53,20 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
     it('should disable create button when privilege not available', async () => {
         const wrapper = createWrapper();
+        const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
-        const element = wrapper.find('.sw-promotion-v2-list__button-add-promotion');
-
-        expect(element.exists()).toBeTruthy();
-        expect(element.attributes().disabled).toBeTruthy();
+        expect(smartBarButton.exists()).toBeTruthy();
+        expect(smartBarButton.attributes().disabled).toBeTruthy();
     });
 
     it('should enable create button when privilege available', async () => {
         const wrapper = createWrapper([
             'promotion.creator'
         ]);
+        const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
-        const element = wrapper.find('.sw-promotion-v2-list__button-add-promotion');
-
-        expect(element.exists()).toBeTruthy();
-        expect(element.attributes().disabled).toBeUndefined();
+        expect(smartBarButton.exists()).toBeTruthy();
+        expect(smartBarButton.attributes().disabled).toBeFalsy();
     });
 
     it('should disable editing of entries when privilege not set', async () => {

@@ -46,6 +46,15 @@ Component.register('sw-promotion-v2-list', {
 
         promotionColumns() {
             return this.getPromotionColumns();
+        },
+
+        addButtonTooltip() {
+            return {
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('promotion.creator'),
+                showOnDisabledElements: true,
+                position: 'bottom'
+            };
         }
     },
 

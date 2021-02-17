@@ -13,50 +13,61 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
 
     // Create the HTTP proxy
     const server = createServer((client_req, client_res) => {
-        const requestOptions = {
-            host: originalHost,
-            port: appPort,
-            path: client_req.url,
-            method: client_req.method,
-            headers: {
-                ...client_req.headers,
-                host: originalUrl,
-                'hot-reload-mode': true,
-                'accept-encoding': 'identity',
-            },
-        };
+        try {
+            //reject the connection when requesting from the wrong host
+            const requestHost = client_req.hostname || client_req.headers.host;
+            if (requestHost.split(':')[0] !== originalHost) {
+                //noinspection ExceptionCaughtLocallyJS
+                throw 'Rejecting request "' + client_req.method + ' ' + requestHost + client_req.url + '" on proxy server for "' + originalUrl + '"';
+            }
 
-        // Assets
-        if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
-            requestOptions.host = '127.0.0.1';
-            requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
-            requestOptions.path = requestOptions.path.substr(20);
+            const requestOptions = {
+                host: originalHost,
+                port: appPort,
+                path: client_req.url,
+                method: client_req.method,
+                headers: {
+                    ...client_req.headers,
+                    host: originalUrl,
+                    'hot-reload-mode': true,
+                    'accept-encoding': 'identity',
+                },
+            };
+
+            // Assets
+            if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+                requestOptions.path = requestOptions.path.substr(20);
+            }
+
+            // Hot reload updates
+            if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+            }
+
+            // pipe a new request to the client request
+            client_req.pipe(
+                // request the data
+                request(requestOptions, (response) => {
+                    // replace urls from "redirects"
+                    const contentType = String(response.headers['content-type']);
+
+                    if (contentType.indexOf('text/html') >= 0 || contentType.indexOf('application/json') >= 0) {
+                        replaceOriginalUrl(response, client_res, originalUrl, proxyUrl);
+                        return;
+                    }
+
+                    client_res.writeHead(response.statusCode, response.headers);
+                    response.pipe(client_res, {  end: true });
+                }),
+                {  end: true }
+            );
+        } catch (e) {
+            console.error(e);
+            client_req.destroy();
         }
-
-        // Hot reload updates
-        if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
-            requestOptions.host = '127.0.0.1';
-            requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
-        }
-
-        // pipe a new request to the client request
-        client_req.pipe(
-            // request the data
-            request(requestOptions, (response) => {
-                // replace urls from "redirects"
-                const contentType = String(response.headers['content-type']);
-
-                if (contentType.indexOf('text/html') >= 0 || contentType.indexOf('application/json') >= 0) {
-                    replaceOriginalUrl(response, client_res, originalUrl, proxyUrl);
-                    return;
-                }
-
-                client_res.writeHead(response.statusCode, response.headers);
-                response.pipe(client_res, {  end: true });
-            }),
-            {  end: true }
-        );
-
     }).listen(proxyPort);
 
     // open the browser with the proxy url

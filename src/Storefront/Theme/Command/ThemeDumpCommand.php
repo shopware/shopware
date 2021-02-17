@@ -79,11 +79,7 @@ class ThemeDumpCommand extends Command
 
         $id = $input->getArgument('theme-id');
         if ($id !== null) {
-            if (\is_array($id)) {
-                $criteria->setIds($id);
-            } else {
-                $criteria->setIds([$id]);
-            }
+            $criteria->setIds([$id]);
         }
 
         $themes = $this->themeRepository->search($criteria, $this->context);
@@ -96,7 +92,19 @@ class ThemeDumpCommand extends Command
 
         /** @var ThemeEntity $themeEntity */
         $themeEntity = $themes->first();
-        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($this->getTechnicalName($themeEntity->getId()));
+        $technicalName = $this->getTechnicalName($themeEntity->getId());
+        if ($technicalName === null) {
+            $this->io->error('No theme found');
+
+            return 1;
+        }
+
+        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($technicalName);
+        if ($themeConfig === null) {
+            $this->io->error(sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
+
+            return 1;
+        }
 
         $dump = $this->themeFileResolver->resolveFiles(
             $themeConfig,

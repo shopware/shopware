@@ -81,9 +81,6 @@ class CreateMigrationCommand extends Command
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
-            if (\is_array($pluginName)) {
-                $pluginName = implode(' ', $pluginName);
-            }
             $pluginBundles = array_filter($this->kernelPluginCollection->all(), static function (Plugin $value) use ($pluginName) {
                 return mb_strpos($value->getName(), (string) $pluginName) === 0;
             });
@@ -161,8 +158,15 @@ class CreateMigrationCommand extends Command
         $params['%%timestamp%%'] = $params['%%timestamp%%'] ?? (new \DateTime())->getTimestamp();
         $path = rtrim($directory, '/') . '/Migration' . $params['%%timestamp%%'] . $params['%%name%%'] . '.php';
         $file = fopen($path, 'wb');
+        if ($file === false) {
+            return;
+        }
 
         $template = file_get_contents($templatePatch);
+        if ($template === false) {
+            return;
+        }
+
         fwrite($file, str_replace(array_keys($params), array_values($params), $template));
         fclose($file);
 

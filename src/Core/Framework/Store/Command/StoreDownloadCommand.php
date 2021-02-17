@@ -78,8 +78,8 @@ class StoreDownloadCommand extends Command
     {
         $context = Context::createDefaultContext();
 
-        $pluginName = $input->getOption('pluginName');
-        $language = $input->getOption('language');
+        $pluginName = (string) $input->getOption('pluginName');
+        $language = (string) $input->getOption('language');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
@@ -91,11 +91,12 @@ class StoreDownloadCommand extends Command
             throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
         }
 
-        $unauthenticated = !$input->getOption('user');
+        $user = $input->getOption('user');
+        $unauthenticated = !$user;
         if ($unauthenticated) {
             $storeToken = '';
         } else {
-            $storeToken = $this->getUserStoreToken($context, $input->getOption('user'));
+            $storeToken = $this->getUserStoreToken($context, $user);
         }
 
         try {
@@ -123,13 +124,13 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $user));
 
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->first();
+        /** @var UserEntity|null $userEntity */
+        $userEntity = $this->userRepository->search($criteria, $context)->first();
 
-        if ($user->getStoreToken() === null) {
+        if ($userEntity === null || $userEntity->getStoreToken() === null) {
             throw new StoreTokenMissingException();
         }
 
-        return $user->getStoreToken();
+        return $userEntity->getStoreToken();
     }
 }

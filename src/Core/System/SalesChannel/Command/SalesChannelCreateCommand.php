@@ -193,7 +193,10 @@ class SalesChannelCreateCommand extends Command
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
-        return $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string[] $ids */
+        $ids = $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids[0];
     }
 
     protected function getFirstActivePaymentMethodId(): string
@@ -203,7 +206,10 @@ class SalesChannelCreateCommand extends Command
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        return $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string[] $ids */
+        $ids = $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids[0];
     }
 
     protected function getFirstActiveCountryId(): string
@@ -213,7 +219,10 @@ class SalesChannelCreateCommand extends Command
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
 
-        return $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string[] $ids */
+        $ids = $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $ids[0];
     }
 
     protected function getSnippetSetId(): string
@@ -222,6 +231,7 @@ class SalesChannelCreateCommand extends Command
             ->setLimit(1)
             ->addFilter(new EqualsFilter('iso', 'en-GB'));
 
+        /** @var string|null $id */
         $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
 
         if ($id === null) {
@@ -229,6 +239,19 @@ class SalesChannelCreateCommand extends Command
         }
 
         return $id;
+    }
+
+    protected function getRootCategoryId(): string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('category.parentId', null));
+        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
+
+        /** @var string[] $categories */
+        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return $categories[0];
     }
 
     private function getAllIdsOf(string $entity, Context $context): array
@@ -246,17 +269,5 @@ class SalesChannelCreateCommand extends Command
             },
             $ids->getIds()
         );
-    }
-
-    private function getRootCategoryId(): string
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('category.parentId', null));
-        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
-
-        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return array_shift($categories);
     }
 }

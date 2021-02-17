@@ -80,21 +80,13 @@ class SitemapGenerateCommand extends Command
         $context = Context::createDefaultContext();
 
         if ($salesChannelId !== null) {
-            if (\is_array($salesChannelId)) {
-                $criteria = new Criteria($salesChannelId);
-            } else {
-                $criteria = new Criteria([(string) $salesChannelId]);
-            }
+            $criteria = new Criteria([(string) $salesChannelId]);
 
             $criteria->addAssociation('domains');
             $criteria->addAssociation('type');
             $salesChannels = $this->salesChannelRepository->search($criteria, $context);
 
             if ($salesChannels->count() === 0) {
-                if (\is_array($salesChannelId)) {
-                    $salesChannelId = implode(', ', $salesChannelId);
-                }
-
                 throw new \RuntimeException(sprintf('Could not found a sales channel with id %s', (string) $salesChannelId));
             }
         } else {

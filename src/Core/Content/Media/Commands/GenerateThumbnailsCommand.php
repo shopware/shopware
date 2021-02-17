@@ -138,21 +138,18 @@ class GenerateThumbnailsCommand extends Command
     {
         $rawInput = $input->getOption('batch-size');
 
-        if (\is_array($rawInput) || !is_numeric($rawInput)) {
+        if (!is_numeric($rawInput)) {
             throw new \UnexpectedValueException('Batch size must be numeric');
         }
 
         return (int) $rawInput;
     }
 
-    private function getFolderFilterFromInput(InputInterface $input, Context $context)
+    private function getFolderFilterFromInput(InputInterface $input, Context $context): ?EqualsAnyFilter
     {
         $rawInput = $input->getOption('folder-name');
         if (empty($rawInput)) {
             return null;
-        }
-        if (\is_array($rawInput)) {
-            $rawInput = implode(' ', $rawInput);
         }
 
         $criteria = (new Criteria())

@@ -14,6 +14,7 @@ parameters:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         container_xml_path: '..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
+        console_application_loader: ../dev-ops/analyze/console-application.php
 
     featureToggles:
         unusedClassElements: true

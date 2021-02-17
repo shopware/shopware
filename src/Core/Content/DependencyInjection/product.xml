@@ -272,6 +272,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -321,7 +322,6 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">

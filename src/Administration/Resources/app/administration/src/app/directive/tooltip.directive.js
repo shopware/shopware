@@ -214,7 +214,7 @@ class Tooltip {
     }
 
     _toggle() {
-        if (this._state && !this._isShown) {
+        if (this._state && !this._isShown && this._doesParentExist()) {
             this.showTooltip();
             return;
         }
@@ -222,6 +222,18 @@ class Tooltip {
         if (!this._state && this._isShown) {
             this.hideTooltip();
         }
+    }
+
+    /**
+     * Gets the parent element by tag name and tooltip id and returns true or false whether the element exists.
+     * @returns {boolean}
+     * @private
+     */
+    _doesParentExist() {
+        const tooltipIdOfParentElement = this._parentDOMElement.getAttribute('tooltip-id');
+        const htmlTagOfParentElement = this._parentDOMElement.tagName.toLowerCase();
+
+        return !!document.querySelector(`${htmlTagOfParentElement}[tooltip-id="${tooltipIdOfParentElement}"]`);
     }
 
     /**

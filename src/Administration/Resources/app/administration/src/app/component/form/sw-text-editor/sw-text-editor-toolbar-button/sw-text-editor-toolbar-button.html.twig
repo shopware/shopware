@@ -30,18 +30,23 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_child %}
-            <div v-if="buttonConfig.children && buttonConfig.expanded" class="sw-text-editor-toolbar-button__children">
-                <div v-for="(child, childIndex) in buttonConfig.children"
-                     :key="childIndex"
-                     :class="childActive(child)"
-                     v-tooltip.right="{ disabled: !child.title, appearance: tooltipAppearance, message: child.title }"
-                     class="sw-text-editor-toolbar-button__children-child">
-                    {% block sw_text_editor_toolbar_button_child_item %}
-                        <div @click="handleButtonClick(child)">
-                            <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
-                            <div v-else>{{ child.name }}</div>
-                        </div>
-                    {% endblock %}
+            <div v-if="buttonConfig.children && buttonConfig.expanded"
+                 class="sw-text-editor-toolbar-button__children"
+                 :class="getDropdownClasses(buttonConfig)">
+                <div class="sw-text-editor-toolbar-button__children-inner-container">
+                    <div v-for="(child, childIndex) in buttonConfig.children"
+                         :key="childIndex"
+                         :class="childActive(child)"
+                         v-tooltip.right="getTooltipConfig(buttonConfig, child)"
+                         class="sw-text-editor-toolbar-button__children-child"
+                         @click="handleButtonClick(child)">
+                        {% block sw_text_editor_toolbar_button_child_item %}
+                            <div>
+                                <sw-icon v-if="child.icon" :name="child.icon" size="16"></sw-icon>
+                                <div class="sw-text-editor-toolbar-button__children-child-content" v-else>{{ child.name }}</div>
+                            </div>
+                        {% endblock %}
+                    </div>
                 </div>
             </div>
         {% endblock %}

@@ -40,7 +40,8 @@ function createWrapper(extension) {
         stubs: {
             'sw-icon': true,
             'sw-extension-rating-stars': true,
-            'router-link': true
+            'router-link': true,
+            'sw-extensions-store-label-display': true
         },
         provide: {
             repositoryFactory: {

@@ -33,6 +33,11 @@
                             <span v-else :class="discountClass">{{ calculatedPrice }}</span>
                         </div>
                     {% endblock %}
+
+                    {% block sw_extension_listing_card_label_display %}
+                        <sw-extensions-store-label-display :labels="extension.labels" class="sw-extension-listing-card__label-display"/>
+                    {% endblock %}
+                    
                 </div>
             {% endblock %}
         {% endblock %}

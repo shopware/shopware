@@ -81,20 +81,27 @@
         color: $color-gray-500;
         font-size: $font-size-small;
 
-        .sw-extension-store-detail__rating-overview {
+        .sw-extension-store-detail__label-and-rating-overview {
             display: flex;
             margin-top: 12px;
-            align-items: center;
+            gap: 8px;
 
-            & > *:not(:last-child) {
-                margin-right: 0.25em;
-            }
+            .sw-extension-store-detail__rating-overview {
+                flex-shrink: 0;
+                align-self: start;
+                display: flex;
+                align-items: center;
 
-            a,
-            a:active,
-            a:visited {
-                color: $color-shopware-brand-500;
-                text-decoration: underline;
+                & > *:not(:last-child) {
+                    margin-right: 0.25em;
+                }
+
+                a,
+                a:active,
+                a:visited {
+                    color: $color-shopware-brand-500;
+                    text-decoration: underline;
+                }
             }
         }
     }

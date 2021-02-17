@@ -21,7 +21,8 @@ function createWrapper() {
             },
             'sw-search-bar': {
                 template: '<div class="sw-search-bar"></div>'
-            }
+            },
+            'sw-extensions-store-label-display': true
         },
         provide: {
             shopwareExtensionService: {},

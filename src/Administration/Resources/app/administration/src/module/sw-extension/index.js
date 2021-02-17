@@ -36,6 +36,7 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-failed');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-recommendation');
+    await import(/* webpackMode: 'eager' */ './component/sw-extensions-store-label-display');
 }
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {

@@ -25,7 +25,8 @@ $font-size-rating: 10px;
         grid-template-areas:
             "name name"
             "description description"
-            "rating price";
+            "rating price"
+            "label-display label-display";
 
         .sw-extension-listing-card__info-name {
             cursor: pointer;
@@ -76,6 +77,11 @@ $font-size-rating: 10px;
                     margin-left: 4px;
                 }
             }
+        }
+
+        .sw-extension-listing-card__label-display {
+            grid-area: label-display;
+            margin-top: 4px;
         }
     }
 }

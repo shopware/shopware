@@ -45,32 +45,39 @@
                                 {{ extension.shortDescription }}
                             </div>
                         {% endblock %}
+                        {% block sw_extension_store_detail_label_and_rating_overview %}
+                            <div class="sw-extension-store-detail__label-and-rating-overview">
+                                {% block sw_extension_store_detail_label_display %}
+                                    <sw-extensions-store-label-display :labels="extension.labels" class="sw-extension-store-detail__label-display"/>
+                                {% endblock %}
+                                
+                                {% block sw_extension_store_detail_rating_overview %}
+                                    <div class="sw-extension-store-detail__rating-overview">
+                                        {% block sw_extension_store_detail_rating_overview_content %}
+                                            <template v-if="extension.numberOfRatings > 0">
+                                                {% block sw_extension_store_detail_rating_overview_ratings %}
+                                                    <sw-extension-rating-stars :rating="extension.rating"></sw-extension-rating-stars>
 
-                        {% block sw_extension_store_detail_rating_overview %}
-                            <div class="sw-extension-store-detail__rating-overview">
-                                {% block sw_extension_store_detail_rating_overview_content %}
-                                    <template v-if="extension.numberOfRatings > 0">
-                                        {% block sw_extension_store_detail_rating_overview_ratings %}
-                                            <sw-extension-rating-stars :rating="extension.rating"></sw-extension-rating-stars>
+                                                    <span class="sw-extension-store-detail__avg-rating">
+                                                        {{ extension.rating }}
+                                                    </span>
 
-                                            <span class="sw-extension-store-detail__avg-rating">
-                                                {{ extension.rating }}
-                                            </span>
+                                                    <router-link class="sw-extension-store-detail__number-of-reviews"
+                                                                :to="{ name: 'sw.extension.store.detail', params: { id: id }, hash: '#ratings-card'}">
+                                                        ({{ $tc('sw-extension-store.detail.numberOfRatings', extension.numberOfRatings)}})
+                                                    </router-link>
+                                                {% endblock %}
+                                            </template>
 
-                                            <router-link class="sw-extension-store-detail__number-of-reviews"
-                                                         :to="{ name: 'sw.extension.store.detail', params: { id: id }, hash: '#ratings-card'}">
-                                                ({{ $tc('sw-extension-store.detail.numberOfRatings', extension.numberOfRatings)}})
-                                            </router-link>
+                                            <template v-else>
+                                                {% block sw_extension_store_detail_rating_overview_no_ratings %}
+                                                    <sw-icon name="default-review-star-full" size="8px"></sw-icon>
+
+                                                    <span>{{ $tc('sw-extension-store.detail.noRatings') }}</span>
+                                                {% endblock %}
+                                            </template>
                                         {% endblock %}
-                                    </template>
-
-                                    <template v-else>
-                                        {% block sw_extension_store_detail_rating_overview_no_ratings %}
-                                            <sw-icon name="default-review-star-full" size="8px"></sw-icon>
-
-                                            <span>{{ $tc('sw-extension-store.detail.noRatings') }}</span>
-                                        {% endblock %}
-                                    </template>
+                                    </div>
                                 {% endblock %}
                             </div>
                         {% endblock %}

@@ -1,7 +1,6 @@
 ---
 title: Only include direct relations in delete violation error messages
 issue: NEXT-13085
-flag: FEATURE_NEXT_10539
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

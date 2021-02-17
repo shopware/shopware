@@ -9,15 +9,13 @@ const { Component } = Shopware;
  * @example-type static
  * @component-example
  * <sw-splash-screen
- *     title="No promotions yet."
- *     description="Boost your sales!"
- *     assetPath="/administration/static/img/splash-screens/some-really-awesome-asset.svg">
- *
+ *         title="No promotions yet."
+ *         description="Boost your sales!"
+ *         assetPath="/administration/static/img/splash-screens/some-really-awesome-asset.svg">
  *     <template #actions>
  *         <sw-button>Press me!</sw-button>
  *     </template>
- *
- * </sw-rating-stars>
+ * </sw-splash-screen>
  */
 Component.register('sw-splash-screen', {
     template,

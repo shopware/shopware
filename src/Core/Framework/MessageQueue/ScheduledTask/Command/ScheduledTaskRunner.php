@@ -56,7 +56,7 @@ class ScheduledTaskRunner extends Command
 
         $memoryLimit = $input->getOption('memory-limit');
         if ($memoryLimit) {
-            $memoryLimit = $this->convertToBytes((string) $memoryLimit);
+            $memoryLimit = $this->convertToBytes($memoryLimit);
         }
 
         while (!$this->shouldStop) {

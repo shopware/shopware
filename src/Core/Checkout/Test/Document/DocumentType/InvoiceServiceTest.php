@@ -93,7 +93,6 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateWithDifferentTaxes(): void
     {
-        /** @var InvoiceGenerator $invoiceService */
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
@@ -153,7 +152,6 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateWithShippingAddress(): void
     {
-        /** @var InvoiceGenerator $invoiceService */
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
 
         $possibleTaxes = [7, 19, 22];

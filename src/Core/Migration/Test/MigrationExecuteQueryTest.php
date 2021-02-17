@@ -21,8 +21,9 @@ class MigrationExecuteQueryTest extends TestCase
 
         try {
             foreach ($migrationCollection as $migrations) {
-                /* @var MigrationStep $migration */
-                foreach ($migrations->getMigrationSteps() as $_className => $migrationClass) {
+                /** @var class-string<MigrationStep> $migrationClass */
+                foreach ($migrations->getMigrationSteps() as $migrationClass) {
+                    /* @var MigrationStep $migration */
                     $migration = new $migrationClass();
                     $migration->update($nullConnection);
                     $migration->updateDestructive($nullConnection);

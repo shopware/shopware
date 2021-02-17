@@ -64,7 +64,6 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
 
@@ -92,7 +91,6 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
 
@@ -128,7 +126,6 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg));
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $decoratedBus = new MonitoringBusDecorator($innerBus, $connection);
 

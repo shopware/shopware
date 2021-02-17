@@ -135,7 +135,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
 
-        /** @var SalesChannelContext $context */
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(

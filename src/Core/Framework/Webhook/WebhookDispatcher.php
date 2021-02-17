@@ -9,7 +9,6 @@ use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -62,6 +61,9 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private $eventFactory;
 
+    /**
+     * @psalm-suppress ContainerDependency
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         Connection $connection,
@@ -74,8 +76,8 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->connection = $connection;
         $this->guzzle = $guzzle;
         $this->shopUrl = $shopUrl;
-        // inject container, so we can later get the ShopIdProvider
-        // ShopIdProvider can not be injected directly as it would lead to a circular reference
+        // inject container, so we can later get the ShopIdProvider and the webhook repository
+        // ShopIdProvider and webhook repository can not be injected directly as it would lead to a circular reference
         $this->container = $container;
         $this->eventFactory = $eventFactory;
     }
@@ -238,13 +240,8 @@ class WebhookDispatcher implements EventDispatcherInterface
         if (!$this->container->has('webhook.repository')) {
             throw new ServiceNotFoundException('webhook.repository');
         }
-        /**
-         * @var EntityRepositoryInterface $webhookRepository
-         */
-        $webhookRepository = $this->container->get('webhook.repository');
-
         /** @var WebhookCollection $webhooks */
-        $webhooks = $webhookRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $webhooks = $this->container->get('webhook.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
         return $this->webhooks = $webhooks;
     }
@@ -289,9 +286,6 @@ class WebhookDispatcher implements EventDispatcherInterface
             throw new ServiceNotFoundException(ShopIdProvider::class);
         }
 
-        /** @var ShopIdProvider $shopIdProvider */
-        $shopIdProvider = $this->container->get(ShopIdProvider::class);
-
-        return $shopIdProvider;
+        return $this->container->get(ShopIdProvider::class);
     }
 }

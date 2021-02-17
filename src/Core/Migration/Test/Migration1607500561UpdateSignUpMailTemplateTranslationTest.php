@@ -14,7 +14,6 @@ class Migration1607500561UpdateSignUpMailTemplateTranslationTest extends TestCas
 
     public function testEnSignupMailTemplateIsUpdated(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         /** @var string $enLangId */

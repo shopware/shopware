@@ -48,7 +48,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
         $validation
             ->add('email', $constraint);
 
-        /** @var DataValidator $validator */
         $validator = $this->getContainer()->get(DataValidator::class);
 
         static::assertEmpty($validator->validate([
@@ -72,7 +71,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
         $validation->add('email', $constraint);
 
-        /** @var DataValidator $validator */
         $validator = $this->getContainer()->get(DataValidator::class);
 
         try {
@@ -107,7 +105,6 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
         $validation->add('email', $constraint);
 
-        /** @var DataValidator $validator */
         $validator = $this->getContainer()->get(DataValidator::class);
 
         try {

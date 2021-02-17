@@ -40,7 +40,6 @@ class AccountRegistrationServiceTest extends TestCase
 
     public function testRegister(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

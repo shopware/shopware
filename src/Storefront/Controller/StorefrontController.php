@@ -42,11 +42,13 @@ abstract class StorefrontController extends AbstractController
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
 
-        /** @var SeoUrlPlaceholderHandlerInterface $seoUrlReplacer */
-        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
-        $response->setContent(
-            $seoUrlReplacer->replace($response->getContent(), $host, $salesChannelContext)
-        );
+        $seoUrlReplacer = $this->get(SeoUrlPlaceholderHandlerInterface::class);
+        $content = $response->getContent();
+        if ($content !== false) {
+            $response->setContent(
+                $seoUrlReplacer->replace($content, $host, $salesChannelContext)
+            );
+        }
 
         /* @var StorefrontResponse $response */
         $response->setData($parameters);
@@ -83,7 +85,7 @@ abstract class StorefrontController extends AbstractController
 
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
-        $router = $this->container->get('router');
+        $router = $this->get('router');
 
         $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
 
@@ -96,7 +98,7 @@ abstract class StorefrontController extends AbstractController
         $route = $router->match($url);
         $router->getContext()->setMethod($method);
 
-        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $request = $this->get('request_stack')->getCurrentRequest();
 
         $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),

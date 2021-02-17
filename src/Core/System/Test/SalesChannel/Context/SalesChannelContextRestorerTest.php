@@ -86,10 +86,7 @@ class SalesChannelContextRestorerTest extends TestCase
         };
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
-        /** @var SalesChannelContextFactory $contextFactory */
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-
-        /** @var CartRuleLoader $cartRuleLoader */
         $cartRuleLoader = $this->getContainer()->get(CartRuleLoader::class);
 
         $this->customerId = $this->createCustomer()->getId();

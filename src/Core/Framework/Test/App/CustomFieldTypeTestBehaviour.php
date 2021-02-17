@@ -22,7 +22,6 @@ trait CustomFieldTypeTestBehaviour
         $manifest = Manifest::createFromXmlFile($manifestPath);
 
         $context = Context::createDefaultContext();
-        /** @var AppLifecycle $appLifecycle */
         $appLifecycle = $this->getContainer()->get(AppLifecycle::class);
         $appLifecycle->install($manifest, true, $context);
 

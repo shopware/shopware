@@ -39,7 +39,6 @@ class AppActionLoaderTest extends TestCase
         /** @var ActionButtonEntity $action */
         $action = $actionCollection->first();
 
-        /** @var ShopIdProvider $shopIdProvider */
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
         $ids = [Uuid::randomHex()];
@@ -79,7 +78,6 @@ class AppActionLoaderTest extends TestCase
         /** @var ActionButtonEntity $action */
         $action = $actionCollection->first();
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',

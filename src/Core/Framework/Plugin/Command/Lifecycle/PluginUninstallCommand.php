@@ -36,7 +36,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
             return 0;
         }
 
-        $keepUserData = (bool) $input->getOption('keep-user-data');
+        $keepUserData = $input->getOption('keep-user-data');
 
         $uninstalledPluginCount = 0;
         foreach ($plugins as $plugin) {

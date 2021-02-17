@@ -56,13 +56,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $this->createPromotion($voucherA, $voucherA, $promotionRepository, $salesChannelContext);
         $this->createPromotion($voucherB, $voucherB, $promotionRepository, $salesChannelContext);
-        /** @var PromotionRedemptionUpdater $updater */
         $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
 
         $customerId = $this->createCustomer('shopware', 'johndoe@example.com');
         $this->createOrder($customerId);
 
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
 
         $lineItems = $conn->fetchAll('SELECT id FROM order_line_item;');

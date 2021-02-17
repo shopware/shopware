@@ -30,7 +30,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testNoChanges(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $expectedProductSchema = $conn->fetchAssoc('SHOW CREATE TABLE `customer`')['Create Table'];
 
@@ -45,7 +44,6 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
     {
         $databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1);
 
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $updateTrigger = $conn->fetchAll('SHOW TRIGGERS IN ' . $databaseName . ' WHERE `Trigger` = \'customer_address_vat_id_update\'');
 

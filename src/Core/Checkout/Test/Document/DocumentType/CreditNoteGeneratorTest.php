@@ -96,7 +96,6 @@ class CreditNoteGeneratorTest extends TestCase
 
     public function testGenerateWithDifferentTaxes(): void
     {
-        /** @var CreditNoteGenerator $creditNoteService */
         $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 

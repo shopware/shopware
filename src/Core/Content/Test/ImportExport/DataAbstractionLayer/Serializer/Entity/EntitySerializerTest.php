@@ -15,7 +15,6 @@ class EntitySerializerTest extends TestCase
     {
         $serializer = new EntitySerializer();
 
-        /** @var DefinitionInstanceRegistry $definitionRegistry */
         $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();

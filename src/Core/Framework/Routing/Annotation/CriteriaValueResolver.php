@@ -34,7 +34,7 @@ class CriteriaValueResolver implements ArgumentValueResolverInterface
         return $argument->getType() === Criteria::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         $annotation = $request->attributes->get('_entity');
 

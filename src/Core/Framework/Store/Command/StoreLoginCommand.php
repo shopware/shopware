@@ -54,7 +54,7 @@ class StoreLoginCommand extends Command
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password')
             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'User')
             ->addOption('host', 'g', InputOption::VALUE_OPTIONAL, 'License host')
-            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language', '')
+            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language')
         ;
     }
 

@@ -12,7 +12,6 @@ trait RuleTestBehaviour
      */
     public function clearCachedRules(): void
     {
-        /** @var CartRuleLoader $evaluator */
         $evaluator = $this->getContainer()->get(CartRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
         $rulesProperty->setValue($evaluator, null);

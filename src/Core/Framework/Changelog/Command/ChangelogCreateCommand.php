@@ -85,7 +85,7 @@ class ChangelogCreateCommand extends Command
             ->setAuthorGitHub($authorGithub);
 
         $IOHelper->section('Generating: ');
-        $target = $this->generator->generate($template, $date, (bool) $input->getOption('dry-run'));
+        $target = $this->generator->generate($template, $date, $input->getOption('dry-run'));
 
         $IOHelper->newLine();
         $IOHelper->success('The changelog was generated successfully');

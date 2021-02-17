@@ -19,7 +19,6 @@ class Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableT
 
     public function testUpdateDocumentBaseConfigLogoIdForeignKeyConstraintToOnDeleteSetNull(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
 
         $database = $conn->fetchColumn('select database();');

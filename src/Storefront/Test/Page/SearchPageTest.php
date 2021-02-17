@@ -75,7 +75,6 @@ class SearchPageTest extends TestCase
 
         static::assertSame('Demostore', $page->getMetaInformation()->getMetaTitle());
 
-        /** @var SystemConfigService $systemConfig */
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannel()->getId());
 

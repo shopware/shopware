@@ -124,7 +124,6 @@ class InstallAppCommand extends Command
 
     private function getManifest(InputInterface $input, ShopwareStyle $io): ?Manifest
     {
-        /** @var string $name */
         $name = $input->getArgument('name');
         $manifestPath = sprintf('%s/%s/manifest.xml', $this->appDir, $name);
         if (!is_file($manifestPath)) {

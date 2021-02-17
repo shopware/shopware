@@ -88,7 +88,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -113,7 +112,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -138,7 +136,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel(null);
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -154,16 +151,13 @@ class ProductCartProcessorTest extends TestCase
         $this->createProduct();
 
         $token = $this->ids->create('token');
-        /** @var SalesChannelContextService $salesChannelContextService */
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
         $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY);
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
         $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
         $cartService->add($cart, $product, $context);
 
-        /** @var ProductCartProcessor $productCartProcessor */
         $productCartProcessor = $this->getContainer()->get(ProductCartProcessor::class);
         $productCartProcessor->collect(
             new CartDataCollection(),
@@ -445,7 +439,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -484,7 +477,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 

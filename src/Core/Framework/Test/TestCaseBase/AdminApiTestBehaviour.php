@@ -131,7 +131,6 @@ trait AdminApiTestBehaviour
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
 
@@ -220,7 +219,6 @@ trait AdminApiTestBehaviour
             $id = Uuid::fromHexToBytes($id);
         }
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
 
         $connection->insert('integration', [

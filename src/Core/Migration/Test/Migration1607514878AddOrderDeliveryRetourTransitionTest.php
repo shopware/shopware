@@ -13,7 +13,6 @@ class Migration1607514878AddOrderDeliveryRetourTransitionTest extends TestCase
 
     public function testDeliveryRetourActionFromPartiallyReturnedToReturnedIsAdded(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $migration = new Migration1607514878AddOrderDeliveryRetourTransition();

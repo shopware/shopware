@@ -34,6 +34,8 @@ class DefinitionInstanceRegistry
     protected $entityClassMapping;
 
     /**
+     * @psalm-suppress ContainerDependency
+     *
      * @param array $definitionMap array of $entityName => $definitionServiceId,
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'

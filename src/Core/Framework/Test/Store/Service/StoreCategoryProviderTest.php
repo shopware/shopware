@@ -21,7 +21,6 @@ class StoreCategoryProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        /** @var AbstractStoreCategoryProvider $categoryProvider */
         $categoryProvider = $this->getContainer()->get(AbstractStoreCategoryProvider::class);
 
         $categoryResponse = \file_get_contents(__DIR__ . '/../_fixtures/categories-listing.json');

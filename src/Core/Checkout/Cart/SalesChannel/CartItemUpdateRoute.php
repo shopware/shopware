@@ -72,7 +72,8 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      */
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        foreach ($request->request->get('items', []) as $item) {
+        $itemsToUpdate = $request->request->get('items', []);
+        foreach ($itemsToUpdate as $item) {
             $this->lineItemFactory->update($cart, $item, $context);
         }
 
@@ -81,7 +82,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
 
-        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $request->request->get('items', []), $context));
+        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $itemsToUpdate, $context));
 
         return new CartResponse($cart);
     }

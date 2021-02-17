@@ -99,7 +99,6 @@ class MailSendSubscriberTest extends TestCase
         );
 
         if ($extendTemplateData) {
-            /** @var EventDispatcherInterface $listener */
             $listener = $this->getContainer()->get(EventDispatcherInterface::class);
             $listener->addSubscriber(new TestMailSendSubscriber());
             $stopSentSubscriber = new TestStopSendSubscriber();
@@ -301,7 +300,6 @@ class MailSendSubscriberTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context): string
     {
-        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $documentStruct = $documentService->create(

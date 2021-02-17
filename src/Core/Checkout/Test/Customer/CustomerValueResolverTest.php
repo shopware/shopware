@@ -83,7 +83,6 @@ class CustomerValueResolverTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->accountService = $this->getContainer()->get(AccountService::class);
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }

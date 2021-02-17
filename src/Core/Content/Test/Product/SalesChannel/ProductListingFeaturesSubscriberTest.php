@@ -827,6 +827,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
 
         if ($expected['aggregation'] === 'properties' && isset($expected['propertyWhitelistIds'])) {
+            static::assertInstanceOf(EntityResult::class, $aggregation);
             /** @var PropertyGroupCollection $properties */
             $properties = $aggregation->getEntities();
 

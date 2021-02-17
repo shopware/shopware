@@ -42,7 +42,6 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
     public function testVariantCmsPageShouldInheritedFromContainerProduct(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $database = $connection->fetchColumn('select database();');

@@ -51,21 +51,20 @@ class ChangelogChangeCommand extends Command
             throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
         }
 
-        $includeFeatureFlags = (bool) $input->getOption('include-feature-flags');
+        $includeFeatureFlags = $input->getOption('include-feature-flags');
         if (!empty($version) && $includeFeatureFlags) {
             $IOHelper->warning('You cannot use `include-feature-flags` argument for an existing release version.');
             $includeFeatureFlags = false;
         }
 
-        $output = $this->releaseExporter->export($this->getRequestedSection($input), $version, $includeFeatureFlags, (bool) $input->getOption('keys-only'));
+        $outputArray = $this->releaseExporter->export($this->getRequestedSection($input), $version, $includeFeatureFlags, $input->getOption('keys-only'));
 
-        /** @var string $path */
         $path = $input->getOption('path') ?: '';
-        if (!empty($path)) {
-            file_put_contents($path, implode("\n", $output));
+        if (\is_string($path) && $path !== '') {
+            file_put_contents($path, implode("\n", $outputArray));
             $IOHelper->writeln('* Pushed all changelogs into ' . $path);
         } else {
-            $IOHelper->writeln($output);
+            $IOHelper->writeln($outputArray);
         }
 
         $IOHelper->newLine();

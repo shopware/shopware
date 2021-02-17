@@ -186,7 +186,6 @@ class DocumentServiceTest extends TestCase
 
     public function testGetStaticDocumentFile(): void
     {
-        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(2);
@@ -259,7 +258,6 @@ class DocumentServiceTest extends TestCase
 
     public function testConfigurationWithSalesChannelOverride(): void
     {
-        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(2);
@@ -301,7 +299,6 @@ class DocumentServiceTest extends TestCase
 
     public function testConfigurationWithOverrides(): void
     {
-        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(2);
@@ -525,7 +522,6 @@ class DocumentServiceTest extends TestCase
 
     private function createDocumentWithFile(): DocumentEntity
     {
-        /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $cart = $this->generateDemoCart(2);

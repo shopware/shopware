@@ -40,12 +40,11 @@ class ResolveAppUrlChangeCommand extends Command
         $io = new ShopwareStyle($input, $output);
 
         $availableStrategies = $this->appUrlChangeResolver->getAvailableStrategies();
-        /** @var string|null $strategy */
         $strategy = $input->getArgument('strategy');
 
         if ($strategy === null || !\array_key_exists($strategy, $availableStrategies)) {
             if ($strategy !== null) {
-                $io->note('Strategy with name: "' . $strategy . '" not found.');
+                $io->note(sprintf('Strategy with name: "%s" not found.', $strategy));
             }
 
             $strategy = $io->choice(

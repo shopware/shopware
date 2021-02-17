@@ -1,4 +1,3 @@
-import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
@@ -70,28 +69,6 @@ Component.register('sw-settings-rule-detail', {
             );
         },
 
-        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
-        availableModuleTypes() {
-            return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
-        },
-
-        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
-        moduleTypes: {
-            get() {
-                if (!this.rule || !this.rule.moduleTypes) {
-                    return [];
-                }
-                return this.rule.moduleTypes.types;
-            },
-            set(value) {
-                if (value === null || value.length === 0) {
-                    this.rule.moduleTypes = null;
-                    return;
-                }
-                this.rule.moduleTypes = { types: value };
-            }
-        },
-
         tooltipSave() {
             if (!this.acl.can('rule.editor')) {
                 return {
@@ -129,10 +106,7 @@ Component.register('sw-settings-rule-detail', {
                     cssClassSuffix: 'assignments'
                 }
             ];
-        },
-
-        /** @feature-deprecated (flag:FEATURE_NEXT_12289) tag:v6.4.0 - Will be moved to "sw-settings-rule-detail-base" */
-        ...mapPropertyErrors('rule', ['name', 'priority'])
+        }
     },
 
     watch: {

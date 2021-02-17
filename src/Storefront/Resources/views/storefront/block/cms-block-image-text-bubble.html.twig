@@ -1,5 +1,6 @@
 {% block block_image_text_bubble %}
     {% set columns = 3 %}
+    {% deprecated '@deprecated tag:v6.5.0 - Use "element.id" directly instead.' %}
     {% set id = element.id %}
 
     {% block block_image_text_bubble_left %}
@@ -7,7 +8,7 @@
             {% block block_image_text_bubble_left_image %}
                 {% set element = block.slots.getSlot('left-image') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -15,7 +16,7 @@
             {% block block_image_text_bubble_left_text %}
                 {% set element = block.slots.getSlot('left-text') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -27,7 +28,7 @@
             {% block block_image_text_bubble_center_image %}
                 {% set element = block.slots.getSlot('center-image') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -35,7 +36,7 @@
             {% block block_image_text_bubble_center_text %}
                 {% set element = block.slots.getSlot('center-text') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -47,7 +48,7 @@
             {% block block_image_text_bubble_right_image %}
                 {% set element = block.slots.getSlot('right-image') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}
@@ -55,7 +56,7 @@
             {% block block_image_text_bubble_right_text %}
                 {% set element = block.slots.getSlot('right-text') %}
 
-                <div data-cms-element-id="{{ id }}">
+                <div data-cms-element-id="{{ element.id }}">
                     {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
                 </div>
             {% endblock %}

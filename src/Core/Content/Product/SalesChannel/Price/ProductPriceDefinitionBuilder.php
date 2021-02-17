@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Use \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator instead
+ */
 class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInterface
 {
     public function build(ProductEntity $product, SalesChannelContext $context, int $quantity = 1): ProductPriceDefinitions

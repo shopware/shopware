@@ -45,7 +45,9 @@ class FileSaverTest extends TestCase
      */
     private $fileSaver;
 
-    /** @var UrlGeneratorInterface */
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
 
     protected function setUp(): void

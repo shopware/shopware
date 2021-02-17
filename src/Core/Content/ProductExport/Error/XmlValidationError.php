@@ -4,13 +4,19 @@ namespace Shopware\Core\Content\ProductExport\Error;
 
 class XmlValidationError extends Error
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $id;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $errors;
 
-    /** @var ErrorMessage[] */
+    /**
+     * @var ErrorMessage[]
+     */
     protected $errorMessages;
 
     /**

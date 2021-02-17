@@ -196,6 +196,7 @@ export default function conditionService() {
             'blacklistIds',
             'whitelistIds',
             'productManufacturerVersionId',
+            // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - will be removed
             'listingPrices',
             'categoryTree',
             'extensions',

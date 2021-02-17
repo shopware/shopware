@@ -9,7 +9,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ExportInvalidException extends ShopwareHttpException
 {
-    /** @var ErrorMessage[] */
+    /**
+     * @var ErrorMessage[]
+     */
     protected $errorMessages;
 
     /**

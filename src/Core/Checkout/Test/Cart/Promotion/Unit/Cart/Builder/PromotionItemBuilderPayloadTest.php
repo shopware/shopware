@@ -26,13 +26,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionItemBuilderPayloadTest extends TestCase
 {
-    /** @var PromotionEntity */
+    /**
+     * @var PromotionEntity
+     */
     private $promotion;
 
-    /** @var MockObject */
+    /**
+     * @var MockObject
+     */
     private $salesChannelContext;
 
-    /** @var MockObject */
+    /**
+     * @var MockObject
+     */
     private $context;
 
     public function setUp(): void

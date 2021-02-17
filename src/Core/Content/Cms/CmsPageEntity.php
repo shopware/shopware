@@ -85,6 +85,13 @@ class CmsPageEntity extends Entity
      */
     protected $landingPages;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var CmsPageCollection|null
+     */
+    protected $homeSalesChannels;
+
     public function getName(): string
     {
         return $this->name;
@@ -232,6 +239,22 @@ class CmsPageEntity extends Entity
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getHomeSalesChannels(): ?CmsPageCollection
+    {
+        return $this->homeSalesChannels;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setHomeSalesChannels(CmsPageCollection $homeSalesChannels): void
+    {
+        $this->homeSalesChannels = $homeSalesChannels;
     }
 
     public function getElementsOfType(string $type): array

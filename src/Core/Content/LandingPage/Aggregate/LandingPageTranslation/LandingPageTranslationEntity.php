@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-class LandingPageTranslationEntity extends Entity
+class LandingPageTranslationEntity extends TranslationEntity
 {
     /**
      * @var string
@@ -22,16 +21,6 @@ class LandingPageTranslationEntity extends Entity
      * @var array|null
      */
     protected $customFields;
-
-    /**
-     * @var LanguageEntity|null
-     */
-    protected $language;
-
-    /**
-     * @var string|null
-     */
-    protected $languageId;
 
     /**
      * @var string|null
@@ -91,26 +80,6 @@ class LandingPageTranslationEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getLanguage(): ?LanguageEntity
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(?LanguageEntity $language): void
-    {
-        $this->language = $language;
-    }
-
-    public function getLanguageId(): ?string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(?string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getName(): ?string

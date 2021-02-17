@@ -23,6 +23,12 @@ export default function createSearchTypeService() {
             placeholderSnippet: 'sw-category.general.placeholderSearchBar',
             listingRoute: 'sw.category.index'
         },
+        landing_page: {
+            entityName: 'landing_page',
+            entityService: 'landingPageService',
+            placeholderSnippet: 'sw-landing-page.general.placeholderSearchBar',
+            listingRoute: 'sw.category.index'
+        },
         customer: {
             entityName: 'customer',
             entityService: 'customerService',

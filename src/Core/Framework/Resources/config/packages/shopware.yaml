@@ -75,9 +75,6 @@ shopware:
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_10539
-              major: false
-              description: "prevent deletion of used rules"
             - name: FEATURE_NEXT_12092
               default: false
               major: true
@@ -122,17 +119,7 @@ shopware:
               default: false
               major: true
               description: "App System Store"
-              # issue: NEXT-13469
-            - name: FEATURE_NEXT_7365
-              default: false
-              major: true
-              description: "single SCSS entry file for plugins"
-              # issue: NEXT-12932
-            - name: FEATURE_NEXT_12289
-              default: false
-              major: true
-              description: "Rule detail page assignments tab"
-              # issue: NEXT-12461
+            # issue: NEXT-13469
             - name: FEATURE_NEXT_12032
               default: false
               major: true

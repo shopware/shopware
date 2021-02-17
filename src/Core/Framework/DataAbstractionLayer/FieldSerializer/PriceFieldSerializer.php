@@ -22,11 +22,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @var Price
+     */
+    private $blueprint;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator
     ) {
         parent::__construct($validator, $definitionRegistry);
+        $this->blueprint = new Price('', 0, 0, true, null);
     }
 
     public function encode(
@@ -84,23 +90,29 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         if ($value === null) {
             return null;
         }
-        $value = json_decode($value, true);
+
+        // used for nested hydration (example cheapest-price-hydrator)
+        if (\is_string($value)) {
+            $value = json_decode($value, true);
+        }
 
         $prices = [];
         foreach ($value as $row) {
-            $price = new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked']);
+            $price = clone $this->blueprint;
+            $price->setCurrencyId($row['currencyId']);
+            $price->setNet((float) $row['net']);
+            $price->setGross((float) $row['gross']);
+            $price->setLinked((bool) $row['linked']);
 
             if (isset($row['listPrice']) && isset($row['listPrice']['gross'])) {
-                $listPrice = $row['listPrice'];
+                $data = $row['listPrice'];
 
-                $price->setListPrice(
-                    new Price(
-                        $row['currencyId'],
-                        (float) $listPrice['net'],
-                        (float) $listPrice['gross'],
-                        (bool) $listPrice['linked']
-                    )
-                );
+                $listPrice = clone $this->blueprint;
+                $listPrice->setCurrencyId($row['currencyId']);
+                $listPrice->setNet((float) $data['net']);
+                $listPrice->setGross((float) $data['gross']);
+                $listPrice->setLinked((bool) $data['linked']);
+                $price->setListPrice($listPrice);
             }
 
             $prices[] = $price;

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInte
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -98,21 +99,6 @@ class SearchKeywordUpdater
             $configFields = $this->getConfigFields($context->getLanguageId());
         }
 
-        $products = $context->disableCache(function (Context $context) use ($ids, $configFields) {
-            return $context->enableInheritance(function (Context $context) use ($ids, $configFields) {
-                $criteria = new Criteria($ids);
-
-                if (Feature::isActive('FEATURE_NEXT_10552')) {
-                    $fields = $this->getAssociationFields(array_column($configFields, 'field'));
-                    $criteria->addAssociations(array_filter(array_unique($fields)));
-                } else {
-                    $criteria->addAssociation('manufacturer');
-                }
-
-                return $this->productRepository->search($criteria, $context);
-            });
-        });
-
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
@@ -123,35 +109,59 @@ class SearchKeywordUpdater
         $keywords = [];
         $dictionary = [];
 
-        /** @var ProductEntity $product */
-        foreach ($products as $product) {
-            $analyzed = $this->analyzer->analyze($product, $context, $configFields);
+        $iterator = $this->getIterator($ids, $context, $configFields);
 
-            $productId = Uuid::fromHexToBytes($product->getId());
+        /* @var ProductEntity $product */
+        while ($products = $iterator->fetch()) {
+            /** @var ProductEntity $product */
+            foreach ($products as $product) {
+                $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
-            foreach ($analyzed as $keyword) {
-                $keywords[] = [
-                    'id' => Uuid::randomBytes(),
-                    'version_id' => $versionId,
-                    'product_version_id' => $versionId,
-                    'language_id' => $languageId,
-                    'product_id' => $productId,
-                    'keyword' => $keyword->getKeyword(),
-                    'ranking' => $keyword->getRanking(),
-                    'created_at' => $now,
-                ];
-                $key = $keyword->getKeyword() . $languageId;
-                $dictionary[$key] = [
-                    'id' => Uuid::randomBytes(),
-                    'language_id' => $languageId,
-                    'keyword' => $keyword->getKeyword(),
-                ];
+                $productId = Uuid::fromHexToBytes($product->getId());
+
+                foreach ($analyzed as $keyword) {
+                    $keywords[] = [
+                        'id' => Uuid::randomBytes(),
+                        'version_id' => $versionId,
+                        'product_version_id' => $versionId,
+                        'language_id' => $languageId,
+                        'product_id' => $productId,
+                        'keyword' => $keyword->getKeyword(),
+                        'ranking' => $keyword->getRanking(),
+                        'created_at' => $now,
+                    ];
+                    $key = $keyword->getKeyword() . $languageId;
+                    $dictionary[$key] = [
+                        'id' => Uuid::randomBytes(),
+                        'language_id' => $languageId,
+                        'keyword' => $keyword->getKeyword(),
+                    ];
+                }
             }
         }
 
         $this->insertKeywords($keywords);
 
         $this->insertDictionary($dictionary);
+    }
+
+    private function getIterator(array $ids, Context $context, array $configFields): RepositoryIterator
+    {
+        $context->setConsiderInheritance(true);
+
+        return $context->disableCache(function (Context $context) use ($ids, $configFields) {
+            $criteria = new Criteria($ids);
+            $criteria->setLimit(50);
+
+            if (Feature::isActive('FEATURE_NEXT_10552')) {
+                $fields = $this->getAssociationFields(array_column($configFields, 'field'));
+                $criteria->addAssociations(array_filter(array_unique($fields)));
+            } else {
+                $criteria->addAssociation('manufacturer');
+            }
+
+            return new RepositoryIterator($this->productRepository, $context, $criteria);
+        });
     }
 
     private function delete(array $ids, string $languageId, string $versionId): void

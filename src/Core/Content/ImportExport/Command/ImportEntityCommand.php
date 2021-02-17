@@ -65,25 +65,12 @@ class ImportEntityCommand extends Command
         $context = Context::createDefaultContext();
 
         $profileName = $input->getArgument('profile');
-        if (\is_array($profileName)) {
-            throw new \InvalidArgumentException(
-                sprintf('Profile name: Found array, expected string')
-            );
-        }
         $profile = empty($profileName)
             ? $this->chooseProfile($context, $io)
             : $this->profileByName($profileName, $context);
         $filePath = $input->getArgument('file');
 
         $expireDateString = $input->getArgument('expireDate');
-        if ($expireDateString === null) {
-            throw new \InvalidArgumentException(
-                sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
-            );
-        }
-        if (\is_array($expireDateString)) {
-            $expireDateString = implode('', $expireDateString);
-        }
 
         try {
             $expireDate = new \DateTimeImmutable($expireDateString);
@@ -107,6 +94,9 @@ class ImportEntityCommand extends Command
         $importExport = $this->importExportFactory->create($log->getId());
 
         $total = filesize($filePath);
+        if ($total === false) {
+            $total = 0;
+        }
         $progressBar = $io->createProgressBar($total);
 
         $io->title(sprintf('Starting import of size %d ', $total));

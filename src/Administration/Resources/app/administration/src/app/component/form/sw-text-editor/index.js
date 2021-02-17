@@ -403,13 +403,17 @@ Component.register('sw-text-editor', {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'default-text-editor-variables',
-                        position: 'left'
+                        position: 'left',
+                        dropdownPosition: 'left',
+                        tooltipShowDelay: 500,
+                        tooltipHideDelay: 100
                     };
 
                     const buttonConfigs = this.availableDataMappings.map(mapping => (
                         {
                             type: mapping,
                             name: mapping,
+                            title: mapping,
                             handler: this.handleInsertDataMapping
                         }
                     ));

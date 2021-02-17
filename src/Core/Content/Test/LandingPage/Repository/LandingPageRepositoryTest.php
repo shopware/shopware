@@ -109,6 +109,7 @@ class LandingPageRepositoryTest extends TestCase
             'metaTitle' => 'My meta title',
             'metaDescription' => 'My meta description',
             'keywords' => 'landing, page, title',
+            'url' => 'coolUrl',
             'salesChannels' => $saleChannels,
             'cmsPageId' => $cmsPageId,
             'tags' => [

@@ -69,7 +69,7 @@ describe('Product: Edit list prices of context prices', () => {
 
             // Verify in storefront
             cy.visit('/');
-            cy.get('.product-box').contains('from €64.00*');
+            cy.get('.product-box').contains('From €64.00*');
             cy.get('input[name=search]').type('Product name');
             cy.get('.search-suggest-container').should('be.visible');
             cy.get('.search-suggest-product-name')

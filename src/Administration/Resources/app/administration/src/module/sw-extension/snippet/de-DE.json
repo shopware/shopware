@@ -11,6 +11,10 @@
       }
     },
     "my-extensions": {
+      "listing": {
+        "initialSearchType": "Erweiterungen",
+        "placeholderSearchBar": "Durchsuche alle Erweiterungen…"
+      },
       "account": {
         "headline": "Shopware Account",
         "isLoggedIn": "Das Konto wurde erfolgreich verbunden. Gehe auf die Registerkarte \"App\" oder \"Themes\" und prüfe, ob deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe zu deinem Showare-Konto und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",
@@ -145,6 +149,22 @@
           "text": "Du musst eingeloggt sein um diese Aktion zutätigen",
           "linkChoosePLan": "Wähle einen Plan aus"
         }
+      },
+      "sw-extension-adding-failed": {
+        "titleFailure": "Hinzufügen fehlgeschlagen",
+        "textProblem": "Beim Hinzufügen Deiner Erweiterung ist ein Problem aufgetreten.",
+        "installationFailed": {
+          "titleFailure": "Installation fehlgeschlagen",
+          "textProblem": "Beim Installieren Deiner Erweiterung ist ein Problem aufgetreten. Der Hersteller wird von uns informiert.",
+          "notificationLicense": "Beachte, dass das Abo dieser App bzw. des Themes weiterhin aktiv bleibt.",
+          "textSupport": "Bei Fragen zur Lizenz wende Dich bitte an die Shopware Financial Services. Erreichbar per E-Mail unter {0} oder per Telefon unter {1}",
+          "supportEmail": "financial.services@shopware.com",
+          "supportPhone": "+49 (0)2555 / 9288510"
+        }
+      },
+      "sw-extension-adding-success": {
+        "titleSuccess": "Erweiterung erfolgreich hinzugefügt!",
+        "subtitleSuccess": "Du kannst Deine neue Erweiterung jetzt ausprobieren."
       },
       "sw-extension-ratings": {
         "sw-review-reply": {

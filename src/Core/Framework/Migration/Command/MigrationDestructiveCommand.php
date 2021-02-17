@@ -37,7 +37,7 @@ class MigrationDestructiveCommand extends MigrationCommand
 
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_10539) Only check for identifier
+        // @feature-deprecated (flag:FEATURE_NEXT_12349) Only check for identifier
         if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
             $mode = $input->getOption('version-selection-mode');
             if (!\is_string($mode)) {

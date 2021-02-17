@@ -134,7 +134,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
         $io->note(
             sprintf(
-                'You may want to clear the cache after %s plugin(s). To do so run either the cache:clear command or ./psh.phar cache',
+                'You may want to clear the cache after %s plugin(s). To do so run the cache:clear command',
                 $action
             )
         );

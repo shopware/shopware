@@ -7,10 +7,14 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class Transaction extends Struct
 {
-    /** @var CalculatedPrice */
+    /**
+     * @var CalculatedPrice
+     */
     protected $amount;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $paymentMethodId;
 
     public function __construct(CalculatedPrice $amount, string $paymentMethodId)

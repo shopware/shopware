@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Theme\StorefrontPluginConfiguration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -70,8 +69,6 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasSingleScssEntryPoint(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
-
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePlugin');
         $bundle = $this->getBundle('SimplePlugin', $basePath);
 
@@ -84,8 +81,6 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPoint(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
-
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePluginWithoutCompilation');
 
         $bundle = $this->getBundle('SimplePluginWithoutCompilation', $basePath);
@@ -96,8 +91,6 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testPluginHasNoScssEntryPointButDifferentScssFiles(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_7365', $this);
-
         $basePath = realpath(__DIR__ . '/../fixtures/SimpleWithoutStyleEntryPoint');
 
         $bundle = $this->getBundle('SimpleWithoutStyleEntryPoint', $basePath);

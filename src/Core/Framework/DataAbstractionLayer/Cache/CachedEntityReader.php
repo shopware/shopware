@@ -86,8 +86,11 @@ class CachedEntityReader implements EntityReaderInterface
     {
         //generate cache key list for multi cache get
         $keys = [];
-        /** @var string $id */
+        /** @var string|array $id */
         foreach ($criteria->getIds() as $id) {
+            if (\is_array($id)) {
+                $id = implode('-', $id);
+            }
             $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
         }
 

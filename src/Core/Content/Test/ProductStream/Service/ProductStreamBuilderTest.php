@@ -34,7 +34,9 @@ class ProductStreamBuilderTest extends TestCase
      */
     private $productStreamRepository;
 
-    /** @var SalesChannelRepositoryInterface */
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
     private $productRepository;
 
     /**
@@ -47,7 +49,9 @@ class ProductStreamBuilderTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var ProductStreamBuilderInterface */
+    /**
+     * @var ProductStreamBuilderInterface
+     */
     private $service;
 
     protected function setUp(): void

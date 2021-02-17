@@ -1,3 +1,5 @@
+{# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
+
 {% block layout_search_suggest %}
     <div class="search-suggest js-search-result">
         {% block layout_search_suggest_container %}
@@ -41,17 +43,39 @@
 
                                             {% block layout_search_suggest_result_price %}
                                                 <div class="col-auto search-suggest-product-price">
-                                                    {% if product.priceRange %}
-                                                        {{ product.calculatedListingPrice.from.unitPrice|currency }}
-                                                        -
-                                                        {{ product.calculatedListingPrice.to.unitPrice|currency}}
-                                                    {% elseif product.calculatedPrices|length == 1 %}
-                                                        {{ product.calculatedPrices.first.unitPrice|currency }}
+                                                    {% if feature('FEATURE_NEXT_10553') %}
+                                                        {% set price = product.calculatedPrice %}
+                                                        {% if product.calculatedPrices.count > 0 %}
+                                                            {% set price = product.calculatedPrices.last %}
+                                                        {% endif %}
+
+                                                        {% set referencePrice = price.referencePrice %}
+
+                                                        {% if product.calculatedPrices.count > 1 %}
+                                                            {{ "listing.listingTextFrom"|trans|sw_sanitize }}
+                                                        {% endif %}
+                                                        {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+
+                                                        {% if price.referencePrice is not null %}
+                                                            <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+                                                        {% endif %}
+                                                        {# @deprecated tag:v6.4.0 content will be removed #}
                                                     {% else %}
-                                                        {{ product.calculatedPrice.unitPrice|currency }}
-                                                    {% endif %}
-                                                    {% if product.calculatedPrice.referencePrice is not null %}
-                                                        <br><small class="search-suggest-product-reference-price">({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ product.calculatedPrice.referencePrice.referenceUnit }}&nbsp;{{ product.calculatedPrice.referencePrice.unitName }})</small>
+                                                        {% set price = product.calculatedPrice %}
+
+                                                        {% if product.priceRange %}
+                                                            {{ product.calculatedListingPrice.from.unitPrice|currency }}
+                                                            -
+                                                            {{ product.calculatedListingPrice.to.unitPrice|currency}}
+                                                        {% elseif product.calculatedPrices|length == 1 %}
+                                                            {{ product.calculatedPrices.first.unitPrice|currency }}
+                                                        {% else %}
+                                                            {{ price.unitPrice|currency }}
+                                                        {% endif %}
+
+                                                        {% if price.referencePrice is not null %}
+                                                            <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}

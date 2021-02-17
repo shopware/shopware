@@ -56,7 +56,8 @@ Component.register('sw-category-detail-base', {
             return [
                 { value: 'page', label: this.$tc('sw-category.base.general.types.page') },
                 { value: 'folder', label: this.$tc('sw-category.base.general.types.folder') },
-                { value: 'link', label: this.$tc('sw-category.base.general.types.link') }
+                { value: 'link', label: this.$tc('sw-category.base.general.types.link') },
+                { value: 'column', label: this.$tc('sw-category.base.general.types.column'), disabled: true }
             ];
         },
 
@@ -155,6 +156,7 @@ Component.register('sw-category-detail-base', {
 
         ...mapPropertyErrors('category', [
             'name',
+            'type',
 
             // @deprecated tag:v6.5.0 - can be removed completely
             'productStreamId',

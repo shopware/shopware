@@ -37,13 +37,15 @@
                 {% endblock %}
 
                 {% block sw_tree_item_element_grip %}
-                    <div v-if="item.childCount > 0" class="sw-tree-item__icon">
-                        <sw-icon name="multicolor-folder-tree-open" multicolor small v-if="opened"></sw-icon>
-                        <sw-icon name="multicolor-folder-tree" multicolor small v-else></sw-icon>
-                    </div>
-                    <div v-else class="sw-tree-item__icon">
-                        <sw-icon name="small-default-circle-small" size="18"></sw-icon>
-                    </div>
+                    <slot name="grip">
+                        <div v-if="item.childCount > 0" class="sw-tree-item__icon">
+                            <sw-icon v-if="opened" name="multicolor-folder-tree-open" multicolor small></sw-icon>
+                            <sw-icon v-else name="multicolor-folder-tree" multicolor small></sw-icon>
+                        </div>
+                        <div v-else class="sw-tree-item__icon">
+                            <sw-icon name="small-default-circle-small" size="18"></sw-icon>
+                        </div>
+                    </slot>
                 {% endblock %}
 
                 {% block sw_tree_item_element_content %}
@@ -91,7 +93,15 @@
                             </sw-icon>
                         {% endblock %}
 
-                        <slot name="actions" :item="item" :openTreeItem="openTreeItem">
+                        <slot name="actions"
+                              :item="item"
+                              :openTreeItem="openTreeItem"
+                              :addElement="addElement"
+                              :addSubElement="addSubElement"
+                              :onDuplicate="onDuplicate"
+                              :onChangeRoute="onChangeRoute"
+                              :deleteElement="deleteElement"
+                        >
                             <sw-context-button class="sw-tree-item__context_button" v-tooltip="toolTip" :disabled="isDisabled">
 
                             {% block sw_tree_items_actions_without_position %}

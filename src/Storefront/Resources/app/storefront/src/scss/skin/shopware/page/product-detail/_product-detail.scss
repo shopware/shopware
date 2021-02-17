@@ -73,10 +73,7 @@
     display: inline-block;
     vertical-align: bottom;
     text-decoration: line-through;
-
-    @include media-breakpoint-down(md) {
-        height: 22px;
-    }
+    padding-left: 8px;
 }
 
 

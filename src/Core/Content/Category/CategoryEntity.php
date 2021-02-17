@@ -154,6 +154,27 @@ class CategoryEntity extends Entity
     protected $serviceSalesChannels;
 
     /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $linkType;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var bool|null
+     */
+    protected $linkNewTab;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     *
+     * @var string|null
+     */
+    protected $internalLink;
+
+    /**
      * @var string|null
      */
     protected $externalLink;
@@ -461,6 +482,54 @@ class CategoryEntity extends Entity
     public function setServiceSalesChannels(SalesChannelCollection $serviceSalesChannels): void
     {
         $this->serviceSalesChannels = $serviceSalesChannels;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getLinkType(): ?string
+    {
+        return $this->linkType;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setLinkType(?string $linkType): void
+    {
+        $this->linkType = $linkType;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getLinkNewTab(): ?bool
+    {
+        return $this->linkNewTab;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setLinkNewTab(?bool $linkNewTab): void
+    {
+        $this->linkNewTab = $linkNewTab;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function getInternalLink(): ?string
+    {
+        return $this->internalLink;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function setInternalLink(?string $internalLink): void
+    {
+        $this->internalLink = $internalLink;
     }
 
     public function getExternalLink(): ?string

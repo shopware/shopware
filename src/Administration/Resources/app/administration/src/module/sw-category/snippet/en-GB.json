@@ -40,6 +40,8 @@
           "page": "Category",
           "folder": "Structuring element",
           "link": "Customisable link",
+          "column": "Column",
+          "columnHelp": "The category type cannot be changed if the category above is an entry point for the footer navigation",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes."
         }
       },
@@ -122,21 +124,19 @@
   "sw-landing-page": {
     "view": {
       "general": "General",
-      "cms": "Content"
+      "cms": "Layout"
     },
     "general": {
+      "placeholderSearchBar": "Search Landing pages...",
       "treeHeadSelected": "{count} selected",
-      "buttonCreate": "Create landing page",
-      "treeHeadline": "Landing Pages",
-      "actions": {
-        "withoutPosition": "New landing page"
-      }
+      "buttonCreate": "Add Landing page",
+      "treeHeadline": "Landing pages"
     },
     "base": {
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "General",
-        "isActiveLabel": "Category active",
+        "isActiveLabel": "Landing page active",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Enter tags individually..."
       },
@@ -165,8 +165,8 @@
       }
     },
     "modal": {
-      "textDeleteConfirm": "Are you sure you really want to delete the landing page \"{name}\"?",
-      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected landing pages?"
+      "textDeleteConfirm": "Are you sure you really want to delete the Landing page \"{name}\"?",
+      "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected Landing pages?"
     }
   },
   "sw-privileges": {
@@ -174,8 +174,8 @@
       "category": {
         "label": "Categories"
       },
-      "landingPage": {
-        "label": "Landing Pages"
+      "landing_page": {
+        "label": "Landing pages"
       }
     }
   }

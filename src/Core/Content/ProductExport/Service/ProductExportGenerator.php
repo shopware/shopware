@@ -25,34 +25,54 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
-    /** @var ProductStreamBuilderInterface */
+    /**
+     * @var ProductStreamBuilderInterface
+     */
     private $productStreamBuilder;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $readBufferSize;
 
-    /** @var SalesChannelRepositoryInterface */
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
     private $productRepository;
 
-    /** @var ProductExportRendererInterface */
+    /**
+     * @var ProductExportRendererInterface
+     */
     private $productExportRender;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
-    /** @var ProductExportValidatorInterface */
+    /**
+     * @var ProductExportValidatorInterface
+     */
     private $productExportValidator;
 
-    /** @var SalesChannelContextServiceInterface */
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
     private $salesChannelContextService;
 
-    /** @var Translator */
+    /**
+     * @var Translator
+     */
     private $translator;
 
-    /** @var SalesChannelContextPersister */
+    /**
+     * @var SalesChannelContextPersister
+     */
     private $contextPersister;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
     public function __construct(

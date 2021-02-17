@@ -17,6 +17,7 @@
             <file name="src/Core/Content/MailTemplate/Service/MailSender.php"/>
             <!-- Ignore UNTIL FEATURE_NEXT_12246 is removed -->
             <file name="src/Core/Content/MailTemplate/Service/MailSenderInterface.php"/>
+            <file name="src/Core/Framework/DataAbstractionLayer/Dbal/JoinBuilder/AntiJoinBuilder.php"/>
         </ignoreFiles>
     </projectFiles>
 

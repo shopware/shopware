@@ -38,14 +38,15 @@ class CurrencyFormatter
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
     {
+        $decimals = $decimals ?? $context->getRounding()->getDecimals();
+
         $locale = $this->getLocale($languageId, $context);
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
-        $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals ?? 2);
+        $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
         return $formatter->formatCurrency($price, $currency);
     }
 
-    // TODO: @Oli review
     private function getFormatter(string $locale, int $format): \NumberFormatter
     {
         $hash = md5(json_encode([$locale, $format]));

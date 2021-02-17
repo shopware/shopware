@@ -27,22 +27,34 @@ class ProductListingLoaderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $repository;
 
-    /** @var ProductListingLoader */
+    /**
+     * @var ProductListingLoader
+     */
     private $productListingLoader;
 
-    /** @var SalesChannelContext */
+    /**
+     * @var SalesChannelContext
+     */
     private $salesChannelContext;
 
-    /** @var SystemConfigService */
+    /**
+     * @var SystemConfigService
+     */
     private $systemConfigService;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $productId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $mainVariantId;
 
     private $optionIds = [];

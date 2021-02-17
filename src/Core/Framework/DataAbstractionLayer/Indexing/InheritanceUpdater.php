@@ -87,7 +87,7 @@ class InheritanceUpdater
                         ),
                         IFNULL(#root#.parent_id, #root#.id)
                      )
-                     WHERE #root#.id IN (:ids) OR #root#.parent_id IN (:ids)
+                     WHERE #root#.id IN (:ids)
                      %s',
                 $definition->isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
                 $definition->isVersionAware() ? 'AND #root#.version_id = :version' : ''
@@ -146,7 +146,7 @@ class InheritanceUpdater
                     SET #root#.#property# = IFNULL(#root#.#field#, parent.#field#)
                     WHERE #root#.parent_id = parent.id
                     AND #root#.parent_id IS NOT NULL
-                    AND (#root#.id IN (:ids) OR #root#.parent_id IN (:ids))';
+                    AND #root#.id IN (:ids)';
 
             $params = ['ids' => $bytes];
 

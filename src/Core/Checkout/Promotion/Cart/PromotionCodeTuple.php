@@ -6,10 +6,14 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 class PromotionCodeTuple
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $code;
 
-    /** @var PromotionEntity */
+    /**
+     * @var PromotionEntity
+     */
     private $promotion;
 
     public function __construct(string $code, PromotionEntity $promotion)

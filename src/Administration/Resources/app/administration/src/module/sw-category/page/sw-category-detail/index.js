@@ -68,7 +68,9 @@ Component.register('sw-category-detail', {
              * Please use "forceDiscardChanges" instead.
              */
             discardChanges: false,
-            forceDiscardChanges: false
+            forceDiscardChanges: false,
+            categoryCheckedItem: 0,
+            landingPageCheckedItem: 0
         };
     },
 
@@ -79,6 +81,14 @@ Component.register('sw-category-detail', {
     },
 
     computed: {
+        categoryType() {
+            if (this.category.isColumn) {
+                return 'column';
+            }
+
+            return this.category.type;
+        },
+
         showEmptyState() {
             return !this.category && !this.landingPage;
         },
@@ -260,6 +270,14 @@ Component.register('sw-category-detail', {
             }
 
             this.setLandingPage();
+        },
+
+        categoryCheckedElementsCount(count) {
+            this.categoryCheckedItem = count;
+        },
+
+        landingPageCheckedElementsCount(count) {
+            this.landingPageCheckedItem = count;
         },
 
         registerListener() {
@@ -573,9 +591,31 @@ Component.register('sw-category-detail', {
             this.isLoading = true;
             this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
+
+                if (this.landingPageId === 'create') {
+                    this.$router.push({ name: 'sw.category.landingPageDetail', params: { id: this.landingPage.id } });
+                    return Promise.resolve();
+                }
+
                 return this.setLandingPage();
             }).catch(() => {
                 this.isLoading = false;
+
+                if (this.landingPage.salesChannels.length === 0) {
+                    const shopwareError = new Shopware.Classes.ShopwareError(
+                        {
+                            code: 'landing_page_sales_channel_blank',
+                            detail: 'This value should not be blank.',
+                            status: '400'
+                        }
+                    );
+
+                    Shopware.State.dispatch('error/addApiError',
+                        {
+                            expression: `landing_page.${this.landingPage.id}.salesChannels`,
+                            error: shopwareError
+                        });
+                }
 
                 this.createNotificationError({
                     message: this.$tc(
@@ -641,6 +681,18 @@ Component.register('sw-category-detail', {
 
                 return Promise.resolve();
             }));
+        },
+
+        onLandingPageDelete() {
+            Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
+                landingPagesToDelete: null
+            });
+        },
+
+        onCategoryDelete() {
+            Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
+                categoriesToDelete: null
+            });
         }
     }
 });

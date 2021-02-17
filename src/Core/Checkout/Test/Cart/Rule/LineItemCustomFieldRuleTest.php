@@ -19,7 +19,9 @@ class LineItemCustomFieldRuleTest extends TestCase
      */
     private $rule;
 
-    /** @var SalesChannelContext */
+    /**
+     * @var SalesChannelContext
+     */
     private $salesChannelContext;
 
     protected function setUp(): void

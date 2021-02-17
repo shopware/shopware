@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
@@ -224,23 +223,6 @@ class NavigationLoaderTest extends TestCase
         static::assertCount(1, $tree->getChildren($data->get('b'))->getTree());
         static::assertCount(1, $tree->getChildren($data->get('c'))->getTree());
         static::assertCount(0, $tree->getChildren($data->get('d'))->getTree());
-    }
-
-    public function testLoadRootLevelsAreCached(): void
-    {
-        CountingEntitySearcher::resetCount();
-        CountingEntityReader::resetCount();
-        $this->createCategoryTree();
-
-        $context = Generator::createSalesChannelContext();
-        $context->getSalesChannel()->setNavigationCategoryId($this->rootId);
-
-        $this->navigationLoader->load($this->category1_1Id, $context, $this->rootId);
-
-        $this->navigationLoader->load($this->category2_1Id, $context, $this->rootId);
-
-        static::assertEquals(1, CountingEntityReader::getReadOperationCount(CategoryDefinition::ENTITY_NAME));
-        static::assertEquals(0, CountingEntitySearcher::getSearchOperationCount(CategoryDefinition::ENTITY_NAME));
     }
 
     private function createSimpleTree(): array

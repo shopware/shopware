@@ -46,7 +46,9 @@ class ThemeTest extends TestCase
      */
     private $themeRepository;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $createdStorefrontTheme = '';
 
     protected function setUp(): void

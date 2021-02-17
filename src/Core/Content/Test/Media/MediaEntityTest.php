@@ -18,13 +18,19 @@ class MediaEntityTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $repository;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     protected function setUp(): void

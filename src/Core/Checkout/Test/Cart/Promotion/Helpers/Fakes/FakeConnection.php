@@ -10,7 +10,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 
 class FakeConnection extends Connection
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $dbRows = [];
 
     /**

@@ -46,9 +46,17 @@ describe('Category: Test ACL privileges', () => {
 
         cy.get('#categoryName').should('have.value', 'Home');
 
-        cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
-            const classList = Array.from($el[0].classList);
-            return classList.includes('sw-tabs-item--is-disabled');
+        cy.onlyOnFeature('FEATURE_NEXT_13504', () => {
+            cy.get('.sw-category-detail__tab-cms').should('be.visible').click();
+            cy.get('.sw-category-detail-layout__change-layout-action').should('be.disabled');
+            cy.get('.sw-cms-page-form').should('not.exist');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_13504', () => {
+            cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
+                const classList = Array.from($el[0].classList);
+                return classList.includes('sw-tabs-item--is-disabled');
+            });
         });
     });
 
@@ -87,7 +95,14 @@ describe('Category: Test ACL privileges', () => {
         cy.get('#categoryName').clearTypeAndCheck('Shop');
 
         // Check if content tab works
+        cy.skipOnFeature('FEATURE_NEXT_13504', () => {
+            cy.get('.sw-category-detail-layout__change-layout-action').should('not.be.disabled');
+        });
         cy.get('.sw-category-detail__tab-cms').click();
+
+        cy.onlyOnFeature('FEATURE_NEXT_13504', () => {
+            cy.get('.sw-category-detail-layout__change-layout-action').should('not.be.disabled');
+        });
         cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
 
         // Save the category

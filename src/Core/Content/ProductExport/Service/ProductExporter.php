@@ -18,16 +18,24 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExporter implements ProductExporterInterface
 {
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productExportRepository;
 
-    /** @var ProductExportGeneratorInterface */
+    /**
+     * @var ProductExportGeneratorInterface
+     */
     private $productExportGenerator;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
-    /** @var ProductExportFileHandlerInterface */
+    /**
+     * @var ProductExportFileHandlerInterface
+     */
     private $productExportFileHandler;
 
     public function __construct(

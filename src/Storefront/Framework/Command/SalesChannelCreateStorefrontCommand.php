@@ -3,12 +3,8 @@
 namespace Shopware\Storefront\Framework\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,11 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     protected static $defaultName = 'sales-channel:create:storefront';
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
@@ -41,7 +32,6 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             $snippetSetRepository,
             $categoryRepository
         );
-        $this->categoryRepository = $categoryRepository;
     }
 
     protected function configure(): void
@@ -74,17 +64,5 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             'navigationCategoryId' => $this->getRootCategoryId(),
             'name' => $input->getOption('name') ?? 'Storefront',
         ];
-    }
-
-    private function getRootCategoryId(): string
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('category.parentId', null));
-        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
-
-        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return array_shift($categories);
     }
 }

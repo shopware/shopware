@@ -1,7 +1,6 @@
 ---
 title: Disable recursive loading of SCSS in plugins
 issue: NEXT-7365
-flag: FEATURE_NEXT_7365
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

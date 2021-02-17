@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
@@ -84,7 +85,15 @@ class SalesChannelDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL];
+        $defaults = [
+            'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
+        ];
+
+        if (Feature::isActive('FEATURE_NEXT_13504')) {
+            $defaults['homeEnabled'] = true;
+        }
+
+        return $defaults;
     }
 
     public function since(): ?string
@@ -173,6 +182,17 @@ class SalesChannelDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_12032')) {
             $fields->add(new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'));
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_13504')) {
+            $fields->add(new FkField('home_cms_page_id', 'homeCmsPageId', CmsPageDefinition::class));
+            $fields->add(new ManyToOneAssociationField('homeCmsPageId', 'home_cms_page_id', CmsPageDefinition::class, 'id', false));
+            $fields->add(new TranslatedField('homeSlotConfig'));
+            $fields->add(new TranslatedField('homeEnabled'));
+            $fields->add(new TranslatedField('homeName'));
+            $fields->add(new TranslatedField('homeMetaTitle'));
+            $fields->add(new TranslatedField('homeMetaDescription'));
+            $fields->add(new TranslatedField('homeKeywords'));
         }
 
         return $fields;

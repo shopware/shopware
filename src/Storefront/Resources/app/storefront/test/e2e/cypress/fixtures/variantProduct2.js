@@ -6,7 +6,7 @@ export default {
         {
             "gross": 111,
             "net": 111,
-            "currencyId": "3ecc7075aaad49c69c013cb1e58bfc4e",
+            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
             "linked": false
         }
     ],

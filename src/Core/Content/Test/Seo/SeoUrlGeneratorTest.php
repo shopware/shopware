@@ -197,7 +197,7 @@ class SeoUrlGeneratorTest extends TestCase
     {
         $ids = new IdsCollection();
         $product = (new ProductBuilder($ids, 'parent'))
-            ->price(Defaults::CURRENCY, 100)
+            ->price(100)
             ->variant(
                 (new ProductBuilder($ids, 'red'))
                     ->tax(null)

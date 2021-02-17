@@ -61,8 +61,10 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         );
 
         if (!Feature::isActive('FEATURE_NEXT_10552') || $pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
-            $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
-            $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
+            $criteria->addFilter(new AndFilter([
+                new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
+                new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()),
+            ]));
 
             return;
         }

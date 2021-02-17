@@ -90,7 +90,7 @@ class SalesChannelListCommand extends Command
         return $this->renderTable($output, $headers, $data);
     }
 
-    private function renderJson(OutputInterface $output, array $headers, array $data)
+    private function renderJson(OutputInterface $output, array $headers, array $data): int
     {
         $json = [];
 
@@ -102,12 +102,17 @@ class SalesChannelListCommand extends Command
             $json[] = $jsonItem;
         }
 
-        $output->write(json_encode($json));
+        $encoded = json_encode($json);
+        if ($encoded === false) {
+            return 1;
+        }
+
+        $output->write($encoded);
 
         return 0;
     }
 
-    private function renderTable(OutputInterface $output, array $headers, array $data)
+    private function renderTable(OutputInterface $output, array $headers, array $data): int
     {
         $table = new Table($output);
         $table->setHeaders($headers);

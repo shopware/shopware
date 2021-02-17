@@ -5,8 +5,10 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,14 +31,21 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
      */
     private $systemConfigService;
 
+    /**
+     * @var AbstractProductPriceCalculator
+     */
+    private $calculator;
+
     public function __construct(
         QuantityPriceCalculator $priceCalculator,
         ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        AbstractProductPriceCalculator $calculator
     ) {
         $this->priceCalculator = $priceCalculator;
         $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->systemConfigService = $systemConfigService;
+        $this->calculator = $calculator;
     }
 
     public static function getSubscribedEvents()
@@ -48,9 +57,15 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     public function loaded(SalesChannelEntityLoadedEvent $event): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10553')) {
+            $this->calculator->calculate($event->getEntities(), $event->getSalesChannelContext());
+        }
+
         /** @var SalesChannelProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            $this->calculatePrices($event->getSalesChannelContext(), $product);
+            if (!Feature::isActive('FEATURE_NEXT_10553')) {
+                $this->calculatePrices($event->getSalesChannelContext(), $product);
+            }
 
             $product->setCalculatedMaxPurchase(
                 $this->calculateMaxPurchase($product, $event->getSalesChannelContext()->getSalesChannel()->getId())
@@ -58,12 +73,16 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
             $this->markAsNew($event->getSalesChannelContext(), $product);
 
+            //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
             $product->setGrouped(
                 $this->isGrouped($product)
             );
         }
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+     */
     private function isGrouped(ProductEntity $product): bool
     {
         if ($product->getMainVariantId() !== null) {
@@ -93,6 +112,9 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         return false;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0
+     */
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
         $prices = $this->priceDefinitionBuilder->build($product, $context);

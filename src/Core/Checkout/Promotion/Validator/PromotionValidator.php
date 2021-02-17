@@ -36,10 +36,14 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private $connection;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $databasePromotions;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $databaseDiscounts;
 
     public function __construct(Connection $connection)

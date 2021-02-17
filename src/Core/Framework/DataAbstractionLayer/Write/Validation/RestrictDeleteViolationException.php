@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,7 +15,6 @@ class RestrictDeleteViolationException extends ShopwareHttpException
 
     /**
      * @param RestrictDeleteViolation[] $restrictions
-     * @feature-deprecated (flag:FEATURE_NEXT_10539) Exception->meta->parameters->usages format will change to {entity: (entity name), count: (count of associations)
      */
     public function __construct(EntityDefinition $definition, array $restrictions)
     {
@@ -28,16 +26,11 @@ class RestrictDeleteViolationException extends ShopwareHttpException
         /** @var string[] $ids */
         foreach ($restriction->getRestrictions() as $entityName => $ids) {
             $name = $entityName;
-            if (Feature::isActive('FEATURE_NEXT_10539')) {
-                $usages[] = [
-                    'entityName' => $name,
-                    'count' => \count($ids),
-                ];
-                $usagesStrings[] = sprintf('%s (%d)', $name, \count($ids));
-            } else {
-                $usages[] = sprintf('%s (%d)', $name, \count($ids));
-                $usagesStrings[] = sprintf('%s (%d)', $name, \count($ids));
-            }
+            $usages[] = [
+                'entityName' => $name,
+                'count' => \count($ids),
+            ];
+            $usagesStrings[] = sprintf('%s (%d)', $name, \count($ids));
         }
 
         $this->restrictions = $restrictions;

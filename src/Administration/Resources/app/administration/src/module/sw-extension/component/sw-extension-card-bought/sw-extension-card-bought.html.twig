@@ -58,4 +58,18 @@
             @modal-close="closeRatingModal">
         </sw-extension-rating-modal>
     {% endblock %}
+
+    {% block sw_bought_extension_card_installation_failed_modal %}
+        <sw-modal v-if="showExtensionInstallationFailedModal"
+                  :title="extension.label"
+                  variant="small"
+                  @modal-close="closeInstallationFailedNotification">
+            {% block sw_bought_extension_card_installation_failed_modal %}
+                <sw-extension-installation-failed
+                    :extensionName="extension.name"
+                    @close="closeInstallationFailedNotification">
+                </sw-extension-installation-failed>
+            {% endblock %}
+        </sw-modal>
+    {% endblock %}
 {% endblock %}

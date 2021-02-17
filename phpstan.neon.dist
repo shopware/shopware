@@ -14,6 +14,7 @@ parameters:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         container_xml_path: '..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
+        console_application_loader: ../dev-ops/analyze/console-application.php
 
     featureToggles:
         unusedClassElements: true
@@ -36,6 +37,23 @@ parameters:
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
+        # Dynamic php code in DAL
+        - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
+        - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
+        - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'
+        - '#Method .*FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
+        # Inheritance checks for not nullable fields of the product entity (for example product.price contains always a value inside a sales channel context) - Could be fixed if php allows function type hint override
+        -
+            message: '#Parameter \#2 \$prices of method Shopware\\Core\\Content\\Product\\SalesChannel\\Price\\ProductPriceCalculator::buildDefinition\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection, Shopware\\Core\\Framework\\DataAbstractionLayer\\Pricing\\PriceCollection\|null given\.#'
+            path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
+        -
+            message: '#Parameter \#1 \$taxId of method Shopware\\Core\\System\\SalesChannel\\SalesChannelContext::buildTaxRules\(\) expects string, string\|null given\.#'
+            path: src/Core/Content/Product/SalesChannel/Price/ProductPriceCalculator.php
+        # OngrDSL wrong type hint
+        -
+            message: '#Parameter \#3 \$script of class ONGR\\ElasticsearchDSL\\Aggregation\\Metric\\StatsAggregation constructor expects string\|null, array<string, array\|string> given\.#'
+            path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
+
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
         -

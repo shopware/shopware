@@ -38,7 +38,7 @@ Component.register('sw-category-view', {
         },
 
         isPage() {
-            if (this.type === 'folder' || this.type === 'link') {
+            if (this.type === 'folder' || this.type === 'link' || this.type === 'column') {
                 return false;
             }
 

@@ -1,11 +1,12 @@
 {% block block_image_four_column %}
     {% set columns = 4 %}
+    {% deprecated '@deprecated tag:v6.5.0 - Use "element.id" directly instead.' %}
     {% set id = element.id %}
 
     {% block block_image_four_column_left %}
         {% set element = block.slots.getSlot('left') %}
 
-        <div class="col-md-3" data-cms-element-id="{{ id }}">
+        <div class="col-md-3" data-cms-element-id="{{ element.id }}">
             {% block block_image_four_column_left_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -15,7 +16,7 @@
     {% block block_image_four_column_center_left %}
         {% set element = block.slots.getSlot('center-left') %}
 
-        <div class="col-md-3" data-cms-element-id="{{ id }}">
+        <div class="col-md-3" data-cms-element-id="{{ element.id }}">
             {% block block_image_four_column_center_left_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -25,7 +26,7 @@
     {% block block_image_four_column_center_right %}
         {% set element = block.slots.getSlot('center-right') %}
 
-        <div class="col-md-3" data-cms-element-id="{{ id }}">
+        <div class="col-md-3" data-cms-element-id="{{ element.id }}">
             {% block block_image_four_column_center_right_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}
@@ -35,7 +36,7 @@
     {% block block_image_four_column_right %}
         {% set element = block.slots.getSlot('right') %}
 
-        <div class="col-md-3" data-cms-element-id="{{ id }}">
+        <div class="col-md-3" data-cms-element-id="{{ element.id }}">
             {% block block_image_four_column_right_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
             {% endblock %}

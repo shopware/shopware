@@ -29,8 +29,8 @@ default:
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
-        - git -C platform checkout trunk
-        - git -C platform checkout $CI_COMMIT_SHA
+        - git -C platform checkout --quiet trunk
+        - git -C platform checkout --quiet $CI_COMMIT_SHA
         - >
             if [ "$(git ls-remote origin $CI_DEV_BRANCH | wc -l)" == 1 ]; then
               echo "Development Branch: $CI_DEV_BRANCH (explicit)";
@@ -72,12 +72,14 @@ default:
         - ./psh.phar cache --APP_ENV=test
         - chown -R application:application .
         - curl http://docker.vm:8000/admin
-        - ./psh.phar unit --APP_ENV=test
+        - if [[ $FEATURE_ALL = 'major' ]]; then COVERAGE=true; else COVERAGE=""; fi
+        - echo "Coverage $COVERAGE, feature $FEATURE_ALL"
+        - ./psh.phar unit --APP_ENV=test --PHP_TEST_COVERAGE="$COVERAGE"
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
         paths:
-            - development/build/artifacts/
+            - development/build/artifacts/phpunit.junit.xml
             - development/var/log/*
             - $CI_PROJECT_DIR/stdout.log
         reports:
@@ -286,6 +288,7 @@ E2E:
     timeout: 2h 00m
     stage: E2E
     needs: [Javascript analysis]
+    dependencies: []
     services:
         -   name: docker:18.09.7-dind
             alias: docker
@@ -464,23 +467,6 @@ Generating docs:
         - ./psh.phar init-composer
         - php dev-ops/docs/scripts/convertMarkdownToDocs.php convert -i platform/src/Docs/Resources/current/ -o build/docs -u /shopware-platform-dev -s
 
-# Stage: security
-
-RIPS security:
-    stage: Security
-    image: php:7.4-alpine
-    before_script: []
-    allow_failure: true
-    only:
-        - trunk
-        - schedules
-    script:
-        - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
-        - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
-        - chmod 755 /usr/bin/rips-cli
-        - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
-    interruptible: false
-
 Symfony security check:
     stage: unit
     only:
@@ -512,6 +498,7 @@ NPM security check:
             - pipelines
     image: shopware/development:7.4-composer-2
     before_script: []
+    dependencies: []
     allow_failure: true
     script:
         - cd src/Administration/Resources/app/administration

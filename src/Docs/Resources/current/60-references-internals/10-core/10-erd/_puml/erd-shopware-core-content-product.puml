@@ -69,7 +69,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    propertyIds manyToManyId
    optionIds manyToManyId
    tagIds manyToManyId
-   listingPrices priceRulesJson
    childCount childCount
    blacklistIds blacklistRule
    whitelistIds whitelistRule
@@ -85,6 +84,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    customSearchKeywords translated
    canonicalProductId foreignKey
+   listingPrices priceRulesJson
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

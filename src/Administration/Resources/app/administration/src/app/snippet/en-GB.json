@@ -28,7 +28,8 @@
       "view": "View",
       "ascending": "Ascending",
       "descending": "Descending",
-      "xTimesIn": "{n} times in"
+      "xTimesIn": "{n} times in",
+      "close": "Close"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

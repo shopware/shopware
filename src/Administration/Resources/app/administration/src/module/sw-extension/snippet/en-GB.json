@@ -150,6 +150,22 @@
           "linkChoosePLan": "Choose a plan"
         }
       },
+      "sw-extension-adding-failed": {
+        "titleFailure": "Adding extension failed",
+        "textProblem": "A problem occurred while adding your extension.",
+        "installationFailed": {
+          "titleFailure": "Installation failed",
+          "textProblem": "A problem occurred while installing your extension. We will inform the manufacturer.",
+          "notificationLicense": "Please note that the subscription to this app or theme remains active.",
+          "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available by email at {0} or by phone at {1}.",
+          "supportEmail": "financial.services@shopware.com",
+          "supportPhone": "+49 (0)2555 / 9288510"
+        }
+      },
+      "sw-extension-adding-success": {
+        "titleSuccess": "Extensions successfully added!",
+        "subtitleSuccess": "You can now try out your new extension."
+      },
       "sw-extension-ratings": {
         "sw-review-reply": {
           "labelCreationDate": "replied on {creationDate}"

@@ -28,7 +28,8 @@
       "view": "Anzeigen",
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "xTimesIn": "{n} mal in"
+      "xTimesIn": "{n} mal in",
+      "close": "Schließen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

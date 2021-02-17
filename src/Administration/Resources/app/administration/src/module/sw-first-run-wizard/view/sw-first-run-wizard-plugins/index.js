@@ -21,14 +21,14 @@ Component.register('sw-first-run-wizard-plugins', {
 
     computed: {
         categoryLead() {
-            return this.plugins.filter((p) => {
-                return p.isCategoryLead;
+            return this.plugins.filter(plugin => {
+                return plugin.isCategoryLead;
             });
         },
 
         notCategoryLead() {
-            return this.plugins.filter((p) => {
-                return !p.isCategoryLead;
+            return this.plugins.filter(plugin => {
+                return !plugin.isCategoryLead;
             });
         },
 
@@ -124,23 +124,20 @@ Component.register('sw-first-run-wizard-plugins', {
                 category
             }).then((response) => {
                 this.plugins = response.items;
-                this.isLoading = false;
-            }).catch(() => {
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
 
         getRecommendationRegions() {
             const language = Shopware.State.get('session').currentLocale;
-
             this.isLoading = true;
 
             this.recommendationsService.getRecommendationRegions({
                 language
             }).then((response) => {
                 this.regions = response.items;
-                this.isLoading = false;
-            }).catch(() => {
+            }).finally(() => {
                 this.isLoading = false;
             });
         },

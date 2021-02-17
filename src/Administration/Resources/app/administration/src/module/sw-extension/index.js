@@ -35,6 +35,7 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-failed');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
+    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-recommendation');
 }
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
@@ -128,6 +129,10 @@ Shopware.Module.register('sw-extension', {
                             }
                         }
                     }
+                },
+                recommendation: {
+                    path: 'recommendation',
+                    component: 'sw-extension-my-extensions-recommendation'
                 },
                 account: {
                     path: 'account',

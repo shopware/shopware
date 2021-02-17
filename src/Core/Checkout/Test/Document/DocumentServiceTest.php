@@ -166,6 +166,53 @@ class DocumentServiceTest extends TestCase
     }
 
     /**
+     * The generation of a document with a live version set, will generate a new version and persist it.
+     * This is because a document should never rely on a live version, but due to prior errors it can happen
+     * that a document will be tagged to a live version order.
+     */
+    public function testRepairLiveVersionDocument(): void
+    {
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        // create an invoice
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $invoiceStruct = $documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+        static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentRepository->update(
+            [
+                [
+                    'id' => $invoiceStruct->getId(),
+                    'orderVersionId' => Defaults::LIVE_VERSION,
+                ],
+            ],
+            $this->context
+        );
+
+        $criteria = new Criteria([$invoiceStruct->getId()]);
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search($criteria, $this->context)->first();
+
+        static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        $documentService->getDocument($document, $this->context);
+
+        $document = $documentRepository->search($criteria, $this->context)->first();
+        static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+    }
+
+    /**
      * @group slow
      */
     public function testCreateFileIsWrittenInFs(): void

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -59,7 +58,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
     /**
      * @Since("6.4.0.0")
      * @OA\Post(
-     *      path="/landing_page/{landingPageId}",
+     *      path="/landing-page/{landingPageId}",
      *      summary="Loads a landing page with the resolved cms page",
      *      operationId="readLandingPage",
      *      tags={"Store API", "Content"},
@@ -77,12 +76,11 @@ class LandingPageRoute extends AbstractLandingPageRoute
      *     ),
      * )
      *
-     * @Entity("landing_page")
      * @Route("/store-api/landing-page/{landingPageId}", name="store-api.landing-page.detail", methods={"POST"})
      */
-    public function load(string $landingPageId, Request $request, SalesChannelContext $context, Criteria $criteria): LandingPageRouteResponse
+    public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
-        $landingPage = $this->loadLandingPage($landingPageId, $context, $criteria);
+        $landingPage = $this->loadLandingPage($landingPageId, $context);
 
         $pageId = $landingPage->getCmsPageId();
 
@@ -109,9 +107,9 @@ class LandingPageRoute extends AbstractLandingPageRoute
         return new LandingPageRouteResponse($landingPage);
     }
 
-    private function loadLandingPage(string $landingPageId, SalesChannelContext $context, Criteria $criteria): LandingPageEntity
+    private function loadLandingPage(string $landingPageId, SalesChannelContext $context): LandingPageEntity
     {
-        $criteria->setIds([$landingPageId]);
+        $criteria = new Criteria([$landingPageId]);
         $criteria->setTitle('landing-page::data');
 
         $criteria->addFilter(new EqualsFilter('active', true));

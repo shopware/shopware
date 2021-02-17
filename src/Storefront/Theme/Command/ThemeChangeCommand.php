@@ -157,7 +157,7 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
-    private function parseSalesChannelAnswer($answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
+    private function parseSalesChannelAnswer(string $answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
     {
         $parts = explode('|', $answer);
         $salesChannelId = trim(array_pop($parts));

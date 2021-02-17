@@ -41,22 +41,30 @@ class DumpClassSchemaCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $entityClass = $this->getCollectionEntity($input->getArgument('class'));
+        /** @var class-string $class */
+        $class = $input->getArgument('class');
+        $entityClass = $this->getCollectionEntity($class);
+        $name = $input->getArgument('name');
 
         if ($entityClass === null) {
-            file_put_contents($this->getFilePath($input->getArgument('name')), json_encode($this->dumpProperties($input->getArgument('class')), \JSON_PRETTY_PRINT));
+            file_put_contents($this->getFilePath($name), json_encode($this->dumpProperties($class), \JSON_PRETTY_PRINT));
         } else {
             $collection = [
                 'type' => 'array',
                 'items' => $this->dumpProperties($entityClass),
             ];
 
-            file_put_contents($this->getFilePath($input->getArgument('name')), json_encode($collection, \JSON_PRETTY_PRINT));
+            file_put_contents($this->getFilePath($name), json_encode($collection, \JSON_PRETTY_PRINT));
         }
 
         return 0;
     }
 
+    /**
+     * @param class-string $className
+     *
+     * @return class-string|null
+     */
     private function getCollectionEntity(string $className): ?string
     {
         $extends = class_parents($className);
@@ -73,14 +81,22 @@ class DumpClassSchemaCommand extends Command
         }
 
         $filePath = (new \ReflectionClass($className))->getFileName();
+        if ($filePath === false) {
+            return null;
+        }
+
         $stmts = $this->parseFile($filePath);
         $findNodes = (new NodeFinder())->findInstanceOf($stmts, ClassMethod::class);
 
         /** @var ClassMethod $findNode */
         foreach ($findNodes as $findNode) {
             if ((string) $findNode->name === 'getExpectedClass') {
+                $nodeStmts = $findNode->stmts;
+                if ($nodeStmts === null) {
+                    continue;
+                }
                 /** @var Return_ $returnStatement */
-                $returnStatement = $findNode->stmts[0];
+                $returnStatement = $nodeStmts[0];
 
                 /** @var ClassConstFetch $classConst */
                 $classConst = $returnStatement->expr;
@@ -108,6 +124,9 @@ class DumpClassSchemaCommand extends Command
         return $this->resolveNames($parser->parse(file_get_contents($filePath)));
     }
 
+    /**
+     * @param class-string $entityClass
+     */
     private function dumpProperties(string $entityClass, int $deep = 1): ?array
     {
         if ($deep === 3) {

@@ -70,7 +70,7 @@ class StoreLoginCommand extends Command
         $shopwareId = $input->getOption('shopwareId');
         $password = $input->getOption('password');
         $user = $input->getOption('user');
-        $language = $input->getOption('language');
+        $language = (string) $input->getOption('language');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $user));

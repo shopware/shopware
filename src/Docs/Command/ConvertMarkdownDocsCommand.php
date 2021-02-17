@@ -31,7 +31,7 @@ class ConvertMarkdownDocsCommand extends Command
     public function __construct(?string $name = null)
     {
         parent::__construct($name);
-        $this->environment = getenv('APP_ENV');
+        $this->environment = (string) getenv('APP_ENV');
     }
 
     protected function configure(): void
@@ -55,6 +55,9 @@ class ConvertMarkdownDocsCommand extends Command
         $blacklistFile = $inPath . self::BLACKLIST;
         if (is_file($blacklistFile)) {
             $blacklist = file($blacklistFile);
+            if ($blacklist === false) {
+                $blacklist = [];
+            }
         }
 
         $output->writeln('Scanning \"' . $inPath . '" for .md files ...');

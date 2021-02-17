@@ -13,7 +13,7 @@ class PluginCreateCommand extends Command
 {
     protected static $defaultName = 'plugin:create';
 
-    private $composerTemplate = <<<EOL
+    private string $composerTemplate = <<<EOL
 {
   "name": "swag/plugin-skeleton",
   "description": "Skeleton plugin",
@@ -35,7 +35,7 @@ class PluginCreateCommand extends Command
 
 EOL;
 
-    private $bootstrapTemplate = <<<EOL
+    private string $bootstrapTemplate = <<<EOL
 <?php declare(strict_types=1);
 
 namespace #namespace#;
@@ -47,7 +47,7 @@ class #class# extends Plugin
 }
 EOL;
 
-    private $servicesXmlTemplate = <<<EOL
+    private string $servicesXmlTemplate = <<<EOL
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
@@ -60,7 +60,7 @@ EOL;
 </container>
 EOL;
 
-    private $configXmlTemplate = <<<EOL
+    private string $configXmlTemplate = <<<EOL
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">

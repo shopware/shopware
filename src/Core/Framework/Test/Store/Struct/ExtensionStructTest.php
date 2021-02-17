@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Swag\SaasRufus\Test\Core\Framework\Extension\Struct;
+namespace Shopware\Core\Framework\Test\Store\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;

@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -110,6 +112,33 @@ class ExtensionLoaderTest extends TestCase
         static::assertEquals('AppStoreTestPlugin', $extension->getName());
     }
 
+    public function testUpgradeAtMapsToUpdatedAtInStruct(): void
+    {
+        $this->getContainer()->get(PluginService::class)->refreshPlugins(Context::createDefaultContext(), new NullIO());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'AppStoreTestPlugin'));
+
+        $firstPluginId = $this->getContainer()->get('plugin.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        $time = new \DateTime();
+
+        /** @var EntityRepositoryInterface $pluginRepository */
+        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $pluginRepository->update([
+            [
+                'id' => $firstPluginId,
+                'upgradedAt' => $time,
+            ],
+        ], Context::createDefaultContext());
+
+        $firstPlugin = $this->getContainer()->get('plugin.repository')->search($criteria, Context::createDefaultContext())->first();
+
+        $extensions = $this->extensionLoader->loadFromPluginCollection(Context::createDefaultContext(), new PluginCollection([$firstPlugin]));
+
+        static::assertSame($time->getTimestamp(), $extensions->first()->getUpdatedAt()->getTimestamp());
+    }
+
     public function testItLoadsExtensionsFromAppsCollection(): void
     {
         $installedApp = $this->getInstalledApp();
@@ -124,6 +153,8 @@ class ExtensionLoaderTest extends TestCase
             'German',
             'British English',
         ], $extensions->first()->getLanguages());
+
+        static::assertSame($installedApp->getUpdatedAt(), $extensions->first()->getUpdatedAt());
 
         foreach ($extensions as $extension) {
             static::assertEquals(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());

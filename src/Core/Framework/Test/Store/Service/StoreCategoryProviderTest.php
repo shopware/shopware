@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Swag\SaasRufus\Test\Core\Framework\Extension\Service;
+namespace Shopware\Core\Framework\Test\Store\Service;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;

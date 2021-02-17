@@ -11,6 +11,7 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-self-maintained-extension-card');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-removal-modal');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-uninstall-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-my-extensions-listing-controls');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-config');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-store-index');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-store-listing');

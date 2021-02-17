@@ -13,7 +13,15 @@
     "my-extensions": {
       "listing": {
         "initialSearchType": "Erweiterungen",
-        "placeholderSearchBar": "Durchsuche alle Erweiterungen…"
+        "placeholderSearchBar": "Durchsuche alle Erweiterungen…",
+        "controls": {
+          "labelActiveStateSwitch": "Inaktive Erweiterungen ausblenden",
+          "filterOptions": {
+            "last-updated": "Zuletzt aktualisiert",
+            "name-asc": "Name, aufsteigend",
+            "name-desc": "Name, absteigend"
+          }
+        }
       },
       "account": {
         "headline": "Shopware Account",
@@ -242,6 +250,7 @@
         "operationDelete": "Löschen"
       },
       "sw-extension-my-extensions-listing": {
+        "noActivePlugins": "Es wurden keine aktiven Erweiterungen gefunden",
         "titleEmptyState": "Noch keine Apps installiert",
         "textEmptyState": "Wenn Du Apps installierst, werden sie hier aufgelistet.",
         "btnOpenStore": "Store öffnen"

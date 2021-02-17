@@ -2,32 +2,47 @@
     <sw-loader v-if="isLoading"></sw-loader>
 
     <div v-if="!isLoading" class="sw-extension-my-extensions-listing__listing-grid">
-
-        <sw-meteor-card v-if="!extensionListPaginated.length" class="sw-extension-my-extensions-listing__empty-state">
+        <sw-meteor-card v-if="!extensionListPaginated.length && !filterByActiveState" class="sw-extension-my-extensions-listing__empty-state">
             <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
+
             <h3>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.titleEmptyState') }}</h3>
+
             <p>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.textEmptyState') }}</p>
+
             <sw-button @click="openStore" variant="ghost">
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>
         </sw-meteor-card>
 
         <template v-else>
-            <template v-for="entry in extensionListPaginated">
-                <component
-                    :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                    :key="entry.name"
-                    :extension="entry"
-                    @updateList="updateList">
-                </component>
-            </template>
+            <div class="sw-extension-my-extensions-listing__container">
+                <sw-extension-my-extensions-listing-controls @update:active-state="changeActiveState"
+                    @update:sorting-option="changeSortingOption">
+                </sw-extension-my-extensions-listing-controls>
 
-            <sw-pagination
-                :total="total"
-                :limit="limit"
-                :page="page"
-                @page-change="changePage"
-            ></sw-pagination>
+                <p v-if="!extensionListPaginated.length && filterByActiveState"
+                   class="sw-extension-my-extensions-listing-empty-state">
+                    {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.noActivePlugins') }}
+                </p>
+
+                <template v-else>
+                    <template v-for="entry in extensionListPaginated">
+                        <component
+                            :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                            :key="entry.name"
+                            :extension="entry"
+                            @updateList="updateList">
+                        </component>
+                    </template>
+
+                    <sw-pagination
+                        :total="total"
+                        :limit="limit"
+                        :page="page"
+                        @page-change="changePage"
+                    ></sw-pagination>
+                </template>
+            </div>
         </template>
     </div>
 </div>

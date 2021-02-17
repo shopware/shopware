@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -47,15 +48,24 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields->add(
             (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime())
         );
-        $fields->add(
-            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new ApiAware(), new Runtime())
-        );
+
         $fields->add(
             (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
             (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime())
         );
+
+        if (Feature::isActive('FEATURE_NEXT_10553')) {
+            $fields->add(
+                (new JsonField('calculated_cheapest_price', 'calculatedCheapestPrice'))->addFlags(new ApiAware(), new Runtime())
+            );
+        } else {
+            $fields->add(
+                (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new ApiAware(), new Runtime())
+            );
+        }
+
         $fields->add(
             (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime())
         );

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -86,11 +87,15 @@ class AntiJoinBuilder implements JoinBuilderInterface
 
         foreach ($associations as $subRoot => $association) {
             $resolver = $association->getResolver();
-            if (!$resolver) {
+            if ($resolver === null) {
                 throw new \RuntimeException('Resolver not found');
             }
 
             $subAlias = $subRoot . '.' . $association->getPropertyName();
+            if (!($resolver instanceof FieldResolverInterface)) {
+                continue;
+            }
+            /* @var FieldResolverInterface $resolver */
             $resolver->getJoinBuilder()->join(
                 $reference,
                 JoinBuilderInterface::INNER_JOIN,

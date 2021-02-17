@@ -305,4 +305,9 @@ class SalesChannelContext extends Struct
     {
         $this->itemRounding = $itemRounding;
     }
+
+    public function getCurrencyId(): string
+    {
+        return $this->getCurrency()->getId();
+    }
 }

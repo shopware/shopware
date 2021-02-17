@@ -58,10 +58,7 @@ abstract class AbstractElasticsearchDefinition
         return $collection;
     }
 
-    /**
-     * Allows to rewrite the document data
-     */
-    public function extendDocuments(array $documents, Context $context): array
+    public function extendDocuments(EntityCollection $collection, array $documents, Context $context): array
     {
         return $documents;
     }

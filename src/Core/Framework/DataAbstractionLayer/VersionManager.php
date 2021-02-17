@@ -51,6 +51,8 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class VersionManager
 {
+    public const DISABLE_AUDIT_LOG = 'disable-audit-log';
+
     /**
      * @var EntityWriterInterface
      */
@@ -540,6 +542,9 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, ?string $versionId = null, bool $isClone = false): void
     {
+        if ($writeContext->getContext()->hasExtension(self::DISABLE_AUDIT_LOG)) {
+            return;
+        }
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
         $commitId = Uuid::randomBytes();
 

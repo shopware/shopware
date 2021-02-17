@@ -10,6 +10,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductExceptionHandler">
@@ -211,6 +212,11 @@
                  class="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder">
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
+            <argument type="service" id="unit.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -272,6 +278,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -286,6 +293,13 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector"/>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -364,6 +378,10 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10552"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">
+            <tag name="shopware.field_accessor_builder" priority="-200"/>
         </service>
     </services>
 </container>

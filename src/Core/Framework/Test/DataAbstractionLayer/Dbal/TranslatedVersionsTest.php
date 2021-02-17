@@ -293,12 +293,12 @@ class TranslatedVersionsTest extends TestCase
         $ids = new IdsCollection($context);
 
         $parentProduct = (new ProductBuilder($ids, 'parent'))
-            ->price(Defaults::CURRENCY, 100)
+            ->price(100)
             ->build();
 
         $childProduct = (new ProductBuilder($ids, 'child'))
             ->parent('parent')
-            ->price(Defaults::CURRENCY, 100)
+            ->price(100)
             ->build();
 
         unset($childProduct['name'], $parentProduct['name']);

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -70,15 +71,20 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        $entities = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
+        $criteria->setLimit(50);
+
+        /** @var RepositoryIterator $iterator */
+        $iterator = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
             return $context->disableCache(static function (Context $context) use ($repository, $criteria) {
-                return $repository->search($criteria, $context)->getEntities();
+                return new RepositoryIterator($repository, $context, $criteria);
             });
         });
 
-        $this->setTwigTemplate($config, $template);
+        while ($entities = $iterator->fetch()) {
+            $this->setTwigTemplate($config, $template);
 
-        yield from $this->generateUrls($route, $config, $salesChannel, $entities);
+            yield from $this->generateUrls($route, $config, $salesChannel, $entities);
+        }
     }
 
     private function initTwig(SlugifyInterface $slugify): void

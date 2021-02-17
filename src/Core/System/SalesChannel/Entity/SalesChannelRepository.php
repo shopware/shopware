@@ -70,11 +70,11 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
     {
         $criteria = clone $criteria;
 
+        $this->processCriteria($criteria, $salesChannelContext);
+
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $salesChannelContext);
-        } else {
-            $this->processCriteria($criteria, $salesChannelContext);
         }
         $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {

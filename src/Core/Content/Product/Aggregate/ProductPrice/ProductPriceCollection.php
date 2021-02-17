@@ -20,6 +20,20 @@ class ProductPriceCollection extends PriceRuleCollection
         return 'product_price_collection';
     }
 
+    public function filterByRuleId(string $ruleId): self
+    {
+        return $this->filter(function (ProductPriceEntity $price) use ($ruleId) {
+            return $ruleId === $price->getRuleId();
+        });
+    }
+
+    public function sortByQuantity(): void
+    {
+        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
+            return $a->getQuantityStart() <=> $b->getQuantityStart();
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductPriceEntity::class;

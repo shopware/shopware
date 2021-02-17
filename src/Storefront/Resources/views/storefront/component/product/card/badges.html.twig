@@ -1,7 +1,12 @@
 {% block component_product_badges %}
     <div class="product-badges">
         {% block component_product_badges_discount %}
-            {% set listPrice = product.priceRange or product.calculatedPrices.count > 0 ? null : product.calculatedPrice.listPrice.percentage > 0 %}
+            {% set price = product.calculatedPrice %}
+            {% if product.calculatedPrices.count > 0 %}
+                {% set price = product.calculatedPrices.last %}
+            {% endif %}
+
+            {% set listPrice = price.listPrice.percentage > 0 %}
 
             {% if listPrice %}
                 <div class="badge badge-danger badge-discount">

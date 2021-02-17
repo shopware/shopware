@@ -29,10 +29,10 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
 
             $data[$id] = [
                 'primaryKey' => $id,
-                'data' => [
-                    'id' => $id,
-                    '_score' => $hit['_score'],
-                ],
+                'data' => array_merge(
+                    $hit['_source'] ?? [],
+                    ['id' => $id, '_score' => $hit['_score']]
+                ),
             ];
         }
 

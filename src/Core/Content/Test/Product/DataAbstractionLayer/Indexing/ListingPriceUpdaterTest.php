@@ -15,13 +15,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
+ */
 class ListingPriceUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Feature::skipTestIfActive('FEATURE_NEXT_10553', $this);
+    }
 
     public function testVariantsWithSimplePrices(): void
     {

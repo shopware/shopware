@@ -10,7 +10,7 @@
                 <parameter key="index" type="collection">
                     <parameter key="number_of_shards">3</parameter>
                     <parameter key="number_of_replicas">3</parameter>
-                    <parameter key="mapping.total_fields.limit">5000</parameter>
+                    <parameter key="mapping.total_fields.limit">50000</parameter>
                     <parameter key="mapping.nested_fields.limit">500</parameter>
                     <parameter key="mapping.nested_objects.limit">1000000</parameter>
                 </parameter>
@@ -99,7 +99,8 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
@@ -186,6 +187,7 @@
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
 
             <tag name="shopware.es.definition"/>

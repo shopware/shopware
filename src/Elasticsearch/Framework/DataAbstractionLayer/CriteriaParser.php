@@ -18,6 +18,7 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -46,6 +47,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
@@ -96,6 +98,21 @@ class CriteriaParser
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
+        if (!Feature::isActive('FEATURE_NEXT_10553')) {
+            $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
+
+            return new FieldSort($accessor, $sorting->getDirection());
+        }
+
+        if ($this->isCheapestPriceField($sorting->getField())) {
+            return new FieldSort('_script', $sorting->getDirection(), [
+                'type' => 'number',
+                'script' => [
+                    'id' => 'cheapest_price',
+                    'params' => $this->getCheapestPriceParameters($context),
+                ],
+            ]);
+        }
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
 
         return new FieldSort($accessor, $sorting->getDirection());
@@ -224,6 +241,22 @@ class CriteriaParser
         return $composite;
     }
 
+    protected function parseStatsAggregation(StatsAggregation $aggregation, string $fieldName, Context $context): Metric\StatsAggregation
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10553')) {
+            return new Metric\StatsAggregation($aggregation->getName(), $fieldName);
+        }
+
+        if ($this->isCheapestPriceField($aggregation->getField())) {
+            return new Metric\StatsAggregation($aggregation->getName(), null, [
+                'id' => 'cheapest_price',
+                'params' => $this->getCheapestPriceParameters($context),
+            ]);
+        }
+
+        return new Metric\StatsAggregation($aggregation->getName(), $fieldName);
+    }
+
     protected function parseEntityAggregation(EntityAggregation $aggregation, string $fieldName): Bucketing\TermsAggregation
     {
         $bucketingAggregation = new Bucketing\TermsAggregation($aggregation->getName(), $fieldName);
@@ -263,6 +296,63 @@ class CriteriaParser
         return $composite;
     }
 
+    private function getCheapestPriceParameters(Context $context): array
+    {
+        return [
+            'accessors' => $this->getCheapestPriceAccessors($context),
+            'decimals' => 10 ** $context->getRounding()->getDecimals(),
+            'round' => $this->useCashRounding($context),
+            'multiplier' => 100 / ($context->getRounding()->getInterval() * 100),
+        ];
+    }
+
+    private function useCashRounding(Context $context): bool
+    {
+        if ($context->getRounding()->getDecimals() !== 2) {
+            return false;
+        }
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            return true;
+        }
+
+        return $context->getRounding()->roundForNet();
+    }
+
+    private function getCheapestPriceAccessors(Context $context): array
+    {
+        $accessors = [];
+
+        $tax = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? 'gross' : 'net';
+
+        $ruleIds = array_merge($context->getRuleIds(), ['default']);
+
+        foreach ($ruleIds as $ruleId) {
+            $key = implode('_', [
+                'cheapest_price',
+                'rule' . $ruleId,
+                'currency' . $context->getCurrencyId(),
+                $tax,
+            ]);
+            $accessors[] = ['key' => $key, 'factor' => 1];
+
+            if ($context->getCurrencyId() === Defaults::CURRENCY) {
+                continue;
+            }
+
+            $key = implode('_', [
+                'cheapest_price',
+                'rule' . $ruleId,
+                'currency' . Defaults::CURRENCY,
+                $tax,
+            ]);
+
+            $accessors[] = ['key' => $key, 'factor' => $context->getCurrencyFactor()];
+        }
+
+        return $accessors;
+    }
+
     private function parseNestedAggregation(Aggregation $aggregation, EntityDefinition $definition, Context $context): AbstractAggregation
     {
         $fieldName = $this->buildAccessor($definition, $aggregation->getField(), $context);
@@ -274,7 +364,7 @@ class CriteriaParser
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:
-                return new Metric\StatsAggregation($aggregation->getName(), $fieldName);
+                return $this->parseStatsAggregation($aggregation, $fieldName, $context);
 
             case $aggregation instanceof AvgAggregation:
                 return new Metric\AvgAggregation($aggregation->getName(), $fieldName);
@@ -348,6 +438,30 @@ class CriteriaParser
 
     private function parseRangeFilter(RangeFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
+        if (!Feature::isActive('FEATURE_NEXT_10553')) {
+            $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
+
+            return $this->createNestedQuery(
+                new RangeQuery($accessor, $filter->getParameters()),
+                $definition,
+                $filter->getField()
+            );
+        }
+
+        if ($this->isCheapestPriceField($filter->getField())) {
+            $params = [];
+            foreach ($filter->getParameters() as $key => $value) {
+                $params[$key] = (float) $value;
+            }
+
+            return new ScriptIdQuery('cheapest_price_filter', [
+                'params' => array_merge(
+                    $params,
+                    $this->getCheapestPriceParameters($context)
+                ),
+            ]);
+        }
+
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
@@ -355,6 +469,11 @@ class CriteriaParser
             $definition,
             $filter->getField()
         );
+    }
+
+    private function isCheapestPriceField(string $field): bool
+    {
+        return \in_array($field, ['product.cheapestPrice', 'cheapestPrice'], true);
     }
 
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface

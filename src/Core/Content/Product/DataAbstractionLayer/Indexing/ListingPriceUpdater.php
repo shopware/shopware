@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed, use CheapestPriceUpdater instead
+ */
 class ListingPriceUpdater
 {
     /**

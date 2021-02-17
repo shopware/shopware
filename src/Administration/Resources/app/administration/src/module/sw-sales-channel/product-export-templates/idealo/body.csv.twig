@@ -1,8 +1,11 @@
 "{{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
-"{{ product.calculatedListingPrice.from.unitPrice|currency }}",{#- -#}
-{% set price = product.calculatedListingPrice.from %}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices.count > 0 %}
+    {% set price = product.calculatedPrices.last %}
+{% endif %}
+"{{ price.unitPrice|currency }}",{#- -#}
 "{%- if price.referencePrice is not null -%}
     {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {%- endif -%}",{#- -#}

@@ -48,6 +48,11 @@ class ProductBuilder
     protected $tax;
 
     /**
+     * @var bool
+     */
+    protected $active = true;
+
+    /**
      * @var array
      */
     protected $price = [];
@@ -117,9 +122,9 @@ class ProductBuilder
         $this->ids = $ids;
         $this->productNumber = $number;
         $this->id = $this->ids->create($number);
-        $this->tax($taxKey);
         $this->stock = $stock;
         $this->name = $number;
+        $this->tax($taxKey);
     }
 
     public function parent(string $key): self
@@ -179,7 +184,7 @@ class ProductBuilder
 
     public function visibility(string $salesChannelId = Defaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
     {
-        $this->visibilities[] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibility];
+        $this->visibilities[$salesChannelId] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibility];
 
         return $this;
     }
@@ -187,20 +192,29 @@ class ProductBuilder
     public function purchasePrice(float $price): self
     {
         $this->purchasePrice = $price;
-        $this->purchasePrices = ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false];
+        $this->purchasePrices[] = ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false];
 
         return $this;
     }
 
-    public function price(string $currencyId, float $gross, ?float $net = null): self
+    public function price(float $gross, ?float $net = null, string $currencyKey = 'default'): self
     {
         $net = $net ?? $gross / 115 * 100;
-        $this->price[] = ['currencyId' => $currencyId, 'gross' => $gross, 'net' => $net, 'linked' => false];
+
+        $price = [
+            'gross' => $gross,
+            'net' => $net,
+            'linked' => false,
+        ];
+
+        $price = $this->buildCurrencyPrice($currencyKey, $price);
+
+        $this->price[$currencyKey] = $price;
 
         return $this;
     }
 
-    public function prices(string $currencyId, string $ruleKey, float $gross, ?float $net = null, int $start = 1): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1): self
     {
         $net = $net ?? $gross / 115 * 100;
 
@@ -215,21 +229,26 @@ class ProductBuilder
                 continue;
             }
 
-            $price['price'][] = ['currencyId' => $currencyId, 'gross' => $gross, 'net' => $net, 'linked' => false];
+            $raw = ['gross' => $gross, 'net' => $net, 'linked' => false];
+
+            $price['price'][] = $this->buildCurrencyPrice($currencyKey, $raw);
 
             return $this;
         }
+
         unset($price);
 
+        $price = ['gross' => $gross, 'net' => $net, 'linked' => false];
+
         $this->prices[] = [
-            'quantityStart' => 1,
+            'quantityStart' => $start,
             'rule' => [
                 'id' => $this->ids->create($ruleKey),
                 'priority' => 1,
                 'name' => 'test',
             ],
             'price' => [
-                ['currencyId' => $currencyId, 'gross' => $gross, 'net' => $net, 'linked' => false],
+                $this->buildCurrencyPrice($currencyKey, $price),
             ],
         ];
 
@@ -265,6 +284,8 @@ class ProductBuilder
 
     public function build(): array
     {
+        $this->fixPricesQuantity();
+
         $data = get_object_vars($this);
 
         unset($data['ids'], $data['_dynamic']);
@@ -286,5 +307,76 @@ class ProductBuilder
         ];
 
         return $this;
+    }
+
+    public function stock(int $stock): ProductBuilder
+    {
+        $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function active(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    private function fixPricesQuantity(): void
+    {
+        $grouped = [];
+        foreach ($this->prices as $price) {
+            $grouped[$price['rule']['id']][] = $price;
+        }
+
+        foreach ($grouped as &$group) {
+            usort($group, function (array $a, array $b) {
+                return $a['quantityStart'] <=> $b['quantityStart'];
+            });
+        }
+
+        $mapped = [];
+        foreach ($grouped as &$group) {
+            $group = array_reverse($group);
+
+            $end = null;
+            foreach ($group as $price) {
+                if ($end !== null) {
+                    $price['quantityEnd'] = $end;
+                }
+
+                $end = $price['quantityStart'] - 1;
+
+                $mapped[] = $price;
+            }
+        }
+
+        $this->prices = array_reverse($mapped);
+    }
+
+    private function buildCurrencyPrice(string $currencyKey, array $price): array
+    {
+        if ($currencyKey === 'default') {
+            $price['currencyId'] = Defaults::CURRENCY;
+
+            return $price;
+        }
+
+        if ($this->ids->has($currencyKey)) {
+            $price['currencyId'] = $this->ids->get($currencyKey);
+
+            return $price;
+        }
+
+        $price['currency'] = [
+            'id' => $this->ids->get($currencyKey),
+            'factor' => 2,
+            'name' => 'test-currency',
+            'shortName' => 'TC',
+            'symbol' => '$',
+            'isoCode' => 'en-GB',
+            'decimalPrecision' => 3,
+        ];
+
+        return $price;
     }
 }

@@ -174,6 +174,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 active: true,
                 fields: [
                     {
+                        // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
                         field: 'product.listingPrices',
                         order: 'asc',
                         position: 1,

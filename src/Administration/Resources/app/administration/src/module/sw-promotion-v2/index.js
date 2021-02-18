@@ -1,8 +1,8 @@
+import './component/discount/sw-promotion-v2-settings-trigger';
 import './component/discount/sw-promotion-v2-settings-discount-type';
 import './component/discount/sw-promotion-v2-settings-rule-selection';
 import './component/discount/sw-promotion-v2-wizard-discount-selection';
 import './component/discount/sw-promotion-v2-wizard-description';
-import './component/discount/sw-promotion-v2-wizard-shipping-discount-trigger';
 
 import './component/promotion-codes/sw-promotion-v2-generate-codes-modal';
 import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';

@@ -125,38 +125,55 @@
                         "description": "Define the type of discount first. You may select triggers that activate this discount in the next step."
                     },
                     "shipping-discount": {
-                        "prefixTitle": "Shipping Discount - {title}"
+                        "prefixTitle": "Shipping discount - {title}",
+                        "titleDiscountType": "Discount type",
+                        "titleTriggerSelection": "Trigger (optional)",
+                        "description": "You may use the Rule Builder to create individual discount triggers. Define thresholds, e.g. a certain number of products or a certain shopping cart value that trigger discounts. You may even create nested trigger cascades."
                     },
                     "buy-x-get-y": {
                         "prefixTitle": "Buy X get Y - {title}",
-                        "titleDiscountType": "Discount type"
+                        "titleDiscountType": "Discount type",
+                        "titleTriggerSelection": "Trigger (optional)"
                     }
                 },
                 "settings": {
                     "discountType": {
-                        "form": {
-                            "labelDiscountType": "Discount type",
-                            "labelValue": "Price | Percentage",
-                            "labelMaxDiscountValue": "Max. discount value",
-                            "labelApplyDiscountTo": "Apply discount to",
-                            "labelApplyTo": "Apply to",
-                            "discountTypeSelection": {
-                                "displayFixedPrice": "Fixed price",
-                                "displayFixedDiscount": "Absolute",
-                                "displayPercentage": "Percentage",
-                                "displayFree": "Free product"
-                            },
-                            "applyDiscountTo": {
-                                "displayTotalPrice": "Total price",
-                                "displayProductPrice": "Product price"
-                            }
+                        "labelDiscountType": "Discount type",
+                        "labelValue": "Price | Percentage",
+                        "labelMaxDiscountValue": "Max. discount value",
+                        "labelApplyDiscountTo": "Apply discount to",
+                        "labelApplyTo": "Apply to",
+                        "discountTypeSelection": {
+                            "displayFixedPrice": "Fixed price",
+                            "displayFixedDiscount": "Absolute",
+                            "displayPercentage": "Percentage",
+                            "displayFree": "Free product"
+                        },
+                        "applyDiscountTo": {
+                            "displayTotalPrice": "Total price",
+                            "displayProductPrice": "Product price"
                         }
                     },
                     "ruleSelection": {
-                        "description": "Select or create a rule to make products eligable for the discount.",
+                        "description": "Select or create a rule to make products eligible for the discount.",
                         "labelSelection": "Rule select",
                         "placeholderSelection": "Select rule..."
+                    },
+                    "trigger": {
+                        "labelUseTrigger": "Use trigger",
+                        "triggerType": {
+                            "displaySingleTrigger": "Single product trigger",
+                            "displayMultiTrigger": "Multi product triggers"
+                        },
+                        "labelNumberOfTriggers": "Trigger type"
                     }
+                },
+                "pricesModal": {
+                    "advancedPricesHeader": "Advanced prices",
+                    "closeModal": "Close",
+                    "labelCurrency": "Currency",
+                    "labelPrice": "Value",
+                    "linkAdvancedPrices": "Open advanced prices view"
                 }
             },
             "discount-selection": {
@@ -166,13 +183,13 @@
                     "name": "Basic discount",
                     "description": "Discount whole shopping carts or a selected group of products."
                 },
-                "shipping-discount": {
-                    "name": "Shipping discount",
-                    "description": "Discount shipping costs or provide free shipping using optional product triggers."
-                },
                 "buy-x-get-y": {
                     "name": "Buy X get Y",
                     "description": "Set a discount that gets activated when one or more certain products are added to the cart."
+                },
+                "shipping-discount": {
+                    "name": "Shipping discount",
+                    "description": "Discount shipping costs or provide free shipping using optional product triggers."
                 }
             },
             "shipping-discount-trigger": {

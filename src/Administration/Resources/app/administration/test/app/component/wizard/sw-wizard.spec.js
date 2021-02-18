@@ -4,8 +4,13 @@ import 'src/app/component/wizard/sw-wizard-page';
 
 function createWrapper(options = {}) {
     const pages = [];
+
     for (let i = 0; i < 5; i += 1) {
-        pages.push(Shopware.Component.build('sw-wizard-page'));
+        const page = Shopware.Component.build('sw-wizard-page');
+        page.props = {
+            position: i
+        };
+        pages.push(page);
     }
 
     const defaults = {
@@ -13,13 +18,14 @@ function createWrapper(options = {}) {
             'sw-modal': true,
             'sw-wizard-dot-navigation': true,
             'sw-icon': true,
-            'sw-button': true
-        },
-        mocks: {
-            $tc: (t) => t
+            'sw-button': true,
+            'sw-wizard-page': true
         },
         slots: {
             default: pages
+        },
+        mocks: {
+            $tc: (t) => t
         },
         provide: {
             shortcutService: {
@@ -41,8 +47,9 @@ describe('src/app/component/wizard/sw-wizard', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have a pages count of 5', () => {
+    it('should have a pages count of 5', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.pagesCount).toBe(5);
     });
@@ -65,7 +72,11 @@ describe('src/app/component/wizard/sw-wizard', () => {
     it('should be able to add a new page', async () => {
         const wrapper = createWrapper();
 
-        wrapper.vm.addPage(Shopware.Component.build('sw-wizard-page'));
+        const page = Shopware.Component.build('sw-wizard-page');
+        page.props = {
+            position: 5
+        };
+        wrapper.vm.addPage(page);
 
         expect(wrapper.vm.pagesCount).toBe(6);
 

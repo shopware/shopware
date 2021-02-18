@@ -1,33 +1,24 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
+import 'src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-form';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-conditions'), {
+    return shallowMount(Shopware.Component.build('sw-promotion-v2-card-condition-form'), {
         localVue,
         stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
-            },
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
-            'sw-text-field': {
-                template: '<div class="sw-text-field"></div>'
+            'sw-field': {
+                template: '<div class="sw-field"></div>'
             },
-            'sw-number-field': {
-                template: '<div class="sw-number-field"></div>'
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
             },
-            'sw-entity-multi-select': {
-                template: '<div class="sw-entity-multi-select"></div>'
-            },
-            'sw-promotion-v2-sales-channel-select': {
-                template: '<div class="sw-promotion-v2-sales-channel-select"></div>'
-            },
-            'sw-promotion-v2-rule-select': {
-                template: '<div class="sw-promotion-v2-rule-select"></div>'
+            'sw-promotion-rule-select': {
+                template: '<div class="sw-promotion-rule-select"></div>'
             }
         },
         provide: {
@@ -38,6 +29,12 @@ function createWrapper(privileges = []) {
                     return privileges.includes(key);
                 }
             },
+
+            promotionSyncService: {
+                loadPackagers: () => Promise.resolve(),
+                loadSorters: () => Promise.resolve()
+            },
+
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve([{ id: 'promotionId1' }])
@@ -58,7 +55,7 @@ function createWrapper(privileges = []) {
                 exclusive: false,
                 code: null,
                 useCodes: true,
-                useIndividualCodes: false,
+                useIndividualCodes: true,
                 individualCodePattern: 'code-%d',
                 useSetGroups: false,
                 customerRestriction: true,
@@ -87,16 +84,13 @@ function createWrapper(privileges = []) {
                 orderRules: [],
                 cartRules: [],
                 translations: [],
-                hasOrders: false,
-                isNew() {
-                    return true;
-                }
+                hasOrders: false
             }
         }
     });
 }
 
-describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () => {
+describe('src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-form', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -107,41 +101,46 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
+    beforeAll(() => {
+        Shopware.Service().register('syncService', () => {
+            return {
+                httpClient: {
+                    get() {
+                        return Promise.resolve({});
+                    }
+                },
+                getBasicHeaders() {
+                    return {};
+                }
+            };
+        });
+    });
+
+    it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable adding discounts when privileges not set', () => {
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled
-        ).toBeTruthy();
+    it('should have disabled form fields', async () => {
+        const elements = wrapper.findAll('.sw-field');
+        expect(elements.wrappers.length).toBeGreaterThan(0);
+        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+
+        const promotionSelectionElements = wrapper.findAll('.sw-promotion-rule-select');
+        expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
+        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
 
-    it('should enable adding discounts when privilege is set', () => {
+    it('should not have disabled form fields', async () => {
         wrapper = createWrapper([
             'promotion.editor'
         ]);
 
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled
-        ).toBeFalsy();
+        const elements = wrapper.findAll('.sw-field');
+        expect(elements.wrappers.length).toBeGreaterThan(0);
+        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+
+        const promotionSelectionElements = wrapper.findAll('.sw-promotion-rule-select');
+        expect(promotionSelectionElements.wrappers.length).toBeGreaterThan(0);
+        promotionSelectionElements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
     });
 });

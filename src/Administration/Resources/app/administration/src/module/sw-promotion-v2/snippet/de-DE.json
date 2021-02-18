@@ -112,6 +112,24 @@
                     "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
                     "labelOrderConditionSelect": "Bestellungs-Regeln",
                     "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
+                },
+                "setgroups": {
+                    "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",
+                    "buttonAddGroup": "Set-Gruppe hinzufügen",
+                    "titleName": "Set-Gruppe",
+                    "labelMode": "Modus",
+                    "labelValue": "Wert",
+                    "labelSorting": "Sortierung",
+                    "labelRules": "Produktregeln",
+                    "packager": {
+                        "COUNT": "Anzahl",
+                        "PRICE_UNIT_GROSS": "Wert (Brutto)",
+                        "PRICE_UNIT_NET": "Wert (Netto)"
+                    },
+                    "sorter": {
+                        "PRICE_ASC": "Preis aufsteigend",
+                        "PRICE_DESC": "Preis absteigend"
+                    }
                 }
             },
             "discounts": {

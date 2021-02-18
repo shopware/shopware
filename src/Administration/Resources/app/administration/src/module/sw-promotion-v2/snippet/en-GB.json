@@ -112,6 +112,24 @@
                     "placeholderCartConditionSelect": "Select shopping cart rules...",
                     "labelOrderConditionSelect": "Order rules",
                     "placeholderOrderConditionSelect": "Select order rules..."
+                },
+                "setgroups": {
+                    "switchGroupsEnabled": "Promote sets of products",
+                    "buttonAddGroup": "Add product set",
+                    "titleName": "Group",
+                    "labelMode": "Mode",
+                    "labelValue": "Value",
+                    "labelSorting": "Sorting",
+                    "labelRules": "Product rules",
+                    "packager": {
+                        "COUNT": "Quantity",
+                        "PRICE_UNIT_GROSS": "Amount (gross)",
+                        "PRICE_UNIT_NET": "Amount (net)"
+                    },
+                    "sorter": {
+                        "PRICE_ASC": "Price, ascending",
+                        "PRICE_DESC": "Price, descending"
+                    }
                 }
             },
             "discounts": {

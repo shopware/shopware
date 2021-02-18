@@ -109,6 +109,10 @@ Component.register('sw-promotion-v2-detail', {
             };
         },
 
+        promotionGroupRepository() {
+            return this.repositoryFactory.create('promotion_setgroup');
+        },
+
         ...mapPageErrors(errorConfig)
     },
 
@@ -140,11 +144,14 @@ Component.register('sw-promotion-v2-detail', {
             return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
                     this.promotion = promotion;
+                    this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
                     this.promotion.discounts.forEach((discount) => {
                         if (discount.type === 'percentage' && discount.value === 100 && discount.maxValue === null) {
                             discount.type = 'free';
                         }
                     });
+
+                    Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
 
                     this.isLoading = false;
                 });
@@ -196,29 +203,57 @@ Component.register('sw-promotion-v2-detail', {
                 this.promotion.code = '';
             }
 
-            this.promotion.discounts.forEach((discount) => {
-                if (discount.type === 'free') {
-                    Object.assign(discount, {
-                        type: 'percentage',
-                        value: 100,
-                        applierKey: 'SELECT'
-                    });
-                }
-            });
+            const stateDiscounts = Shopware.State.get('swPromotionDetail').discounts;
+            if (stateDiscounts) {
+                this.promotion.discounts = stateDiscounts;
+            }
 
-            return this.promotionRepository.save(this.promotion, Shopware.Context.api).then(() => {
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
-                        entityName: this.promotion.name
-                    })
+            if (this.promotion.discounts) {
+                this.promotion.discounts.forEach((discount) => {
+                    if (discount.type === 'free') {
+                        Object.assign(discount, {
+                            type: 'percentage',
+                            value: 100,
+                            applierKey: 'SELECT'
+                        });
+                    }
                 });
-            }).finally(() => {
-                this.loadEntityData();
-                this.cleanUpCodes(false, false);
-            });
+            }
+
+            return this.promotionRepository.save(this.promotion, Shopware.Context.api)
+                .then(() => {
+                    return this.savePromotionSetGroups();
+                })
+                .then(() => {
+                    Shopware.State.commit('swPromotionDetail/setSetGroupIdsDelete', []);
+                    this.isSaveSuccessful = true;
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.notificationSaveErrorMessage', 0, {
+                            entityName: this.promotion.name
+                        })
+                    });
+                })
+                .finally(() => {
+                    this.loadEntityData();
+                    this.cleanUpCodes(false, false);
+                });
+        },
+
+        savePromotionSetGroups() {
+            const setGroupIdsDelete = Shopware.State.get('swPromotionDetail').setGroupIdsDelete;
+
+            if (setGroupIdsDelete !== null) {
+                const deletePromises = setGroupIdsDelete.map((groupId) => {
+                    return this.promotionGroupRepository.delete(groupId, Shopware.Context.api);
+                });
+
+                return Promise.all(deletePromises);
+            }
+
+            return Promise.resolve();
         },
 
         saveFinish() {

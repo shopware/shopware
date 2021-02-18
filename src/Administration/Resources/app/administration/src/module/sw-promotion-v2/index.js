@@ -9,6 +9,7 @@ import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
 
 import './component/sw-promotion-v2-rule-select';
 import './component/sw-promotion-v2-sales-channel-select';
+import './component/sw-promotion-v2-card-condition-form';
 
 import './init/services.init';
 
@@ -19,7 +20,10 @@ import './view/sw-promotion-v2-detail-base';
 import './view/sw-promotion-v2-discounts';
 import './view/sw-promotion-v2-conditions';
 
-const { Module } = Shopware;
+import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
+
+const { Module, State } = Shopware;
+State.registerModule('swPromotionDetail', swPromotionState);
 
 Module.register('sw-promotion-v2', {
     flag: 'FEATURE_NEXT_12016',

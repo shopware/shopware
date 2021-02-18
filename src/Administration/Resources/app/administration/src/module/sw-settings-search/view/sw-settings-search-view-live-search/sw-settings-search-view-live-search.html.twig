@@ -1,3 +1,9 @@
 {% block sw_settings_search_view_live_search %}
-    {#TODO: NEXT-11967 - Implement Live Search in new Search settings module #}
+    {% block sw_settings_search_view_live_search_content %}
+          <sw-settings-search-live-search
+              v-bind="$props"
+              v-on="$listeners">
+          </sw-settings-search-live-search>
+      </sw-card>
+    {% endblock %}
 {% endblock %}

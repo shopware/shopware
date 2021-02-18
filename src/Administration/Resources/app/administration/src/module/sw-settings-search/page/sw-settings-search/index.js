@@ -16,7 +16,10 @@ Component.register('sw-settings-search', {
                 andLogic: true,
                 minSearchLength: 2
             },
-            isLoading: false
+            isLoading: false,
+            currentSalesChannelId: null,
+            searchTerms: '',
+            searchResults: null
         };
     },
 
@@ -81,6 +84,21 @@ Component.register('sw-settings-search', {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        fetchSalesChannels() {
+            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+                this.salesChannels = response;
+            });
+        },
+
+        onSalesChannelChanged(salesChannelId) {
+            this.currentSalesChannelId = salesChannelId;
+        },
+
+        onLiveSearchResultsChanged({ searchTerms, searchResults }) {
+            this.searchTerms = searchTerms;
+            this.searchResults = searchResults;
         }
     }
 });

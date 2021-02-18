@@ -45,7 +45,16 @@
       "saveSuccess": "The configuration has been saved.",
       "saveError": "An error occured while saving your configuration."
     },
-    "liveSearchTab": {}
+    "liveSearchTab": {
+      "titleCard": "Storefront live search",
+      "textDescription": "Test your custom search settings below. If you have just made changes to your search settings, be sure to save those settings before testing them with this live search.",
+      "labelSalesChannelSelect": "Sales Channel",
+      "textPlaceholderSalesChannel": "Please select a sales channel to test the live search",
+      "linkRebuildSearchIndex": "Rebuild search index",
+      "labelName": "Name",
+      "labelScore": "Score",
+      "textNoResult": "No results for the keyword(s) you are entered. Please try another keyword(s)"
+    }
   },
   "sw-privileges": {
     "permissions": {

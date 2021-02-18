@@ -288,6 +288,7 @@ class ImportExportService
         $parameters['enclosure'] = $profileEntity->getEnclosure();
         $parameters['sourceEntity'] = $profileEntity->getSourceEntity();
         $parameters['fileType'] = $profileEntity->getFileType();
+        $parameters['profileName'] = $profileEntity->getName();
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),

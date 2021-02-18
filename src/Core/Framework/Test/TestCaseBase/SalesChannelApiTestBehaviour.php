@@ -40,7 +40,6 @@ trait SalesChannelApiTestBehaviour
             return;
         }
 
-        /** @var Connection $connection */
         $connection = $this->salesChannelApiBrowser
             ->getContainer()
             ->get(Connection::class);

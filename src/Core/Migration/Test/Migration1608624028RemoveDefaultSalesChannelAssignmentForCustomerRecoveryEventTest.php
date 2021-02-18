@@ -13,7 +13,6 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
 
     public function testNoSalesChannelIsAssignedForCustomerRecoveryEventAsDefault(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $migration = new Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent();
@@ -30,9 +29,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             return;
         }
 
-        $customerRecoveryEvents = array_map(function ($event) {
-            return $event['id'];
-        }, $customerRecoveryEvents);
+        $customerRecoveryEvents = array_column($customerRecoveryEvents, 'id');
 
         $customerRecoveryEventSalesChannel = $connection->fetchAll(
             'SELECT * FROM event_action_sales_channel WHERE event_action_id IN (:eventActionIds)',

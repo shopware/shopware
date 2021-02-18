@@ -68,7 +68,6 @@ class AccountServiceEventTest extends TestCase
         $this->changePaymentMethodRoute = $this->getContainer()->get(ChangePaymentMethodRoute::class);
         $this->loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

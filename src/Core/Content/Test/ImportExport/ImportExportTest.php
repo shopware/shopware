@@ -88,7 +88,6 @@ class ImportExportTest extends TestCase
 
     public function tearDown(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()
             ->get(Connection::class);
 
@@ -113,7 +112,6 @@ class ImportExportTest extends TestCase
         $factory = $this->getContainer()->get(ImportExportFactory::class);
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
@@ -153,7 +151,6 @@ class ImportExportTest extends TestCase
         $factory = $this->getContainer()->get(ImportExportFactory::class);
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
@@ -246,7 +243,6 @@ class ImportExportTest extends TestCase
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(CategoryDefinition::ENTITY_NAME);
@@ -326,7 +322,6 @@ class ImportExportTest extends TestCase
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(NewsletterRecipientDefinition::ENTITY_NAME);
@@ -404,7 +399,6 @@ class ImportExportTest extends TestCase
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
@@ -464,7 +458,6 @@ class ImportExportTest extends TestCase
         $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(CategoryDefinition::ENTITY_NAME);
@@ -492,7 +485,6 @@ class ImportExportTest extends TestCase
         $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
@@ -520,7 +512,6 @@ class ImportExportTest extends TestCase
         $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
@@ -564,7 +555,6 @@ class ImportExportTest extends TestCase
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
@@ -595,7 +585,6 @@ class ImportExportTest extends TestCase
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
@@ -725,7 +714,6 @@ class ImportExportTest extends TestCase
             ]],
         ]);
 
-        /** @var ImportExportService $importExportService */
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);

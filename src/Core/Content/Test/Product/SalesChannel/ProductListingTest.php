@@ -211,9 +211,10 @@ class ProductListingTest extends TestCase
             ->getResult();
 
         static::assertSame(3, $listing->getTotal());
-        static::assertInstanceOf(ContainsFilter::class, $listing->getCriteria()->getFilters()[0]);
-        static::assertEquals('name', $listing->getCriteria()->getFilters()[0]->getField());
-        static::assertEquals('Foo Bar', $listing->getCriteria()->getFilters()[0]->getValue());
+        $firstFilter = $listing->getCriteria()->getFilters()[0];
+        static::assertInstanceOf(ContainsFilter::class, $firstFilter);
+        static::assertEquals('name', $firstFilter->getField());
+        static::assertEquals('Foo Bar', $firstFilter->getValue());
     }
 
     public function testNotFilterableProperty(): void

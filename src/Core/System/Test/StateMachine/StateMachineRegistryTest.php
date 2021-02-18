@@ -194,7 +194,6 @@ EOF;
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $stateMachineId = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);

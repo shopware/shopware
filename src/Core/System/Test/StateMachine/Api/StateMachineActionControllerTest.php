@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
@@ -167,7 +166,6 @@ class StateMachineActionControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
 
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
 
         $options = [
@@ -176,7 +174,6 @@ class StateMachineActionControllerTest extends TestCase
             SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
-        /** @var SalesChannelContext $salesChannelContext */
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, $options);
 
@@ -233,7 +230,6 @@ class StateMachineActionControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
 
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
 
         $options = [
@@ -242,7 +238,6 @@ class StateMachineActionControllerTest extends TestCase
             SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
-        /** @var SalesChannelContext $salesChannelContext */
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, $options);
 

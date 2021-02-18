@@ -13,7 +13,6 @@ class Migration1595919251MainCategoryTest extends TestCase
 
     public function testNoChanges(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $expectedSchema = $conn->fetchAssoc('SHOW CREATE TABLE `main_category`')['Create Table'];
 
@@ -30,7 +29,6 @@ class Migration1595919251MainCategoryTest extends TestCase
 
     public function testNoSeoUrlTable(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $conn->executeUpdate('DROP TABLE `main_category`');
 

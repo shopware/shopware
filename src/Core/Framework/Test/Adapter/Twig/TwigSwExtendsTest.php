@@ -39,7 +39,6 @@ class TwigSwExtendsTest extends TestCase
 
     public function tearDown(): void
     {
-        /** @var Filesystem $filesystem */
         $filesystem = $this->getContainer()->get(Filesystem::class);
         $filesystem->remove($this->cacheDir);
     }

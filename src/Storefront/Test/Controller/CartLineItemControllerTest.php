@@ -13,7 +13,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class CartLineItemControllerTest extends TestCase
@@ -56,13 +55,11 @@ class CartLineItemControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
         $this->createProduct($productId, $productNumber);
         $request = $this->createRequest(['number' => $productNumber]);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        /** @var Response $response */
         $response = $this->getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
 
         $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);

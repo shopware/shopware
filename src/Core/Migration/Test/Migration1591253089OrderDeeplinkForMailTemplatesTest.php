@@ -13,7 +13,6 @@ class Migration1591253089OrderDeeplinkForMailTemplatesTest extends TestCase
 
     public function testNoDeDe(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->executeUpdate('UPDATE locale SET code = "x-tst-TST" WHERE code = "de-DE"');
@@ -25,7 +24,6 @@ class Migration1591253089OrderDeeplinkForMailTemplatesTest extends TestCase
 
     public function testNoEnAndNoDe(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->executeUpdate('UPDATE locale SET code = "x-tst-TST" WHERE code = "de-DE"');

@@ -41,7 +41,6 @@ class AuthenticationProviderTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        /** @var AbstractAuthenticationProvider $authenticationHeaderProvider */
         $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         $header = $authenticationHeaderProvider->getUserStoreToken($context);
@@ -53,7 +52,6 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        /** @var AbstractAuthenticationProvider $authenticationHeaderProvider */
         $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(InvalidContextSourceException::class);
@@ -65,7 +63,6 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        /** @var AbstractAuthenticationProvider $authenticationHeaderProvider */
         $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(InvalidContextSourceUserException::class);
@@ -77,7 +74,6 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        /** @var AbstractAuthenticationProvider $authenticationHeaderProvider */
         $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);
@@ -107,7 +103,6 @@ class AuthenticationProviderTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        /** @var AbstractAuthenticationProvider $authenticationHeaderProvider */
         $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);

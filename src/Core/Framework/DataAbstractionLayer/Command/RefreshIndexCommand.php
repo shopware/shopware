@@ -42,9 +42,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->registry->index(
-            (bool) $input->getOption('use-queue')
-        );
+        $this->registry->index($input->getOption('use-queue'));
 
         return 0;
     }

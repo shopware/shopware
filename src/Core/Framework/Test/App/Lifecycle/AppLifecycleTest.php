@@ -319,7 +319,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],
@@ -445,7 +444,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],
@@ -533,7 +531,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],

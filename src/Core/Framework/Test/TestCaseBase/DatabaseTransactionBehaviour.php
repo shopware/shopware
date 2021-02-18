@@ -36,7 +36,6 @@ trait DatabaseTransactionBehaviour
      */
     public function stopTransactionAfter(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()
             ->get(Connection::class);
 

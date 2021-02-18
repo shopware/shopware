@@ -2045,7 +2045,6 @@ EOF;
     {
         $browser = $this->getBrowser();
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
         $admin = TestUser::createNewTestUser($connection, ['product:read']);
 

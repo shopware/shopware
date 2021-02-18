@@ -356,7 +356,6 @@ class CheapestPriceTest extends TestCase
                 $ids->get('currency') => $currency,
             ];
             foreach ($cases as $message => $case) {
-                /** @var SalesChannelContext $context */
                 $context = $contexts[$case['currencyId']];
 
                 $context->setRuleIds($case['rules']);

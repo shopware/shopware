@@ -32,7 +32,6 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -87,7 +86,6 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormFirstNameRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -130,7 +128,6 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormLastNameRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -173,7 +170,6 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormPhoneNumberRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -216,7 +212,6 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormOptionalFieldsSendMail(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

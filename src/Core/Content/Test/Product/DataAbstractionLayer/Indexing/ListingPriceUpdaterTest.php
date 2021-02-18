@@ -771,7 +771,6 @@ class ListingPriceUpdaterTest extends TestCase
             ],
         ], $ids->getContext());
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $price = $connection->fetchColumn('SELECT price FROM product WHERE id = UNHEX(?)', [

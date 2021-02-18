@@ -69,7 +69,7 @@ class StoreDownloadCommand extends Command
     protected function configure(): void
     {
         $this->addOption('pluginName', 'p', InputOption::VALUE_REQUIRED, 'Name of plugin')
-            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language', '')
+            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language')
             ->addOption('user', 'u', InputOption::VALUE_OPTIONAL, 'User')
         ;
     }

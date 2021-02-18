@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <psalm
-    cacheDirectory="../var/cache/psalm"
     ensureArrayStringOffsetsExist="true"
     findUnusedVariablesAndParams="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    xsi:schemaLocation="https://getpsalm.org/schema/config ../dev-ops/analyze/vendor-bin/psalm/vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
         <directory name="src"/>
@@ -21,10 +20,10 @@
         </ignoreFiles>
     </projectFiles>
 
-<!--    <plugins>-->
-<!--        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>-->
+    <plugins>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
 <!--        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>-->
-<!--    </plugins>-->
+    </plugins>
 
     <issueHandlers>
         <!-- Shopware related issues which are ignored -->
@@ -39,6 +38,21 @@
                 <referencedFunction name="iterator_to_array"/>
             </errorLevel>
         </UnusedFunctionCall>
+
+        <MethodSignatureMismatch>
+            <errorLevel type="info">
+                <!-- Issue in Psalm Symfony plugin https://github.com/psalm/psalm-plugin-symfony/issues/147 -->
+                <file name="src/Core/Framework/Validation/DataBag/DataBag.php"/>
+            </errorLevel>
+        </MethodSignatureMismatch>
+
+        <InvalidIterator>
+            <errorLevel type="info">
+                <!-- Seems to be an issue in the Psalm Symfony plugin -->
+                <file name="src/Core/Checkout/Cart/SalesChannel/CartItemAddRoute.php"/>
+                <file name="src/Core/Checkout/Cart/SalesChannel/CartItemUpdateRoute.php"/>
+            </errorLevel>
+        </InvalidIterator>
 
         <InvalidCast>
             <errorLevel type="info">

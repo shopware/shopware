@@ -32,7 +32,6 @@ class CookieControllerTest extends TestCase
 
     public function testCookieGroupIncludeComfortFeatures(): void
     {
-        /** @var SystemConfigService $systemConfig */
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.cart.wishlistEnabled', true);
@@ -45,7 +44,6 @@ class CookieControllerTest extends TestCase
 
     public function testCookieGroupNotIncludeComfortFeatures(): void
     {
-        /** @var SystemConfigService $systemConfig */
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.cart.wishlistEnabled', false);

@@ -4,6 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\PromotionFixtureBuilder;
@@ -13,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PromotionSetGroupCalculationTest extends TestCase
 {
@@ -62,42 +68,32 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 100% discount on that package, which means the customer has to
      * only pay the 1 product that is left.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testPercentageOnMultipleItemsAndSubsetQuantities(): void
     {
+        $container = $this->getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 65, 19, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($productId2, 30, 7, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId1, 65, 19, $container, $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 7, $container, $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
-        $promotionBuilder = (new PromotionFixtureBuilder(Uuid::randomHex(), $this->getContainer()))
+        $promotionBuilder = $this->createPromotionFixtureBuilder($container)
             ->addSetGroup('COUNT', 2, 'PRICE_ASC')
             ->setCode($code)
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 100.0, false, null);
-        $promotionBuilder->buildPromotion();
-
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
-
-        // add 3 items to our cart
-        // the cheapest one 1x and 2x the other product
-        $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);
-        $cart = $this->addProduct($productId2, 1, $cart, $this->cartService, $this->context);
-
-        // add our promotion
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         static::assertEquals(65.0, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
         static::assertEquals(65.0, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
@@ -115,42 +111,32 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 50 EUR discount on that package, which means the customer has to
      * pay (product 1 + product 2 - 50) + product 2.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testAbsoluteOnMultipleItemsAndSubsetQuantities(): void
     {
+        $container = $this->getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId1, 60, 19, $container, $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $container, $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
-        $promotionBuilder = (new PromotionFixtureBuilder(Uuid::randomHex(), $this->getContainer()))
+        $promotionBuilder = $this->createPromotionFixtureBuilder($container)
             ->addSetGroup('COUNT', 2, 'PRICE_ASC')
             ->setCode($code)
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_ABSOLUTE, 50.0, false, null);
-        $promotionBuilder->buildPromotion();
-
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
-
-        // add 3 items to our cart
-        // the cheapest one 1x and 2x the other product
-        $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);
-        $cart = $this->addProduct($productId2, 1, $cart, $this->cartService, $this->context);
-
-        // add our promotion
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
         $expectedTotal = (30 + 60 - 50) + 60;
@@ -175,42 +161,32 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 20 EUR fixed count on every product in the group, which means the customer has to
      * pay 20 EUR + 20 EUR + product 2.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testFixedUnitPriceOnMultipleItemsAndSubsetQuantities(): void
     {
+        $container = $this->getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId1, 60, 19, $container, $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $container, $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
-        $promotionBuilder = (new PromotionFixtureBuilder(Uuid::randomHex(), $this->getContainer()))
+        $promotionBuilder = $this->createPromotionFixtureBuilder($container)
             ->addSetGroup('COUNT', 2, 'PRICE_ASC')
             ->setCode($code)
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED_UNIT, 20.0, false, null);
-        $promotionBuilder->buildPromotion();
-
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
-
-        // add 3 items to our cart
-        // the cheapest one 1x and 2x the other product
-        $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);
-        $cart = $this->addProduct($productId2, 1, $cart, $this->cartService, $this->context);
-
-        // add our promotion
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
         $expectedTotal = (20 + 20) + 60;
@@ -238,39 +214,30 @@ class PromotionSetGroupCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function testFixedPriceOnMultipleItemsAndSubsetQuantities(): void
     {
+        $container = $this->getContainer();
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
 
         $code = 'BF' . Random::getAlphanumericString(5);
 
         // prepare promotion
-        $this->createTestFixtureProduct($productId1, 60, 19, $this->getContainer(), $this->context);
-        $this->createTestFixtureProduct($productId2, 30, 19, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($productId1, 60, 19, $container, $this->context);
+        $this->createTestFixtureProduct($productId2, 30, 19, $container, $this->context);
 
         // prepare a percentage promotion with 100% OFF
         // with a set group of the 2 cheapest items.
-        $promotionBuilder = (new PromotionFixtureBuilder(Uuid::randomHex(), $this->getContainer()))
+        $promotionBuilder = $this->createPromotionFixtureBuilder($container)
             ->addSetGroup('COUNT', 2, 'PRICE_ASC')
             ->setCode($code)
             ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_FIXED, 50.0, false, null);
-        $promotionBuilder->buildPromotion();
-
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
-
-        // add 3 items to our cart
-        // the cheapest one 1x and 2x the other product
-        $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);
-        $cart = $this->addProduct($productId2, 1, $cart, $this->cartService, $this->context);
-
-        // add our promotion
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->getCart($promotionBuilder, $productId1, $productId2, $code);
 
         // total is the sum of p1 + p2 minus the absolute + the last product
         $expectedTotal = 50 + 60;
@@ -283,5 +250,37 @@ class PromotionSetGroupCalculationTest extends TestCase
         static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
         static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
         static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+    }
+
+    protected function createPromotionFixtureBuilder(ContainerInterface $container): PromotionFixtureBuilder
+    {
+        return new PromotionFixtureBuilder(
+            Uuid::randomHex(),
+            $container->get(SalesChannelContextFactory::class),
+            $container->get('promotion.repository'),
+            $container->get('promotion_setgroup.repository'),
+            $container->get('promotion_discount.repository')
+        );
+    }
+
+    protected function getCart(
+        PromotionFixtureBuilder $promotionBuilder,
+        string $productId1,
+        string $productId2,
+        string $code
+    ): Cart {
+        $promotionBuilder->buildPromotion();
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // add 3 items to our cart
+        // the cheapest one 1x and 2x the other product
+        $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId2, 1, $cart, $this->cartService, $this->context);
+
+        // add our promotion
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        return $cart;
     }
 }

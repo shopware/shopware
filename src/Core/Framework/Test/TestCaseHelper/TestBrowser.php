@@ -40,7 +40,6 @@ class TestBrowser extends KernelBrowser
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 
-        /** @var RequestTransformerInterface $transformer */
         $transformer = $this->getContainer()->get(RequestTransformerInterface::class);
         $this->requestTransformer = $transformer;
         $this->eventDispatcher = $eventDispatcher;

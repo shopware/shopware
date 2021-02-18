@@ -71,7 +71,6 @@ class StorefrontSubscriberTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/noThemeNoCss');
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',

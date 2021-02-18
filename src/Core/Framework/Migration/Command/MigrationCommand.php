@@ -95,7 +95,7 @@ class MigrationCommand extends Command
 
         $total = 0;
         foreach ($identifiers as $identifier) {
-            $total += $this->runMigrationForIdentifier($input, (string) $identifier, $limit, $until);
+            $total += $this->runMigrationForIdentifier($input, $identifier, $limit, $until);
         }
 
         if ($total > 0) {

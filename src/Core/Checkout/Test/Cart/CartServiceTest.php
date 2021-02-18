@@ -332,7 +332,6 @@ class CartServiceTest extends TestCase
         $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
         $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->set('core.basicInformation.email', 'test@example.org');

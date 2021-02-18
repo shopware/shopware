@@ -106,6 +106,9 @@ class PluginLifecycleService
      */
     private $systemConfigService;
 
+    /**
+     * @psalm-suppress ContainerDependency
+     */
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -556,7 +559,6 @@ class PluginLifecycleService
             throw new \RuntimeException('Container parameter "kernel.plugin_dir" needs to be a string');
         }
 
-        /** @var KernelPluginLoader $pluginLoader */
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
         $plugins = $pluginLoader->getPluginInfos();

@@ -5681,11 +5681,6 @@ parameters:
 			path: src/Storefront/Controller/StorefrontController.php
 
 		-
-			message: "#^Parameter \\#1 \\$content of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandlerInterface\\:\\:replace\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
 			message: "#^Parameter \\#1 \\$sourceRequest of method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\RequestTransformer\\:\\:extractInheritableAttributes\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Controller/StorefrontController.php

@@ -98,7 +98,6 @@ class AppActionControllerTest extends TestCase
         static::assertJson($body);
         $data = json_decode($body, true);
 
-        /** @var ShopIdProvider $shopIdProvider */
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
         $expectedSource = [

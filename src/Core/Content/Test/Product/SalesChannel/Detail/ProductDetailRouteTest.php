@@ -77,7 +77,6 @@ class ProductDetailRouteTest extends TestCase
             ],
         ]);
 
-        /** @var ProductDetailRoute $productDetailRoute */
         $productDetailRoute = $this->getContainer()->get(ProductDetailRoute::class);
 
         $result = $productDetailRoute->load($product['id'], new Request(), $context, new Criteria());

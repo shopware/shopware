@@ -58,8 +58,8 @@ class ChangelogReleaseCommand extends Command
             }
         }
 
-        $output = $this->releaseCreator->release($version, (bool) $force, (bool) $input->getOption('dry-run'));
-        $IOHelper->writeln($output);
+        $outputArray = $this->releaseCreator->release($version, (bool) $force, $input->getOption('dry-run'));
+        $IOHelper->writeln($outputArray);
 
         $IOHelper->success('Released the given version successfully');
 

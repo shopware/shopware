@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -59,7 +58,6 @@ class DocumentPageTest extends TestCase
 
         $request->query->set('extension', 'txt');
 
-        /** @var DocumentIdStruct $documentIdStruct */
         $documentIdStruct = $this->getContainer()->get(DocumentService::class)->uploadFileForDocument(
             $document->getId(),
             $context->getContext(),
@@ -103,7 +101,6 @@ class DocumentPageTest extends TestCase
 
         $request->query->set('extension', 'txt');
 
-        /** @var DocumentIdStruct $documentIdStruct */
         $documentIdStruct = $this->getContainer()->get(DocumentService::class)->uploadFileForDocument(
             $document->getId(),
             $context->getContext(),

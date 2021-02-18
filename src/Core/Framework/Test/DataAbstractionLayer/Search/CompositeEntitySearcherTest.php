@@ -44,7 +44,6 @@ class CompositeEntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $userId = (string) $connection->executeQuery('SELECT id FROM `user` WHERE username = "admin"')->fetchColumn();
         $this->userId = Uuid::fromBytesToHex($userId);

@@ -15,7 +15,7 @@ class ContextValueResolver implements ArgumentValueResolverInterface
         return $argument->getType() === Context::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         yield $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
     }

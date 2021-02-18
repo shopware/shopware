@@ -43,9 +43,7 @@ class HttpCacheIntegrationTest extends TestCase
 
     public function tearDown(): void
     {
-        /** @var Connection $connection */
-        $connection = $this->getContainer()
-            ->get(Connection::class);
+        $connection = $this->getContainer()->get(Connection::class);
 
         static::assertEquals(
             1,

@@ -12,7 +12,6 @@ class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCas
 
     public function testCustomerEmailUniqueConstraintIsRemoved(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $indexes = $conn->fetchAll('SHOW INDEX FROM `customer`;') ?? [];
 

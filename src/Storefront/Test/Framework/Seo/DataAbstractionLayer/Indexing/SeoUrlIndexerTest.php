@@ -515,7 +515,6 @@ class SeoUrlIndexerTest extends TestCase
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-        /** @var EntityWriter $writer */
         $writer = $this->getContainer()->get(EntityWriter::class);
 
         $id = Uuid::randomHex();

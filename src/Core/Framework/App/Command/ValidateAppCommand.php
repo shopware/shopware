@@ -45,14 +45,13 @@ class ValidateAppCommand extends Command
         $dir = $this->appDir; // validate all apps as default
         $successMessage = 'all apps valid';
 
-        /** @var string $name */
         $name = $input->getArgument('name');
 
-        if ($name && $name !== '') {
+        if ($name !== null && $name !== '') {
             $successMessage = 'app is valid';
             $dir = $this->getAppFolderByName($name, $io);
 
-            if (!$dir) {
+            if ($dir === null) {
                 return 1;
             }
         }
@@ -142,7 +141,7 @@ class ValidateAppCommand extends Command
             $folders[] = $dir->getPathname();
         }
 
-        if (!$folders) {
+        if ($folders === []) {
             $io->error(
                 sprintf(
                     'No app with name "%s" found. Please make sure that a folder with that exact name exist in the custom/apps folder.',

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
 class RoutesHaveSinceAnnotationTest extends TestCase
@@ -16,7 +15,6 @@ class RoutesHaveSinceAnnotationTest extends TestCase
 
     public function testAllRoutesHaveSinceAnnotation(): void
     {
-        /** @var RouteCollection $routes */
         $routes = $this->getContainer()->get(RouterInterface::class)->getRouteCollection();
         $platformDir = $this->getContainer()->getParameter('kernel.project_dir') . '/platform/';
 

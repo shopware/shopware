@@ -134,7 +134,6 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
         $id = Uuid::fromHexToBytes($this->appRepo->search(new Criteria([$appId]), Context::createDefaultContext())->first()->getIntegrationId());
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
 
         $connection->update('integration', [

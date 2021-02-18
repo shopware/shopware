@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\Test;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class MigrationNameAndTimestampTest extends TestCase
@@ -16,7 +15,6 @@ class MigrationNameAndTimestampTest extends TestCase
         $migrationCollections = $this->getContainer()->get(MigrationCollectionLoader::class)->collectAll();
 
         foreach ($migrationCollections as $migrations) {
-            /** @var MigrationStep $migration */
             foreach ($migrations->getMigrationSteps() as $className => $migration) {
                 $matches = [];
                 $result = preg_match('/\\\\(?<name>Migration(?<timestamp>\d+)\w+)$/', $className, $matches);

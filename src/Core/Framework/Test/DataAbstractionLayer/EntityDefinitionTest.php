@@ -17,7 +17,9 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
@@ -33,9 +35,11 @@ class EntityDefinitionTest extends TestCase
         $definition = $this->getContainer()->get(ProductDefinition::class);
 
         static::assertContainsOnlyInstancesOf(Field::class, $definition->getFields());
-        static::assertSame('product_manufacturer_version_id', $definition->getFields()->get('productManufacturerVersionId')->getStorageName());
-        static::assertInstanceOf(ProductManufacturerDefinition::class, $definition->getFields()->get('productManufacturerVersionId')->getVersionReferenceDefinition());
-        static::assertSame($this->getContainer()->get(ProductManufacturerDefinition::class), $definition->getFields()->get('productManufacturerVersionId')->getVersionReferenceDefinition());
+        $productManufacturerVersionIdField = $definition->getFields()->get('productManufacturerVersionId');
+        static::assertInstanceOf(ReferenceVersionField::class, $productManufacturerVersionIdField);
+        static::assertSame('product_manufacturer_version_id', $productManufacturerVersionIdField->getStorageName());
+        static::assertInstanceOf(ProductManufacturerDefinition::class, $productManufacturerVersionIdField->getVersionReferenceDefinition());
+        static::assertSame($this->getContainer()->get(ProductManufacturerDefinition::class), $productManufacturerVersionIdField->getVersionReferenceDefinition());
     }
 
     public function testTranslationCompilation(): void
@@ -43,7 +47,9 @@ class EntityDefinitionTest extends TestCase
         $definition = $this->getContainer()->get(ProductTranslationDefinition::class);
 
         static::assertContainsOnlyInstancesOf(Field::class, $definition->getFields());
-        static::assertSame('language_id', $definition->getFields()->get('languageId')->getStorageName());
+        $languageIdField = $definition->getFields()->get('languageId');
+        static::assertInstanceOf(FkField::class, $languageIdField);
+        static::assertSame('language_id', $languageIdField->getStorageName());
     }
 
     /**

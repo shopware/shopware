@@ -13,7 +13,6 @@ class Migration1595321666v3Test extends TestCase
 
     public function testRemoveTriggerShouldNotThrowAnErrorWhenTriggerNotExists(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
 
         $conn->executeUpdate('DROP TRIGGER IF EXISTS `shipping_method_price_new_price_update`');

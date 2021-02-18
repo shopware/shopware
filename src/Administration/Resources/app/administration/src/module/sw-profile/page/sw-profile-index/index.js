@@ -21,8 +21,7 @@ Component.register('sw-profile-index', {
             imageSize: 140,
             newPassword: null,
             newPasswordConfirm: null,
-            // ???
-            oldPassword: null, // @deprecated tag:v6.4.0 use confirmPassword instead
+            confirmPassword: null,
             avatarMediaItem: null,
             uploadTag: 'sw-profile-upload-tag',
             isLoading: false,
@@ -76,15 +75,6 @@ Component.register('sw-profile-index', {
 
         languageId() {
             return Shopware.State.get('session').languageId;
-        },
-
-        confirmPassword: {
-            get() {
-                return this.oldPassword;
-            },
-            set(value) {
-                this.oldPassword = value;
-            }
         }
     },
 
@@ -267,7 +257,7 @@ Component.register('sw-profile-index', {
                     this.isSaveSuccessful = true;
                 }
 
-                this.oldPassword = '';
+                this.confirmPassword = '';
                 this.newPassword = '';
                 this.newPasswordConfirm = '';
             }).catch(() => {

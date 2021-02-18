@@ -4,11 +4,11 @@
             {% block sw_extension_permissions_modal_intro %}
                 <div class="sw-extension-permissions-modal__intro">
                     {% block sw_extension_permissions_modal_intro_image %}
-                        <img class="sw-extension-permissions-modal__image" :src="'saasrufus/static/img/svg/permissions.svg' | asset">
+                        <img class="sw-extension-permissions-modal__image" :src="'/administration/static/img/extension-store/permissions.svg' | asset">
                     {% endblock %}
 
                     {% block sw_extension_permissions_modal_intro_text %}
-                        <p>
+                        <p class="sw-extension-permissions-modal__description">
                             {{
                                 $t('sw-extension-store.component.sw-extension-permissions-modal.description',
                                 { extensionLabel: extensionLabel })

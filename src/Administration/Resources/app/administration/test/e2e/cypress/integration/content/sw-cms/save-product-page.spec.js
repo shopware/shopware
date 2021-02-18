@@ -43,13 +43,8 @@ describe('CMS: check validation of product detail page', () => {
 
         cy.get('.sw-cms-detail__save-action').click();
 
-        // Shows layout assignment modal the first time saving after the wizard
-        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
-        cy.get('.sw-cms-product-assignment-select').should('be.visible');
-
-        // Confirm without layout
-        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
-        cy.get('.sw-cms-detail__save-action').click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
     });
 });

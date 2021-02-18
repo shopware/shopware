@@ -153,13 +153,6 @@ describe('Category: Test ACL privileges', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // Shows layout assignment modal the first time saving after the wizard
-        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
-
-        // Confirm without layout
-        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
-
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');

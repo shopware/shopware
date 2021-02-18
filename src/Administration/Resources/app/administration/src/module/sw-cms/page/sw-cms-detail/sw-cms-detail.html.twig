@@ -195,6 +195,7 @@
                             <sw-cms-layout-assignment-modal
                                 v-if="showLayoutAssignmentModal"
                                 @modal-close="closeLayoutAssignmentModal"
+                                {# @deprecated tag:v6.5.0 event subscriber "confirm" can be removed completely #}
                                 @confirm="onConfirmLayoutAssignment"
                                 :page="page">
                             </sw-cms-layout-assignment-modal>

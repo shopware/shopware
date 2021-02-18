@@ -32,19 +32,12 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 class EntityHydrator
 {
     /**
-     * @var Entity[] internal object cache to prevent duplicate hydration for exact same objects
-     */
-    private $objects = [];
-
-    /**
      * @var Entity[] internal constructor cache
      */
     private $instances = [];
 
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
-        $this->objects = [];
-
         foreach ($rows as $row) {
             $collection->add($this->hydrateEntity($this->createClass($entityClass), $definition, $row, $root, $context));
         }
@@ -116,11 +109,6 @@ class EntityHydrator
 
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityName($definition->getEntityName());
-
-        $cacheKey = $definition->getEntityName() . '::' . $identifier;
-        if (isset($this->objects[$cacheKey])) {
-            return $this->objects[$cacheKey];
-        }
 
         /** @var ArrayStruct $mappingStorage */
         $mappingStorage = $this->createClass(ArrayStruct::class);
@@ -214,11 +202,6 @@ class EntityHydrator
             } else {
                 $entity->assign([$propertyName => $decoded]);
             }
-        }
-
-        //write object cache key to prevent multiple hydration for the same entity
-        if ($cacheKey) {
-            $this->objects[$cacheKey] = $entity;
         }
 
         return $entity;

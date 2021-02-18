@@ -15,7 +15,8 @@
 
                             {% block layout_navigation_categories_link_children %}
                                 <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}{% if item.category.id in activeResult.path %} in-path{% endif %}"
-                                   href="{% if item.category.externalLink %}{{ item.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: item.category.id }) }}{% endif %}">
+                                   href="{{ category_url(item.category) }}"
+                                   {% if category.linkNewTab %}target="_blank"{% endif %}>
                                     {% block layout_navigation_categories_link_children_name %}
                                         {{ item.category.translated.name }}
                                     {% endblock %}
@@ -35,7 +36,8 @@
 
                             {% block layout_navigation_categories_link %}
                                 <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}"
-                                   href="{% if item.category.externalLink %}{{ item.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: item.category.id }) }}{% endif %}">
+                                   href="{{ category_url(item.category) }}"
+                                   {% if category.translated.linkNewTab %}target="_blank"{% endif %}>
                                     {% block layout_navigation_categories_link_name %}
                                         {{ item.category.translated.name }}
                                     {% endblock %}

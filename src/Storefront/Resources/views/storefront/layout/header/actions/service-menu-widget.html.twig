@@ -22,9 +22,13 @@
                         <div class="dropdown-menu dropdown-menu-right"
                              aria-labelledby="serviceMenuDropdown-{{ position }}">
                             {% for category in page.header.serviceMenu %}
+
+                                {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
                                 {% set externalLink = category.translated.externalLink %}
+
                                 <a class="top-bar-list-item dropdown-item"
-                                   href="{% if externalLink %}{{ externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}{% endif %}"
+                                   href="{{ category_url(category) }}"
+                                   {% if category.translated.linkNewTab %}target="_blank"{% endif %}
                                    title="{{ category.translated.name }}">{{ category.translated.name }}</a>
                             {% endfor %}
                         </div>

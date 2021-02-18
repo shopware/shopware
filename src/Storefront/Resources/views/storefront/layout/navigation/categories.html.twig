@@ -16,7 +16,7 @@
         {% for treeItem in navigationTree %}
             {% set id = treeItem.category.id %}
             {% set name = treeItem.category.translated.name %}
-            {% set link = treeItem.category.externalLink %}
+            {% set link = category_url(treeItem.category) %}
 
             {% block layout_navigation_categories_item %}
                 <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}navigation-flyout-col">
@@ -28,8 +28,9 @@
                             </div>
                         {% else %}
                             <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
-                               href="{% if treeItem.category.type == 'link' %}{{ link }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: id }) }}{% endif %}"
+                               href="{{ link }}"
                                itemprop="url"
+                               {% if category.translated.linkNewTab %}target="_blank"{% endif %}
                                title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
                             </a>

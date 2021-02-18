@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\Test\Sitemap\Provider;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Framework\Context;
@@ -75,7 +76,7 @@ class CategoryUrlProviderTest extends TestCase
         return new CategoryUrlProvider(
             $this->categorySalesChannelRepository,
             $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+            $this->getContainer()->get(CategoryUrlGenerator::class)
         );
     }
 
@@ -92,6 +93,11 @@ class CategoryUrlProviderTest extends TestCase
                     ],
                     [
                         'name' => 'Sub 2',
+                    ],
+                    [
+                        // will be ignored
+                        'name' => 'Sub 2.5',
+                        'type' => CategoryDefinition::TYPE_FOLDER,
                     ],
                     [
                         'name' => 'Sub 3',

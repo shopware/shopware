@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -32,18 +33,18 @@ class CategoryUrlProvider implements UrlProviderInterface
     private $configHandler;
 
     /**
-     * @var SeoUrlPlaceholderHandlerInterface
+     * @var AbstractCategoryUrlGenerator
      */
-    private $seoUrlPlaceholderHandler;
+    private $categoryUrlGenerator;
 
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         ConfigHandler $configHandler,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+        AbstractCategoryUrlGenerator $categoryUrlGenerator
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->configHandler = $configHandler;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
+        $this->categoryUrlGenerator = $categoryUrlGenerator;
     }
 
     public function getName(): string
@@ -61,11 +62,17 @@ class CategoryUrlProvider implements UrlProviderInterface
         $urls = [];
         $url = new Url();
         foreach ($categories as $category) {
+            $loc = $this->categoryUrlGenerator->generate($category);
+
+            if ($loc === null) {
+                continue;
+            }
+
             /** @var \DateTimeInterface $lastmod */
             $lastmod = $category->getUpdatedAt() ?: $category->getCreatedAt();
 
             $newUrl = clone $url;
-            $newUrl->setLoc($this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $category->getId()]));
+            $newUrl->setLoc($loc);
             $newUrl->setLastmod($lastmod);
             $newUrl->setChangefreq(self::CHANGE_FREQ);
             $newUrl->setResource(CategoryEntity::class);
@@ -95,6 +102,7 @@ class CategoryUrlProvider implements UrlProviderInterface
             new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getFooterCategoryId() . '|'),
             new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getServiceCategoryId() . '|'),
         ]));
+        $categoriesCriteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER)]));
 
         if ($offset !== null) {
             $categoriesCriteria->setOffset($offset);

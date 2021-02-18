@@ -8,15 +8,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $decorated;
+    private SearchKeywordUpdater $decorated;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
     public function __construct(SearchKeywordUpdater $decorated, ElasticsearchHelper $helper)
     {

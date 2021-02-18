@@ -9,15 +9,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductUpdater implements EventSubscriberInterface
 {
-    /**
-     * @var ElasticsearchIndexer
-     */
-    private $indexer;
+    private ElasticsearchIndexer $indexer;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
+    private EntityDefinition $definition;
 
     public function __construct(ElasticsearchIndexer $indexer, EntityDefinition $definition)
     {

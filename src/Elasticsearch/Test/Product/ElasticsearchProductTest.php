@@ -7,9 +7,11 @@ use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -44,6 +46,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -60,6 +63,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,58 +79,29 @@ class ElasticsearchProductTest extends TestCase
     use QueueTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    private ?object $productDefinition;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private ?object $languageRepository;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ?object $helper;
 
-    /**
-     * @var IdsCollection
-     */
-    private $ids;
+    private ?IdsCollection $ids;
 
-    /**
-     * @var Connection|object|null
-     */
-    private $connection;
+    private ?object $connection;
 
-    /**
-     * @var \Shopware\Core\Framework\DataAbstractionLayer\EntityRepository
-     */
-    private $productRepository;
+    private ?object $productRepository;
 
-    /**
-     * @var object|\Shopware\Core\Framework\DataAbstractionLayer\EntityRepository|null
-     */
-    private $salesChannelRepository;
+    private string $navigationId;
 
-    /**
-     * @var string
-     */
-    private $navigationId;
+    private string $currencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
-    /**
-     * @var string
-     */
-    private $currencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
+    private ElasticsearchProductDefinition $definition;
 
     protected function setUp(): void
     {
+        $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
         $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
@@ -143,7 +118,6 @@ class ElasticsearchProductTest extends TestCase
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $this->ids = new IdsCollection();
         $this->ids->set('navi', $this->navigationId);
@@ -204,10 +178,12 @@ class ElasticsearchProductTest extends TestCase
             $this->connection->executeUpdate('DELETE FROM product');
 
             $context = Context::createDefaultContext();
+            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $this->client->indices()->delete(['index' => '_all']);
             $this->client->indices()->refresh(['index' => '_all']);
 
+            $this->ids->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
             $this->ids->set('currency', $this->currencyId);
             $currency = [
                 'id' => $this->currencyId,
@@ -235,7 +211,7 @@ class ElasticsearchProductTest extends TestCase
                 $index = $this->helper->getIndexName($this->productDefinition, $languageId);
 
                 $exists = $this->client->indices()->exists(['index' => $index]);
-                static::assertTrue($exists);
+                static::assertTrue($exists, 'Expected elasticsearch indices present');
             }
 
             return $this->ids;
@@ -254,6 +230,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $this->ids = $ids;
             $context = Context::createDefaultContext();
+            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
@@ -663,7 +640,7 @@ class ElasticsearchProductTest extends TestCase
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addAggregation(new TermsAggregation('manufacturer-ids', 'product.manufacturer.id'));
+            $criteria->addAggregation(new TermsAggregation('manufacturer-ids', 'product.manufacturerId'));
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
 
@@ -701,6 +678,8 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testTermsAggregationWithLimit(IdsCollection $data): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -736,6 +715,8 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testTermsAggregationWithSorting(IdsCollection $data): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1372,6 +1353,11 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($products->has($data->get('product-1')));
             static::assertTrue($products->has($data->get('product-3')));
 
+            if (Feature::isActive('FEATURE_NEXT_12158')) {
+                // groupId is not indexed anymore
+                return;
+            }
+
             // check filter for categories
             $criteria = new Criteria($data->prefixed('p'));
             $criteria->addFilter(new EqualsAnyFilter('product.properties.groupId', [$data->get('color')]));
@@ -1396,6 +1382,8 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testFilterAggregationWithTerms(IdsCollection $data): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1432,13 +1420,14 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
+     * @depends      testIndexing
      * @dataProvider dateHistogramProvider
      */
     public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
     {
         try {
             $context = Context::createDefaultContext();
+            $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $aggregator = $this->createEntityAggregator();
 
@@ -1562,8 +1551,6 @@ class ElasticsearchProductTest extends TestCase
     public function testDateHistogramWithNestedAvg(IdsCollection $data): void
     {
         try {
-            $context = Context::createDefaultContext();
-
             $aggregator = $this->createEntityAggregator();
 
             // check simple search without any restrictions
@@ -1579,7 +1566,7 @@ class ElasticsearchProductTest extends TestCase
                 )
             );
 
-            $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
+            $result = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
 
             static::assertTrue($result->has('release-histogram'));
 
@@ -1831,7 +1818,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testStorefrontListing(IdsCollection $data): void
+    public function testStorefrontListing(): void
     {
         try {
             $this->helper->setEnabled(true);
@@ -1849,6 +1836,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($listing->getTotal() > 0);
             static::assertTrue($listing->getAggregations()->has('shipping-free'));
             static::assertTrue($listing->getAggregations()->has('rating'));
+            static::assertTrue($listing->getAggregations()->has('price'));
             static::assertTrue($listing->getAggregations()->has('properties'));
             static::assertTrue($listing->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
@@ -1870,7 +1858,7 @@ class ElasticsearchProductTest extends TestCase
             $criteria->addSorting(new FieldSorting('name'));
 
             $searcher = $this->createEntitySearcher();
-            $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext())->getIds();
+            $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext())->getIds();
 
             // 3 products per letter
             $idList = array_chunk($ids, 3);
@@ -1901,6 +1889,7 @@ class ElasticsearchProductTest extends TestCase
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $searcher = $this->createEntitySearcher();
 
@@ -1985,6 +1974,7 @@ class ElasticsearchProductTest extends TestCase
         try {
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $cases = $this->providerCheapestPriceSorting();
 
@@ -2035,6 +2025,8 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCheapestPriceAggregation(IdsCollection $ids): void
     {
+        $context = $ids->getContext();
+
         try {
             $affected = array_merge(
                 $ids->prefixed('p.'),
@@ -2047,8 +2039,6 @@ class ElasticsearchProductTest extends TestCase
             ]));
 
             $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
-
-            $context = Context::createDefaultContext();
 
             $aggregator = $this->createEntityAggregator();
 
@@ -2070,6 +2060,96 @@ class ElasticsearchProductTest extends TestCase
 
             throw $e;
         }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
+    {
+        $context = $this->createIndexingContext();
+
+        // Fetch: Default language
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
+
+        $product = $products[$ids->get('dal-1')];
+
+        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $context)->first();
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+
+        // Fetch: Second language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+
+        $product = $products[$ids->get('dal-1')];
+
+        $p = $this->fetchProductFromDAL($ids, $languageContext);
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+
+        // Fetch: Third language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+
+        $product = $products[$ids->get('dal-1')];
+
+        $p = $this->fetchProductFromDAL($ids, $languageContext);
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testReleaseDate(IdsCollection $ids): void
+    {
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+
+        $product = $products[$ids->get('dal-1')];
+
+        static::assertSame('2019-01-01T10:11:00+00:00', $product['releaseDate']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
+    {
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+
+        $product = $products[$ids->get('dal-1')];
+
+        static::assertSame(12.3, $product['weight']);
+        static::assertSame(9.3, $product['height']);
+        static::assertSame(1.3, $product['width']);
+        static::assertSame(2, $product['stock']);
+        static::assertSame(0, $product['sales']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCategoriesProperties(IdsCollection $ids): void
+    {
+        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $this->createIndexingContext());
+
+        $product = $products[$ids->get('dal-1')];
+        $categoryIds = array_column($product['categoriesRo'], 'id');
+
+        static::assertContains($ids->get('c1'), $categoryIds);
+        static::assertContains($ids->get('c2'), $categoryIds);
+
+        static::assertContains($ids->get('red'), $product['propertyIds']);
+        static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -2119,6 +2199,11 @@ class ElasticsearchProductTest extends TestCase
 
     private function createData(): void
     {
+        $secondLanguage = $this->createLanguage();
+        $this->ids->set('language-1', $secondLanguage);
+        $thirdLanguage = $this->createLanguage($secondLanguage);
+        $this->ids->set('language-2', $thirdLanguage);
+
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))
                 ->name('Silk')
@@ -2556,9 +2641,77 @@ class ElasticsearchProductTest extends TestCase
                         ->build()
                 )
                 ->build(),
+
+            (new ProductBuilder($this->ids, 'dal-1'))
+                ->name('Default')
+                ->category('navi')
+                ->customField('testField', 'Silk')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m1')
+                ->price(50)
+                ->releaseDate('2019-01-01 10:11:00')
+                ->purchasePrice(0)
+                ->stock(2)
+                ->category('c1')
+                ->category('c2')
+                ->property('red', 'color')
+                ->property('xl', 'size')
+                ->add('weight', 12.3)
+                ->add('height', 9.3)
+                ->add('width', 1.3)
+                ->translation($secondLanguage, 'name', 'Second')
+                ->translation($thirdLanguage, 'name', 'Third')
+                ->build(),
         ];
 
         $this->getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
+    }
+
+    private function createLanguage(?string $parentId = null): string
+    {
+        $id = Uuid::randomHex();
+
+        /* @var EntityRepositoryInterface $languageRepository */
+        $languageRepository = $this->getContainer()->get('language.repository');
+
+        $languageRepository->create(
+            [
+                [
+                    'id' => $id,
+                    'name' => sprintf('name-%s', $id),
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'parentId' => $parentId,
+                    'translationCode' => [
+                        'code' => Uuid::randomHex(),
+                        'name' => 'Test locale',
+                        'territory' => 'test',
+                    ],
+                    'salesChannels' => [
+                        ['id' => Defaults::SALES_CHANNEL],
+                    ],
+                    'salesChannelDefaultAssignments' => [
+                        ['id' => Defaults::SALES_CHANNEL],
+                    ],
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+
+        return $id;
+    }
+
+    private function createIndexingContext(): Context
+    {
+        $context = Context::createDefaultContext();
+        $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), Context::createDefaultContext()));
+
+        return $context;
+    }
+
+    private function fetchProductFromDAL(IdsCollection $ids, Context $languageContext): ProductEntity
+    {
+        return $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $languageContext)->first();
     }
 }

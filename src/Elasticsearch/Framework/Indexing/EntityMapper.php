@@ -46,9 +46,9 @@ class EntityMapper
     public const PRICE_FIELD = [
         'type' => 'object',
         'properties' => [
-            'gross' => ['type' => 'double'],
-            'net' => ['type' => 'double'],
-            'linked' => ['type' => 'boolean'],
+            'gross' => self::FLOAT_FIELD,
+            'net' => self::FLOAT_FIELD,
+            'linked' => self::BOOLEAN_FIELD,
         ],
     ];
 
@@ -62,6 +62,9 @@ class EntityMapper
         'type' => 'keyword',
         'normalizer' => 'sw_lowercase_normalizer',
     ];
+    public const BOOLEAN_FIELD = ['type' => 'boolean'];
+    public const FLOAT_FIELD = ['type' => 'double'];
+    public const INT_FIELD = ['type' => 'long'];
 
     public function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
     {
@@ -95,14 +98,14 @@ class EntityMapper
                 return null;
 
             case $field instanceof BoolField:
-                return ['type' => 'boolean'];
+                return self::BOOLEAN_FIELD;
 
             case $field instanceof FloatField:
-                return ['type' => 'double'];
+                return self::FLOAT_FIELD;
 
             case $field instanceof ChildCountField:
             case $field instanceof IntField:
-                return ['type' => 'long'];
+                return self::INT_FIELD;
 
             case $field instanceof ObjectField:
                 return ['type' => 'object', 'dynamic' => true];
@@ -156,9 +159,7 @@ class EntityMapper
         $properties = [];
         $translated = [];
 
-        $fields = $definition->getFields()->filter(static function (Field $field) {
-            return !$field instanceof AssociationField;
-        });
+        $fields = $definition->getFields()->filter(static fn (Field $field) => !$field instanceof AssociationField);
 
         foreach ($fields as $field) {
             $fieldMapping = $this->mapField($definition, $field, $context);

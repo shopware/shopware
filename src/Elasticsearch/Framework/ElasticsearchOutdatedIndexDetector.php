@@ -11,25 +11,13 @@ use Shopware\Core\System\Language\LanguageCollection;
 
 class ElasticsearchOutdatedIndexDetector
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var ElasticsearchRegistry
-     */
-    private $registry;
+    private ElasticsearchRegistry $registry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
     public function __construct(
         Client $client,
@@ -71,12 +59,10 @@ class ElasticsearchOutdatedIndexDetector
     private function getLanguages(): EntityCollection
     {
         return (Context::createDefaultContext())->disableCache(
-            function (Context $uncached) {
-                return $this
-                    ->languageRepository
-                    ->search(new Criteria(), $uncached)
-                    ->getEntities();
-            }
+            fn (Context $uncached) => $this
+                ->languageRepository
+                ->search(new Criteria(), $uncached)
+                ->getEntities()
         );
     }
 

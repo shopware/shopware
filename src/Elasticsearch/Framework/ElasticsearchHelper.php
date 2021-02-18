@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
@@ -22,50 +23,23 @@ class ElasticsearchHelper
     // max for default configuration
     public const MAX_SIZE_VALUE = 10000;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var ElasticsearchRegistry
-     */
-    private $registry;
+    private ElasticsearchRegistry $registry;
 
-    /**
-     * @var CriteriaParser
-     */
-    private $parser;
+    private CriteriaParser $parser;
 
-    /**
-     * @var bool
-     */
-    private $searchEnabled;
+    private bool $searchEnabled;
 
-    /**
-     * @var bool
-     */
-    private $indexingEnabled;
+    private bool $indexingEnabled;
 
-    /**
-     * @var string
-     */
-    private $environment;
+    private string $environment;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var string
-     */
-    private $prefix;
+    private string $prefix;
 
-    /**
-     * @var bool
-     */
-    private $throwException;
+    private bool $throwException;
 
     public function __construct(
         string $environment,
@@ -147,6 +121,13 @@ class ElasticsearchHelper
             return false;
         }
 
+        if (Feature::isActive('FEATURE_NEXT_12158')) {
+            if (!$context->hasState(Context::STATE_ELASTICSEARCH_AWARE)) {
+                return false;
+            }
+
+            return true;
+        }
         if (!$this->client->ping()) {
             return $this->logOrThrowException(new ServerNotAvailableException());
         }

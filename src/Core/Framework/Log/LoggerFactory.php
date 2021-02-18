@@ -9,9 +9,9 @@ use Psr\Log\LoggerInterface;
 
 class LoggerFactory
 {
-    private $rotatingFilePathPattern = '';
+    private string $rotatingFilePathPattern = '';
 
-    private $defaultFileRotationCount;
+    private int $defaultFileRotationCount;
 
     public function __construct(string $rotatingFilePathPattern, int $defaultFileRotationCount = 14)
     {
@@ -19,12 +19,12 @@ class LoggerFactory
         $this->defaultFileRotationCount = $defaultFileRotationCount;
     }
 
-    public function createRotating(string $filePrefix, ?int $fileRotationCount = null): LoggerInterface
+    public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int $loggerLevel = Logger::DEBUG): LoggerInterface
     {
         $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);
 
         $result = new Logger($filePrefix);
-        $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? $this->defaultFileRotationCount));
+        $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? $this->defaultFileRotationCount, $loggerLevel));
         $result->pushProcessor(new PsrLogMessageProcessor());
 
         return $result;

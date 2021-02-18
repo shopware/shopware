@@ -15,14 +15,14 @@ class IteratorFactory
         $this->connection = $connection;
     }
 
-    public function createIterator(EntityDefinition $definition, ?array $lastId = null): IterableQuery
+    public function createIterator(EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
         $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);
         $query = $this->connection->createQueryBuilder();
         $query->from($escaped);
-        $query->setMaxResults(50);
+        $query->setMaxResults($limit);
 
         if ($definition->getFields()->has('autoIncrement')) {
             $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id)) as id']);

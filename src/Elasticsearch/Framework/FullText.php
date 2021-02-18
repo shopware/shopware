@@ -2,17 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - Use extendDocuments instead
+ */
 class FullText
 {
-    /**
-     * @var string
-     */
-    protected $fullText;
+    protected string $fullText;
 
-    /**
-     * @var string
-     */
-    protected $boosted;
+    protected string $boosted;
 
     public function __construct(string $fullText, string $boosted)
     {

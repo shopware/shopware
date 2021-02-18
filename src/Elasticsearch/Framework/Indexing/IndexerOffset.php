@@ -10,43 +10,31 @@ class IndexerOffset
     /**
      * @var string[]
      */
-    protected $languages;
+    protected array $languages;
 
     /**
      * @var string[]
      */
-    protected $definitions;
+    protected array $definitions;
 
     /**
      * @var string[]
      */
-    protected $allDefinitions;
+    protected array $allDefinitions;
 
-    /**
-     * @var int|null
-     */
-    protected $timestamp;
+    protected ?int $timestamp;
 
-    /**
-     * @var array|null
-     */
-    protected $lastId;
+    protected ?array $lastId;
 
-    /**
-     * @var string
-     */
-    protected $languageId;
+    protected ?string $languageId;
 
-    /**
-     * @var string
-     */
-    protected $definition;
+    protected ?string $definition;
 
     public function __construct(
         LanguageCollection $languages,
         iterable $definitions,
         ?int $timestamp,
-        $lastId = null
+        ?array $lastId = null
     ) {
         $this->languages = array_values($languages->getIds());
 
@@ -82,7 +70,7 @@ class IndexerOffset
         return !empty($this->definitions);
     }
 
-    public function setNextLanguage(): string
+    public function setNextLanguage(): ?string
     {
         return $this->languageId = array_shift($this->languages);
     }
@@ -92,7 +80,7 @@ class IndexerOffset
         return !empty($this->languages);
     }
 
-    public function getLanguageId(): string
+    public function getLanguageId(): ?string
     {
         return $this->languageId;
     }
@@ -112,12 +100,12 @@ class IndexerOffset
         return $this->timestamp;
     }
 
-    public function getLastId()
+    public function getLastId(): ?array
     {
         return $this->lastId;
     }
 
-    public function getDefinition(): string
+    public function getDefinition(): ?string
     {
         return $this->definition;
     }

@@ -81,7 +81,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
-            <argument type="service" id="logger" />
+            <argument type="service" id="shopware.elasticsearch.logger" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
@@ -89,7 +89,8 @@
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
-            <argument type="service" id="logger" />
+            <argument type="service" id="shopware.elasticsearch.logger" />
+            <argument>%kernel.debug%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
@@ -102,7 +103,6 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="messenger.bus.shopware"/>
 
-            <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
@@ -189,6 +189,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer"/>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -214,7 +215,6 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer">
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
@@ -223,16 +223,21 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="currency.repository"/>
-
-            <tag name="shopware.entity_indexer" priority="1000"/>
+            <argument type="service" id="language.repository"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Profiler\DataCollector">
             <argument type="service" id="Elasticsearch\Client"/>
             <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
+        </service>
+
+        <service id="shopware.elasticsearch.logger" class="Psr\Log\LoggerInterface">
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
+            <argument type="string">elasticsearch</argument>
+            <argument>90</argument>
+            <argument>%elasticsearch.logger_level%</argument>
         </service>
 
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->

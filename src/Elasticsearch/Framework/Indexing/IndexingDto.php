@@ -4,20 +4,11 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 class IndexingDto
 {
-    /**
-     * @var array
-     */
-    protected $ids;
+    protected array $ids;
 
-    /**
-     * @var string
-     */
-    protected $index;
+    protected string $index;
 
-    /**
-     * @var string
-     */
-    protected $entity;
+    protected string $entity;
 
     public function __construct(array $ids, string $index, string $entity)
     {

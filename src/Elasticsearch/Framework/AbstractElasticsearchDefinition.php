@@ -19,10 +19,7 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
 abstract class AbstractElasticsearchDefinition
 {
-    /**
-     * @var EntityMapper
-     */
-    protected $mapper;
+    protected EntityMapper $mapper;
 
     public function __construct(EntityMapper $mapper)
     {
@@ -30,6 +27,11 @@ abstract class AbstractElasticsearchDefinition
     }
 
     abstract public function getEntityDefinition(): EntityDefinition;
+
+    public function fetch(array $ids, Context $context): array
+    {
+        return [];
+    }
 
     public function getMapping(Context $context): array
     {
@@ -43,6 +45,8 @@ abstract class AbstractElasticsearchDefinition
 
     /**
      * This function defines which data should be selected and provided to the elasticsearch server
+     *
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - The fetch method will be used
      */
     public function extendCriteria(Criteria $criteria): void
     {
@@ -52,6 +56,8 @@ abstract class AbstractElasticsearchDefinition
      * Allows to add none database specific data to the entities.
      * This function is typically used to build elasticsearch completion fields,
      * n-grams or other calculated fields for the search engine
+     *
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - The fetch method will be used
      */
     public function extendEntities(EntityCollection $collection): EntityCollection
     {
@@ -67,13 +73,15 @@ abstract class AbstractElasticsearchDefinition
     {
         $bool = new BoolQuery();
 
+        $term = (string) $criteria->getTerm();
+
         $queries = [
-            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 10]), // boosted word matches
-            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 5]), // whole word matches
-            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
-            new MatchPhrasePrefixQuery('fullText', $criteria->getTerm(), ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
-            new WildcardQuery('fullText', '*' . mb_strtolower($criteria->getTerm()) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
-            new MatchQuery('fullText.ngram', $criteria->getTerm()),
+            new MatchQuery('fullTextBoosted', $term, ['boost' => 10]), // boosted word matches
+            new MatchQuery('fullText', $term, ['boost' => 5]), // whole word matches
+            new MatchQuery('fullText', $term, ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
+            new MatchPhrasePrefixQuery('fullText', $term, ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
+            new WildcardQuery('fullText', '*' . mb_strtolower($term) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
+            new MatchQuery('fullText.ngram', $term),
         ];
 
         foreach ($queries as $query) {
@@ -85,6 +93,9 @@ abstract class AbstractElasticsearchDefinition
         return $bool;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - Use extend entities instead
+     */
     public function buildFullText(Entity $entity): FullText
     {
         $fullText = [];
@@ -124,5 +135,17 @@ abstract class AbstractElasticsearchDefinition
         $boosted = array_filter($boosted);
 
         return new FullText(implode(' ', $fullText), implode(' ', $boosted));
+    }
+
+    protected function stripText(string $text): string
+    {
+        // Remove all html elements to save up space
+        $text = strip_tags($text);
+
+        if (mb_strlen($text) >= 32766) {
+            return mb_substr($text, 0, 32766);
+        }
+
+        return $text;
     }
 }

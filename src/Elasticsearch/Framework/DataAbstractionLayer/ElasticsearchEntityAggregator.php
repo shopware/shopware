@@ -15,30 +15,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var EntityAggregatorInterface
-     */
-    private $decorated;
+    private EntityAggregatorInterface $decorated;
 
-    /**
-     * @var AbstractElasticsearchAggregationHydrator
-     */
-    private $hydrator;
+    private AbstractElasticsearchAggregationHydrator $hydrator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         ElasticsearchHelper $helper,
@@ -74,7 +59,6 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
-                'type' => $definition->getEntityName(),
                 'body' => $search->toArray(),
             ]);
         } catch (\Throwable $e) {

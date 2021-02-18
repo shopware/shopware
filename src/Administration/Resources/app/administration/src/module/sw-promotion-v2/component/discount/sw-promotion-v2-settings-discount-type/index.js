@@ -49,6 +49,15 @@ Component.register('sw-promotion-v2-settings-discount-type', {
         }
     },
 
+    data() {
+        return {
+            displayAdvancedPricesModal: false,
+            currencies: [],
+            defaultCurrency: null,
+            currencySymbol: null
+        };
+    },
+
     computed: {
         isPercentageType() {
             return ['percentage', 'free'].includes(this.discount.type);
@@ -114,15 +123,6 @@ Component.register('sw-promotion-v2-settings-discount-type', {
                 this.discount.value = Math.min(this.discount.value, 100);
             }
         }
-    },
-
-    data() {
-        return {
-            displayAdvancedPricesModal: false,
-            currencies: [],
-            defaultCurrency: null,
-            currencySymbol: null
-        };
     },
 
     created() {
@@ -198,7 +198,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
-                if (!this.isMemberOfCollection(currency)) {
+                if (!this.setCurrencyForDiscountPrices(currency)) {
                     if (this.showMaxValueAdvancedPrices) {
                         this.prepareAdvancedPrices(currency, this.discount.maxValue);
                     } else {
@@ -218,7 +218,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             });
         },
 
-        isMemberOfCollection(currency) {
+        setCurrencyForDiscountPrices(currency) {
             const currencyId = currency.id;
             return this.discount.promotionDiscountPrices.some((advancedPrice) => {
                 if (advancedPrice.currencyId === currencyId) {

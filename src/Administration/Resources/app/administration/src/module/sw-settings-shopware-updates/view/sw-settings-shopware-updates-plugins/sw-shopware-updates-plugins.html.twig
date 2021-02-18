@@ -1,8 +1,7 @@
 {% block sw_shopware_updates_plugins %}
 <sw-card
-    :title="$t('sw-settings-shopware-updates.cards.plugins')"
-    :isLoading="isLoading"
->
+    :title="cardTitle"
+    :isLoading="isLoading">
     <template #grid>
         <sw-data-grid
             :showSelection="false"
@@ -28,7 +27,10 @@
 
             {% block sw_shopware_updates_plugins_column_action %}
             <template slot="actions" slot-scope="{ item }">
-                <sw-context-menu-item @click="openPluginManager()">
+                <sw-context-menu-item v-if="feature.isActive('FEATURE_NEXT_12608')" @click="openMyExtensions()">
+                    {{ $t('sw-settings-shopware-updates.plugins.actions.openMyExtensions') }}
+                </sw-context-menu-item>
+                <sw-context-menu-item v-else @click="openPluginManager()">
                     {{ $t('sw-settings-shopware-updates.plugins.actions.openPluginManager') }}
                 </sw-context-menu-item>
             </template>

@@ -8,7 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
+use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -40,16 +43,31 @@ class PluginCompatibility
      */
     private $requestStack;
 
-    public function __construct(StoreClient $storeClient, EntityRepositoryInterface $pluginRepository, RequestStack $requestStack)
-    {
+    /**
+     * @var AbstractExtensionDataProvider|null
+     */
+    private $extensionDataProvider;
+
+    public function __construct(
+        StoreClient $storeClient,
+        EntityRepositoryInterface $pluginRepository,
+        RequestStack $requestStack,
+        ?AbstractExtensionDataProvider $extensionDataProvider
+    ) {
         $this->storeClient = $storeClient;
         $this->pluginRepository = $pluginRepository;
         $this->requestStack = $requestStack;
+        $this->extensionDataProvider = $extensionDataProvider;
     }
 
     public function getPluginCompatibilities(Version $update, Context $context, ?PluginCollection $plugins = null): array
     {
-        $currentLanguage = $this->requestStack->getCurrentRequest()->query->get('language', 'en-GB');
+        $currentLanguage = 'en-GB';
+
+        if ($request = $this->requestStack->getCurrentRequest()) {
+            $currentLanguage = $request->query->get('language', 'en-GB');
+        }
+
         if ($plugins === null) {
             $plugins = $this->fetchActivePlugins($context);
         }
@@ -81,6 +99,49 @@ class PluginCompatibility
                 'statusName' => $storeInfo[$index]['status']['name'],
             ], $me->mapColorToStatusVariant($storeInfo[$index]['status']['type']));
         }, array_values($plugins->getElements()));
+
+        return $pluginInfo;
+    }
+
+    public function getExtensionCompatibilities(Version $update, Context $context, ?ExtensionCollection $extensions = null): array
+    {
+        $currentLanguage = 'en-GB';
+        if ($request = $this->requestStack->getCurrentRequest()) {
+            $currentLanguage = $request->query->get('language', 'en-GB');
+        }
+
+        if ($extensions === null) {
+            $extensions = $this->fetchActiveExtensions($context);
+        }
+
+        $storeInfo = $this->storeClient->getExtensionCompatibilities($update->version, $currentLanguage, $extensions);
+        $storeInfoValues = array_column($storeInfo, 'name');
+        $me = $this;
+
+        $pluginInfo = array_map(static function (ExtensionStruct $entity) use ($storeInfoValues, $storeInfo, $me) {
+            $index = array_search($entity->getName(), $storeInfoValues, true);
+
+            if ($index === false) {
+                // Extension not available in store
+                return [
+                    'name' => $entity->getName(),
+                    'managedByComposer' => false,
+                    'installedVersion' => $entity->getVersion(),
+                    'statusVariant' => 'error',
+                    'statusColor' => null,
+                    'statusMessage' => '',
+                    'statusName' => self::PLUGIN_COMPATIBILITY_NOT_IN_STORE,
+                ];
+            }
+
+            return array_merge([
+                'name' => $entity->getName(),
+                'managedByComposer' => false,
+                'installedVersion' => $entity->getVersion(),
+                'statusMessage' => $storeInfo[$index]['status']['label'],
+                'statusName' => $storeInfo[$index]['status']['name'],
+            ], $me->mapColorToStatusVariant($storeInfo[$index]['status']['type']));
+        }, array_values($extensions->getElements()));
 
         return $pluginInfo;
     }
@@ -121,6 +182,41 @@ class PluginCompatibility
     }
 
     /**
+     * @return ExtensionStruct[]
+     */
+    public function getExtensionsToDeactivate(Version $update, Context $context, string $deactivationFilter = self::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE): array
+    {
+        $deactivationFilter = trim($deactivationFilter);
+
+        if ($deactivationFilter === self::PLUGIN_DEACTIVATION_FILTER_NONE) {
+            return [];
+        }
+
+        /* var ExtensionCollection $extensions */
+        $extensions = $this->fetchActiveExtensions($context);
+        $compatibilities = $this->getExtensionCompatibilities($update, $context, $extensions);
+
+        $extensionsToDeactivate = [];
+
+        foreach ($compatibilities as $compatibility) {
+            $skip = $compatibility['statusName'] === self::PLUGIN_COMPATIBILITY_COMPATIBLE
+                || $compatibility['statusName'] === self::PLUGIN_COMPATIBILITY_NOT_IN_STORE;
+
+            if ($deactivationFilter !== self::PLUGIN_DEACTIVATION_FILTER_ALL && $skip) {
+                continue;
+            }
+
+            $extension = $extensions->get($compatibility['name']);
+
+            if ($extension && $extension->getActive()) {
+                $extensionsToDeactivate[] = $extension;
+            }
+        }
+
+        return $extensionsToDeactivate;
+    }
+
+    /**
      * @return PluginEntity[]
      */
     public function getPluginsToReactivate(array $deactivatedPlugins, Version $newVersion, Context $context): array
@@ -146,6 +242,31 @@ class PluginCompatibility
         return $pluginsToReactivate;
     }
 
+    /**
+     * @return ExtensionStruct[]
+     */
+    public function getExtensionsToReactivate(array $deactivatedPlugins, Version $newVersion, Context $context): array
+    {
+        $extensions = $this->fetchInactiveExtensions($deactivatedPlugins, $context);
+        $compatibilities = $this->getExtensionCompatibilities($newVersion, $context, $extensions);
+
+        $extensionsToReactivate = [];
+
+        foreach ($compatibilities as $compatibility) {
+            if ($compatibility['statusName'] !== self::PLUGIN_COMPATIBILITY_COMPATIBLE) {
+                continue;
+            }
+
+            $extension = $extensions->get($compatibility['name']);
+
+            if ($extension && !$extension->getActive()) {
+                $extensionsToReactivate[] = $extension;
+            }
+        }
+
+        return $extensionsToReactivate;
+    }
+
     private function fetchActivePlugins(Context $context): PluginCollection
     {
         $criteria = new Criteria();
@@ -157,6 +278,18 @@ class PluginCompatibility
         return $collection;
     }
 
+    private function fetchActiveExtensions(Context $context): ExtensionCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', 1));
+
+        if ($this->extensionDataProvider) {
+            return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
+        }
+
+        throw new \RuntimeException(sprintf('Feature flag %s needs to be active to call %s:%s', 'FEATURE_NEXT_12608', __CLASS__, __METHOD__));
+    }
+
     private function fetchInactivePlugins(array $pluginIds, Context $context): PluginCollection
     {
         $criteria = new Criteria($pluginIds);
@@ -166,6 +299,18 @@ class PluginCompatibility
         $collection = $this->pluginRepository->search($criteria, $context)->getEntities();
 
         return $collection;
+    }
+
+    private function fetchInactiveExtensions(array $pluginIds, Context $context): ExtensionCollection
+    {
+        $criteria = new Criteria($pluginIds);
+        $criteria->addFilter(new EqualsFilter('active', 0));
+
+        if ($this->extensionDataProvider) {
+            return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
+        }
+
+        throw new \RuntimeException(sprintf('Feature flag %s needs to be active to call %s:%s', 'FEATURE_NEXT_12608', __CLASS__, __METHOD__));
     }
 
     private function mapColorToStatusVariant(string $color): array

@@ -96,9 +96,9 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         ];
     }
 
-    public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true): ExtensionCollection
+    public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection
     {
-        $criteria = new Criteria();
+        $criteria = $searchCriteria ? $searchCriteria : new Criteria();
         $criteria->addAssociation('translations');
 
         /** @var AppCollection $installedApps */

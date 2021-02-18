@@ -4021,11 +4021,6 @@ parameters:
 			path: src/Core/Framework/Update/Services/Archive/Zip.php
 
 		-
-			message: "#^Cannot access property \\$query on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\RequirementsValidator\\:\\:\\$checkers \\(array\\<Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\CheckerInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Update/Services/RequirementsValidator.php

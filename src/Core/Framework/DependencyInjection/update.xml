@@ -18,6 +18,7 @@
             <argument type="service" id="user.repository"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%env(bool:SHOPWARE_UPDATE_TEST)%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService" on-invalid="null"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -35,7 +36,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>

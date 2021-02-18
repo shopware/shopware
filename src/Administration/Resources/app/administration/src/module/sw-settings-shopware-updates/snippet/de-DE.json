@@ -12,6 +12,7 @@
       "info": "Was ist neu?",
       "requirements": "Systemvoraussetzungen",
       "plugins": "Plugin-Kompatiblität",
+      "extensions": "Erweiterungskompatiblität",
       "updating": "Aktualisierung"
     },
     "notifications": {
@@ -55,6 +56,7 @@
       },
       "actions": {
         "openPluginManager": "Plugin-Manager öffnen.",
+        "openMyExtensions": "Zu meinen Erweiterungen",
         "deactivateAll": "Alle Plugins deaktivieren.",
         "deactivateIncompatible": "Alle inkompatiblen Plugins deaktivieren.",
         "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem ein Update durchführen, ohne die entsprechenden Plugins vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einem inkompatiblen Update geben kann.",

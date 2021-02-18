@@ -337,6 +337,32 @@ class StoreClient
         return json_decode((string) $response->getBody(), true);
     }
 
+    public function getExtensionCompatibilities(string $futureVersion, string $language, ExtensionCollection $extensionCollection): array
+    {
+        $pluginArray = [];
+
+        foreach ($extensionCollection as $extension) {
+            $pluginArray[] = [
+                'name' => $extension->getName(),
+                'version' => $extension->getVersion(),
+            ];
+        }
+
+        $response = $this->getClient()->post(
+            self::SBP_API_URL_PLUGIN_COMPATIBILITY,
+            [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders(),
+                'json' => [
+                    'futureShopwareVersion' => $futureVersion,
+                    'plugins' => $pluginArray,
+                ],
+            ]
+        );
+
+        return json_decode((string) $response->getBody(), true);
+    }
+
     public function isShopUpgradeable(): bool
     {
         $response = $this->getClient()->get(self::SBP_API_URL_UPDATE_PERMISSIONS, [

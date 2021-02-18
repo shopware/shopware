@@ -112,7 +112,7 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getFileName(SalesChannelContext $salesChannelContext, ?int $index = null): string
     {
-        return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
+        return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getSalesChannel()->getLanguageId() . '-' . self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
     }
 
     private function printHeader(): void

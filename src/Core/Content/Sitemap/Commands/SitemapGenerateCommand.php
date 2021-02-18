@@ -110,6 +110,8 @@ class SitemapGenerateCommand extends Command
                 $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
                     return $salesChannelDomain->getLanguageId();
                 });
+
+                $languageIds = array_unique($languageIds);
             }
 
             foreach ($languageIds as $languageId) {
@@ -126,7 +128,7 @@ class SitemapGenerateCommand extends Command
 
         $output->writeln('done!');
 
-        return null;
+        return 0;
     }
 
     private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void

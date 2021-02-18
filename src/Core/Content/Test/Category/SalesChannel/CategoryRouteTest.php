@@ -8,6 +8,8 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -42,7 +44,7 @@ class CategoryRouteTest extends TestCase
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
-            'navigationCategoryId' => $this->ids->get('category'),
+            'navigationCategoryId' => $this->ids->get('home-category'),
         ]);
 
         $this->setVisibilities();
@@ -55,31 +57,7 @@ class CategoryRouteTest extends TestCase
             '/store-api/category/' . $this->ids->get('category')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        static::assertEquals($this->ids->get('category'), $response['id']);
-        static::assertIsArray($response['cmsPage']);
-
-        static::assertEquals($this->ids->get('cms-page'), $response['cmsPage']['id']);
-        static::assertCount(1, $response['cmsPage']['sections']);
-
-        static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
-
-        $block = $response['cmsPage']['sections'][0]['blocks'][0];
-
-        static::assertEquals('product-listing', $block['type']);
-
-        static::assertCount(1, $block['slots']);
-
-        $slot = $block['slots'][0];
-        static::assertEquals('product-listing', $slot['type']);
-
-        static::assertArrayHasKey('listing', $slot['data']);
-
-        $listing = $slot['data']['listing'];
-
-        static::assertArrayHasKey('aggregations', $listing);
-        static::assertArrayHasKey('elements', $listing);
+        $this->assertCmsPage($this->ids->get('category'), $this->ids->get('cms-page'));
     }
 
     public function testIncludesConsidered(): void
@@ -128,12 +106,39 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
+        $this->assertCmsPage($this->ids->get('home-category'), $this->ids->get('home-cms-page'));
+    }
+
+    public function testHomeWithSalesChannelOverride(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
+
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $salesChannelRepository->upsert([[
+            'id' => $this->ids->get('sales-channel'),
+            'homeCmsPageId' => $this->ids->get('cms-page'),
+        ]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/category/home',
+            [
+            ]
+        );
+
+        $this->assertCmsPage($this->ids->get('home-category'), $this->ids->get('cms-page'));
+    }
+
+    private function assertCmsPage(string $categoryId, string $cmsPageId): void
+    {
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertEquals($this->ids->get('category'), $response['id']);
+        static::assertEquals($categoryId, $response['id']);
         static::assertIsArray($response['cmsPage']);
 
-        static::assertEquals($this->ids->get('cms-page'), $response['cmsPage']['id']);
+        static::assertEquals($cmsPageId, $response['cmsPage']['id']);
+        static::assertEquals($cmsPageId, $response['cmsPageId']);
         static::assertCount(1, $response['cmsPage']['sections']);
 
         static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
@@ -179,7 +184,7 @@ class CategoryRouteTest extends TestCase
             );
         }
 
-        $data = [
+        $homeData = $childData = [
             'id' => $this->ids->create('category'),
             'name' => 'Test',
             'cmsPage' => [
@@ -204,8 +209,12 @@ class CategoryRouteTest extends TestCase
             'products' => $products,
         ];
 
+        $homeData['id'] = $this->ids->create('home-category');
+        $homeData['cmsPage']['id'] = $this->ids->create('home-cms-page');
+        $childData['parentId'] = $homeData['id'];
+
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->create([$homeData, $childData], $this->ids->context);
     }
 
     private function setVisibilities(): void

@@ -9,15 +9,22 @@
                     <nav class="nav main-navigation-menu"
                         itemscope="itemscope"
                         itemtype="http://schema.org/SiteNavigationElement">
+                        {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
+                        {% if not feature('FEATURE_NEXT_13504') %}
+                            {% set homeLabel = "general.homeLink"|trans %}
+                        {% endif %}
+
                         {% block layout_main_navigation_menu_home %}
-                            <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link"
-                                href="{{ path('frontend.home.page') }}"
-                                itemprop="url"
-                                title="{{ "general.homeLink"|trans|striptags }}">
-                                <div class="main-navigation-link-text">
-                                    <span itemprop="name">{{ "general.homeLink"|trans|sw_sanitize }}</span>
-                                </div>
-                            </a>
+                            {% if context.salesChannel.translated.homeEnabled or not feature('FEATURE_NEXT_13504') %}
+                                <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link"
+                                    href="{{ path('frontend.home.page') }}"
+                                    itemprop="url"
+                                    title="{{ homeLabel|striptags }}">
+                                    <div class="main-navigation-link-text">
+                                        <span itemprop="name">{{ homeLabel|sw_sanitize }}</span>
+                                    </div>
+                                </a>
+                            {% endif %}
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}

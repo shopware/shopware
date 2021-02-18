@@ -27,5 +27,7 @@ ___
 # Storefront
 * Removed service menu from top bar
 * Added service category listing to all viewports in footer
+* Added labeling and toggling of Home button in Navigation
+* Added possibility to overwrite Home cms page and meta data per Sales Channel
 * Deprecated `layout/header/actions/service-menu-widget.html.twig`, menu has been moved to the bottom
 * Deprecated block `layout_header_top_bar_service` in `layout/header/top-bar.html.twig`

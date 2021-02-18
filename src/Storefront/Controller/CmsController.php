@@ -118,7 +118,7 @@ class CmsController extends StorefrontController
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
-        if (!$category->getCmsPageId()) {
+        if (!$category->getCmsPage()) {
             throw new PageNotFoundException('');
         }
 

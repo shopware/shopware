@@ -60,8 +60,7 @@ Component.register('sw-category-detail-base', {
             let categoryTypes = [
                 { value: 'page', label: this.$tc('sw-category.base.general.types.page') },
                 { value: 'folder', label: this.$tc('sw-category.base.general.types.folder') },
-                { value: 'link', label: this.$tc('sw-category.base.general.types.link') },
-                { value: 'column', label: this.$tc('sw-category.base.general.types.column'), disabled: true }
+                { value: 'link', label: this.$tc('sw-category.base.general.types.link') }
             ];
 
             // Renames the existing types to the new ones if the feature is active
@@ -76,6 +75,12 @@ Component.register('sw-category-detail-base', {
                     }
 
                     return type;
+                });
+
+                categoryTypes.push({
+                    value: 'column',
+                    label: this.$tc('sw-category.base.general.types.column'),
+                    disabled: true
                 });
             }
 

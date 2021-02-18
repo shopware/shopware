@@ -85,11 +85,23 @@
       },
       "link": {
         "title": "Benutzerdefinierter Link",
+        "mainTypeLabel": "Linktyp",
+        "mainTypePlaceholder": "Linktyp wählen ...",
+        "internalTypeLabel": "Entität",
+        "internalTypePlaceholder": "Entität wählen ...",
+        "categoryPlaceholder": "Kategorie wählen ...",
+        "productPlaceholder": "Produkt wählen ...",
+        "landingPagePlaceholder": "Landingpage wählen ...",
         "example": "Beispiel:",
         "internalExampleText": "/meine-kategorie",
         "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
         "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:",
-        "linkLabel": "Linkziel"
+        "linkLabel": "Linkziel",
+        "linkNewTabLabel": "In neuem Tab öffnen",
+        "type": {
+          "internal": "Intern",
+          "external": "Extern"
+        }
       },
       "products": {
         "productAssignmentHeadline": "Produkt-Zuweisung",

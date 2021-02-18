@@ -86,11 +86,23 @@
       },
       "link": {
         "title": "Customisable link",
+        "mainTypeLabel": "Link type",
+        "mainTypePlaceholder": "Choose a link type...",
+        "internalTypeLabel": "Entity",
+        "internalTypePlaceholder": "Choose an entity...",
+        "categoryPlaceholder": "Choose a category...",
+        "productPlaceholder": "Choose a product...",
+        "landingPagePlaceholder": "Choose a landing page...",
         "example": "Example:",
         "internalExampleText": "/my-category",
         "externalDesc": "To set external links, insert the complete web address:",
         "internalDesc": "If you want to create an internal link, just add the path that follows the domain:",
-        "linkLabel": "Link destination"
+        "linkLabel": "Link destination",
+        "linkNewTabLabel": "Open in new tab",
+        "type": {
+          "internal": "Internal",
+          "external": "External"
+        }
       },
       "products": {
         "productAssignmentHeadline": "Product assignment",

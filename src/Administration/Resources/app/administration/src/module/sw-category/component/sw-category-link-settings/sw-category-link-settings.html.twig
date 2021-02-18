@@ -1,7 +1,8 @@
 {%  block sw_category_link_settings %}
     <sw-card class="sw-category-link-settings" :title="$tc('sw-category.base.link.title')" :isLoading="isLoading">
         {% block sw_category_detail_link_desc_external %}
-            <div class="sw-category-detail-base__link-section">
+            <div v-if="!feature.isActive('FEATURE_NEXT_13504')"
+                 class="sw-category-detail-base__link-section">
                 <p>{{ $tc('sw-category.base.link.externalDesc') }}</p>
 
                 <p>
@@ -14,7 +15,8 @@
         {% endblock %}
 
         {% block sw_category_detail_link_desc_internal %}
-            <div class="sw-category-detail-base__link-section">
+            <div v-if="!feature.isActive('FEATURE_NEXT_13504')"
+                 class="sw-category-detail-base__link-section">
                 <p>{{ $tc('sw-category.base.link.internalDesc') }}</p>
                 <p>
                     {{ $tc('sw-category.base.link.example') }}
@@ -25,13 +27,81 @@
             </div>
         {% endblock %}
 
+        {% block sw_category_detail_link_type_select_main %}
+            <sw-single-select
+                v-if="feature.isActive('FEATURE_NEXT_13504')"
+                v-model="mainType"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('sw-category.base.link.mainTypeLabel')"
+                :placeholder="$tc('sw-category.base.link.mainTypePlaceholder')"
+                :options="linkTypeValues">
+            </sw-single-select>
+        {% endblock %}
+
+        {% block sw_category_detail_link_type_select_entity %}
+            <sw-single-select
+                v-if="isInternal && feature.isActive('FEATURE_NEXT_13504')"
+                v-model="category.linkType"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('sw-category.base.link.internalTypeLabel')"
+                :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
+                :options="entityValues"
+                @change="changeEntity">
+            </sw-single-select>
+        {% endblock %}
+
+        {% block sw_category_detail_link_type_select_entity_category %}
+            <sw-entity-single-select
+                v-if="category.linkType === 'category' && feature.isActive('FEATURE_NEXT_13504')"
+                v-model="category.internalLink"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('global.entities.category')"
+                :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+                entity="category">
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_category_detail_link_type_select_entity_product %}
+            <sw-entity-single-select
+                v-if="category.linkType === 'product' && feature.isActive('FEATURE_NEXT_13504')"
+                v-model="category.internalLink"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('global.entities.product')"
+                :placeholder="$tc('sw-category.base.link.productPlaceholder')"
+                :criteria="productCriteria"
+                :displayVariants="true"
+                entity="product">
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_category_detail_link_type_select_entity_landing_page %}
+            <sw-entity-single-select
+                v-if="category.linkType === 'landing_page' && feature.isActive('FEATURE_NEXT_13504')"
+                v-model="category.internalLink"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('global.entities.landing_page')"
+                :placeholder="$tc('sw-category.base.link.landingPagePlaceholder')"
+                entity="landing_page">
+            </sw-entity-single-select>
+        {% endblock %}
+
         {% block sw_category_detail_link_field %}
             <sw-text-field
-                :disabled="!acl.can('category.editor')"
+                v-if="isExternal || !feature.isActive('FEATURE_NEXT_13504')"
                 v-model="category.externalLink"
+                :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.link.linkLabel')"
                 :placeholder="$tc('sw-category.base.link.linkLabel')">
             </sw-text-field>
+        {% endblock %}
+
+        {% block sw_category_detail_link_new_tab %}
+            <sw-switch-field
+                v-if="feature.isActive('FEATURE_NEXT_13504')"
+                v-model="category.linkNewTab"
+                :disabled="!acl.can('category.editor')"
+                :label="$tc('sw-category.base.link.linkNewTabLabel')">
+            </sw-switch-field>
         {% endblock %}
     </sw-card>
 {%  endblock %}

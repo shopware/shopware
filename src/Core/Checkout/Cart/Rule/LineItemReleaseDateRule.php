@@ -68,7 +68,7 @@ class LineItemReleaseDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }

@@ -47,7 +47,7 @@ class LineItemTagRule extends Rule
 
         $identifiers = [];
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
         }
 

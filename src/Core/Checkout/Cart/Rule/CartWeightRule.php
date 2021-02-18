@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -93,8 +92,7 @@ class CartWeightRule extends Rule
     {
         $weight = 0.0;
 
-        /* @var LineItem $lineItem */
-        foreach ($cart->getLineItems() as $lineItem) {
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
             $itemWeight = 0.0;
             if ($lineItem->getDeliveryInformation() !== null) {
                 $itemWeight = $lineItem->getDeliveryInformation()->getWeight();

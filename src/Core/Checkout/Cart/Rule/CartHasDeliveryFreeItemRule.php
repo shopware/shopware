@@ -51,7 +51,7 @@ class CartHasDeliveryFreeItemRule extends Rule
 
     private function hasFreeDeliveryItems(LineItemCollection $lineItems): bool
     {
-        foreach ($lineItems->getIterator() as $lineItem) {
+        foreach ($lineItems->getFlat() as $lineItem) {
             if ($this->isFreeDeliveryItem($lineItem) === true) {
                 return true;
             }

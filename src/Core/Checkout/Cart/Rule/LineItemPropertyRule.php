@@ -44,7 +44,7 @@ class LineItemPropertyRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatch($lineItem)) {
                 return true;
             }

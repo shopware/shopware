@@ -57,8 +57,8 @@
                                     <sw-select-field
                                         v-model="user.localeId"
                                         class="sw-profile__language"
-                                        :label="$tc('sw-settings-user.user-detail.labelLanguage')"
-                                        :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')"
+                                        :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                                        :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                                         :disabled="!acl.can('user.update_profile')">
                                         <option v-for="language in languages"
                                                 :value="language.locale.id"

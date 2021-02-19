@@ -2,7 +2,8 @@ export default {
     namespaced: true,
     state: {
         isExpanded: true,
-        expandedEntries: []
+        expandedEntries: [],
+        adminModuleNavigation: []
     },
 
     mutations: {
@@ -22,6 +23,18 @@ export default {
 
         expandSidebar(state) {
             state.isExpanded = true;
+        },
+
+        setAdminModuleNavigation(state, navigation) {
+            state.adminModuleNavigation = navigation;
+        }
+    },
+
+    getters: {
+        appModuleNavigation(state, getters, rootState) {
+            const menuService = Shopware.Service('menuService');
+
+            return menuService.getNavigationFromApps(rootState.shopwareApps.apps);
         }
     }
 };

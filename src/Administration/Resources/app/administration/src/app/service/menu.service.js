@@ -19,7 +19,8 @@ export default function createMenuService(moduleFactory) {
         addItem: () => {},
         /** @deprecated tag:v6.5.0 will be removed in future version */
         removeItem: () => {},
-        getNavigationFromModules
+        getNavigationFromAdminModules,
+        getNavigationFromApps
     };
 
     /**
@@ -34,7 +35,7 @@ export default function createMenuService(moduleFactory) {
         // Reset tree when not empty
         resetTree();
 
-        getNavigationFromModules().forEach((navigationEntry) => {
+        getNavigationFromAdminModules().forEach((navigationEntry) => {
             flatTree.add(navigationEntry);
         });
 
@@ -47,7 +48,7 @@ export default function createMenuService(moduleFactory) {
      * @memberOf module:app/service/menu
      * @returns {Array} Navigation entries of all registered admin modules
      */
-    function getNavigationFromModules() {
+    function getNavigationFromAdminModules() {
         const modules = moduleFactory.getModuleRegistry();
         const navigationEntries = [];
 
@@ -72,5 +73,53 @@ export default function createMenuService(moduleFactory) {
         flatTreeKeys.forEach((node) => {
             flatTree.remove(node);
         });
+    }
+
+    function getNavigationFromApps(apps) {
+        return apps.reduce((navigation, app) => {
+            navigation.push(...getNavigationFromApp(app));
+            return navigation;
+        }, []);
+    }
+
+    function getNavigationFromApp(app) {
+        const appLabel = getTranslatedLabel(app.label);
+
+        return app.modules.map((appModule) => {
+            const moduleLabel = getTranslatedLabel(appModule.label);
+
+            const entry = {
+                id: `app-${app.name}-${appModule.name}`,
+                label: {
+                    translated: true,
+                    label: `${appLabel} - ${moduleLabel}`
+                },
+                position: appModule.position,
+                parent: getParentFromModule(appModule)
+            };
+
+            if (typeof appModule.position === 'number') {
+                entry.position = appModule.position;
+            }
+
+            if (appModule.source) {
+                entry.path = 'sw.my.apps.index';
+                entry.params = { appName: app.name, moduleName: appModule.name };
+            }
+
+            return entry;
+        });
+    }
+
+    function getTranslatedLabel(label) {
+        const locale = Shopware.State.get('session').currentLocale;
+        const fallbackLocale = Shopware.Context.app.fallbackLocale;
+
+        return label[locale] || label[fallbackLocale];
+    }
+
+    /** @deprecated tag:v6.5.0  use module.parent directly when required */
+    function getParentFromModule(module) {
+        return module.parent || 'sw-my-apps';
     }
 }

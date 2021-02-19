@@ -1,7 +1,8 @@
 import createMenuService from 'src/app/service/menu.service';
 
-// we are not interested in testing routes here but it is required to register modules
-const dummyRoute = { path: '/', component: 'sw-index' };
+/** fixtures */
+import adminModules from './_mocks/adminModules.json';
+import testApps from './_mocks/testApps.json';
 
 describe('src/app/service/menu.service', () => {
     const menuService = createMenuService(Shopware.Module);
@@ -14,46 +15,158 @@ describe('src/app/service/menu.service', () => {
         clearModules();
     });
 
-    it('returns an unordered list of all navigation entries', () => {
-        getTestModules().forEach((module) => {
-            Shopware.Module.register(module.name, module);
+    describe('adminModuleNavigation', () => {
+        it('returns an unordered list of all navigation entries', () => {
+            adminModules.forEach((module) => {
+                Shopware.Module.register(module.name, module);
+            });
+
+            const navigationEntries = menuService.getNavigationFromAdminModules();
+
+            expect(navigationEntries).toHaveLength(6);
+            expect(navigationEntries).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: 'sw.second.top.level' }),
+                expect.objectContaining({ id: 'sw.second.level.last' }),
+                expect.objectContaining({ id: 'sw.second.level.first' }),
+                expect.objectContaining({ id: 'sw.second.level.second' }),
+                expect.objectContaining({ id: 'sw.first.top.level' }),
+                expect.objectContaining({ id: 'sw-my-apps' })
+            ]));
         });
 
-        const navigationEntries = menuService.getNavigationFromModules();
+        it('ignores modules with empty navigation', () => {
+            Shopware.Module.register('empty-navigation', {
+                name: 'empty-navigation',
+                routes: { index: { path: '/', component: 'sw-index' } },
+                navigation: []
+            });
 
-        expect(navigationEntries).toHaveLength(5);
-        expect(navigationEntries).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: 'sw.second.top.level' }),
-            expect.objectContaining({ id: 'sw.second.level.last' }),
-            expect.objectContaining({ id: 'sw.second.level.first' }),
-            expect.objectContaining({ id: 'sw.second.level.second' }),
-            expect.objectContaining({ id: 'sw.first.top.level' })
-        ]));
+            expect(menuService.getNavigationFromAdminModules()).toHaveLength(0);
+        });
+
+        it('ignores modules if navigation is null', () => {
+            Shopware.Module.register('null-navigation', {
+                name: 'null-navigation',
+                routes: { index: { path: '/', component: 'sw-index' } },
+                navigation: null
+            });
+
+            expect(menuService.getNavigationFromAdminModules()).toHaveLength(0);
+        });
     });
 
-    it('ignores modules with empty navigation', () => {
-        Shopware.Module.register('empty-navigation', {
-            name: 'empty-navigation',
-            routes: { dummyRoute },
-            navigation: []
+    describe('appModuleNavigation', () => {
+        it('returns modules from apps', () => {
+            const navigation = menuService.getNavigationFromApps(testApps);
+
+            expect(navigation).toHaveLength(4);
+            expect(navigation).toEqual([
+                expect.objectContaining({
+                    id: 'app-testAppA-noPosition',
+                    path: 'sw.my.apps.index',
+                    parent: 'sw.second.top.level',
+                    params: {
+                        appName: 'testAppA',
+                        moduleName: 'noPosition'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppA-noParent',
+                    path: 'sw.my.apps.index',
+                    parent: 'sw-my-apps',
+                    params: {
+                        appName: 'testAppA',
+                        moduleName: 'noParent'
+                    },
+                    position: 50
+                }), expect.objectContaining({
+                    id: 'app-testAppB-default',
+                    path: 'sw.my.apps.index',
+                    parent: 'app-testAppB-structure',
+                    params: {
+                        appName: 'testAppB',
+                        moduleName: 'default'
+                    },
+                    position: 50
+                }), expect.objectContaining({
+                    id: 'app-testAppB-structure',
+                    parent: 'sw.first.top.level',
+                    position: 50
+                })
+            ]);
         });
 
-        expect(menuService.getNavigationFromModules()).toHaveLength(0);
-    });
+        it('respects the current locale for apps', () => {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+            Shopware.State.get('session').currentLocale = 'de-DE';
 
-    it('ignores modules if navigation is null', () => {
-        Shopware.Module.register('null-navigation', {
-            name: 'null-navigation',
-            routes: { dummyRoute },
-            navigation: null
+            const navigation = menuService.getNavigationFromApps(testApps);
+            expect(navigation).toEqual([
+                expect.objectContaining({
+                    id: 'app-testAppA-noPosition',
+                    label: {
+                        translated: true,
+                        label: 'test App A deutsch - Modul ohne Position'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppA-noParent',
+                    label: {
+                        translated: true,
+                        label: 'test App A deutsch - Modul ohne Parent'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppB-default',
+                    label: {
+                        translated: true,
+                        label: 'test App B deutsch - Standard Modul'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppB-structure',
+                    label: {
+                        translated: true,
+                        label: 'test App B deutsch - Sruktur Modul'
+                    }
+                })
+            ]);
         });
 
-        expect(menuService.getNavigationFromModules()).toHaveLength(0);
+        it('uses fallback locale for apps if current locale is not translated', () => {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+            Shopware.State.get('session').currentLocale = 'ru-RU';
+
+            const navigation = menuService.getNavigationFromApps(testApps);
+            expect(navigation).toEqual([
+                expect.objectContaining({
+                    id: 'app-testAppA-noPosition',
+                    label: {
+                        translated: true,
+                        label: 'test App A english - Module without position'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppA-noParent',
+                    label: {
+                        translated: true,
+                        label: 'test App A english - Module without parent'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppB-default',
+                    label: {
+                        translated: true,
+                        label: 'test App B english - Default module'
+                    }
+                }), expect.objectContaining({
+                    id: 'app-testAppB-structure',
+                    label: {
+                        translated: true,
+                        label: 'test App B english - Structure module'
+                    }
+                })
+            ]);
+        });
     });
 
     describe('deprecated functionality', () => {
         it('returns sorted tree when getMainMenu is called', () => {
-            getTestModules().forEach((module) => {
+            adminModules.forEach((module) => {
                 Shopware.Module.register(module.name, module);
             });
 
@@ -82,46 +195,12 @@ describe('src/app/service/menu.service', () => {
                             position: 40
                         })
                     ]
+                }),
+                expect.objectContaining({
+                    id: 'sw-my-apps',
+                    position: 100
                 })
             ]);
         });
     });
 });
-
-
-function getTestModules() {
-    return [{
-        name: 'first-module',
-        routes: { dummyRoute },
-        navigation: [{
-            id: 'sw.second.top.level',
-            label: 'top level entry',
-            position: 20
-        }, {
-            id: 'sw.second.level.last',
-            label: 'second top level entry',
-            position: 40,
-            parent: 'sw.second.top.level'
-        }, {
-            id: 'sw.second.level.first',
-            label: 'second top level entry',
-            position: 10,
-            parent: 'sw.second.top.level'
-        }]
-    }, {
-        name: 'second-module',
-        routes: { dummyRoute },
-        navigation: [{
-            id: 'sw.first.top.level',
-            label: 'second top level entry'
-        }, {
-            id: 'sw.second.level.second',
-            label: 'second top level entry',
-            position: 20,
-            parent: 'sw.second.top.level'
-        }]
-    }, {
-        name: 'no-navigation',
-        routes: { dummyRoute }
-    }];
-}

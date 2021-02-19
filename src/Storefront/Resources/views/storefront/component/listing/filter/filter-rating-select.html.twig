@@ -44,7 +44,8 @@
         {% for point in maxPoints-1..1 %}
             <li class="filter-rating-select-list-item">
                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select-item.html.twig' with {
-                    points: point
+                    points: point,
+                    maxPoints: maxPoints
                 } %}
             </li>
         {% endfor %}

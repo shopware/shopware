@@ -72,7 +72,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
 
             labels.push({
                 label: `${this.options.snippets.filterRatingActiveLabelStart}
-                        ${currentRating}
+                        ${currentRating}/${this.options.maxPoints}
                         ${endSnippet}`,
                 id: 'rating'
             });

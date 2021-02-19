@@ -1,23 +1,12 @@
-import template from './sw-splash-screen.html.twig';
-import './sw-splash-screen.scss';
+import template from './sw-promotion-v2-empty-state-hero.html.twig';
+import './sw-promotion-v2-empty-state-hero.scss';
 
 const { Component } = Shopware;
 
 /**
- * @description Creates a splash screen, e.g. for empty state screens
- * @status ready
- * @example-type static
- * @component-example
- * <sw-splash-screen
- *         title="No promotions yet."
- *         description="Boost your sales!"
- *         assetPath="/administration/static/img/splash-screens/some-really-awesome-asset.svg">
- *     <template #actions>
- *         <sw-button>Press me!</sw-button>
- *     </template>
- * </sw-splash-screen>
+ * @private
  */
-Component.register('sw-splash-screen', {
+Component.register('sw-promotion-v2-empty-state-hero', {
     template,
 
     props: {
@@ -48,7 +37,7 @@ Component.register('sw-splash-screen', {
     computed: {
         imagePath() {
             return this.assetPath ||
-                `/administration/static/img/splash-screens/${this.$route.meta.$module.name}-splash-screen.svg`;
+                `/administration/static/img/empty-states/${this.$route.meta.$module.name}-empty-state-hero.svg`;
         },
 
         showDescription() {

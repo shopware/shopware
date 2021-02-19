@@ -14,7 +14,7 @@ function createWrapper(privileges = []) {
             },
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-splash-screen': true
+            'sw-promotion-v2-empty-state-hero': true
         },
         provide: {
             acl: {

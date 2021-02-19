@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-splash-screen {
+.sw-promotion-v2-empty-state-hero {
     position: absolute;
     display: grid;
     width: 100%;
@@ -33,7 +33,7 @@
         padding-top: 8px;
     }
 
-    &__splash {
+    &__asset {
         max-width: 100%;
     }
 }

@@ -124,7 +124,7 @@
                     {% endblock %}
 
                     {% block sw_promotion_v2_list_empty_state %}
-                        <sw-splash-screen
+                        <sw-promotion-v2-empty-state-hero
                             v-if="!isLoading && !total"
                             :title="$tc('sw-promotion-v2.list.titleEmpty')"
                             :description="$tc('sw-promotion-v2.list.descriptionEmpty')">
@@ -133,7 +133,7 @@
                                 <template #actions>
                                     <sw-button
                                         v-tooltip="addButtonTooltip"
-                                        class="sw-promotion-v2-list__splash-button-add"
+                                        class="sw-promotion-v2-list__empty-state-button-add"
                                         variant="primary"
                                         :routerLink="{ name: 'sw.promotion.v2.create' }"
                                         :disabled="!acl.can('promotion.creator')">
@@ -142,7 +142,7 @@
                                 </template>
                             {% endblock %}
 
-                        </sw-splash-screen>
+                        </sw-promotion-v2-empty-state-hero>
                     {% endblock %}
 
                 </div>

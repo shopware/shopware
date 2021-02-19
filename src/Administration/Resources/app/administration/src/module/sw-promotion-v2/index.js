@@ -7,9 +7,10 @@ import './component/discount/sw-promotion-v2-wizard-description';
 import './component/promotion-codes/sw-promotion-v2-generate-codes-modal';
 import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
 
+import './component/sw-promotion-v2-card-condition-form';
+import './component/sw-promotion-v2-empty-state-hero';
 import './component/sw-promotion-v2-rule-select';
 import './component/sw-promotion-v2-sales-channel-select';
-import './component/sw-promotion-v2-card-condition-form';
 
 import './init/services.init';
 
@@ -17,20 +18,12 @@ import './page/sw-promotion-v2-detail';
 import './page/sw-promotion-v2-list';
 
 import './view/sw-promotion-v2-detail-base';
-
-// ToDo NEXT-13810 - Use when discounts-v2 will be reimplemented
-// import './view/sw-promotion-v2-discounts';
 import './view/sw-promotion-v2-conditions';
 
 import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
 
-<<<<<<< HEAD
 const { Module, State } = Shopware;
 State.registerModule('swPromotionDetail', swPromotionState);
-=======
-const { Module } = Shopware;
-Shopware.State.registerModule('swPromotionDetail', swPromotionState);
->>>>>>> NEXT-12645 - Implement old discount tab
 
 Module.register('sw-promotion-v2', {
     flag: 'FEATURE_NEXT_12016',
@@ -57,7 +50,6 @@ Module.register('sw-promotion-v2', {
                     view: 'list'
                 }
             }
-
         },
 
         create: {

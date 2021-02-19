@@ -93,7 +93,7 @@ PHP Unit:
         -   name: $MYSQL_IMAGE
             alias: mysql
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: elastic/elasticsearch:7.1.1
+        -   name: elastic/elasticsearch:7.3.0
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     rules:

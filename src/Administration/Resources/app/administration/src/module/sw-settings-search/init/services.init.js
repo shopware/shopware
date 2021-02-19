@@ -1,4 +1,4 @@
-import ProductIndexService from '../services/productIndex.api.service';
+import ProductIndexService from '../service/productIndex.api.service';
 import LiveSearchApiService from '../service/livesearch.api.service';
 
 Shopware.Service().register('productIndexService', () => {

@@ -5,7 +5,7 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/mixin/notification.mixin';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-search-search-index'), {
@@ -72,6 +72,18 @@ function createWrapper() {
 
                     return Promise.resolve({});
                 })
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 
@@ -98,9 +110,22 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should not able to rebuild the search index', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
+        expect(rebuildButton.attributes().disabled).toBeTruthy();
+    });
+
+
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
 

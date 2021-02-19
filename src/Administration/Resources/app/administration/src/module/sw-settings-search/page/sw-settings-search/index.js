@@ -6,9 +6,23 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-search', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [Mixin.getByName('notification')],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSaveSearchSettings'
+        },
+        ESCAPE: 'onCancel'
+    },
 
     data: () => {
         return {
@@ -37,6 +51,27 @@ Component.register('sw-settings-search', {
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
             return criteria;
+        },
+
+        allowSave() {
+            return this.acl.can('product_search_config.editor') || this.acl.can('product_search_config.creator');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 

@@ -6,7 +6,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-search-searchable-content-customfields', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

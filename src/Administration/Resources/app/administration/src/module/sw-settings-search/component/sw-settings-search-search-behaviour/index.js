@@ -4,6 +4,11 @@ import './sw-settings-search-search-behaviour.scss';
 Shopware.Component.register('sw-settings-search-search-behaviour', {
     template,
 
+    inject: [
+        'acl',
+        'feature'
+    ],
+
     props: {
         searchBehaviourConfigs: {
             type: Object,

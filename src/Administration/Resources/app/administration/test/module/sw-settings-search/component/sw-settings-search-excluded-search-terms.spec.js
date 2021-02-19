@@ -13,7 +13,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.directive('popover', {});
@@ -42,6 +42,18 @@ function createWrapper() {
                         return Promise.resolve();
                     }
                 })
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 
@@ -77,7 +89,9 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be show element no excluded search ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
         await wrapper.setProps({
             searchConfigs: {
@@ -91,7 +105,9 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have pagination on list excluded terms', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
 
         const pagination = wrapper.find('.sw-data-grid__pagination');
@@ -101,7 +117,9 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should have listing excluded terms', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
@@ -110,8 +128,25 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         expect(dataGrids.at(0).text()).toEqual(firstValue);
     });
 
-    it('should allow delete excluded terms', async () => {
-        const wrapper = createWrapper();
+    it('should not able to delete excluded terms', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const firstRowContext = wrapper.find('.sw-data-grid__row.sw-data-grid__row--0');
+        await firstRowContext.find('.sw-data-grid__cell--actions .sw-context-button__button').trigger('click');
+        const contextMenu = wrapper.find('.sw-context-menu');
+        expect(contextMenu.isVisible()).toBeTruthy();
+        const deleteButton = contextMenu.find('.sw-context-menu-item--danger');
+        expect(deleteButton.isVisible()).toBeTruthy();
+        expect(deleteButton.classes()).toContain('is--disabled');
+    });
+
+    it('should be able to delete excluded terms', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.deleter'
+        ]);
         wrapper.vm.createNotificationSuccess = jest.fn();
         await wrapper.vm.$nextTick();
 
@@ -138,8 +173,21 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
         expect(firstRowAfterDelete.text()).not.toEqual(firstRowAfterBulkDelete.text());
     });
 
+    it('should not able to add a new excluded terms', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const addExcludedTermButton = wrapper.find('.sw-button.sw-button--ghost.sw-button--small');
+        expect(addExcludedTermButton.attributes().disabled).toBeTruthy();
+    });
+
+
     it('should allow add excluded terms', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.creator'
+        ]);
         await wrapper.vm.$nextTick();
 
         const firstValue = wrapper.vm.searchConfigs.excludedTerms[0];
@@ -151,7 +199,9 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
     });
 
     it('should be render component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
 
         const dataGridsFirstLoading = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');

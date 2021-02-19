@@ -206,7 +206,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
-
     it('should show one result for search', async () => {
         await wrapper.setData({ salesChannelId: salesChannel.storeFront.id });
         const searchBox = wrapper.find('.sw-simple-search-field input');

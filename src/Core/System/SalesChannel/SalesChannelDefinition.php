@@ -187,6 +187,9 @@ class SalesChannelDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_13504')) {
             $fields->add(new FkField('home_cms_page_id', 'homeCmsPageId', CmsPageDefinition::class));
             $fields->add(new ManyToOneAssociationField('homeCmsPage', 'home_cms_page_id', CmsPageDefinition::class, 'id', false));
+            if (Feature::isActive('FEATURE_NEXT_13273')) {
+                $fields->add((new ReferenceVersionField(CmsPageDefinition::class, 'home_cms_page_version_id'))->addFlags(new Required()));
+            }
             $fields->add(new TranslatedField('homeSlotConfig'));
             $fields->add(new TranslatedField('homeEnabled'));
             $fields->add(new TranslatedField('homeName'));

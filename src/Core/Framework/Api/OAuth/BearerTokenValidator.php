@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,15 +23,22 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
      */
     private $decorated;
 
+    /**
+     * @var Configuration
+     */
+    private $configuration;
+
     public function __construct(
         AuthorizationValidatorInterface $decorated,
-        Connection $connection
+        Connection $connection,
+        Configuration $configuration
     ) {
         $this->decorated = $decorated;
         $this->connection = $connection;
+        $this->configuration = $configuration;
     }
 
-    /**
+    /**A
      * {@inheritdoc}
      */
     public function validateAuthorization(ServerRequestInterface $request)
@@ -41,10 +49,11 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
 
         $jwt = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header[0]) ?? '');
 
-        $token = (new Parser())->parse($jwt);
+        /** @var UnencryptedToken $token */
+        $token = $this->configuration->parser()->parse($jwt);
 
         if ($userId = $request->getAttribute(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $this->validateAccessTokenIssuedAt($token->getClaim('iat', 0), $userId);
+            $this->validateAccessTokenIssuedAt($token->claims()->get('iat', 0), $userId);
         }
 
         return $request;
@@ -54,7 +63,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
      * @throws OAuthServerException
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function validateAccessTokenIssuedAt(int $tokenIssuedAt, string $userId): void
+    private function validateAccessTokenIssuedAt(\DateTimeImmutable $tokenIssuedAt, string $userId): void
     {
         $lastUpdatedPasswordAt = $this->connection->createQueryBuilder()
             ->select(['last_updated_password_at'])
@@ -74,7 +83,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
 
         $lastUpdatedPasswordAt = strtotime($lastUpdatedPasswordAt);
 
-        if ($tokenIssuedAt <= $lastUpdatedPasswordAt) {
+        if ($tokenIssuedAt->getTimestamp() <= $lastUpdatedPasswordAt) {
             throw OAuthServerException::accessDenied('Access token is expired');
         }
     }

@@ -9,6 +9,7 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -17,21 +18,38 @@ class ClientRepository implements ClientRepositoryInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(Connection $connection, RequestStack $requestStack)
     {
         $this->connection = $connection;
+        $this->requestStack = $requestStack;
     }
 
     /**
-     * Get a client.
-     *
-     * @param string      $clientIdentifier   The client's identifier
-     * @param string|null $grantType          The grant type used (if sent)
-     * @param string|null $clientSecret       The client's secret (if sent)
-     * @param bool        $mustValidateSecret If true the client must attempt to validate the secret if the client                                        is confidential
+     * do not validate oauth client here, as this would mean two requests:
+     * 1. to validate the client
+     * 2. to actually fetch the client
+     * instead, the client_credentials grant will throw en exception if the client secret is invalid on its own
      */
-    public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true): ?ClientEntityInterface
+    public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
+        return true;
+    }
+
+    public function getClientEntity($clientIdentifier): ?ClientEntityInterface
+    {
+        $request = $this->requestStack->getMasterRequest();
+
+        if (!$request) {
+            return null;
+        }
+
+        $grantType = $request->request->get('grant_type');
+
         if ($grantType === 'password' && $clientIdentifier === 'administration') {
             return new ApiClient('administration', true);
         }
@@ -41,6 +59,8 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         if ($grantType === 'client_credentials') {
+            $clientSecret = $request->request->get('client_secret');
+
             return $this->getByAccessKey($clientIdentifier, $clientSecret);
         }
 

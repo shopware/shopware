@@ -207,6 +207,7 @@
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="request_stack"/>
         </service>
         <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -267,6 +268,7 @@
         <service id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator" decorates="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator.inner"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.jwt_config"/>
         </service>
 
         <!-- Events -->

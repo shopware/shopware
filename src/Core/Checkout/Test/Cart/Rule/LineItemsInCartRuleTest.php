@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,20 +20,11 @@ class LineItemsInCartRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -71,7 +63,7 @@ class LineItemsInCartRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [],
-                        'operator' => LineItemsInCartRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -93,7 +85,7 @@ class LineItemsInCartRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => '0915d54fbf80423c917c61ad5a391b48',
-                        'operator' => LineItemsInCartRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -115,7 +107,7 @@ class LineItemsInCartRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [true, 3, '1234abcd', '0915d54fbf80423c917c61ad5a391b48'],
-                        'operator' => LineItemsInCartRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -149,7 +141,7 @@ class LineItemsInCartRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'identifiers' => ['0915d54fbf80423c917c61ad5a391b48', '6f7a6b89579149b5b687853271608949'],
-                    'operator' => LineItemsInCartRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

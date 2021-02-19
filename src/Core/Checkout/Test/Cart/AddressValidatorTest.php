@@ -76,7 +76,7 @@ class AddressValidatorTest extends TestCase
         static::assertInstanceOf(ShippingAddressBlockedError::class, $error);
     }
 
-    public function validationProvider()
+    public function validationProvider(): \Generator
     {
         yield 'test not active' => [false, true, true];
         yield 'test not shipping available' => [true, false, true];

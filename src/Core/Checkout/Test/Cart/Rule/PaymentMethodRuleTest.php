@@ -27,20 +27,11 @@ class PaymentMethodRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -79,7 +70,7 @@ class PaymentMethodRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'paymentMethodIds' => [],
-                        'operator' => PaymentMethodRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -101,7 +92,7 @@ class PaymentMethodRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'paymentMethodIds' => '0915d54fbf80423c917c61ad5a391b48',
-                        'operator' => PaymentMethodRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -123,7 +114,7 @@ class PaymentMethodRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'paymentMethodIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
-                        'operator' => PaymentMethodRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -237,7 +228,7 @@ class PaymentMethodRuleTest extends TestCase
         return [
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                     'paymentMethodIds' => [],
                 ],
                 '965a0713093841ceb86b0f83edd7dab4',
@@ -245,7 +236,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                     'paymentMethodIds' => ['ff5a0713093841ceb86b0f83edd7dab4'],
                 ],
                 '965a0713093841ceb86b0f83edd7dab4',
@@ -253,7 +244,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_NEQ,
+                    'operator' => Rule::OPERATOR_NEQ,
                     'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
                 ],
                 '965a0713093841ceb86b0f83edd7dab4',
@@ -261,7 +252,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_NEQ,
+                    'operator' => Rule::OPERATOR_NEQ,
                     'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
                 ],
                 'ff5a0713093841ceb86b0f83edd7dab4',
@@ -269,7 +260,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                     'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
                 ],
                 '965a0713093841ceb86b0f83edd7dab4',
@@ -277,7 +268,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                     'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
                 ],
                 'ff5a0713093841ceb86b0f83edd7dab4',
@@ -285,7 +276,7 @@ class PaymentMethodRuleTest extends TestCase
             ],
             [
                 [
-                    'operator' => PaymentMethodRule::OPERATOR_NEQ,
+                    'operator' => Rule::OPERATOR_NEQ,
                     'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
                 ],
                 'ee5a0713093841ceb86b0f83edd7dab4',

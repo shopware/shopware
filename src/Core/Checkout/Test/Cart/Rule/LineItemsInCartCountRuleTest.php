@@ -3,13 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartCountRule;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,23 +23,15 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemsInCartCountRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -81,7 +70,7 @@ class LineItemsInCartCountRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'count' => '4',
-                        'operator' => LineItemsInCartCountRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -153,7 +142,7 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule = new LineItemsInCartCountRule();
         $rule->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        static::assertTrue($rule->match(new CartRuleScope($this->createCartDummy(), $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($this->createCart(new LineItemCollection()), $this->createMock(SalesChannelContext::class))));
     }
 
     public function testRuleMatchesWithTwoLineItems(): void
@@ -161,8 +150,11 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule = new LineItemsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_EQ]);
 
-        $cart = $this->createCartDummy();
-        $cart = $this->addLineItemsToCart($cart);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItem(),
+            $this->createLineItem(),
+        ]);
+        $cart = $this->createCart($lineItemCollection);
 
         static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }
@@ -172,8 +164,11 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule = new LineItemsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $cart = $this->createCartDummy();
-        $cart = $this->addLineItemsToCart($cart);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItem(),
+            $this->createLineItem(),
+        ]);
+        $cart = $this->createCart($lineItemCollection);
 
         static::assertFalse($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }
@@ -183,7 +178,7 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule = new LineItemsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $cart = $this->createCartDummy();
+        $cart = $this->createCart(new LineItemCollection());
 
         static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }
@@ -194,49 +189,5 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
         static::assertFalse($rule->match($this->getMockForAbstractClass(RuleScope::class)));
-    }
-
-    private function createCartDummy(): Cart
-    {
-        return new Cart('test', Uuid::randomHex());
-    }
-
-    private function addLineItemsToCart(Cart $cart): Cart
-    {
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
-            new DeliveryInformation(
-                9999,
-                50.0,
-                false,
-                null,
-                (new DeliveryTime())->assign([
-                    'name' => '1-3 weeks',
-                    'min' => 1,
-                    'max' => 3,
-                    'unit' => 'week',
-                ])
-            )
-        ));
-        $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    false,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'name' => '1-3 weeks',
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'week',
-                    ])
-                )
-            )
-        );
-
-        $cart->addLineItems($lineItemCollection);
-
-        return $cart;
     }
 }

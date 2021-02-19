@@ -3,16 +3,14 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -20,10 +18,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemDimensionLengthRuleTest extends TestCase
 {
-    /**
-     * @var LineItemDimensionLengthRule
-     */
-    private $rule;
+    use CartRuleHelperTrait;
+
+    private LineItemDimensionLengthRule $rule;
 
     protected function setUp(): void
     {
@@ -32,7 +29,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('cartLineItemDimensionLength', $this->rule->getName());
+        static::assertSame('cartLineItemDimensionLength', $this->rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -46,19 +43,23 @@ class LineItemDimensionLengthRuleTest extends TestCase
     /**
      * @dataProvider getMatchingRuleTestData
      */
-    public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithLineItem(
+        string $operator,
+        float $amount,
+        float $lineItemAmount,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
         ]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemAmount),
+            $this->createLineItemWithLength($lineItemAmount),
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
     }
 
     public function getMatchingRuleTestData(): array
@@ -92,27 +93,62 @@ class LineItemDimensionLengthRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      */
-    public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithCartRuleScope(
+        string $operator,
+        float $amount,
+        float $lineItemAmount1,
+        float $lineItemAmount2,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
         ]);
 
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithLength($lineItemAmount1),
+            $this->createLineItemWithLength($lineItemAmount2),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($lineItemAmount1));
-        $lineItemCollection->add($this->createLineItem($lineItemAmount2));
-
-        $cart->setLineItems($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopeNested(
+        string $operator,
+        float $amount,
+        float $lineItemAmount1,
+        float $lineItemAmount2,
+        bool $expected
+    ): void {
+        $this->rule->assign([
+            'amount' => $amount,
+            'operator' => $operator,
+        ]);
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithLength($lineItemAmount1),
+            $this->createLineItemWithLength($lineItemAmount2),
+        ]);
+
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
     }
 
     public function getCartRuleScopeTestData(): array
@@ -152,21 +188,15 @@ class LineItemDimensionLengthRuleTest extends TestCase
         $this->rule->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            new LineItem('dummy-article', 'product', null, 3),
+            $this->createLineItem(),
             $this->createMock(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
     }
 
-    /**
-     * @throws InvalidQuantityException
-     */
-    private function createLineItem(float $length): LineItem
+    private function createLineItemWithLength(float $length): LineItem
     {
-        $deliveryInformation = new DeliveryInformation(1, 1, false, null, null, null, null, $length);
-
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
-            ->setDeliveryInformation($deliveryInformation);
+        return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, $length);
     }
 }

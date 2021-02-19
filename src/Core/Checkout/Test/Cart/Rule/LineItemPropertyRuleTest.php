@@ -3,42 +3,56 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleScopeCase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemPropertyRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     /**
      * @dataProvider cartRuleScopeProvider
      */
     public function testCartRuleScopes(CartRuleScopeCase $case): void
     {
-        $cart = new Cart('test', 'test');
-        $cart->setLineItems(new LineItemCollection($case->lineItems));
+        $cart = $this->createCart(new LineItemCollection($case->lineItems));
 
         $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
 
-    public function cartRuleScopeProvider()
+    /**
+     * @dataProvider cartRuleScopeProvider
+     */
+    public function testCartRuleScopesNested(CartRuleScopeCase $case): void
     {
-        $emptyItem = $this->createLineItem();
-        $redItem = $this->createLineItem(['red']);
-        $greenItem = $this->createLineItem(['green']);
-        $blueGreenItem = $this->createLineItem(['green', 'blue']);
+        $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
-        $emptyOptionItem = $this->createLineItem();
-        $redOptionItem = $this->createLineItem([], ['red']);
-        $greenOptionItem = $this->createLineItem([], ['green']);
-        $blueGreenOptionItem = $this->createLineItem([], ['green', 'blue']);
+        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
 
-        $mergeCase = $this->createLineItem(['red'], ['green']);
+        static::assertSame($case->match, $case->rule->match($scope), $case->description);
+    }
+
+    public function cartRuleScopeProvider(): array
+    {
+        $emptyItem = $this->createLineItemWithVariantOptions();
+        $redItem = $this->createLineItemWithVariantOptions(['red']);
+        $greenItem = $this->createLineItemWithVariantOptions(['green']);
+        $blueGreenItem = $this->createLineItemWithVariantOptions(['green', 'blue']);
+
+        $emptyOptionItem = $this->createLineItemWithVariantOptions();
+        $redOptionItem = $this->createLineItemWithVariantOptions([], ['red']);
+        $greenOptionItem = $this->createLineItemWithVariantOptions([], ['green']);
+        $blueGreenOptionItem = $this->createLineItemWithVariantOptions([], ['green', 'blue']);
+
+        $mergeCase = $this->createLineItemWithVariantOptions(['red'], ['green']);
 
         $cases = [
             new CartRuleScopeCase('empty cart', false, new LineItemPropertyRule(['red']), []),
@@ -57,49 +71,18 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return array_map(function ($case) {
+        return array_map(static function ($case) {
             return [$case];
         }, $cases);
     }
 
-    private function createLineItem(array $properties = [], array $options = [])
+    private function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
-        $lineItem = new LineItem(Uuid::randomHex(), 'test', Uuid::randomHex(), 1);
+        $lineItem = $this->createLineItem();
 
         $lineItem->setPayloadValue('propertyIds', $properties);
         $lineItem->setPayloadValue('optionIds', $options);
 
         return $lineItem;
-    }
-}
-
-class CartRuleScopeCase
-{
-    /**
-     * @var string
-     */
-    public $description;
-
-    /**
-     * @var bool
-     */
-    public $match;
-
-    /**
-     * @var array
-     */
-    public $lineItems;
-
-    /**
-     * @var LineItemPropertyRule
-     */
-    public $rule;
-
-    public function __construct(string $description, bool $match, LineItemPropertyRule $rule, array $lineItems)
-    {
-        $this->match = $match;
-        $this->rule = $rule;
-        $this->lineItems = $lineItems;
-        $this->description = $description;
     }
 }

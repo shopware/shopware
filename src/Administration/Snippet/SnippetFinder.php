@@ -7,10 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 class SnippetFinder implements SnippetFinderInterface
 {
-    /**
-     * @var Kernel
-     */
-    private $kernel;
+    private Kernel $kernel;
 
     public function __construct(Kernel $kernel)
     {

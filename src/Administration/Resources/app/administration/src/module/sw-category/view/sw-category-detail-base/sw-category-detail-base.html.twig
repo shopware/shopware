@@ -29,38 +29,61 @@
 
                 {% block sw_category_detail_information_type %}
                     <div class="sw-category-detail-base__type-container">
+
                         {% block sw_category_detail_information_type %}
                             <sw-single-select
-                                v-if="!category.isColumn"
-                                v-model="category.type"
+                                v-if="!feature.isActive('FEATURE_NEXT_13504')"
+                                class="sw-category-detail-base__type-selection"
                                 :helpText="$tc('sw-category.base.general.types.help')"
                                 :label="$tc('sw-category.base.general.types.title')"
+                                v-model="category.type"
                                 :disabled="!acl.can('category.editor')"
                                 :error="categoryTypeError"
                                 :options="categoryTypes">
                             </sw-single-select>
 
-                            <sw-single-select
-                                v-else
-                                value="column"
-                                :helpText="$tc('sw-category.base.general.types.columnHelp')"
-                                :label="$tc('sw-category.base.general.types.title')"
-                                :disabled="true"
-                                :options="categoryTypes">
-                            </sw-single-select>
+                            <sw-entity-tag-select
+                                v-if="feature.isActive('FEATURE_NEXT_13504') && category && !isLoading"
+                                class="sw-category-detail-base__tags"
+                                :label="$tc('sw-category.base.general.labelCategoryTags')"
+                                :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
+                                :disabled="!acl.can('category.editor')"
+                                v-model="category.tags">
+                            </sw-entity-tag-select>
                         {% endblock %}
                     </div>
                 {% endblock %}
 
                 {% block sw_category_detail_information_tags %}
                     <sw-entity-tag-select
-                        v-if="category && !isLoading"
+                        v-if="!feature.isActive('FEATURE_NEXT_13504') && category && !isLoading"
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
                         :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
                         :disabled="!acl.can('category.editor')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
+
+                    <template v-if="feature.isActive('FEATURE_NEXT_13504')">
+                        <sw-single-select
+                            v-if="!category.isColumn"
+                            class="sw-category-detail-base__type-selection"
+                            :helpText="$tc('sw-category.base.general.types.help')"
+                            :label="$tc('sw-category.base.general.types.title')"
+                            v-model="category.type"
+                            :disabled="!acl.can('category.editor')"
+                            :options="categoryTypes">
+                        </sw-single-select>
+
+                        <sw-single-select
+                            v-else
+                            value="column"
+                            :helpText="$tc('sw-category.base.general.types.columnHelp')"
+                            :label="$tc('sw-category.base.general.types.title')"
+                            :disabled="true"
+                            :options="categoryTypes">
+                        </sw-single-select>
+                    </template>
                 {% endblock %}
 
             </sw-card>
@@ -70,9 +93,14 @@
 
         {% block sw_category_detail_entry_point %}
             <sw-category-sales-channel-card
-                v-if="isSalesChannelEntryPoint"
+                v-if="!feature.isActive('FEATURE_NEXT_13504') && isSalesChannelEntryPoint"
                 v-bind="{ category, isLoading }">
             </sw-category-sales-channel-card>
+
+            <sw-category-entry-point-card
+                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page')"
+                v-bind="{ category, isLoading }">
+            </sw-category-entry-point-card>
         {% endblock %}
 
         {% block sw_category_detail_link %}
@@ -98,7 +126,7 @@
             {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
             {% block sw_category_detail_products %}
                 <sw-many-to-many-assignment-card
-                    v-if="category.type !== 'folder' && !feature.isActive('FEATURE_NEXT_13504')"
+                    v-if="!feature.isActive('FEATURE_NEXT_13504') && category.type !== 'folder'"
                     class="sw-category-detail-base__products"
                     :title="$tc('sw-category.base.products.productAssignmentHeadline')"
                     :entityCollection="category.products"

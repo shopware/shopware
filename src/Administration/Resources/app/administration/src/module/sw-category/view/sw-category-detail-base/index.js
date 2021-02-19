@@ -9,7 +9,11 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 Component.register('sw-category-detail-base', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         'placeholder'
@@ -53,12 +57,34 @@ Component.register('sw-category-detail-base', {
 
     computed: {
         categoryTypes() {
-            return [
+            let categoryTypes = [
                 { value: 'page', label: this.$tc('sw-category.base.general.types.page') },
                 { value: 'folder', label: this.$tc('sw-category.base.general.types.folder') },
-                { value: 'link', label: this.$tc('sw-category.base.general.types.link') },
-                { value: 'column', label: this.$tc('sw-category.base.general.types.column'), disabled: true }
+                { value: 'link', label: this.$tc('sw-category.base.general.types.link') }
             ];
+
+            // Renames the existing types to the new ones if the feature is active
+            if (this.feature.isActive('FEATURE_NEXT_13504')) {
+                categoryTypes = categoryTypes.map((type) => {
+                    if (type.value === 'page') {
+                        type.label = this.$tc('sw-category.base.general.types.pageList');
+                    }
+
+                    if (type.value === 'folder') {
+                        type.label = this.$tc('sw-category.base.general.types.entrypoint');
+                    }
+
+                    return type;
+                });
+
+                categoryTypes.push({
+                    value: 'column',
+                    label: this.$tc('sw-category.base.general.types.column'),
+                    disabled: true
+                });
+            }
+
+            return categoryTypes;
         },
 
         // @deprecated tag:v6.5.0 - can be removed completely

@@ -102,7 +102,7 @@ class ExtensionDataProviderTest extends TestCase
 
         static::assertNotNull($extensionDetail);
         static::assertEquals($extensionId, $extensionDetail->getId());
-        static::assertEquals('Change your privacy policy!', $extensionDetail->getPrivacyPolicyExtensions());
+        static::assertEquals('Change your privacy policy!', $extensionDetail->getPrivacyPolicyExtension());
     }
 
     public function testItReturnsReviewsForExtension(): void

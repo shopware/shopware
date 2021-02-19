@@ -177,7 +177,7 @@ class ExtensionStruct extends Struct
      *
      * @var string|null
      */
-    protected $privacyPolicyExtensions;
+    protected $privacyPolicyExtension;
 
     /**
      * @var LicenseStruct|null
@@ -501,14 +501,14 @@ class ExtensionStruct extends Struct
         $this->configurable = $configurable;
     }
 
-    public function getPrivacyPolicyExtensions(): ?string
+    public function getPrivacyPolicyExtension(): ?string
     {
-        return $this->privacyPolicyExtensions;
+        return $this->privacyPolicyExtension;
     }
 
-    public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
+    public function setPrivacyPolicyExtension(?string $privacyPolicyExtension): void
     {
-        $this->privacyPolicyExtensions = $privacyPolicyExtensions;
+        $this->privacyPolicyExtension = $privacyPolicyExtension;
     }
 
     public function getStoreLicense(): ?LicenseStruct

@@ -153,7 +153,7 @@
                     {% endblock %}
 
                     {% block sw_extension_buy_modal_accept_extension_privacy_policy_extensions %}
-                        <div v-if="extension.privacyPolicyExtensions" class="sw-extension-buy-modal__checkbox sw-field sw-field--checkbox">
+                        <div v-if="extension.privacyPolicyExtension" class="sw-extension-buy-modal__checkbox sw-field sw-field--checkbox">
                             <div class="sw-field--checkbox__content">
                                 <div class="sw-field__checkbox">
                                     <input type="checkbox"
@@ -209,7 +209,7 @@
                     <sw-extension-privacy-policy-extensions-modal
                         v-if="showPrivacyModal"
                         :extensionName="extension.label"
-                        :privacyPolicyExtensions="extension.privacyPolicyExtensions"
+                        :privacyPolicyExtension="extension.privacyPolicyExtension"
                         @modal-close="closePrivacyModal">
                     </sw-extension-privacy-policy-extensions-modal>
                 {% endblock %}

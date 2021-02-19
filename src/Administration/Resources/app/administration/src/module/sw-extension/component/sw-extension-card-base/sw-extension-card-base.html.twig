@@ -102,7 +102,7 @@
 
                     {% block sw_extension_card_base_context_menu_privacy_extensions %}
                         <sw-context-menu-item
-                            v-if="isInstalled && extension.privacyPolicyExtensions"
+                            v-if="isInstalled && extension.privacyPolicyExtension"
                             @click="openPrivacyModal">
 
                             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.policyExtensions') }}
@@ -179,7 +179,7 @@
                 <sw-extension-privacy-policy-extensions-modal
                     v-if="showPrivacyModal"
                     :extensionName="extension.label"
-                    :privacyPolicyExtensions="extension.privacyPolicyExtensions"
+                    :privacyPolicyExtension="extension.privacyPolicyExtension"
                     @modal-close="closePrivacyModal">
                 </sw-extension-privacy-policy-extensions-modal>
             {% endblock %}

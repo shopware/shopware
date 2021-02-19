@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer as AbstractEntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -285,7 +284,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $result = $this->client->bulk([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),
-            'body' => JsonFieldSerializer::encodeJson($documents),
+            'body' => $documents,
         ]);
 
         $this->cacheClearer->invalidateTags([$entity . '.id']);

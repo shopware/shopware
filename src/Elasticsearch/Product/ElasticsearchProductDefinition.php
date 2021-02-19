@@ -69,15 +69,15 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'configuratorSettings' => $this->mapper->mapField($definition, $definition->getField('configuratorSettings'), $context),
                 ]
             ),
-            //            'dynamic_templates' => [
-            //                [
-            //                    'cheapest_price' => [
-            //                        'match_pattern' => 'regex',
-            //                        'match' => '^cheapest_price_rule',
-            //                        'mapping' => ['type' => 'double'],
-            //                    ],
-            //                ],
-            //            ],
+            'dynamic_templates' => [
+                [
+                    'cheapest_price' => [
+                        'match_pattern' => 'regex',
+                        'match' => '^cheapest_price_rule',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -164,10 +164,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             foreach ($price as $rule => $currencies) {
                 foreach ($currencies as $currency => $taxes) {
                     $key = 'cheapest_price_' . $rule . '_' . $currency . '_gross';
-                    $document[$key] = (float) $taxes['gross'];
+                    $document[$key] = $taxes['gross'];
 
                     $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
-                    $document[$key] = (float) $taxes['net'];
+                    $document[$key] = $taxes['net'];
                 }
             }
         }

@@ -437,6 +437,22 @@
       },
       "priceFilter": {
         "label": "Preis"
+      },
+      "manufacturerFilter": {
+        "label": "Hersteller",
+        "placeholder": "Hersteller auswählen..."
+      },
+      "salesChannelsFilter": {
+        "label": "Verkaufskanäle",
+        "placeholder": "Verkaufskanäle auswählen..."
+      },
+      "categoriesFilter": {
+        "label": "Kategorien",
+        "placeholder": "Kategorien auswählen..."
+      },
+      "tagsFilter": {
+        "label": "Tags",
+        "placeholder": "Tags auswählen..."
       }
     },
     "notification": {

@@ -40,7 +40,11 @@ Component.register('sw-product-list', {
                 'product-without-images-filter',
                 'release-date-filter',
                 'stock-filter',
-                'price-filter'
+                'price-filter',
+                'manufacturer-filter',
+                'visibilities-filter',
+                'categories-filter',
+                'tags-filter'
             ]
         };
     },
@@ -125,11 +129,31 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.imagesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
                 },
+                'manufacturer-filter': {
+                    property: 'manufacturer',
+                    label: this.$tc('sw-product.filters.manufacturerFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.manufacturerFilter.placeholder')
+                },
+                'visibilities-filter': {
+                    property: 'visibilities.salesChannel',
+                    label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder')
+                },
+                'categories-filter': {
+                    property: 'categories',
+                    label: this.$tc('sw-product.filters.categoriesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder')
+                },
                 'price-filter': {
                     property: 'price',
                     label: this.$tc('sw-product.filters.priceFilter.label'),
                     digits: 20,
                     min: 0
+                },
+                'tags-filter': {
+                    property: 'tags',
+                    label: this.$tc('sw-product.filters.tagsFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder')
                 },
                 'release-date-filter': {
                     property: 'releaseDate',

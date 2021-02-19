@@ -56,7 +56,8 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
-            }
+            },
+            filterFactory: {}
         },
         stubs: {
             'sw-page': {

@@ -222,6 +222,36 @@
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
       "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
+    },
+    "filter": {
+      "salutation": {
+        "label": "Salutation",
+        "placeholder": "Select salutation..."
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Select status..."
+      },
+      "defaultPaymentMethod": {
+        "label": "Default payment method",
+        "placeholder": "Select default payment method..."
+      },
+      "customerGroup": {
+        "label": "Customer group",
+        "placeholder": "Select customer group..."
+      },
+      "billingCountry": {
+        "label": "Billing country",
+        "placeholder": "Select billing countries..."
+      },
+      "shippingCountry": {
+        "label": "Shipping country",
+        "placeholder": "Select shipping countries..."
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
+      }
     }
   },
   "sw-privileges": {

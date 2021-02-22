@@ -115,6 +115,18 @@ describe('Customer: Test filter and reset filter', () => {
 
         cy.onlyOnFeature('FEATURE_NEXT_9831');
 
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/customer`,
+            method: 'post'
+        }).as('filterCustomer');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/payment-method`,
+            method: 'post'
+        }).as('getPaymentMethod');
+
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
         cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filter"]').should('exist');
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
@@ -128,6 +140,10 @@ describe('Customer: Test filter and reset filter', () => {
         // Filter results with single criteria
         cy.get('.sw-filter-panel__item').eq(0).find('input').click();
         cy.get('.sw-select-result-list__item-list li').contains('Mr.').click();
+
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('27');
 
         // Check notification badge after filtering
@@ -162,13 +178,25 @@ describe('Customer: Test filter and reset filter', () => {
 
         // Combine multiple filters criteria
         cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
         cy.get('.sw-filter-panel__item').eq(1).find('select').select('false');
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
         cy.get('.sw-filter-panel__item').eq(2).find('input').click();
+        cy.wait('@getPaymentMethod').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-select-result-list__item-list li').contains('Invoice').click();
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
         // Check notification badge after filtering with multiple filters criteria
@@ -183,6 +211,13 @@ describe('Customer: Test filter and reset filter', () => {
 
         cy.onlyOnFeature('FEATURE_NEXT_9831');
 
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/customer`,
+            method: 'post'
+        }).as('filterCustomer');
+
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
         cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filter"]').should('exist');
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
@@ -196,6 +231,9 @@ describe('Customer: Test filter and reset filter', () => {
         // Check Reset button when filter is active
         cy.get('.sw-filter-panel__item').eq(0).find('input').click();
         cy.get('.sw-select-result-list__item-list li').contains('Mr.').click();
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
 
         // Click Reset button to reset filter
@@ -204,12 +242,18 @@ describe('Customer: Test filter and reset filter', () => {
 
         // Reset All button should show up when there is active filter
         cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('26');
         cy.get('.sw-sidebar-item__headline a').should('exist');
 
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
+        cy.wait('@filterCustomer').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('27');
     });
 });

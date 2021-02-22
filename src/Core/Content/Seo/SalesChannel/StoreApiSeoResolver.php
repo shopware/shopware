@@ -121,7 +121,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         foreach ($struct->getVars() as $item) {
             if ($item instanceof Collection) {
                 foreach ($item as $collectionItem) {
-                    $this->findStruct($data, $collectionItem);
+                    if ($collectionItem instanceof Struct) {
+                        $this->findStruct($data, $collectionItem);
+                    }
                 }
             } elseif ($item instanceof Struct) {
                 $this->findStruct($data, $item);

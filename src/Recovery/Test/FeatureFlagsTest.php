@@ -66,6 +66,7 @@ class FeatureFlagsTest extends TestCase
     public function testUpdateApp(array $env, bool $inEnvFile, int $expectedStatusCode): void
     {
         $this->prepareEnv($this->updateApp, $env, $inEnvFile);
+        Feature::registerFeature('FEATURE_NEXT_101');
 
         $response = $this->updateApp->run();
 
@@ -104,6 +105,18 @@ class FeatureFlagsTest extends TestCase
 
     public function featureFlagProvider(): \Generator
     {
+        yield 'feature-all-minor' => [
+            ['FEATURE_ALL' => 'minor'],
+            false,
+            200,
+        ];
+
+        yield 'feature-all-minor-in-env-file' => [
+            ['FEATURE_ALL' => 'minor'],
+            true,
+            200,
+        ];
+
         yield 'no-feature' => [
             [],
             false,
@@ -124,12 +137,6 @@ class FeatureFlagsTest extends TestCase
 
         yield 'feature-active' => [
             ['FEATURE_NEXT_101' => 'true'],
-            false,
-            200,
-        ];
-
-        yield 'feature-all-minor' => [
-            ['FEATURE_ALL' => 'minor'],
             false,
             200,
         ];
@@ -158,12 +165,6 @@ class FeatureFlagsTest extends TestCase
             200,
         ];
 
-        yield 'feature-all-minor-in-env-file' => [
-            ['FEATURE_ALL' => 'minor'],
-            true,
-            200,
-        ];
-
         yield 'feature-all-major-in-env-file' => [
             ['FEATURE_ALL' => 'major'],
             true,
@@ -171,23 +172,32 @@ class FeatureFlagsTest extends TestCase
         ];
     }
 
-    private function prepareEnv(App $app, array $env, bool $withEnvFile = false): void
+    private function prepareEnv(App $app, array $env, bool $withEnvFile = false, bool $defaults = false): void
     {
-        if ($withEnvFile) {
-            $tmpEnvFile = tempnam(sys_get_temp_dir(), 'swtestenv');
-            $content = '';
-            foreach ($env as $key => $value) {
-                $content .= sprintf('%s=%s', $key, $value) . \PHP_EOL;
-            }
-            file_put_contents($tmpEnvFile, $content);
-
-            /** @var \Slim\Container $container */
-            $container = $app->getContainer();
-            $container->offsetSet('env.path', $tmpEnvFile);
-        } else {
-            foreach ($env as $key => $value) {
+        foreach ($env as $key => $value) {
+            Feature::registerFeature($key);
+            if (!$withEnvFile) {
                 $_SERVER[$key] = $value;
             }
+        }
+
+        if (!$withEnvFile) {
+            return;
+        }
+
+        $tmpEnvFile = tempnam(sys_get_temp_dir(), 'swtestenv');
+        $content = '';
+        foreach ($env as $key => $value) {
+            $content .= sprintf('%s=%s', $key, $value) . \PHP_EOL;
+        }
+        file_put_contents($tmpEnvFile, $content);
+
+        /** @var \Slim\Container $container */
+        $container = $app->getContainer();
+        if ($defaults) {
+            $container->offsetSet('env.defaults.path', $tmpEnvFile);
+        } else {
+            $container->offsetSet('env.path', $tmpEnvFile);
         }
     }
 

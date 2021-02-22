@@ -56,23 +56,23 @@ class KernelTest extends TestCase
             ],
             [
                 '12.1.1.12-dev@764cf86c6e8f826b9f125c28fa91f89ad43bc279',
-                '6.3.9999999.9999999-dev',
+                Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
             [
                 'v6.3.1.1',
-                '6.3.9999999.9999999-dev',
+                Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
             [
                 '6.2.1',
-                '6.3.9999999.9999999-dev',
+                Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
             [
                 'foobar',
-                '6.3.9999999.9999999-dev',
+                Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
             [
                 '1010806',
-                '6.3.9999999.9999999-dev',
+                Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
         ];
     }

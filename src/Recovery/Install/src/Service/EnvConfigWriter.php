@@ -18,10 +18,13 @@ class EnvConfigWriter
      */
     private $instanceId;
 
-    public function __construct(string $configPath, string $instanceId)
+    private array $defaultEnvVars;
+
+    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [])
     {
         $this->configPath = $configPath;
         $this->instanceId = $instanceId;
+        $this->defaultEnvVars = $defaultEnvVars;
     }
 
     public function writeConfig(DatabaseConnectionInformation $info, Shop $shop): void
@@ -31,9 +34,7 @@ class EnvConfigWriter
 # https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
 
 ###> symfony/framework-bundle ###
-APP_ENV=prod
-APP_SECRET=%s
-APP_URL=%s
+%s
 #TRUSTED_PROXIES=127.0.0.1,127.0.0.2
 #TRUSTED_HOSTS=localhost,example.com
 ###< symfony/framework-bundle ###
@@ -45,26 +46,11 @@ APP_URL=%s
 MAILER_URL=null://localhost
 ###< symfony/swiftmailer-bundle ###
 
-DATABASE_URL=%s
-
-COMPOSER_HOME=%s
-
-INSTANCE_ID=%s
-
-BLUE_GREEN_DEPLOYMENT=%s
-
-SHOPWARE_HTTP_CACHE_ENABLED=1
-SHOPWARE_HTTP_DEFAULT_TTL=7200
-SHOPWARE_ES_HOSTS=""
-SHOPWARE_ES_ENABLED="0"
-SHOPWARE_ES_INDEXING_ENABLED="0"
-SHOPWARE_ES_INDEX_PREFIX="sw"
-
-SHOPWARE_CDN_STRATEGY_DEFAULT="id"
+%s
 ';
-
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
+
         $dbUrl = sprintf(
             'mysql://%s:%s@%s:%s/%s',
             rawurlencode($info->username),
@@ -74,14 +60,43 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
             rawurlencode($info->databaseName)
         );
 
+        $defaults = $this->defaultEnvVars;
+        $appEnvVars = [
+            'APP_ENV' => 'prod',
+            'APP_SECRET' => $secret,
+            'APP_URL' => 'http://' . $shop->host . $shop->basePath,
+        ];
+
+        // override app env vars
+        foreach ($appEnvVars as $key => $value) {
+            if (\array_key_exists($key, $defaults)) {
+                $appEnvVars[$key] = $defaults[$key];
+                unset($defaults[$key]);
+            }
+        }
+
+        $additionalEnvVars = array_merge(
+            [
+                'DATABASE_URL' => $dbUrl,
+                'COMPOSER_HOME' => SW_PATH . '/var/cache/composer',
+                'INSTANCE_ID' => $this->instanceId,
+                'BLUE_GREEN_DEPLOYMENT' => (int) $_ENV['BLUE_GREEN_DEPLOYMENT'],
+                'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
+                'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',
+                'SHOPWARE_ES_HOSTS' => '',
+                'SHOPWARE_ES_ENABLED' => '0',
+                'SHOPWARE_ES_INDEXING_ENABLED' => '0',
+                'SHOPWARE_ES_INDEX_PREFIX' => 'sw',
+                'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
+            ],
+            // override and extend env vars
+            $defaults
+        );
+
         $envFile = sprintf(
             $tpl,
-            $secret,
-            'http://' . $shop->host . $shop->basePath,
-            $dbUrl,
-            SW_PATH . '/var/cache/composer',
-            $this->instanceId,
-            (int) $_ENV['BLUE_GREEN_DEPLOYMENT']
+            $this->toEnv($appEnvVars),
+            $this->toEnv($additionalEnvVars)
         );
 
         file_put_contents($this->configPath, $envFile);
@@ -96,5 +111,16 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
                 chmod($htaccessPath, $perms | 0644);
             }
         }
+    }
+
+    private function toEnv(array $keyValuePairs): string
+    {
+        $lines = [];
+
+        foreach ($keyValuePairs as $key => $value) {
+            $lines[] = $key . '="' . $value . '"';
+        }
+
+        return implode(\PHP_EOL, $lines);
     }
 }

@@ -47,11 +47,40 @@ class Container extends BaseContainer
             return SW_PATH . '/.env';
         };
 
+        $container['default.env.path'] = static function () {
+            return UPDATE_ASSET_PATH . '/.env.defaults';
+        };
+
+        $container['default.env'] = static function ($c) {
+            if (!is_readable($c['default.env.path'])) {
+                return [];
+            }
+
+            return (new DotEnv(false))
+                ->parse(file_get_contents($c['default.env.path']), $c['default.env.path']);
+        };
+
+        $container['env.path'] = static function () {
+            return SW_PATH . '/.env';
+        };
+
+        $container['env.load'] = static function ($c) {
+            $defaultPath = $c['default.env.path'];
+            $path = $c['env.path'];
+
+            return static function () use ($defaultPath, $path): void {
+                if (is_readable((string) $defaultPath)) {
+                    (new Dotenv(false))->load((string) $defaultPath);
+                }
+                if (is_readable((string) $path)) {
+                    (new Dotenv(false))->load((string) $path);
+                }
+            };
+        };
+
         $container['feature.isActive'] = static function ($c) {
             // load .env on first call
-            if (is_readable((string) $c['env.path'])) {
-                (new Dotenv(false))->load((string) $c['env.path']);
-            }
+            $c['env.load']();
 
             return static function (string $featureName): bool {
                 return Feature::isActive($featureName);
@@ -117,7 +146,7 @@ class Container extends BaseContainer
                 $coreBasePath = SW_PATH . '/platform/src/Core';
                 $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
             } else {
-                $coreBasePath = SW_PATH . '/vendor/shopware/src/core';
+                $coreBasePath = SW_PATH . '/vendor/shopware/core';
                 $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
             }
 
@@ -125,8 +154,8 @@ class Container extends BaseContainer
                 $coreBasePath . '/Migration/V6_3' => 'Shopware\\Core\\Migration\\V6_3',
                 $storefrontBasePath . '/Migration/V6_3' => 'Shopware\\Storefront\\Migration\\V6_3',
             ]);
-            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
-            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
+            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
 
             $v4 = new CoreMigrationSource('core.V6_4', [
                 $coreBasePath . '/Migration/V6_4' => 'Shopware\\Core\\Migration\\V6_4',

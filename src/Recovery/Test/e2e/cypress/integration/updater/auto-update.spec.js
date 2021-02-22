@@ -35,9 +35,9 @@ describe('Minimal auto update', () => {
             .click();
 
         cy.server();
-        cy.route({ url: '/api/_action/update/download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
-        cy.route({ url: '/api/_action/update/deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
-        cy.route({ url: '/api/_action/update/unpack*', method: 'get' }).as('unpack');
+        cy.route({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
+        cy.route({ url: '*deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
+        cy.route({ url: '*unpack*', method: 'get' }).as('unpack');
         cy.route({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
 
         cy.get('.sw-settings-shopware-updates-check__start-update-actions > .sw-button--primary')

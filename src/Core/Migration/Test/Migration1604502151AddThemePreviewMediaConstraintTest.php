@@ -46,7 +46,9 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
      */
     public function testUpdate(): void
     {
+        $this->connection->rollBack();
         $this->migration->update($this->connection);
+        $this->connection->beginTransaction();
 
         $foreignKeyName = $this->getPreviewMediaForeignKeyName();
 
@@ -65,6 +67,7 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
      */
     public function testForeignKeySafeguardIsWorking(int $invalidEntries): void
     {
+        $this->connection->rollBack();
         // Insert problematic DB entries
         $this->insertBogusReferenceIntoThemeTable($invalidEntries);
 
@@ -76,6 +79,8 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
             $exception = $e;
         }
 
+        $this->connection->beginTransaction();
+
         // Expect the migration to have taken care of the invalid references
         static::assertNull($exception);
     }
@@ -85,7 +90,9 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
         $foreignKeyName = $this->getPreviewMediaForeignKeyName();
 
         if ($foreignKeyName !== null) {
+            $this->connection->rollBack();
             $this->connection->executeUpdate(self::dropIndexAndForeignKeyQuery($foreignKeyName));
+            $this->connection->beginTransaction();
         }
     }
 

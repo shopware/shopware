@@ -106,10 +106,10 @@
 
         <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
+            <argument type="service" id="event_dispatcher"/>
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
@@ -155,7 +155,7 @@
             </argument>
         </service>
 
-        <service id="test.guzzle.history.middleware" class="\Closure">
+        <service id="test.guzzle.history.middleware" class="callable">
             <factory service="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
         </service>
 

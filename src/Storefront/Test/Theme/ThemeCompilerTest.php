@@ -325,6 +325,6 @@ PHP_EOL;
         $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, $this->mockSalesChannelId);
 
         $re = '/\$sw-logo-desktop:\s*\'.*\/testImage\.png\'\s*;/m';
-        static::assertRegExp($re, $actual);
+        static::assertMatchesRegularExpression($re, $actual);
     }
 }

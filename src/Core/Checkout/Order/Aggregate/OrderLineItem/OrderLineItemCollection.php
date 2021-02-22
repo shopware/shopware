@@ -35,17 +35,17 @@ class OrderLineItemCollection extends EntityCollection
     {
         $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
             if ($sortDirection === FieldSorting::ASCENDING) {
-                return $a->getCreatedAt() > $b->getCreatedAt();
+                return $a->getCreatedAt() <=> $b->getCreatedAt();
             }
 
-            return $a->getCreatedAt() < $b->getCreatedAt();
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
         });
     }
 
     public function sortByPosition(): void
     {
         $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) {
-            return $a->getPosition() > $b->getPosition();
+            return $a->getPosition() <=> $b->getPosition();
         });
     }
 

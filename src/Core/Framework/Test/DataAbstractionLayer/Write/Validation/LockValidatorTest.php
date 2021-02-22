@@ -62,6 +62,7 @@ CREATE TABLE `_test_lock_translation` (
   PRIMARY KEY `id` (`_test_lock_id`, `language_id`)
 );
 EOF;
+        $this->connection->rollBack();
         $this->connection->executeUpdate($table);
         $this->connection->beginTransaction();
     }
@@ -71,6 +72,7 @@ EOF;
         $this->connection->rollBack();
         $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_lock`');
         $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_lock_translation`');
+        $this->connection->beginTransaction();
 
         parent::tearDown();
     }

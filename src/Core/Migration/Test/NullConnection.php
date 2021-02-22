@@ -50,6 +50,11 @@ class NullConnection extends Connection
         return $this->originalConnection->query(...\func_get_args());
     }
 
+    public function insert($table, array $data, array $types = [])
+    {
+        return 0;
+    }
+
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
         return 0;

@@ -128,7 +128,7 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             // ignore definitions from a test namespace
-            if (preg_match('/.*\\Test\\.*/', $definition->getClass())) {
+            if (preg_match('/.*\\\\Test\\\\.*/', $definition->getClass())) {
                 continue;
             }
             $violations[$definition->getClass()] = [];

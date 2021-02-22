@@ -36,7 +36,7 @@ class TestBrowser extends KernelBrowser
      */
     private $eventDispatcher;
 
-    public function __construct($kernel, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null, EventDispatcherInterface $eventDispatcher)
+    public function __construct($kernel, EventDispatcherInterface $eventDispatcher, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 

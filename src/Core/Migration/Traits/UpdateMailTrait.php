@@ -24,7 +24,7 @@ trait UpdateMailTrait
         $this->updateDeMailSubject($connection, $update);
     }
 
-    final private function updateDeMail(Connection $connection, MailUpdate $update): void
+    private function updateDeMail(Connection $connection, MailUpdate $update): void
     {
         $languages = $this->getLanguageIds($connection, 'de-DE');
         if (!$languages) {
@@ -52,7 +52,7 @@ trait UpdateMailTrait
         }
     }
 
-    final private function updateEnMail(Connection $connection, MailUpdate $update): void
+    private function updateEnMail(Connection $connection, MailUpdate $update): void
     {
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
@@ -81,7 +81,7 @@ trait UpdateMailTrait
         }
     }
 
-    final private function updateEnMailSubject(Connection $connection, MailSubjectUpdate $update): void
+    private function updateEnMailSubject(Connection $connection, MailSubjectUpdate $update): void
     {
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
@@ -109,7 +109,7 @@ trait UpdateMailTrait
         }
     }
 
-    final private function updateDeMailSubject(Connection $connection, MailSubjectUpdate $update): void
+    private function updateDeMailSubject(Connection $connection, MailSubjectUpdate $update): void
     {
         $languages = $this->getLanguageIds($connection, 'de-DE');
         if (!$languages) {
@@ -136,7 +136,7 @@ trait UpdateMailTrait
         }
     }
 
-    final private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
+    private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {
         return $connection->fetchAll(
             '

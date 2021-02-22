@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -16,7 +17,6 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
     use LineItemTestFixtureBehaviour;
-    use AssertArraySubsetBehaviour;
 
     /**
      * @var KernelBrowser

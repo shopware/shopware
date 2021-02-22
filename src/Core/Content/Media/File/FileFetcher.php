@@ -151,7 +151,12 @@ class FileFetcher
                 'max_redirects' => 0,
             ],
         ]);
-        $inputStream = @fopen($url, 'rb', false, $streamContext);
+
+        try {
+            $inputStream = @fopen($url, 'rb', false, $streamContext);
+        } catch (\Throwable $e) {
+            throw new UploadException("Could not open source stream from {$url}");
+        }
 
         if ($inputStream === false) {
             throw new UploadException("Could not open source stream from {$url}");
@@ -167,7 +172,11 @@ class FileFetcher
      */
     private function openDestinationStream(string $filename)
     {
-        $inputStream = @fopen($filename, 'wb');
+        try {
+            $inputStream = @fopen($filename, 'wb');
+        } catch (\Throwable $e) {
+            throw new UploadException("Could not open Stream to write upload data: ${filename}");
+        }
 
         if ($inputStream === false) {
             throw new UploadException("Could not open Stream to write upload data: ${filename}");

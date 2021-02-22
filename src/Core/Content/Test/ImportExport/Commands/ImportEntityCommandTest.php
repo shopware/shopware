@@ -85,7 +85,7 @@ class ImportEntityCommandTest extends TestCase
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();
-        static::assertRegExp(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
 
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
@@ -109,7 +109,7 @@ class ImportEntityCommandTest extends TestCase
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();
-        static::assertRegExp(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
 
         $firstId = '017de84fb11a4e318fd3231317d7def4';
         $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';

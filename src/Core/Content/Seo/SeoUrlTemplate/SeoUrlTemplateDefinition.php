@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -47,7 +48,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
 
             (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),
             (new StringField('route_name', 'routeName'))->addFlags(new Required()),
-            (new StringField('template', 'template', 750)),
+            (new StringField('template', 'template', 750))->addFlags(new AllowEmptyString()),
             (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

@@ -62,6 +62,8 @@ class GroupByTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->writer = $this->getContainer()->get(EntityWriter::class);
 
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate('
             DROP TABLE IF EXISTS group_by_test;
 
@@ -75,6 +77,8 @@ class GroupByTest extends TestCase
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
+
+        $this->connection->beginTransaction();
 
         $this->definition = new GroupByDefinition();
         $this->definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));

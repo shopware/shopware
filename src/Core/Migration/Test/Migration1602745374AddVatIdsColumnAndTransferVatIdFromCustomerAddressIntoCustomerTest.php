@@ -32,6 +32,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
     public function testNoChanges(): void
     {
         $conn = $this->getContainer()->get(Connection::class);
+        $conn->rollBack();
         $expectedProductSchema = $conn->fetchAssoc('SHOW CREATE TABLE `customer`')['Create Table'];
 
         $migration = new Migration1604056363CustomerWishlist();
@@ -39,6 +40,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $migration->update($conn);
         $actualProductSchema = $conn->fetchAssoc('SHOW CREATE TABLE `customer`')['Create Table'];
         static::assertSame($expectedProductSchema, $actualProductSchema, 'Schema changed!. Run init again to have clean state');
+        $conn->beginTransaction();
     }
 
     public function testTriggersSet(): void

@@ -103,6 +103,11 @@ class DumpIterator implements \SeekableIterator, \Countable
         ++$this->position;
 
         $this->current = stream_get_line($this->stream, 1000000, ";\n");
+
+        if (!$this->current) {
+            return;
+        }
+
         $this->current = trim(preg_replace('#^\s*--[^\n\r]*#', '', $this->current));
     }
 

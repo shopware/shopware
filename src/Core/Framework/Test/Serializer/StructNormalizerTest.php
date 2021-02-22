@@ -183,7 +183,12 @@ class StructNormalizerTest extends TestCase
     public function testDenormalizeWithNonExistingClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Class ThisClass\DoesNot\Exists does not exist');
+
+        if (\PHP_VERSION_ID >= 80000) {
+            $this->expectExceptionMessage('Class "ThisClass\DoesNot\Exists" does not exist');
+        } else {
+            $this->expectExceptionMessage('Class ThisClass\DoesNot\Exists does not exist');
+        }
 
         $this->normalizer->denormalize(['_class' => 'ThisClass\DoesNot\Exists']);
     }

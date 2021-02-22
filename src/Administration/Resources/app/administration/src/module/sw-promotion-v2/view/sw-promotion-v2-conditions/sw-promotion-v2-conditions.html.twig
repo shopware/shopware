@@ -48,16 +48,9 @@
                 {% endblock %}
 
                 {% block sw_promotion_v2_rule_conditions_rule_select_cart_conditions %}
-                    <sw-promotion-v2-rule-select
-                        v-if="promotion"
-                        v-model="promotion.cartRules"
-                        class="sw-promotion-v2-conditions__rule-select-cart-conditions"
-                        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
-                        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
-                        :criteria="cartConditionsRuleFilter"
-                        :ruleScope="['cart']"
-                        :disabled="!acl.can('promotion.editor')">
-                    </sw-promotion-v2-rule-select>
+                    <sw-promotion-v2-card-condition-form
+                        :promotion="promotion">
+                    </sw-promotion-v2-card-condition-form>
                 {% endblock %}
 
                 {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}

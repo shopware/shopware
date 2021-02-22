@@ -230,9 +230,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.items.criteria.setPage(page);
             this.items.criteria.setLimit(limit);
 
-            // @deprecated tag:v6.4.0 - Use 'page-change' event instead
-            this.$emit('paginate', this.lastSortedColumn);
-
             this.$emit('page-change', { page, limit });
 
             if (this.lastSortedColumn && this.lastSortedColumn.useCustomSort) {

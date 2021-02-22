@@ -64,7 +64,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder" public="true"/>
@@ -172,21 +171,18 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToOneJoinBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
 
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\OneToManyJoinBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
 
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToManyJoinBuilder" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
 
@@ -194,8 +190,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\TranslatedJoinBuilder"/>
-
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 

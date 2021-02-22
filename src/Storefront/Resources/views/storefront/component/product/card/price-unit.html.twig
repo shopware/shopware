@@ -2,8 +2,6 @@
     {% set purchaseUnit = product.purchaseUnit %}
     {% set listingPrice = product.calculatedListingPrice %}
     {% set fromPrice = listingPrice.from %}
-    {# @deprecated tag:v6.4.0 referncePrice will no longer be used. Use referencePrice instead.  #}
-    {% set referncePrice = product.calculatedPrice.referencePrice %}
     {% set referencePrice = product.calculatedPrice.referencePrice %}
 
     {% if feature('FEATURE_NEXT_10553') %}
@@ -84,13 +82,13 @@
 
                 </div>
 
-                {# @deprecated tag:v6.4.0 content inside else will be removed. #}
+                {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) content inside else will be removed. #}
             {% else %}
 
-                {# @deprecated tag:v6.4.0 listPrice will no longer be used. Use product.cheapestCalculatedPrice.range instead. #}
+                {# *@feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) listPrice will no longer be used. Use product.cheapestCalculatedPrice.range instead. #}
                 {% set listPrice = product.priceRange or product.calculatedPrices.count > 0 ? null : product.calculatedPrice.listPrice %}
 
-                {# @deprecated tag:v6.4.0 listPriceFlag will no longer be used. Use product.cheapestCalculatedPrice.range instead. #}
+                {# *@feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) listPriceFlag will no longer be used. Use product.cheapestCalculatedPrice.range instead. #}
                 {% set listPriceFlag = null %}
 
                 {% for calcPrice in product.calculatedPrices %}
@@ -101,10 +99,10 @@
 
                 {% if listPriceFlag is not null and listPrice is null %}
 
-                    {# @deprecated tag:v6.4.0 component_product_box_block_list_price_wrapper will no longer be used. #}
+                    {# *@feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) component_product_box_block_list_price_wrapper will no longer be used. #}
                     {% block component_product_box_block_list_price_wrapper %}
 
-                        {# @deprecated tag:v6.4.0 cheapestPrice will no longer be used. #}
+                        {# *@feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) cheapestPrice will no longer be used. #}
                         {% set cheapestPrice = product.calculatedPrices|last %}
 
                         <span class="product-price product-advanced-list-price-wrapper">

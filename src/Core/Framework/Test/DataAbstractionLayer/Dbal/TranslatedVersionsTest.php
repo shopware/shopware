@@ -12,7 +12,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\TranslatedJoinBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -29,23 +28,6 @@ class TranslatedVersionsTest extends TestCase
     private $languages = [
         'en-GB', 'de-DE',
     ];
-
-    public function testItThrowsOnInvalidFields(): void
-    {
-        $translatedJoinBuilder = $this->getContainer()->get(TranslatedJoinBuilder::class);
-
-        $this->expectException(\InvalidArgumentException::class);
-
-        $translatedJoinBuilder->join(
-            $this->getContainer()->get(ProductManufacturerDefinition::class),
-            '-',
-            new \stdClass(),
-            '-',
-            '-',
-            new QueryBuilder($this->getContainer()->get(Connection::class)),
-            Context::createDefaultContext()
-        );
-    }
 
     public function testTranslationsAreAllSelectable(): void
     {

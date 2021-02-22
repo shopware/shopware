@@ -20,8 +20,6 @@ Component.register('sw-theme-manager-detail', {
             theme: null,
             parentTheme: null,
             defaultMediaFolderId: null,
-            /** @deprecated tag:v6.4.0 - use structuredThemeFields instead */
-            themeFields: {},
             structuredThemeFields: {},
             themeConfig: {},
             showResetModal: false,

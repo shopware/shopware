@@ -334,7 +334,7 @@
 
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
@@ -360,8 +360,8 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">

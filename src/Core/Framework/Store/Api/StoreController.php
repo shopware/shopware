@@ -255,7 +255,7 @@ class StoreController extends AbstractStoreController
         }
 
         /*
-         * @deprecated tag:v6.4.0 - (flag:FEATURE_NEXT_12957) Plugin download and update will be handled separately
+         * @feature-deprecated tag:v6.4.0 - (flag:FEATURE_NEXT_12957) Plugin download and update will be handled separately
          */
         if (!Feature::isActive('FEATURE_NEXT_12957')) {
             /** @var PluginEntity|null $plugin */

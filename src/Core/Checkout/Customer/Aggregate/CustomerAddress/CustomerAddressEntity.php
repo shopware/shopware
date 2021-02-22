@@ -74,13 +74,6 @@ class CustomerAddressEntity extends Entity
     protected $street;
 
     /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     *
-     * @var string|null
-     */
-    protected $vatId;
-
-    /**
      * @var string|null
      */
     protected $phoneNumber;
@@ -238,22 +231,6 @@ class CustomerAddressEntity extends Entity
     public function setStreet(string $street): void
     {
         $this->street = $street;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function getVatId(): ?string
-    {
-        return $this->vatId;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function setVatId(string $vatId): void
-    {
-        $this->vatId = $vatId;
     }
 
     public function getPhoneNumber(): ?string

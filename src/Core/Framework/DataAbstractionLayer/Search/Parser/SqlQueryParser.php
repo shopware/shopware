@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-//@deprecated tag:v6.4.0 - Will be removed
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AntiJoinFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -109,8 +107,6 @@ class SqlQueryParser
                 return $this->parseRangeFilter($query, $definition, $root, $context);
             case $query instanceof NotFilter:
                 return $this->parseNotFilter($query, $definition, $root, $context);
-            case $query instanceof AntiJoinFilter:
-                return $this->parseAntiJoin($query, $definition, $root, $context);
             case $query instanceof MultiFilter:
                 return $this->parseMultiFilter($query, $definition, $root, $context);
             default:
@@ -292,29 +288,5 @@ class SqlQueryParser
     private function getKey(): string
     {
         return 'param_' . Uuid::randomHex();
-    }
-
-    /**
-     * Replace with IS NULL checks on the joined table. The real condition is added to the left join, to get anti-join semantics.
-     */
-    private function parseAntiJoin(AntiJoinFilter $antiJoin, EntityDefinition $definition, string $root, Context $context)
-    {
-        $result = new ParseResult();
-        $wheres = [];
-
-        /** @var Filter $child */
-        foreach ($antiJoin->getQueries() as $child) {
-            $field = @current($child->getFields());
-            $field = str_replace('extensions.', '', $field);
-
-            $select = $this->queryHelper->getFieldAccessor($field, $definition, $root, $context);
-            $accessor = str_replace('`.`', '_' . $antiJoin->getIdentifier() . '`.`', $select);
-
-            $wheres[$accessor] = $accessor . ' IS NULL';
-        }
-
-        $result->addWhere(implode(' AND ', $wheres));
-
-        return $result;
     }
 }

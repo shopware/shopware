@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\AbstractFieldResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
@@ -106,11 +105,11 @@ class DefinitionInstanceRegistry
     }
 
     /**
-     * @return FieldResolverInterface|AbstractFieldResolver
+     * @return AbstractFieldResolver
      */
     public function getResolver(string $resolverClass)
     {
-        /** @var FieldResolverInterface|AbstractFieldResolver $fieldResolver */
+        /** @var AbstractFieldResolver $fieldResolver */
         $fieldResolver = $this->container->get($resolverClass);
 
         return $fieldResolver;

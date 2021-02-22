@@ -233,10 +233,6 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="kernel.event_subscriber"/>

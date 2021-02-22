@@ -168,7 +168,6 @@ class AccountProfileController extends StorefrontController
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changePasswordRoute->change($data->get('password')->toRequestDataBag(), $context, $customer);
 
             $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));

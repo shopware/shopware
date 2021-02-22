@@ -39,7 +39,7 @@ class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorIn
     public function process(
         CartDataCollection $data,
         Cart $original,
-        Cart $calculated,
+        Cart $toCalculate,
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
@@ -59,7 +59,7 @@ class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorIn
                 )
             );
 
-            $calculated->add($lineItem);
+            $toCalculate->add($lineItem);
         }
     }
 

@@ -13,36 +13,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class MediaSerializer extends EntitySerializer implements EventSubscriberInterface
 {
-    /**
-     * @var FileSaver
-     */
-    private $fileSaver;
+    private FileSaver $fileSaver;
 
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
+    private MediaService $mediaService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaFolderRepository;
+    private EntityRepositoryInterface $mediaFolderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private EntityRepositoryInterface $mediaRepository;
 
     /**
      * @var array[]
      */
-    private $mediaFiles = [];
+    private array $mediaFiles = [];
 
     public function __construct(
         MediaService $mediaService,
@@ -56,28 +45,33 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $this->mediaRepository = $mediaRepository;
     }
 
-    public function serialize(Config $config, EntityDefinition $definition, $value): iterable
+    /**
+     * @param array|Struct|null $entity
+     */
+    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {
-        yield from parent::serialize($config, $definition, $value);
+        yield from parent::serialize($config, $definition, $entity);
     }
 
-    public function deserialize(Config $config, EntityDefinition $definition, $value)
+    /**
+     * @param array|\Traversable $entity
+     *
+     * @return array|\Traversable
+     */
+    public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
-        $value = \is_array($value) ? $value : iterator_to_array($value);
-        $deserialized = parent::deserialize($config, $definition, $value);
+        $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
+        $deserialized = parent::deserialize($config, $definition, $entity);
+        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
-        if (is_iterable($deserialized)) {
-            $deserialized = iterator_to_array($deserialized);
-        }
-
-        $url = $value['url'] ?? null;
+        $url = $entity['url'] ?? null;
         if ($url === null || !filter_var($url, \FILTER_VALIDATE_URL)) {
             return $deserialized;
         }
 
         $media = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$value['id']]), Context::createDefaultContext())->first();
+            $media = $this->mediaRepository->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
         }
 
         if ($media === null || $media->getUrl() !== $url) {

@@ -12,28 +12,28 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 
 class SalutationSerializer extends EntitySerializer
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salutationRepository;
+    private EntityRepositoryInterface $salutationRepository;
 
     /**
      * @var string[]
      */
-    private $salutations = [];
+    private array $salutations = [];
 
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {
         $this->salutationRepository = $salutationRepository;
     }
 
-    public function deserialize(Config $config, EntityDefinition $definition, $record)
+    /**
+     * @param array|\Traversable $entity
+     *
+     * @return array|\Traversable
+     */
+    public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
-        $deserialized = parent::deserialize($config, $definition, $record);
+        $deserialized = parent::deserialize($config, $definition, $entity);
 
-        if (is_iterable($deserialized)) {
-            $deserialized = iterator_to_array($deserialized);
-        }
+        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
         if (!isset($deserialized['id']) && isset($deserialized['salutationKey'])) {
             $id = $this->getSalutationId($deserialized['salutationKey']);

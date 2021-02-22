@@ -21,29 +21,29 @@ class ProductSerializer extends EntitySerializer
         ProductVisibilityDefinition::VISIBILITY_SEARCH => 'search',
     ];
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $visibilityRepository;
+    private EntityRepositoryInterface $visibilityRepository;
 
     public function __construct(EntityRepositoryInterface $visibilityRepository)
     {
         $this->visibilityRepository = $visibilityRepository;
     }
 
-    public function serialize(Config $config, EntityDefinition $definition, $value): iterable
+    /**
+     * @param array|Struct|null $entity
+     */
+    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {
-        if ($value instanceof Struct) {
-            $value = $value->jsonSerialize();
+        if ($entity instanceof Struct) {
+            $entity = $entity->jsonSerialize();
         }
 
-        yield from parent::serialize($config, $definition, $value);
+        yield from parent::serialize($config, $definition, $entity);
 
-        if (!isset($value['visibilities'])) {
+        if (!isset($entity['visibilities'])) {
             return;
         }
 
-        $visibilities = $value['visibilities'];
+        $visibilities = $entity['visibilities'];
         if ($visibilities instanceof Struct) {
             $visibilities = $visibilities->jsonSerialize();
         }
@@ -70,24 +70,29 @@ class ProductSerializer extends EntitySerializer
         }
     }
 
-    public function deserialize(Config $config, EntityDefinition $definition, $value)
+    /**
+     * @param array|\Traversable $entity
+     *
+     * @return array|\Traversable
+     */
+    public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
-        $value = \is_array($value) ? $value : iterator_to_array($value);
+        $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
 
-        yield from parent::deserialize($config, $definition, $value);
+        yield from parent::deserialize($config, $definition, $entity);
 
-        $productId = $value['id'] ?? null;
+        $productId = $entity['id'] ?? null;
 
         $mapping = array_flip(self::VISIBILITY_MAPPING);
 
         $visibilities = [];
 
         foreach ($mapping as $key => $type) {
-            if (!isset($value['visibilities'][$key])) {
+            if (!isset($entity['visibilities'][$key])) {
                 continue;
             }
 
-            $ids = array_filter(explode('|', $value['visibilities'][$key]));
+            $ids = array_filter(explode('|', $entity['visibilities'][$key]));
             foreach ($ids as $salesChannelId) {
                 $visibility = [
                     'salesChannelId' => $salesChannelId,

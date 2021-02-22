@@ -19,15 +19,15 @@ class NullConnection extends Connection
     {
     }
 
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
-        $matches = preg_match_all(DebugStack::$writeSqlRegex, $query);
+        $matches = preg_match_all(DebugStack::$writeSqlRegex, $sql);
 
         if ($matches) {
             throw new \RuntimeException(self::EXCEPTION_MESSAGE);
         }
 
-        return $this->originalConnection->executeQuery($query, $params, $types, $qcp);
+        return $this->originalConnection->executeQuery($sql, $params, $types, $qcp);
     }
 
     public function prepare($statement)
@@ -35,7 +35,7 @@ class NullConnection extends Connection
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         return 0;
     }
@@ -55,14 +55,14 @@ class NullConnection extends Connection
         return 0;
     }
 
-    public function update($tableExpression, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $criteria, array $types = [])
     {
         return 0;
     }
 
-    public function delete($tableExpression, array $identifier, array $types = [])
+    public function delete($table, array $criteria, array $types = [])
     {
-        return $this->originalConnection->delete($tableExpression, $identifier, $types);
+        return $this->originalConnection->delete($table, $criteria, $types);
     }
 
     public function setOriginalConnection($originalConnection): void

@@ -25,30 +25,30 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $this->connection = $connection;
     }
 
-    public function buildAccessor(string $root, Field $jsonField, Context $context, string $accessor): ?string
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
-        if (!$jsonField instanceof JsonField) {
+        if (!$field instanceof JsonField) {
             return null;
         }
 
         $jsonPath = preg_replace(
-            '#^' . preg_quote($jsonField->getPropertyName(), '#') . '#',
+            '#^' . preg_quote($field->getPropertyName(), '#') . '#',
             '',
             $accessor
         );
 
         if (empty($jsonPath)) {
-            return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($jsonField->getStorageName());
+            return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
         }
 
         $jsonValueExpr = sprintf(
             'JSON_EXTRACT(`%s`.`%s`, %s)',
             $root,
-            $jsonField->getStorageName(),
+            $field->getStorageName(),
             $this->connection->quote('$' . $jsonPath)
         );
 
-        $embeddedField = $this->getField($jsonPath, $jsonField->getPropertyMapping());
+        $embeddedField = $this->getField($jsonPath, $field->getPropertyMapping());
         $accessor = $this->getFieldAccessor($jsonValueExpr, $embeddedField);
 
         /*

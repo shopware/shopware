@@ -136,7 +136,7 @@ class CacheController extends AbstractController
     {
         if ($adapter instanceof TagAwareAdapter || $adapter instanceof TraceableAdapter) {
             // Do not declare function as static
-            $func = \Closure::bind(static function () use ($adapter) {
+            $func = \Closure::bind(function () use ($adapter) {
                 return $adapter->pool;
             }, $adapter, \get_class($adapter));
 

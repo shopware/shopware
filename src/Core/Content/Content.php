@@ -10,6 +10,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Content extends Bundle
 {
+    /**
+     * @var string
+     */
     protected $name = 'Content';
 
     /**

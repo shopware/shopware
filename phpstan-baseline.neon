@@ -821,61 +821,6 @@ parameters:
 			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Content\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Content.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\AbstractEntitySerializer\\:\\:serialize\\(\\) has parameter \\$entity with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/AbstractEntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\AbstractEntitySerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/AbstractEntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\AbstractEntitySerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/AbstractEntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\EntitySerializer\\:\\:serialize\\(\\) has parameter \\$entity with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/EntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\EntitySerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/EntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\EntitySerializer\\:\\:deserialize\\(\\) has parameter \\$record with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/EntitySerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\MediaSerializer\\:\\:serialize\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\MediaSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\MediaSerializer\\:\\:deserialize\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
-
-		-
 			message: "#^Cannot access offset 'path' on array\\(\\?'scheme' \\=\\> string, \\?'host' \\=\\> string, \\?'port' \\=\\> int, \\?'user' \\=\\> string, \\?'pass' \\=\\> string, \\?'path' \\=\\> string, \\?'query' \\=\\> string, \\?'fragment' \\=\\> string\\)\\|false\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
@@ -884,36 +829,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\MediaSerializer\\:\\:getMediaFolderId\\(\\) has parameter \\$entity with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/MediaSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:serialize\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\SalutationSerializer\\:\\:deserialize\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\SalutationSerializer\\:\\:deserialize\\(\\) has parameter \\$record with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$it of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\AbstractFieldSerializer\\:\\:serialize\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -1139,11 +1054,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\:\\:getMappedDefault\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\EntityPipe\\:\\:in\\(\\) has parameter \\$entity with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
 
 		-
 			message: "#^Cannot call method serialize\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\AbstractEntitySerializer\\|null\\.$#"

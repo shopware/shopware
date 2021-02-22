@@ -54,12 +54,12 @@ class CustomerRoute extends AbstractCustomerRoute
      * @LoginRequired(allowGuest=true)
      * @Route("/store-api/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customerEntity): CustomerResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
-        $criteria->setIds([$customerEntity->getId()]);
+        $criteria->setIds([$customer->getId()]);
 
-        $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
-        return new CustomerResponse($customer);
+        return new CustomerResponse($customerEntity);
     }
 }

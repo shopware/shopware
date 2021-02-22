@@ -21,12 +21,8 @@ parameters:
 
     excludes_analyse:
         - src/Recovery/*
-        - src/Storefront/Framework/Cache/CacheDecorator.php
         - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
         - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
-
-        # Symfony Patches, can be removed with next patch version
-        - src/Core/Framework/Adapter/Cache/CacheCollectorPass.php
 
         # Tests
         - src/Core/Checkout/Test/Cart/CalculatorTest.php
@@ -127,6 +123,10 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
+        # Interface has an parameter which is commented out, which will be available with Symfony 5
+        -
+            message: '#Method Symfony\\Component\\Cache\\Adapter\\AdapterInterface::clear\(\) invoked with 1 parameter, 0 required#'
+            path: src/Storefront/Framework/Cache/CacheDecorator.php
 
 services:
     -

@@ -19,5 +19,5 @@ interface GenericPageLoaderInterface
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): Page;
+    public function load(Request $request, SalesChannelContext $context): Page;
 }

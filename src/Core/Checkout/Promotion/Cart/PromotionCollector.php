@@ -31,17 +31,11 @@ class PromotionCollector implements CartDataCollectorInterface
     public const SKIP_PROMOTION = 'skipPromotion';
     public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
 
-    /**
-     * @var PromotionGatewayInterface
-     */
-    private $gateway;
+    private PromotionGatewayInterface $gateway;
 
-    /**
-     * @var PromotionItemBuilder
-     */
-    private $itemBuilder;
+    private PromotionItemBuilder $itemBuilder;
 
-    private $requiredDalAssociations;
+    private array $requiredDalAssociations;
 
     public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
     {
@@ -72,17 +66,17 @@ class PromotionCollector implements CartDataCollectorInterface
      * @throws UnknownPromotionDiscountTypeException
      * @throws InconsistentCriteriaIdsException
      */
-    public function collect(CartDataCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
         // The promotions have a special function:
         // If the user comes to the shop via a promotion link, a discount is to be placed in the cart.
         // However, this cannot be applied directly, because it does not yet have any items in the cart.
         // Therefore the code is stored in the extension and as soon
         // as the user has enough items in the cart, it is added again.
-        $cartExtension = $cart->getExtension(CartExtension::KEY);
+        $cartExtension = $original->getExtension(CartExtension::KEY);
         if (!$cartExtension instanceof CartExtension) {
             $cartExtension = new CartExtension();
-            $cart->addExtension(CartExtension::KEY, $cartExtension);
+            $original->addExtension(CartExtension::KEY, $cartExtension);
         }
 
         // if we are in recalculation,
@@ -95,7 +89,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // and also from our line items (that already exist)
         // and merge them both into a flat list
         $extensionCodes = $cartExtension->getCodes();
-        $cartCodes = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->getReferenceIds();
+        $cartCodes = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->getReferenceIds();
         $allCodes = array_unique(array_merge(array_values($cartCodes), $extensionCodes));
 
         $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
@@ -122,7 +116,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // lets build separate line items for each
             // of the available discounts within the current promotion
-            $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $cart, $context);
+            $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $original, $context);
 
             // add to our list of all line items
             /** @var LineItem $nested */
@@ -140,7 +134,7 @@ class PromotionCollector implements CartDataCollectorInterface
         foreach ($allCodes as $code) {
             if (!\in_array($code, $foundCodes, true)) {
                 $cartExtension->removeCode($code);
-                $this->addPromotionNotFoundError($code, $cart);
+                $this->addPromotionNotFoundError($code, $original);
             }
         }
 

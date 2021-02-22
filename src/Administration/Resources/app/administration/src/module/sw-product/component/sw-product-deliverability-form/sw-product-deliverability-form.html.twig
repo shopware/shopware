@@ -48,7 +48,6 @@
                         <sw-field
                             type="switch"
                             name="sw-field--product-is-closeout"
-                            bordered
                             :error="productIsCloseoutError"
                             :mapInheritance="props"
                             :label="$tc('sw-product.settingsForm.labelIsCloseout')"
@@ -66,6 +65,7 @@
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_deliverability_form_delivery_time_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.deliveryTimeId"
                     :inheritedValue="parentProduct.deliveryTimeId"
                     :label="$tc('sw-product.settingsForm.labelDeliveryTime')">
@@ -88,7 +88,9 @@
 
             {% block sw_product_deliverability_form_restock_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.restockTime"
+                    class="sw-product-deliverability__restock-field"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.restockTime">
                     <template #content="props">
@@ -114,14 +116,15 @@
 
             {% block sw_product_deliverability_form_shipping_free_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.shippingFree"
+                    class="sw-product-deliverability__shipping-free"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.shippingFree">
                     <template #content="props">
 
                         <sw-field
                             type="switch"
-                            bordered
                             :mapInheritance="props"
                             :error="productShippingFreeError"
                             :label="$tc('sw-product.settingsForm.labelShippingFree')"
@@ -138,7 +141,9 @@
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_deliverability_form_min_purchase_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.minPurchase"
+                    class="sw-product-deliverability__min-purchase"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.minPurchase">
                     <template #content="props">
@@ -162,7 +167,9 @@
 
             {% block sw_product_deliverability_form_purchase_steps_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.purchaseSteps"
+                    class="sw-product-deliverability__purchase-step"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.purchaseSteps">
                     <template #content="props">
@@ -185,7 +192,9 @@
 
             {% block sw_product_deliverability_form_max_purchase_field %}
                 <sw-inherit-wrapper
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showSettingDelivery"
                     v-model="product.maxPurchase"
+                    class="sw-product-deliverability__max-purchase"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.maxPurchase">
                     <template #content="props">

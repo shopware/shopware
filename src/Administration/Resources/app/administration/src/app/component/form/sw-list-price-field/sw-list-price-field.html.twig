@@ -20,9 +20,29 @@
                 </sw-price-field>
             {% endblock %}
         </div>
+
+        {% block sw_product_price_form_purchase_price_field %}
+            <div
+                v-if="feature.isActive('FEATURE_NEXT_12429') && purchasePrices && purchasePrices.length && showSettingPrice"
+                class="sw-list-price-field__price">
+                {% block sw_product_price_form_purchase_price_field_content %}
+                    <sw-price-field
+                        class="sw-purchase-price-field"
+                        :price="purchasePrices"
+                        :grossLabel="$tc('sw-product.priceForm.labelPurchasePriceGross')"
+                        :netLabel="$tc('sw-product.priceForm.labelPurchasePriceNet')"
+                        :taxRate="taxRate"
+                        :error="error"
+                        :disabled="disabled"
+                        :currency="currency">
+                    </sw-price-field>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
         <div class="sw-list-price-field__list-price">
             {% block sw_list_price_field_list_price %}
-                <sw-price-field v-if="!hideListPrices"
+                <sw-price-field v-if="!hideListPrices && (!feature.isActive('FEATURE_NEXT_12429') || showSettingPrice)"
                                 :price="listPrice"
                                 :defaultPrice="defaultListPrice"
                                 :taxRate="taxRate"

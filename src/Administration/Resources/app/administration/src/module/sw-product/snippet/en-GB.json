@@ -8,7 +8,8 @@
       "columnLinkOnly": "Hidden",
       "linkAdvancedVisibility": "Advanced assignment options",
       "labelVisibility": "Sales Channels",
-      "closeModal": "Apply"
+      "closeModal": "Apply",
+      "bodyVisibility": "Add Sales channels where is product should be displayed. You're also able to further define the visibility of the product for each Storefront Sales Channel via de link below."
     },
     "general": {
       "mainMenuItemGeneral": "Products",
@@ -53,7 +54,10 @@
       "textAddSearchKeyword": "Click here to add search keyword",
       "textEnterValidSearchKeyword": "Searchable keywords",
       "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords.",
-      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms."
+      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms.",
+      "categoriesTitle": "Categories and tags",
+      "descriptionCategories": "Add categories so that the product can be found via the Storefront main menu or by API connections. Make sure you select  categories that are available and active in the selected Sales Channel.",
+      "descriptionTags": "Tags help you find products faster. They make it easier to group products and can be  utilised to automate task with the Rule Builder."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -103,7 +107,7 @@
       "labelEan": "EAN",
       "labelManufacturerNumber": "Manufacturer product number",
       "labelStock": "Stock",
-      "labelActive": "Active",
+      "labelActive": "Active for all selected Sales Channels",
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Product promotion",
       "labelIsCloseout": "Clearance sale",
@@ -138,7 +142,7 @@
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
       "cardTitleProductInfo": "General information",
-      "cardTitleAssignment": "Assignment",
+      "cardTitleAssignment": "Visibility & structure",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Labelling",
       "cardTitlePackaging": "Measures & packaging",

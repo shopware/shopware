@@ -2,6 +2,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/sw-list-price-field';
 
 // mock data
+const purchasePrices = {
+    currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
+    net: 20,
+    gross: 25,
+    linked: false
+};
 const dollarPrice = {
     currencyId: 'a435755c6c4f4fb4b81ec32b4c07e06e',
     net: 250,
@@ -42,6 +48,7 @@ const defaultPrice = {
 const setup = (propOverride) => {
     const propsData = {
         price: [dollarPrice, euroPrice],
+        purchasePrices: [purchasePrices],
         taxRate,
         currency,
         defaultPrice,
@@ -52,7 +59,12 @@ const setup = (propOverride) => {
     return shallowMount(Shopware.Component.build('sw-list-price-field'), {
         stubs: ['sw-price-field'],
         mocks: { $tc: key => key },
-        propsData
+        propsData,
+        provide: {
+            feature: {
+                isActive: () => true
+            }
+        }
     });
 };
 

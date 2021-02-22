@@ -7,6 +7,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-price-form', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -37,7 +39,8 @@ Component.register('sw-product-price-form', {
             'product',
             'parentProduct',
             'taxes',
-            'currencies'
+            'currencies',
+            'modeSettingsVisible'
         ]),
 
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
@@ -54,6 +57,10 @@ Component.register('sw-product-price-form', {
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`
             });
+        },
+
+        prices() {
+            return [this.product.purchasePrices, this.product.price];
         }
     },
 

@@ -395,7 +395,6 @@ Component.register('sw-text-editor', {
                 }
 
                 if (
-                    this.feature.isActive('FEATURE_NEXT_10550') &&
                     this.allowInlineDataMapping &&
                     this.availableDataMappings.length > 0
                 ) {
@@ -515,7 +514,7 @@ Component.register('sw-text-editor', {
         onTextStyleChange(type, value) {
             const selectedText = document.getSelection().toString();
 
-            if (this.feature.isActive('FEATURE_NEXT_10550') && selectedText.length > 0) {
+            if (selectedText.length > 0) {
                 const selectionContainsStartBracket = this.containsStartBracket(selectedText);
                 const selectionContainsEndBracket = this.containsEndBracket(selectedText);
                 const isInsideInlineMapping = this.isInsideInlineMapping();

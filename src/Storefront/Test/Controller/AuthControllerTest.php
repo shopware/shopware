@@ -118,16 +118,14 @@ class AuthControllerTest extends TestCase
         static::assertEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
     }
 
-    public function testSessionIsInvalidatedOnLogOutIsDeactivated(): void
+    public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void
     {
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
-        $contextToken = $session->get('sw-context-token');
-        $sessionId = $session->getId();
+        $sessionCookie = $browser->getCookieJar()->get('session-');
 
         $browser->request('GET', '/account/logout', []);
         $response = $browser->getResponse();
@@ -136,14 +134,25 @@ class AuthControllerTest extends TestCase
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
-
         $session = $browser->getRequest()->getSession();
 
-        $newContextToken = $session->get('sw-context-token');
-        static::assertNotEquals($contextToken, $newContextToken);
+        // Close the old session
+        $session->save();
+        // Set previous session id
+        $session->setId($sessionCookie->getValue());
+        // Set previous session cookie
+        $browser->getCookieJar()->set($sessionCookie);
 
-        $newSessionId = $session->getId();
-        static::assertNotEquals($sessionId, $newSessionId);
+        // Try opening account page
+        $browser->request('GET', $_SERVER['APP_URL'] . '/account', []);
+        $response = $browser->getResponse();
+        $session = $browser->getRequest()->getSession();
+
+        // Expect the session to have the same value as the initial session
+        static::assertSame($session->getId(), $sessionCookie->getValue());
+
+        // Expect a redirect response, since the old session should be destroyed
+        static::assertSame(302, $response->getStatusCode(), $response->getContent());
     }
 
     public function testRedirectToAccountPageAfterLogin(): void

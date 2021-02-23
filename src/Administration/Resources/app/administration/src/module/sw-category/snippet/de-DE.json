@@ -42,9 +42,9 @@
           "page": "Kategorie",
           "folder": "Strukturkategorie",
           "link": "Benutzerdefinierter Link",
-          "entrypoint": "Einstiegspunkt",
-          "pageList": "Seite / Liste",
-          "column": "Spalte",
+          "newPage": "Seite / Liste",
+          "newFolder": "Strukturkategorie / Einstiegspunkt",
+          "newLink": "Link",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung."
         }
       },
@@ -64,8 +64,9 @@
         "cardTitle": "Einstiegspunkt",
         "labelEntryPoint": "Einstiegspunkt",
         "placeholderEntryPoint": "Einstiegspunkt auswählen...",
-        "labelSalesChannels": "Sales Channels",
-        "placeholderSalesChannels": "Sales Channel auswählen...",
+        "existingNavigationDescription": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
+        "labelSalesChannelsAdd": "Verkaufskanäle hinzufügen",
+        "placeholderSalesChannels": "Verkaufskanal auswählen...",
         "buttonConfigureHome": "Startseite konfigurieren",
         "types": {
           "labelMainNavigation": "Hauptnavigation",
@@ -161,6 +162,10 @@
       "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
+    },
+    "entry-point-overwrite-modal": {
+      "textBefore": "Du hast dem folgenden Verkaufskanal bereits einen Einstiegspunkt zugewiesen: | Du hast den folgenden Verkaufskanälen bereits Einstiegspunkte zugewiesen:",
+      "textAfter": "Soll diese Zuweisung überschrieben werden? | Sollen diese Zuweisungen überschrieben werden?"
     }
   },
   "sw-landing-page": {

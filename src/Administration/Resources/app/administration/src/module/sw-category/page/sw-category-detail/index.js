@@ -2,8 +2,8 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria, ChangesetGenerator } = Shopware.Data;
+const { Component, Context, Mixin } = Shopware;
+const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
@@ -65,7 +65,9 @@ Component.register('sw-category-detail', {
             currentLanguageId: Shopware.Context.api.languageId,
             forceDiscardChanges: false,
             categoryCheckedItem: 0,
-            landingPageCheckedItem: 0
+            landingPageCheckedItem: 0,
+            entryPointOverwriteConfirmed: false,
+            entryPointOverwriteSalesChannels: null
         };
     },
 
@@ -110,6 +112,10 @@ Component.register('sw-category-detail', {
             }
 
             return Shopware.State.get('swCategoryDetail').category;
+        },
+
+        showEntryPointOverwriteModal() {
+            return this.entryPointOverwriteSalesChannels !== null && this.entryPointOverwriteSalesChannels.length;
         },
 
         cmsPage() {
@@ -289,8 +295,9 @@ Component.register('sw-category-detail', {
                 return Promise.resolve(null);
             }
 
+            const cmsPageId = this.cmsPageId;
             const criteria = new Criteria(1, 1);
-            criteria.setIds([this.cmsPageId]);
+            criteria.setIds([cmsPageId]);
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
@@ -301,7 +308,12 @@ Component.register('sw-category-detail', {
                 .addAssociation('slots');
 
             return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
-                const cmsPage = response.get(this.cmsPageId);
+                const cmsPage = response.get(cmsPageId);
+
+                if (cmsPageId !== this.cmsPageId) {
+                    return null;
+                }
+
                 if (this.category.slotConfig !== null) {
                     cmsPage.sections.forEach((section) => {
                         section.blocks.forEach((block) => {
@@ -337,8 +349,9 @@ Component.register('sw-category-detail', {
                 return Promise.resolve(null);
             }
 
+            const cmsPageId = this.cmsPageId;
             const criteria = new Criteria(1, 1);
-            criteria.setIds([this.cmsPageId]);
+            criteria.setIds([cmsPageId]);
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('sections');
             criteria.getAssociation('sections').addSorting(Criteria.sort('position'));
@@ -349,7 +362,11 @@ Component.register('sw-category-detail', {
                 .addAssociation('slots');
 
             return this.cmsPageRepository.search(criteria, Shopware.Context.api).then((response) => {
-                const cmsPage = response.get(this.cmsPageId);
+                const cmsPage = response.get(cmsPageId);
+                if (cmsPageId !== this.cmsPageId) {
+                    return null;
+                }
+
                 if (this.landingPage.slotConfig !== null) {
                     cmsPage.sections.forEach((section) => {
                         section.blocks.forEach((block) => {
@@ -549,20 +566,63 @@ Component.register('sw-category-detail', {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (!this.entryPointOverwriteConfirmed && this.feature.isActive('FEATURE_NEXT_13504')) {
+                this.checkForEntryPointOverwrite();
+                if (this.showEntryPointOverwriteModal) {
+                    return;
+                }
+            }
+
             this.isLoading = true;
             this.updateSeoUrls().then(() => {
                 return this.categoryRepository.save(this.category, Shopware.Context.api);
             }).then(() => {
                 this.isSaveSuccessful = true;
+                this.entryPointOverwriteConfirmed = false;
                 return this.setCategory();
             }).catch(() => {
                 this.isLoading = false;
+                this.entryPointOverwriteConfirmed = false;
 
                 this.createNotificationError({
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
+            });
+        },
+
+        checkForEntryPointOverwrite() {
+            this.entryPointOverwriteSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api);
+
+            this.category.navigationSalesChannels.forEach((salesChannel) => {
+                if (salesChannel.navigationCategoryId !== null && salesChannel.navigationCategoryId !== this.categoryId) {
+                    this.entryPointOverwriteSalesChannels.add(salesChannel);
+                }
+            });
+
+            this.category.footerSalesChannels.forEach((salesChannel) => {
+                if (salesChannel.footerCategoryId !== null && salesChannel.footerCategoryId !== this.categoryId) {
+                    this.entryPointOverwriteSalesChannels.add(salesChannel);
+                }
+            });
+
+            this.category.serviceSalesChannels.forEach((salesChannel) => {
+                if (salesChannel.serviceCategoryId !== null && salesChannel.serviceCategoryId !== this.categoryId) {
+                    this.entryPointOverwriteSalesChannels.add(salesChannel);
+                }
+            });
+        },
+
+        cancelEntryPointOverwrite() {
+            this.entryPointOverwriteSalesChannels = null;
+        },
+
+        confirmEntryPointOverwrite() {
+            this.entryPointOverwriteSalesChannels = null;
+            this.entryPointOverwriteConfirmed = true;
+            this.$nextTick(() => {
+                this.onSave();
             });
         },
 

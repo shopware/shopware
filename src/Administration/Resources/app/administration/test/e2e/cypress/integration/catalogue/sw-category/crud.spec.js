@@ -82,7 +82,7 @@ describe('Category: Create several categories', () => {
         cy.get('.main-navigation-link.active').should('be.visible');
     });
 
-    it('@base @catalogue: should hide the elements not needed for an Entry point', () => {
+    it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', () => {
         cy.onlyOnFeature('FEATURE_NEXT_13504');
         const page = new CategoryPageObject();
 
@@ -126,7 +126,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-layout-card').should('exist');
         cy.get('.sw-category-detail__tab-base').scrollIntoView().should('be.visible').click();
 
-        cy.get('.sw-category-detail-base__menu').should('be.visible');
+        cy.get('.sw-category-detail-base__menu').scrollIntoView().should('be.visible');
         cy.get('.sw-category-detail__tab-products').scrollIntoView().should('be.visible');
 
         cy.get('.sw-category-detail__tab-seo').scrollIntoView().should('be.visible').click();
@@ -160,7 +160,7 @@ describe('Category: Create several categories', () => {
 
         // change category type to Structuring element
         cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Entry point', '.sw-category-detail-base__type-selection');
+            .typeSingleSelectAndCheck('Structuring element', '.sw-category-detail-base__type-selection');
 
         cy.get('.sw-category-layout-card').should('not.exist');
         cy.get('.sw-many-to-many-assignment-card').should('not.exist');
@@ -188,7 +188,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-detail__tab-cms').should('be.visible');
     });
 
-    it('@base @catalogue: should hide the elements not needed for a Customisable link', () => {
+    it('@base @catalogue: should hide the elements not needed for a Link', () => {
         cy.onlyOnFeature('FEATURE_NEXT_13504');
         const page = new CategoryPageObject();
 
@@ -213,7 +213,7 @@ describe('Category: Create several categories', () => {
 
         // change category type to Customisable link
         cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Customisable link', '.sw-category-detail-base__type-selection');
+            .typeSingleSelectAndCheck('Link', '.sw-category-detail-base__type-selection');
 
 
         cy.get('.sw-category-detail__tab-products').scrollIntoView().should('not.be.visible');

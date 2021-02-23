@@ -40,11 +40,11 @@
         "types": {
           "title": "Category type",
           "page": "Category",
-          "folder": "Entry point",
+          "folder": "Structuring element",
           "link": "Customisable link",
-          "column": "Column",
-          "entrypoint": "Entry point",
-          "pageList": "Page / List",
+          "newPage": "Page / List",
+          "newFolder": "Structuring element / Entry point",
+          "newLink": "Link",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes."
         }
       },
@@ -64,8 +64,9 @@
         "cardTitle": "Entry point",
         "labelEntryPoint": "Entry point",
         "placeholderEntryPoint": "Select entry point...",
-        "labelSalesChannels": "Sales channels",
-        "placeholderSalesChannels": "Select sales channel...",
+        "existingNavigationDescription": "You have assigned this category as an entry point for the main navigation in these Sales Channels:",
+        "labelSalesChannelsAdd": "Add Sales Channels",
+        "placeholderSalesChannels": "Select Sales Channel...",
         "buttonConfigureHome": "Configure home",
         "types": {
           "labelMainNavigation": "Main navigation",
@@ -162,6 +163,10 @@
       "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",
       "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
+    },
+    "entry-point-overwrite-modal": {
+      "textBefore": "You already assigned an entry point to the following Sales Channel: | You already assigned entry points to the following Sales Channels:",
+      "textAfter": "Should this assignment be overwritten? | Should these assignments be overwritten?"
     }
   },
   "sw-landing-page": {
@@ -190,7 +195,7 @@
         "labelMetaDescription": "Meta description",
         "labelKeywords": "SEO keywords",
         "labelUrl": "SEO URL",
-        "placeholderSalesChannel": "Chose a sales channel...",
+        "placeholderSalesChannel": "Chose a Sales Channel...",
         "placeholderMetaTitle": "Enter meta title...",
         "placeholderMetaDescription": "Enter a meta description...",
         "placeholderKeywords": "Enter one or more keywords...",

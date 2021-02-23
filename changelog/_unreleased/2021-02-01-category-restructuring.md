@@ -29,7 +29,11 @@ ___
 * Changed location of product assignment in `sw-category-detail-base` to separate `sw-category-detail-products` component
 * Changed location of seo & seo urls in `sw-category-detail-base` to separate `sw-category-detail-seo` component
 * Changed location of layout assignment in `sw-category-detail-base` to `sw-category-detail-cms` component
-* Added two new components `sw-category-entry-point-card` & `sw-category-sales-channel-multi-select`
+* Added three new components:
+    * `sw-category-entry-point-card`
+    * `sw-category-entry-point-overwrite-modal`
+    * `sw-category-sales-channel-multi-select`
+* Added entry point overwrite check on save to `sw-category-detail`
 * Refactored `mainNavigationCriteria` in `sw-sales-channel-detail-base` to allow entry points as main navigation entries
 * Added internal link settings to `sw-category-link-settings`
 * Added new computed properties to `sw-category-link-settings/index.js`

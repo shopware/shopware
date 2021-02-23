@@ -14,14 +14,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemOfManufacturerRule extends Rule
 {
     /**
-     * @var array
+     * @var string[]
      */
-    protected $manufacturerIds;
+    protected array $manufacturerIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
     {
@@ -50,7 +47,7 @@ class LineItemOfManufacturerRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }

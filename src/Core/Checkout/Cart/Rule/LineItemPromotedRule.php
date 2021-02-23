@@ -9,10 +9,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemPromotedRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $isPromoted;
+    protected bool $isPromoted;
 
     public function __construct(bool $isPromoted = false)
     {
@@ -36,7 +33,7 @@ class LineItemPromotedRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->isItemMatching($lineItem)) {
                 return true;
             }

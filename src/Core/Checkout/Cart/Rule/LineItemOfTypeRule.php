@@ -12,22 +12,16 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemOfTypeRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $lineItemType;
+    protected string $lineItemType;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
     {
         parent::__construct();
 
         $this->operator = $operator;
-        $this->lineItemType = $lineItemType;
+        $this->lineItemType = (string) $lineItemType;
     }
 
     public function match(RuleScope $scope): bool
@@ -35,11 +29,12 @@ class LineItemOfTypeRule extends Rule
         if ($scope instanceof LineItemScope) {
             return $this->lineItemMatches($scope->getLineItem());
         }
+
         if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }

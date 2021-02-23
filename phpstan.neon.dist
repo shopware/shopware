@@ -29,10 +29,30 @@ parameters:
         - src/Core/Framework/Adapter/Cache/CacheCollectorPass.php
 
         # Tests
-        - src/**/*Test.php
-        - src/Core/Framework/Test/**/*.php
-
-        - src/Core/TestBootstrap.php
+        - src/Core/Checkout/Test/Cart/CalculatorTest.php
+        - src/Core/Checkout/Test/Cart/CartPersisterTest.php
+        - src/Core/Checkout/Test/Cart/CartServiceTest.php
+        - src/Core/Checkout/Test/Cart/ProcessorTest.php
+        - src/Core/Checkout/Test/Cart/Delivery/*.php
+        - src/Core/Checkout/Test/Cart/LineItem/*.php
+        - src/Core/Checkout/Test/Cart/Order/*.php
+        - src/Core/Checkout/Test/Cart/Price/*.php
+        - src/Core/Checkout/Test/Cart/Promotion/*.php
+        - src/Core/Checkout/Test/Cart/Tax/*.php
+        - src/Core/Checkout/Test/Cart/SalesChannel/*.php
+        - src/Core/Checkout/Test/Customer/*.php
+        - src/Core/Checkout/Test/Document/*.php
+        - src/Core/Checkout/Test/Order/*.php
+        - src/Core/Checkout/Test/Payment/*.php
+        - src/Core/Checkout/Test/Promotion/*.php
+        - src/Core/Checkout/Test/Shipping/*.php
+        - src/Core/Checkout/Test/Validation/*.php
+        - src/Core/Content/Test/*.php
+        - src/Core/Framework/Test/*.php
+        - src/Core/Migration/Test/*.php
+        - src/Core/System/Test/*.php
+        - src/Elasticsearch/*Test.php
+        - src/Storefront/*Test.php
 
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods

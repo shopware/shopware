@@ -4,8 +4,11 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -14,15 +17,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemCustomFieldRuleTest extends TestCase
 {
-    /**
-     * @var LineItemCustomFieldRule
-     */
-    private $rule;
+    use CartRuleHelperTrait;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private const CUSTOM_FIELD_NAME = 'custom_test';
+
+    private LineItemCustomFieldRule $rule;
+
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -34,7 +35,7 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('cartLineItemCustomField', $this->rule->getName());
+        static::assertSame('cartLineItemCustomField', $this->rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -50,64 +51,119 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     public function testBooleanCustomFieldFalseWithNoValue(): void
     {
-        $this->setupRule('custom_test', false);
-        $scope = new LineItemScope($this->getLineItem(), $this->salesChannelContext);
+        $this->setupRule(false, 'bool');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields(), $this->salesChannelContext);
         static::assertTrue($this->rule->match($scope));
     }
 
     public function testBooleanCustomFieldFalse(): void
     {
-        $this->setupRule('custom_test', false);
-        $scope = new LineItemScope($this->getLineItem(['custom_test' => false]), $this->salesChannelContext);
+        $this->setupRule(false, 'bool');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => false]), $this->salesChannelContext);
         static::assertTrue($this->rule->match($scope));
     }
 
     public function testBooleanCustomFieldNull(): void
     {
-        $this->setupRule('custom_test', null);
-        $scope = new LineItemScope($this->getLineItem(['custom_test' => false]), $this->salesChannelContext);
+        $this->setupRule(null, 'bool');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => false]), $this->salesChannelContext);
         static::assertTrue($this->rule->match($scope));
     }
 
     public function testBooleanCustomFieldInvalid(): void
     {
-        $this->setupRule('custom_test', false);
-        $scope = new LineItemScope($this->getLineItem(['custom_test' => true]), $this->salesChannelContext);
+        $this->setupRule(false, 'bool');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => true]), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
     }
 
     public function testStringCustomField(): void
     {
-        $this->setupRule('custom_test', 'my_test_value');
-        $scope = new LineItemScope($this->getLineItem(['custom_test' => 'my_test_value']), $this->salesChannelContext);
+        $this->setupRule('my_test_value', 'string');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 'my_test_value']), $this->salesChannelContext);
         static::assertTrue($this->rule->match($scope));
     }
 
     public function testStringCustomFieldInvalid(): void
     {
-        $this->setupRule('custom_test', 'my_test_value');
-        $scope = new LineItemScope($this->getLineItem(['custom_test' => 'my_invalid_value']), $this->salesChannelContext);
+        $this->setupRule('my_test_value', 'string');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 'my_invalid_value']), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
     }
 
-    private function getLineItem(array $customFields = []): LineItem
-    {
-        $lineItem = new LineItem('', LineItem::PRODUCT_LINE_ITEM_TYPE);
+    /**
+     * @dataProvider customFieldCartScopeProvider
+     *
+     * @param bool|string|null $customFieldValue
+     * @param bool|string|null $customFieldValueInLineItem
+     */
+    public function testCustomFieldCartScope(
+        $customFieldValue,
+        string $type,
+        $customFieldValueInLineItem,
+        bool $result
+    ): void {
+        $this->setupRule($customFieldValue, $type);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
+        ]);
 
-        $lineItem
-            ->setPayloadValue('customFields', $customFields);
-
-        return $lineItem;
+        $cart = $this->createCart($lineItemCollection);
+        $scope = new CartRuleScope($cart, $this->salesChannelContext);
+        static::assertSame($result, $this->rule->match($scope));
     }
 
-    private function setupRule(string $customFieldName, $customFieldValue): void
+    /**
+     * @dataProvider customFieldCartScopeProvider
+     *
+     * @param bool|string|null $customFieldValue
+     * @param bool|string|null $customFieldValueInLineItem
+     */
+    public function testCustomFieldCartScopeNested(
+        $customFieldValue,
+        string $type,
+        $customFieldValueInLineItem,
+        bool $result
+    ): void {
+        $this->setupRule($customFieldValue, $type);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
+        ]);
+
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $scope = new CartRuleScope($cart, $this->salesChannelContext);
+        static::assertSame($result, $this->rule->match($scope));
+    }
+
+    public function customFieldCartScopeProvider(): array
+    {
+        return [
+            'testBooleanCustomFieldFalse' => [false, 'bool', false, true],
+            'testBooleanCustomFieldNull' => [null, 'bool', false, true],
+            'testBooleanCustomFieldInvalid' => [false, 'bool', true, false],
+            'testStringCustomField' => ['my_test_value', 'string', 'my_test_value', true],
+            'testStringCustomFieldInvalid' => ['my_test_value', 'string', 'my_invalid_value', false],
+        ];
+    }
+
+    private function createLineItemWithCustomFields(array $customFields = []): LineItem
+    {
+        return ($this->createLineItem())->setPayloadValue('customFields', $customFields);
+    }
+
+    /**
+     * @param bool|string|null $customFieldValue
+     */
+    private function setupRule($customFieldValue, string $type): void
     {
         $this->rule->assign(
             [
                 'operator' => $this->rule::OPERATOR_EQ,
                 'renderedField' => [
-                    'type' => 'bool',
-                    'name' => $customFieldName,
+                    'type' => $type,
+                    'name' => self::CUSTOM_FIELD_NAME,
                 ],
                 'renderedFieldValue' => $customFieldValue,
             ]

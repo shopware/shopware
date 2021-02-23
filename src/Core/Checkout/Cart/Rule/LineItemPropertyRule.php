@@ -15,12 +15,9 @@ class LineItemPropertyRule extends Rule
     /**
      * @var string[]
      */
-    protected $identifiers;
+    protected array $identifiers;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
     {
@@ -44,7 +41,7 @@ class LineItemPropertyRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatch($lineItem)) {
                 return true;
             }

@@ -13,20 +13,22 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemCustomFieldRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
-    /**
-     * @var array
-     */
-    protected $renderedField;
+    protected array $renderedField;
 
     /**
      * @var string|int|float|bool|null
      */
     protected $renderedFieldValue;
+
+    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
+    {
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->renderedField = $renderedField;
+    }
 
     public function getName(): string
     {
@@ -46,7 +48,7 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->isCustomFieldValid($lineItem)) {
                 return true;
             }
@@ -84,6 +86,9 @@ class LineItemCustomFieldRule extends Rule
     private function isCustomFieldValid(LineItem $lineItem): bool
     {
         $customFields = $lineItem->getPayloadValue('customFields');
+        if ($customFields === null) {
+            return false;
+        }
 
         $actual = $this->getValue($customFields, $this->renderedField);
         if ($actual === null) {

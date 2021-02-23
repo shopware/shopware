@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 trait KernelTestBehaviour
 {
-    protected function getKernel(): KernelInterface
+    protected function getKernel(): Kernel
     {
         return KernelLifecycleManager::getKernel();
     }

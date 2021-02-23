@@ -3,13 +3,12 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -17,10 +16,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemClearanceSaleRuleTest extends TestCase
 {
-    /**
-     * @var LineItemClearanceSaleRule
-     */
-    private $rule;
+    use CartRuleHelperTrait;
+
+    private LineItemClearanceSaleRule $rule;
 
     protected function setUp(): void
     {
@@ -29,7 +27,7 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('cartLineItemClearanceSale', $this->rule->getName());
+        static::assertSame('cartLineItemClearanceSale', $this->rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -47,11 +45,11 @@ class LineItemClearanceSaleRuleTest extends TestCase
         $this->rule->assign(['clearanceSale' => $ruleActive]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($clearanceSale),
+            $this->createLineItemWithClearance($clearanceSale),
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
     }
 
     public function getLineItemScopeTestData(): array
@@ -71,20 +69,42 @@ class LineItemClearanceSaleRuleTest extends TestCase
     {
         $this->rule->assign(['clearanceSale' => $ruleActive]);
 
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithClearance($clearanceSale),
+            $this->createLineItemWithClearance(false),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($clearanceSale));
-        $lineItemCollection->add($this->createLineItem(false));
-
-        $cart->setLineItems($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopeNested(bool $ruleActive, bool $clearanceSale, bool $expected): void
+    {
+        $this->rule->assign(['clearanceSale' => $ruleActive]);
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithClearance($clearanceSale),
+            $this->createLineItemWithClearance(false),
+        ]);
+
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
     }
 
     public function getCartRuleScopeTestData(): array
@@ -97,9 +117,8 @@ class LineItemClearanceSaleRuleTest extends TestCase
         ];
     }
 
-    private function createLineItem(bool $clearanceSaleEnabled): LineItem
+    private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
-            ->setPayloadValue('isCloseout', $clearanceSaleEnabled);
+        return ($this->createLineItem())->setPayloadValue('isCloseout', $clearanceSaleEnabled);
     }
 }

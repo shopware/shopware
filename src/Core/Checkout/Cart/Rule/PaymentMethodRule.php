@@ -14,12 +14,9 @@ class PaymentMethodRule extends Rule
     /**
      * @var string[]
      */
-    protected $paymentMethodIds;
+    protected array $paymentMethodIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function match(RuleScope $scope): bool
     {

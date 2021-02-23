@@ -10,10 +10,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemIsNewRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $isNew;
+    protected bool $isNew;
 
     public function __construct(bool $isNew = false)
     {
@@ -40,7 +37,7 @@ class LineItemIsNewRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }

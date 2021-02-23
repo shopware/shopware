@@ -14,14 +14,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemTaxationRule extends Rule
 {
     /**
-     * @var array
+     * @var string[]
      */
-    protected $taxIds;
+    protected array $taxIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
     {
@@ -46,7 +43,7 @@ class LineItemTaxationRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesOneOfTaxations($lineItem)) {
                 return true;
             }

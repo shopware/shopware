@@ -11,10 +11,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemWrapperRule extends Rule
 {
-    /**
-     * @var Container
-     */
-    protected $container;
+    protected Container $container;
 
     public function match(RuleScope $scope): bool
     {
@@ -29,11 +26,11 @@ class LineItemWrapperRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             $context = new LineItemScope($lineItem, $scope->getSalesChannelContext());
             $match = $this->container->match($context);
             if ($match) {
-                return $match;
+                return true;
             }
         }
 

@@ -13,14 +13,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemsInCartRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    protected $identifiers;
+    protected ?array $identifiers;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -36,9 +33,13 @@ class LineItemsInCartRule extends Rule
             return false;
         }
 
+        if ($this->identifiers === null) {
+            return false;
+        }
+
         $elements = $scope->getCart()->getLineItems()->getFlat();
-        $identifiers = array_map(function (LineItem $element) {
-            return $element->getReferencedId() ? $element->getReferencedId() : null;
+        $identifiers = array_map(static function (LineItem $element) {
+            return $element->getReferencedId() ?: null;
         }, $elements);
 
         switch ($this->operator) {

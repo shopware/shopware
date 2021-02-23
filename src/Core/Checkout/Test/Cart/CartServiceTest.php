@@ -42,7 +42,7 @@ class CartServiceTest extends TestCase
     use CountryAddToSalesChannelTestBehaviour;
 
     /**
-     * @var RepositoryInterface|null
+     * @var RepositoryInterface
      */
     private $customerRepository;
 

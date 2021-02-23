@@ -15,8 +15,10 @@ class AdministrationControllerTest extends TestCase
     {
         $this->getBrowser()->request('GET', '/api/_admin/snippets?locale=de-DE');
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = json_decode($content, true);
         static::assertArrayHasKey('de-DE', $response);
         static::assertArrayHasKey('en-GB', $response);
     }

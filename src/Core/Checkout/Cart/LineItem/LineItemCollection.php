@@ -162,6 +162,23 @@ class LineItemCollection extends Collection
         );
     }
 
+    /**
+     * @return LineItem[]
+     */
+    public function filterGoodsFlat(): array
+    {
+        $lineItems = $this->getFlat();
+
+        $filtered = [];
+        foreach ($lineItems as $lineItem) {
+            if ($lineItem->isGood()) {
+                $filtered[] = $lineItem;
+            }
+        }
+
+        return $filtered;
+    }
+
     public function getTypes(): array
     {
         return $this->fmap(

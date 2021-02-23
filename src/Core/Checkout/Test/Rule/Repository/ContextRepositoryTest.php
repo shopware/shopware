@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Rule\Repository;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -20,11 +19,6 @@ class ContextRepositoryTest extends TestCase
     use DatabaseTransactionBehaviour;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $repository;
@@ -37,7 +31,6 @@ class ContextRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('rule.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 

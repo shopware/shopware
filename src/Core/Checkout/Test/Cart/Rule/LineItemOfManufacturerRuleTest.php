@@ -3,15 +3,15 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -19,12 +19,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemOfManufacturerRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
-    /**
-     * @var LineItemOfManufacturerRule
-     */
-    private $rule;
+    private LineItemOfManufacturerRule $rule;
 
     protected function setUp(): void
     {
@@ -33,7 +31,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('cartLineItemOfManufacturer', $this->rule->getName());
+        static::assertSame('cartLineItemOfManufacturer', $this->rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -47,19 +45,23 @@ class LineItemOfManufacturerRuleTest extends TestCase
     /**
      * @dataProvider getLineItemScopeTestData
      */
-    public function testIfMatchesCorrectWithLineItemScope(array $manufacturerIds, string $operator, string $lineItemManufacturerId, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithLineItemScope(
+        array $manufacturerIds,
+        string $operator,
+        string $lineItemManufacturerId,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'manufacturerIds' => $manufacturerIds,
             'operator' => $operator,
         ]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemManufacturerId),
+            $this->createLineItemWithManufacturer($lineItemManufacturerId),
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
     }
 
     public function getLineItemScopeTestData(): array
@@ -74,28 +76,58 @@ class LineItemOfManufacturerRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      */
-    public function testIfMatchesCorrectWithCartRuleScope(array $manufacturerIds, string $operator, string $lineItemManufacturerId, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithCartRuleScope(
+        array $manufacturerIds,
+        string $operator,
+        string $lineItemManufacturerId,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'manufacturerIds' => $manufacturerIds,
             'operator' => $operator,
         ]);
 
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithManufacturer('1'),
+            $this->createLineItemWithManufacturer($lineItemManufacturerId),
+        ]);
+        $cart = $this->createCart($lineItemCollection);
 
-        $cart->setLineItems(
-            new LineItemCollection([
-                $this->createLineItem('1'),
-                $this->createLineItem($lineItemManufacturerId),
-            ])
-        );
-
-        $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemManufacturerId),
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopeNested(
+        array $manufacturerIds,
+        string $operator,
+        string $lineItemManufacturerId,
+        bool $expected
+    ): void {
+        $this->rule->assign([
+            'manufacturerIds' => $manufacturerIds,
+            'operator' => $operator,
+        ]);
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithManufacturer('1'),
+            $this->createLineItemWithManufacturer($lineItemManufacturerId),
+        ]);
+        $containerLineItem = ($this->createContainerLineItem($lineItemCollection))->setPayloadValue('manufacturerId', '1');
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
     }
 
     public function getCartRuleScopeTestData(): array
@@ -118,14 +150,13 @@ class LineItemOfManufacturerRuleTest extends TestCase
         $this->expectException(UnsupportedOperatorException::class);
 
         $this->rule->match(new LineItemScope(
-            $this->createLineItem('3'),
+            $this->createLineItemWithManufacturer('3'),
             $this->createMock(SalesChannelContext::class)
         ));
     }
 
-    private function createLineItem(string $manufacturerId): LineItem
+    private function createLineItemWithManufacturer(string $manufacturerId): LineItem
     {
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
-            ->setPayloadValue('manufacturerId', $manufacturerId);
+        return ($this->createLineItem())->setPayloadValue('manufacturerId', $manufacturerId);
     }
 }

@@ -24,8 +24,8 @@ describe('Promotion v2: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        cy.waitFor('.sw-promotion-v2-list__button-add-promotion');
-        cy.get('.sw-promotion-v2-list__button-add-promotion').click();
+        cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
+        cy.get('.sw-promotion-v2-list__smart-bar-button-add').click();
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');

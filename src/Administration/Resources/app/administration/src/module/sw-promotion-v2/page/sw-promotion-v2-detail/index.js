@@ -143,8 +143,14 @@ Component.register('sw-promotion-v2-detail', {
         loadEntityData() {
             return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
+                    if (promotion === null) {
+                        return;
+                    }
+
                     this.promotion = promotion;
+                    // Needed to enrich the VueX state below
                     this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
+
                     this.promotion.discounts.forEach((discount) => {
                         if (discount.type === 'percentage' && discount.value === 100 && discount.maxValue === null) {
                             discount.type = 'free';
@@ -152,7 +158,6 @@ Component.register('sw-promotion-v2-detail', {
                     });
 
                     Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
-
                     this.isLoading = false;
                 });
         },

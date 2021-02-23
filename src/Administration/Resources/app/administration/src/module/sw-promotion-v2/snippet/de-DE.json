@@ -12,7 +12,8 @@
             "columnName": "Name",
             "columnValidFrom": "Gültig von",
             "columnValidUntil": "Gültig bis",
-            "messageEmpty": "Noch keine Rabattaktionen",
+            "titleEmpty": "Noch keine Rabattaktionen.",
+            "descriptionEmpty": "Steigere Deinen Umsatz durch Rabatte auf Deine Produkte und Leistungen.",
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
             "titleSidebarItemRefresh": "Aktualisieren"

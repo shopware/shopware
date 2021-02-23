@@ -80,7 +80,7 @@
     "additional_permissions": {
       "system": {
         "core_update": "Run updates",
-        "plugin_maintain": "Maintain plugins"
+        "plugin_maintain": "Maintain extensions"
       }
     }
   }

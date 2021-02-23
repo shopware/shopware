@@ -80,7 +80,7 @@
     "additional_permissions": {
       "system": {
         "core_update": "Update starten",
-        "plugin_maintain": "Plugins verwalten"
+        "plugin_maintain": "Erweiterungen verwalten"
       }
     }
   }

@@ -26,9 +26,9 @@
         "textHeadline": "Zusatzfeld-Set",
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",
-        "titleCardInformation": "Set Informationen",
-        "labelName": "Set Name",
-        "placeholderName": "Name eingeben ...",
+        "titleCardInformation": "Set-Informationen",
+        "labelName": "Set-Name",
+        "placeholderName": "Namen eingeben ...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
         "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
@@ -59,11 +59,11 @@
         "labelPlaceholder": "Platzhalter",
         "labelMax": "Maximum",
         "labelMin": "Minimum",
-        "labelStep": "Schritte",
-        "labelFloat": "Gleitkommazahl",
-        "labelInt": "Ganzzahl",
+        "labelStep": "Schrittweite",
+        "labelFloat": "Gleitkommazahlenfeld",
+        "labelInt": "Ganzzahlenfeld",
         "labelNumberType": "Zahlentyp",
-        "labelDatetime": "Datum/Zeit",
+        "labelDatetime": "Datum-/Zeitfeld",
         "labelDate": "Datum",
         "labelTime": "Zeit",
         "labelDateType": "Typ",
@@ -79,7 +79,7 @@
         "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
         "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten.",
         "placeholderCustomFieldType": "Wähle aus ...",
-        "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customField.{name}\"."
+        "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customFields.{name}\"."
       },
       "list": {
         "labelCustomFieldLabel": "Label",
@@ -89,7 +89,7 @@
         "contextMenuCustomFieldView": "Editieren",
         "contextMenuCustomFieldDelete": "Löschen",
         "titleDeleteAction": "Zusatzfeld löschen | Zusatzfelder löschen",
-        "textDeleteActionConfirmation": "Bist du sicher, dass du dieses Zusatzfeld löschen möchtest? | Bist du sicher, dass du diese {count} Zusatzfelder löschen möchtest?"
+        "textDeleteActionConfirmation": "Bist Du sicher, dass Du dieses Zusatzfeld löschen möchtest? | Bist Du sicher, dass Du diese {count} Zusatzfelder löschen möchtest?"
       },
       "entity": {
         "product": "Produkt",
@@ -101,22 +101,20 @@
         "salesChannel": "Verkaufskanal",
         "manufacturer": "Hersteller",
         "dynamicProductGroup": "Dynamische Produktgruppe",
-        "shoppingExperienceLayout": "Erlebniswelt"
+        "shoppingExperienceLayout": "Erlebniswelt-Layout"
       }
     },
     "types": {
-      "select": "Auswahl",
+      "select": "Auswahlfeld",
       "entity": "Objektauswahl",
       "text": "Textfeld",
-      "number": "Zahl",
-      "media": "Medium",
-      "date": "Datum / Zeit",
+      "number": "Zahlenfeld",
+      "media": "Medienfeld",
+      "date": "Datum- / Zeitfeld",
       "checkbox": "Checkbox",
-      "switch": "Aktiv-/Inaktiv-Schalter",
+      "switch": "Aktiv-Schalter",
       "textEditor": "Text-Editor",
-      "string": "Text",
-      "int": "Zahl",
-      "colorpicker": "Farbauswahl"
+      "colorpicker": "Farbauswahlwerkzeug"
     }
   },
   "sw-privileges": {

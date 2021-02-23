@@ -44,7 +44,7 @@ describe('Custom Fields: Test crud operations', () => {
             cy.get('.sw-custom-field-list__add-button').click();
 
             cy.get('#sw-field--currentCustomField-name').clearTypeAndCheck('my_custom_field_first');
-            cy.get('#sw-field--currentCustomField-config-customFieldType').select('Entity Select');
+            cy.get('#sw-field--currentCustomField-config-customFieldType').select('Entity select');
 
             cy.get('.sw-custom-field-type-base .sw-single-select .sw-block-field__block').click();
             cy.get('.sw-select-result-list-popover-wrapper .sw-select-option--product').click();

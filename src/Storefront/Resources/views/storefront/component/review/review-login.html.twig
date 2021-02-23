@@ -21,7 +21,12 @@
            name="redirectTo"
            value="{{ activeRoute }}">
 
-    {#TODO: NEXT-12067 - Adding redirectParameters if component is used in product detail or something else#}
+    <input type="hidden"
+           name="redirectParameters"
+           value='{
+            "productId": "{{ reviews.productId }}",
+            "id": "{{ cmsPage.id }}",
+            "navigationId": "{{ page.header.navigation.active.id }}"}'>
 {% endblock %}
 
 {% block component_account_login_submit %}

@@ -1,18 +1,18 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-form';
+import 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-promotion-v2-card-condition-form'), {
+    return shallowMount(Shopware.Component.build('sw-promotion-v2-cart-condition-form'), {
         localVue,
         stubs: {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
-            'sw-field': {
-                template: '<div class="sw-field"></div>'
+            'sw-switch-field': {
+                template: '<div class="sw-switch-field"></div>'
             },
             'sw-card': {
                 template: '<div class="sw-card"><slot></slot></div>'
@@ -90,7 +90,7 @@ function createWrapper(privileges = []) {
     });
 }
 
-describe('src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-form', () => {
+describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -121,7 +121,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-fo
     });
 
     it('should have disabled form fields', async () => {
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAll('.sw-switch-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
 
@@ -135,7 +135,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-card-condition-fo
             'promotion.editor'
         ]);
 
-        const elements = wrapper.findAll('.sw-field');
+        const elements = wrapper.findAll('.sw-switch-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
 

@@ -2,6 +2,8 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
+const multiSelectFirstSelector = '.sw-select-selection-list__item-holder--0';
+
 describe('Promotion v2: Test crud operations', () => {
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_12016');
@@ -65,6 +67,105 @@ describe('Promotion v2: Test crud operations', () => {
             .should('be.empty')
             .should('have.attr', 'placeholder', 'Unlimited');
 
+        // Configure Conditions
+        cy.get('.sw-tabs-item[title="Conditions"]')
+            .should('not.have.class', 'sw-tabs-item--active')
+            .click()
+            .should('have.class', 'sw-tabs-item--active');
+
+        cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
+            .typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-promotion-v2-conditions__rules-exclusion-selection')
+            .typeMultiSelectAndCheck('Thunder Tuesday');
+
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer')
+            .typeMultiSelectAndCheck('All customers');
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer')
+            .type('{esc}');
+        cy.get('.sw-promotion-v2-card-condition-form__rule-select-cart')
+            .typeMultiSelectAndCheck('Always valid (Default)');
+        cy.get('.sw-promotion-v2-conditions__rule-select-order-conditions')
+            .typeMultiSelectAndCheck('All customers');
+
+        // Configure Set-Group
+        cy.get('.sw-promotion-v2-card-condition-form__add-group-button')
+            .should('not.exist');
+        cy.get('.sw-promotion-v2-card-condition-form__use-setgroups input')
+            .click();
+        cy.get('.sw-promotion-v2-card-condition-form__add-group-button')
+            .should('be.visible')
+            .click();
+
+        const groupSelector = `#sw-promotion-v2-card-condition-form__setgroup-card-1 `;
+        cy.get(groupSelector + '#sw-field--group-packagerKey')
+            .select('Amount (net)');
+        cy.get(groupSelector + '.sw-promotion-v2-card-condition-form__setgroup-value')
+            .type('{selectall}5.5');
+        cy.get(groupSelector + '#sw-field--group-sorterKey')
+            .select('Price, descending');
+        cy.get(groupSelector + '.sw-promotion-v2-card-condition-form__setgroup-rules')
+            .typeMultiSelectAndCheck('Always valid (Default)');
+
+        cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-loader').should('not.be.visible');
+
+        // Verify conditions
+        cy.get(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`)
+            .contains('Storefront');
+        cy.get(`.sw-promotion-v2-conditions__rules-exclusion-selection ${multiSelectFirstSelector}`)
+            .contains('Thunder Tuesday');
+
+        cy.get(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`)
+            .contains('All customers');
+        cy.get('.sw-promotion-v2-conditions__rule-select-customer');
+        cy.get(`.sw-promotion-v2-card-condition-form__rule-select-cart ${multiSelectFirstSelector}`)
+            .contains('Always valid (Default)');
+        cy.get(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`)
+            .contains('All customers');
+
+        // Verify Set-Group
+        cy.get(`${groupSelector}#sw-field--group-packagerKey`)
+            .contains('Amount (net)');
+        cy.get(`${groupSelector}.sw-promotion-v2-card-condition-form__setgroup-value input`)
+            .should('contain.value', '5.5');
+        cy.get(`${groupSelector}#sw-field--group-sorterKey`)
+            .contains('Price, descending');
+        cy.get(`${groupSelector}.sw-promotion-v2-card-condition-form__setgroup-rules ${multiSelectFirstSelector}`)
+            .contains('Always valid (Default)');
+
+        // Configure Discounts
+        cy.get('.sw-tabs-item[title="Discounts"]')
+            .should('not.have.class', 'sw-tabs-item--active')
+            .click()
+            .should('have.class', 'sw-tabs-item--active');
+
+        cy.get('.sw-promotion-discount-component')
+            .should('not.exist');
+        cy.get('.sw-card--hero button')
+            .click();
+        cy.get('.sw-promotion-discount-component')
+            .should('be.visible');
+
+        cy.get('#sw-field--discount-scope')
+            .select('Set group-1');
+        cy.get('#sw-field--discount-type')
+            .select('Absolute');
+        cy.get('.sw-promotion-discount-component__discount-value input')
+            .type('{selectall}10.5');
+
+        cy.get('.sw-promotion-v2-detail__save-action').click();
+        cy.get('.sw-loader').should('not.be.visible');
+
+        // Verify discounts
+        cy.get('.sw-promotion-discount-component')
+            .should('be.visible');
+        cy.get('#sw-field--discount-scope')
+            .contains('Set group-1');
+        cy.get('#sw-field--discount-type')
+            .contains('Absolute');
+        cy.get('.sw-promotion-discount-component__discount-value input')
+            .should('have.value', 10.5);
+
         // Verify promotion in listing
         cy.get('.sw-promotion-v2-detail__cancel-action').click();
 
@@ -100,6 +201,6 @@ describe('Promotion v2: Test crud operations', () => {
         });
         cy.get('.sw-sidebar-navigation-item[title="Refresh"]').click();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.get(page.elements.emptyState).should('be.visible');
+        cy.get('.sw-promotion-v2-empty-state-hero').should('be.visible');
     });
 });

@@ -148,6 +148,11 @@ Component.register('sw-promotion-v2-detail', {
                     }
 
                     this.promotion = promotion;
+
+                    if (!this.promotion || !this.promotion.discounts || this.promotion.length < 1) {
+                        return;
+                    }
+
                     // Needed to enrich the VueX state below
                     this.promotion.hasOrders = (promotion.orderCount !== null) ? promotion.orderCount > 0 : false;
 
@@ -158,6 +163,7 @@ Component.register('sw-promotion-v2-detail', {
                     });
 
                     Shopware.State.commit('swPromotionDetail/setPromotion', this.promotion);
+                }).finally(() => {
                     this.isLoading = false;
                 });
         },

@@ -7,7 +7,7 @@ import './component/discount/sw-promotion-v2-wizard-description';
 import './component/promotion-codes/sw-promotion-v2-generate-codes-modal';
 import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
 
-import './component/sw-promotion-v2-card-condition-form';
+import './component/sw-promotion-v2-cart-condition-form';
 import './component/sw-promotion-v2-empty-state-hero';
 import './component/sw-promotion-v2-rule-select';
 import './component/sw-promotion-v2-sales-channel-select';

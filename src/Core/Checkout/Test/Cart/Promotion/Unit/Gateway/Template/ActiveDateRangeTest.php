@@ -48,8 +48,8 @@ class ActiveDateRangeTest extends TestCase
         $today = new \DateTime();
         $today = $today->setTimezone(new \DateTimeZone('UTC'));
 
-        $todayStart = $today->format('Y-m-d H:s:i');
-        $todayEnd = $today->format('Y-m-d H:s:i');
+        $todayStart = $today->format('Y-m-d H:i:s');
+        $todayEnd = $today->format('Y-m-d H:i:s');
 
         $filterNoDateRange = new MultiFilter(
             MultiFilter::CONNECTION_AND,

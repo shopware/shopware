@@ -35,13 +35,13 @@ describe('sw-extensions-store-label-display', () => {
 
         const label = wrapper.findAll('.sw-extension-label');
 
-        expect(label.at(0).attributes().style).toBe('background-color: rgb(203, 172, 68);');
+        expect(label.at(0).attributes().style).toBe('background-color: rgb(203, 172, 68); color: rgb(255, 255, 255);');
         expect(label.at(0).text()).toBe('Label Text 0');
 
-        expect(label.at(1).attributes().style).toBe('background-color: rgb(255, 255, 255);');
+        expect(label.at(1).attributes().style).toBe('background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);');
         expect(label.at(1).text()).toBe('Label Text 1');
 
-        expect(label.at(2).attributes().style).toBe('background-color: rgb(0, 0, 0);');
+        expect(label.at(2).attributes().style).toBe('background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);');
         expect(label.at(2).text()).toBe('Label Text 2');
     });
 });

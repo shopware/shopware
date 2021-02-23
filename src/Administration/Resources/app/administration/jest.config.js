@@ -20,6 +20,6 @@ module.exports = {
     ],
 
     moduleNameMapper: {
-        vue$: 'vue/dist/vue.common.dev.js',
+        vue$: 'vue/dist/vue.common.dev.js'
     }
 };

@@ -13,7 +13,9 @@ const readdir = util.promisify(fs.readdir);
 
 jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
 
-describe('webpack/bundle', () => {
+const runBundleTests = process.env.CI === 'true' ? describe : describe.skip;
+
+runBundleTests('webpack/bundle', () => {
     beforeEach(async () => {
         // Increase default timeout for the webpack build
         jest.setTimeout(5 * 60 * 1000);

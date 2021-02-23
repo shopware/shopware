@@ -161,11 +161,6 @@ Component.register('sw-product-variants-overview', {
                         .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
 
-                // update product because childCount has been update
-                this.productRepository.get(this.product.id, Shopware.Context.api).then(res => {
-                    Shopware.State.commit('swProductDetail/setProduct', res);
-                });
-
                 // Start search
                 this.productRepository
                     .search(searchCriteria, Shopware.Context.api)

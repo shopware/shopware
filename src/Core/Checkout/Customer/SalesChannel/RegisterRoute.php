@@ -468,7 +468,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'city',
             'company',
             'department',
-            'vatId',
             'countryStateId',
             'countryId',
             'additionalAddressLine1',

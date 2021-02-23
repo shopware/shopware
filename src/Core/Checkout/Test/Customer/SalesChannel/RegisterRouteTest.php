@@ -468,7 +468,6 @@ class RegisterRouteTest extends TestCase
             ],
         ];
         $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
-        unset($registrationData['billingAddress']['vatId']);
 
         $this->browser
             ->request(
@@ -509,7 +508,6 @@ class RegisterRouteTest extends TestCase
             'vatIds' => [],
         ];
         $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
-        unset($registrationData['billingAddress']['vatId']);
 
         $this->browser
             ->request(
@@ -638,7 +636,6 @@ class RegisterRouteTest extends TestCase
                 'zipcode' => '48441',
                 'city' => 'Cologne',
                 'phoneNumber' => '0123456789',
-                'vatId' => 'DE999999999',
                 'additionalAddressLine1' => 'Additional address line 1',
                 'additionalAddressLine2' => 'Additional address line 2',
             ],

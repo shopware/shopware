@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
@@ -20,28 +21,17 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @RouteScope(scopes={"api"})
+ * @Acl({"system.plugin_maintain"})
  */
 class ExtensionStoreActionsController extends AbstractController
 {
-    /**
-     * @var ExtensionLifecycleService
-     */
-    private $extensionLifecycleService;
+    private ExtensionLifecycleService $extensionLifecycleService;
 
-    /**
-     * @var ExtensionDownloader
-     */
-    private $extensionDownloader;
+    private ExtensionDownloader $extensionDownloader;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
+    private PluginManagementService $pluginManagementService;
 
     public function __construct(
         ExtensionLifecycleService $extensionLifecycleService,

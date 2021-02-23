@@ -13,22 +13,16 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemUnitPriceRule extends Rule
 {
-    /**
-     * @var float|null
-     */
-    protected $amount;
+    protected float $amount;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
 
         $this->operator = $operator;
-        $this->amount = $amount;
+        $this->amount = (float) $amount;
     }
 
     /**
@@ -80,13 +74,12 @@ class LineItemUnitPriceRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if (!$lineItem->getPrice()) {
+        $lineItemPrice = $lineItem->getPrice();
+        if ($lineItemPrice === null) {
             return false;
         }
 
-        $unitPrice = $lineItem->getPrice()->getUnitPrice();
-
-        $this->amount = (float) $this->amount;
+        $unitPrice = $lineItemPrice->getUnitPrice();
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:

@@ -2,6 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
+use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -12,37 +17,22 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemGroupRule extends FilterRule
 {
-    /**
-     * @var string
-     */
-    protected $groupId;
+    protected string $groupId;
+
+    protected string $packagerKey;
+
+    protected float $value;
+
+    protected string $sorterKey;
+
+    protected ?RuleCollection $rules;
 
     /**
-     * @var string
-     */
-    protected $packagerKey;
-
-    /**
-     * @var float
-     */
-    protected $value;
-
-    /**
-     * @var string
-     */
-    protected $sorterKey;
-
-    /**
-     * @var RuleCollection|null
-     */
-    protected $rules;
-
-    /**
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
-     * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws LineItemGroupPackagerNotFoundException
+     * @throws LineItemGroupSorterNotFoundException
      */
     public function match(RuleScope $scope): bool
     {
@@ -55,7 +45,7 @@ class LineItemGroupRule extends FilterRule
             $this->packagerKey,
             $this->value,
             $this->sorterKey,
-            $this->rules
+            $this->rules ?? new RuleCollection()
         );
 
         /** @var LineItemGroupBuilder|null $builder */

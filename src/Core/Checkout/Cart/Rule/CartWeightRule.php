@@ -13,22 +13,16 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class CartWeightRule extends Rule
 {
-    /**
-     * @var float
-     */
-    protected $weight;
+    protected float $weight;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $weight = null)
     {
         parent::__construct();
 
         $this->operator = $operator;
-        $this->weight = $weight;
+        $this->weight = (float) $weight;
     }
 
     public function getName(): string

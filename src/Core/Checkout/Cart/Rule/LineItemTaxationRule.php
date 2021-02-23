@@ -14,14 +14,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemTaxationRule extends Rule
 {
     /**
-     * @var array
+     * @var string[]
      */
-    protected $taxIds;
+    protected array $taxIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, array $taxIds = [])
     {

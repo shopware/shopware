@@ -13,15 +13,17 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemCreationDateRule extends Rule
 {
-    /**
-     * @var string|null
-     */
-    protected $lineItemCreationDate;
+    protected ?string $lineItemCreationDate;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
+
+    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemCreationDate = null)
+    {
+        parent::__construct();
+
+        $this->lineItemCreationDate = $lineItemCreationDate;
+        $this->operator = $operator;
+    }
 
     public function getName(): string
     {
@@ -129,7 +131,7 @@ class LineItemCreationDateRule extends Rule
     private function buildDate(string $dateString): \DateTime
     {
         $dateTime = new \DateTime($dateString);
-        $dateTime->setTime(0, 0, 0);
+        $dateTime->setTime(0, 0);
 
         return $dateTime;
     }

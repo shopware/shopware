@@ -15,15 +15,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemListPriceRule extends Rule
 {
-    /**
-     * @var float|null
-     */
-    protected $amount;
+    protected ?float $amount;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {

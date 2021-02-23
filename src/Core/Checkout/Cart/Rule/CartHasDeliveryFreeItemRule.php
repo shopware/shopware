@@ -10,10 +10,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class CartHasDeliveryFreeItemRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $allowed;
+    protected bool $allowed;
 
     public function __construct(bool $allowed = true)
     {
@@ -62,10 +59,11 @@ class CartHasDeliveryFreeItemRule extends Rule
 
     private function isFreeDeliveryItem(LineItem $lineItem): bool
     {
-        if (!$lineItem->getDeliveryInformation()) {
+        $deliveryInformation = $lineItem->getDeliveryInformation();
+        if ($deliveryInformation === null) {
             return false;
         }
 
-        return $lineItem->getDeliveryInformation()->getFreeDelivery();
+        return $deliveryInformation->getFreeDelivery();
     }
 }

@@ -15,12 +15,9 @@ class LineItemPropertyRule extends Rule
     /**
      * @var string[]
      */
-    protected $identifiers;
+    protected array $identifiers;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
     {

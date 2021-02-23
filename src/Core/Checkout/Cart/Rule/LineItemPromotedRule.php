@@ -9,10 +9,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemPromotedRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $isPromoted;
+    protected bool $isPromoted;
 
     public function __construct(bool $isPromoted = false)
     {

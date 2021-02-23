@@ -12,15 +12,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemTagRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    protected $identifiers;
+    protected ?array $identifiers;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -71,6 +68,10 @@ class LineItemTagRule extends Rule
 
     private function tagsMatches(array $tags): bool
     {
+        if ($this->identifiers === null) {
+            return false;
+        }
+
         switch ($this->operator) {
             case self::OPERATOR_EQ:
                 return !empty(array_intersect($tags, $this->identifiers));

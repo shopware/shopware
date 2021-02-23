@@ -11,15 +11,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemsInCartCountRule extends Rule
 {
-    /**
-     * @var int
-     */
-    protected $count;
+    protected int $count;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function getName(): string
     {

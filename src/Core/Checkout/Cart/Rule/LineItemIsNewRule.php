@@ -10,10 +10,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemIsNewRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $isNew;
+    protected bool $isNew;
 
     public function __construct(bool $isNew = false)
     {

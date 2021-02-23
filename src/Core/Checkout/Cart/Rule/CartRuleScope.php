@@ -8,10 +8,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartRuleScope extends CheckoutRuleScope
 {
-    /**
-     * @var Cart
-     */
-    protected $cart;
+    protected Cart $cart;
 
     public function __construct(Cart $cart, SalesChannelContext $context)
     {

@@ -14,14 +14,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemInCategoryRule extends Rule
 {
     /**
-     * @var array
+     * @var string[]
      */
-    protected $categoryIds;
+    protected array $categoryIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
     {

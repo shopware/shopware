@@ -11,10 +11,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemClearanceSaleRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $clearanceSale;
+    protected bool $clearanceSale;
 
     public function __construct(bool $clearanceSale = false)
     {

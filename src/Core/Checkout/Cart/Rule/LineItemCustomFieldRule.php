@@ -13,20 +13,22 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemCustomFieldRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
-    /**
-     * @var array
-     */
-    protected $renderedField;
+    protected array $renderedField;
 
     /**
      * @var string|int|float|bool|null
      */
     protected $renderedFieldValue;
+
+    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
+    {
+        parent::__construct();
+
+        $this->operator = $operator;
+        $this->renderedField = $renderedField;
+    }
 
     public function getName(): string
     {

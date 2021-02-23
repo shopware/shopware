@@ -1,10 +1,10 @@
-import './sw-promotion-v2-card-condition-form.scss';
-import template from './sw-promotion-v2-card-condition-form.html.twig';
+import './sw-promotion-v2-cart-condition-form.scss';
+import template from './sw-promotion-v2-cart-condition-form.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-promotion-v2-card-condition-form', {
+Component.register('sw-promotion-v2-cart-condition-form', {
     template,
 
     inject: [

@@ -1,25 +1,26 @@
 {% block sw_promotion_v2_cart_condition_form %}
-    <div class="sw-promotion-v2-card-condition-form">
+    <div class="sw-promotion-v2-cart-condition-form">
 
         {% block sw_promotion_v2_cart_condition_form_rules_field %}
             <sw-promotion-rule-select
                 v-if="promotion"
+                v-model="promotion.cartRules"
+                class="sw-promotion-v2-cart-condition-form__rule-select-cart"
                 :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
                 :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
                 :criteria="ruleFilter"
                 :ruleScope="['cart']"
-                v-model="promotion.cartRules"
                 :disabled="isEditingDisabled">
             </sw-promotion-rule-select>
         {% endblock %}
 
         {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
-            <sw-field
+            <sw-switch-field
                 v-model="promotion.useSetGroups"
-                type="switch"
+                class="sw-promotion-v2-cart-condition-form__use-setgroups"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')">
-            </sw-field>
+            </sw-switch-field>
         {% endblock %}
 
         <template v-if="promotion.useSetGroups">
@@ -28,7 +29,8 @@
                 <sw-card
                     v-for="(group, index) in promotion.setgroups"
                     :key="group.id"
-                    class="sw-promotion-v2-card-condition-form__setgroup-card">
+                    :id="`sw-promotion-v2-cart-condition-form__setgroup-card-${index + 1}`"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-card">
 
                     {% block sw_promotion_v2_cart_condition_setgroup_card_context_action %}
                         <template #context-actions>
@@ -59,7 +61,7 @@
                     {% endblock %}
 
                     {% block sw_promotion_v2_cart_condition_setgroup_card_title %}
-                        <div class="sw-promotion-v2-card-condition-form__setgroup-card-title">
+                        <div class="sw-promotion-v2-cart-condition-form__setgroup-card-title">
                             {{ $tc('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
                         </div>
                     {% endblock %}
@@ -69,6 +71,7 @@
                         {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
                             <sw-select-field
                                     v-model="group.packagerKey"
+                                    class="sw-promotion-v2-cart-condition-form__setgroup-mode"
                                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
                                     :disabled="isEditingDisabled">
                                 <option v-for="packager in packagers"
@@ -81,6 +84,7 @@
                         {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
                             <sw-number-field
                                 v-model="group.value"
+                                class="sw-promotion-v2-cart-condition-form__setgroup-value"
                                 :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                                 :disabled="isEditingDisabled">
                             </sw-number-field>
@@ -93,6 +97,7 @@
                         {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
                             <sw-select-field
                                     v-model="group.sorterKey"
+                                    class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
                                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
                                     :disabled="isEditingDisabled">
                                 <option v-for="sorter in sorters"
@@ -109,7 +114,7 @@
                         {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
                             <sw-promotion-rule-select
                                     v-model="group.setGroupRules"
-                                    class="sw-promotion-v2-card-condition-form__setgroup-rules"
+                                    class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
                                     :criteria="ruleFilter"
                                     :disabled="isEditingDisabled">
@@ -121,9 +126,9 @@
             {% endblock %}
 
             {% block sw_promotion_v2_cart_condition_add_group_button %}
-                <div class="sw-promotion-v2-card-condition-form__add-group-button-container">
+                <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
                     <sw-button variant="ghost"
-                               class="sw-promotion-v2-card-condition-form__add-group-button"
+                               class="sw-promotion-v2-cart-condition-form__add-group-button"
                                :disabled="isEditingDisabled"
                                @click="addSetGroup">
                         {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}

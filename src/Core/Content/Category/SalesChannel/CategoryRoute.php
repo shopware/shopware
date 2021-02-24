@@ -97,6 +97,10 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
+        if ($category->getType() === CategoryDefinition::TYPE_FOLDER) {
+            throw new CategoryNotFoundException($navigationId);
+        }
+
         $pageId = $category->getCmsPageId();
         $slotConfig = $category->getTranslation('slotConfig');
 

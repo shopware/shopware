@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
@@ -16,13 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @RouteScope(scopes={"api"})
+ * @Acl({"system.plugin_maintain"})
  */
 class ExtensionStoreDataController extends AbstractController
 {
-    /**
-     * @var AbstractExtensionDataProvider
-     */
-    private $extensionDataProvider;
+    private AbstractExtensionDataProvider $extensionDataProvider;
 
     public function __construct(AbstractExtensionDataProvider $extensionListingProvider)
     {

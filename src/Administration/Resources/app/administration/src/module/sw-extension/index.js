@@ -107,6 +107,9 @@ Shopware.Module.register('sw-extension', {
             redirect: {
                 name: 'sw.extension.my-extensions.listing'
             },
+            meta: {
+                privilege: 'system.plugin_maintain'
+            },
             children: {
                 listing: {
                     path: 'listing',
@@ -114,12 +117,18 @@ Shopware.Module.register('sw-extension', {
                     redirect: {
                         name: 'sw.extension.my-extensions.listing.app'
                     },
+                    meta: {
+                        privilege: 'system.plugin_maintain'
+                    },
                     children: {
                         app: {
                             path: 'app',
                             component: 'sw-extension-my-extensions-listing',
                             propsData: {
                                 isTheme: false
+                            },
+                            meta: {
+                                privilege: 'system.plugin_maintain'
                             }
                         },
                         theme: {
@@ -127,17 +136,26 @@ Shopware.Module.register('sw-extension', {
                             component: 'sw-extension-my-extensions-listing',
                             propsData: {
                                 isTheme: true
+                            },
+                            meta: {
+                                privilege: 'system.plugin_maintain'
                             }
                         }
                     }
                 },
                 recommendation: {
                     path: 'recommendation',
-                    component: 'sw-extension-my-extensions-recommendation'
+                    component: 'sw-extension-my-extensions-recommendation',
+                    meta: {
+                        privilege: 'system.plugin_maintain'
+                    }
                 },
                 account: {
                     path: 'account',
-                    component: 'sw-extension-my-extensions-account'
+                    component: 'sw-extension-my-extensions-account',
+                    meta: {
+                        privilege: 'system.plugin_maintain'
+                    }
                 }
             }
         },
@@ -145,7 +163,8 @@ Shopware.Module.register('sw-extension', {
             component: 'sw-extension-config',
             path: 'config/:namespace',
             meta: {
-                parentPath: 'sw.extension.my-extensions'
+                parentPath: 'sw.extension.my-extensions',
+                privilege: 'system.plugin_maintain'
             },
 
             props: {

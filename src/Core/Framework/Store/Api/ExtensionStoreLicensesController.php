@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
@@ -18,13 +19,11 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @RouteScope(scopes={"api"})
+ * @Acl({"system.plugin_maintain"})
  */
 class ExtensionStoreLicensesController extends AbstractController
 {
-    /**
-     * @var AbstractExtensionStoreLicensesService
-     */
-    private $extensionStoreLicensesService;
+    private AbstractExtensionStoreLicensesService $extensionStoreLicensesService;
 
     public function __construct(AbstractExtensionStoreLicensesService $extensionStoreLicensesService)
     {

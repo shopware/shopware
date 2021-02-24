@@ -19,7 +19,12 @@ Shopware.Service('privileges')
         key: 'system',
         roles: {
             plugin_maintain: {
-                privileges: ['system:plugin:maintain'],
+                privileges: [
+                    'system:plugin:maintain',
+                    'plugin:update',
+                    'system:clear:cache',
+                    'system_config:read'
+                ],
                 dependencies: []
             }
         }

@@ -132,6 +132,24 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater" class="Shopware\Core\Framework\App\Lifecycle\Update\AppUpdater">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ScheduledTask\UpdateAppsTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ScheduledTask\UpdateAppsHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater" on-invalid="null"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLoader">
             <argument>%shopware.app_dir%</argument>
             <argument>%kernel.project_dir%</argument>

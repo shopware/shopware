@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
+use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
@@ -56,7 +57,7 @@ class AuthenticationProviderTest extends TestCase
 
         static::expectException(InvalidContextSourceException::class);
 
-        $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext());
+        $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext(new ShopApiSource('')));
     }
 
     public function testUserIdIsNull(): void
@@ -107,5 +108,57 @@ class AuthenticationProviderTest extends TestCase
 
         static::expectException(StoreTokenMissingException::class);
         $authenticationHeaderProvider->getUserStoreToken($context);
+    }
+
+    public function testSystemContextUsesUserToken(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
+
+        $userId = Uuid::randomHex();
+
+        $data = [
+            [
+                'id' => $userId,
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'username' => 'foobar',
+                'password' => 'asdasdasdasd',
+                'firstName' => 'Foo',
+                'lastName' => 'Bar',
+                'email' => 'foo@bar.com',
+            ],
+        ];
+
+        $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
+
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
+
+        static::expectException(StoreTokenMissingException::class);
+        $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext());
+    }
+
+    public function testSystemContextWithoutToken(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
+
+        $userId = Uuid::randomHex();
+
+        $data = [
+            [
+                'id' => $userId,
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'username' => 'foobar',
+                'password' => 'asdasdasdasd',
+                'firstName' => 'Foo',
+                'lastName' => 'Bar',
+                'email' => 'foo@bar.com',
+            ],
+        ];
+
+        $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
+
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
+
+        static::expectException(StoreTokenMissingException::class);
+        $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext());
     }
 }

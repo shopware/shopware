@@ -65,7 +65,7 @@ class ExtensionLifecycleService
             return;
         }
 
-        $this->storeAppLifecycleService->updateExtension($technicalName, $context);
+        $this->storeAppLifecycleService->updateExtension($technicalName, true, $context);
     }
 
     public function uninstall(string $type, string $technicalName, bool $keepUserData, Context $context): void

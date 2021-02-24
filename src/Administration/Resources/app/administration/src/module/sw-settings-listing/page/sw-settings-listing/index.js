@@ -204,6 +204,10 @@ Component.register('sw-settings-listing', {
         },
 
         formatProductSortingOptionField(fields) {
+            if (!Array.isArray(fields)) {
+                return '';
+            }
+
             const labels = fields.map(currentField => {
                 if (this.isItemACustomField(currentField.field)) {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);

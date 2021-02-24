@@ -22,6 +22,8 @@
 
     .sw-entity-single-select__selection {
         white-space: nowrap;
+        display: flex;
+        align-items: center;
     }
 
     .sw-entity-single-select__selection-text {

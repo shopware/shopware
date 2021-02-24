@@ -6,6 +6,15 @@
             </sw-language-info>
         {% endblock %}
 
+        {% block sw_category_view_column_info %}
+            <sw-alert v-if="feature.isActive('FEATURE_NEXT_13504') && category.isColumn"
+                      class="swag-category-view__column-info"
+                      variant="info">
+                <div class="swag-category-view__column-info-header" >{{ $tc('sw-category.view.columnInfoHeader') }}</div>
+                <div class="swag-category-view__column-info-content" >{{ $tc('sw-category.view.columnInfo') }}</div>
+            </sw-alert>
+        {% endblock %}
+
         {% block sw_category_view_tabs %}
             <sw-tabs class="sw-customer-detail-page__tabs" v-if="!isLoading">
                 {% block sw_category_view_tabs_general %}

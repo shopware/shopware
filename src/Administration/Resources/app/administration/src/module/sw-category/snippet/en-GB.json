@@ -25,7 +25,9 @@
       "general": "General",
       "cms": "Layout",
       "products": "Products",
-      "seo": "SEO"
+      "seo": "SEO",
+      "columnInfoHeader": "Footer element",
+      "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a non-clickable headline for the column. All categories below are displayed as clickable rows below the column headline."
     },
     "base": {
       "general": {
@@ -41,7 +43,6 @@
           "folder": "Entry point",
           "link": "Customisable link",
           "column": "Column",
-          "columnHelp": "The category type cannot be changed if the category above is an entry point for the footer navigation",
           "entrypoint": "Entry point",
           "pageList": "Page / List",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes."

@@ -65,6 +65,7 @@
                     </sw-entity-tag-select>
 
                     <sw-single-select
+                        v-if="feature.isActive('FEATURE_NEXT_13504')"
                         class="sw-category-detail-base__type-selection"
                         :helpText="$tc('sw-category.base.general.types.help')"
                         :label="$tc('sw-category.base.general.types.title')"
@@ -86,7 +87,7 @@
             </sw-category-sales-channel-card>
 
             <sw-category-entry-point-card
-                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page')"
+                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page') && !category.isColumn"
                 v-bind="{ category, isLoading }">
             </sw-category-entry-point-card>
         {% endblock %}

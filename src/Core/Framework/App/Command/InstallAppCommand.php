@@ -84,7 +84,7 @@ class InstallAppCommand extends Command
         }
 
         try {
-            $this->appLifecycle->install($manifest, (bool) $input->getOption('activate'), Context::createDefaultContext());
+            $this->appLifecycle->install($manifest, $input->getOption('activate'), Context::createDefaultContext());
         } catch (AppAlreadyInstalledException $e) {
             $io->error($e->getMessage());
 

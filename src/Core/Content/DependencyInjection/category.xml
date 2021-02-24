@@ -69,6 +69,10 @@
             <argument type="service" id="category.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" />
+        </service>
+
         <service id="Shopware\Core\Content\Category\Validation\EntryPointValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>

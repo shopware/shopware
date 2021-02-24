@@ -37,6 +37,8 @@
                             {% for treeItem in page.header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
+
+                                {# @deprecated tag:v6.5.0 - Use "category.id" directly instead. #}
                                 {% set categorId = category.id %}
 
                                 {% block layout_main_navigation_menu_item %}
@@ -51,12 +53,11 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link{% if categorId == page.header.navigation.active.id or categorId in activePath %} active{% endif %}"
-                                           href="{% if category.translated.externalLink %}{{ category.translated.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: categorId }) }}{% endif %}"
+                                        <a class="nav-link main-navigation-link{% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %}"
+                                           href="{{ category_url(category) }}"
                                            itemprop="url"
-                                            {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ categorId }}"
-                                            {% endif %}
+                                           {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}
+                                           {% if category.translated.linkNewTab %}target="_blank"{% endif %}
                                            title="{{ name }}">
                                             <div class="main-navigation-link-text">
                                                 <span itemprop="name">{{ name }}</span>

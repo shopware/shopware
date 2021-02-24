@@ -9,6 +9,7 @@ author: Krispin Lütjann & Max Stegmeyer
 * Added `navigationCategorySalesChannels` to `CmsPageDefinition`
 * Added `EntryPointValidation` for making sure that main categories of Sales Channels cannot be links.
 * Added internal link settings to `CategoryDefinition` and `CategoryTranslationDefinition`
+* Added `CategoryUrlGenerator` to render different category link types
 ___
 # Administration
 * Added `sw-category-detail-products` component in following files:
@@ -38,5 +39,7 @@ ___
 * Added service category listing to all viewports in footer
 * Added labeling and toggling of Home button in Navigation
 * Added possibility to overwrite Home cms page and meta data per Sales Channel
+* Added `category_url` function for rendering category urls for better link type handling
+* Changed occurences of category url generation in multiple templates
 * Deprecated `layout/header/actions/service-menu-widget.html.twig`, menu has been moved to the bottom
 * Deprecated block `layout_header_top_bar_service` in `layout/header/top-bar.html.twig`

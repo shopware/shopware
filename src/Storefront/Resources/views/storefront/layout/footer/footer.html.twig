@@ -80,12 +80,15 @@
                                                     {% for treeItem in root.children %}
                                                         {% set category = treeItem.category %}
                                                         {% set name = category.translated.name %}
+
+                                                        {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
                                                         {% set externalLink = category.translated.externalLink %}
+
                                                         {% block layout_footer_navigation_information_link_item %}
                                                             <li class="footer-link-item">
                                                                 {% block layout_footer_navigation_information_link %}
                                                                     <a class="footer-link"
-                                                                       href="{% if externalLink %}{{ externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}{% endif %}"
+                                                                       href="{{ category_url(category) }}"
                                                                        title="{{ name }}">
                                                                         {{ name }}
                                                                     </a>
@@ -166,7 +169,8 @@
                                     {% block layout_footer_service_menu_item %}
                                         <li class="footer-service-menu-item">
                                             <a class="footer-service-menu-link"
-                                               href="{% if serviceMenuItem.externalLink %}{{ serviceMenuItem.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: serviceMenuItem.id }) }}{% endif %}"
+                                               href="{{ category_url(serviceMenuItem) }}"
+                                               {% if serviceMenuItem.translated.linkNewTab %}target="_blank"{% endif %}
                                                title="{{ serviceMenuItem.translated.name }}">
                                                 {{ serviceMenuItem.translated.name }}
                                             </a>

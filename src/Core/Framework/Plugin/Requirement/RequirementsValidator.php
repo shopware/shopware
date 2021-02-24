@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Requirement;
 
 use Composer\Composer;
 use Composer\Package\Link;
+use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
@@ -39,6 +40,11 @@ class RequirementsValidator
      */
     private $pluginComposer;
 
+    /**
+     * @var Composer
+     */
+    private $shopwareProjectComposer;
+
     public function __construct(EntityRepositoryInterface $pluginRepo, string $projectDir)
     {
         $this->pluginRepo = $pluginRepo;
@@ -50,6 +56,7 @@ class RequirementsValidator
      */
     public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
     {
+        $this->shopwareProjectComposer = $this->getComposer($this->projectDir);
         $exceptionStack = new RequirementExceptionStack();
 
         $pluginDependencies = $this->getPluginDependencies($plugin);
@@ -72,7 +79,7 @@ class RequirementsValidator
      */
     public function resolveActiveDependants(PluginEntity $dependency, array $dependants): array
     {
-        return array_filter($dependants, function ($dependant) use ($dependency) {
+        return array_filter($dependants, function (PluginEntity $dependant) use ($dependency) {
             if (!$dependant->getActive()) {
                 return false;
             }
@@ -121,12 +128,10 @@ class RequirementsValidator
         array $pluginDependencies,
         RequirementExceptionStack $exceptionStack
     ): array {
-        $shopwareProjectComposer = $this->getComposer($this->projectDir);
-
         return $this->checkComposerDependencies(
             $pluginDependencies,
             $exceptionStack,
-            $shopwareProjectComposer
+            $this->shopwareProjectComposer
         );
     }
 
@@ -143,9 +148,9 @@ class RequirementsValidator
     private function checkComposerDependencies(
         array $pluginDependencies,
         RequirementExceptionStack $exceptionStack,
-        Composer $pluginComposer
+        Composer $composer
     ): array {
-        $packages = $pluginComposer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         // Get PHP extension "packages"
         $packages = array_merge($packages, (new PlatformRepository())->getPackages());
@@ -171,28 +176,7 @@ class RequirementsValidator
                 $exceptionStack
             );
 
-            foreach ($package->getReplaces() as $replace) {
-                $replaceConstraint = $replace->getConstraint();
-
-                if ($replace->getPrettyConstraint() === 'self.version') {
-                    $replaceConstraint = new Constraint('==', $package->getVersion());
-                }
-
-                $pluginDependencies['require'] = $this->checkRequirement(
-                    $pluginDependencies['require'],
-                    $replace->getTarget(),
-                    $replaceConstraint,
-                    $exceptionStack
-                );
-
-                $pluginDependencies['conflict'] = $this->checkConflict(
-                    $pluginDependencies['conflict'],
-                    $this->pluginComposer->getPackage()->getName(),
-                    $replace->getTarget(),
-                    $replaceConstraint,
-                    $exceptionStack
-                );
-            }
+            $pluginDependencies = $this->validateReplaces($package, $pluginDependencies, $exceptionStack);
         }
 
         return $pluginDependencies;
@@ -210,22 +194,25 @@ class RequirementsValidator
         RequirementExceptionStack $exceptionStack
     ): array {
         $parser = new VersionParser();
+        $pluginPackages = $this->getComposerPackagesFromPlugins();
 
         foreach ($this->getInstalledPlugins($context) as $pluginEntity) {
-            $installedPluginComposer = $this->getComposer($this->projectDir . '/' . $pluginEntity->getPath());
-            $installedPluginConflicts = $installedPluginComposer->getPackage()->getConflicts();
+            $pluginComposerName = $pluginEntity->getComposerName();
+            $pluginPath = sprintf('%s/%s', $this->projectDir, $pluginEntity->getPath());
+
+            $installedPluginComposerPackage = $pluginPackages[$pluginComposerName] ?? $this->getComposer($pluginPath)->getPackage();
 
             $pluginDependencies['require'] = $this->checkRequirement(
                 $pluginDependencies['require'],
-                $pluginEntity->getComposerName(),
+                $pluginComposerName,
                 new Constraint('==', $parser->normalize($pluginEntity->getVersion())),
                 $exceptionStack
             );
 
             // Reverse check, if the already installed plugins do conflict with the current
             $this->checkConflict(
-                $installedPluginConflicts,
-                $installedPluginComposer->getPackage()->getName(),
+                $installedPluginComposerPackage->getConflicts(),
+                $installedPluginComposerPackage->getName(),
                 $this->pluginComposer->getPackage()->getName(),
                 new Constraint('==', $parser->normalize($installingPlugin->getVersion())),
                 $exceptionStack
@@ -234,10 +221,12 @@ class RequirementsValidator
             $pluginDependencies['conflict'] = $this->checkConflict(
                 $pluginDependencies['conflict'],
                 $this->pluginComposer->getPackage()->getName(),
-                $pluginEntity->getComposerName(),
+                $pluginComposerName,
                 new Constraint('==', $parser->normalize($pluginEntity->getVersion())),
                 $exceptionStack
             );
+
+            $pluginDependencies = $this->validateReplaces($installedPluginComposerPackage, $pluginDependencies, $exceptionStack);
         }
 
         return $pluginDependencies;
@@ -252,6 +241,60 @@ class RequirementsValidator
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         return $plugins;
+    }
+
+    /**
+     * @return PackageInterface[]
+     */
+    private function getComposerPackagesFromPlugins(): array
+    {
+        $packages = $this->shopwareProjectComposer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $pluginPackages = array_filter($packages, static function (PackageInterface $package) {
+            return $package->getType() === PluginFinder::COMPOSER_TYPE;
+        });
+
+        $pluginPackagesWithNameAsKey = [];
+        foreach ($pluginPackages as $pluginPackage) {
+            $pluginPackagesWithNameAsKey[$pluginPackage->getName()] = $pluginPackage;
+        }
+
+        return $pluginPackagesWithNameAsKey;
+    }
+
+    /**
+     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     *
+     * @return array{'require': Link[], 'conflict': Link[]}
+     */
+    private function validateReplaces(
+        PackageInterface $package,
+        array $pluginDependencies,
+        RequirementExceptionStack $exceptionStack
+    ): array {
+        foreach ($package->getReplaces() as $replace) {
+            $replaceConstraint = $replace->getConstraint();
+
+            if ($replace->getPrettyConstraint() === 'self.version') {
+                $replaceConstraint = new Constraint('==', $package->getVersion());
+            }
+
+            $pluginDependencies['require'] = $this->checkRequirement(
+                $pluginDependencies['require'],
+                $replace->getTarget(),
+                $replaceConstraint,
+                $exceptionStack
+            );
+
+            $pluginDependencies['conflict'] = $this->checkConflict(
+                $pluginDependencies['conflict'],
+                $this->pluginComposer->getPackage()->getName(),
+                $replace->getTarget(),
+                $replaceConstraint,
+                $exceptionStack
+            );
+        }
+
+        return $pluginDependencies;
     }
 
     /**

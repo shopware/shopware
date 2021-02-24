@@ -72,6 +72,21 @@
           "labelServiceNavigation": "Servicenavigation"
         }
       },
+      "entry-point-modal": {
+        "modalTitle": "Startseite konfigurieren",
+        "salesChannelSelection": "Einstiegspunkt Hauptnavigation",
+        "showInMainNavigation": "Als Home in der Hauptnavigation anzeigen",
+        "mainNavigationName": "Name in der Hauptnavigation",
+        "mainNavigationNamePlaceholder": "Name in der Hauptnavigation...",
+        "layoutHeadline": "Layout",
+        "seoSettingsHeadline": "SEO-Einstellungen",
+        "metaTitleLabel": "Meta-Titel",
+        "metaTitlePlaceholder": "Meta-Titel eingeben...",
+        "metaDescriptionLabel": "Meta-Beschreibung",
+        "metaDescriptionPlaceholder": "Meta-Beschreibung eingeben...",
+        "seoKeywordsLabel": "SEO-Schlüsselwörter",
+        "seoKeywordsPlaceholder": "Gib ein oder mehrere Schlüsselwörter ein..."
+      },
       "seo": {
         "title": "SEO",
         "labelMetaTitle": "Meta-Titel",

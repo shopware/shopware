@@ -72,6 +72,21 @@
           "labelServiceNavigation": "Service navigation"
         }
       },
+      "entry-point-modal": {
+        "modalTitle": "Configure Home",
+        "salesChannelSelection": "Entry point main navigation",
+        "showInMainNavigation": "Show as Home in main navigation",
+        "mainNavigationName": "Name in main navigation",
+        "mainNavigationNamePlaceholder": "Name in main navigation...",
+        "layoutHeadline": "Layout",
+        "seoSettingsHeadline": "SEO settings",
+        "metaTitleLabel": "Meta title",
+        "metaTitlePlaceholder": "Enter meta title...",
+        "metaDescriptionLabel": "Meta description",
+        "metaDescriptionPlaceholder": "Enter meta description...",
+        "seoKeywordsLabel": "SEO keywords",
+        "seoKeywordsPlaceholder": "Enter one or more keywords..."
+      },
       "seo": {
         "title": "SEO",
         "labelMetaTitle": "Meta title",

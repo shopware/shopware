@@ -41,7 +41,8 @@ Component.register('sw-category-entry-point-card', {
     data() {
         return {
             selectedEntryPoint: this.getInitialEntryPointFromCategory(),
-            selectedSalesChannels: new EntityCollection('/sales_channel', 'sales_channel', Context.api)
+            selectedSalesChannels: new EntityCollection('/sales_channel', 'sales_channel', Context.api),
+            configureHomeModalVisible: false
         };
     },
 
@@ -93,6 +94,14 @@ Component.register('sw-category-entry-point-card', {
                     collection.remove(id);
                 });
             });
+        },
+
+        openConfigureHomeModal() {
+            this.configureHomeModalVisible = true;
+        },
+
+        closeConfigureHomeModal() {
+            this.configureHomeModalVisible = false;
         }
     }
 });

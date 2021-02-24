@@ -26,9 +26,18 @@
             <sw-button
                 variant="ghost"
                 size="small"
-                :disabled="selectedEntryPoint !== 'navigationSalesChannels'">
+                :disabled="selectedEntryPoint !== 'navigationSalesChannels' || associatedCollection.length === 0"
+                @click="openConfigureHomeModal">
                 {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
             </sw-button>
+        {% endblock %}
+
+        {% block sw_category_entry_point_card_configure_home_modal %}
+            <sw-category-entry-point-modal
+                v-if="configureHomeModalVisible"
+                :salesChannelCollection="associatedCollection"
+                @modal-close="closeConfigureHomeModal">
+            </sw-category-entry-point-modal>
         {% endblock %}
     </sw-card>
 {% endblock %}

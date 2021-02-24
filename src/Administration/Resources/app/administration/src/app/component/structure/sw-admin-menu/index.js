@@ -384,7 +384,7 @@ Component.register('sw-admin-menu', {
                 Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
 
                 firstChild.classList.remove('router-link-active');
-                firstChild.remove('is--entry-expanded');
+                firstChild.classList.remove('is--entry-expanded');
             } else {
                 Shopware.State.commit('adminMenu/expandMenuEntry', entry);
 

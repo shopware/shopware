@@ -87,24 +87,19 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $pattern;
     }
 
-    private function permute($arg): array
+    private function permute(array $tokens): array
     {
-        $array = \is_string($arg) ? str_split($arg) : $arg;
-
-        if (\count($array) === 1) {
-            return $array;
-        }
-
-        $result = [];
-        foreach ($array as $key => $item) {
-            $nested = $this->permute(array_diff_key($array, [$key => $item]));
-
-            foreach ($nested as $p) {
-                $result[] = $item . ' ' . $p;
+        $combinations = [];
+        foreach ($tokens as $token) {
+            foreach ($tokens as $combine) {
+                if ($combine === $token) {
+                    continue;
+                }
+                $combinations[] = $token . ' ' . $combine;
             }
         }
 
-        return $result;
+        return $combinations;
     }
 
     private function slop(array $tokens): array

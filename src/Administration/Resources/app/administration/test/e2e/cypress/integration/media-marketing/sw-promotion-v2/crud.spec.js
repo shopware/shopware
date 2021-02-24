@@ -1,14 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 const multiSelectFirstSelector = '.sw-select-selection-list__item-holder--0';
 
 describe('Promotion v2: Test crud operations', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12016');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -39,7 +35,7 @@ describe('Promotion v2: Test crud operations', () => {
         });
 
         cy.location('hash').should((hash) => {
-            expect(hash).to.contain('#/sw/promotion/v2/detail/')
+            expect(hash).to.contain('#/sw/promotion/v2/detail/');
         });
 
         cy.get('.sw-loader').should('not.be.visible');
@@ -61,8 +57,8 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('#sw-field--promotion-name').should('have.value', 'Funicular prices');
         cy.get('input[name="sw-field--promotion-active"]').should('be.checked');
         cy.get('#sw-field--promotion-validFrom + input').should('contain.value', '2222-01-01');
-        cy.get('#sw-field--promotion-validUntil + input').should('contain.value','2222-02-02');
-        cy.get('#sw-field--promotion-maxRedemptionsGlobal').should('have.value','1');
+        cy.get('#sw-field--promotion-validUntil + input').should('contain.value', '2222-02-02');
+        cy.get('#sw-field--promotion-maxRedemptionsGlobal').should('have.value', '1');
         cy.get('#sw-field--promotion-maxRedemptionsPerCustomer')
             .should('be.empty')
             .should('have.attr', 'placeholder', 'Unlimited');
@@ -82,28 +78,28 @@ describe('Promotion v2: Test crud operations', () => {
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .type('{esc}');
-        cy.get('.sw-promotion-v2-card-condition-form__rule-select-cart')
+        cy.get('.sw-promotion-v2-cart-condition-form__rule-select-cart')
             .typeMultiSelectAndCheck('Always valid (Default)');
         cy.get('.sw-promotion-v2-conditions__rule-select-order-conditions')
             .typeMultiSelectAndCheck('All customers');
 
         // Configure Set-Group
-        cy.get('.sw-promotion-v2-card-condition-form__add-group-button')
+        cy.get('.sw-promotion-v2-cart-condition-form__add-group-button')
             .should('not.exist');
-        cy.get('.sw-promotion-v2-card-condition-form__use-setgroups input')
+        cy.get('.sw-promotion-v2-cart-condition-form__use-setgroups input')
             .click();
-        cy.get('.sw-promotion-v2-card-condition-form__add-group-button')
+        cy.get('.sw-promotion-v2-cart-condition-form__add-group-button')
             .should('be.visible')
             .click();
 
-        const groupSelector = `#sw-promotion-v2-card-condition-form__setgroup-card-1 `;
-        cy.get(groupSelector + '#sw-field--group-packagerKey')
+        const groupSelector = '#sw-promotion-v2-card-condition-form__setgroup-card-1 ';
+        cy.get(`${groupSelector}#sw-field--group-packagerKey`)
             .select('Amount (net)');
-        cy.get(groupSelector + '.sw-promotion-v2-card-condition-form__setgroup-value')
+        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-value`)
             .type('{selectall}5.5');
-        cy.get(groupSelector + '#sw-field--group-sorterKey')
+        cy.get(`${groupSelector}#sw-field--group-sorterKey`)
             .select('Price, descending');
-        cy.get(groupSelector + '.sw-promotion-v2-card-condition-form__setgroup-rules')
+        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules`)
             .typeMultiSelectAndCheck('Always valid (Default)');
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
@@ -118,7 +114,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get(`.sw-promotion-v2-conditions__rule-select-customer ${multiSelectFirstSelector}`)
             .contains('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer');
-        cy.get(`.sw-promotion-v2-card-condition-form__rule-select-cart ${multiSelectFirstSelector}`)
+        cy.get(`.sw-promotion-v2-cart-condition-form__rule-select-cart ${multiSelectFirstSelector}`)
             .contains('Always valid (Default)');
         cy.get(`.sw-promotion-v2-conditions__rule-select-order-conditions ${multiSelectFirstSelector}`)
             .contains('All customers');
@@ -126,11 +122,11 @@ describe('Promotion v2: Test crud operations', () => {
         // Verify Set-Group
         cy.get(`${groupSelector}#sw-field--group-packagerKey`)
             .contains('Amount (net)');
-        cy.get(`${groupSelector}.sw-promotion-v2-card-condition-form__setgroup-value input`)
+        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-value input`)
             .should('contain.value', '5.5');
         cy.get(`${groupSelector}#sw-field--group-sorterKey`)
             .contains('Price, descending');
-        cy.get(`${groupSelector}.sw-promotion-v2-card-condition-form__setgroup-rules ${multiSelectFirstSelector}`)
+        cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-rules ${multiSelectFirstSelector}`)
             .contains('Always valid (Default)');
 
         // Configure Discounts

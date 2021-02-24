@@ -20,6 +20,8 @@ import './page/sw-promotion-v2-list';
 import './view/sw-promotion-v2-detail-base';
 import './view/sw-promotion-v2-conditions';
 
+import './acl';
+
 import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
 
 const { Module, State } = Shopware;

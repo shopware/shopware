@@ -2,7 +2,15 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
+/**
+ * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 describe('Promotion: Test promotion with individual codes', () => {
+    before(() => {
+        cy.onlyOnFeature('FEATURE_NEXT_13810');
+    });
+
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

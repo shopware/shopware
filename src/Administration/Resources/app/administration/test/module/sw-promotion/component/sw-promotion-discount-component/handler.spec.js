@@ -1,6 +1,10 @@
 import DiscountComponentHandler from 'src/module/sw-promotion/component/sw-promotion-discount-component/handler';
 import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());

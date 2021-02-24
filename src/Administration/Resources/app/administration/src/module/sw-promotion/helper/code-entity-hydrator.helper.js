@@ -3,6 +3,7 @@ export default {
 };
 
 /**
+ * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
  * This function modifies and enhances the
  * raw properties of the provided item with
  * additional properties, getters and more.

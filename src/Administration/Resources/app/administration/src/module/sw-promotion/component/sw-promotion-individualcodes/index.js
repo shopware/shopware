@@ -9,8 +9,8 @@ const { Component, Mixin } = Shopware;
 const { string } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
-
 /**
+ * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
  * @description This component helps to manage individual
  * promotion codes as a standalone component.
  * Assign the required promotion Id along with a

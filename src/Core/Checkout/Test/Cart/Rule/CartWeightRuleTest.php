@@ -113,7 +113,7 @@ class CartWeightRuleTest extends TestCase
                 'type' => (new CartWeightRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'weight' => (float) 9000,
+                    'weight' => 9000.1,
                     'operator' => Rule::OPERATOR_EQ,
                 ],
             ],
@@ -123,7 +123,7 @@ class CartWeightRuleTest extends TestCase
         $result = $conditionRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertNotNull($result);
-        static::assertSame(9000.0, $result->getValue()['weight']);
+        static::assertSame(9000.1, $result->getValue()['weight']);
         static::assertSame(Rule::OPERATOR_EQ, $result->getValue()['operator']);
     }
 

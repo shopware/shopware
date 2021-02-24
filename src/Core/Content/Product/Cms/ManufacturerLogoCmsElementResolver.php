@@ -58,8 +58,6 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
         if ($mediaConfig && $media = $this->getMedia($slot, $result, $mediaConfig, $resolverContext)) {
             $manufacturerStruct->setMedia($media);
             $manufacturerStruct->setMediaId($media->getId());
-
-            return;
         }
 
         if ($resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {

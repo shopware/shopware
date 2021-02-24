@@ -26,7 +26,6 @@ const { Module, State } = Shopware;
 State.registerModule('swPromotionDetail', swPromotionState);
 
 Module.register('sw-promotion-v2', {
-    flag: 'FEATURE_NEXT_12016',
     type: 'core',
     name: 'promotion-v2',
     title: 'sw-promotion-v2.general.mainMenuItemGeneral',

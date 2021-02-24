@@ -57,7 +57,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <call method="setContainer">

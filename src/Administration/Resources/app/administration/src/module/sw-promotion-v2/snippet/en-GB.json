@@ -1,7 +1,7 @@
 {
     "sw-promotion-v2": {
         "general": {
-            "mainMenuItemGeneral": "Promotions v2",
+            "mainMenuItemGeneral": "Promotions",
             "mainMenuItemList": "Overview",
             "description": "Manage promotions here."
         },

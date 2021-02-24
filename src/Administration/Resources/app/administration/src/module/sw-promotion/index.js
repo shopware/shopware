@@ -23,6 +23,7 @@ const { Module } = Shopware;
  * @feature-deprecated (flag:FEATURE_NEXT_12016)
  */
 Module.register('sw-promotion', {
+    flag: 'FEATURE_NEXT_13810',
     type: 'core',
     name: 'promotion',
     title: 'sw-promotion.general.mainMenuItemGeneral',

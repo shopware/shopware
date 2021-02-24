@@ -78,6 +78,7 @@ phpstan.neon
 # tests / ci
 /build/
 !build/artifacts/.gitkeep
+src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache

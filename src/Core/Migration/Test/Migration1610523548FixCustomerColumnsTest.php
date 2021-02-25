@@ -39,13 +39,14 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('customer.repository');
 
+        $this->connection->rollBack();
         $this->rollback();
+        $this->migrate();
+        $this->connection->beginTransaction();
     }
 
     public function testColumns(): void
     {
-        $this->migrate();
-
         $schemaManager = $this->connection->getSchemaManager();
         $columns = $schemaManager->listTableColumns(CustomerDefinition::ENTITY_NAME);
 
@@ -56,8 +57,6 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
 
     public function testInsertTriggers(): void
     {
-        $this->migrate();
-
         $this->insertTestCustomer();
 
         $sql = '
@@ -80,8 +79,6 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
 
     public function testUpdateTriggers(): void
     {
-        $this->migrate();
-
         $this->insertTestCustomer();
 
         /** @var CustomerEntity $customer */

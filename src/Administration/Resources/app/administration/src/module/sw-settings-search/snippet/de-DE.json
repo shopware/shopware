@@ -39,11 +39,21 @@
         "textProductRankedSecondScore": "Im Suchranking an zweiter Stelle erscheint das Produkt, das je einen Suchtreffer in Produkt-Titel und Produkt-Tags erzielt und damit eine Ranking-Punktzahl von 120 erhält.",
         "textSuperPants": "super pants",
         "textProductRankedThirdScore": "Im Suchranking an dritter Stelle erscheint das Produkt, das nur einen Suchtreffer in Produkt-Tags erzielt und damit eine Ranking-Punktzahl von 20 erhält."
-      }
+      },
+      "labelSearchIndex": "Such-Index",
+      "buttonRebuildSearchIndex": "Such-Index neu erstellen",
+      "textWarningOpenTab": "Dieses Fenster bitte nicht schließen.",
+      "textRebuildSearchIndexDescription": "Das Neuerstellen des Such-Indexes dauert einige Zeit. Achte darauf, dass das Fenster in dieser Zeit nicht geschlossen wird. Du wirst benachrichtigt sobald der Prozess abgeschlossen ist.",
+      "textRebuildingSearchIndex": "Neu-Erstellung des Such-Indexes",
+      "textLastedBuild": "Latest build:"
     },
     "notification": {
       "saveSuccess": "Konfiguration gespeichert.",
-      "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten."
+      "saveError": "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
+      "index": {
+        "started": "Erstellung der Produkt-Indizes.",
+        "success": "Produkt-Indizes erstellt."
+      }
     },
     "liveSearchTab": {
       "titleCard": "Storefront-Echtzeitsuche",

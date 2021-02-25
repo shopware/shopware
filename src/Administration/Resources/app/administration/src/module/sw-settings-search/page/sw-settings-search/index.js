@@ -34,10 +34,8 @@ Component.register('sw-settings-search', {
 
         productSearchConfigsCriteria() {
             const criteria = new Criteria();
-
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
-
             return criteria;
         }
     },

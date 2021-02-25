@@ -30,7 +30,8 @@ class DbalKernelPluginLoader extends KernelPluginLoader
                    `path`,
                    `version`,
                    `autoload`,
-                   `managed_by_composer` AS managedByComposer
+                   `managed_by_composer` AS managedByComposer,
+                   composer_name as composerName
             FROM `plugin`
             ORDER BY `installed_at`;
 SQL;

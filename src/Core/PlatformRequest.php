@@ -33,6 +33,11 @@ final class PlatformRequest
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
 
     /**
+     * API Expectation headers to check requirements are fulfilled
+     */
+    public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
+
+    /**
      * Context attributes
      */
     public const ATTRIBUTE_CONTEXT_OBJECT = 'sw-context';

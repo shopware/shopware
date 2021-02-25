@@ -43,7 +43,7 @@ class TreeUpdater
             Uuid::fromHexToBytes($context->getVersionId())
         );
 
-        if ($parent === null) {
+        if ($parent === []) {
             return [];
         }
 
@@ -132,7 +132,7 @@ class TreeUpdater
         return $path;
     }
 
-    private function loadParents(string $parentId, EntityDefinition $definition, string $versionId): ?array
+    private function loadParents(string $parentId, EntityDefinition $definition, string $versionId): array
     {
         $query = $this->getEntityByIdQuery($parentId, $definition);
         $this->makeQueryVersionAware($definition, $versionId, $query);
@@ -140,7 +140,7 @@ class TreeUpdater
         $result = $query->execute()->fetch();
 
         if ($result === false) {
-            return null;
+            return [];
         }
 
         $result['parentCount'] = 1;

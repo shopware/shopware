@@ -565,6 +565,8 @@ Upload Component Library:
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*
+        variables:
+            - $CI_COMMIT_REF_PROTECTED == "true"
     dependencies:
         - Component Library
     script:

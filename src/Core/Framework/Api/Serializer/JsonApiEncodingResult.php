@@ -78,6 +78,8 @@ class JsonApiEncodingResult implements \JsonSerializable
         $key = $entity->getId() . '-' . $entity->getType();
 
         if ($this->contains($entity->getId(), $entity->getType())) {
+            $this->mergeRecords($this->included[$key], $entity);
+
             return;
         }
 
@@ -144,5 +146,34 @@ class JsonApiEncodingResult implements \JsonSerializable
     public function getApiVersion(): int
     {
         return $this->apiVersion;
+    }
+
+    protected function mergeRecords(Record $recordA, Record $recordB): void
+    {
+        foreach ($recordB->getAttributes() as $key => $value) {
+            if (!empty($value)) {
+                $recordA->setAttribute($key, $value);
+            }
+        }
+
+        foreach ($recordB->getRelationships() as $key => $value) {
+            if ($value['data'] === null) {
+                continue;
+            }
+            $recordA->addRelationship($key, $value);
+        }
+
+        foreach ($recordB->getExtensions() as $key => $value) {
+            if ($value['data'] === null) {
+                continue;
+            }
+            $recordA->addExtension($key, $value);
+        }
+
+        foreach ($recordB->getLinks() as $key => $value) {
+            if (!empty($value)) {
+                $recordA->addLink($key, $value);
+            }
+        }
     }
 }

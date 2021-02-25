@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
+    inject: ['repositoryFactory', 'acl', 'filterFactory'],
 
     mixins: [
         Mixin.getByName('notification'),

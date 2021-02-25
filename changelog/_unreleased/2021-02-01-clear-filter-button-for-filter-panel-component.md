@@ -1,7 +1,6 @@
 ---
 title: Clear filter button for filter panel component
 issue: NEXT-12998
-flag: FEATURE_NEXT_9831 
 ---
 # Administration
 *  Added `activeFiltersNumber` computed property in `component/filter/sw-filter-panel/index.js` to shows the number of active filters

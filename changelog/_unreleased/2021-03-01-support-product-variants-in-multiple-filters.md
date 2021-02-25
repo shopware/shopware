@@ -1,7 +1,6 @@
 ---
 title: Support product variants in multiple filters
 issue: NEXT-13941
-flag: FEATURE_NEXT_9831
 ---
 # Administration
 * Added computed `productCriteria` in `src/module/sw-order/page/sw-order-list/index.js`

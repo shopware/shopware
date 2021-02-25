@@ -1,7 +1,6 @@
 ---
 title: Create filter panel component
 issue: NEXT-12993
-flag: FEATURE_NEXT_9831
 ---
 # Administration
 * Added `sw-sidebar-filter-panel` component to use filter panel component inside `sw-sidebar` component

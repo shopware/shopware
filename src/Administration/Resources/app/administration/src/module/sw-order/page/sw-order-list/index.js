@@ -11,8 +11,7 @@ Component.register('sw-order-list', {
         'repositoryFactory',
         'stateStyleDataProviderService',
         'acl',
-        'filterFactory',
-        'feature'
+        'filterFactory'
     ],
 
     mixins: [

@@ -1,7 +1,6 @@
 ---
 title: Empty state in case of nothing matching filter criteria
 issue: NEXT-13995
-flag: FEATURE_NEXT_9831
 ---
 # Administration
 * Changed block `sw_order_list_empty_state` in `src/module/sw-order/page/sw-order-list/sw-order-list.html.twig` to show empty state

@@ -43,6 +43,11 @@ class OrderCustomerEntity extends Entity
     protected $title;
 
     /**
+     * @var array|null
+     */
+    protected $vatIds;
+
+    /**
      * @var string|null
      */
     protected $company;
@@ -130,6 +135,16 @@ class OrderCustomerEntity extends Entity
     public function setTitle(string $title): void
     {
         $this->title = $title;
+    }
+
+    public function getVatIds(): ?array
+    {
+        return $this->vatIds;
+    }
+
+    public function setVatIds(array $vatIds): void
+    {
+        $this->vatIds = $vatIds;
     }
 
     public function getCustomerNumber(): ?string

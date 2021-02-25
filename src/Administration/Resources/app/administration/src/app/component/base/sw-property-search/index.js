@@ -246,7 +246,12 @@ Component.register('sw-property-search', {
         },
 
         loadOptions() {
-            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+            const criteria = new Criteria(1, null);
+
+            criteria.setTotalCountMode(1);
+            criteria.addAssociation('group');
+
+            this.propertyGroupOptionRepository.search(criteria, Shopware.Context.api)
                 .then((groupOptions) => {
                     this.groupOptions = this.sortOptions(groupOptions);
                     this.optionTotal = groupOptions.total;

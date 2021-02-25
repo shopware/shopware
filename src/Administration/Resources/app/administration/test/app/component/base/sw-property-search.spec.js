@@ -269,4 +269,32 @@ describe('components/base/sw-property-search', () => {
         // check if content of input field is not empty
         expect(searchInput.element.value).toBe('color');
     });
+
+    it('should change the group options when clicking pagination', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.onFocusSearch();
+
+        await wrapper.vm.$nextTick();
+
+        const groupElement = wrapper.find('.group_grid__column-name');
+        await groupElement.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        let groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
+
+        expect(wrapper.vm.optionPage).toBe(1);
+        expect(groupOptions).toBe(10);
+
+        // eslint-disable-next-line max-len
+        const nextPageButton = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)');
+        await nextPageButton.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        groupOptions = wrapper.findAll('.sw-property-search__tree-selection__option_grid--option-value').length;
+
+        expect(wrapper.vm.optionPage).toBe(2);
+        expect(groupOptions).toBe(2);
+    });
 });

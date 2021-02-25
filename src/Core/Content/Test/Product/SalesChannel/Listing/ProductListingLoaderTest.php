@@ -250,50 +250,6 @@ class ProductListingLoaderTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider groupedFlagProvider
-     * @group slow
-     */
-    public function testGroupedFlag(array $explode, bool $mainVariant, bool $grouped): void
-    {
-        $this->salesChannelContext = $this->createSalesChannelContext();
-
-        $this->createProduct($explode, $mainVariant);
-        $listing = $this->fetchListing();
-
-        static::assertGreaterThanOrEqual(1, $listing->count());
-
-        foreach ($listing as $product) {
-            static::assertEquals($grouped, $product->isGrouped());
-        }
-    }
-
-    public function groupedFlagProvider()
-    {
-        return [
-            'Test main variant is not grouped' => [
-                [],
-                true,
-                false,
-            ],
-            'Test grouped flag with random variant' => [
-                [],
-                false,
-                true,
-            ],
-            'Test grouped flag with one group' => [
-                ['color'],
-                false,
-                true,
-            ],
-            'Test grouped flag with all group' => [
-                ['color', 'size'],
-                false,
-                false,
-            ],
-        ];
-    }
-
     private function fetchListing(): EntitySearchResult
     {
         $criteria = new Criteria();

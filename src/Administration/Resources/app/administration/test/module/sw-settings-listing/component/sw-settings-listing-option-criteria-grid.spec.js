@@ -57,8 +57,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     label: 'Price descending',
                     fields: [
                         {
-                            // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                            field: 'product.listingPrices',
+                            field: 'product.cheapestPrice',
                             order: 'desc',
                             priority: 0,
                             naturalSorting: 0
@@ -70,8 +69,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                             naturalSorting: 0
                         },
                         {
-                            // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                            field: 'product.listingPrices',
+                            field: 'product.cheapestPrice',
                             order: 'asc',
                             priority: 2,
                             naturalSorting: 1

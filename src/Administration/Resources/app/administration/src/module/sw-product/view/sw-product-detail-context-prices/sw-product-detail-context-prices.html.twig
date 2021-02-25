@@ -131,7 +131,7 @@
                                             :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
                                             :max="item.quantityEnd ? item.quantityEnd : null"
                                             :size="compact ? 'small' : 'default'"
-                                            :disabled="(feature.isActive('FEATURE_NEXT_10553') && itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')">
+                                            :disabled="(itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')">
                                         </sw-field>
                                     {% endblock %}
                                 </template>

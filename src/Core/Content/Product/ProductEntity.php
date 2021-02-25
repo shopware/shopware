@@ -26,7 +26,6 @@ use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -265,13 +264,6 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     *
-     * @var bool
-     */
-    protected $grouped = false;
-
-    /**
      * @var string|null
      */
     protected $mainVariantId;
@@ -302,14 +294,6 @@ class ProductEntity extends Entity
     protected $prices;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     *
-     * @var ListingPriceCollection|null
-     */
-    protected $listingPrices;
-
-    /**
-     * @internal (flag:FEATURE_NEXT_10553)
      * The container will be resolved on product.loaded event and
      * the detected cheapest price will be set for the current context rules
      *
@@ -885,22 +869,6 @@ class ProductEntity extends Entity
         $this->prices = $prices;
     }
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    public function getListingPrices(): ?ListingPriceCollection
-    {
-        return $this->listingPrices;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    public function setListingPrices(ListingPriceCollection $listingPrices): void
-    {
-        $this->listingPrices = $listingPrices;
-    }
-
     public function getRestockTime(): ?int
     {
         return $this->restockTime;
@@ -1124,22 +1092,6 @@ class ProductEntity extends Entity
     public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
         $this->configuratorSettings = $configuratorSettings;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    public function setGrouped(bool $grouped): void
-    {
-        $this->grouped = $grouped;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    public function isGrouped(): bool
-    {
-        return $this->grouped;
     }
 
     public function getCategoriesRo(): ?CategoryCollection
@@ -1474,17 +1426,12 @@ class ProductEntity extends Entity
 
     /**
      * @return CheapestPrice|CheapestPriceContainer|null
-     *
-     * @internal (flag:FEATURE_NEXT_10553)
      */
     public function getCheapestPrice()
     {
         return $this->cheapestPrice;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10553)
-     */
     public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
     {
         $this->cheapestPrice = $cheapestPrice;

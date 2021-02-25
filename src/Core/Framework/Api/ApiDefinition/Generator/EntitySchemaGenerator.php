@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -130,7 +129,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof CartPriceField:
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
-            case $field instanceof ListingPriceField:
             case $field instanceof ObjectField:
                 return $this->createJsonObjectType($definition, $field, $flags);
 

@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
@@ -31,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -164,9 +162,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
-        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-        $this->setGroupedFlag($event);
-
         $this->groupOptionAggregations($event);
 
         $this->addCurrentFilters($event);
@@ -347,78 +342,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $properties = $properties ? $properties->getKeys() : [];
 
         return array_unique(array_filter(array_merge($options, $properties)));
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    private function setGroupedFlag(ProductListingResultEvent $event): void
-    {
-        /** @var ProductEntity $product */
-        foreach ($event->getResult()->getEntities() as $product) {
-            if ($product->getParentId() === null) {
-                continue;
-            }
-
-            // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-            $product->setGrouped(
-                $this->isGrouped($event->getRequest(), $product)
-            );
-            if (Feature::isActive('FEATURE_NEXT_10553')) {
-                $product->setGrouped(false);
-            }
-        }
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-     */
-    private function isGrouped(Request $request, ProductEntity $product): bool
-    {
-        if ($product->getMainVariantId() !== null) {
-            return false;
-        }
-
-        // get all configured expanded groups
-        $groups = array_filter(
-            (array) $product->getConfiguratorGroupConfig(),
-            static function (array $config) {
-                return $config['expressionForListings'] ?? false;
-            }
-        );
-
-        // get ids of groups for later usage
-        $groups = array_column($groups, 'id');
-
-        // expanded group count matches option count? All variants are displayed
-        if ($product->getOptionIds() !== null && \count($groups) === \count($product->getOptionIds())) {
-            return false;
-        }
-
-        if ($product->getOptions() === null) {
-            return true;
-        }
-
-        // get property ids which are applied as filter
-        $properties = $this->getPropertyIds($request);
-
-        // now count the configured groups and filtered options
-        $count = 0;
-        foreach ($product->getOptions() as $option) {
-            // check if this option is filtered
-            if (\in_array($option->getId(), $properties, true)) {
-                ++$count;
-
-                continue;
-            }
-
-            // check if the option contained in the expanded groups
-            if (\in_array($option->getGroupId(), $groups, true)) {
-                ++$count;
-            }
-        }
-
-        return $count !== $product->getOptions()->count();
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void
@@ -650,27 +573,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $range[RangeFilter::LTE] = $max;
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10553')) {
-            return new Filter(
-                'price',
-                !empty($range),
-                [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
-                new RangeFilter('product.cheapestPrice', $range),
-                [
-                    'min' => (float) $request->get('min-price'),
-                    'max' => (float) $request->get('max-price'),
-                ]
-            );
-        }
-
         return new Filter(
             'price',
             !empty($range),
-            [new StatsAggregation('price', 'product.listingPrices', true, true, false, false)],
-            new RangeFilter('product.listingPrices', $range),
+            [new StatsAggregation('price', 'product.cheapestPrice', true, true, false, false)],
+            new RangeFilter('product.cheapestPrice', $range),
             [
-                'min' => $request->get('min-price'),
-                'max' => $request->get('max-price'),
+                'min' => (float) $request->get('min-price'),
+                'max' => (float) $request->get('max-price'),
             ]
         );
     }

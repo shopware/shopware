@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -36,7 +35,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
 
 class EntityGenerator
 {
@@ -229,11 +227,6 @@ EOF;
             case $field instanceof PriceField:
                 $type = 'Price';
                 $uses[] = 'use ' . Price::class;
-
-                break;
-            case $field instanceof ListingPriceField:
-                $type = 'PriceRuleCollection';
-                $uses[] = 'use ' . PriceRuleCollection::class;
 
                 break;
             case $field instanceof FloatField:

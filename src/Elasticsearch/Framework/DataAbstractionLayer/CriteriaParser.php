@@ -47,7 +47,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
@@ -98,12 +97,6 @@ class CriteriaParser
 
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
-
-            return new FieldSort($accessor, $sorting->getDirection());
-        }
-
         if ($this->isCheapestPriceField($sorting->getField())) {
             return new FieldSort('_script', $sorting->getDirection(), [
                 'type' => 'number',
@@ -113,6 +106,7 @@ class CriteriaParser
                 ],
             ]);
         }
+
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
 
         return new FieldSort($accessor, $sorting->getDirection());
@@ -243,10 +237,6 @@ class CriteriaParser
 
     protected function parseStatsAggregation(StatsAggregation $aggregation, string $fieldName, Context $context): Metric\StatsAggregation
     {
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            return new Metric\StatsAggregation($aggregation->getName(), $fieldName);
-        }
-
         if ($this->isCheapestPriceField($aggregation->getField())) {
             return new Metric\StatsAggregation($aggregation->getName(), null, [
                 'id' => 'cheapest_price',
@@ -438,16 +428,6 @@ class CriteriaParser
 
     private function parseRangeFilter(RangeFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
-
-            return $this->createNestedQuery(
-                new RangeQuery($accessor, $filter->getParameters()),
-                $definition,
-                $filter->getField()
-            );
-        }
-
         if ($this->isCheapestPriceField($filter->getField())) {
             $params = [];
             foreach ($filter->getParameters() as $key => $value) {

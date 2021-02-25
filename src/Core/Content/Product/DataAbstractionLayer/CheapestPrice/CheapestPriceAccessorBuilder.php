@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
-/**
- * @internal (flag:FEATURE_NEXT_10553)
- */
 class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
 {
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string

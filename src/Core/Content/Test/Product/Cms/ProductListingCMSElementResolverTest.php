@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundE
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -114,7 +113,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testOnlyRestrictedSortingsAreAvailable(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10553', $this);
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -161,7 +159,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testAvailableSortingsPriority(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10553', $this);
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -209,7 +206,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testHighestPrioritySortingIsDefaultSorting(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10553', $this);
         $slotConfig = [
             'availableSortings' => [
                 'value' => [

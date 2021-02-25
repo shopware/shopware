@@ -101,7 +101,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 'active' => true,
                 'fields' => [
                     ['field' => 'product.name', 'order' => 'asc', 'naturalSorting' => 0, 'priority' => 0],
-                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],    //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                    ['field' => 'product.cheapestPrice', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
                 ],
                 'label' => 'test',
             ],
@@ -110,7 +110,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 'priority' => 0,
                 'active' => false,
                 'fields' => [
-                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],    //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                    ['field' => 'product.cheapestPrice', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
                 ],
                 'label' => 'test',
             ],
@@ -273,22 +273,22 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(['order' => 'name-desc']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::ASCENDING],   //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-asc']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::DESCENDING],  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
             [
                 [
                     'product.name' => FieldSorting::ASCENDING,
-                    'product.listingPrices' => FieldSorting::DESCENDING,    //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                    'product.cheapestPrice' => FieldSorting::DESCENDING,
                 ],
                 new Request(['order' => 'test-multiple-sortings']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::DESCENDING],  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
             ],
         ];
@@ -310,22 +310,22 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(['order' => 'name-desc']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::ASCENDING],   //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-asc']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::DESCENDING],  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
             [
                 [
                     'product.name' => FieldSorting::ASCENDING,
-                    'product.listingPrices' => FieldSorting::DESCENDING,    //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                    'product.cheapestPrice' => FieldSorting::DESCENDING,
                 ],
                 new Request(['order' => 'test-multiple-sortings']),
             ],
             [
-                ['product.listingPrices' => FieldSorting::DESCENDING],  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['product.cheapestPrice' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
             ],
         ];

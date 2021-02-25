@@ -144,30 +144,18 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 {
                     value: 'customField',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField')
-                }
-            ];
-
-            if (this.feature.isActive('FEATURE_NEXT_10553')) {
-                criteriaOptions.push({
+                },
+                {
                     value: 'product.cheapestPrice',
                     label: this.$tc(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.cheapestPrice'
                     )
-                });
-                criteriaOptions.push({
+                },
+                {
                     value: 'product.price',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'
-                    )
-                });
-            } else {
-                criteriaOptions.push({
-                    value: 'product.listingPrices',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.listingPrices'
-                    )
-                });
-            }
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price')
+                }
+            ];
 
             return criteriaOptions.sort((a, b) => {
                 return a.label.localeCompare(b.label);

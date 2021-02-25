@@ -3,6 +3,7 @@
 namespace Shopware\Docs\Inspection;
 
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -63,6 +63,7 @@ class ErdTypeMap
         BoolField::class => 'bool',
         CalculatedPriceField::class => 'calculatedPrice',
         CartPriceField::class => 'cartPrice',
+        CheapestPriceField::class => 'cheapestPrice',
         ChildCountField::class => 'childCount',
         ChildrenAssociationField::class => 'childrenAssociation',
         CreatedAtField::class => 'createdAt',
@@ -96,7 +97,6 @@ class ErdTypeMap
         WhitelistRuleField::class => 'whitelistRule',
         TranslationsAssociationField::class => 'translationAssociation',
         OneToOneAssociationField::class => 'oneToOneAssociation',
-        ListingPriceField::class => 'priceRulesJson',
         NumberRangeField::class => 'numberRange',
         ConfigJsonField::class => 'configurationValue',
         ManyToManyIdField::class => 'manyToManyId',

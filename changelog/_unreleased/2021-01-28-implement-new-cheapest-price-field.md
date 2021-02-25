@@ -1,7 +1,6 @@
 ---
 title: Implement new cheapest price field
 issue: NEXT-12169
-flag: FEATURE_NEXT_10553
 author: OliverSkroblin
 author_email: o.skroblin@shopware.com 
 author_github: OliverSkroblin

@@ -16,10 +16,8 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -40,13 +38,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     private $productGateway;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - price definition builder will be removed
-     *
-     * @var ProductPriceDefinitionBuilderInterface
-     */
-    private $priceDefinitionBuilder;
-
-    /**
      * @var QuantityPriceCalculator
      */
     private $calculator;
@@ -59,12 +50,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - price definition builder will be removed
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
         ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
-        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
         $this->featureBuilder = $featureBuilder;
     }
@@ -94,7 +82,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             // enrich all products in original cart
-            $this->enrich($original, $lineItem, $data, $context, $behavior);
+            $this->enrich($original, $lineItem, $data, $behavior);
         }
 
         $this->featureBuilder->prepare($lineItems, $data, $context);
@@ -190,7 +178,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         Cart $cart,
         LineItem $lineItem,
         CartDataCollection $data,
-        SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
         $id = $lineItem->getReferencedId();
@@ -241,16 +228,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         //Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
-            if (Feature::isActive('FEATURE_NEXT_10553')) {
-                $lineItem->setPriceDefinition(
-                    $this->getPriceDefinition($product, $lineItem->getQuantity())
-                );
-            } else {
-                //In Case keep original Price of Product
-                // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - price definition builder will be removed
-                $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
-                $lineItem->setPriceDefinition($prices->getQuantityPrice());
-            }
+            $lineItem->setPriceDefinition(
+                $this->getPriceDefinition($product, $lineItem->getQuantity())
+            );
         }
 
         $quantityInformation = new QuantityInformation();

@@ -12,15 +12,13 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             active: true,
             fields: [
                 {
-                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
                     naturalSorting: 0
                 },
                 {
-                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
                     naturalSorting: 0
@@ -89,15 +87,13 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             createdAt: '2020-08-06T13:06:03.799+00:00',
             fields: [
                 {
-                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
                     position: 0
                 },
                 {
-                    // @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
                     position: 0

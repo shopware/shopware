@@ -53,7 +53,7 @@ class CachedEntityAggregatorTest extends TestCase
         $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('price', 'product.listingPrices'); //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+        $priceAggregation = new StatsAggregation('price', 'product.cheapestPrice');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();
@@ -105,7 +105,7 @@ class CachedEntityAggregatorTest extends TestCase
             new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class)
         );
         $criteria->addAggregation(
-            new StatsAggregation('price', 'product.listingPrices')  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+            new StatsAggregation('price', 'product.cheapestPrice')
         );
 
         $criteria2 = clone $criteria;
@@ -171,7 +171,7 @@ class CachedEntityAggregatorTest extends TestCase
         $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('product.listingPrices', 'price'); //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+        $priceAggregation = new StatsAggregation('product.cheapestPrice', 'price');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();

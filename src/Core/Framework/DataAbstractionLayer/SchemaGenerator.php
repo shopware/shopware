@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -137,7 +136,6 @@ EOL;
             case $field instanceof CalculatedPriceField:
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
-            case $field instanceof ListingPriceField:
             case $field instanceof ListField:
             case $field instanceof JsonField:
                 $type = 'JSON';

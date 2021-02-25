@@ -190,7 +190,6 @@
         <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface"/>
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder"/>
 
             <tag name="shopware.cart.processor" priority="5000"/>

@@ -964,6 +964,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    whitelistIds whitelistRule
    customFieldSetSelectionActive bool
    sales int
+   cheapestPrice cheapestPrice
    metaDescription translated
    name translated
    keywords translated
@@ -974,7 +975,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    customSearchKeywords translated
    canonicalProductId foreignKey
-   listingPrices priceRulesJson
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

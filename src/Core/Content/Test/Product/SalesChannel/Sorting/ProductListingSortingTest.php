@@ -32,7 +32,7 @@ class ProductListingSortingTest extends TestCase
         $productSortingEntity->setFields(
             [
                 ['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 1],
-                ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 1000, 'naturalSorting' => 1],  //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+                ['field' => 'product.cheapestPrice', 'order' => 'asc', 'priority' => 1000, 'naturalSorting' => 1],
             ]
         );
 
@@ -40,7 +40,7 @@ class ProductListingSortingTest extends TestCase
         $sortings = $productSortingEntity->createDalSorting();
 
         static::assertCount(2, $sortings);
-        static::assertEquals('product.listingPrices', $sortings[0]->getField());    //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - change to cheapest price
+        static::assertEquals('product.cheapestPrice', $sortings[0]->getField());
         static::assertEquals('product.name', $sortings[1]->getField());
     }
 

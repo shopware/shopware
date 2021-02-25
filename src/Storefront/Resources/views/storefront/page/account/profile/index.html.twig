@@ -40,7 +40,8 @@
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
                                             'showVatIdField': true,
-                                            'data': context.customer
+                                            'data': context.customer,
+                                            'onlyCompanyRegistration': context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
                                         } %}
                                     {% endblock %}
 

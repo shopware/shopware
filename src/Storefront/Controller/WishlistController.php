@@ -75,7 +75,8 @@ class WishlistController extends StorefrontController
     public function index(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
-        if ($customer !== null) {
+
+        if ($customer !== null && $customer->getGuest() === false) {
             $page = $this->wishlistPageLoader->load($request, $context, $customer);
         } else {
             $page = $this->guestPageLoader->load($request, $context);
@@ -90,7 +91,9 @@ class WishlistController extends StorefrontController
      */
     public function guestPagelet(Request $request, SalesChannelContext $context): Response
     {
-        if ($context->getCustomer()) {
+        $customer = $context->getCustomer();
+
+        if ($customer !== null && $customer->getGuest() === false) {
             throw new NotFoundHttpException();
         }
 

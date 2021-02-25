@@ -30,6 +30,7 @@ import plugins
 import CartWidgetPlugin from 'src/plugin/header/cart-widget.plugin';
 import SearchWidgetPlugin from 'src/plugin/header/search-widget.plugin';
 import AccountMenuPlugin from 'src/plugin/header/account-menu.plugin';
+import AccountGuestAbortButtonPlugin from 'src/plugin/header/account-guest-abort-button.plugin';
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
 import AddToCartPlugin from 'src/plugin/add-to-cart/add-to-cart.plugin';
 import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
@@ -108,6 +109,11 @@ PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
+
+if (Feature.isActive('FEATURE_NEXT_10549')) {
+    PluginManager.register('AccountGuestAbortButton', AccountGuestAbortButtonPlugin, '[data-account-guest-abort-button]')
+}
+
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');

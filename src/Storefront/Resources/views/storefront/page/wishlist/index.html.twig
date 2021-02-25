@@ -9,7 +9,7 @@
         <div class="cms-page wishlist-page">
             {% set searchResult = page.wishlist.productListing %}
 
-            {% if context.customer %}
+            {% if context.customer and not context.customer.guest %}
                 {% sw_include '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig' with { searchResult: searchResult } %}
             {% else %}
                 {% set guestWishlistPageOptions = {

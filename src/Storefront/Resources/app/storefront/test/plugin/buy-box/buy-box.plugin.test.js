@@ -3,7 +3,7 @@
  */
 
 import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
-import NativeEventEmitter from '../../../src/helper/emitter.helper';
+import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('BuyBoxPlugin tests', () => {
     let buyBoxPlugin = undefined;

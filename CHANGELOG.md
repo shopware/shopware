@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.5.2
+*  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)
+*  [NEXT-13664 - Fix session handling on logouts](/changelog/release-6-3-5-2/2021-02-23-fix-session-handling-on-logouts.md)
+*  [NEXT-13896 - Adding acl privileges to plugin manager](/changelog/release-6-3-5-2/2021-02-24-adding-acl-privileges-to-plugin-manager.md)
+*  [NEXT-13861 - Validate replace configurations of plugins](/changelog/release-6-3-5-2/2021-02-24-validate-replace-configurations-of-plugins.md)
+
 ## 6.3.5.1
 *  [NEXT-13252 - Fix pagination setting snippet listing](/changelog/release-6-3-5-1/2021-01-19-deprecated-get-preview-link.md)
 *  [NEXT-13371 - Added api aware flag](/changelog/release-6-3-5-1/2021-01-25-added-api-aware-flag.md)

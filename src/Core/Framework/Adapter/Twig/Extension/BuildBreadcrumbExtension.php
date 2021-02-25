@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Context;
@@ -34,7 +33,17 @@ class BuildBreadcrumbExtension extends AbstractExtension
     {
         return [
             new TwigFunction('sw_breadcrumb', [$this, 'buildSeoBreadcrumb'], ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_categories', [$this, 'getCategories']),
+
+            /*
+             * @deprecated tag:v6.5.0.0 - Will be deleted, use sw_breadcrumb_categories instead.
+             */
             new TwigFunction('sw_breadcrumb_types', [$this, 'getCategoryTypes']),
+
+            /*
+             * @deprecated tag:v6.5.0.0 - Will be deleted, without a replacement.
+             */
+            new TwigFunction('sw_breadcrumb_build_types', [$this, 'buildCategoryTypes']),
         ];
     }
 
@@ -48,16 +57,35 @@ class BuildBreadcrumbExtension extends AbstractExtension
         return $this->categoryBreadcrumbBuilder->build($category, $salesChannel, $navigationCategoryId);
     }
 
-    public function getCategoryTypes(array $categoryIds, Context $context): array
+    public function getCategories(array $categoryIds, Context $context): array
     {
         if (\count($categoryIds) === 0) {
             return [];
         }
 
-        $types = [];
+        return $this->categoryRepository->search(new Criteria($categoryIds), $context)->getElements();
+    }
 
-        /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search(new Criteria($categoryIds), $context)->getEntities();
+    /**
+     * @deprecated tag:v6.5.0.0 - Will be deleted, use getCategories instead.
+     */
+    public function getCategoryTypes(array $categoryIds, Context $context): array
+    {
+        return $this->buildCategoryTypes($this->getCategories($categoryIds, $context));
+    }
+
+    /**
+     * @deprecated tag:v6.5.0.0 - Will be deleted, without replacement.
+     *
+     * @param CategoryEntity[] $categories
+     */
+    public function buildCategoryTypes(array $categories): array
+    {
+        if (\count($categories) === 0) {
+            return [];
+        }
+
+        $types = [];
 
         foreach ($categories as $category) {
             $types[$category->getId()] = $category->getType();

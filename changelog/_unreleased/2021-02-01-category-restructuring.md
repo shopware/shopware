@@ -8,6 +8,8 @@ author: Krispin Lütjann & Max Stegmeyer
 * Added Navigation settings to `SalesChannelDefinition` and `SalesChannelTranslationDefinition`
 * Added `navigationCategorySalesChannels` to `CmsPageDefinition`
 * Added `EntryPointValidation` for making sure that main categories of Sales Channels cannot be links.
+* Added `sw_breadcrumb_categories` twig filter
+* Deprecated `sw_breadcrumb_types` twig filter, use new `sw_breadcrumb_categories` instead
 * Added internal link settings to `CategoryDefinition` and `CategoryTranslationDefinition`
 * Added `CategoryUrlGenerator` to render different category link types
 ___
@@ -47,4 +49,7 @@ ___
 * Added `category_url` function for rendering category urls for better link type handling
 * Changed occurences of category url generation in multiple templates
 * Deprecated `layout/header/actions/service-menu-widget.html.twig`, menu has been moved to the bottom
+* Deprecated variable `breadcrumbTypes`, use new `breadcrumbCategories` instead
 * Deprecated block `layout_header_top_bar_service` in `layout/header/top-bar.html.twig`
+* Changed category loading to prevent routing of categories with category type `folder
+* Fixed the link of categories with type `link` in the breadcrumb

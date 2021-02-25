@@ -78,7 +78,7 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         if ($availableSortings) {
             foreach ($listing->getAvailableSortings() as $availableSorting) {
-                static::assertContains($availableSorting->getKey(), $availableSortings);
+                static::assertArrayHasKey($availableSorting->getKey(), $availableSortings);
             }
         }
     }

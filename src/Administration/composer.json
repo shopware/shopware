@@ -22,9 +22,9 @@
     },
     "require": {
         "shopware/core": "*",
-        "symfony/framework-bundle": "~4.4.13",
-        "symfony/http-foundation": "~4.4.13",
-        "symfony/routing": "~4.4.13",
-        "symfony/mime": "~4.4.13"
+        "symfony/framework-bundle": "~4.4.19",
+        "symfony/http-foundation": "~4.4.19",
+        "symfony/routing": "~4.4.19",
+        "symfony/mime": "~4.4.19"
     }
 }

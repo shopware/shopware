@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
@@ -37,7 +36,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use AssertArraySubsetBehaviour;
+    use ArraySubsetAsserts;
     use PromotionTestFixtureBehaviour;
 
     /**
@@ -965,7 +964,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         $responseData = json_decode($response->getContent(), true);
 
-        $this->silentAssertArraySubset($expectedTranslations, $responseData);
+        static::assertArraySubset($expectedTranslations, $responseData);
     }
 
     private function createLanguage(string $langId, string $salesChannelId, $fallbackId = null): void

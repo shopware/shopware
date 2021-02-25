@@ -47,12 +47,17 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
         $database = $connection->fetchColumn('select database();');
 
         $cmsPageColumnExist = $connection->fetchColumn('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME = \'product\' AND COLUMN_NAME = \'cmsPage\' AND TABLE_SCHEMA = "' . $database . '";');
+
+        $connection->rollBack();
+
         if ($cmsPageColumnExist) {
             $connection->executeUpdate('ALTER TABLE product DROP COLUMN cmsPage');
         }
 
         $migration = new Migration1610523204AddInheritanceForProductCmsPage();
         $migration->update($connection);
+
+        $connection->beginTransaction();
 
         $expectedCmsPageId = Uuid::randomHex();
 

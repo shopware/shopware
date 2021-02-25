@@ -31,8 +31,10 @@ class DynamicPrimaryKeyChangeTest extends TestCase
 
     public function testFullConversionAgainstFixtures(): void
     {
-        $this->importFixtureSchema();
         $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
+
+        $this->importFixtureSchema();
         $schemaManager = $connection->getSchemaManager();
 
         $tableName = '_dpkc_main';
@@ -55,6 +57,8 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         foreach ($playbook as $query) {
             $connection->exec($query);
         }
+
+        $connection->beginTransaction();
 
         foreach ($this->getExpectationsAfter() as $tableName => $expectation) {
             $indexes = $schemaManager->listTableIndexes($tableName);

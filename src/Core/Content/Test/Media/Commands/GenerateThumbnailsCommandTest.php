@@ -75,8 +75,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
+        static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
+        static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -103,8 +103,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
+        static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
+        static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -131,8 +131,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
         $string = $output->fetch();
-        static::assertRegExp('/.*Generated\s*1.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . (\count($this->initialMediaIds) + 1) . '.*/', $string);
+        static::assertMatchesRegularExpression('/.*Generated\s*1.*/', $string);
+        static::assertMatchesRegularExpression('/.*Skipped\s*' . (\count($this->initialMediaIds) + 1) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */

@@ -57,7 +57,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $commandTester->execute([]);
 
         $message = $commandTester->getDisplay();
-        static::assertRegExp('/\/\/ No expired files found./', $message);
+        static::assertMatchesRegularExpression('/\/\/ No expired files found./', $message);
     }
 
     public function testExecuteWithAllFilesExpired(): void
@@ -78,11 +78,11 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $commandTester->execute([]);
 
         $message = $commandTester->getDisplay();
-        static::assertRegExp(
+        static::assertMatchesRegularExpression(
             sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
             $message
         );
-        static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
 
         $this->runWorker();
 
@@ -118,11 +118,11 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
         $numExpired = \count($expiredIds);
         $message = $commandTester->getDisplay();
-        static::assertRegExp(
+        static::assertMatchesRegularExpression(
             sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
             $message
         );
-        static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
 
         $results = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertEquals(($num - $numExpired), \count($results));
@@ -165,11 +165,11 @@ class DeleteExpiredFilesCommandTest extends TestCase
             $commandTester->execute([]);
 
             $message = $commandTester->getDisplay();
-            static::assertRegExp(
+            static::assertMatchesRegularExpression(
                 sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
                 $message
             );
-            static::assertRegExp('/\[CAUTION\] Aborting due to user input./', $message);
+            static::assertMatchesRegularExpression('/\[CAUTION\] Aborting due to user input./', $message);
         }
     }
 

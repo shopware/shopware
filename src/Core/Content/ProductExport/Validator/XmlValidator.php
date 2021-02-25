@@ -15,13 +15,21 @@ class XmlValidator implements ValidatorInterface
         }
 
         $backup_errors = libxml_use_internal_errors(true);
-        $backup = libxml_disable_entity_loader(true);
+
+        if (\PHP_VERSION_ID < 80000) {
+            $backup = libxml_disable_entity_loader(true);
+        } else {
+            $backup = false;
+        }
 
         if (!simplexml_load_string($productExportContent)) {
             $errors->add(new XmlValidationError($productExportEntity->getId(), libxml_get_errors()));
         }
 
-        libxml_disable_entity_loader($backup);
+        if (\PHP_VERSION_ID < 80000) {
+            libxml_disable_entity_loader($backup);
+        }
+
         libxml_use_internal_errors($backup_errors);
     }
 }

@@ -88,7 +88,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $search = $this->convertSearch($criteria, $definition, $context, $search);
 
         try {
-            /** @var array $result */
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
                 'type' => $definition->getEntityName(),

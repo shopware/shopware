@@ -1,84 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.0/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
-         cacheTokens="false"
          executionOrder="random"
->
-
+         convertDeprecationsToExceptions="false">
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">src/**/**/vendor</directory>
+            <directory suffix=".php">src/**/vendor</directory>
+            <directory suffix=".php">src/Docs</directory>
+            <directory suffix=".php">src/**/Test</directory>
+            <directory suffix=".php">src/Core/**/Test</directory>
+            <directory suffix=".php">src/Core/Migration</directory>
+            <directory suffix=".php">src/Core/Flag</directory>
+        </exclude>
+      </coverage>
     <php>
         <ini name="error_reporting" value="-1" />
         <server name="KERNEL_CLASS" value="Shopware\Development\Kernel"/>
         <env name="APP_ENV" value="test" />
         <env name="APP_DEBUG" value="1" />
         <env name="APP_SECRET" value="s$cretf0rt3st" />
+
         <env name="SHELL_VERBOSITY" value="-1" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="/.*/" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
         <!--<env name="SYMFONY_DEPRECATIONS_HELPER" value="/A tree builder without a root node is deprecated since Symfony 4\.2 and will not be supported anymore in 5\.0\./" />-->
     </php>
-
     <testsuites>
         <testsuite name="administration">
             <directory>src/Administration/Test</directory>
         </testsuite>
-
         <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
         </testsuite>
-
         <testsuite name="checkout">
             <directory>src/Core/Checkout/Test</directory>
         </testsuite>
-
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
         </testsuite>
-
         <testsuite name="framework">
             <directory>src/Core/Framework/Test</directory>
             <directory>src/Core/Test</directory>
         </testsuite>
-
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
         </testsuite>
-
         <testsuite name="profiling">
             <directory>src/Core/Profiling/Test</directory>
         </testsuite>
-
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
-
         <testsuite name="elasticsearch">
             <directory>src/Elasticsearch/Test</directory>
         </testsuite>
-
         <testsuite name="docs">
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-            <exclude>
-                <directory suffix=".php">src/**/**/vendor</directory>
-                <directory suffix=".php">src/**/vendor</directory>
-                <directory suffix=".php">src/Docs</directory>
-                <directory suffix=".php">src/**/Test</directory>
-                <directory suffix=".php">src/Core/**/Test</directory>
-                <directory suffix=".php">src/Core/Migration</directory>
-                <directory suffix=".php">src/Core/Flag</directory>
-            </exclude>
-        </whitelist>
-    </filter>
-
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener">
             <arguments>

@@ -69,7 +69,7 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
 
-        static::assertRegExp(
+        static::assertMatchesRegularExpression(
             '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
             $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
@@ -93,7 +93,7 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
 
-        static::assertRegExp(
+        static::assertMatchesRegularExpression(
             '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
             $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'

@@ -67,7 +67,7 @@ class CacheClearerTest extends TestCase
         $this->getContainer()->get(CacheClearer::class)->clear();
 
         foreach ($oldCacheDirs as $oldCacheDir) {
-            static::assertFileNotExists($oldCacheDir);
+            static::assertFileDoesNotExist($oldCacheDir);
         }
     }
 
@@ -114,7 +114,7 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clearContainerCache();
 
         foreach ($containerCaches as $containerCache) {
-            static::assertFileNotExists($containerCache);
+            static::assertFileDoesNotExist($containerCache);
         }
 
         $filesystem->remove($cacheDir);
@@ -168,7 +168,7 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clear();
 
         foreach ($urlGeneratorCacheFileFinder->getIterator() as $generatorFile) {
-            static::assertFileNotExists($generatorFile);
+            static::assertFileDoesNotExist($generatorFile);
         }
     }
 }

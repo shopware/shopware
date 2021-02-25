@@ -23,9 +23,15 @@ class DeleteTest extends TestCase
      */
     private $writer;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     protected function setUp(): void
     {
         $this->writer = $this->getContainer()->get(EntityWriter::class);
+        $this->connection = $this->getContainer()->get(Connection::class);
 
         $registry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -33,7 +39,9 @@ class DeleteTest extends TestCase
         $registry->register(new DeleteCascadeManyToOneDefinition());
         $registry->register(new DeleteCascadeChildDefinition());
 
-        $this->getContainer()->get(Connection::class)->executeUpdate(
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate(
             'DROP TABLE IF EXISTS delete_cascade_child;
              DROP TABLE IF EXISTS delete_cascade_parent;
              DROP TABLE IF EXISTS delete_cascade_many_to_one;
@@ -72,15 +80,21 @@ class DeleteTest extends TestCase
              ALTER TABLE `delete_cascade_parent`
              ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_many_to_one` (`id`) ON DELETE CASCADE;'
         );
+
+        $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
-        $this->getContainer()->get(Connection::class)->exec(
+        $this->connection->rollBack();
+
+        $this->connection->exec(
             'DROP TABLE IF EXISTS delete_cascade_child;
              DROP TABLE IF EXISTS delete_cascade_parent;
              DROP TABLE IF EXISTS delete_cascade_many_to_one;'
         );
+
+        $this->connection->beginTransaction();
     }
 
     public function testDeleteOneToManyIfParentHasVersionId(): void
@@ -106,10 +120,10 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
         static::assertCount(1, $parents);
 
-        $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
         static::assertCount(1, $children);
 
         $this->writer->delete(
@@ -120,10 +134,10 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
         static::assertCount(0, $parents);
 
-        $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
         static::assertCount(0, $children);
     }
 
@@ -150,13 +164,13 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
         static::assertCount(1, $parents);
 
-        $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
         static::assertCount(1, $children);
 
-        $manyToOne = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_many_to_one');
+        $manyToOne = $this->connection->fetchAll('SELECT * FROM delete_cascade_many_to_one');
         static::assertCount(1, $manyToOne);
 
         $this->writer->delete(
@@ -167,13 +181,13 @@ class DeleteTest extends TestCase
             WriteContext::createFromContext(Context::createDefaultContext())
         );
 
-        $parents = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_parent');
+        $parents = $this->connection->fetchAll('SELECT * FROM delete_cascade_parent');
         static::assertCount(0, $parents);
 
-        $children = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_child');
+        $children = $this->connection->fetchAll('SELECT * FROM delete_cascade_child');
         static::assertCount(0, $children);
 
-        $manyToOne = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM delete_cascade_many_to_one');
+        $manyToOne = $this->connection->fetchAll('SELECT * FROM delete_cascade_many_to_one');
         static::assertCount(0, $manyToOne);
     }
 }

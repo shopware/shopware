@@ -36,6 +36,8 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
         $migration = new Migration1592978289ProductCustomFieldSets();
 
+        $connection->rollBack();
+
         if ($this->hasCustomFieldSetColumn($connection, 'product')) {
             $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `customFieldSets`;');
         }
@@ -47,13 +49,13 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_custom_field_set`;');
 
         $migration->update($connection);
+
+        $connection->beginTransaction();
     }
 
     public function testGlobalColumnExists(): void
     {
-        /* @var Connection $connection */
-        $connection = $this->getContainer()->get(Connection::class);
-        static::assertTrue($this->hasGlobalColumn($connection, 'custom_field_set'));
+        static::assertTrue($this->hasGlobalColumn($this->connection, 'custom_field_set'));
     }
 
     /**

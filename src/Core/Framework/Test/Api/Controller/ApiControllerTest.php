@@ -1828,7 +1828,7 @@ EOF;
 
         // sort the included entities alphabetically by type
         usort($included, function ($a, $b) {
-            return $a['type'] > $b['type'];
+            return $a['type'] <=> $b['type'];
         });
 
         $extension = $included[0];
@@ -1902,7 +1902,7 @@ EOF;
 
         // sort the included entities alphabetically by type
         usort($included, function ($a, $b) {
-            return $a['type'] > $b['type'];
+            return $a['type'] <=> $b['type'];
         });
 
         $extension = $included[0];

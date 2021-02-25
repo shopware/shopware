@@ -17,13 +17,12 @@ class MediaFileFetchRedirectTestController extends AbstractController
 {
     /**
      * @Since("6.3.4.1")
-     * @Route("/api/v{version}/_action/redirect-to-echo", name="api.action.test.redirect-to-echo", defaults={"auth_required"=false}, methods={"GET"})
+     * @Route("/api/_action/redirect-to-echo", name="api.action.test.redirect-to-echo", defaults={"auth_required"=false}, methods={"GET"})
      */
-    public function redirectAction(Request $request, string $version): RedirectResponse
+    public function redirectAction(Request $request): RedirectResponse
     {
-        $parameters = array_merge($request->query->all(), [
-            'version' => $version,
-        ]);
+        $parameters = $request->query->all();
+
         $response = new RedirectResponse($this->generateUrl('api.action.test.echo_json', $parameters));
         // only send location header
         $response->setContent('');
@@ -33,7 +32,7 @@ class MediaFileFetchRedirectTestController extends AbstractController
 
     /**
      * @Since("6.3.4.1")
-     * @Route("/api/v{version}/_action/echo-json", name="api.action.test.echo_json", defaults={"auth_required"=false}, methods={"GET"})
+     * @Route("/api/_action/echo-json", name="api.action.test.echo_json", defaults={"auth_required"=false}, methods={"GET"})
      */
     public function echoJsonAction(Request $request): JsonResponse
     {

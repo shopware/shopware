@@ -47,6 +47,7 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
+        $this->connection->rollBack();
         $this->connection->executeUpdate($nullableTable);
         $this->connection->beginTransaction();
     }
@@ -55,6 +56,7 @@ EOF;
     {
         $this->connection->rollBack();
         $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->beginTransaction();
     }
 
     public function testListPriceLoading(): void

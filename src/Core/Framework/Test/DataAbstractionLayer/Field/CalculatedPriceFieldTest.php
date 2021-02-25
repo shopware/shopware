@@ -26,9 +26,11 @@ class CalculatedPriceFieldTest extends TestCase
     public function testListPrice(): void
     {
         $definition = $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
+        $connection = $this->getContainer()->get(Connection::class);
 
-        $this->getContainer()->get(Connection::class)
-            ->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $connection->rollBack();
+        $connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $connection->beginTransaction();
 
         $ids = new TestDataCollection(Context::createDefaultContext());
 

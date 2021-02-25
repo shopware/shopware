@@ -62,7 +62,6 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private function isIndexReady(string $index, string $entity, int $expected): bool
     {
-        /** @var array $remote */
         $remote = $this->client->count([
             'index' => $index,
             'type' => $entity,

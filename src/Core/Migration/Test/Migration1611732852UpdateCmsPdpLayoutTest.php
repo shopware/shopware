@@ -35,6 +35,10 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
 
     public function testMigrationFields(): void
     {
+        $this->connection->rollBack();
+        $this->removeForeignKeyConstraintIfExists();
+        $this->connection->beginTransaction();
+
         $this->rollbackMigrationChanges();
 
         $slotTranslation = $this->fetchCmsSlotTranslation();
@@ -85,7 +89,7 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContains(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
         }
     }
 
@@ -108,7 +112,6 @@ class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
 
     private function rollbackMigrationChanges(): void
     {
-        $this->removeForeignKeyConstraintIfExists();
         $this->connection->executeUpdate('DELETE FROM `cms_page_translation`');
         $this->connection->executeUpdate('DELETE FROM `cms_page`');
         $this->connection->executeUpdate('DELETE FROM `cms_section`');

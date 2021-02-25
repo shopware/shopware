@@ -436,7 +436,7 @@ class CheapestPriceTest extends TestCase
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
 
                 foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%`', $key, $message));
+                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
                 }
             }
         } catch (\Exception $e) {

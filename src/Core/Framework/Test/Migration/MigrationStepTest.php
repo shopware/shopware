@@ -23,17 +23,22 @@ class MigrationStepTest extends TestCase
     public function testUpdateAddATrigger(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
 
         $migration = new MigrationWithForwardTrigger();
         $migration->update($connection);
 
         $this->assertTriggerExists(MigrationWithForwardTrigger::TRIGGER_NAME);
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
+
+        $connection->beginTransaction();
     }
 
     public function testUpdateForwardTriggerIsExecutedIfMigrationIsNotActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
+
         $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = TRUE');
 
         $migration = new MigrationWithForwardTrigger();
@@ -52,11 +57,15 @@ class MigrationStepTest extends TestCase
         static::assertEquals($migration->getCreationTimestamp() + 1, $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
+
+        $connection->beginTransaction();
     }
 
     public function testUpdateForwardTriggerIsSkippedIfMigrationIsActive(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
+
         $connection->executeUpdate('SET @MIGRATION_1_IS_ACTIVE = NULL');
 
         $migration = new MigrationWithForwardTrigger();
@@ -75,6 +84,8 @@ class MigrationStepTest extends TestCase
         static::assertEquals($migration->getCreationTimestamp(), $inserted['creation_timestamp']);
 
         $this->removeTrigger(MigrationWithForwardTrigger::TRIGGER_NAME);
+
+        $connection->beginTransaction();
     }
 
     private function addMigrationToTable(MigrationStep $migration): void

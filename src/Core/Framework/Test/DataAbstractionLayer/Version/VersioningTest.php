@@ -333,7 +333,11 @@ class VersioningTest extends TestCase
     {
         $id = Uuid::randomHex();
 
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+
+        $this->connection->beginTransaction();
 
         $price = new CalculatedPrice(
             100.20,
@@ -433,9 +437,13 @@ class VersioningTest extends TestCase
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
 
+        $this->connection->rollBack();
+
         $this->connection->exec(CalculatedPriceFieldTestDefinition::dropTable());
         // We have created a table so the transaction rollback don't work -> we have to do it manually
         $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
+
+        $this->connection->beginTransaction();
     }
 
     public function testICanVersionCalculatedFields(): void

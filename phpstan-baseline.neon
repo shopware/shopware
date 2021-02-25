@@ -2751,11 +2751,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
 
 		-
-			message: "#^Parameter \\#1 \\$maxResults of method Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:\\:setMaxResults\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
-
-		-
 			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityAggregator\\:\\:hydrateResult\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
 			count: 3
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
@@ -5396,11 +5391,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
 
 		-
-			message: "#^Parameter \\#4 \\$result of method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\AbstractElasticsearchAggregationHydrator\\:\\:hydrate\\(\\) expects array, array\\|\\(callable\\) given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregator.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntityAggregatorHydrator\\:\\:hydrateAggregation\\(\\) should return Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Bucket\\\\TermsResult\\|null\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
@@ -5414,21 +5404,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$format of method DateTime\\:\\:format\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
-
-		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|\\(callable\\) given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchHelper.php
-
-		-
-			message: "#^Argument of an invalid type array\\|\\(callable\\) supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchOutdatedIndexDetector.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|\\(callable\\) given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

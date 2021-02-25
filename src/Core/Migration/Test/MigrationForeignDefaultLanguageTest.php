@@ -46,6 +46,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithoutEnGb(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
@@ -110,6 +111,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEquals('Password Wiederherstellung', $templateDeDe['subject']);
+
+        $orgConnection->beginTransaction();
     }
 
     /**
@@ -120,6 +123,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithoutEnGbOrDe(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
@@ -203,6 +207,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEmpty($templateDeLu);
+
+        $orgConnection->beginTransaction();
     }
 
     /**
@@ -212,6 +218,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithEnGbAndDeButDifferentDefault(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
@@ -288,6 +295,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEquals('Password recovery', $templateEnGb['subject']);
+
+        $orgConnection->beginTransaction();
     }
 
     private function isBasicDataMigration(string $className): bool

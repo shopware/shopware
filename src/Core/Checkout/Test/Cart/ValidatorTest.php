@@ -28,10 +28,10 @@ class ValidatorTest extends TestCase
 
             public function validate(
                 Cart $cart,
-                ErrorCollection $errorCollection,
-                SalesChannelContext $salesChannelContext
+                ErrorCollection $errors,
+                SalesChannelContext $context
             ): void {
-                $errorCollection->add($this->error);
+                $errors->add($this->error);
             }
         };
         $validator = new Validator([$mockValidator, $mockValidator2]);

@@ -10,7 +10,6 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\BearerTokenValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,14 +18,11 @@ use Shopware\Core\PlatformRequest;
 class BearerTokenValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use AdminApiTestBehaviour;
 
     public function testValidationFailWhenTokenExpired(): void
     {
-        static::expectException(OAuthServerException::class);
-        $browser = $this->getBrowser();
-
-        $connection = $browser->getContainer()->get(Connection::class);
+        $this->expectException(OAuthServerException::class);
+        $connection = $this->getContainer()->get(Connection::class);
         $admin = TestUser::createNewTestUser($connection, ['product:read']);
 
         $request = new ServerRequest('GET', $_SERVER['APP_URL']);

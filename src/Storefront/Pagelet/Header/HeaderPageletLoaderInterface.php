@@ -11,5 +11,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface HeaderPageletLoaderInterface
 {
-    public function load(Request $request, SalesChannelContext $salesChannelContext): HeaderPagelet;
+    public function load(Request $request, SalesChannelContext $context): HeaderPagelet;
 }

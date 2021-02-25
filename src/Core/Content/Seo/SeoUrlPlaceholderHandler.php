@@ -55,13 +55,13 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         return self::DOMAIN_PLACEHOLDER . $path . '#';
     }
 
-    public function replace(string $content, string $host, SalesChannelContext $salesChannelContext): string
+    public function replace(string $content, string $host, SalesChannelContext $context): string
     {
         $matches = [];
 
         if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
             $mapping = $this->createDefaultMapping($matches[0]);
-            $seoMapping = $this->createSeoMapping($salesChannelContext, $mapping);
+            $seoMapping = $this->createSeoMapping($context, $mapping);
             foreach ($seoMapping as $key => $value) {
                 $seoMapping[$key] = $host . '/' . ltrim($value, '/');
             }

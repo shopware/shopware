@@ -13,9 +13,9 @@ interface EntityWriterInterface
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array;
 
-    public function insert(EntityDefinition $resourceClass, array $rawData, WriteContext $writeContext);
+    public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext);
 
-    public function update(EntityDefinition $resourceClass, array $rawData, WriteContext $writeContext);
+    public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext);
 
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult;
 }

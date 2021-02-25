@@ -169,31 +169,31 @@ class AppLifecycle extends AbstractAppLifecycle
         }
     }
 
-    public function update(Manifest $manifest, array $appData, Context $context): void
+    public function update(Manifest $manifest, array $app, Context $context): void
     {
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
-        $app = $this->updateApp($manifest, $metadata, $appData['id'], $appData['roleId'], $defaultLocale, $context, false);
+        $appEntity = $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $defaultLocale, $context, false);
 
         $this->eventDispatcher->dispatch(
-            new AppUpdatedEvent($app, $manifest, $context)
+            new AppUpdatedEvent($appEntity, $manifest, $context)
         );
     }
 
-    public function delete(string $appName, array $appData, Context $context): void
+    public function delete(string $appName, array $app, Context $context): void
     {
-        $app = $this->loadApp($appData['id'], $context);
+        $appEntity = $this->loadApp($app['id'], $context);
 
-        if ($app->isActive()) {
-            $this->appStateService->deactivateApp($appData['id'], $context);
+        if ($appEntity->isActive()) {
+            $this->appStateService->deactivateApp($app['id'], $context);
         }
 
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($appData['id'], $context)
+            new AppDeletedEvent($app['id'], $context)
         );
 
-        $this->removeAppAndRole($appData['id'], $appData['roleId'], $context);
+        $this->removeAppAndRole($app['id'], $app['roleId'], $context);
     }
 
     private function updateApp(

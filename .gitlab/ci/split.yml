@@ -4,7 +4,9 @@ Repository Split:
     before_script: []
     dependencies: []
     rules:
-      # only split on nightly trunk, release versions or saas-release
+      # only split on protected branches, e.g.: nightly trunk, release versions or saas-release
+      - if: '$CI_COMMIT_REF_PROTECTED != "true"'
+        when: 'never'
       - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/'
       - if: '$CI_COMMIT_BRANCH == "saas-release"'
     environment:

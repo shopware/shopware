@@ -94,11 +94,6 @@ shopware:
               major: true
               description: "Add landing pages"
               # issue: NEXT-13755
-            - name: FEATURE_NEXT_12246
-              default: false
-              major: true
-              description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
-              # issue: NEXT-13756
             - name: FEATURE_NEXT_9831
               default: false
               major: false

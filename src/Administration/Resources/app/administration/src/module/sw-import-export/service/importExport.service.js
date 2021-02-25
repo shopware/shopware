@@ -40,7 +40,8 @@ export default class ImportExportService extends ApiService {
      * @returns {string}
      */
     getDownloadUrl(fileId, accessToken) {
-        return `${Shopware.Context.api.apiPath}/_action/${this.getApiBasePath()}/file/download?fileId=${fileId}&accessToken=${accessToken}`;
+        return `${Shopware.Context.api.apiPath}/_action/${this.getApiBasePath()}/` +
+            `file/download?fileId=${fileId}&accessToken=${accessToken}`;
     }
 
     /**

@@ -43,14 +43,6 @@
             </sw-single-select>
         {% endblock %}
 
-        {% block sw_settings_mailer_smtp_authentication %}
-            <sw-single-select
-                :label="$tc('sw-settings-mailer.card-smtp.authentication')"
-                :placeholder="$tc('sw-settings-mailer.card-smtp.authentication-placeholder')"
-                :options="authenticationOptions"
-                v-model="mailerSettings['core.mailerSettings.authenticationMethod']">
-            </sw-single-select>
-        {% endblock %}
 
         {% block sw_settings_mailer_smtp_sender_address %}
             <sw-field type="text"

@@ -10,9 +10,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
+use Symfony\Component\Mailer\DataCollector\MessageDataCollector;
+use Symfony\Component\Mime\Email;
 
 /**
  * @group slow
@@ -42,27 +43,33 @@ class MailActionControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         /** @var MessageDataCollector $mailCollector */
-        $mailCollector = $this->getBrowser()->getProfile()->getCollector('swiftmailer');
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('mailer');
 
         // checks that an email was sent
-        $messages = $mailCollector->getMessages();
+        $messages = $mailCollector->getEvents()->getMessages();
         static::assertGreaterThan(0, \count($messages));
+        /** @var Email $message */
         $message = array_pop($messages);
 
         // Asserting email data
-        static::assertInstanceOf(\Swift_Message::class, $message);
+        static::assertInstanceOf(Email::class, $message);
         static::assertSame('My precious subject', $message->getSubject());
-        static::assertSame('doNotReply@localhost', key($message->getFrom()));
-        static::assertSame('No Reply', current($message->getFrom()));
-        static::assertSame('recipient@example.com', key($message->getTo()));
+        static::assertSame(
+            'doNotReply@localhost',
+            current($message->getFrom())->getAddress(),
+            print_r($message->getFrom(), true)
+        );
+        static::assertSame('No Reply', current($message->getFrom())->getName(), print_r($message->getFrom(), true));
+        static::assertSame(
+            'recipient@example.com',
+            current($message->getTo())->getAddress(),
+            print_r($message->getFrom(), true)
+        );
 
         $partsByType = [];
-        foreach ($message->getChildren() as $contentPart) {
-            $partsByType[$contentPart->getContentType()] = $contentPart->getBody();
-        }
+        $partsByType['text/plain'] = $message->getTextBody();
+        $partsByType['text/html'] = $message->getHtmlBody();
 
-        static::assertArrayHasKey('text/plain', $partsByType);
-        static::assertArrayHasKey('text/html', $partsByType);
         static::assertSame('This is plain text', $partsByType['text/plain']);
         static::assertSame('<h1>This is HTML</h1>', $partsByType['text/html']);
     }
@@ -79,25 +86,24 @@ class MailActionControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         /** @var MessageDataCollector $mailCollector */
-        $mailCollector = $this->getBrowser()->getProfile()->getCollector('swiftmailer');
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('mailer');
 
         // checks that an email was sent
-        $messages = $mailCollector->getMessages();
+        $messages = $mailCollector->getEvents()->getMessages();
         static::assertGreaterThan(0, \count($messages));
+        /** @var Email $message */
         $message = array_pop($messages);
 
         // Asserting email data
-        static::assertInstanceOf(\Swift_Message::class, $message);
+        static::assertInstanceOf(Email::class, $message);
 
         $partsByType = [];
-        foreach ($message->getChildren() as $contentPart) {
-            $partsByType[$contentPart->getContentType()] = $contentPart->getBody();
-        }
+        $partsByType['application/pdf'] = $message->getAttachments()[0];
 
         static::assertArrayHasKey('application/pdf', $partsByType);
 
         // Use strcmp() for binary safety
-        static::assertSame(0, strcmp($partsByType['application/pdf'], file_get_contents(self::MEDIA_FIXTURE)));
+        static::assertSame(0, strcmp($partsByType['application/pdf']->getBody(), file_get_contents(self::MEDIA_FIXTURE)));
     }
 
     public function testSendingMailWithFooterAndHeader(): void
@@ -112,23 +118,21 @@ class MailActionControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         /** @var MessageDataCollector $mailCollector */
-        $mailCollector = $this->getBrowser()->getProfile()->getCollector('swiftmailer');
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('mailer');
 
         // checks that an email was sent
-        $messages = $mailCollector->getMessages();
+        $messages = $mailCollector->getEvents()->getMessages();
         static::assertGreaterThan(0, \count($messages));
+        /** @var Email $message */
         $message = array_pop($messages);
 
         // Asserting email data
-        static::assertInstanceOf(\Swift_Message::class, $message);
+        static::assertInstanceOf(Email::class, $message);
 
         $partsByType = [];
-        foreach ($message->getChildren() as $contentPart) {
-            $partsByType[$contentPart->getContentType()] = $contentPart->getBody();
-        }
+        $partsByType['text/plain'] = $message->getTextBody();
+        $partsByType['text/html'] = $message->getHtmlBody();
 
-        static::assertArrayHasKey('text/plain', $partsByType);
-        static::assertArrayHasKey('text/html', $partsByType);
         static::assertSame('Header This is plain text Footer', $partsByType['text/plain']);
         static::assertSame('<h1>Header</h1> <h1>This is HTML</h1> <h1>Footer</h1>', $partsByType['text/html']);
     }

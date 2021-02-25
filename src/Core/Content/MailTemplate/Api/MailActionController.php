@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
-use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
+use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MailActionController extends AbstractController
 {
     /**
-     * @var MailServiceInterface
+     * @var AbstractMailService
      */
     private $mailService;
 
@@ -30,7 +30,7 @@ class MailActionController extends AbstractController
     private $templateRenderer;
 
     public function __construct(
-        MailServiceInterface $mailService,
+        AbstractMailService $mailService,
         StringTemplateRenderer $templateRenderer
     ) {
         $this->mailService = $mailService;

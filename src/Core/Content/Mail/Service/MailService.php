@@ -15,8 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\Exception\FeatureNotActiveException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -42,7 +40,7 @@ class MailService extends AbstractMailService
     /**
      * @var AbstractMailFactory
      */
-    private $messageFactory;
+    private $mailFactory;
 
     /**
      * @var EntityRepositoryInterface
@@ -87,7 +85,7 @@ class MailService extends AbstractMailService
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
-        AbstractMailFactory $messageFactory,
+        AbstractMailFactory $mailFactory,
         AbstractMailSender $emailSender,
         EntityRepositoryInterface $mediaRepository,
         SalesChannelDefinition $salesChannelDefinition,
@@ -97,13 +95,9 @@ class MailService extends AbstractMailService
         LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator
     ) {
-        if (!Feature::isActive('FEATURE_NEXT_12246')) {
-            throw new FeatureNotActiveException('FEATURE_NEXT_12246');
-        }
-
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
-        $this->messageFactory = $messageFactory;
+        $this->mailFactory = $mailFactory;
         $this->mailSender = $emailSender;
         $this->mediaRepository = $mediaRepository;
         $this->salesChannelDefinition = $salesChannelDefinition;
@@ -155,6 +149,9 @@ class MailService extends AbstractMailService
         $contents = $this->buildContents($data, $salesChannel);
         if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
             $this->templateRenderer->enableTestMode();
+            if (!isset($templateData['order']) && !isset($templateData['order']['deepLinkCode']) || $templateData['order']['deepLinkCode'] === '') {
+                $templateData['order']['deepLinkCode'] = 'home';
+            }
         }
 
         $template = $data['subject'];
@@ -187,7 +184,7 @@ class MailService extends AbstractMailService
 
         $binAttachments = $data['binAttachments'] ?? null;
 
-        $mail = $this->messageFactory->create(
+        $mail = $this->mailFactory->create(
             $data['subject'],
             [$senderEmail => $data['senderName']],
             $recipients,

@@ -3,49 +3,54 @@
 namespace Shopware\Core\Content\Test\MailTemplate\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Mailer\Transport\SendmailTransport;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
 class MailerTransportFactoryTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testFactoryWithoutConfig(): void
     {
-        $original = new \Swift_NullTransport();
-        $factory = new MailerTransportFactory();
+        $original = new SendmailTransport();
+
+        $factory = $this->getContainer()->get('mailer.transport_factory');
 
         $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => null,
-            ]),
-            $original
+            ])
         );
 
-        static::assertSame($original, $mailer);
+        static::assertEquals(\get_class($original), \get_class($mailer));
     }
 
     public function testFactoryWithLocal(): void
     {
-        $original = new \Swift_NullTransport();
+        $original = new SendmailTransport();
 
-        $factory = new MailerTransportFactory();
+        $factory = $this->getContainer()->get('mailer.transport_factory');
 
         $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => null,
-            ]),
-            $original
+            ])
         );
 
-        static::assertInstanceOf(\Swift_SendmailTransport::class, $mailer);
+        static::assertEquals(\get_class($original), \get_class($mailer));
     }
 
     public function testFactoryWithConfig(): void
     {
-        $original = new \Swift_NullTransport();
-        $factory = new MailerTransportFactory();
+        $original = new EsmtpTransport();
 
-        $transport = $factory->create(
+        $factory = $this->getContainer()->get('mailer.transport_factory');
+
+        /** @var EsmtpTransport $mailer */
+        $mailer = $factory->create(
             new ConfigService([
                 'core.mailerSettings.emailAgent' => 'smtp',
                 'core.mailerSettings.host' => 'localhost',
@@ -54,19 +59,10 @@ class MailerTransportFactoryTest extends TestCase
                 'core.mailerSettings.password' => 'root',
                 'core.mailerSettings.encryption' => 'ssl',
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
-            ]),
-            $original
+            ])
         );
 
-        static::assertNotSame($original, $transport);
-
-        /** @var \Swift_SmtpTransport $transport */
-        static::assertSame('localhost', $transport->getHost());
-        static::assertSame(225, $transport->getPort());
-        static::assertSame('root', $transport->getUsername());
-        static::assertSame('root', $transport->getPassword());
-        static::assertSame('ssl', $transport->getEncryption());
-        static::assertSame('cram-md5', $transport->getAuthMode());
+        static::assertEquals(\get_class($original), \get_class($mailer));
     }
 }
 

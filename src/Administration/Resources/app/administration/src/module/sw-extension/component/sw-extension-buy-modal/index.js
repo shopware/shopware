@@ -39,7 +39,9 @@ Component.register('sw-extension-buy-modal', {
 
     computed: {
         recommendedVariants() {
-            return this.shopwareExtensionService.orderVariantsByRecommendation(this.extension.variants).filter((variant) => {
+            return this.shopwareExtensionService.orderVariantsByRecommendation(
+                this.extension.variants
+            ).filter((variant) => {
                 return Object.values(this.shopwareExtensionService.EXTENSION_VARIANT_TYPES).includes(variant.type);
             });
         },

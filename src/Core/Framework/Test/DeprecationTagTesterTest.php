@@ -212,10 +212,10 @@ class DeprecationTagTesterTest extends TestCase
 
     public function testItCapturesTheVersionFromTagElementsCorrectly(): void
     {
-        $this->deprecationTagTester->validateTagElement('<tag name="deprecated" version="tag:v6.5.0"/>');
+        $this->deprecationTagTester->validateTagElement('<tag name="shopware.deprecated" version="tag:v6.5.0"/>');
 
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('The version you used for deprecation is already live.');
-        $this->deprecationTagTester->validateTagElement('<tag name="deprecated" version="tag:v6.2.0"/>');
+        $this->deprecationTagTester->validateTagElement('<tag name="shopware.deprecated" version="tag:v6.2.0"/>');
     }
 }

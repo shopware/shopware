@@ -93,7 +93,7 @@ class DeprecationTagTester
         /*
          * captures the version attribute from a tag element with name is set to deprecated
          */
-        $tagPattern = '/\<tag name="deprecated".*version="(.*)".*\/?\>/';
+        $tagPattern = '/\<tag name="shopware.deprecated".*version="(.*)".*\/?\>/';
         $matches = [];
         preg_match_all($tagPattern, $content, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
 

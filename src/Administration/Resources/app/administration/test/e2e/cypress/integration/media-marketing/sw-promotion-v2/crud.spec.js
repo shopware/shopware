@@ -92,7 +92,7 @@ describe('Promotion v2: Test crud operations', () => {
             .should('be.visible')
             .click();
 
-        const groupSelector = '#sw-promotion-v2-card-condition-form__setgroup-card-1 ';
+        const groupSelector = '#sw-promotion-v2-cart-condition-form__setgroup-card-1 ';
         cy.get(`${groupSelector}#sw-field--group-packagerKey`)
             .select('Amount (net)');
         cy.get(`${groupSelector}.sw-promotion-v2-cart-condition-form__setgroup-value`)

@@ -1,7 +1,7 @@
 import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
 
 /**
- * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
 export default class PromotionDiscountHandler {
     // Gets the suffix of the value text field depending

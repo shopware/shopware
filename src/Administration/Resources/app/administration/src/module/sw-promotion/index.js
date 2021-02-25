@@ -20,7 +20,7 @@ import './acl/index';
 const { Module } = Shopware;
 
 /**
- * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 Module.register('sw-promotion', {

@@ -400,9 +400,9 @@ describe('Order: Create order', () => {
     it('@base @order: add promotion code', () => {
         const page = new OrderPageObject();
 
-        cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
 
-        cy.get('a[href="#/sw/promotion/create"]').click();
+        cy.get('a[href="#/sw/promotion/v2/create"]').click();
 
         // Request we want to wait for later
         cy.server();
@@ -417,20 +417,26 @@ describe('Order: Create order', () => {
         }).as('saveDiscount');
 
         // Create promotion
-        cy.get('.sw-promotion-detail').should('be.visible');
+        cy.get('.sw-promotion-v2-detail').should('be.visible');
         cy.get('#sw-field--promotion-name').typeAndCheck('New year promotion');
         cy.get('input[name="sw-field--promotion-active"]').click();
-        cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
-        cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
-            .type('{esc}');
 
-        cy.get('input[name="sw-field--promotion-useCodes"]').check();
-        cy.get('#sw-field--promotion-code').typeAndCheck('DISCOUNT');
-        cy.get('.sw-promotion-detail__save-action').click();
-
+        cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@savePromotion').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
+        cy.get('#sw-field--promotion-code').typeAndCheck('DISCOUNT');
+
+        // Add to Storefront SalesChannel
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('a[title="Conditions"]').click();
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
+            .typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-promotion-v2-detail__save-action').click();
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`)
@@ -456,7 +462,7 @@ describe('Order: Create order', () => {
             .clear()
             .type('10');
 
-        cy.get('.sw-promotion-detail__save-action').click();
+        cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@saveDiscount').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

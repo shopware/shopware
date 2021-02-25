@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.5.0.0 - will be removed, use `sw-promotion-v2` instead
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
 Component.register('sw-promotion-detail-discounts', {
     template,

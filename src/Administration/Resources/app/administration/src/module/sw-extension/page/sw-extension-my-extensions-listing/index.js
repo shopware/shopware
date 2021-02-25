@@ -11,6 +11,13 @@ Component.register('sw-extension-my-extensions-listing', {
 
     inject: ['shopwareExtensionService'],
 
+    data() {
+        return {
+            filterByActiveState: false,
+            sortingOption: 'updated-at'
+        };
+    },
+
     computed: {
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
@@ -23,22 +30,14 @@ Component.register('sw-extension-my-extensions-listing', {
         },
 
         extensionList() {
-            const isAppRoute = this.$route.name === 'sw.extension.my-extensions.listing.app';
-            const isThemeRoute = this.$route.name === 'sw.extension.my-extensions.listing.theme';
+            const byTypeFilteredExtensions = this.filterExtensionsByType(this.myExtensions, this.$route.name);
+            const sortedExtensions = this.sortExtensions(byTypeFilteredExtensions, this.sortingOption);
 
-            return this.myExtensions.filter(extension => {
-                // app route and no theme
-                if (isAppRoute && !extension.isTheme) {
-                    return true;
-                }
+            if (this.filterByActiveState) {
+                return this.filterExtensionsByActiveState(sortedExtensions);
+            }
 
-                // theme route and theme
-                if (isThemeRoute && extension.isTheme) {
-                    return true;
-                }
-
-                return false;
-            });
+            return sortedExtensions;
         },
 
         extensionListPaginated() {
@@ -146,6 +145,82 @@ Component.register('sw-extension-my-extensions-listing', {
 
         changePage({ page, limit }) {
             this.updateRouteQuery({ page, limit });
+        },
+
+        filterExtensionsByType(extensions, routeType) {
+            const isAppRoute = routeType === 'sw.extension.my-extensions.listing.app';
+            const isThemeRoute = routeType === 'sw.extension.my-extensions.listing.theme';
+
+            return extensions.filter(extension => {
+                // app route and no theme
+                if (isAppRoute && !extension.isTheme) {
+                    return true;
+                }
+
+                // theme route and theme
+                if (isThemeRoute && extension.isTheme) {
+                    return true;
+                }
+
+                return false;
+            });
+        },
+
+        sortExtensions(extensions, sortingOption) {
+            return extensions.sort((firstExtension, secondExtension) => {
+                if (sortingOption === 'name-asc') {
+                    return firstExtension.label.localeCompare(secondExtension.label, { sensitivity: 'base' });
+                }
+
+                if (sortingOption === 'name-desc') {
+                    return firstExtension.label.localeCompare(secondExtension.label, { sensitivity: 'base' }) * -1;
+                }
+
+                if (sortingOption === 'updated-at') {
+                    if (firstExtension.updatedAt === null && secondExtension.updatedAt !== null) {
+                        return 1;
+                    }
+
+                    if (firstExtension.updatedAt !== null && secondExtension.updatedAt === null) {
+                        return -1;
+                    }
+
+                    if (secondExtension.updatedAt === null && firstExtension.updatedAt === null) {
+                        return 0;
+                    }
+
+                    const firstExtensionDate = new Date(firstExtension.updatedAt.date);
+                    const secondExtensionDate = new Date(secondExtension.updatedAt.date);
+
+                    if (firstExtensionDate > secondExtensionDate) {
+                        return -1;
+                    }
+
+                    if (firstExtensionDate < secondExtensionDate) {
+                        return 1;
+                    }
+
+                    if (firstExtensionDate === secondExtensionDate) {
+                        return 0;
+                    }
+                }
+
+                return 0;
+            });
+        },
+
+        changeSortingOption(value) {
+            this.sortingOption = value;
+        },
+
+        changeActiveState(value) {
+            this.filterByActiveState = value;
+        },
+
+        filterExtensionsByActiveState(extensions) {
+            return extensions.filter(extension => {
+                return extension.active;
+            });
         }
     }
 });

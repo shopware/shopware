@@ -185,6 +185,7 @@ class ExtensionLoader
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
             'isTheme' => \in_array($plugin->getName(), $installedThemeNames, true),
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
+            'updatedAt' => $plugin->getUpgradedAt(),
         ];
 
         return $this->loadFromArray($context, $data);
@@ -274,6 +275,7 @@ class ExtensionLoader
             'isTheme' => \in_array($app->getName(), $installedThemeNames, true),
             'configurable' => $app->isConfigurable(),
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
+            'updatedAt' => $app->getUpdatedAt(),
         ];
 
         $appTranslations = $app->getTranslations();

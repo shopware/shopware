@@ -16,202 +16,122 @@ class ExtensionStruct extends Struct
     public const SOURCE_LOCAL = 'local';
     public const SOURCE_STORE = 'store';
 
-    /**
-     * @var int|null is null for private extensions
-     */
-    protected $id;
+    protected ?int $id = null;
 
-    /**
-     * @var string|null is null for not installed extensions
-     */
-    protected $localId;
+    protected ?string $localId = null;
 
     /**
      * @see AppEntity::$name
      * @see PluginEntity::$name
-     *
-     * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @see AppEntity::$label
      * @see PluginEntity::$label
-     *
-     * @var string
      */
-    protected $label;
+    protected string $label;
 
     /**
      * @see AppEntity::$description
      * @see PluginEntity::$description
-     *
-     * @var string|null
      */
-    protected $description;
+    protected ?string $description = null;
 
-    /**
-     * @var string|null is null for private extensions
-     */
-    protected $shortDescription;
+    protected ?string $shortDescription = null;
 
     /**
      * @see AppEntity::$author
      * @see PluginEntity::$author
-     *
-     * @var string
      */
-    protected $producerName;
+    protected ?string $producerName = null;
 
     /**
      * @see AppEntity::$license
      * @see PluginEntity::$license
-     *
-     * @var string
      */
-    protected $license;
+    protected ?string $license = null;
 
     /**
      * @see AppEntity::$version
      * @see PluginEntity::$version
-     *
-     * @var string|null for store details
      */
-    protected $version;
+    protected ?string $version = null;
 
-    /**
-     * @var string|null
-     */
-    protected $latestVersion;
+    protected ?string $latestVersion = null;
 
     /**
      * privacyPolicyLink from store
      *
      * @see AppEntity::$privacy
-     *
-     * @var string|null null for plugins
      */
-    protected $privacyPolicyLink;
+    protected ?string $privacyPolicyLink;
 
     /**
      * languages property from store
      *
      * @var array<string>
      */
-    protected $languages = [];
+    protected array $languages = [];
 
-    /**
-     * @var float|null null for private extensions
-     */
-    protected $rating;
+    protected ?float $rating = null;
 
-    /**
-     * @var int total of given ratings
-     */
-    protected $numberOfRatings = 0;
+    protected int $numberOfRatings = 0;
 
-    /**
-     * @var VariantCollection|null
-     */
-    protected $variants;
+    protected ?VariantCollection $variants = null;
 
-    /**
-     * @var FaqCollection|null
-     */
-    protected $faq;
+    protected ?FaqCollection $faq = null;
 
-    /**
-     * @var BinaryCollection|null
-     */
-    protected $binaries;
+    protected ?BinaryCollection $binaries = null;
 
-    /**
-     * @var ImageCollection
-     */
-    protected $images;
+    protected ?ImageCollection $images = null;
 
-    /**
-     * @var string|null
-     */
-    protected $icon;
+    protected ?string $icon = null;
 
-    /**
-     * @var string|null
-     */
-    protected $iconRaw;
+    protected ?string $iconRaw = null;
 
-    /**
-     * @var StoreCategoryCollection|null
-     */
-    protected $categories;
+    protected ?StoreCategoryCollection $categories = null;
 
-    /**
-     * @var PermissionCollection|null
-     */
-    protected $permissions;
+    protected ?PermissionCollection $permissions = null;
 
-    /**
-     * @var bool
-     */
-    protected $active = false;
+    protected bool $active = false;
 
     /**
      * @var string 'app' | 'plugin'
      */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var bool
-     */
-    protected $isTheme;
+    protected bool $isTheme = false;
 
     /**
      * @see AppEntity::$configurable
-     *
-     * @var bool
      */
-    protected $configurable;
+    protected bool $configurable = false;
 
     /**
      * @see AppEntity::$privacyPolicyExtensions
-     *
-     * @var string|null
      */
-    protected $privacyPolicyExtension;
+    protected ?string $privacyPolicyExtension = null;
 
-    /**
-     * @var LicenseStruct|null
-     */
-    protected $storeLicense;
+    protected ?LicenseStruct $storeLicense = null;
 
-    /**
-     * @var ExtensionStruct|null
-     */
-    protected $storeExtension;
+    protected ?ExtensionStruct $storeExtension = null;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $installedAt;
+    protected ?\DateTimeInterface $installedAt = null;
 
-    /**
-     * @var array
-     */
-    protected $notices = [];
+    protected ?\DateTimeInterface $updatedAt = null;
+
+    protected array $notices = [];
 
     /**
      * Is this extension locally available or only in store
-     *
-     * @var string
      */
-    protected $source = self::SOURCE_LOCAL;
+    protected string $source = self::SOURCE_LOCAL;
 
     /**
      * Is the update local or in store
-     *
-     * @var string
      */
-    protected $updateSource = self::SOURCE_LOCAL;
+    protected string $updateSource = self::SOURCE_LOCAL;
 
     public static function fromArray(array $data): ExtensionStruct
     {
@@ -278,7 +198,7 @@ class ExtensionStruct extends Struct
         $this->shortDescription = $shortDescription;
     }
 
-    public function getProducerName(): string
+    public function getProducerName(): ?string
     {
         return $this->producerName;
     }
@@ -394,7 +314,7 @@ class ExtensionStruct extends Struct
         $this->binaries = $binaries;
     }
 
-    public function getImages(): ImageCollection
+    public function getImages(): ?ImageCollection
     {
         return $this->images;
     }
@@ -569,5 +489,15 @@ class ExtensionStruct extends Struct
     public function setStoreExtension(?ExtensionStruct $storeExtension): void
     {
         $this->storeExtension = $storeExtension;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

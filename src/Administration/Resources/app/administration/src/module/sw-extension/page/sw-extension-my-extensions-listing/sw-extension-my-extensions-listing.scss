@@ -1,3 +1,5 @@
+@import '~scss/variables';
+
 .sw-extension-my-extensions-listing {
     .sw-extension-my-extensions-listing__listing-grid {
         margin-bottom: 48px;
@@ -21,6 +23,23 @@
             img {
                 margin: 0 auto 24px auto;
             }
+        }
+    }
+
+    &-empty-state {
+        text-align: center;
+    }
+
+    &__container {
+        max-width: 960px;
+        margin: 0 auto;
+
+        .sw-extension-my-extensions-listing-controls {
+            margin-bottom: 32px;
+        }
+
+        .sw-field--switch .sw-field--switch__content {
+            background-color: transparent;
         }
     }
 

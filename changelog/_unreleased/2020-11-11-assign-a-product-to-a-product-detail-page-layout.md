@@ -1,7 +1,6 @@
 ---
 title: Assign a product to a Product Detail Page layout
 issue: NEXT-11740
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added `headline` and `cmsPageTypes` props to `sw-cms-layout-modal` component.

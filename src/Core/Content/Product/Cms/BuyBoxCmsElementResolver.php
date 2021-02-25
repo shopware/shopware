@@ -17,9 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     /**

@@ -133,7 +133,7 @@
                                                             {% endblock %}
 
                                                             {% block sw_cms_list_listing_list_data_grid_column_assignments %}
-                                                                <template v-if="feature.isActive('FEATURE_NEXT_10078')" #column-assignments="{ item }">
+                                                                <template #column-assignments="{ item }">
                                                                     {{ item.categories.length + item.products.length }}
                                                                 </template>
                                                             {% endblock %}

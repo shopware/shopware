@@ -47,8 +47,6 @@ class CmsPageEntity extends Entity
     protected $categories;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var ProductCollection|null
      */
     protected $products;
@@ -158,17 +156,11 @@ class CmsPageEntity extends Entity
         $this->categories = $categories;
     }
 
-    /**
-     *@internal (flag:FEATURE_NEXT_10078)
-     */
     public function getProducts(): ?ProductCollection
     {
         return $this->products;
     }
 
-    /**
-     *@internal (flag:FEATURE_NEXT_10078)
-     */
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;

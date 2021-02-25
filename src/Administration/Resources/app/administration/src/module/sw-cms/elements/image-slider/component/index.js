@@ -109,29 +109,16 @@ Component.register('sw-cms-el-image-slider', {
     },
 
     watch: {
-        // @feature-deprecated (flag:FEATURE_NEXT_10078) use sliderItems instead
+        // @deprecated tag:v6.5.0 use sliderItems instead
         'element.data.sliderItems': {
             handler() {
-                if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                    return;
-                }
-
-                if (this.sliderItems.length > 0) {
-                    this.imgSrc = this.sliderItems[0].media.url;
-                    this.$emit('active-image-change', this.sliderItems[0].media);
-                } else {
-                    this.imgSrc = this.assetFilter(this.imgPath);
-                }
+                return null;
             },
             deep: true
         },
 
         sliderItems: {
             handler() {
-                if (!this.feature.isActive('FEATURE_NEXT_10078')) {
-                    return;
-                }
-
                 if (this.sliderItems && this.sliderItems.length > 0) {
                     this.imgSrc = this.sliderItems[0].media.url;
                     this.$emit('active-image-change', this.sliderItems[0].media);

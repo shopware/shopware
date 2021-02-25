@@ -1,7 +1,6 @@
 ---
 title: Implement cms buy box element in Storefront
 issue: NEXT-11747
-flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added `Shopware\Core\Content\Product\Cms\BuyBoxCmsElementResolver` to resolve data for `buy-box` cms element.

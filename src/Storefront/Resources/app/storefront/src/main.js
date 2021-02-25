@@ -156,6 +156,7 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
+PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
@@ -169,14 +170,9 @@ if (window.wishlistEnabled) {
     PluginManager.register('WishlistWidget', WishlistWidgetPlugin, '[data-wishlist-widget]');
 }
 
-if (Feature.isActive('FEATURE_NEXT_10078')) {
-    PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
-}
-
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
 }
-
 
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);

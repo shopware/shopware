@@ -1,7 +1,6 @@
 ---
 title: Change layout assignment position
 issue: NEXT-12841
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added `subtitle` custom property in `sw-card` component.

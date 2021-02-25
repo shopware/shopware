@@ -1,7 +1,6 @@
 ---
 title: Display product description and reviews element and block on Storefront
 issue: NEXT-11745
-flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added `Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver` to resolve `product-description-reviews` cms element.

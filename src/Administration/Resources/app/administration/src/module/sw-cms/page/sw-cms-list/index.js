@@ -64,12 +64,9 @@ Component.register('sw-cms-list', {
                 { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
                 { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
                 { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') }
+                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
+                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') }
             ];
-
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                sortPageTypes.push({ value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') });
-            }
 
             return sortPageTypes;
         },
@@ -78,12 +75,9 @@ Component.register('sw-cms-list', {
             const pageTypes = {
                 page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
                 landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages')
+                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
+                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
             };
-
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                pageTypes.product_detail = this.$tc('sw-cms.sorting.labelSortByProductPages');
-            }
 
             return pageTypes;
         },
@@ -114,18 +108,8 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
+                .addAssociation('products')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria.addAssociation('products');
-            }
-
-            if (!this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria.addFilter(Criteria.not(
-                    'AND',
-                    [Criteria.equals('type', 'product_detail')]
-                ));
-            }
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);
@@ -314,12 +298,8 @@ Component.register('sw-cms-list', {
                 property: 'type',
                 label: this.$tc('sw-cms.list.gridHeaderType')
             }, {
-                property: this.feature.isActive('FEATURE_NEXT_10078')
-                    ? 'assignments'
-                    : 'categories.length',
-                label: this.feature.isActive('FEATURE_NEXT_10078')
-                    ? this.$tc('sw-cms.list.gridHeaderAssignments')
-                    : this.$tc('sw-cms.list.gridHeaderAssignment'),
+                property: 'assignments',
+                label: this.$tc('sw-cms.list.gridHeaderAssignments'),
                 sortable: false
             }, {
                 property: 'createdAt',
@@ -328,7 +308,7 @@ Component.register('sw-cms-list', {
         },
 
         deleteDisabledToolTip(page) {
-            if (this.feature.isActive('FEATURE_NEXT_10078') && page.type === 'product_detail') {
+            if (page.type === 'product_detail') {
                 return {
                     showDelay: 300,
                     message: this.$tc('sw-cms.general.deleteDisabledProductToolTip'),

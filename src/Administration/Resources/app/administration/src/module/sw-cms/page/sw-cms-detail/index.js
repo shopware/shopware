@@ -16,8 +16,7 @@ Component.register('sw-cms-detail', {
         'loginService',
         'cmsService',
         'cmsDataResolverService',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [
@@ -239,6 +238,7 @@ Component.register('sw-cms-detail', {
             criteria
                 .addAssociation('categories')
                 .addAssociation('landingPages')
+                .addAssociation('products.manufacturer')
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -246,11 +246,6 @@ Component.register('sw-cms-detail', {
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
-
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria
-                    .addAssociation('products.manufacturer');
-            }
 
             return criteria;
         },

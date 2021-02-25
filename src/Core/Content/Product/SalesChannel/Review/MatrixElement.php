@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 class MatrixElement
 {
     /**

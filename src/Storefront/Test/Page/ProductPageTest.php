@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -174,8 +173,6 @@ class ProductPageTest extends TestCase
 
     public function testItDoesLoadACmsProductDetailPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $context = $this->createSalesChannelContextWithNavigation();
         $cmsPageId = Uuid::randomHex();
         $productCmsPageData = [
@@ -206,8 +203,6 @@ class ProductPageTest extends TestCase
 
     public function testSlotOverwrite(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $context = $this->createSalesChannelContextWithNavigation();
         $cmsPageId = Uuid::randomHex();
         $firstSlotId = Uuid::randomHex();

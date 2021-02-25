@@ -24,9 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private const LIMIT = 10;

@@ -61,9 +61,6 @@ shopware:
               default: false
               major: true
               description: "composer require for plugins"
-            - name: FEATURE_NEXT_10078
-              major: false
-              description: "cms product page layouts"
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"

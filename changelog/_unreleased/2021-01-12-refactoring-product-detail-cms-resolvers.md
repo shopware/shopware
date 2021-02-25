@@ -1,7 +1,6 @@
 ---
 title: Refactoring Product Detail CMS Resolvers
 issue: NEXT-12990
-flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added `Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct` to handle data for `manufacturer-logo` cms element.

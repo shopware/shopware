@@ -118,6 +118,8 @@ ForeignTable(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page"
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
@@ -129,6 +131,7 @@ ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinit
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition

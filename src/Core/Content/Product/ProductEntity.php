@@ -322,8 +322,6 @@ class ProductEntity extends Entity
     protected $media;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var string|null
      */
     protected $cmsPageId;
@@ -334,8 +332,6 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var array|null
      */
     protected $slotConfig;
@@ -936,49 +932,31 @@ class ProductEntity extends Entity
         $this->cover = $cover;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getCmsPage(): ?CmsPageEntity
     {
         return $this->cmsPage;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getCmsPageId(): ?string
     {
         return $this->cmsPageId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setCmsPageId(string $cmsPageId): void
     {
         $this->cmsPageId = $cmsPageId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;

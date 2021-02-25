@@ -1,7 +1,6 @@
 ---
 title: Display "Cross Selling" block on Storefront
 issue: NEXT-12064
-flag: FEATURE_NEXT_10078
 ---
 # Storefront
 * Added `src/Storefront/Resources/views/storefront/block/cms-block-cross-selling.html.twig` to display `cross-selling` cms block.

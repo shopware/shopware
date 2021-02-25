@@ -2121,8 +2121,6 @@ class ProductRepositoryTest extends TestCase
 
     public function testCreateAndAssignCMSPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $id = Uuid::randomHex();
 
         $cmsPageId = Uuid::randomHex();

@@ -1,7 +1,6 @@
 ---
 title: Disable the deletion of product detail page layout
 issue: NEXT-12062
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Changed `isActive()` method in `sw-cms-list-item` component to show an active state if needed.

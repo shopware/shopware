@@ -1,7 +1,6 @@
 ---
 title: Show missing element modal
 issue: NEXT-11886
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added `sw-cms-missing-element-modal` in `sw-cms` component.

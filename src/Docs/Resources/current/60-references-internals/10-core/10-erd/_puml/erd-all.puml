@@ -995,6 +995,9 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    customSearchKeywords translated
    canonicalProductId foreignKey
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   slotConfig translated
    blacklistIds blacklistRule
    whitelistIds whitelistRule
    not_null(createdAt) createdAt
@@ -1124,6 +1127,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    packUnit string
    packUnitPlural string
    customSearchKeywords list
+   slotConfig json
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -2411,6 +2415,7 @@ ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCo
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition

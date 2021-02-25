@@ -1,7 +1,6 @@
 ---
 title: Add cms gallery buybox block to Storefront
 issue: NEXT-12061
-flag: FEATURE_NEXT_10078
 --- 
 # Core
 * Changed method `enrich` in `Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver.php` to resolve slider item data if slider config is `mapped`

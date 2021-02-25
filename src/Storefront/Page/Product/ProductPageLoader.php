@@ -16,7 +16,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -118,7 +117,7 @@ class ProductPageLoader
         $page->setProduct($product);
         $page->setConfiguratorSettings($result->getConfigurator());
 
-        if (Feature::isActive('FEATURE_NEXT_10078') && $cmsPage = $product->getCmsPage()) {
+        if ($cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);
         } else {
             $request->request->set('parentId', $product->getParentId());

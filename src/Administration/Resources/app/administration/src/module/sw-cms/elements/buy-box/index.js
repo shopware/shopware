@@ -7,10 +7,8 @@ const criteria = new Criteria();
 criteria.addAssociation('deliveryTime');
 
 Shopware.Service('cmsService').registerCmsElement({
-    flag: Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
     name: 'buy-box',
     label: 'sw-cms.elements.buyBox.label',
-    hidden: !Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
     component: 'sw-cms-el-buy-box',
     configComponent: 'sw-cms-el-config-buy-box',
     previewComponent: 'sw-cms-el-preview-buy-box',

@@ -9,9 +9,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     /**

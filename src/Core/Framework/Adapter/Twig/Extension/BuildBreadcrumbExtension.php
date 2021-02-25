@@ -79,7 +79,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:v6.5.0.0 - Will be set to private or deleted, without a replacement.
+     * @deprecated tag:v6.5.0 - Will be set to private or deleted, without a replacement.
      */
     public function buildSeoBreadcrumb(array $twigContext, CategoryEntity $category, ?string $navigationCategoryId = null): ?array
     {

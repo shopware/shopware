@@ -153,9 +153,9 @@ class ProductStreamIndexer extends EntityIndexer
         $this->cacheClearer->invalidateIds($ids, ProductStreamDefinition::ENTITY_NAME);
     }
 
-    private function buildPayload($filter): string
+    private function buildPayload(array $filter): string
     {
-        usort($filter, function (array $a, array $b) {
+        usort($filter, static function (array $a, array $b) {
             return $a['position'] <=> $b['position'];
         });
 

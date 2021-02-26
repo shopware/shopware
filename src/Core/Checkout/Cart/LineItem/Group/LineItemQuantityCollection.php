@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class LineItemQuantityCollection extends Collection
 {
+    /**
+     * @param string $key
+     */
     public function has($key): bool
     {
         /** @var LineItemQuantity $element */

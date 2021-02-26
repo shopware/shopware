@@ -37,12 +37,12 @@ class DocumentConfiguration extends Struct
     protected $documentComment;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $pageOrientation;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $pageSize;
 
@@ -156,6 +156,12 @@ class DocumentConfiguration extends Struct
      */
     protected $custom = [];
 
+    /**
+     * @param string                     $name
+     * @param array|bool|int|string|null $value
+     *
+     * @return $this
+     */
     public function __set($name, $value)
     {
         $this->$name = $value;
@@ -163,11 +169,21 @@ class DocumentConfiguration extends Struct
         return $this;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return array|bool|int|string|null
+     */
     public function __get($name)
     {
         return $this->$name;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
     public function __isset($name)
     {
         return property_exists($this, $name);

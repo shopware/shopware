@@ -24,6 +24,10 @@ class DeliveryPositionCollection extends Collection
         $this->elements[$key] = $deliveryPosition;
     }
 
+    /**
+     * @param string|int       $key
+     * @param DeliveryPosition $deliveryPosition
+     */
     public function set($key, $deliveryPosition): void
     {
         parent::set($this->getKey($deliveryPosition), $deliveryPosition);
@@ -46,12 +50,9 @@ class DeliveryPositionCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_map(
-                function (DeliveryPosition $position) {
-                    return $position->getPrice();
-                },
-                $this->elements
-            )
+            array_map(static function (DeliveryPosition $position) {
+                return $position->getPrice();
+            }, $this->elements)
         );
     }
 

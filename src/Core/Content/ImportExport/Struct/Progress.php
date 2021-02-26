@@ -42,7 +42,7 @@ class Progress extends Struct
      */
     protected $state;
 
-    public function __construct(string $logId, string $state, $offset = 0, $total = null)
+    public function __construct(string $logId, string $state, int $offset = 0, ?int $total = null)
     {
         $this->logId = $logId;
         $this->state = $state;

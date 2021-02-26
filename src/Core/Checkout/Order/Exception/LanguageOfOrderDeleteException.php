@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LanguageOfOrderDeleteException extends ShopwareHttpException
 {
-    public function __construct(string $language, $e)
+    public function __construct(string $language, ?\Throwable $e = null)
     {
         parent::__construct(
             'The language "{{ language }}" cannot be deleted because Orders with this language exist.',

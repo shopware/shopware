@@ -368,6 +368,9 @@ class DocumentService
         Context $context
     ): string {
         $referencedDocumentType = $documentConfiguration->__get('referencedDocumentType');
+        if (!\is_string($referencedDocumentType)) {
+            throw new \RuntimeException('referencedDocumentType should be a string');
+        }
 
         $criteria = (new Criteria([$referencedDocumentId]))
             ->addFilter(

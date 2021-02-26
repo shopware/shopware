@@ -122,7 +122,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         }
     }
 
-    private function getSalesChannelContext(SitemapMessage $message)
+    private function getSalesChannelContext(SitemapMessage $message): ?SalesChannelContext
     {
         if ($message->isFinished() === false && $message->getLastSalesChannelId() !== null) {
             $this->logger->debug('continue with last used saleschannel ' . $message->getLastSalesChannelId() . ' ' . $message->getLastLanguageId());

@@ -78,7 +78,7 @@ class KeyMappingPipe extends AbstractPipe
         yield from ArrayNormalizer::expand($flat);
     }
 
-    private function mapKey($key): ?string
+    private function mapKey(string $key): ?string
     {
         $mapping = $this->mapping->getMapped($key);
         if ($mapping === null) {

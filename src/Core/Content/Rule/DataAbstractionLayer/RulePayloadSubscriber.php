@@ -40,13 +40,12 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
         /** @var RuleEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            if (!$entity->getPayload() || !\is_string($entity->getPayload())) {
+            $payload = $entity->getPayload();
+            if ($payload === null || !\is_string($payload)) {
                 continue;
             }
 
-            $unserialized = unserialize($entity->getPayload());
-
-            $entity->setPayload($unserialized);
+            $entity->setPayload(unserialize($payload));
         }
     }
 

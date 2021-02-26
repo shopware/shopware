@@ -84,6 +84,9 @@ class CsvReader extends AbstractReader
         $this->escape = $config->get('escape') ?? $this->escape;
     }
 
+    /**
+     * @param resource $resource
+     */
     private function handleBom($resource): void
     {
         $offset = ftell($resource);
@@ -153,6 +156,9 @@ class CsvReader extends AbstractReader
         return $assoc;
     }
 
+    /**
+     * @param resource $resource
+     */
     private function seek($resource, int $offset): void
     {
         $currentOffset = ftell($resource);

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class NoFilterException extends ShopwareHttpException
 {
-    public function __construct($id)
+    public function __construct(string $id)
     {
         parent::__construct('Product stream with ID {{ id }} has no filters', ['id' => $id]);
     }

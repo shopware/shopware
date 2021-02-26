@@ -9,6 +9,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class Filesystem extends Bundle
 {
+    /**
+     * @var string
+     */
     protected $name = 'Filesystem';
 
     public function build(ContainerBuilder $container): void

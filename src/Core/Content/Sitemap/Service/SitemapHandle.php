@@ -12,32 +12,20 @@ class SitemapHandle implements SitemapHandleInterface
     private const MAX_URLS = 49999;
     private const SITEMAP_NAME_PATTERN = 'sitemap-%d.xml.gz';
 
-    private $tmpFiles = [];
+    private array $tmpFiles = [];
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
     /**
      * @var resource|false
      */
     private $handle;
 
-    /**
-     * @var int
-     */
-    private $index = 1;
+    private int $index = 1;
 
-    /**
-     * @var int
-     */
-    private $urlCount = 0;
+    private int $urlCount = 0;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
     public function __construct(FilesystemInterface $filesystem, SalesChannelContext $context)
     {

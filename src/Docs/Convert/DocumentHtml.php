@@ -8,12 +8,9 @@ class DocumentHtml
 
     private const RAW_TRIGGER = '[__RAW__]: <>(__RAW__)';
 
-    /**
-     * @var Document
-     */
-    private $document;
+    private Document $document;
 
-    private $media = [];
+    private array $media = [];
 
     public function __construct(Document $document)
     {

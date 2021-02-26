@@ -40,7 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
 
 class EntityGenerator
 {
-    private $classTemplate = <<<EOF
+    private string $classTemplate = <<<EOF
 <?php declare(strict_types=1);
 
 namespace #domain#;
@@ -59,14 +59,14 @@ class #entity#Entity extends Entity
 }
 EOF;
 
-    private $propertyTemplate = <<<EOF
+    private string $propertyTemplate = <<<EOF
     /**
      * @var #type##nullable#
      */
     protected $#property#;
 EOF;
 
-    private $propertyFunctions = <<<EOF
+    private string $propertyFunctions = <<<EOF
     public function get#propertyUc#(): #nullable##type#
     {
         return \$this->#propertyLc#;
@@ -78,7 +78,7 @@ EOF;
     }
 EOF;
 
-    private $collectionTemplate = <<<EOF
+    private string $collectionTemplate = <<<EOF
 <?php declare(strict_types=1);
 
 namespace #domain#;

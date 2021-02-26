@@ -36,22 +36,22 @@ class SalutationEntity extends Entity
     protected $translations;
 
     /**
-     * @return CustomerCollection|null
+     * @var CustomerCollection|null
      */
     protected $customers;
 
     /**
-     * @return CustomerAddressCollection|null
+     * @var CustomerAddressCollection|null
      */
     protected $customerAddresses;
 
     /**
-     * @return OrderCustomerCollection|null
+     * @var OrderCustomerCollection|null
      */
     protected $orderCustomers;
 
     /**
-     * @return OrderAddressCollection|null
+     * @var OrderAddressCollection|null
      */
     protected $orderAddresses;
 

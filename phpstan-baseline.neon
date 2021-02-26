@@ -136,11 +136,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Order/Api/OrderRecalculationController.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\IdStruct\\:\\:\\$id has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Order/IdStruct.php
-
-		-
 			message: "#^Parameter \\#4 \\$price of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition constructor expects Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/RecalculationService.php
@@ -199,11 +194,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Validator\\:\\:\\$validators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Validator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Checkout\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Checkout.php
 
 		-
 			message: "#^Parameter \\#2 \\$customerGroup of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerGroupRegistrationAccepted constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity\\|null given\\.$#"
@@ -356,31 +346,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Subscriber/CustomerMetaFieldSubscriber.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerEmailUnique\\:\\:\\$message has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerEmailUnique\\:\\:\\$errorNames has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerEmailUnique.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerPasswordMatches\\:\\:\\$message has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatches.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerPasswordMatches\\:\\:\\$context has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatches.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Validation\\\\Constraint\\\\CustomerPasswordMatches\\:\\:\\$errorNames has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatches.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Validation/Constraint/CustomerPasswordMatchesValidator.php
@@ -476,11 +441,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentGenerator/StornoGenerator.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct\\:\\:\\$id has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentIdStruct.php
-
-		-
 			message: "#^Cannot call method getFileExtension\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/DocumentService.php
@@ -529,11 +489,6 @@ parameters:
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderTransaction/OrderTransactionCollection.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderTransaction\\\\OrderTransactionEntity\\:\\:\\$stateMachineState has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Aggregate/OrderTransaction/OrderTransactionEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\LanguageOfOrderDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
@@ -784,11 +739,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\AbstractCmsElementResolver\\:\\:resolveEntityValue\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/Element/AbstractCmsElementResolver.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\ElementDataCollection\\:\\:\\$searchResults has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:\\$value has no typehint specified\\.$#"
@@ -2041,11 +1991,6 @@ parameters:
 			path: src/Core/Content/Sitemap/Service/SitemapExporter.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Service\\\\SitemapHandle\\:\\:\\$tmpFiles has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
-
-		-
 			message: "#^Parameter \\#1 \\$zp of function gzwrite expects resource, resource\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Sitemap/Service/SitemapHandle.php
@@ -2089,11 +2034,6 @@ parameters:
 			message: "#^Cannot access offset 'path' on array\\|false\\.$#"
 			count: 2
 			path: src/Core/Framework/Adapter/Filesystem/AbstractFilesystem.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Filesystem.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\FilesystemFactory\\:\\:\\$adapterFactories \\(array\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\>\\) does not accept iterable\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\AdapterFactoryInterface\\>\\.$#"
@@ -2431,11 +2371,6 @@ parameters:
 			path: src/Core/Framework/Api/Response/Type/JsonFactoryBase.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Route\\\\ApiRouteLoader\\:\\:\\$isLoaded has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Route/ApiRouteLoader.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
@@ -2484,11 +2419,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncOperationResult\\:\\:has\\(\\) has parameter \\$key with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Sync/SyncOperationResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Util\\\\AccessKeyHelper\\:\\:\\$mapping has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Util/AccessKeyHelper.php
 
 		-
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
@@ -2896,26 +2826,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:\\$classTemplate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:\\$propertyTemplate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:\\$propertyFunctions has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:\\$collectionTemplate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generateEntity\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
@@ -3306,16 +3216,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\SchemaGenerator\\:\\:\\$tableTemplate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/SchemaGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\SchemaGenerator\\:\\:\\$columnTemplate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/SchemaGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\SchemaGenerator\\:\\:generate\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/SchemaGenerator.php
@@ -3339,36 +3239,6 @@ parameters:
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\AggregationResult\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Bucket/Bucket.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MaxResult\\:\\:\\$max has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MaxResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MaxResult\\:\\:__construct\\(\\) has parameter \\$max with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MaxResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MaxResult\\:\\:getMax\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MaxResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MinResult\\:\\:\\$min has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MinResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MinResult\\:\\:__construct\\(\\) has parameter \\$min with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MinResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\MinResult\\:\\:getMin\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/Metric/MinResult.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\AggregationResult\\\\Metric\\\\StatsResult\\:\\:__construct\\(\\) has parameter \\$max with no typehint specified\\.$#"
@@ -3521,21 +3391,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$wheres has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$parameters has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$types has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:addParameter\\(\\) has parameter \\$type with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
@@ -3569,26 +3424,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function trim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Tokenizer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityExists\\:\\:\\$message has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityExists\\:\\:\\$errorNames has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityExists.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityNotExists\\:\\:\\$message has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Validation\\\\EntityNotExists\\:\\:\\$errorNames has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Validation/EntityNotExists.php
 
 		-
 			message: "#^Parameter \\#1 \\$payload of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\VersionManager\\:\\:addVersionToPayload\\(\\) expects array, array\\|null given\\.$#"
@@ -3726,11 +3561,6 @@ parameters:
 			path: src/Core/Framework/Demodata/DemodataContext.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Faker\\\\Commerce\\:\\:\\$productName has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Faker/Commerce.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CategoryGenerator\\:\\:randomDepartment\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/CategoryGenerator.php
@@ -3739,11 +3569,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CategoryGenerator\\:\\:getRootCategoryId\\(\\) should return string but returns array\\|string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/CategoryGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CustomFieldGenerator\\:\\:\\$attributeSets has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
 
 		-
 			message: "#^Parameter \\#1 \\$max of method Symfony\\\\Component\\\\Console\\\\Style\\\\SymfonyStyle\\:\\:progressStart\\(\\) expects int, float\\|int\\<1, max\\> given\\.$#"
@@ -3871,11 +3696,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/ScheduledTask/MessageQueue/RegisterScheduledTaskHandler.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\Subscriber\\\\CountHandledMessagesListener\\:\\:\\$handledMessages has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/Subscriber/CountHandledMessagesListener.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationCollection\\:\\:getMigrationSteps\\(\\) should return array\\<Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\> but returns array\\<Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\\>\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/MigrationCollection.php
@@ -3904,11 +3724,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getLocaleFromChangelogFile\\(\\) has parameter \\$file with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Context\\\\InstallContext\\:\\:\\$autoMigrate has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Context/InstallContext.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getBundles\\(\\) has parameter \\$kernelParameters with no typehint specified\\.$#"
@@ -3949,11 +3764,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Requirement\\\\RequirementExceptionStack\\:\\:\\$exceptions has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Requirement/RequirementExceptionStack.php
 
 		-
 			message: "#^Parameter \\#1 \\$str of function base64_encode expects string, string\\|null given\\.$#"
@@ -4606,11 +4416,6 @@ parameters:
 			path: src/Core/Migration/Test/NullConnection.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:\\$data has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueryCount\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
@@ -4644,11 +4449,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:sanitizeParam\\(\\) has parameter \\$var with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\DebugStack\\:\\:\\$writeSqlRegex has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Profiling/Doctrine/DebugStack.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiling\\:\\:buildConfig\\(\\) has parameter \\$environment with no typehint specified\\.$#"
@@ -4734,11 +4534,6 @@ parameters:
 			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\\:\\:\\$connectorId has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:\\$pattern \\(array\\<Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternInterface\\>\\) does not accept iterable\\.$#"
@@ -4851,26 +4646,6 @@ parameters:
 			path: src/Core/System/SalesChannel/SalesChannelEntity.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Salutation\\\\SalutationEntity\\:\\:\\$customers has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalutationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Salutation\\\\SalutationEntity\\:\\:\\$customerAddresses has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalutationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Salutation\\\\SalutationEntity\\:\\:\\$orderCustomers has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalutationEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Salutation\\\\SalutationEntity\\:\\:\\$orderAddresses has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/SalutationEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileCollection\\:\\:getByName\\(\\) has parameter \\$key with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Files/SnippetFileCollection.php
@@ -4966,11 +4741,6 @@ parameters:
 			path: src/Core/System/StateMachine/StateMachineRegistry.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\StateMachine\\\\Util\\\\StateMachineGraphvizDumper\\:\\:\\$defaultOptions has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
@@ -4986,11 +4756,6 @@ parameters:
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\System\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/System.php
-
-		-
 			message: "#^Parameter \\#1 \\$salesChannelId of method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Api\\\\SystemConfigController\\:\\:saveKeyValues\\(\\) expects string\\|null, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Api/SystemConfigController.php
@@ -4999,21 +4764,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Service\\\\ConfigurationService\\:\\:\\$bundles \\(array\\) does not accept iterable\\<Symfony\\\\Component\\\\HttpKernel\\\\Bundle\\\\BundleInterface\\>\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Service/ConfigurationService.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:\\$configurationValue has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:getConfigurationValue\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigEntity\\:\\:setConfigurationValue\\(\\) has parameter \\$configurationValue with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getSubArray\\(\\) has parameter \\$value with no typehint specified\\.$#"
@@ -5074,11 +4824,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\:\\:getAclRoles\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection but returns Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/System/User/UserEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Command\\\\DocsDumpErd\\:\\:\\$ignoredDefinitions has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Command/DocsDumpErd.php
 
 		-
 			message: "#^Parameter \\#1 \\$files of method Symfony\\\\Component\\\\Filesystem\\\\Filesystem\\:\\:remove\\(\\) expects iterable\\|string, array\\<int, string\\>\\|false given\\.$#"
@@ -5146,11 +4891,6 @@ parameters:
 			path: src/Docs/Convert/Document.php
 
 		-
-			message: "#^Property Shopware\\\\Docs\\\\Convert\\\\DocumentHtml\\:\\:\\$media has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocumentHtml.php
-
-		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocumentHtml\\:\\:stripMetatags\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocumentHtml.php
@@ -5196,31 +4936,6 @@ parameters:
 			path: src/Docs/Convert/WikiApiService.php
 
 		-
-			message: "#^Property Shopware\\\\Docs\\\\Docs\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Docs.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Inspection\\\\ArrayWriter\\:\\:\\$data has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Inspection/ArrayWriter.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Inspection\\\\ErdTypeMap\\:\\:\\$fieldTypeMap has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Inspection/ErdTypeMap.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Inspection\\\\MarkdownErdDumper\\:\\:\\$tables has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Inspection/MarkdownErdDumper.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Inspection\\\\ModuleInspector\\:\\:\\$defaultName has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
 			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Docs/Inspection/ModuleInspector.php
@@ -5234,11 +4949,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 2
 			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
-			message: "#^Property Shopware\\\\Docs\\\\Inspection\\\\TemplateCustomRulesList\\:\\:\\$ruleListPath has no typehint specified\\.$#"
-			count: 1
-			path: src/Docs/Inspection/TemplateCustomRulesList.php
 
 		-
 			message: "#^Parameter \\#1 \\$configuration of method Symfony\\\\Component\\\\DependencyInjection\\\\Extension\\\\Extension\\:\\:processConfiguration\\(\\) expects Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface, Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface\\|null given\\.$#"
@@ -5531,21 +5241,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/ErrorTemplateStruct.php
 
 		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\SwSanitizeTwigFilter\\:\\:\\$allowedElements has no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\SwSanitizeTwigFilter\\:\\:\\$allowedAttributes has no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\SwSanitizeTwigFilter\\:\\:\\$cacheDir \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php
@@ -5614,11 +5309,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$activeLanguage of class Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet constructor expects Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity, Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Pagelet/Header/HeaderPageletLoader.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Storefront\\:\\:\\$name has no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Storefront.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Storefront\\:\\:buildConfig\\(\\) has parameter \\$environment with no typehint specified\\.$#"

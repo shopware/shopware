@@ -23,11 +23,10 @@ class StringFieldTest extends TestCase
     /**
      * @dataProvider stringFieldDataProvider
      *
-     * @param string|null $input
-     * @param string|null $expected
-     * @param Flag[]      $flags
+     * @param bool|string|null $input
+     * @param Flag[]           $flags
      */
-    public function testStringFieldSerializer(string $type, $input, $expected, array $flags = []): void
+    public function testStringFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(StringFieldSerializer::class);
 

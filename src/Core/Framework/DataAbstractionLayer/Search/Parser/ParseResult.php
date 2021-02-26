@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 class ParseResult
 {
-    protected $wheres = [];
+    protected array $wheres = [];
 
-    protected $parameters = [];
+    protected array $parameters = [];
 
-    protected $types = [];
+    protected array $types = [];
 
     public function addWhere(string $queryString): void
     {

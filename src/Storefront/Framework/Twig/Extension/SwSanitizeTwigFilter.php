@@ -7,7 +7,10 @@ use Twig\TwigFilter;
 
 class SwSanitizeTwigFilter extends AbstractExtension
 {
-    private $allowedElements = [
+    /**
+     * @var string[]
+     */
+    private array $allowedElements = [
         'a',
         'abbr',
         'acronym',
@@ -69,7 +72,10 @@ class SwSanitizeTwigFilter extends AbstractExtension
         'var',
     ];
 
-    private $allowedAttributes = [
+    /**
+     * @var string[]
+     */
+    private array $allowedAttributes = [
         'align',
         'bgcolor',
         'border',
@@ -109,21 +115,15 @@ class SwSanitizeTwigFilter extends AbstractExtension
     /**
      * @var \HTMLPurifier[]
      */
-    private $purifiers = [];
+    private array $purifiers = [];
 
-    /**
-     * @var string
-     */
-    private $cacheDir;
+    private string $cacheDir;
 
-    /**
-     * @var bool
-     */
-    private $cacheEnabled;
+    private bool $cacheEnabled;
 
     public function __construct(?string $cacheDir = null, bool $cacheEnabled = true)
     {
-        $this->cacheDir = $cacheDir;
+        $this->cacheDir = (string) $cacheDir;
         $this->cacheEnabled = $cacheEnabled;
     }
 

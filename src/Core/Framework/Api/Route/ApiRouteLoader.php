@@ -11,13 +11,12 @@ use Symfony\Component\Routing\RouteCollection;
 
 class ApiRouteLoader extends Loader
 {
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    private $isLoaded = false;
+    private bool $isLoaded = false;
 
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    {
         $this->definitionRegistry = $definitionRegistry;
     }
 

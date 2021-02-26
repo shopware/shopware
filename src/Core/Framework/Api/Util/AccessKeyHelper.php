@@ -11,6 +11,9 @@ class AccessKeyHelper
     private const SALES_CHANNEL_IDENTIFIER = 'SWSC';
     private const PRODUCT_EXPORT_IDENTIFIER = 'SWPE';
 
+    /**
+     * @var array
+     */
     public static $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',

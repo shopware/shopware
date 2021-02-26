@@ -24,7 +24,7 @@ class ModuleInspector
     public const TAG_EXTENSION = 'Extension';
     public const TAG_CUSTOM_RULES = 'Custom Rules';
 
-    protected static $defaultName = 'docs:convert';
+    protected static string $defaultName = 'docs:convert';
 
     public function getAllTags(): array
     {

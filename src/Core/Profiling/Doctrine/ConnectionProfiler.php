@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
 class ConnectionProfiler implements DataCollectorInterface
 {
-    private $data = [];
+    private array $data = [];
 
     /**
      * @var DebugStack|null

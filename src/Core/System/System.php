@@ -10,6 +10,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class System extends Bundle
 {
+    /**
+     * @var string
+     */
     protected $name = 'System';
 
     /**

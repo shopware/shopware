@@ -225,7 +225,8 @@
             </sw-card-view>
         {% endblock %}
 
-        <template slot="sidebar">
+        {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}
+        <template v-if="!feature.isActive('FEATURE_NEXT_12429')" #sidebar>
             {% block sw_product_detail_sidebar %}
                 <sw-sidebar :propagateWidth="true">
                     <sw-sidebar-media-item ref="mediaSidebarItem" :disabled="!acl.can('product.editor')">

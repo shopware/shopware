@@ -6,7 +6,8 @@ const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,
-    inject: ['repositoryFactory', 'acl'],
+
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -102,8 +103,16 @@ Component.register('sw-product-media-form', {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.5.0 - The method "onMediaUploadButtonOpenSidebar" will be removed because
+         * its relevant view will be removed when feature flag "FEATURE_NEXT_12429" got active.
+         */
         onMediaUploadButtonOpenSidebar() {
             this.$root.$emit('sidebar-toggle-open');
+        },
+
+        onOpenMedia() {
+            this.$emit('media-open');
         },
 
         updateColumnCount() {

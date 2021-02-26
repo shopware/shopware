@@ -31,6 +31,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         stubs: {
@@ -116,5 +119,14 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         });
 
         expect(coverCount).toBe(1);
+    });
+
+    it('should emit an event when onOpenMedia() function is called', () => {
+        const wrapper = createWrapper();
+
+        wrapper.vm.onOpenMedia();
+
+        const pageChangeEvents = wrapper.emitted()['media-open'];
+        expect(pageChangeEvents.length).toBe(1);
     });
 });

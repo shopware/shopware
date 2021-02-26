@@ -2,13 +2,18 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
-const { Component } = Shopware;
-const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
+const { Component, Context, Utils, Mixin } = Shopware;
+const { mapState, mapGetters } = Component.getComponentHelper();
+const { isEmpty } = Utils.types;
 
 Component.register('sw-product-detail-base', {
     template,
 
     inject: ['repositoryFactory', 'acl', 'feature'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         productId: {
@@ -20,6 +25,9 @@ Component.register('sw-product-detail-base', {
 
     data() {
         return {
+            showMediaModal: false,
+            mediaDefaultFolderId: null,
+
             /**
              * @deprecated tag:v6.5.0 - The variable "showReviewDeleteModal" will be removed because
              * its relevant view was moved from this component to `sw-product-detail-reviews` component.
@@ -156,6 +164,19 @@ Component.register('sw-product-detail-base', {
             return this.repositoryFactory.create(this.product.media.entity);
         },
 
+        mediaDefaultFolderRepository() {
+            return this.repositoryFactory.create('media_default_folder');
+        },
+
+        mediaDefaultFolderCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAssociation('folder');
+            criteria.addFilter(Criteria.equals('entity', 'product'));
+
+            return criteria;
+        },
+
         /**
          * @deprecated tag:v6.5.0 - The property "cmsPageRepository" will be removed because
          * the modal was moved from this component to `sw-product-detail-layout` component.
@@ -175,6 +196,10 @@ Component.register('sw-product-detail-base', {
 
     methods: {
         createdComponent() {
+            this.getMediaDefaultFolderId().then((mediaDefaultFolderId) => {
+                this.mediaDefaultFolderId = mediaDefaultFolderId;
+            });
+
             /**
              * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
              * its relevant view was moved from this component to `sw-product-detail-reviews` component.
@@ -184,9 +209,22 @@ Component.register('sw-product-detail-base', {
             }
         },
 
+        getMediaDefaultFolderId() {
+            return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
+                .then((mediaDefaultFolder) => {
+                    const defaultFolder = mediaDefaultFolder.first();
+
+                    if (defaultFolder.folder && defaultFolder.folder.id) {
+                        return defaultFolder.folder.id;
+                    }
+
+                    return null;
+                });
+        },
+
         mediaRemoveInheritanceFunction(newValue) {
             newValue.forEach(({ id, mediaId, position }) => {
-                const media = this.productMediaRepository.create(Shopware.Context.api);
+                const media = this.productMediaRepository.create(Context.api);
                 Object.assign(media, { mediaId, position, productId: this.product.id });
                 if (this.parentProduct.coverId === id) {
                     this.product.coverId = media.id;
@@ -209,6 +247,56 @@ Component.register('sw-product-detail-base', {
             });
 
             return this.product.media;
+        },
+
+        onOpenMediaModal() {
+            this.showMediaModal = true;
+        },
+
+        onCloseMediaModal() {
+            this.showMediaModal = false;
+        },
+
+        onAddMedia(media) {
+            if (isEmpty(media)) {
+                return;
+            }
+
+            media.forEach((item) => {
+                this.addMedia(item).catch(({ fileName }) => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', 0, { fileName })
+                    });
+                });
+            });
+        },
+
+        addMedia(media) {
+            if (this.isExistingMedia(media)) {
+                return Promise.reject(media);
+            }
+
+            const newMedia = this.productMediaRepository.create(Context.api);
+            newMedia.mediaId = media.id;
+
+            if (isEmpty(this.product.media)) {
+                this.setMediaAsCover(newMedia);
+            }
+
+            this.product.media.add(newMedia);
+
+            return Promise.resolve();
+        },
+
+        isExistingMedia(media) {
+            return this.product.media.some(({ id, mediaId }) => {
+                return id === media.id || mediaId === media.id;
+            });
+        },
+
+        setMediaAsCover(media) {
+            media.position = 0;
+            this.product.coverId = media.id;
         },
 
         /**

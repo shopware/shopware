@@ -40,10 +40,11 @@ function createWrapper(privileges = []) {
             'sw-card': {
                 template: '<div><slot></slot><slot name="grid"></slot></div>'
             },
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-media-modal-v2': true
         },
         mocks: {
-            $tc: () => {},
+            $tc: snippetPath => snippetPath,
             $store: Shopware.State._store
         },
         provide: {
@@ -94,6 +95,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     }]
                 },
                 product: {
+                    getEntityName: () => 'product',
                     media: [],
                     reviews: [{
                         id: '1a2b3c',
@@ -107,6 +109,9 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     product: false,
                     media: false
                 }
+            },
+            mutations: {
+                setLoading: () => true
             }
         });
     });
@@ -188,5 +193,81 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         const deleteMenuItem = wrapper.find('.sw-product-detail-base__review-edit');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+    });
+
+    it('should get media default folder id when component got created', () => {
+        wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
+            return Promise.resolve(Shopware.Utils.createId());
+        });
+
+        wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getMediaDefaultFolderId).toHaveBeenCalledTimes(1);
+        wrapper.vm.getMediaDefaultFolderId.mockRestore();
+    });
+
+    it('should turn on media modal', async () => {
+        await wrapper.setData({
+            showMediaModal: true
+        });
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+
+        expect(mediaModal.exists()).toBeTruthy();
+        expect(mediaModal.attributes('entitycontext')).toBe('product');
+    });
+
+    it('should turn off media modal', async () => {
+        await wrapper.setData({
+            showMediaModal: false
+        });
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+
+        expect(mediaModal.exists()).toBeFalsy();
+    });
+
+    it('should be able to add a new media', async () => {
+        wrapper.vm.addMedia = jest.fn(() => Promise.resolve());
+
+        const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
+        await wrapper.vm.onAddMedia([media]);
+        await wrapper.setData({
+            product: {
+                media: [
+                    media
+                ]
+            }
+        });
+
+        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
+        expect(wrapper.vm.product.media).toEqual(expect.arrayContaining([media]));
+
+        wrapper.vm.addMedia.mockRestore();
+    });
+
+    it('should not be able to add a new media', async () => {
+        const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
+
+        wrapper.vm.addMedia = jest.fn(() => Promise.reject(media));
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.onAddMedia([media]);
+
+        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-product.mediaForm.errorMediaItemDuplicated'
+        });
+
+        wrapper.vm.addMedia.mockRestore();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should set media as cover', async () => {
+        const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
+
+        await wrapper.vm.setMediaAsCover(media);
+
+        expect(wrapper.vm.product.coverId).toBe(media.id);
     });
 });

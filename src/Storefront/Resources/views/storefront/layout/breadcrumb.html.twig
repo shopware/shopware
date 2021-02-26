@@ -1,19 +1,23 @@
 {% block layout_breadcrumb_inner %}
     {% if category %}
-        {% set breadcrumb = sw_breadcrumb(category) %}
-        {% set breadcrumbKeys = breadcrumb|keys %}
-        {% set breadcrumbCategories = sw_breadcrumb_categories(breadcrumbKeys, context.context) %}
-        {# @deprecated tag:v6.5.0 - Use "breadcrumbCategories" directly. #}
-        {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
+        {% set breadcrumbCategories = sw_breadcrumb_full(category, context.context) %}
         {% set categoryId = category.id %}
+
+        {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+        {% set breadcrumb = sw_breadcrumb(category) %}
+        {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+        {% set breadcrumbKeys = breadcrumb|keys %}
+        {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
+        {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
 
         <nav aria-label="breadcrumb">
             {% block layout_breadcrumb_list %}
                 <ol class="breadcrumb"
                     itemscope
                     itemtype="https://schema.org/BreadcrumbList">
-                    {% for key, item in breadcrumb %}
-                        {% set breadcrumbCategory = breadcrumbCategories[key] %}
+                    {% for breadcrumbCategory in breadcrumbCategories %}
+                        {% set key = breadcrumbCategory.id %}
+                        {% set name = breadcrumbCategory.translated.name %}
 
                         {% block layout_breadcrumb_list_item %}
                             <li class="breadcrumb-item"
@@ -22,17 +26,17 @@
                                 itemscope
                                 itemtype="https://schema.org/ListItem">
                                 {% if breadcrumbCategory.type == 'folder' %}
-                                    <div>{{ item }}</div>
+                                    <div>{{ name }}</div>
                                 {% else %}
                                     <a href="{{ category_url(breadcrumbCategory) }}"
                                        class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
-                                       title="{{ item }}"
+                                       title="{{ name }}"
                                        itemprop="item">
                                         <link itemprop="url"
                                               href="{{ category_url(breadcrumbCategory) }}"/>
-                                        <span class="breadcrumb-title" itemprop="name">{{ item }}</span>
+                                        <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
                                     </a>
-                                    <meta itemprop="position" content="{{ key }}"/>
+                                    <meta itemprop="position" content="{{ breadcrumbCategory.id }}"/>
                                 {% endif %}
                             </li>
                         {% endblock %}

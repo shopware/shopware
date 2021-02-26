@@ -32,21 +32,55 @@ class BuildBreadcrumbExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('sw_breadcrumb', [$this, 'buildSeoBreadcrumb'], ['needs_context' => true]),
-            new TwigFunction('sw_breadcrumb_categories', [$this, 'getCategories']),
+            new TwigFunction('sw_breadcrumb_full', [$this, 'getFullBreadcrumb'], ['needs_context' => true]),
 
             /*
-             * @deprecated tag:v6.5.0.0 - Will be deleted, use sw_breadcrumb_categories instead.
+             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_categories instead.
+             */
+            new TwigFunction('sw_breadcrumb', [$this, 'buildSeoBreadcrumb'], ['needs_context' => true]),
+
+            /*
+             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_categories instead.
              */
             new TwigFunction('sw_breadcrumb_types', [$this, 'getCategoryTypes']),
 
             /*
-             * @deprecated tag:v6.5.0.0 - Will be deleted, without a replacement.
+             * @deprecated tag:v6.5.0 - Will be deleted, without a replacement.
              */
             new TwigFunction('sw_breadcrumb_build_types', [$this, 'buildCategoryTypes']),
         ];
     }
 
+    public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context $context): array
+    {
+        $seoBreadcrumb = $this->buildSeoBreadcrumb($twigContext, $category);
+
+        if ($seoBreadcrumb === null) {
+            return [];
+        }
+
+        $categoryIds = \array_keys($seoBreadcrumb);
+        if (empty($categoryIds)) {
+            return [];
+        }
+
+        $categories = $this->categoryRepository->search(new Criteria($categoryIds), $context)->getEntities();
+
+        $breadcrumb = [];
+        foreach ($categoryIds as $categoryId) {
+            if ($categories->get($categoryId) === null) {
+                continue;
+            }
+
+            $breadcrumb[$categoryId] = $categories->get($categoryId);
+        }
+
+        return $breadcrumb;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0.0 - Will be set to private or deleted, without a replacement.
+     */
     public function buildSeoBreadcrumb(array $twigContext, CategoryEntity $category, ?string $navigationCategoryId = null): ?array
     {
         $salesChannel = null;
@@ -57,17 +91,8 @@ class BuildBreadcrumbExtension extends AbstractExtension
         return $this->categoryBreadcrumbBuilder->build($category, $salesChannel, $navigationCategoryId);
     }
 
-    public function getCategories(array $categoryIds, Context $context): array
-    {
-        if (\count($categoryIds) === 0) {
-            return [];
-        }
-
-        return $this->categoryRepository->search(new Criteria($categoryIds), $context)->getElements();
-    }
-
     /**
-     * @deprecated tag:v6.5.0.0 - Will be deleted, use getCategories instead.
+     * @deprecated tag:v6.5.0 - Will be deleted, use getFullBreadcrumb instead.
      */
     public function getCategoryTypes(array $categoryIds, Context $context): array
     {
@@ -75,7 +100,7 @@ class BuildBreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:v6.5.0.0 - Will be deleted, without replacement.
+     * @deprecated tag:v6.5.0 - Will be deleted, use getFullBreadcrumb instead.
      *
      * @param CategoryEntity[] $categories
      */
@@ -92,5 +117,14 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         return $types;
+    }
+
+    private function getCategories(array $categoryIds, Context $context): array
+    {
+        if (\count($categoryIds) === 0) {
+            return [];
+        }
+
+        return $this->categoryRepository->search(new Criteria($categoryIds), $context)->getElements();
     }
 }

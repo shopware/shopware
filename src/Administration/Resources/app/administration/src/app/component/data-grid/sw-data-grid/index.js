@@ -329,6 +329,19 @@ Component.register('sw-data-grid', {
             });
         },
 
+        findUserSettingById() {
+            return this.userConfigRepository.get(this.currentSetting.id, Shopware.Context.api).then((response) => {
+                if (!response) {
+                    return;
+                }
+                this.currentSetting = response;
+                const gridColumns = response.value;
+                this.currentColumns = utils.get(gridColumns, 'columns', gridColumns);
+                this.compact = utils.get(gridColumns, 'compact', this.compact);
+                this.previews = utils.get(gridColumns, 'previews', this.previews);
+            });
+        },
+
         findResizeColumns() {
             this.hasResizeColumns = this.currentColumns.some((column) => {
                 return column.allowResize;
@@ -386,9 +399,7 @@ Component.register('sw-data-grid', {
                 previews: this.previews
             };
             this.userConfigRepository.save(this.currentSetting, Shopware.Context.api).then(() => {
-                if (this.currentSetting.isNew()) {
-                    this.findUserSetting();
-                }
+                this.findUserSettingById();
             });
         },
 

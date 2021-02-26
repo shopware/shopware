@@ -50,6 +50,22 @@
             pointer-events: none;
         }
     }
+
+    .sw-container {
+        display: block;
+    }
+
+    .sw-entity-single-select__selection {
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-entity-single-select__selection-text {
+        vertical-align: middle;
+        padding-right: 16px;
+        width: 100%;
+    }
 }
 
 .sw-modal.sw-cms-el-config-cross-selling__product-stream-preview-modal {

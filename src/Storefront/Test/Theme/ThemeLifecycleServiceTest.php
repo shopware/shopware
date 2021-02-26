@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
@@ -45,11 +46,23 @@ class ThemeLifecycleServiceTest extends TestCase
      */
     private $mediaRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaFolderRepository;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function setUp(): void
     {
         $this->themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
         $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -63,6 +76,11 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertEquals(2, $themeEntity->getMedia()->count());
+
+        $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
+        foreach ($themeEntity->getMedia() as $media) {
+            static::assertEquals($themeDefaultFolderId, $media->getMediaFolderId());
+        }
     }
 
     public function testYouCanUpdateConfigToAddNewMedia(): void
@@ -112,6 +130,30 @@ class ThemeLifecycleServiceTest extends TestCase
         $renamedShopwareLogoId = $this->getMedia('shopware_logo_(1)');
         static::assertNull($this->getMedia('shopware_logo_pink_(1)'));
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
+    }
+
+    public function testItUploadsFilesIntoTheRootFolderIfThemeDefaultFolderDoesNotExist(): void
+    {
+        $bundle = $this->getThemeConfig();
+        $themeMediaDefaultFolderId = $this->getThemeMediaDefaultFolderId();
+
+        $this->connection->executeUpdate('
+            UPDATE `media`
+            SET `media_folder_id` = null
+            WHERE `media_folder_id` = :defaultThemeFolder
+        ', ['defaultThemeFolder' => Uuid::fromHexToBytes($themeMediaDefaultFolderId)]);
+        $this->mediaFolderRepository->delete([['id' => $themeMediaDefaultFolderId]], $this->context);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertTrue($themeEntity->isActive());
+        static::assertEquals(2, $themeEntity->getMedia()->count());
+
+        foreach ($themeEntity->getMedia() as $media) {
+            static::assertNull($media->getMediaFolderId());
+        }
     }
 
     public function testItDoesNotOverridePreviewIfSetExclusive(): void
@@ -291,5 +333,20 @@ class ThemeLifecycleServiceTest extends TestCase
         return $translations->filter(static function (ThemeTranslationEntity $translation) use ($locale): bool {
             return $locale === $translation->getLanguage()->getLocale()->getCode();
         })->first();
+    }
+
+    private function getThemeMediaDefaultFolderId(): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
+        $criteria->addAssociation('defaultFolder');
+        $criteria->setLimit(1);
+        $defaultFolder = $this->mediaFolderRepository->search($criteria, $this->context);
+
+        if ($defaultFolder->count() !== 1) {
+            throw new \RuntimeException('Default Theme folder does not exist.');
+        }
+
+        return $defaultFolder->first()->getId();
     }
 }

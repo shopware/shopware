@@ -5251,11 +5251,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 
 		-
-			message: "#^Parameter \\#3 \\$themeFolderId of method Shopware\\\\Storefront\\\\Theme\\\\ThemeLifecycleService\\:\\:createMediaStruct\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php

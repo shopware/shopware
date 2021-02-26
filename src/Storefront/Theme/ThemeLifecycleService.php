@@ -136,7 +136,7 @@ class ThemeLifecycleService
         return $this->themeRepository->search($criteria, $context)->first();
     }
 
-    private function createMediaStruct(string $path, string $mediaId, string $themeFolderId): ?array
+    private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
     {
         if (!$this->fileExists($path)) {
             return null;

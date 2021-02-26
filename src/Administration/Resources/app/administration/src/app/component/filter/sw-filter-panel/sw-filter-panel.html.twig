@@ -53,14 +53,6 @@
                     @filter-update="updateFilter"
                     @filter-reset="resetFilter">
                 </sw-number-filter>
-
-                <sw-price-filter
-                    v-else-if="showFilter(filter, 'price-filter')"
-                    :filter="filter"
-                    :active="!!activeFilters[filter.name]"
-                    @filter-update="updateFilter"
-                    @filter-reset="resetFilter">
-                </sw-price-filter>
             </div>
         {% endblock %}
     </div>

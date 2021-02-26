@@ -431,6 +431,12 @@
       },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"
+      },
+      "stockFilter": {
+        "label": "Lagerbestand"
+      },
+      "priceFilter": {
+        "label": "Preis"
       }
     },
     "notification": {

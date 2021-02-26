@@ -431,6 +431,12 @@
       },
       "releaseDateFilter": {
         "label": "Release Date"
+      },
+      "stockFilter": {
+        "label": "Stock"
+      },
+      "priceFilter": {
+        "label": "Price"
       }
     },
     "notification": {

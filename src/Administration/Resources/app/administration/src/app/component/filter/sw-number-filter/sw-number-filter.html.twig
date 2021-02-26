@@ -1,0 +1,44 @@
+{% block sw_number_filter %}
+    <sw-range-filter
+        :filter="filter"
+        :active="active"
+        v-model="numberValue"
+        @filter-update="updateFilter"
+        @filter-reset="resetFilter">
+        {% block sw_number_filter_from_field %}
+            <template #from-field="{ value, changeFromValue }">
+                <sw-number-field
+                    class="sw-number-filter__from"
+                    size="small"
+                    :numberType="filter.numberType"
+                    :step="filter.step"
+                    :min="filter.min"
+                    :max="filter.max"
+                    :digits="filter.digits"
+                    allowEmpty
+                    :value="value.from"
+                    :label="$tc('global.default.from')"
+                    @change="changeFromValue">
+                </sw-number-field>
+            </template>
+        {% endblock %}
+
+        {% block sw_number_filter_to_field %}
+            <template #to-field="{ value, changeToValue }">
+                <sw-number-field
+                    class="sw-number-filter__to"
+                    size="small"
+                    :numberType="filter.numberType"
+                    :step="filter.step"
+                    :min="filter.min"
+                    :max="filter.max"
+                    :digits="filter.digits"
+                    allowEmpty
+                    :value="value.to"
+                    :label="$tc('global.default.to')"
+                    @change="changeToValue">
+                </sw-number-field>
+            </template>
+        {% endblock %}
+    </sw-range-filter>
+{% endblock %}

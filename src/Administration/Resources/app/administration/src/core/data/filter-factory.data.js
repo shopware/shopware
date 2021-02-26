@@ -51,7 +51,7 @@ export default class FilterFactory {
             }
 
             if (filter.property === 'price') {
-                filter.type = this.PRICE_FILTER_INPUT;
+                filter.type = this.NUMBER_FILTER_INPUT;
             }
 
             return filter;

@@ -227,6 +227,7 @@
     "orderPaymentStatus": "Zahlungsstatus",
     "orderPaymentMethod": "Zahlungsart",
     "orderShippingMethod": "Lieferart",
+    "orderItemColumnDate": "Datum",
     "orderContextMenuChangePayment": "Zahlungsart ändern",
     "orderContextMenuReorder": "Bestellung wiederholen",
     "orderContextMenuCancel": "Bestellung stornieren",
@@ -242,7 +243,6 @@
     "editOrderCancelOrderModalFooterButton": "Bestellung stornieren",
     "editOrderCancelOrderModalFooterButtonBack": "Zurück",
     "editOrderPaymentNotChangeable": "Die Zahlungsart kann nicht geändert werden, da ein Rabatt oder eine andere Aktion verknüpft ist. Stattdessen sollten Sie die Bestellung stornieren und ggf. erneut aufgeben.",
-    "orderItemColumnDate": "Datum",
     "orderNumber": "Bestellnummer:",
     "orderItemColumnNumber": "Bestellnummer:",
     "orderItemColumnPaymentMethod": "Zahlungsart",
@@ -252,7 +252,7 @@
     "orderItemColumnQuantity": "Anzahl",
     "orderItemColumnPrice": "Stückpreis",
     "orderItemColumnTotal": "Summe",
-    "orderItemDate": "Von:",
+    "orderItemDate": "Bestelldatum:",
     "orderItemNumber": "Bestellnummer:",
     "orderItemPaymentMethod": "Zahlungsart:",
     "orderItemShippingMethod": "Versandart:",
@@ -263,7 +263,7 @@
     "orderItemComment": "Unser Kommentar",
     "orderItemCustomerComment": "Ihr Kommentar",
     "orderItemInfoContent": "Inhalt:",
-    "orderItemInfoCurrentPrice": "Aktueller Einzelpreis",
+    "orderItemInfoCurrentPrice": "Aktueller Stückpreis",
     "orderItemInfoFree": "GRATIS",
     "orderItemInfoNotAvailable": "Das Produkt ist für eine Folgebestellung nicht mehr verfügbar",
     "orderActionView": "Anzeigen",
@@ -433,7 +433,7 @@
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
     "beforeListPrice": "",
     "afterListPrice": "",
-    "cheapestPriceLabel": "Andere Varianten ab",
+    "cheapestPriceLabel": "Varianten ab",
     "addToWishlist": "Zum Merkzettel hinzufügen",
     "removeFromWishlist": "Vom Merkzettel entfernen",
     "toggleWishlist": "Merkzettel ein-/ausschalten"
@@ -514,13 +514,13 @@
     "reviewExistsTeaserTitle": "Bearbeiten Sie Ihre Bewertung!",
     "reviewExistsTeaserText": "Sie haben diese Produkt schon bewertet. Wollen Sie Ihre bestehende Bewertung anpassen?",
     "reviewExistsTeaserButton": "Bewertung bearbeiten",
-    "reviewLanguageFilterLabel": "Bewertungen nur in aktueller Sprache anzeigen.",
+    "reviewLanguageFilterLabel": "Bewertungen nur in der aktuellen Sprache anzeigen.",
     "reviewSortLabel": "Sortiert nach",
     "reviewSortTopRatedLabel": "Am besten bewertet",
     "reviewSortNewLabel": "Neueste Bewertung",
     "reviewCountAfter": "{1} Bewertung|]1,Inf[ Bewertungen",
     "reviewCountBefore": "von",
-    "reviewListEmpty": "Keine Bewertungen gefunden. Seien Sie der Erste und teilen Sie Ihre Erkenntnisse mit anderen.",
+    "reviewListEmpty": "Keine Bewertungen gefunden. Gehen Sie voran und teilen Sie Ihre Erkenntnisse mit anderen.",
     "reviewLoginHeader": "Anmelden",
     "reviewLoginDescription": "Bewertungen können nur von angemeldeten Benutzern abgegeben werden. Bitte loggen Sie sich ein, oder erstellen Sie einen neuen Account.",
     "reviewRegisterLink": "Neuer Kunde?",
@@ -533,15 +533,15 @@
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",
     "headline": "Ihr Merkzettel",
-    "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
-    "itemAddedSuccess": "Sie haben das Produkt erfolgreich in den Merkzettel eingefügt.",
+    "itemDeleteSuccess": "Sie haben das Produkt erfolgreich von Ihrem Merkzettel entfernt.",
+    "itemAddedSuccess": "Sie haben das Produkt erfolgreich zu Ihrem Merkzettel hinzugefügt.",
     "currentlyNotAvailable": "Derzeit nicht verfügbar",
     "manufacturerDisplayName": "Hersteller",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
     "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar.",
-    "wishlistMergeHint": "Dein Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden.",
-    "wishlistEmptyHeader": "Deine Wunschliste ist leer",
-    "wishlistEmptyDescription": "Behalte interessante Produkte im Auge, indem Du sie zur Wunschliste hinzufügst."
+    "wishlistMergeHint": "Ihr Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden.",
+    "wishlistEmptyHeader": "Ihr Merkzettel ist leer",
+    "wishlistEmptyDescription": "Behalten Sie interessante Produkte im Auge, indem Sie sie zu Ihrem Merkzettel hinzufügen."
   },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",
@@ -601,7 +601,7 @@
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "Mit dem Aufruf des Videos erklärst Du Dich einverstanden, dass Deine Daten an %platform% übermittelt werden und das Du die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen hast.",
+        "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
       }
     }

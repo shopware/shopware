@@ -89,7 +89,7 @@ class EntityCacheKeyGenerator
         $keys = [
             md5(json_encode($aggregation)),
             $this->getDefinitionCacheKey($definition),
-            $this->getAggregationHash($criteria),
+            $this->getCriteriaHash($criteria),
             $this->getContextHash($context),
             $this->cacheHash,
         ];

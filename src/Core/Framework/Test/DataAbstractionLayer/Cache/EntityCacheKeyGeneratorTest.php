@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -153,5 +154,27 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('media_translation.title', $tags);
 
         static::assertCount(9, $tags, print_r($tags, true));
+    }
+
+    public function testGenerateAggregationCacheTags(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $criteria1 = new Criteria([$id]);
+        $aggregation1 = new CountAggregation('productCount', 'product.id');
+        $criteria1->addAggregation($aggregation1);
+
+        $criteria2 = new Criteria([$id2]);
+        $aggregation2 = new CountAggregation('productCount', 'product.id');
+        $criteria2->addAggregation($aggregation2);
+
+        $key1 = $this->generator->getAggregationCacheKey($aggregation1,
+            $this->getContainer()->get(ProductDefinition::class), $criteria1, $context);
+        $key2 = $this->generator->getAggregationCacheKey($aggregation2,
+            $this->getContainer()->get(ProductDefinition::class), $criteria2, $context);
+
+        static::assertNotEquals($key1, $key2);
     }
 }

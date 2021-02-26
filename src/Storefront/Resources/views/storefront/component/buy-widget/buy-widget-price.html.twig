@@ -3,7 +3,9 @@
         {% block buy_widget_price_block %}
             <div class="product-block-prices">
                 {% block buy_widget_price_block_table %}
-                    <table class="table table-sm table-bordered product-block-prices-table">
+                    {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) element will no longer use class table-sm and table-bordered #}
+                    {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) class "product-block-prices-table" will be removed use "product-block-prices-grid" instead #}
+                    <table class="table {% if not feature('FEATURE_NEXT_10553') %}table-sm table-bordered product-block-prices-table{% else %}product-block-prices-grid{% endif %}">
                         {% block buy_widget_price_block_table_head %}
                             <thead class="product-block-prices-head">
                             {% block buy_widget_price_block_table_head_inner %}
@@ -34,7 +36,7 @@
                                             itemtype="https://schema.org/Offer">
 
                                             {% block buy_widget_price_block_table_body_cell_quantity %}
-                                                <th scope="row" class="product-block-prices-cell">
+                                                <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
                                                     <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.id }}" />
                                                     <meta itemprop="price" content="{{ price.unitPrice }}" />
                                                     <link itemprop="availability" href="https://schema.org/InStock" />
@@ -52,13 +54,15 @@
 
                                             {% block buy_widget_price_block_table_body_cell_price %}
                                                 <td class="product-block-prices-cell">
-                                                    {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                    {% sw_include '@Storefront/storefront/component/product/block-price.html.twig' with {
+                                                        price: price
+                                                    } only %}
                                                 </td>
                                             {% endblock %}
 
                                             {% block buy_widget_price_block_table_body_cell_reference_price %}
                                                 {% if price.referencePrice is not null %}
-                                                    <td class="product-block-prices-cell">
+                                                    <td class="product-block-prices-cell product-block-prices-cell-thin">
                                                         {{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                     </td>
                                                 {% endif %}
@@ -84,7 +88,7 @@
               content="{{ price.unitPrice }}">
 
         {% block buy_widget_price_content %}
-            {% set listPrice = product.priceRange ? null : price.listPrice %}
+            {% set listPrice = price.listPrice %}
 
             <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
                 {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}

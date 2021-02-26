@@ -56,7 +56,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 class ErdTypeMap
 {
-    private static $fieldTypeMap = [
+    private static array $fieldTypeMap = [
         CustomFields::class => 'customFields',
         BlacklistRuleField::class => 'blacklistRule',
         BlobField::class => 'blob',

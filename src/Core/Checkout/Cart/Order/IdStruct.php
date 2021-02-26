@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class IdStruct extends Struct
 {
     /**
-     * @vars string
+     * @var string
      */
     protected $id;
 

@@ -27,17 +27,11 @@ EOD;
 
 EOD;
 
-    /**
-     * @var string
-     */
-    private $ruleDescriptionPath = __DIR__ . '/../Resources/characteristics-rule-descriptions.php';
+    private string $ruleDescriptionPath = __DIR__ . '/../Resources/characteristics-rule-descriptions.php';
 
-    private $ruleListPath = __DIR__ . '/../Resources/current/60-references-internals/10-core/60-rule-system/10-rule-list.md';
+    private string $ruleListPath = __DIR__ . '/../Resources/current/60-references-internals/10-core/60-rule-system/10-rule-list.md';
 
-    /**
-     * @var ModuleInspector
-     */
-    private $moduleInspector;
+    private ModuleInspector $moduleInspector;
 
     public function __construct(ModuleInspector $moduleInspector)
     {

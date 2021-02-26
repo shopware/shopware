@@ -81,7 +81,7 @@ class TaskScheduler
             return null;
         }
 
-        return new \DateTime($aggregation->getMin());
+        return new \DateTime((string) $aggregation->getMin());
     }
 
     public function getMinRunInterval(): ?int

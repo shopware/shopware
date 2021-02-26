@@ -47,14 +47,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
 class SchemaGenerator
 {
-    private $tableTemplate = <<<EOL
+    private string $tableTemplate = <<<EOL
 CREATE TABLE `#name#` (
     #columns#,
     #keys#
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOL;
 
-    private $columnTemplate = <<<EOL
+    private string $columnTemplate = <<<EOL
     `#name#` #type# #nullable# #default#
 EOL;
 

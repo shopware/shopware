@@ -7,7 +7,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 
 class CountHandledMessagesListener extends StopWorkerOnTimeLimitListener
 {
-    private $handledMessages = 0;
+    private int $handledMessages = 0;
 
     public function onWorkerRunning(WorkerRunningEvent $event): void
     {

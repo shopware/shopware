@@ -9,12 +9,9 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 class IncrementSqlStorage implements IncrementStorageInterface
 {
-    protected $connectorId = 'standard_pattern_connector';
+    protected string $connectorId = 'standard_pattern_connector';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

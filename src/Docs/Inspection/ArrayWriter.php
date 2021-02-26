@@ -4,7 +4,7 @@ namespace Shopware\Docs\Inspection;
 
 class ArrayWriter
 {
-    private $data = [];
+    private array $data = [];
 
     /**
      * @var string

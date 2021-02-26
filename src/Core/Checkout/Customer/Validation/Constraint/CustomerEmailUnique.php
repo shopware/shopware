@@ -15,6 +15,9 @@ class CustomerEmailUnique extends Constraint
 {
     public const CUSTOMER_EMAIL_NOT_UNIQUE = '79d30fe0-febf-421e-ac9b-1bfd5c9007f7';
 
+    /**
+     * @var string
+     */
     public $message = 'The email address {{ email }} is already in use.';
 
     /**
@@ -27,6 +30,9 @@ class CustomerEmailUnique extends Constraint
      */
     public $salesChannelContext;
 
+    /**
+     * @var array
+     */
     protected static $errorNames = [
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',
     ];

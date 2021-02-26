@@ -7,7 +7,10 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 
 class RequirementExceptionStack
 {
-    private $exceptions = [];
+    /**
+     * @var RequirementException[]
+     */
+    private array $exceptions = [];
 
     public function add(RequirementException ...$exceptions): void
     {

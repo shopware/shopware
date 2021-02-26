@@ -23,11 +23,10 @@ class LongTextFieldTest extends TestCase
     /**
      * @dataProvider longTextFieldDataProvider
      *
-     * @param string|null $input
-     * @param string|null $expected
-     * @param Flag[]      $flags
+     * @param bool|string|null $input
+     * @param Flag[]           $flags
      */
-    public function testLongTextFieldSerializer(string $type, $input, $expected, array $flags = []): void
+    public function testLongTextFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
 

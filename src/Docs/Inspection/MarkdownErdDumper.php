@@ -30,27 +30,15 @@ EOD;
 
 EOD;
 
-    private $tables = [];
+    private array $tables = [];
 
-    /**
-     * @var string
-     */
-    private $title;
+    private string $title;
 
-    /**
-     * @var string
-     */
-    private $description;
+    private string $description;
 
-    /**
-     * @var string
-     */
-    private $overviewImage;
+    private string $overviewImage;
 
-    /**
-     * @var string
-     */
-    private $hash;
+    private string $hash;
 
     public function __construct(
         string $title,

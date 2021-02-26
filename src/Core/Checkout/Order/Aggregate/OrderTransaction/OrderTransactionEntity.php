@@ -38,7 +38,7 @@ class OrderTransactionEntity extends Entity
      */
     protected $order;
 
-    /***
+    /**
      * @var StateMachineStateEntity|null
      */
     protected $stateMachineState;

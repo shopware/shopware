@@ -8,7 +8,9 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
         searchBehaviourConfigs: {
             type: Object,
             required: false,
-            default: null
+            default() {
+                return null;
+            }
         },
 
         isLoading: {

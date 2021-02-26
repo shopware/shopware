@@ -3,12 +3,13 @@
         {% block sw_settings_search_search_behaviour_card %}
             <sw-settings-search-search-behaviour
                 :isLoading="isLoading"
-                :search-behaviour-configs="productSearchConfigs">
+                :searchBehaviourConfigs="productSearchConfigs">
             </sw-settings-search-search-behaviour>
         {% endblock %}
 
         {% block sw_settings_search_searchable_content_card %}
-            <sw-settings-search-searchable-content>
+            <sw-settings-search-searchable-content
+                :searchConfigId="searchConfigId">
             </sw-settings-search-searchable-content>
         {% endblock %}
 

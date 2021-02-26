@@ -15,5 +15,17 @@ Shopware.Component.register('sw-settings-search-view-general', {
             required: false,
             default: false
         }
+    },
+
+    data() {
+        return {
+            searchConfigId: ''
+        };
+    },
+
+    watch: {
+        productSearchConfigs(newValue) {
+            this.searchConfigId = newValue.id || '';
+        }
     }
 });

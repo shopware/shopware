@@ -13,7 +13,7 @@
                     columns="repeat(auto-fit, minmax(100px, 1fr))"
                     align="center"
                     gap="0px 30px">
-                    <div>
+                    <div class="sw-settings-search__searchable-content-button-group">
                         {% block sw_settings_search_searchable_add_item %}
                             <sw-button
                                 class="sw-settings-search__searchable-content-add-button"
@@ -28,6 +28,7 @@
                             <sw-button
                                 class="sw-settings-search__searchable-content-reset-button"
                                 size="small"
+                                :disabled="isEnabledReset"
                                 @click="onResetToDefault">
                                 {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
                             </sw-button>
@@ -86,15 +87,31 @@
                         {% block sw_settings_search_searchable_content_general_tab_item %}
                             <sw-settings-search-searchable-content-general
                                 v-if="active === 'general'"
-                                :isEmpty="true"
-                                >
+                                :isEmpty="isListEmpty"
+                                :isLoading="isLoading"
+                                :columns="getProductSearchFieldColumns"
+                                :repository="productSearchFieldRepository"
+                                :searchConfigs="searchConfigFields"
+                                :fieldConfigs="fieldConfigs"
+                                @data-load="loadData"
+                                @config-add="onAddNewConfig"
+                                @config-save="saveConfig"
+                                @config-delete="deleteConfig">
                             </sw-settings-search-searchable-content-general>
                         {% endblock %}
 
                         {% block sw_settings_search_searchable_content_customfields_tab_item %}
                             <sw-settings-search-searchable-content-customfields
-                                v-else-if="active === 'customfields'"
-                                :isEmpty="true">
+                                v-if="active === 'customfields'"
+                                :isEmpty="isListEmpty"
+                                :isLoading="isLoading"
+                                :columns="getProductSearchFieldColumns"
+                                :repository="productSearchFieldRepository"
+                                :searchConfigs="searchConfigFields"
+                                @data-load="loadData"
+                                @config-add="onAddNewConfig"
+                                @config-save="saveConfig"
+                                @config-delete="deleteConfig">
                             </sw-settings-search-searchable-content-customfields>
                         {% endblock %}
                     </template>

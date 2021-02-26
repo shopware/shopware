@@ -45,7 +45,32 @@
       "textWarningOpenTab": "Dieses Fenster bitte nicht schließen.",
       "textRebuildSearchIndexDescription": "Das Neuerstellen des Such-Indexes dauert einige Zeit. Achte darauf, dass das Fenster in dieser Zeit nicht geschlossen wird. Du wirst benachrichtigt sobald der Prozess abgeschlossen ist.",
       "textRebuildingSearchIndex": "Neu-Erstellung des Such-Indexes",
-      "textLastedBuild": "Latest build:"
+      "textLastedBuild": "Latest build:",
+      "list": {
+        "columnSearchable": "Suchbar",
+        "columnRankingPoints": "Rangpunktzahl",
+        "columnContent": "Inhalte",
+        "columnSplitKeywords": "Suchwörter trennen",
+        "textResetRanking": "Ränge zurücksetzen",
+        "textRemove": "Entfernen"
+      },
+      "configFields": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "productNumber": "Produktnummer",
+        "manufacturerNumber": "Herstellernummer",
+        "ean": "EAN",
+        "customSearchKeywords": "Eigene Suchwörter",
+        "manufacturerName": "Hersteller-Name",
+        "manufacturerCustomFields": "Hersteller-Zusatzfelder",
+        "categoriesName": "Kategorien-Name",
+        "categoriesCustomFields": "Kategorien-Zusatzfelder",
+        "tagsName": "Tag-Name",
+        "metaTitle": "Meta-Titel",
+        "metaDescription": "Meta-Beschreibung",
+        "propertiesName": "Eigenschaften-Name",
+        "variantValue": "Varianten-Wert"
+      }
     },
     "notification": {
       "saveSuccess": "Konfiguration gespeichert.",
@@ -53,7 +78,8 @@
       "index": {
         "started": "Erstellung der Produkt-Indizes.",
         "success": "Produkt-Indizes erstellt."
-      }
+      },
+      "loadError": "Beim Laden der Konfiguration sind Fehler aufgetreten."
     },
     "liveSearchTab": {
       "titleCard": "Storefront-Echtzeitsuche",

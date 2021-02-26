@@ -129,7 +129,7 @@ SQL;
                 $resetTemplate
             );
 
-            RetryableQuery::retryable(function () use ($resetSql, $parameters): void {
+            RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
                 $this->connection->executeUpdate(
                     $resetSql,
                     $parameters,
@@ -137,7 +137,7 @@ SQL;
                 );
             });
 
-            RetryableQuery::retryable(function () use ($sql, $parameters): void {
+            RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
                 $this->connection->executeUpdate(
                     $sql,
                     $parameters,

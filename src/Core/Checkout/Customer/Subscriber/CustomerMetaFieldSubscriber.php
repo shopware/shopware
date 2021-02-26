@@ -126,6 +126,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE `customer` SET order_count = :order_count, order_total_amount = :order_total_amount, last_order_date = :last_order_date WHERE id = :id')
         );
 

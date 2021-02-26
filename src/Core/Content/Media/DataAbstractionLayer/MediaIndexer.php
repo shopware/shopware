@@ -91,6 +91,7 @@ class MediaIndexer extends EntityIndexer
         $context = $message->getContext();
 
         $query = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE `media` SET thumbnails_ro = :thumbnails_ro WHERE id = :id')
         );
 

@@ -84,7 +84,7 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
                     WHERE id = :countryId;';
         }
 
-        $update = new RetryableQuery($this->connection->prepare($query));
+        $update = new RetryableQuery($this->connection, $this->connection->prepare($query));
 
         foreach ($countries as $country) {
             if ($taxFreeType === CountryDefinition::TYPE_CUSTOMER_TAX_FREE) {
@@ -128,7 +128,7 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
             $query = 'UPDATE `country` SET `company_tax_free` = :isTaxFree WHERE id = :countryId;';
         }
 
-        $update = new RetryableQuery($this->connection->prepare($query));
+        $update = new RetryableQuery($this->connection, $this->connection->prepare($query));
 
         foreach ($countries as $country) {
             if ($taxFreeType === CountryDefinition::TYPE_CUSTOMER_TAX_FREE) {

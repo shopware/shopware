@@ -14,5 +14,8 @@ interface ExceptionHandlerInterface
 
     public function getPriority(): int;
 
-    public function matchException(\Exception $e, WriteCommand $command): ?\Exception;
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception;
 }

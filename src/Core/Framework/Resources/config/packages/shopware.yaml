@@ -353,6 +353,12 @@ shopware:
               major: true
               description: "Prepared payment flow"
               # issue: NEXT-16769
+            - name: FEATURE_NEXT_16640
+              default: false
+              major: true
+              description: "Change ExceptionHandlerInterface by removing Command $command argument"
+              # issue: NEXT-16640
+
 
     logger:
         file_rotation_count: 14

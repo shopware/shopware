@@ -62,6 +62,7 @@ SQL;
             return;
         }
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE promotion SET order_count = :count, orders_per_customer_count = :customerCount WHERE id = :id')
         );
 

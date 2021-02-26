@@ -169,7 +169,7 @@ class SearchKeywordUpdater
             'versionId' => Uuid::fromHexToBytes($versionId),
         ];
 
-        RetryableQuery::retryable(function () use ($params): void {
+        RetryableQuery::retryable($this->connection, function () use ($params): void {
             $this->connection->executeUpdate(
                 'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
                 $params,
@@ -191,6 +191,7 @@ class SearchKeywordUpdater
         } catch (\Exception $e) {
             // catch deadlock exception and retry with single insert
             $query = new RetryableQuery(
+                $this->connection,
                 $this->connection->prepare('
                     INSERT IGNORE INTO `product_search_keyword` (`id`, `version_id`, `product_version_id`, `language_id`, `product_id`, `keyword`, `ranking`, `created_at`)
                     VALUES (:id, :version_id, :product_version_id, :language_id, :product_id, :keyword, :ranking, :created_at)
@@ -217,6 +218,7 @@ class SearchKeywordUpdater
         } catch (\Exception $e) {
             // catch deadlock exception and retry with single insert
             $query = new RetryableQuery(
+                $this->connection,
                 $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')
             );
 

@@ -37,10 +37,12 @@ class ProductCategoryDenormalizer
         $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version')
         );
 
         $delete = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version')
         );
 
@@ -92,6 +94,7 @@ class ProductCategoryDenormalizer
             $queue->execute();
         } catch (DBALException $e) {
             $query = new RetryableQuery(
+                $this->connection,
                 $this->connection->prepare('
                     INSERT IGNORE INTO product_category_tree
                         (`product_id`, `product_version_id`, `category_id`, `category_version_id`)

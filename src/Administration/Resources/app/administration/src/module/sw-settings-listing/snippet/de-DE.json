@@ -26,7 +26,7 @@
               "releaseDate": "Erscheinungsdatum",
               "stock": "Lagerbestand",
               "listingPrices": "Produktlisten-Preis",
-              "cheapestPrice": "Günstigster Preis",
+              "cheapestPrice": "Günstigster Produkt-Preis",
               "price": "Standard Preis",
               "sales": "Verkaufte Einheiten"
             },

@@ -220,7 +220,7 @@ class WishlistControllerTest extends TestCase
         $flashBag = $this->getContainer()->get('session')->getFlashBag();
 
         static::assertNotEmpty($successFlash = $flashBag->get('success'));
-        static::assertEquals('You have successfully added the product into the wishlist.', $successFlash[0]);
+        static::assertEquals('You have successfully added the product to your wishlist.', $successFlash[0]);
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
 

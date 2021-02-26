@@ -46,7 +46,7 @@
       "labelCategory": "Categories",
       "placeholderCategory": "Select category...",
       "placeholderTags": "Enter a tag...",
-      "labelSearchKeyword": "Search Keywords",
+      "labelSearchKeyword": "Search keywords",
       "placeholderSearchKeywords": "Enter keywords that find this product...",
       "textAddSearchKeyword": "Click here to add search keyword",
       "textEnterValidSearchKeyword": "Searchable keywords",
@@ -69,7 +69,7 @@
       "placeholderPurchaseUnit": "Enter selling unit...",
       "placeholderReferenceUnit": "Enter basic unit...",
       "placeholderPackUnit": "Enter packaging unit...",
-      "placeholderPackUnitPlural": "Enter packaging unit in plural...",
+      "placeholderPackUnitPlural": "Enter packaging unit plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre",
@@ -139,7 +139,7 @@
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Labelling",
-      "cardTitlePackaging": "Measures & Packaging",
+      "cardTitlePackaging": "Measures & packaging",
       "linkAdvancedPrices": "Advanced pricing",
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleReviews": "Reviews",
@@ -148,7 +148,7 @@
       "cardTitleSeo": "SEO"
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Measures & Packaging",
+      "cardTitleMeasuresPackaging": "Measures & packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields"
     },

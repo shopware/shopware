@@ -1,7 +1,6 @@
 ---
 title: Fix guest wishlist do not show product after shopping
 issue: NEXT-13643
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 * Changed `\Shopware\Storefront\Controller\WishlistController::index` and `guestPagelet` to load wishlist guest page and pagelet for guest customer.

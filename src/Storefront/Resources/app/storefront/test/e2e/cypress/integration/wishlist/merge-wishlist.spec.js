@@ -55,8 +55,6 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Wishlist can be merge from anonymous user to registered users', () => {
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.server();
         cy.route({
             url: '/wishlist/merge',
@@ -100,8 +98,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.server();
         cy.route({
@@ -180,8 +176,6 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.server();
         cy.route({
             url: '/wishlist/add/**',
@@ -257,8 +251,6 @@ describe('Wishlist: for wishlist', () => {
         });
 
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.server();
         cy.route({

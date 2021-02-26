@@ -65,9 +65,6 @@ shopware:
               major: true
               description: "prevent plugins to extend the first level menu entries"
               # issue: NEXT-12267 # TODO: changelog
-            - name: FEATURE_NEXT_10549
-              major: false
-              description: "save cart or products on wishlist"
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"

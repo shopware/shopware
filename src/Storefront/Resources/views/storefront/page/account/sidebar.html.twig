@@ -76,7 +76,7 @@
                         <div class="card-footer account-aside-footer account-guest-abort">
                             {% block page_account_sidebar_guest_abort %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
-                                   {% if feature('FEATURE_NEXT_10549') %}data-account-guest-abort-button="true"{% endif %}
+                                   data-account-guest-abort-button="true"
                                    class="btn btn-link account-aside-btn">
                                     {% sw_icon 'log-out' %}
                                     {{ "account.guestAbort"|trans|sw_sanitize }}

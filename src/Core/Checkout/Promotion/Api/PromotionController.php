@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -39,10 +38,6 @@ class PromotionController extends AbstractController
      */
     public function generateFixedCode(): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         return new JsonResponse($this->codeService->getFixedCode());
     }
 
@@ -55,10 +50,6 @@ class PromotionController extends AbstractController
      */
     public function generateIndividualCodes(Request $request): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         $codePattern = $request->query->get('codePattern');
         $amount = (int) $request->query->get('amount');
 
@@ -74,10 +65,6 @@ class PromotionController extends AbstractController
      */
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         $promotionId = $request->request->get('promotionId');
         $codePattern = $request->request->get('codePattern');
         $amount = $request->request->get('amount');
@@ -96,10 +83,6 @@ class PromotionController extends AbstractController
      */
     public function addIndividualCodes(Request $request, Context $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         $promotionId = $request->request->get('promotionId');
         $amount = $request->request->getInt('amount');
 
@@ -117,10 +100,6 @@ class PromotionController extends AbstractController
      */
     public function getCodePreview(Request $request): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         return new JsonResponse($this->codeService->getPreview($request->query->get('codePattern')));
     }
 }

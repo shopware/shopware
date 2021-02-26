@@ -1,7 +1,7 @@
 {
     "sw-promotion-v2": {
         "general": {
-            "mainMenuItemGeneral": "Rabatte & Aktionen v2",
+            "mainMenuItemGeneral": "Rabatte & Aktionen",
             "mainMenuItemList": "Übersicht",
             "description": "Verwalte Rabattaktionen."
         },

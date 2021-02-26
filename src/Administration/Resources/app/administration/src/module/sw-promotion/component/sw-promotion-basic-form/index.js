@@ -6,6 +6,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ */
 Component.register('sw-promotion-basic-form', {
     template,
 

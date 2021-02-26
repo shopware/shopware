@@ -8,6 +8,10 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/base/sw-button';
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});

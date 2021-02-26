@@ -118,9 +118,9 @@ class CreateMigrationCommand extends Command
             $legacyDirectory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration';
             $legacyNamespace = 'Shopware\\Core\\Migration';
 
-            // @feature-deprecated (flag:FEATURE_NEXT_12349) tag:v6.5.0.0 - Only necessary until 6.5.0.0
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) tag:v6.5.0 - Only necessary until 6.5.0.0
             $output->writeln('Creating legacy core migration ...');
-            // @feature-deprecated (flag:FEATURE_NEXT_12349) tag:v6.5.0.0 - Only necessary until 6.5.0.0
+            // @feature-deprecated (flag:FEATURE_NEXT_12349) tag:v6.5.0 - Only necessary until 6.5.0.0
             $this->createMigrationFile(
                 $output,
                 $legacyDirectory,

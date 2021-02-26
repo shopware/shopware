@@ -1,13 +1,9 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 const promotionCodeFixedSelector = '#sw-field--promotion-code';
 const debounceTimeout = 800;
 
 describe('Promotion v2: Test crud operations', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12016');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -55,7 +51,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
     });
 
-    it("@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern", () => {
+    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')

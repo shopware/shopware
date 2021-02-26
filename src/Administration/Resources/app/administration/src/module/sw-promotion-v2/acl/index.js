@@ -1,7 +1,6 @@
-/**
- * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
- */
-Shopware.Service('privileges')
+const { Service } = Shopware;
+
+Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
         parent: 'marketing',

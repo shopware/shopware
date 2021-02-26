@@ -201,14 +201,14 @@ describe('Administration: Check module navigation', () => {
         }).as('getData');
 
         cy.clickMainMenuItem({
-            targetPath: '#/sw/promotion/index',
+            targetPath: '#/sw/promotion/v2/index',
             mainMenuId: 'sw-marketing',
-            subMenuId: 'sw-promotion'
+            subMenuId: 'sw-promotion-v2'
         });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-promotion-list').should('be.visible');
+        cy.get('.sw-promotion-v2-list').should('be.visible');
     });
 
     it('@navigation: navigate to newsletter recipients module', () => {

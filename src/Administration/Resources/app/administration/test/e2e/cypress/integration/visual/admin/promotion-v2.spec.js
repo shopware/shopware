@@ -2,15 +2,7 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-/**
- * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
- * @feature-deprecated (flag:FEATURE_NEXT_13810)
- */
-describe('Promotion: Visual tests', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_13810');
-    });
-
+describe('Promotion v2: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -29,7 +21,7 @@ describe('Promotion: Visual tests', () => {
                 return cy.setShippingMethodInSalesChannel('Standard');
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
             });
     });
 
@@ -48,26 +40,24 @@ describe('Promotion: Visual tests', () => {
         }).as('saveDiscount');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.takeSnapshot('Promotion listing', '.sw-promotion-list');
+        cy.get('.sw-promotion-v2-empty-state-hero').should('not.exist');
+        cy.takeSnapshot('Promotion listing', 'sw-promotion-v2-list');
 
-        cy.get('a[href="#/sw/promotion/create"]').click();
+        cy.get('a[href="#/sw/promotion/v2/create"]').click();
 
         // Create promotion
-        cy.get('.sw-promotion-detail').should('be.visible');
+        cy.get('.sw-promotion-v2-detail').should('be.visible');
         cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
         cy.get('input[name="sw-field--promotion-active"]').click();
-        cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
-        cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
-            .type('{esc}');
-        cy.get('.sw-promotion-detail__save-action').click();
+
+        cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('Promotion detail', '.sw-promotion-detail');
+        cy.takeSnapshot('Promotion detail', '.sw-promotion-v2-detail');
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -82,9 +72,6 @@ describe('Promotion: Visual tests', () => {
 
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
@@ -99,7 +86,7 @@ describe('Promotion: Visual tests', () => {
         cy.takeSnapshot('Promotion detail - discounts', '.sw-promotion-discount-component');
 
         // Save final promotion
-        cy.get('.sw-promotion-detail__save-action').click();
+        cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@saveDiscount').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

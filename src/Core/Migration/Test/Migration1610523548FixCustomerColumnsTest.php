@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 
 /**
- * @deprecated tag:v6.5.0.0
+ * @deprecated tag:v6.5.0
  * this test is no longer necessary, when the old columns are dropped
  */
 class Migration1610523548FixCustomerColumnsTest extends TestCase

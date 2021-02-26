@@ -3,6 +3,10 @@ import hydrator from 'src/module/sw-promotion/helper/code-entity-hydrator.helper
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
     it('should not be redeemed if payload is NULL', async () => {
         const item = {

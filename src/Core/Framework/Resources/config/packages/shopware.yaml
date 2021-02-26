@@ -85,10 +85,6 @@ shopware:
               major: true
               description: "reduce request payload of cms listing"
               # issue: NEXT-13752
-            - name: FEATURE_NEXT_12016
-              default: false
-              major: false
-              description: "improve promotions UX"
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"
@@ -163,6 +159,11 @@ shopware:
               major: true
               description: "Improve category UX"
               # issue: NEXT-13760
+            - name: FEATURE_NEXT_13810
+              default: false
+              major: true
+              description: "Deprecate old promotion module"
+              # issue: NEXT-13810
 
     logger:
         file_rotation_count: 14

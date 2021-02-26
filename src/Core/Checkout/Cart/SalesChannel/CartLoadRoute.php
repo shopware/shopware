@@ -21,23 +21,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartLoadRoute extends AbstractCartLoadRoute
 {
-    /**
-     * @var CartPersisterInterface
-     */
-    private $persister;
+    private CartPersisterInterface $persister;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    public function __construct(CartPersisterInterface $persister, EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator)
-    {
+    public function __construct(
+        CartPersisterInterface $persister,
+        EventDispatcherInterface $eventDispatcher,
+        CartCalculator $cartCalculator
+    ) {
         $this->persister = $persister;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartCalculator = $cartCalculator;
@@ -77,7 +71,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
         return new CartResponse($this->cartCalculator->calculate($cart, $context));
     }
 
-    private function createNew($token, $name): Cart
+    private function createNew(string $token, string $name): Cart
     {
         $cart = new Cart($name, $token);
 

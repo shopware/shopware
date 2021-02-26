@@ -18,7 +18,7 @@ class XmlFileWriter extends AbstractFileWriter
         fwrite($this->buffer, $xml);
     }
 
-    public function finish(Config $config, $targetPath): void
+    public function finish(Config $config, string $targetPath): void
     {
         fwrite($this->buffer, "</root>\n");
         parent::finish($config, $targetPath);
@@ -40,6 +40,9 @@ class XmlFileWriter extends AbstractFileWriter
         }
     }
 
+    /**
+     * @param bool|float|int|string $scalar
+     */
     private function toString($scalar): string
     {
         if (\is_bool($scalar)) {

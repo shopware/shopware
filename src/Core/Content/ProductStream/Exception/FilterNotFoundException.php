@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class FilterNotFoundException extends ShopwareHttpException
 {
-    public function __construct($type)
+    public function __construct(string $type)
     {
         parent::__construct('Filter for type {{ type}} not found', ['type' => $type]);
     }

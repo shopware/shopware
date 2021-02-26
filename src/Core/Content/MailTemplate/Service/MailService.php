@@ -225,7 +225,7 @@ class MailService implements MailServiceInterface
         return $message;
     }
 
-    private function getSender($data, ?string $salesChannelId): ?string
+    private function getSender(array $data, ?string $salesChannelId): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
@@ -246,7 +246,7 @@ class MailService implements MailServiceInterface
         return $senderEmail;
     }
 
-    private function enrichMessage(\Swift_Message $message, $data): void
+    private function enrichMessage(\Swift_Message $message, array $data): void
     {
         if (isset($data['recipientsCc'])) {
             $message->setCc($data['recipientsCc']);

@@ -19,7 +19,7 @@ class LineItemCollection extends Collection
 {
     public function __construct(iterable $elements = [])
     {
-        parent::__construct([]);
+        parent::__construct();
 
         foreach ($elements as $lineItem) {
             $this->add($lineItem);
@@ -52,6 +52,10 @@ class LineItemCollection extends Collection
         $this->elements[$this->getKey($lineItem)] = $lineItem;
     }
 
+    /**
+     * @param int|string $key
+     * @param LineItem   $lineItem
+     */
     public function set($key, $lineItem): void
     {
         $this->validateType($lineItem);

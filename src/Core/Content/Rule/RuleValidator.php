@@ -110,9 +110,7 @@ class RuleValidator implements EventSubscriberInterface
             $violation = $this->buildViolation(
                 'Your condition is missing a type.',
                 [],
-                null,
                 '/type',
-                null,
                 'CONTENT__MISSING_RULE_TYPE_EXCEPTION'
             );
 
@@ -128,9 +126,7 @@ class RuleValidator implements EventSubscriberInterface
             $violation = $this->buildViolation(
                 'This {{ value }} is not a valid condition type.',
                 ['{{ value }}' => $type],
-                null,
                 '/type',
-                null,
                 'CONTENT__INVALID_RULE_TYPE_EXCEPTION'
             );
             $violationList->add($violation);
@@ -190,7 +186,6 @@ class RuleValidator implements EventSubscriberInterface
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',
                         ['{{ fieldName }}' => $fieldName],
-                        null,
                         '/value/' . $fieldName
                     )
                 );
@@ -230,18 +225,16 @@ class RuleValidator implements EventSubscriberInterface
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
-        $root = null,
         ?string $propertyPath = null,
-        $invalidValue = null,
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
-            $root,
+            null,
             $propertyPath,
-            $invalidValue,
+            null,
             null,
             $code
         );

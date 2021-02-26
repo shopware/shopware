@@ -51,16 +51,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPositionCollection\\:\\:set\\(\\) has parameter \\$deliveryPosition with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryPositionCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPositionCollection\\:\\:set\\(\\) has parameter \\$key with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryPositionCollection.php
-
-		-
 			message: "#^Cannot call method getWeight\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryInformation\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/Struct/DeliveryPositionCollection.php
@@ -91,24 +81,9 @@ parameters:
 			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemQuantityCollection\\:\\:has\\(\\) has parameter \\$key with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/Group/LineItemQuantityCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\:\\:getPayloadValue\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/LineItem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:set\\(\\) has parameter \\$key with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItemCollection\\:\\:set\\(\\) has parameter \\$lineItem with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
 
 		-
 			message: "#^Cannot call method getPriority\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PriceDefinitionInterface\\|null\\.$#"
@@ -181,16 +156,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Processor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\CartLoadRoute\\:\\:createNew\\(\\) has parameter \\$name with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/CartLoadRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\CartLoadRoute\\:\\:createNew\\(\\) has parameter \\$token with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/CartLoadRoute.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Validator\\:\\:\\$validators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Validator.php
@@ -204,11 +169,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$customerGroup of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Event\\\\CustomerGroupRegistrationDeclined constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerGroup\\\\CustomerGroupEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Api/CustomerGroupRegistrationActionController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexer.php
 
 		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
@@ -356,46 +316,6 @@ parameters:
 			path: src/Core/Checkout/Document/Controller/DocumentController.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__set\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__set\\(\\) has parameter \\$name with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__set\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__get\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__get\\(\\) has parameter \\$name with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:__isset\\(\\) has parameter \\$name with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:\\$pageOrientation \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfiguration\\:\\:\\$pageSize \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentConfiguration.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity\\:\\:\\$documentMediaFile \\(Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\) does not accept Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/DocumentEntity.php
@@ -489,11 +409,6 @@ parameters:
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderTransaction/OrderTransactionCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\LanguageOfOrderDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Exception/LanguageOfOrderDeleteException.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\:\\:getAmountNet\\(\\) should return float but returns float\\|null\\.$#"
@@ -966,21 +881,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportFactory\\:\\:__construct\\(\\) has parameter \\$pipeFactories with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExportFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportFactory\\:\\:__construct\\(\\) has parameter \\$readerFactories with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExportFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportFactory\\:\\:__construct\\(\\) has parameter \\$writerFactories with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExportFactory.php
-
-		-
 			message: "#^Cannot call method getSourceEntity\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExportFactory.php
@@ -1016,22 +916,7 @@ parameters:
 			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\KeyMappingPipe\\:\\:mapKey\\(\\) has parameter \\$key with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/KeyMappingPipe.php
-
-		-
 			message: "#^Parameter \\#1 \\$offset of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:setOffset\\(\\) expects int, int\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:handleBom\\(\\) has parameter \\$resource with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:seek\\(\\) has parameter \\$resource with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
 
@@ -1076,16 +961,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\XmlFileWriter\\:\\:finish\\(\\) has parameter \\$targetPath with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\XmlFileWriter\\:\\:toString\\(\\) has parameter \\$scalar with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
 			message: "#^Cannot call method getFileType\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriterFactory.php
@@ -1109,26 +984,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Config\\:\\:get\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Struct/Config.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Progress\\:\\:__construct\\(\\) has parameter \\$offset with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Struct/Progress.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Struct\\\\Progress\\:\\:__construct\\(\\) has parameter \\$total with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Struct/Progress.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\MailService\\:\\:getSender\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/MailService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\MailService\\:\\:enrichMessage\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Service/MailService.php
 
 		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -1461,11 +1316,6 @@ parameters:
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Exception\\\\LanguageOfNewsletterDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php
-
-		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
@@ -1559,16 +1409,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/StockUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Exception\\\\DuplicateProductNumberException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Exception/DuplicateProductNumberException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Exception\\\\LanguageOfProductReviewDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Exception/LanguageOfProductReviewDeleteException.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
@@ -1746,11 +1586,6 @@ parameters:
 			path: src/Core/Content/ProductExport/Event/ProductExportLoggingEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Exception\\\\DuplicateFileNameException\\:\\:__construct\\(\\) has parameter \\$e with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Exception/DuplicateFileNameException.php
-
-		-
 			message: "#^Parameter \\#2 \\$salesChannelId of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextFactory\\:\\:create\\(\\) expects string, array\\|string given\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php
@@ -1811,21 +1646,6 @@ parameters:
 			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\\:\\:buildPayload\\(\\) has parameter \\$filter with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Exception\\\\FilterNotFoundException\\:\\:__construct\\(\\) has parameter \\$type with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Exception/FilterNotFoundException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Exception\\\\NoFilterException\\:\\:__construct\\(\\) has parameter \\$id with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Exception/NoFilterException.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
@@ -1859,16 +1679,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:setPayload\\(\\) has parameter \\$payload with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:buildViolation\\(\\) has parameter \\$invalidValue with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
 
 		-
 			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:handleRequest\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
@@ -1949,11 +1759,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:__construct\\(\\) has parameter \\$sitemapConfig with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ScheduledTask\\\\SitemapGenerateTaskHandler\\:\\:getSalesChannelContext\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ScheduledTask/SitemapGenerateTaskHandler.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"

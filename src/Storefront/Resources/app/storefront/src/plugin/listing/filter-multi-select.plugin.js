@@ -84,22 +84,33 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         return labels;
     }
 
-    setValuesFromUrl(params) {
+    setValuesFromUrl(params = {}) {
         let stateChanged = false;
-        Object.keys(params).forEach(key => {
-            if (key === this.options.name) {
-                stateChanged = true;
-                const ids = params[key].split('|');
 
-                ids.forEach(id => {
-                    const checkboxEl = DomAccess.querySelector(this.el, `[id="${id}"]`, false);
+        const properties = params[this.options.name];
 
-                    if (checkboxEl) {
-                        checkboxEl.checked = true;
-                        this.selection.push(checkboxEl.id);
-                    }
-                });
+        const ids = properties ? properties.split('|') : [];
+
+        const uncheckItems = this.selection.filter(x => !ids.includes(x));
+        const checkItems = ids.filter(x => !this.selection.includes(x));
+
+        if (uncheckItems.length > 0 || checkItems.length > 0) {
+            stateChanged = true;
+        }
+
+        checkItems.forEach(id => {
+            const checkboxEl = DomAccess.querySelector(this.el, `[id="${id}"]`, false);
+
+            if (checkboxEl) {
+                checkboxEl.checked = true;
+                this.selection.push(checkboxEl.id);
             }
+        });
+
+        uncheckItems.forEach(id => {
+            this.reset(id);
+
+            this.selection = this.selection.filter(item => item !== id);
         });
 
         this._updateCount();
@@ -111,7 +122,8 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      * @private
      */
     _onChangeFilter() {
-        this.listing.changeListing(this);
+        // reset page to 1 when updating the filter
+        this.listing.changeListing(true, { p: 1 });
     }
 
     /**

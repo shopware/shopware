@@ -109,14 +109,14 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable(function () use ($binary): void {
+        RetryableQuery::retryable($this->connection, function () use ($binary): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
                 ['id' => $binary],
             );
         });
 
-        RetryableQuery::retryable(function () use ($insert): void {
+        RetryableQuery::retryable($this->connection, function () use ($insert): void {
             $insert->execute();
         });
     }
@@ -177,7 +177,7 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable(function () use ($ids): void {
+        RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -185,7 +185,7 @@ class ProductStreamUpdater extends EntityIndexer
             );
         });
 
-        RetryableQuery::retryable(function () use ($insert): void {
+        RetryableQuery::retryable($this->connection, function () use ($insert): void {
             $insert->execute();
         });
     }

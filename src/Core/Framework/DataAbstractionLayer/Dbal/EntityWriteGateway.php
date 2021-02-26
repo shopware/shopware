@@ -10,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
@@ -116,31 +117,19 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
+        $enableBatch = true;
         try {
-            $this->connection->beginTransaction();
-
-            try {
-                $this->executeCommands($commands, $context, true);
-            } catch (\Throwable $e) {
-                // retry with batch disabled
-                $this->connection->rollBack();
-                $this->connection->beginTransaction();
-
-                $context->resetExceptions();
-                $this->executeCommands($commands, $context, false);
-            }
-
-            //only commit if transaction is not already marked for rollback
-            if (!$this->connection->isRollbackOnly()) {
-                $this->connection->commit();
-            } else {
-                $this->connection->rollBack();
-            }
+            RetryableTransaction::retryable($this->connection, function () use ($commands, $context, &$enableBatch): void {
+                try {
+                    $this->executeCommands($commands, $context, $enableBatch);
+                } finally {
+                    // Let RetryableTransaction retry RetryableExceptions with batch disabled
+                    $enableBatch = false;
+                }
+            });
         } catch (\Throwable $e) {
             $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
             $this->eventDispatcher->dispatch($event);
-
-            $this->connection->rollBack();
 
             throw $e;
         }
@@ -181,7 +170,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     $mappings->execute();
                     $inserts->execute();
 
-                    RetryableQuery::retryable(function () use ($command, $table): void {
+                    RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
                         $this->connection->delete(
                             EntityDefinitionQueryHelper::escape($table),
                             $command->getPrimaryKey()
@@ -214,7 +203,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     $mappings->execute();
                     $inserts->execute();
 
-                    RetryableQuery::retryable(function () use ($command, $table): void {
+                    RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
                         $this->connection->update(
                             EntityDefinitionQueryHelper::escape($table),
                             $this->escapeColumnKeys($command->getPayload()),
@@ -458,7 +447,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
         $query->setParameters(array_merge($values, array_values($identifier)), $types);
 
-        RetryableQuery::retryable(function () use ($query): void {
+        RetryableQuery::retryable($this->connection, function () use ($query): void {
             $query->execute();
         });
     }

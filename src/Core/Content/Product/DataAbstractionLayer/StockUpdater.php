@@ -262,6 +262,7 @@ GROUP BY product_id;
         $fallback = array_diff($ids, $fallback);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity, updated_at = :now WHERE id = :id')
         );
 
@@ -309,7 +310,7 @@ GROUP BY product_id;
             AND product.version_id = :version
         ';
 
-        RetryableQuery::retryable(function () use ($sql, $context, $bytes): void {
+        RetryableQuery::retryable($this->connection, function () use ($sql, $context, $bytes): void {
             $this->connection->executeUpdate(
                 $sql,
                 ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
@@ -331,6 +332,7 @@ GROUP BY product_id;
     private function updateStock(array $products, int $multiplier): void
     {
         $query = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version')
         );
 

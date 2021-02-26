@@ -75,6 +75,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
     {
         // Delete the payload and invalid flag of all rules
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE `rule` SET `payload` = null, `invalid` = 0')
         );
         $update->execute();

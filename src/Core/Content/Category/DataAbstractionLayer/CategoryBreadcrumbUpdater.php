@@ -97,7 +97,7 @@ class CategoryBreadcrumbUpdater
             VALUES (:categoryId, :versionId, :languageId, :breadcrumb, DATE(NOW()))
             ON DUPLICATE KEY UPDATE `breadcrumb` = :breadcrumb
         ');
-        $update = new RetryableQuery($update);
+        $update = new RetryableQuery($this->connection, $update);
 
         foreach ($ids as $id) {
             try {

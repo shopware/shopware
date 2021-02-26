@@ -90,6 +90,7 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 

@@ -106,7 +106,7 @@ class ChildCountUpdater
             $params = ['versionId' => Uuid::fromHexToBytes($context->getVersionId())];
         }
 
-        $update = new RetryableQuery($this->connection->prepare($sql));
+        $update = new RetryableQuery($this->connection, $this->connection->prepare($sql));
 
         $totals = FetchModeHelper::keyPair($totals);
 

@@ -272,6 +272,7 @@ class DocumentService
                 [
                     'id' => $document->getId(),
                     'documentMediaFileId' => $document->getDocumentMediaFileId(),
+                    'orderVersionId' => $document->getOrderVersionId(),
                 ],
             ],
             $context
@@ -321,13 +322,21 @@ class DocumentService
         return $this->documentTypeRepository->search($criteria, $context)->first();
     }
 
-    /**
-     * @throws DocumentGenerationException
-     */
-    private function validateVersion(string $versionId): void
+    private function validateVersion(DocumentEntity $document, Context $context): void
     {
-        if ($versionId === Defaults::LIVE_VERSION) {
-            throw new DocumentGenerationException('Only versioned orders can be used for document generation.');
+        if ($document->getOrderVersionId() === Defaults::LIVE_VERSION) {
+            // Only versioned orders can be used for document generation.
+            $orderVersionId = $this->orderRepository->createVersion($document->getOrderId(), $context);
+            $document->setOrderVersionId($orderVersionId);
+            $this->documentRepository->update(
+                [
+                    [
+                        'id' => $document->getId(),
+                        'orderVersionId' => $orderVersionId,
+                    ],
+                ],
+                $context
+            );
         }
     }
 
@@ -439,6 +448,7 @@ class DocumentService
                         [
                             'id' => $document->getId(),
                             'documentMediaFileId' => $document->getDocumentMediaFileId(),
+                            'orderVersionId' => $document->getOrderVersionId(),
                         ],
                     ],
                     $context
@@ -459,7 +469,7 @@ class DocumentService
         $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
             $document->getDocumentType()->getTechnicalName()
         );
-        $this->validateVersion($document->getOrderVersionId());
+        $this->validateVersion($document, $context);
 
         $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
 

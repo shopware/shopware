@@ -218,7 +218,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
         $this->translator->resetInjection();
 
-        $this->productExportFileHandler->finalizePartialProductExport(
+        $writeProductExportSuccesful = $this->productExportFileHandler->finalizePartialProductExport(
             $filePath,
             $finalFilePath,
             $headerContent,
@@ -226,5 +226,19 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         );
 
         $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
+
+        if (!$writeProductExportSuccesful) {
+            return;
+        }
+
+        $this->productExportRepository->update(
+            [
+                [
+                    'id' => $productExport->getId(),
+                    'generatedAt' => new \DateTime(),
+                ],
+            ],
+            $context->getContext()
+        );
     }
 }

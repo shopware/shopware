@@ -75,11 +75,6 @@ shopware:
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_12092
-              default: false
-              major: true
-              description: "correct spelling of a config key"
-              # issue: NEXT-13751
             - name: FEATURE_NEXT_11253
               default: false
               major: true

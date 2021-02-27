@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Feature;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -77,20 +76,9 @@ class TemplateFinder implements TemplateFinderInterface
         // If we are trying to load the same file as the template, we do are not allowed to search the hierarchy
         // up to the source file as that has already been searched and that would lead to an endless template inheritance.
 
-        if (Feature::isActive('FEATURE_NEXT_12553')) {
-            if ($sourceBundleName !== null && $sourcePath === $templatePath) {
-                $index = array_search($sourceBundleName, $queue, true);
-                $queue = \array_slice($queue, $index + 1);
-            }
-
-            // @feature-deprecated tag:v6.4.0 0 (flag: FEATURE_NEXT_12553) - The improved template loading will be active
-        } elseif ($source) {
-            $index = array_search($source, $queue, true);
-
-            $queue = array_merge(
-                \array_slice($queue, $index + 1),
-                \array_slice($queue, 0, $index + 1)
-            );
+        if ($sourceBundleName !== null && $sourcePath === $templatePath) {
+            $index = array_search($sourceBundleName, $queue, true);
+            $queue = \array_slice($queue, $index + 1);
         }
 
         // iterate over all bundles but exclude the originally requested bundle

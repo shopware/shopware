@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -60,8 +59,6 @@ class TwigSwExtendsTest extends TestCase
 
     public function testMultipleInheritanceIfExtendingTemplateInSamePlugin(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12553', $this);
-
         [$twig, $templateFinder] = $this->createFinder([
             new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
             new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
@@ -77,8 +74,6 @@ class TwigSwExtendsTest extends TestCase
 
     public function testMultipleInheritanceIfExtendingBaseTemplateInSamePlugin(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12553', $this);
-
         [$twig, $templateFinder] = $this->createFinder([
             new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
             new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),

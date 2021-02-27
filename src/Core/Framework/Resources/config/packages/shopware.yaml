@@ -93,11 +93,6 @@ shopware:
               major: true
               description: "custom search index and ranking"
               # issue: NEXT-13539
-            - name: FEATURE_NEXT_12553
-              default: false
-              major: true
-              description: "Improve template hierarchy resolving"
-              # issue: NEXT-13754 # TODO: changelog
             - name: FEATURE_NEXT_12608
               default: false
               major: true

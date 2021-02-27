@@ -55,7 +55,8 @@ Component.register('sw-product-detail', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'localMode'
+            'localMode',
+            'advancedModeSetting'
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -63,7 +64,8 @@ Component.register('sw-product-detail', {
             'isLoading',
             'isChild',
             'defaultCurrency',
-            'defaultFeatureSet'
+            'defaultFeatureSet',
+            'showModeSetting'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -114,6 +116,22 @@ Component.register('sw-product-detail', {
 
         featureSetRepository() {
             return this.repositoryFactory.create('product_feature_set');
+        },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
+
+        userModeSettingsRepository() {
+            return this.repositoryFactory.create('user_config');
+        },
+
+        userModeSettingsCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
+            criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
+
+            return criteria;
         },
 
         productCriteria() {
@@ -205,6 +223,70 @@ Component.register('sw-product-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        getModeSettingGeneralTab() {
+            return [
+                {
+                    key: 'general_information',
+                    label: 'sw-product.detailBase.cardTitleProductInfo',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'prices',
+                    label: 'sw-product.detailBase.cardTitlePrices',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'deliverability',
+                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'visibility_structure',
+                    label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'labelling',
+                    label: 'sw-product.detailBase.cardTitleSettings',
+                    enabled: true,
+                    tabSetting: 'general'
+                }
+            ];
+        },
+
+        getModeSettingSpecificationsTab() {
+            return [
+                {
+                    key: 'measures_packaging',
+                    label: 'Measures & Packaging',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'properties',
+                    label: 'Properties',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'essential_characteristics',
+                    label: 'Essential Characteristics',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'custom_products',
+                    label: 'Custom Products',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                }
+            ];
         }
     },
 
@@ -258,6 +340,8 @@ Component.register('sw-product-detail', {
             this.$root.$on('product-reload', () => {
                 this.loadAll();
             });
+
+            this.initAdvancedModeSettings();
         },
 
         destroyedComponent() {
@@ -287,6 +371,88 @@ Component.register('sw-product-detail', {
                     this.product.productNumber = response.number;
                 });
             });
+        },
+
+        initAdvancedModeSettings() {
+            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.getAdvancedModeDefaultSetting());
+
+            this.getAdvancedModeSetting();
+        },
+
+        createUserModeSetting() {
+            const newModeSettings = this.userModeSettingsRepository.create(Shopware.Context.api);
+            newModeSettings.key = 'mode.setting.advancedModeSettings';
+            newModeSettings.userId = this.currentUser && this.currentUser.id;
+            return newModeSettings;
+        },
+
+        getAdvancedModeDefaultSetting() {
+            const defaultSettings = this.createUserModeSetting();
+            defaultSettings.value = {
+                advancedMode: {
+                    label: 'sw-product.general.textAdvancedMode',
+                    enabled: true
+                },
+                settings: [
+                    ...this.getModeSettingGeneralTab,
+                    ...this.getModeSettingSpecificationsTab
+                ]
+            };
+            return defaultSettings;
+        },
+
+        getAdvancedModeSetting() {
+            return this.userModeSettingsRepository
+                .search(this.userModeSettingsCriteria, Shopware.Context.api)
+                .then((items) => {
+                    if (!items.total) {
+                        return;
+                    }
+
+                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', items.first());
+                    Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+                });
+        },
+
+        saveAdvancedMode() {
+            Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', true]);
+            this.userModeSettingsRepository.save(this.advancedModeSetting, Shopware.Context.api)
+                .then(() => {
+                    this.getAdvancedModeSetting();
+                    Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', false]);
+                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                    });
+                });
+        },
+
+        changeDisplaySettings() {
+            return {
+                showSettingsInformation: this.getModeEnabledByKey('general_information') && this.showModeSetting,
+                showLabellingCard: this.getModeEnabledByKey('labelling') && this.showModeSetting
+            };
+        },
+
+        getModeEnabledByKey(key) {
+            if (!key) {
+                return false;
+            }
+
+            const modeEnableItem = this.advancedModeSetting.value.settings.find(item => item.key === key);
+            if (!modeEnableItem) {
+                return false;
+            }
+
+            return modeEnableItem.enabled;
+        },
+
+        onChangeSettings() {
+            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+            Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+            this.saveAdvancedMode();
         },
 
         loadState() {

@@ -256,4 +256,17 @@ describe('Product: Test crud operations', () => {
         });
         cy.get(page.elements.emptyState).should('be.visible');
     });
+
+    it('@base @catalogue: should be visible advanced mode setting', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12429');
+
+        const page = new ProductPageObject();
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-settings-mode').should('be.visible');
+    });
 });

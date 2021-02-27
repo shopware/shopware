@@ -5,6 +5,7 @@
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form
                         v-if="!isLoading"
+                        :showSettingsInformation="modeSettingsVisible.showSettingsInformation"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-basic-form>
                 {% endblock %}
@@ -108,7 +109,11 @@
         {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="loading.product">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showLabellingCard"
+                class="sw-product-detail-base__labelling-card"
+                :title="$tc('sw-product.detailBase.cardTitleSettings')"
+                :isLoading="loading.product">
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :allowEdit="acl.can('product.editor')"></sw-product-settings-form>
                 {% endblock %}

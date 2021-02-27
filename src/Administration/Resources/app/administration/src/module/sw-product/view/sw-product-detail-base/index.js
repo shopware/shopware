@@ -99,11 +99,14 @@ Component.register('sw-product-detail-base', {
             'product',
             'parentProduct',
             'customFieldSets',
-            'loading'
+            'loading',
+            'advancedModeSetting',
+            'modeSettingsVisible'
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
+            'showModeSetting'
         ]),
 
         /**

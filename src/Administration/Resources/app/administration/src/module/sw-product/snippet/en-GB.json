@@ -21,7 +21,9 @@
       "copy": "Copy",
       "cloneSuffix": "variants",
       "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
-      "cloneTitle": "Duplicate variants"
+      "cloneTitle": "Duplicate variants",
+      "tooltipModeSettings": "Mode settings",
+      "textAdvancedMode": "Advanced mode"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -145,7 +147,8 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleVisibilityStructure": "Visibility Structure"
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Measures & packaging",

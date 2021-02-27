@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -153,11 +152,6 @@ class SalesChannelContextFactory
         $criteria->setTitle('context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
-
-        // @feature-deprecated tag:v6.4.0 - Will be removed
-        if (!Feature::isActive('FEATURE_NEXT_12009')) {
-            $criteria->addAssociation('countries');
-        }
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)

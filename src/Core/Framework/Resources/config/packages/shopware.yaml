@@ -65,10 +65,6 @@ shopware:
               major: true
               description: "prevent plugins to extend the first level menu entries"
               # issue: NEXT-12267 # TODO: changelog
-            - name: FEATURE_NEXT_12009
-              major: true
-              description: "remove countries from sales channel object inside context"
-              # issue: NEXT-13750
             - name: FEATURE_NEXT_10549
               major: false
               description: "save cart or products on wishlist"

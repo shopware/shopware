@@ -1,7 +1,6 @@
 ---
 title: Remove country association in context factory
 issue: NEXT-12815
-flag: FEATURE_NEXT_12009
 author: OliverSkroblin
 author_email: o.skroblin@shopware.com 
 author_github: OliverSkroblin

@@ -113,11 +113,6 @@ shopware:
               major: true
               description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
               # issue: NEXT-13756
-            - name: FEATURE_NEXT_12957
-              default: false
-              major: true
-              description: "Separate plugin download and update action"
-              # issue: NEXT-13758
             - name: FEATURE_NEXT_9831
               default: false
               major: false

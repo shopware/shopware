@@ -65,6 +65,7 @@ describe('Product: Test variants', () => {
             cy.get('.sw-data-grid__body').contains('.3');
 
             // Get green variant
+            cy.get('.sw-simple-search-field--form').should('be.visible');
             cy.get('.sw-simple-search-field--form input').typeAndCheck('Green');
             cy.get('.sw-data-grid-skeleton').should('not.exist');
             cy.get('.sw-data-grid__row--1').should('not.exist');

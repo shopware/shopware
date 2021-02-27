@@ -1,7 +1,6 @@
 ---
 title: Separate requests for plugin download and update
 issue: NEXT-12957
-flag: FEATURE_NEXT_12957
 ---
 # Core
 * Changed the `downloadPlugin` method in `\Shopware\Core\Framework\Store\Api\StoreController` so that it only executes
@@ -17,6 +16,6 @@ ___
 ___
 # Upgrade Information
 If you're using the `api.custom.store.download` route, be aware that its behaviour will change when `platform` >=
-v6.4.0.0  is in use, or the feature flag `FEATURE_NEXT_12957` is active. The route will no longer trigger a plugin
-update. In case you'd like to trigger a plugin update, you'll need to dispatch another request to the
+v6.4.0.0  is in use. The route will no longer trigger a plugin update. 
+In case you'd like to trigger a plugin update, you'll need to dispatch another request to the
 `api.action.plugin.update` route.

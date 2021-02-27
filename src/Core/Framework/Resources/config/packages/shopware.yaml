@@ -122,11 +122,6 @@ shopware:
               major: true
               description: "Exchange standard mailer SwiftMailer to Symfony/Mailer"
               # issue: NEXT-13756
-            - name: FEATURE_NEXT_12942
-              default: false
-              major: true
-              description: "Add maximum width for logo"
-              # issue: NEXT-13757
             - name: FEATURE_NEXT_12957
               default: false
               major: true

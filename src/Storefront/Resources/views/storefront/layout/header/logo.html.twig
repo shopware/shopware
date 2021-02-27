@@ -5,7 +5,7 @@
                href="{{ path('frontend.home.page') }}"
                title="{{ "header.logoLink"|trans|striptags }}">
                 {% block layout_header_logo_image %}
-                    <picture{% if feature('FEATURE_NEXT_12942') %} class="header-logo-picture"{% endif %}>
+                    <picture class="header-logo-picture">
                             {% block layout_header_logo_image_tablet %}
                             {% if shopware.theme['sw-logo-tablet'] and shopware.theme['sw-logo-tablet'] != shopware.theme['sw-logo-desktop'] %}
                                 <source srcset="{{ shopware.theme['sw-logo-tablet'] |sw_encode_url }}"

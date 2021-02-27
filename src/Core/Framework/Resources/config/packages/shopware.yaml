@@ -71,11 +71,6 @@ shopware:
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"
-            - name: FEATURE_NEXT_11253
-              default: false
-              major: true
-              description: "reduce request payload of cms listing"
-              # issue: NEXT-13752
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"

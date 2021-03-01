@@ -169,7 +169,7 @@ export default class ShopwareExtensionService {
     async updateModules() {
         const modules = await this.appModuleService.fetchAppModules();
 
-        await Shopware.State.dispatch('shopwareApps/setAppModules', modules);
+        Shopware.State.commit('shopwareApps/setApps', modules);
     }
 
     async _getLinkToTheme(extension) {

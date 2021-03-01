@@ -12,9 +12,10 @@ class FlatTree {
      * @memberOf FlatTree
      * @constructor
      */
-    constructor() {
+    constructor(sorting = () => 0, defaultPosition = 1) {
         this._registeredNodes = new Map();
-        this._defaultPosition = 1;
+        this._defaultPosition = defaultPosition;
+        this._sorting = sorting;
     }
 
     /**
@@ -23,7 +24,7 @@ class FlatTree {
      * @returns {Array} registered nodes as a data tree
      */
     convertToTree() {
-        return this._tree(undefined, this._registeredNodes);
+        return this._tree(this._registeredNodes);
     }
 
     /**
@@ -35,7 +36,7 @@ class FlatTree {
      * @param {Number} [level=1]
      * @returns {Array}
      */
-    _tree(parent, elements, level = 1) {
+    _tree(elements, level = 1, parent) {
         const children = [];
         elements.forEach((element) => {
             if (element.parent !== parent) {
@@ -44,11 +45,11 @@ class FlatTree {
             element.level = level;
 
             const newParent = element.id || element.path;
-            element.children = this._tree(newParent, elements, level + 1);
+            element.children = this._tree(elements, level + 1, newParent);
             children.push(element);
         });
 
-        return children;
+        return children.sort(this._sorting);
     }
 
     /**
@@ -75,7 +76,7 @@ class FlatTree {
         }
 
         if (!node.position) {
-            node.position = this.defaultPosition;
+            node.position = this._defaultPosition;
         }
 
         if (this._registeredNodes.has(nodeIdentifier)) {
@@ -100,26 +101,31 @@ class FlatTree {
      * @returns {FlatTree}
      */
     remove(nodeIdentifier) {
-        if (!this._registeredNodes.has(nodeIdentifier)) {
-            return this;
-        }
-
         this._registeredNodes.delete(nodeIdentifier);
         return this;
     }
 
     /**
      * Returns the collection of the registered nodes for the data tree
+     *
+     * @deprecated tag:v6.5.0 will be removed as registered nodes should be private
+     *
      * @returns {Map}
      */
     getRegisteredNodes() {
         return this._registeredNodes;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed. treat as private
+     */
     get defaultPosition() {
         return this._defaultPosition;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 set in constructor. treat as private
+     */
     set defaultPosition(value) {
         this._defaultPosition = value;
     }

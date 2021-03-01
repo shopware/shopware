@@ -1,18 +1,36 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
-import mainMenu from './_mocks/mainMenu.json';
+import 'src/app/component/structure/sw-admin-menu-item';
+
+/** service */
+import createMenuService from 'src/app/service/menu.service';
+
+/** fixtures */
+import adminModules from '../../service/_mocks/adminModules.json';
+import testApps from '../../service/_mocks/testApps.json';
+
+const menuService = createMenuService(Shopware.Module);
+Shopware.Service().register('menuService', () => menuService);
 
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
+    localVue.use(VueRouter);
 
-    return shallowMount(Shopware.Component.build('sw-admin-menu'), {
+    const adminMenuComponent = Shopware.Component.build('sw-admin-menu');
+    adminMenuComponent.provide = function () {
+        return { acl: { can: () => true } };
+    };
+
+    return shallowMount(adminMenuComponent, {
         localVue,
+        router: new VueRouter({ routes: Shopware.Module.getModuleRoutes() }),
         sync: false,
         stubs: {
             'sw-icon': true,
             'sw-version': true,
-            'sw-admin-menu-item': true,
+            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
             'sw-loader': true,
             'sw-avatar': true,
             'sw-shortcut-overview': true
@@ -28,11 +46,7 @@ function createWrapper() {
             feature: {
                 isActive: () => true
             },
-            menuService: {
-                getMainMenu: () => {
-                    return mainMenu;
-                }
-            },
+            menuService,
             loginService: {
                 notifyOnLoginListener: () => {}
             },
@@ -51,6 +65,9 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     let wrapper = createWrapper();
 
     beforeAll(() => {
+        Shopware.State.get('session').currentLocale = 'en-GB';
+        Shopware.Context.app.fallbackLocale = 'en-GB';
+
         Shopware.Feature.isActive = () => true;
 
         Shopware.State.registerModule('settingsItems', {
@@ -68,6 +85,13 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.commit('setCurrentUser', null);
         Shopware.State.get('settingsItems').settingsGroups.shop = [];
         Shopware.State.get('settingsItems').settingsGroups.system = [];
+
+        Shopware.Module.getModuleRegistry().clear();
+        adminModules.forEach((adminModule) => {
+            Shopware.Module.register(adminModule.name, adminModule);
+        });
+
+        Shopware.State.commit('shopwareApps/setApps', []);
 
         wrapper = createWrapper();
     });
@@ -190,5 +214,88 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         };
 
         expect(wrapper.vm.getPolygonFromMenuItem(element, entry)).toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
+    });
+
+    it('should render correct admin menu entries', async () => {
+        const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+
+        // expect only one top level entry visible because sw-my-apps and second-module have no children nor a path
+        expect(topLevelEntries).toHaveLength(1);
+
+        const topLevelEntry = topLevelEntries.at(0);
+        expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
+            id: 'sw.second.top.level'
+        }));
+
+        const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
+
+        expect(childMenuEntries).toHaveLength(3);
+        expect(childMenuEntries.wrappers.map((childMenuEntry) => {
+            return childMenuEntry.props('entry');
+        })).toEqual([
+            expect.objectContaining({
+                id: 'sw.second.level.first'
+            }), expect.objectContaining({
+                id: 'sw.second.level.second'
+            }), expect.objectContaining({
+                id: 'sw.second.level.last'
+            })
+        ]);
+    });
+
+    describe('app menu entries', () => {
+        it('renders apps under there parent navigation entry', async () => {
+            Shopware.State.commit('shopwareApps/setApps', testApps);
+            await wrapper.vm.$nextTick();
+
+            const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+            const childMenuEntries = topLevelEntries.at(1).findAll('.navigation-list-item__level-2');
+
+            expect(childMenuEntries.wrappers.map((menuEntry) => {
+                return menuEntry.props('entry');
+            })).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    id: 'app-testAppA-noPosition'
+                })
+            ]));
+        });
+
+        it('renders app structure elements and their children', async () => {
+            Shopware.State.commit('shopwareApps/setApps', testApps);
+            await wrapper.vm.$nextTick();
+
+            const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+            const structureElement = topLevelEntries.at(0).get('.navigation-list-item__level-2');
+
+            expect(structureElement.props('entry')).toEqual(
+                expect.objectContaining({
+                    id: 'app-testAppB-structure'
+                })
+            );
+
+            const appMenuEntry = structureElement.get('.navigation-list-item__level-3');
+
+            expect(appMenuEntry.props('entry')).toEqual(
+                expect.objectContaining({
+                    id: 'app-testAppB-default'
+                })
+            );
+        });
+    });
+
+    describe('deprecated functionality', () => {
+        it('renders app menu items without parent underneath my apps', async () => {
+            Shopware.State.commit('shopwareApps/setApps', testApps);
+            await wrapper.vm.$nextTick();
+
+            const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+            const appMenuEntry = topLevelEntries.at(2).get('.navigation-list-item__level-2');
+
+            expect(appMenuEntry.props('entry')).toEqual(
+                expect.objectContaining({
+                    id: 'app-testAppA-noParent'
+                })
+            );
+        });
     });
 });

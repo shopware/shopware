@@ -1,6 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
+import createMenuService from 'src/app/service/menu.service';
+
+const menuService = createMenuService(Shopware.Module);
+Shopware.Service().register('menuService', () => menuService);
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -24,9 +28,7 @@ function createWrapper(privileges = []) {
             userService: {
                 getUser: () => Promise.resolve({})
             },
-            menuService: {
-                getMainMenu: () => []
-            },
+            menuService,
             acl: {
                 can: (privilegeKey) => {
                     if (!privilegeKey) { return true; }

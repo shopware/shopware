@@ -307,14 +307,7 @@
                             {% block sw_product_detail_base_ratings_column_stars %}
                                 <template slot="column-points" slot-scope="{ item }">
                                     <div class="sw-review-detail-base__stars">
-                                        <sw-icon v-for="star, index in item.points" :key="`star-${index}`"
-                                                 name="default-review-star-full"
-                                                 size="14">
-                                        </sw-icon>
-                                        <sw-icon v-for="missingStar, index in (5-item.points)" :key="`missingStar-${index}`"
-                                                name="default-basic-shape-star"
-                                                size="14">
-                                        </sw-icon>
+                                        <sw-rating-stars v-model="item.points"></sw-rating-stars>
                                     </div>
                                 </template>
                             {% endblock %}

@@ -123,10 +123,11 @@ class CategoryIndexer extends EntityIndexer
         }
 
         if ($idsWithChangedParentIds !== []) {
-            // tree should be updated immediately
-            foreach ($idsWithChangedParentIds as $id) {
-                $this->treeUpdater->update($id, CategoryDefinition::ENTITY_NAME, $event->getContext());
-            }
+            $this->treeUpdater->batchUpdate(
+                $idsWithChangedParentIds,
+                CategoryDefinition::ENTITY_NAME,
+                $event->getContext()
+            );
         }
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
@@ -152,10 +153,7 @@ class CategoryIndexer extends EntityIndexer
         // listen to parent id changes
         $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
 
-        foreach ($ids as $id) {
-            // listen to parent id changes
-            $this->treeUpdater->update($id, CategoryDefinition::ENTITY_NAME, $context);
-        }
+        $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
 
         // listen to name changes
         $this->breadcrumbUpdater->update($ids, $context);

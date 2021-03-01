@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +59,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             )
         );
 
-        if (!Feature::isActive('FEATURE_NEXT_10552') || $pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
+        if ($pattern->getBooleanClause() !== SearchPattern::BOOLEAN_CLAUSE_AND) {
             $criteria->addFilter(new AndFilter([
                 new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())),
                 new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()),

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -35,7 +34,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     private $logger;
 
     /**
-     * @var AbstractTokenFilter|null
+     * @var AbstractTokenFilter
      */
     private $tokenFilter;
 
@@ -43,7 +42,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         Connection $connection,
         TokenizerInterface $tokenizer,
         LoggerInterface $logger,
-        ?AbstractTokenFilter $tokenFilter = null
+        AbstractTokenFilter $tokenFilter
     ) {
         $this->connection = $connection;
         $this->tokenizer = $tokenizer;
@@ -55,26 +54,17 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     {
         $tokens = $this->tokenizer->tokenize($word);
 
-        if (Feature::isActive('FEATURE_NEXT_10552') && $this->tokenFilter) {
-            $tokens = $this->tokenFilter->filter($tokens, $context);
-            if (empty($tokens)) {
-                return new SearchPattern(new SearchTerm(''));
-            }
-            $tokenSlops = $this->slop($tokens);
-            if (!$this->checkSlops(array_values($tokenSlops))) {
-                return new SearchPattern(new SearchTerm($word));
-            }
-            $tokenKeywords = $this->fetchKeywords($context, $tokenSlops);
-            $matches = \array_fill(0, \count($tokens), []);
-            $matches = $this->groupTokenKeywords($matches, $tokenKeywords);
-        } else {
-            $slops = $this->slop($tokens);
-            if (empty($slops['normal'])) {
-                return new SearchPattern(new SearchTerm($word));
-            }
-
-            $matches = $this->fetchKeywords($context, $slops);
+        $tokens = $this->tokenFilter->filter($tokens, $context);
+        if (empty($tokens)) {
+            return new SearchPattern(new SearchTerm(''));
         }
+        $tokenSlops = $this->slop($tokens);
+        if (!$this->checkSlops(array_values($tokenSlops))) {
+            return new SearchPattern(new SearchTerm($word));
+        }
+        $tokenKeywords = $this->fetchKeywords($context, $tokenSlops);
+        $matches = \array_fill(0, \count($tokens), []);
+        $matches = $this->groupTokenKeywords($matches, $tokenKeywords);
 
         $combines = $this->permute($tokens);
         foreach ($combines as $token) {
@@ -84,16 +74,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $pattern = new SearchPattern(new SearchTerm($word));
 
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            $pattern->setBooleanClause($this->getConfigBooleanClause($context));
-            $pattern->setTokenTerms($matches);
+        $pattern->setBooleanClause($this->getConfigBooleanClause($context));
+        $pattern->setTokenTerms($matches);
 
-            $scoring = $this->score($tokens, ArrayNormalizer::flatten($matches));
-            if ($pattern->getBooleanClause() === SearchPattern::BOOLEAN_CLAUSE_OR) {
-                $scoring = \array_slice($scoring, 0, 8, true);
-            }
-        } else {
-            $scoring = $this->score($tokens, $matches);
+        $scoring = $this->score($tokens, ArrayNormalizer::flatten($matches));
+        if ($pattern->getBooleanClause() === SearchPattern::BOOLEAN_CLAUSE_OR) {
             $scoring = \array_slice($scoring, 0, 8, true);
         }
 
@@ -125,24 +110,13 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private function slop(array $tokens): array
     {
-        //@feature-deprecated (flag:FEATURE_NEXT_10552) tag:v6.4.0 - Please remove this line after removing Feature Flag
-        //Dont need to declare $slops right here
-        $slops = [];
         $tokenSlops = [];
-        if (!Feature::isActive('FEATURE_NEXT_10552')) {
+
+        foreach ($tokens as $token) {
             $slops = [
                 'normal' => [],
                 'reversed' => [],
             ];
-        }
-
-        foreach ($tokens as $token) {
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $slops = [
-                    'normal' => [],
-                    'reversed' => [],
-                ];
-            }
             $token = (string) $token;
             $slopSize = mb_strlen($token) > 4 ? 2 : 1;
             $length = mb_strlen($token);
@@ -150,9 +124,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             if (mb_strlen($token) <= 2) {
                 $slops['normal'][] = $token . '%';
                 $slops['reversed'][] = $token . '%';
-                if (Feature::isActive('FEATURE_NEXT_10552')) {
-                    $tokenSlops[$token] = $slops;
-                }
+                $tokenSlops[$token] = $slops;
 
                 continue;
             }
@@ -167,41 +139,22 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
                     }
                 }
             }
-            //@feature-deprecated (flag:FEATURE_NEXT_10552) tag:v6.4.0 - Please remove this line after removing Feature Flag
-            //Dont need to declare $tokenRev right here
-            $tokenRev = '';
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $tokenRev = strrev($token);
-            } else {
-                $token = strrev($token);
-            }
+            $tokenRev = strrev($token);
             for ($i = 1; $i <= $length - 2; $i += $steps) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
                     for ($i3 = 1; $i3 <= $slopSize + 1; ++$i3) {
-                        if (Feature::isActive('FEATURE_NEXT_10552')) {
-                            $slops['reversed'][] = mb_substr($tokenRev, 0, $i) . $placeholder . mb_substr($tokenRev, $i + $i2) . '%';
-                        } else {
-                            $slops['reversed'][] = mb_substr($token, 0, $i) . $placeholder . mb_substr($token, $i + $i2) . '%';
-                        }
+                        $slops['reversed'][] = mb_substr($tokenRev, 0, $i) . $placeholder . mb_substr($tokenRev, $i + $i2) . '%';
                         $placeholder .= '_';
                     }
                 }
             }
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $tokenSlops[$token] = $slops;
-            }
-        }
-        if (Feature::isActive('FEATURE_NEXT_10552')) {
-            return $tokenSlops;
+            $tokenSlops[$token] = $slops;
         }
 
-        return $slops;
+        return $tokenSlops;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function groupTokenKeywords(array $matches, array $keywordRows): array
     {
         foreach ($keywordRows as $keywordRow) {
@@ -228,44 +181,26 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $wheres = [];
         $index = 0;
 
-        if (!Feature::isActive('FEATURE_NEXT_10552')) {
-            $tokenSlops = [$tokenSlops];
-        }
-
         foreach ($tokenSlops as $slops) {
             $slopsWheres = [];
             foreach ($slops['normal'] as $slop) {
                 ++$counter;
-                if (Feature::isActive('FEATURE_NEXT_10552')) {
-                    $slopsWheres[] = 'keyword LIKE :reg' . $counter;
-                } else {
-                    $wheres[] = 'keyword LIKE :reg' . $counter;
-                }
+                $slopsWheres[] = 'keyword LIKE :reg' . $counter;
                 $query->setParameter('reg' . $counter, $slop);
             }
             foreach ($slops['reversed'] as $slop) {
                 ++$counter;
-                if (Feature::isActive('FEATURE_NEXT_10552')) {
-                    $slopsWheres[] = 'reversed LIKE :reg' . $counter;
-                } else {
-                    $wheres[] = 'reversed LIKE :reg' . $counter;
-                }
+                $slopsWheres[] = 'reversed LIKE :reg' . $counter;
                 $query->setParameter('reg' . $counter, $slop);
             }
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $query->addSelect('IF (' . implode(' OR ', $slopsWheres) . ', 1, 0) as \'' . $index++ . '\'');
-                $wheres = array_merge($wheres, $slopsWheres);
-            }
+            $query->addSelect('IF (' . implode(' OR ', $slopsWheres) . ', 1, 0) as \'' . $index++ . '\'');
+            $wheres = array_merge($wheres, $slopsWheres);
         }
 
         $query->andWhere('language_id = :language');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
-
-        if (!Feature::isActive('FEATURE_NEXT_10552')) {
-            return $query->execute()->fetchAll(FetchMode::COLUMN);
-        }
 
         return $query->execute()->fetchAll(FetchMode::NUMERIC);
     }
@@ -311,9 +246,6 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $scoring;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function checkSlops(array $tokenSlops): bool
     {
         foreach ($tokenSlops as $slops) {
@@ -325,9 +257,6 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return false;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10552)
-     */
     private function getConfigBooleanClause(Context $context): bool
     {
         $andLogic = false;

@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_10552)
- *
  * @method void                                add(ProductSearchConfigFieldEntity $entity)
  * @method void                                set(string $key, ProductSearchConfigFieldEntity $entity)
  * @method ProductSearchConfigFieldEntity[]    getIterator()

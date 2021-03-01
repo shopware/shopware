@@ -1,7 +1,6 @@
 ---
 title: Create DAL and migration database for search configuration
 issue: NEXT-12490
-flag:  FEATURE_NEXT_10552
 ---
 # Core
 * Added two new tables `product_search_config` and `product_search_config_field` to stored product searching config data and create the default data for them.

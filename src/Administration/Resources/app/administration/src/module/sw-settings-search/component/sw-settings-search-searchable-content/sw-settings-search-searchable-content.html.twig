@@ -20,7 +20,7 @@
                                 class="sw-settings-search__searchable-content-add-button"
                                 variant="ghost"
                                 size="small"
-                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.creator')"
+                                :disabled="!acl.can('product_search_config.creator')"
                                 @click="onAddNewConfig">
                                 {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
                             </sw-button>
@@ -31,7 +31,7 @@
                                 v-if="defaultTab !== tabNames.customTab"
                                 class="sw-settings-search__searchable-content-reset-button"
                                 size="small"
-                                :disabled="feature.isActive('FEATURE_NEXT_10552') && (isEnabledReset || !acl.can('product_search_config.editor'))"
+                                :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
                                 @click="onResetToDefault">
                                 {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
                             </sw-button>

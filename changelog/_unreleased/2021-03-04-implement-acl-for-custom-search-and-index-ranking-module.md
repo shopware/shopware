@@ -1,7 +1,6 @@
 ---
 title: Implement ACL for Custom search and index ranking module
 issue: NEXT-13437
-flag: FEATURE_NEXT_10552
 ---
 # Administration
 * Changed `src/module/sw-settings-search/acl/index.js` to update privileges of role viewer, editor, creator and deleter.

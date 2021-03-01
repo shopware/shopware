@@ -18,9 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @internal (flag:FEATURE_NEXT_10552)
- */
 class ProductSearchConfigDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_search_config';

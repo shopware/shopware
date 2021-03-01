@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Product\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @internal (flag:FEATURE_NEXT_10552)
- */
 class DuplicateProductSearchConfigLanguageException extends ShopwareHttpException
 {
     public function __construct(string $languageId, \Throwable $e)

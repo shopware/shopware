@@ -69,6 +69,16 @@ __EMPTY__
 Provides functionality to define sorting groups to sort products by.
 
 
+### Table `product_search_config`
+
+__EMPTY__
+
+
+### Table `product_search_config_field`
+
+__EMPTY__
+
+
 ### Table `product_visibility`
 
 Set the visibility of a single product in a sales channel

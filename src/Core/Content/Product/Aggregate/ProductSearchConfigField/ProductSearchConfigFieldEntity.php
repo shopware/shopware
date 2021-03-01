@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 
-/**
- * @internal (flag:FEATURE_NEXT_10552)
- */
 class ProductSearchConfigFieldEntity extends Entity
 {
     use EntityIdTrait;

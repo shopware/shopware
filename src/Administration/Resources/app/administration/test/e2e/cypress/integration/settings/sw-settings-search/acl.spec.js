@@ -15,7 +15,6 @@ describe('Search: Test ACL privileges', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.onlyOnFeature('FEATURE_NEXT_10552');
             });
     });
 

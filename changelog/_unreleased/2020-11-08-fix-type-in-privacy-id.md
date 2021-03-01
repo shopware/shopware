@@ -1,7 +1,6 @@
 ---
 title: Fix typo in form-privacy-opt-in CSS ID prefix
 issue: NEXT-12092
-flag: FEATURE_NEXT_12092
 author: Alexander Menk
 author_email: menk@mestrona.net 
 author_github: @amenk

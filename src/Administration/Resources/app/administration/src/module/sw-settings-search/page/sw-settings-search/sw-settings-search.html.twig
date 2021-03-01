@@ -39,7 +39,8 @@
                             {% block sw_setting_search_tabs_general %}
                                 <sw-tabs-item
                                     v-bind="$props"
-                                    :route="{ name: 'sw.settings.search.index.general' }">
+                                    :route="{ name: 'sw.settings.search.index.general' }"
+                                    @click="onTabChange">
                                     {{ $tc('sw-settings-search.page.generalTab') }}
                                 </sw-tabs-item>
                             {% endblock %}

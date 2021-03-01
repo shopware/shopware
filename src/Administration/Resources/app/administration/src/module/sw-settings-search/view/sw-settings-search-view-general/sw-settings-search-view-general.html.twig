@@ -14,7 +14,9 @@
         {% endblock %}
 
         {% block sw_settings_search_excluded_search_terms_card %}
-            {#TODO: NEXT-11993 - Implement Excluded search temrs in new Search settings module #}
+            <sw-settings-search-excluded-search-terms
+                :searchConfigs="productSearchConfigs">
+            </sw-settings-search-excluded-search-terms>
         {% endblock %}
 
         {% block sw_settings_search_search_index_card %}

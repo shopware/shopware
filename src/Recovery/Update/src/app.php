@@ -5,7 +5,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
-use Symfony\Component\Dotenv\Dotenv;
 
 date_default_timezone_set('Europe/Berlin');
 ini_set('display_errors', '1');
@@ -18,6 +17,8 @@ $container = new Container(new \Slim\Container(), $config);
 $app = $container->get('app');
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $app) {
+    $container->get('env.load')();
+
     $baseUrl = \Shopware\Recovery\Common\Utils::getBaseUrl();
 
     $lang = null;
@@ -65,10 +66,6 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     $viewVars['baseUrl'] = $baseUrl;
     $viewVars['language'] = $language;
     $viewVars['selectedLanguage'] = $selectedLanguage;
-
-    if (is_readable((string) $container->get('env.path'))) {
-        (new Dotenv())->load((string) $container->get('env.path'));
-    }
 
     $container->get('renderer')->setAttributes($viewVars);
 
@@ -147,7 +144,7 @@ $app->get('/finish', function (ServerRequestInterface $request, ResponseInterfac
     /** @var SystemConfigService $systemConfig */
     $systemConfig = $container->get('system.config');
     $systemConfig->set('core.update.token', $updateToken);
-    $redirectUrl = $shopPath . 'api/v3/_action/update/finish/' . $updateToken;
+    $redirectUrl = $shopPath . 'api/_action/update/finish/' . $updateToken;
 
     if (UPDATE_META_FILE && file_exists(UPDATE_META_FILE)) {
         @unlink(UPDATE_META_FILE);

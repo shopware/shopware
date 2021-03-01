@@ -54,18 +54,27 @@
                     {{ "listing.listingTextFrom"|trans|sw_sanitize }}
                 {% endif %}
 
-                <span class="product-price">
+                {% set isListPrice = price.listPrice.percentage > 0 %}
+
+                <span class="product-price{% if isListPrice and not displayFrom %} with-list-price{% endif %}">
                     {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
 
-                    {% if price.listPrice.percentage > 0 %}
-                        {% set hideStrikeTrough = "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0 %}
+                    {% if isListPrice and not displayFrom %}
+                        {% set afterListPriceSnippetExists = "listing.afterListPrice"|trans|length > 0 %}
+                        {% set beforeListPriceSnippetExists = "listing.beforeListPrice"|trans|length > 0 %}
+                        {% set hideStrikeTrough = beforeListPriceSnippetExists or afterListPriceSnippetExists %}
 
                         <span class="list-price{% if hideStrikeTrough %} list-price-no-line-through{% endif %}">
-                            {{ "listing.beforeListPrice"|trans|trim|sw_sanitize }} {{ price.listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{ "listing.afterListPrice"|trans|trim|sw_sanitize }}
+                            {% if beforeListPriceSnippetExists %}{{ "listing.beforeListPrice"|trans|trim|sw_sanitize }}{% endif %}
+
+                            <span class="list-price-price">{{ price.listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}</span>
+
+                            {% if afterListPriceSnippetExists %}{{ "listing.afterListPrice"|trans|trim|sw_sanitize }}{% endif %}
+
+                            <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
                         </span>
                     {% endif %}
                 </span>
-
             </div>
         {% endblock %}
     </div>

@@ -18,7 +18,7 @@
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
             <div class="row cart-item-row">
                 {% block page_checkout_item_info %}
-                    <div class="col-10 col-md cart-item-info">
+                    <div class="col-10 col-md-5 cart-item-info">
                         {% block page_checkout_item_info_inner %}
                             <div class="row cart-item-row">
                                 {% block page_checkout_item_info_image %}
@@ -159,7 +159,7 @@
                 {% endblock %}
 
                 {% block page_checkout_item_quantity %}
-                    <div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
+                    <div class="col-12 col-sm-4 col-md-2 cart-item-quantity">
                         <div class="row cart-item-quantity-row">
                             {% block page_checkout_item_quantity_label %}
                                 <div class="col-8 col-sm-12 cart-item-quantity-label">

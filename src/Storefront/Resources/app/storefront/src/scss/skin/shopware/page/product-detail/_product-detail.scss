@@ -1,3 +1,5 @@
+@import '~scss/mixins';
+
 .product-detail-name {
     color: $sw-headline-color;
 }
@@ -70,12 +72,39 @@
     color: $headings-color;
     font-weight: $font-weight-normal;
     font-size: 12px;
-    display: inline-block;
     vertical-align: bottom;
-    text-decoration: line-through;
-    padding-left: 8px;
+    display: block;
+    padding-left: 0;
+
+    .list-price-price {
+        text-decoration: line-through;
+    }
+
+    &-no-line-through .list-price-price {
+        text-decoration: none;
+    }
 }
 
+@include media-breakpoint-up(sm) {
+    .product-detail-advanced-list-price-wrapper {
+        display: inline-block;
+        padding-left: 8px;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .product-detail-advanced-list-price-wrapper {
+        display: block;
+        padding-left: 0;
+    }
+}
+
+@include media-breakpoint-up(xl) {
+    .product-detail-advanced-list-price-wrapper {
+        display: inline-block;
+        padding-left: 8px;
+    }
+}
 
 .product-detail-ordernumber-label {
     font-weight: $font-weight-bold;

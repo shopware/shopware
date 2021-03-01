@@ -52,6 +52,7 @@ $box-image-height-img: 332px;
     // 'max-height: 100%' not working in firefox
     max-height: $box-standard-height-img;
 
+    &.is-standard,
     &.is-cover,
     &.is-contain {
         width: 100%;
@@ -66,6 +67,11 @@ $box-image-height-img: 332px;
     &.is-contain {
         object-fit: contain;
         font-family: 'object-fit: contain;'; // IE polyfill
+    }
+
+    &.is-standard {
+        object-fit: scale-down;
+        font-family: 'object-fit: scale-down;'; // IE polyfill
     }
 }
 

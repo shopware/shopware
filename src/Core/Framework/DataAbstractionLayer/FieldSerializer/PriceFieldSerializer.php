@@ -60,7 +60,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 $this->validate([new NotBlank()], $data, $parameters->getPath());
             }
 
-            $constraints = $this->getConstraints($field);
+            $constraints = $this->getCachedConstraints($field);
             $pricePath = $parameters->getPath() . '/price';
 
             foreach ($data->getValue() as $index => $price) {

@@ -343,6 +343,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
     {
+        // TODO: prepare and cache
         $query = $this->connection->createQueryBuilder();
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 

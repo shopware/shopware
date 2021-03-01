@@ -48,6 +48,8 @@ class WriteCommandExtractor
      */
     private $definitionRegistry;
 
+    private array $fieldsForPrimaryKeyMapping = [];
+
     public function __construct(
         EntityWriteGatewayInterface $entityExistenceGateway,
         DefinitionInstanceRegistry $definitionRegistry
@@ -145,6 +147,25 @@ class WriteCommandExtractor
         return $stack->getResultAsArray();
     }
 
+    private function skipField(Field $field, EntityExistence $existence): bool
+    {
+        if ($existence->isChild() && $field->is(Inherited::class)) {
+            //inherited field of a child is never required
+            return true;
+        }
+
+        $create = !$existence->exists() || $existence->childChangedToParent();
+
+        if (
+            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField)
+            && (!$create || !$field->is(Required::class))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     private function getKeyValuePair(Field $field, DataStack $stack, EntityExistence $existence): ?KeyValuePair
     {
         $kvPair = $stack->pop($field->getPropertyName());
@@ -158,60 +179,11 @@ class WriteCommandExtractor
             return new KeyValuePair($field->getPropertyName(), null, true);
         }
 
-        if ($field->is(Inherited::class) && $existence->isChild()) {
-            //inherited field of a child is never required
-            return null;
-        }
-
-        $create = !$existence->exists() || $existence->childChangedToParent();
-
-        if ($this->isUpdateAtFieldCase($create, $field)) {
-            //update statement
-            return null;
-        }
-
-        if ($this->isCreatedAtFieldCase($field)) {
-            //not required and childhood not changed
+        if ($this->skipField($field, $existence)) {
             return null;
         }
 
         return new KeyValuePair($field->getPropertyName(), null, true);
-    }
-
-    private function isUpdateAtFieldCase(bool $create, Field $field): bool
-    {
-        if ($create) {
-            return false;
-        }
-        if ($field instanceof UpdatedAtField) {
-            return false;
-        }
-        if ($field instanceof CreatedByField) {
-            return false;
-        }
-        if ($field instanceof UpdatedByField) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function isCreatedAtFieldCase(Field $field): bool
-    {
-        if ($field->is(Required::class)) {
-            return false;
-        }
-        if ($field instanceof UpdatedAtField) {
-            return false;
-        }
-        if ($field instanceof CreatedByField) {
-            return false;
-        }
-        if ($field instanceof UpdatedByField) {
-            return false;
-        }
-
-        return true;
     }
 
     private function integrateDefaults(EntityDefinition $definition, array $rawData): array
@@ -293,7 +265,7 @@ class WriteCommandExtractor
     {
         //filter all fields which are relevant to extract the full primary key data
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
-        $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
+        $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields, $parameters->getDefinition());
 
         $existence = new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []);
 
@@ -301,14 +273,14 @@ class WriteCommandExtractor
         $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);
 
         //after all fields extracted, filter fields to only primary key flagged fields
-        $primaryKeys = array_filter($mappingFields, static function (Field $field) {
+        $mappingFields = array_filter($mappingFields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
 
         $primaryKey = [];
 
         /** @var StorageAware|Field $field */
-        foreach ($primaryKeys as $field) {
+        foreach ($mappingFields as $field) {
             //build new primary key data array which contains only the primary key data
             if (\array_key_exists($field->getStorageName(), $mapped)) {
                 $primaryKey[$field->getStorageName()] = $mapped[$field->getStorageName()];
@@ -341,8 +313,12 @@ class WriteCommandExtractor
      *
      * @return Field[]
      */
-    private function getFieldsForPrimaryKeyMapping(array $fields): array
+    private function getFieldsForPrimaryKeyMapping(array $fields, EntityDefinition $definition): array
     {
+        if (isset($this->fieldsForPrimaryKeyMapping[$definition->getEntityName()])) {
+            return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()];
+        }
+
         $primaryKeys = array_filter($fields, static function (Field $field) {
             return $field->is(PrimaryKey::class);
         });
@@ -366,7 +342,7 @@ class WriteCommandExtractor
             return $b->getExtractPriority() <=> $a->getExtractPriority();
         });
 
-        return $primaryKeys;
+        return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()] = $primaryKeys;
     }
 
     private function getAssociationByStorageName(string $name, array $fields): ?ManyToOneAssociationField

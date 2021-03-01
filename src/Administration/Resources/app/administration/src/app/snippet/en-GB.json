@@ -992,7 +992,7 @@
     "keyboardShortcutGoToShipping": "G S S",
     "functionGoToRuleBuilder": "Go to rule builder",
     "keyboardShortcutGoToRuleBuilder": "G S R",
-    "functionGoToPlugins": "Go to plugins",
+    "functionGoToPlugins": "Go to \"My Extensions\"",
     "keyboardShortcutGoToPlugins": "G A",
     "functionSpecialShortcutFocusSearch": "Focus search",
     "keyboardShortcutSpecialShortcutFocusSearch": "F",

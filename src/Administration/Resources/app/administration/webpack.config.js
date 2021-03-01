@@ -8,7 +8,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
-const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
@@ -455,13 +454,17 @@ const webpackConfig = {
                 if (fs.existsSync(assetPath)) {
                     acc.push(
                         // copy custom static assets
-                        new CopyWebpackPlugin([
-                            {
-                                from: assetPath,
-                                to: path.resolve(plugin.basePath, 'Resources/public/static/'),
-                                ignore: ['.*']
-                            }
-                        ])
+                        new CopyWebpackPlugin({
+                            patterns: [
+                                {
+                                    from: assetPath,
+                                    to: path.resolve(plugin.basePath, 'Resources/public/static/'),
+                                    globOptions: {
+                                        ignore: ['.*']
+                                    }
+                                }
+                            ]
+                        })
                     );
                 }
 
@@ -474,13 +477,17 @@ const webpackConfig = {
             if (isProd) {
                 return [
                 // copy custom static assets
-                    new CopyWebpackPlugin([
-                        {
-                            from: path.resolve('.', 'static'),
-                            to: 'static',
-                            ignore: ['.*']
-                        }
-                    ])
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: path.resolve('.', 'static'),
+                                to: 'static',
+                                globOptions: {
+                                    ignore: ['.*']
+                                }
+                            }
+                        ]
+                    })
                 ];
             }
 

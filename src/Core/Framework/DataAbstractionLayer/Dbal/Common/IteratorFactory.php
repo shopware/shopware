@@ -8,10 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 class IteratorFactory
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -28,7 +25,7 @@ class IteratorFactory
         $query->setMaxResults(50);
 
         if ($definition->getFields()->has('autoIncrement')) {
-            $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id))']);
+            $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id)) as id']);
             $query->andWhere($escaped . '.auto_increment > :lastId');
             $query->addOrderBy($escaped . '.auto_increment');
             $query->setParameter('lastId', 0);

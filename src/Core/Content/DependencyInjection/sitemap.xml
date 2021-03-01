@@ -8,7 +8,6 @@
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
         </service>
@@ -36,9 +35,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
-            <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="router"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -50,9 +51,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider">
-            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="router"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

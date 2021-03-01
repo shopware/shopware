@@ -1741,16 +1741,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
-
-		-
-			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
-
-		-
 			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
@@ -1759,16 +1749,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ConfigHandler\\\\File\\:\\:__construct\\(\\) has parameter \\$sitemapConfig with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/ConfigHandler/File.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ScheduledTask/SitemapGenerateTaskHandler.php
-
-		-
-			message: "#^Cannot call method getLanguageId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/ScheduledTask/SitemapGenerateTaskHandler.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Sitemap\\\\ScheduledTask\\\\SitemapMessage\\:\\:\\$lastSalesChannelId \\(string\\) does not accept string\\|null\\.$#"

@@ -17,5 +17,5 @@ interface SitemapExporterInterface
     /**
      * @throws AlreadyLockedException
      */
-    public function generate(SalesChannelContext $salesChannelContext, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult;
+    public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult;
 }

@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -22,20 +24,11 @@ class SitemapGenerateCommand extends Command
 {
     public static $defaultName = 'sitemap:generate';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var SitemapExporterInterface
-     */
-    private $sitemapExporter;
+    private SitemapExporterInterface $sitemapExporter;
 
-    /**
-     * @var SalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
+    private SalesChannelContextFactory $salesChannelContextFactory;
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
@@ -73,48 +66,27 @@ class SitemapGenerateCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $salesChannelId = $input->getOption('salesChannelId');
 
         $context = Context::createDefaultContext();
 
-        if ($salesChannelId !== null) {
-            $criteria = new Criteria([$salesChannelId]);
+        $criteria = $this->createCriteria($salesChannelId);
 
-            $criteria->addAssociation('domains');
-            $criteria->addAssociation('type');
-            $salesChannels = $this->salesChannelRepository->search($criteria, $context);
-
-            if ($salesChannels->count() === 0) {
-                throw new \RuntimeException(sprintf('Could not found a sales channel with id %s', $salesChannelId));
-            }
-        } else {
-            $criteria = new Criteria();
-            $criteria->addAssociation('domains');
-            $criteria->addAssociation('type');
-            $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-        }
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context);
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            if ($salesChannel->getType()->getId() === Defaults::SALES_CHANNEL_TYPE_API) {
-                $output->writeln(sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
+            $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
+                return $salesChannelDomain->getLanguageId();
+            });
 
-                continue;
-            }
-
-            if (\count($salesChannel->getDomains()) === 0) {
-                $languageIds = [$salesChannel->getLanguageId()];
-            } else {
-                $languageIds = $salesChannel->getDomains()->map(function (SalesChannelDomainEntity $salesChannelDomain) {
-                    return $salesChannelDomain->getLanguageId();
-                });
-            }
+            $languageIds = array_unique($languageIds);
 
             foreach ($languageIds as $languageId) {
                 $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
-                $output->writeln(sprintf('Generating sitemaps for sales channel %s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
+                $output->writeln(sprintf('Generating sitemaps for sales channel %s (%s) with and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));
@@ -126,7 +98,7 @@ class SitemapGenerateCommand extends Command
 
         $output->writeln('done!');
 
-        return null;
+        return 0;
     }
 
     private function generateSitemap(SalesChannelContext $salesChannelContext, bool $force, ?string $lastProvider = null, ?int $offset = null): void
@@ -135,5 +107,23 @@ class SitemapGenerateCommand extends Command
         if ($result->isFinish() === false) {
             $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
         }
+    }
+
+    private function createCriteria(?string $salesChannelId = null): Criteria
+    {
+        $criteria = $salesChannelId ? new Criteria([$salesChannelId]) : new Criteria();
+        $criteria->addAssociation('domains');
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [new EqualsFilter('domains.id', null)]
+        ));
+
+        $criteria->addAssociation('type');
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API)]
+        ));
+
+        return $criteria;
     }
 }

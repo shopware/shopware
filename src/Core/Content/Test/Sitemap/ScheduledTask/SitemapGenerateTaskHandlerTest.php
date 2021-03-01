@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -22,11 +23,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class SitemapGenerateTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var SitemapGenerateTaskHandler
-     */
-    private $sitemapHandler;
+    private SitemapGenerateTaskHandler $sitemapHandler;
 
     /**
      * @var EntityRepositoryInterface
@@ -59,9 +58,11 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
     }
 
-    public function testItWontLoopForMultipleDomainsWithSameLanguage(): void
+    public function testNotHandelDuplicateWithSameLanguage(): void
     {
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+
+        $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
 
         $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
             if ($id === Defaults::SALES_CHANNEL) {
@@ -75,14 +76,14 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
         $this->salesChannelDomainRepository->create([
             [
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $salesChannelContext->getSalesChannelId(),
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'url' => 'https://test.com',
             ],
             [
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $salesChannelContext->getSalesChannelId(),
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
@@ -98,9 +99,11 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             true
         );
 
-        $this->messageBusMock->expects(static::never())
-            ->method('dispatch');
-        $this->sitemapHandler->handle($message);
+        $this->messageBusMock->expects(static::once())
+            ->method('dispatch')
+            ->willReturn(new Envelope($message));
+
+        $this->sitemapHandler->run();
     }
 
     public function testItGeneratesCorrectMessagesIfLastLanguageIsFirstOfNextSalesChannel(): void
@@ -170,6 +173,6 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($message));
 
-        $this->sitemapHandler->handle($message);
+        $this->sitemapHandler->run();
     }
 }

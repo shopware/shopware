@@ -7,6 +7,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-category-entry-point-card', {
     template,
 
+    inject: [
+        'acl'
+    ],
+
     props: {
         category: {
             type: Object,

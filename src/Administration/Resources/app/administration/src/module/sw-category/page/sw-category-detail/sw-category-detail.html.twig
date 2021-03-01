@@ -61,7 +61,7 @@
                                            :processSuccess="isSaveSuccessful"
                                            :disabled="isLoading || !acl.can('landing_page.editor')"
                                            variant="primary"
-                                           v-tooltip.bottom="tooltipSave"
+                                           v-tooltip.bottom="landingPageTooltipSave"
                                            @process-finish="saveFinish"
                                            @click.prevent="onSaveLandingPage">
                             {{ $tc('sw-category.general.buttonSafeCategory') }}
@@ -226,7 +226,8 @@
                 {% endblock %}
 
                 {% block sw_category_content_loader %}
-                    <sw-loader v-if="isLoading"></sw-loader>
+                    <sw-loader v-if="isLoading"
+                               class="sw-category-detail__content-loader"></sw-loader>
                 {% endblock %}
 
                 {% block sw_category_content_empty %}

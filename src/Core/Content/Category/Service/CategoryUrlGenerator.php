@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 {
@@ -25,7 +26,10 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         throw new DecorationPatternException(self::class);
     }
 
-    public function generate(CategoryEntity $category): ?string
+    /**
+     * @internal (flag:FEATURE_NEXT_13504)
+     */
+    public function generate(CategoryEntity $category, ?SalesChannelEntity $salesChannel): ?string
     {
         if ($category->getType() === CategoryDefinition::TYPE_FOLDER) {
             return null;
@@ -55,6 +59,10 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
                 return $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
+                if ($salesChannel !== null && $internalLink === $salesChannel->getNavigationCategoryId()) {
+                    return $this->seoUrlReplacer->generate('frontend.home.page');
+                }
+
                 return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:

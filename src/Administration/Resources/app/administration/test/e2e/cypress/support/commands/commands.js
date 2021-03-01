@@ -360,7 +360,7 @@ Cypress.Commands.add('sortListingViaColumn', (
  * @param {boolean} changesUrl - wheter changing the sorting or page updates the URL
 
  */
-Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefinded, sortDirection: undefined }, page, limit, changesUrl = true }) => {
+Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefined, sortDirection: undefined }, page, limit, changesUrl = true }) => {
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-data-grid__skeleton').should('not.exist');
 
@@ -402,3 +402,69 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefin
     // here we have to add 1 because the <th> has the same class
     cy.get('.sw-data-grid__row').should('have.length', (limit + 1));
 });
+
+
+// TODO: this should be moved into the "e2e-testsuite-platform" plugin (open MR: https://github.com/shopware/e2e-testsuite-platform/pull/99 )
+/**
+ * Types in a sw-multi-select field all the specified values and checks if the content was correctly set.
+ * @memberOf Cypress.Chainable#
+ * @name typeMultiSelectAndCheckMultiple
+ * @function
+ * @param {String[]} values - Desired values of the element
+ */
+Cypress.Commands.add(
+    'typeMultiSelectAndCheckMultiple',
+    {
+        prevSubject: 'element'
+    },
+    (subject, values) => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/*`,
+            method: 'post'
+        }).as('filteredResultCall');
+
+        cy.wrap(subject)
+            .scrollIntoView() // try to make it visible so it does not error out if it is not in view
+            .should('be.visible');
+
+        // type in each value and select it
+        for (let i = 0; i < values.length; i += 1) {
+            cy.get(`${subject.selector} .sw-select-selection-list__input`)
+                .clear()
+                .type(values[i])
+                .should(
+                    'have.value',
+                    values[i]
+                );
+
+            // wait for the first request (which happens on opening / clicking in the input
+            cy.wait('@filteredResultCall').then(() => {
+                // wait for the second request (which happens on stop typing with the actual search)
+                cy.wait('@filteredResultCall').then(() => {
+                    cy.get('.sw-loader__element').should('not.exist');
+                });
+            });
+
+            // select the value
+            cy.contains('.sw-select-result-list__content .sw-select-result', values[i]).should('be.visible').click();
+        }
+
+        // close search results
+        cy.get(`${subject.selector} .sw-select-selection-list__input`).type('{esc}');
+        cy.get(`${subject.selector} .sw-select-result-list`).should(
+            'not.exist'
+        );
+
+        // check if all values are selected
+        for (let i = 0; i < values.length; i += 1) {
+            cy.get(`${subject.selector} .sw-select-selection-list`)
+                .should('contain', values[i]);
+        }
+
+        // return same element as the one this command works on so it can be chained with other commands.
+        // otherwise it will return the last element which is in this case a '.sw-select-selection-list' element.
+        cy.wrap(subject);
+    }
+);

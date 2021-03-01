@@ -6,7 +6,10 @@ const { Component } = Shopware;
 Component.register('sw-category-entry-point-modal', {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: [
+        'acl',
+        'feature'
+    ],
 
     props: {
         salesChannelCollection: {

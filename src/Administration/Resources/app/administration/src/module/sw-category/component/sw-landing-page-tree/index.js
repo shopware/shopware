@@ -5,11 +5,10 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-// Todo: Will be tested in NEXT-13222
 Component.register('sw-landing-page-tree', {
     template,
 
-    inject: ['repositoryFactory', 'syncService'],
+    inject: ['repositoryFactory', 'syncService', 'acl'],
     mixins: [
         'notification'
     ],

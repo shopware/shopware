@@ -76,12 +76,6 @@ Component.register('sw-category-detail-base', {
 
                     return type;
                 });
-
-                categoryTypes.push({
-                    value: 'column',
-                    label: this.$tc('sw-category.base.general.types.column'),
-                    disabled: true
-                });
             }
 
             return categoryTypes;

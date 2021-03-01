@@ -25,7 +25,6 @@ ___
 * Changed location of layout assignment in `sw-category-detail-base` to `sw-category-detail-cms` component
 * Added two new components `sw-category-entry-point-card` & `sw-category-sales-channel-multi-select`
 * Refactored `mainNavigationCriteria` in `sw-sales-channel-detail-base` to allow entry points as main navigation entries
-* Added virtual category type `column` for first level categories in the footer navigation entry point
 * Added internal link settings to `sw-category-link-settings`
 * Added new computed properties to `sw-category-link-settings/index.js`
     * `linkTypeValues`
@@ -38,6 +37,8 @@ ___
   Internally the methods `onSelection` and `selectItem` now receive the layout itself as a new parameter.
   Also there is new data for the selected layout named `selectedPageObject` which is send with the `modal-layout-select` event as a second argument
   (the first argument is still the layout id).
+* Added new block `sw_category_view_column_info` and style file to `sw-category-view` component:
+    * `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-category-view/sw-category-view.scss`
 ___
 # Storefront
 * Removed service menu from top bar
@@ -45,6 +46,6 @@ ___
 * Added labeling and toggling of Home button in Navigation
 * Added possibility to overwrite Home cms page and meta data per Sales Channel
 * Added `category_url` function for rendering category urls for better link type handling
-* Changed occurences of category url generation in multiple templates
+* Changed occurrences of category url generation in multiple templates
 * Deprecated `layout/header/actions/service-menu-widget.html.twig`, menu has been moved to the bottom
 * Deprecated block `layout_header_top_bar_service` in `layout/header/top-bar.html.twig`

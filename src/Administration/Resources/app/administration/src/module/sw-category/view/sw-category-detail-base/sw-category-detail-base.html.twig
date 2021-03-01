@@ -64,26 +64,15 @@
                         v-model="category.tags">
                     </sw-entity-tag-select>
 
-                    <template v-if="feature.isActive('FEATURE_NEXT_13504')">
-                        <sw-single-select
-                            v-if="!category.isColumn"
-                            class="sw-category-detail-base__type-selection"
-                            :helpText="$tc('sw-category.base.general.types.help')"
-                            :label="$tc('sw-category.base.general.types.title')"
-                            v-model="category.type"
-                            :disabled="!acl.can('category.editor')"
-                            :options="categoryTypes">
-                        </sw-single-select>
-
-                        <sw-single-select
-                            v-else
-                            value="column"
-                            :helpText="$tc('sw-category.base.general.types.columnHelp')"
-                            :label="$tc('sw-category.base.general.types.title')"
-                            :disabled="true"
-                            :options="categoryTypes">
-                        </sw-single-select>
-                    </template>
+                    <sw-single-select
+                        v-if="feature.isActive('FEATURE_NEXT_13504')"
+                        class="sw-category-detail-base__type-selection"
+                        :helpText="$tc('sw-category.base.general.types.help')"
+                        :label="$tc('sw-category.base.general.types.title')"
+                        v-model="category.type"
+                        :disabled="!acl.can('category.editor')"
+                        :options="categoryTypes">
+                    </sw-single-select>
                 {% endblock %}
 
             </sw-card>
@@ -98,7 +87,7 @@
             </sw-category-sales-channel-card>
 
             <sw-category-entry-point-card
-                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page')"
+                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page') && !category.isColumn"
                 v-bind="{ category, isLoading }">
             </sw-category-entry-point-card>
         {% endblock %}
@@ -118,7 +107,7 @@
             </sw-category-layout-card>
         {% endblock %}
 
-        <template v-if="category.type !== 'link' && !category.isColumn">
+        <template v-if="category.type !== 'link'">
             {% block sw_category_detail_menu %}
                 <sw-category-detail-menu v-bind="{ category, isLoading }"></sw-category-detail-menu>
             {% endblock %}

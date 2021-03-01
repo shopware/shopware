@@ -636,5 +636,12 @@
         "theme_sales_channel": "Verkaufskanal"
       }
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "extension_store": "Shopware Store"
+      }
+    }
   }
 }

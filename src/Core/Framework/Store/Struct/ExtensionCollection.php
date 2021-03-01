@@ -44,6 +44,13 @@ class ExtensionCollection extends Collection
         return $this;
     }
 
+    public function filterByType(string $type): self
+    {
+        return $this->filter(function (ExtensionStruct $ext) use ($type) {
+            return $ext->getType() === $type;
+        });
+    }
+
     protected function getExpectedClass(): ?string
     {
         return ExtensionStruct::class;

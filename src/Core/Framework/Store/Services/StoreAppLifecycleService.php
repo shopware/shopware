@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
+use Shopware\Core\Framework\Store\Exception\ExtensionRequiresNewPrivilegesException;
 use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
@@ -124,7 +126,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $this->appStateService->deactivateApp($id, $context);
     }
 
-    public function updateExtension(string $technicalName, Context $context): void
+    public function updateExtension(string $technicalName, bool $allowNewPrivileges, Context $context): void
     {
         $manifests = $this->appLoader->load();
 
@@ -134,6 +136,11 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         $id = $this->getAppIdByName($technicalName, $context);
         $app = $this->getAppById($id, $context);
+        $newPrivileges = $this->diffPrivileges($manifests[$technicalName], $app);
+
+        if (!$allowNewPrivileges && \count($newPrivileges) > 0) {
+            throw ExtensionRequiresNewPrivilegesException::fromPrivilegeList($technicalName, $newPrivileges);
+        }
 
         $this->appLifecycle->update(
             $manifests[$technicalName],
@@ -164,6 +171,23 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     protected function getDecorated(): AbstractStoreAppLifecycleService
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    private function diffPrivileges(Manifest $manifest, AppEntity $app): array
+    {
+        $permissions = $manifest->getPermissions();
+        if (!$permissions) {
+            return [];
+        }
+        $newPrivileges = $permissions->asParsedPrivileges();
+
+        $aclRole = $app->getAclRole();
+        if (!$aclRole) {
+            return $newPrivileges;
+        }
+        $currentPrivileges = $aclRole->getPrivileges();
+
+        return array_diff($newPrivileges, $currentPrivileges);
     }
 
     private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string

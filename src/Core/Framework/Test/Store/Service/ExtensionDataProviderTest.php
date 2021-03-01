@@ -93,6 +93,16 @@ class ExtensionDataProviderTest extends TestCase
         static::assertEquals('Swag App Test', $installedExtension->getLabel());
     }
 
+    public function testItLoadsRemoteExtensions(): void
+    {
+        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
+        $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        static::assertEquals(7, $installedExtensions->count());
+    }
+
     public function testItReturnsAnExtensionDetail(): void
     {
         $extensionId = 12161;

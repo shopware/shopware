@@ -14,6 +14,15 @@ trait StoreClientBehaviour
         return $this->getContainer()->get('shopware.store.mock_handler');
     }
 
+    /**
+     * @after
+     * @before
+     */
+    public function resetStoreMock(): void
+    {
+        $this->getRequestHandler()->reset();
+    }
+
     private function createAdminStoreContext(): Context
     {
         $userId = Uuid::randomHex();

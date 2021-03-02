@@ -20,10 +20,10 @@ Component.register('sw-existence-filter', {
         }
     },
 
-    data() {
-        return {
-            value: null
-        };
+    computed: {
+        value() {
+            return this.filter.value;
+        }
     },
 
     methods: {
@@ -33,19 +33,16 @@ Component.register('sw-existence-filter', {
                 return;
             }
 
-            this.value = newValue;
-
             let filterCriteria = [Criteria.equals(`${this.filter.property}.${this.filter.schema.localField}`, null)];
 
-            if (this.value === 'true') {
+            if (newValue === 'true') {
                 filterCriteria = [Criteria.not('AND', filterCriteria)];
             }
 
-            this.$emit('filter-update', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },
 
         resetFilter() {
-            this.value = null;
             this.$emit('filter-reset', this.filter.name);
         }
     }

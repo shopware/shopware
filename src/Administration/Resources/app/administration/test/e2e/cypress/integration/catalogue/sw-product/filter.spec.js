@@ -6,6 +6,7 @@ describe('Product: Testing filter and reset filter', () => {
     before(() => {
         let taxId; let
             currencyId;
+        let userId;
 
         cy.setToInitialState()
             .then(() => {
@@ -14,12 +15,23 @@ describe('Product: Testing filter and reset filter', () => {
             .then(() => {
                 cy.searchViaAdminApi({
                     data: {
+                        field: 'username',
+                        value: 'admin'
+                    },
+                    endpoint: 'user'
+                });
+            })
+            .then((user) => {
+                userId = user.id;
+                cy.searchViaAdminApi({
+                    data: {
                         field: 'name',
                         value: 'Standard rate'
                     },
                     endpoint: 'tax'
                 });
-            }).then(tax => {
+            })
+            .then(tax => {
                 taxId = tax.id;
 
                 cy.searchViaAdminApi({
@@ -104,7 +116,7 @@ describe('Product: Testing filter and reset filter', () => {
                     }
                 );
 
-                return cy.request({
+                cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
@@ -124,6 +136,48 @@ describe('Product: Testing filter and reset filter', () => {
 
                     }
                 });
+
+                cy.request({
+                    headers: {
+                        Accept: 'application/vnd.api+json',
+                        Authorization: `Bearer ${auth.access}`,
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    url: '/api/_action/sync',
+                    qs: {
+                        response: true
+                    },
+                    body: {
+                        'write-user-config': {
+                            entity: 'user_config',
+                            action: 'upsert',
+                            payload: [
+                                {
+                                    createdAt: '2021-01-21T06:52:41.857+00:00',
+                                    id: '021150d043ee49e18642daef58e92c96',
+                                    key: 'grid.filter.product',
+                                    updatedAt: '2021-01-21T06:54:00.252+00:00',
+                                    userId: userId,
+                                    value: {
+                                        'active-filter': {
+                                            value: 'true',
+                                            criteria: [{ type: 'equals', field: 'active', value: true }]
+                                        },
+                                        'product-without-images-filter': {
+                                            value: 'true',
+                                            criteria: [{
+                                                type: 'not',
+                                                queries: [{ type: 'equals', field: 'media.id', value: null }],
+                                                operator: 'AND'
+                                            }]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                });
             });
     });
 
@@ -141,14 +195,32 @@ describe('Product: Testing filter and reset filter', () => {
             method: 'post'
         }).as('filterProduct');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
-        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
+
+        // Check if saved user filter is loaded
+        cy.wait('@getUserConfig').then((xhr) => {
+            cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
+            // Check if Reset All button shows up
+            cy.get('.sw-sidebar-item__headline a').should('exist');
+            cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        });
 
         cy.get('.sw-filter-panel').should('exist');
 
-        // Check if Reset All button shows up
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
+
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // Filter results with single criteria
         cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
@@ -196,19 +268,28 @@ describe('Product: Testing filter and reset filter', () => {
             method: 'post'
         }).as('filterProduct');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
-        // Check Reset and Reset All button at default state
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
 
-        // Check Reset button when filter is active
-        cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            // Check Reset button when filter is active
+            cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
+            cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
+        });
 
         // Click Reset button to reset filter
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
-        cy.get('.sw-filter-panel__item').eq(0).find('option:selected').should('have.value', '');
+
+        cy.wait('@getUserConfig').then((xhr) => {
+            cy.get('.sw-filter-panel__item').eq(0).find('option:selected').should('have.value', '');
+        });
 
         // Reset All button should show up when there is active filter
         cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');

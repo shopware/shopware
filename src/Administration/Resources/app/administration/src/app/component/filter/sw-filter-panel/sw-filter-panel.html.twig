@@ -1,7 +1,7 @@
 {% block sw_filter_panel %}
     <div class="sw-filter-panel">
         {% block sw_filter_panel_item %}
-            <div class="sw-filter-panel__item" v-for="filter in filters" :key="filter.name" :id="filter.name">
+            <div class="sw-filter-panel__item" v-for="filter in listFilters" :key="filter.name" :id="filter.name">
                 <div v-if="false"></div>
 
                 {% block sw_filter_panel_extension_point %}{% endblock %}

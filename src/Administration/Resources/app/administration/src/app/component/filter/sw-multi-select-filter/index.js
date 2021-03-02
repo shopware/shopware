@@ -23,17 +23,15 @@ Component.register('sw-multi-select-filter', {
         }
     },
 
-    data() {
-        return {
-            values: []
-        };
+    computed: {
+        values() {
+            return this.filter.value || [];
+        }
     },
 
     methods: {
         changeValue(newValues) {
-            this.values = newValues;
-
-            if (this.values.length <= 0) {
+            if (newValues.length <= 0) {
                 this.resetFilter();
                 return;
             }
@@ -43,11 +41,10 @@ Component.register('sw-multi-select-filter', {
                 newValues.map(newValue => newValue[this.filter.schema.referenceField])
             )];
 
-            this.$emit('filter-update', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria, newValues);
         },
 
         resetFilter() {
-            this.values = [];
             this.$emit('filter-reset', this.filter.name);
         }
     }

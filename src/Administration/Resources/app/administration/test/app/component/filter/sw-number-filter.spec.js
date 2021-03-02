@@ -61,7 +61,8 @@ describe('components/sw-number-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
-            [Criteria.range('stock', { gte: 2 })]
+            [Criteria.range('stock', { gte: 2 })],
+            { from: 2, to: null }
         ]);
     });
 
@@ -75,7 +76,8 @@ describe('components/sw-number-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
-            [Criteria.range('stock', { lte: 5 })]
+            [Criteria.range('stock', { lte: 5 })],
+            { from: null, to: 5 }
         ]);
     });
 
@@ -90,7 +92,8 @@ describe('components/sw-number-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
-            [Criteria.range('stock', { gte: 2 })]
+            [Criteria.range('stock', { gte: 2 })],
+            { from: 2, to: null }
         ]);
 
         await toInput.setValue('5');
@@ -98,7 +101,8 @@ describe('components/sw-number-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'stock',
-            [Criteria.range('stock', { gte: 2, lte: 5 })]
+            [Criteria.range('stock', { gte: 2, lte: 5 })],
+            { from: 2, to: 5 }
         ]);
     });
 

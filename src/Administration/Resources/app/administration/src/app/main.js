@@ -28,6 +28,7 @@ import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.s
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
+import FilterService from 'src/app/service/filter.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -129,5 +130,10 @@ Application
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
             snippetService: Shopware.Service('snippetService'),
             localeFactory: Application.getContainer('factory').locale
+        });
+    })
+    .addServiceProvider('filterService', () => {
+        return new FilterService({
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config')
         });
     });

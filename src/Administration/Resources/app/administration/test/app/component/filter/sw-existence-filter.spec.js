@@ -51,7 +51,8 @@ describe('components/sw-existence-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
-            [Criteria.not('AND', [Criteria.equals('media.id', null)])]
+            [Criteria.not('AND', [Criteria.equals('media.id', null)])],
+            'true'
         ]);
     });
 
@@ -64,14 +65,15 @@ describe('components/sw-existence-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
-            [Criteria.equals('media.id', null)]
+            [Criteria.equals('media.id', null)],
+            'false'
         ]);
     });
 
     it('should emit `filter-reset` event when user clicks Reset button from `true`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'true' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'true' } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -82,7 +84,7 @@ describe('components/sw-existence-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button from `false`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'false' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'false' } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -93,7 +95,7 @@ describe('components/sw-existence-filter', () => {
     it('should emit `filter-update` event when user changes from `true` to `false`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'true' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'true' } });
 
         const options = wrapper.find('select').findAll('option');
 
@@ -101,7 +103,8 @@ describe('components/sw-existence-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
-            [Criteria.equals('media.id', null)]
+            [Criteria.equals('media.id', null)],
+            'false'
         ]);
     });
 
@@ -116,7 +119,8 @@ describe('components/sw-existence-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'media',
-            [Criteria.not('AND', [Criteria.equals('media.id', null)])]
+            [Criteria.not('AND', [Criteria.equals('media.id', null)])],
+            'true'
         ]);
     });
 
@@ -129,7 +133,6 @@ describe('components/sw-existence-filter', () => {
 
         await wrapper.setProps({ active: false });
 
-        expect(wrapper.vm.value).toEqual(null);
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
@@ -142,7 +145,6 @@ describe('components/sw-existence-filter', () => {
 
         await wrapper.setProps({ active: true });
 
-        expect(wrapper.vm.value).toEqual('true');
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

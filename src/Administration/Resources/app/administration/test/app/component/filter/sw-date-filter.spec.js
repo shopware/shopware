@@ -53,7 +53,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-22' })]
+            [Criteria.range('releaseDate', { gte: '2021-01-22' })],
+            { from: '2021-01-22', to: null }
         ]);
     });
 
@@ -66,7 +67,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { lte: '2021-01-25' })]
+            [Criteria.range('releaseDate', { lte: '2021-01-25' })],
+            { from: null, to: '2021-01-25' }
         ]);
     });
 
@@ -80,7 +82,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-19' })]
+            [Criteria.range('releaseDate', { gte: '2021-01-19' })],
+            { from: '2021-01-19', to: null }
         ]);
 
         const toInput = wrapper.find('.sw-date-filter__to').find('input');
@@ -90,7 +93,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-19', lte: '2021-01-25' })]
+            [Criteria.range('releaseDate', { gte: '2021-01-19', lte: '2021-01-25' })],
+            { from: '2021-01-19', to: '2021-01-25' }
         ]);
     });
 

@@ -255,6 +255,8 @@ function createWrapper() {
 
                                 return Promise.resolve(productData);
                             } };
+                        } if (name === 'user_config') {
+                            return { search: () => Promise.resolve([]) };
                         }
 
                         return { search: () => Promise.resolve(getCurrencyData()) };
@@ -330,6 +332,12 @@ function createWrapper() {
     };
 }
 
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria
+    };
+});
+
 describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
     let router;
@@ -368,6 +376,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         // sort grid after price ASC
         await currencyColumnHeader.trigger('click');
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const sortedPriceCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const firstSortedPriceCell = sortedPriceCells.at(0);
@@ -391,6 +400,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         // sort grid after price ASC
         await currencyColumnHeader.trigger('click');
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const [firstEuroCell, secondEuroCell] = euroCells.wrappers;
@@ -410,6 +420,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await poundColumn.trigger('click');
 
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
         const [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
@@ -425,6 +436,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         await currencyColumnHeader.trigger('click');
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const productNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--name');
         const [firstProductNameASCSorted, secondProductNameASCSorted] = productNamesASCSorted.wrappers;
@@ -433,6 +445,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(secondProductNameASCSorted.text()).toBe('Product 2');
 
         await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const productNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--name');
@@ -449,6 +462,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         await currencyColumnHeader.trigger('click');
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const manufacturerNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
         const [firstManufacturerNameASCSorted, secondManufacturerNameASCSorted] = manufacturerNamesASCSorted.wrappers;
@@ -457,6 +471,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(secondManufacturerNameASCSorted.text()).toBe('Manufacturer B');
 
         await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const manufacturerNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');

@@ -45,7 +45,9 @@ Component.register('sw-product-list', {
                 'visibilities-filter',
                 'categories-filter',
                 'tags-filter'
-            ]
+            ],
+            storeKey: 'grid.filter.product',
+            activeFilterNumber: 0
         };
     },
 
@@ -205,13 +207,23 @@ Component.register('sw-product-list', {
     },
 
     methods: {
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            return Promise.all([
-                this.productRepository.search(this.productCriteria, Shopware.Context.api),
-                this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api)
-            ]).then((result) => {
+            let criteria = this.productCriteria;
+            if (this.feature.isActive('FEATURE_NEXT_9831')) {
+                criteria = await Shopware.Service('filterService')
+                    .mergeWithStoredFilters(this.storeKey, this.productCriteria);
+            }
+
+            this.activeFilterNumber = criteria.filters.length - 1;
+
+            try {
+                const result = await Promise.all([
+                    this.productRepository.search(this.productCriteria, Shopware.Context.api),
+                    this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api)
+                ]);
+
                 const products = result[0];
                 const currencies = result[1];
 
@@ -221,9 +233,9 @@ Component.register('sw-product-list', {
                 this.currencies = currencies;
                 this.isLoading = false;
                 this.selection = {};
-            }).catch(() => {
+            } catch {
                 this.isLoading = false;
-            });
+            }
         },
 
         onInlineEditSave(promise, product) {

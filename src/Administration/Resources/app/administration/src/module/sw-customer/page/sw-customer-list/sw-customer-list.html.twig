@@ -248,8 +248,10 @@
                         <sw-sidebar-filter-panel
                             v-if="feature.isActive('FEATURE_NEXT_9831')"
                             entity="customer"
+                            :storeKey="storeKey"
                             :filters="listFilters"
                             :defaults="defaultFilters"
+                            :activeFilterNumber="activeFilterNumber"
                             @criteria-changed="updateCriteria">
                         </sw-sidebar-filter-panel>
 

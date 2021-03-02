@@ -4,7 +4,7 @@
             <div class="sw-filter-panel__item" v-for="filter in filters" :key="filter.name">
                 <div v-if="false"></div>
 
-                {% block sw_filter_panel_extension_point %} {% endblock %}
+                {% block sw_filter_panel_extension_point %}{% endblock %}
 
                 <sw-boolean-filter
                     v-else-if="showFilter(filter, 'boolean-filter')"
@@ -53,14 +53,6 @@
                     @filter-update="updateFilter"
                     @filter-reset="resetFilter">
                 </sw-number-filter>
-
-                <sw-price-filter
-                    v-else-if="showFilter(filter, 'price-filter')"
-                    :filter="filter"
-                    :active="!!activeFilters[filter.name]"
-                    @filter-update="updateFilter"
-                    @filter-reset="resetFilter">
-                </sw-price-filter>
             </div>
         {% endblock %}
     </div>

@@ -67,7 +67,6 @@ function createWrapper() {
             'sw-existence-filter': Shopware.Component.build('sw-existence-filter'),
             'sw-multi-select-filter': true,
             'sw-string-filter': true,
-            'sw-price-filter': true,
             'sw-number-filter': true,
             'sw-date-filter': true
         },
@@ -88,7 +87,6 @@ describe('components/sw-filter-panel', () => {
         expect(wrapper.find('sw-string-filter-stub').exists()).toBeTruthy();
         expect(wrapper.find('sw-number-filter-stub').exists()).toBeTruthy();
         expect(wrapper.find('sw-date-filter-stub').exists()).toBeTruthy();
-        expect(wrapper.find('sw-price-filter-stub').exists()).toBeTruthy();
     });
 
 
@@ -131,7 +129,6 @@ describe('components/sw-filter-panel', () => {
         expect(wrapper.find('sw-string-filter-stub').exists()).toBeFalsy();
         expect(wrapper.find('sw-number-filter-stub').exists()).toBeFalsy();
         expect(wrapper.find('sw-date-filter-stub').exists()).toBeFalsy();
-        expect(wrapper.find('sw-price-filter-stub').exists()).toBeFalsy();
     });
 
     it('should reset all filters when `Reset All` button is clicked', async () => {

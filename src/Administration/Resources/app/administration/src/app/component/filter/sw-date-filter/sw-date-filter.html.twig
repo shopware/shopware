@@ -1,0 +1,35 @@
+{% block sw_date_filter %}
+    <sw-range-filter
+        v-model="dateValue"
+        :filter="filter"
+        :active="active"
+        :isShowDivider="!isDateTimeType"
+        @filter-update="updateFilter"
+        @filter-reset="resetFilter">
+        {% block sw_date_filter_from_field %}
+            <template #from-field="{ value, changeFromValue }">
+                <sw-datepicker
+                    size="small"
+                    :value="value.from"
+                    :dateType="dateType"
+                    :config="filter.config"
+                    :label="$tc('global.default.from')"
+                    @input="changeFromValue">
+                </sw-datepicker>
+            </template>
+        {% endblock %}
+
+        {% block sw_date_filter_to_field %}
+            <template #to-field="{ value, changeToValue }">
+                <sw-datepicker
+                    size="small"
+                    :value="value.to"
+                    :dateType="dateType"
+                    :config="filter.config"
+                    :label="$tc('global.default.to')"
+                    @input="changeToValue">
+                </sw-datepicker>
+            </template>
+        {% endblock %}
+    </sw-range-filter>
+{% endblock %}

@@ -29,7 +29,9 @@
       "ascending": "Ascending",
       "descending": "Descending",
       "xTimesIn": "{n} times in",
-      "close": "Close"
+      "close": "Close",
+      "from": "From",
+      "to": "To"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

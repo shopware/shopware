@@ -428,6 +428,15 @@
       "imagesFilter": {
         "label": "Images",
         "placeholder": "Select an image status..."
+      },
+      "releaseDateFilter": {
+        "label": "Release Date"
+      },
+      "stockFilter": {
+        "label": "Stock"
+      },
+      "priceFilter": {
+        "label": "Price"
       }
     },
     "notification": {

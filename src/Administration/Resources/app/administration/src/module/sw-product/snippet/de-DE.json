@@ -428,6 +428,15 @@
       "imagesFilter": {
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ..."
+      },
+      "releaseDateFilter": {
+        "label": "Erscheinungsdatum"
+      },
+      "stockFilter": {
+        "label": "Lagerbestand"
+      },
+      "priceFilter": {
+        "label": "Preis"
       }
     },
     "notification": {

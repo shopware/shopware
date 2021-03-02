@@ -37,7 +37,10 @@ Component.register('sw-product-list', {
             filterCriteria: [],
             defaultFilters: [
                 'active-filter',
-                'product-without-images-filter'
+                'product-without-images-filter',
+                'release-date-filter',
+                'stock-filter',
+                'price-filter'
             ]
         };
     },
@@ -110,10 +113,28 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.activeFilter.label'),
                     placeholder: this.$tc('sw-product.filters.activeFilter.placeholder')
                 },
+                'stock-filter': {
+                    property: 'stock',
+                    label: this.$tc('sw-product.filters.stockFilter.label'),
+                    numberType: 'int',
+                    step: 1,
+                    min: 0
+                },
                 'product-without-images-filter': {
                     property: 'media',
                     label: this.$tc('sw-product.filters.imagesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
+                },
+                'price-filter': {
+                    property: 'price',
+                    label: this.$tc('sw-product.filters.priceFilter.label'),
+                    digits: 20,
+                    min: 0
+                },
+                'release-date-filter': {
+                    property: 'releaseDate',
+                    label: this.$tc('sw-product.filters.releaseDateFilter.label'),
+                    dateType: 'datetime'
                 }
             });
         }

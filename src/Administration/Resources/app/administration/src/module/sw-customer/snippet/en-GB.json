@@ -251,7 +251,9 @@
       "tags": {
         "label": "Tags",
         "placeholder": "Select tags..."
-      }
+      },
+      "messageEmptyTitle": "Nothing found",
+      "messageEmptySubline": "Edit your filters to see matching results."
     }
   },
   "sw-privileges": {

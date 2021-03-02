@@ -251,7 +251,9 @@
       "tags": {
         "label": "Tags",
         "placeholder": "Tags auswählen..."
-      }
+      },
+      "messageEmptyTitle": "Nichts gefunden",
+      "messageEmptySubline": "Bearbeite Deine Filter um passende Ergebnisse zu sehen."
     }
   },
   "sw-privileges": {

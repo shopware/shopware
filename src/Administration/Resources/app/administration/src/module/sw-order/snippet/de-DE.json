@@ -372,7 +372,9 @@
       "productFilter": {
         "label": "Produkte",
         "placeholder": "Produkte auswählen ..."
-      }
+      },
+      "messageEmptyTitle": "Nichts gefunden",
+      "messageEmptySubline": "Bearbeite Deine Filter um passende Ergebnisse zu sehen."
     }
   },
   "sw-privileges": {

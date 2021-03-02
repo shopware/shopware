@@ -174,9 +174,17 @@
                     {% endblock %}
 
                     {% block sw_product_list_empty_state %}
-                        <sw-empty-state v-if="!isLoading && !total"
-                            :title="$tc('sw-product.list.messageEmpty')">
-                        </sw-empty-state>
+                        <template v-if="!isLoading && !total">
+                            <sw-empty-state
+                                v-if="filterCriteria.length"
+                                :title="$tc('sw-product.filters.messageEmptyTitle')"
+                                :subline="$tc('sw-product.filters.messageEmptySubline')">
+                            </sw-empty-state>
+                            <sw-empty-state
+                                v-else
+                                :title="$tc('sw-product.list.messageEmpty')">
+                            </sw-empty-state>
+                        </template>
                     {% endblock %}
 
                     {% block sw_product_list_grid_loader %}

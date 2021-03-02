@@ -19,20 +19,23 @@ describe('storeService', () => {
         expect(getStoreApiService()).toBeInstanceOf(StoreApiService);
     });
 
-    it('handles plugin download and update with corresponding requests', () => {
+    it('handles plugin download and update with corresponding requests', async () => {
         const client = createHTTPClient();
 
         const getMethod = jest.spyOn(client, 'get').mockImplementation(() => Promise.resolve());
-        const postMethod = jest.spyOn(client, 'post').mockImplementation(() => Promise.resolve());
+        const postMethod = jest.spyOn(client, 'post').mockImplementation(() => Promise.resolve({}));
 
         const storeApiService = getStoreApiService(client, null);
 
-        storeApiService.downloadPlugin('not-null', true);
+        await storeApiService.downloadPlugin('not-null', true);
 
         expect(getMethod).toHaveBeenCalledTimes(1);
+        expect(postMethod).toHaveBeenCalledTimes(1);
 
-        if (Shopware.Feature.isActive('FEATURE_NEXT_12957')) {
-            expect(postMethod).toHaveBeenCalledWith('/_action/plugin/update');
-        }
+        expect(postMethod).toHaveBeenCalledWith(
+            '/_action/plugin/update',
+            null,
+            expect.anything()
+        );
     });
 });

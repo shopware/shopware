@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -52,11 +50,6 @@ class StoreController extends AbstractStoreController
     private $pluginManagementService;
 
     /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
      * @var SystemConfigService
      */
     private $configService;
@@ -70,7 +63,6 @@ class StoreController extends AbstractStoreController
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService,
         EntityRepositoryInterface $userRepository,
         SystemConfigService $configService,
         ?AbstractExtensionDataProvider $extensionDataProvider
@@ -78,7 +70,6 @@ class StoreController extends AbstractStoreController
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
         $this->userRepository = $userRepository;
         $this->configService = $configService;
         parent::__construct($userRepository);
@@ -252,18 +243,6 @@ class StoreController extends AbstractStoreController
         $statusCode = $this->pluginManagementService->downloadStorePlugin($data, $context);
         if ($statusCode !== Response::HTTP_OK) {
             return new JsonResponse(null, $statusCode);
-        }
-
-        /*
-         * @feature-deprecated tag:v6.4.0 - (flag:FEATURE_NEXT_12957) Plugin download and update will be handled separately
-         */
-        if (!Feature::isActive('FEATURE_NEXT_12957')) {
-            /** @var PluginEntity|null $plugin */
-            $plugin = $this->pluginRepo->search($criteria, $context)->first();
-
-            if ($plugin && $plugin->getUpgradeVersion()) {
-                $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            }
         }
 
         return new JsonResponse();

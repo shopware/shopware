@@ -11,7 +11,6 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"

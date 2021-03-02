@@ -39,7 +39,7 @@ class MailSendSubscriberTest extends TestCase
     /**
      * @dataProvider sendMailProvider
      */
-    public function testEmailSend(bool $skip, ?array $recipients, array $expectedRecipients): void
+    public function testEmailSend(bool $skip, ?array $recipients, array $contactFormRecipients = []): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
 
@@ -66,7 +66,7 @@ class MailSendSubscriberTest extends TestCase
             'recipients' => $recipients,
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
 
         $mailService = new TestEmailService();
         $subscriber = new MailSendSubscriber(
@@ -86,7 +86,11 @@ class MailSendSubscriberTest extends TestCase
             static::assertNull($mailService->data);
         } else {
             static::assertEquals(1, $mailService->calls);
-            static::assertEquals($mailService->data['recipients'], $expectedRecipients);
+            if (empty($contactFormRecipients)) {
+                static::assertEquals($mailService->data['recipients'], $recipients);
+            } else {
+                static::assertEquals($mailService->data['recipients'], $contactFormRecipients);
+            }
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $documentId))->addFilter(new EqualsFilter('sent', true));
@@ -101,6 +105,7 @@ class MailSendSubscriberTest extends TestCase
         yield 'Test send mail' => [false, null, ['test@example.com' => 'Shopware ag']];
         yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test2@example.com' => 'Overwrite']];
         yield 'Test extend TemplateData' => [false, null, ['test@example.com' => 'Shopware ag'], true, true];
+        yield 'Test send mail without contact recipients' => [false, ['test@example.com' => 'Shopware ag']];
     }
 
     private function createCustomer(Context $context): string

@@ -21,10 +21,7 @@ class ContactFormServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
 
-    /**
-     * @var ContactFormRoute
-     */
-    private $contactFormRoute;
+    private ContactFormRoute $contactFormRoute;
 
     protected function setUp(): void
     {
@@ -65,6 +62,7 @@ class ContactFormServiceTest extends TestCase
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', true);
+        $systemConfig->set('core.basicInformation.email', 'doNotReply@example.com');
 
         $dataBag = new DataBag();
         $dataBag->add([

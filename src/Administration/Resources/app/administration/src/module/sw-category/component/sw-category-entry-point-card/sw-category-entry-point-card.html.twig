@@ -7,8 +7,30 @@
                 :options="entryPoints"
                 :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
                 :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
+                :disabled="hasExistingNavigation"
                 @change="onEntryPointChange">
             </sw-single-select>
+        {% endblock %}
+
+        {% block sw_category_entry_point_card_navigation_headline %}
+            <p v-if="hasExistingNavigation">
+                {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_category_entry_point_card_navigation_list %}
+            <div class="sw-category-entry-point-card__navigation-list" v-if="hasExistingNavigation">
+
+                {% block sw_category_detail_entry_point_navigation_list_link %}
+                    <router-link v-for="salesChannel in initialNavigationSalesChannels"
+                                 :key="salesChannel.id"
+                                 :to="{ name: 'sw.sales.channel.detail.base', params: { id: salesChannel.id }}"
+                                 class="sw-category-entry-point-card__navigation-entry">
+                        {{ salesChannel.translated.name }}
+                    </router-link>
+                {% endblock %}
+
+            </div>
         {% endblock %}
 
         {% block sw_category_entry_point_card_sales_channel_selection %}
@@ -17,7 +39,8 @@
                 @change="onSalesChannelChange"
                 :entityCollection="associatedCollection"
                 :disabled="!selectedEntryPoint"
-                :label="$tc('sw-category.base.entry-point-card.labelSalesChannels')"
+                :label="salesChannelSelectionLabel"
+                :criteria="salesChannelCriteria"
                 :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')">
             </sw-category-sales-channel-multi-select>
         {% endblock %}
@@ -26,7 +49,7 @@
             <sw-button
                 variant="ghost"
                 size="small"
-                :disabled="selectedEntryPoint !== 'navigationSalesChannels' || associatedCollection.length === 0"
+                :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"
                 @click="openConfigureHomeModal">
                 {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
             </sw-button>
@@ -35,7 +58,7 @@
         {% block sw_category_entry_point_card_configure_home_modal %}
             <sw-category-entry-point-modal
                 v-if="configureHomeModalVisible"
-                :salesChannelCollection="associatedCollection"
+                :salesChannelCollection="category.navigationSalesChannels"
                 @modal-close="closeConfigureHomeModal">
             </sw-category-entry-point-modal>
         {% endblock %}

@@ -1,7 +1,8 @@
 import template from './sw-category-entry-point-card.html.twig';
+import './sw-category-entry-point-card.scss';
 
 const { Component, Context } = Shopware;
-const { EntityCollection } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-category-entry-point-card', {
     template,
@@ -19,6 +20,15 @@ Component.register('sw-category-entry-point-card', {
         }
     },
 
+    data() {
+        return {
+            selectedEntryPoint: this.getInitialEntryPointFromCategory(),
+            initialNavigationSalesChannels: this.category.navigationSalesChannels,
+            addedNavigationSalesChannels: new EntityCollection('/sales_channel', 'sales_channel', Context.api),
+            configureHomeModalVisible: false
+        };
+    },
+
     computed: {
         entryPoints() {
             return [{
@@ -34,16 +44,44 @@ Component.register('sw-category-entry-point-card', {
         },
 
         associatedCollection() {
+            if (this.hasExistingNavigation) {
+                return this.addedNavigationSalesChannels;
+            }
+
             return this.category[this.selectedEntryPoint];
+        },
+
+        hasExistingNavigation() {
+            return this.initialNavigationSalesChannels.length > 0;
+        },
+
+        salesChannelSelectionLabel() {
+            if (this.hasExistingNavigation) {
+                return this.$tc('sw-category.base.entry-point-card.labelSalesChannelsAdd');
+            }
+
+            return this.$tc('global.entities.sales_channel', 2);
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+
+            if (this.hasExistingNavigation) {
+                criteria.addFilter(Criteria.not('or', [
+                    Criteria.equalsAny('id', this.initialNavigationSalesChannels.getIds())
+                ]));
+            }
+
+            return criteria;
         }
     },
 
-    data() {
-        return {
-            selectedEntryPoint: this.getInitialEntryPointFromCategory(),
-            selectedSalesChannels: new EntityCollection('/sales_channel', 'sales_channel', Context.api),
-            configureHomeModalVisible: false
-        };
+    watch: {
+        category(newCategory) {
+            this.initialNavigationSalesChannels = newCategory.navigationSalesChannels;
+            this.addedNavigationSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api);
+            this.selectedEntryPoint = this.getInitialEntryPointFromCategory();
+        }
     },
 
     methods: {
@@ -69,7 +107,17 @@ Component.register('sw-category-entry-point-card', {
 
         onSalesChannelChange(changedEntityCollection) {
             const entryPoint = this.selectedEntryPoint;
-            changedEntityCollection.source = this.category[this.selectedEntryPoint].source;
+
+            if (this.hasExistingNavigation) {
+                const joinedNavigationCollection = EntityCollection.fromCollection(this.initialNavigationSalesChannels);
+                changedEntityCollection.forEach((item) => {
+                    joinedNavigationCollection.add(item);
+                });
+                this.addedNavigationSalesChannels = changedEntityCollection;
+                changedEntityCollection = joinedNavigationCollection;
+            }
+
+            changedEntityCollection.source = this.category[entryPoint].source;
             this.resetSalesChannelCollections();
 
             this.category[entryPoint] = changedEntityCollection;

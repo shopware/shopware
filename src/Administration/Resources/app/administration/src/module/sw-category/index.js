@@ -9,6 +9,7 @@ import './component/sw-category-detail-menu';
 import './component/sw-category-seo-form';
 import './component/sw-category-entry-point-card';
 import './component/sw-category-entry-point-modal';
+import './component/sw-category-entry-point-overwrite-modal';
 import './component/sw-category-sales-channel-multi-select';
 
 import './page/sw-category-detail';

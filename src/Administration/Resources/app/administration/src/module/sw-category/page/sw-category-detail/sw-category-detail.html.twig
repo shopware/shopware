@@ -201,6 +201,15 @@
                     ></sw-category-view>
                 {% endblock %}
 
+                {% block sw_category_content_entry_point_overwrite_modal %}
+                    <sw-category-entry-point-overwrite-modal
+                        v-if="showEntryPointOverwriteModal && feature.isActive('FEATURE_NEXT_13504')"
+                        :salesChannels="entryPointOverwriteSalesChannels"
+                        @cancel="cancelEntryPointOverwrite"
+                        @confirm="confirmEntryPointOverwrite">
+                    </sw-category-entry-point-overwrite-modal>
+                {% endblock %}
+
                 {% block sw_landing_page_content_view %}
                     <sw-landing-page-view
                         v-if="feature.isActive('FEATURE_NEXT_12032') && landingPage"

@@ -65,13 +65,18 @@ Component.register('sw-category-detail-base', {
 
             // Renames the existing types to the new ones if the feature is active
             if (this.feature.isActive('FEATURE_NEXT_13504')) {
+                // These can be removed on Feature Flag removal, as long as the snippets are replaced
                 categoryTypes = categoryTypes.map((type) => {
                     if (type.value === 'page') {
-                        type.label = this.$tc('sw-category.base.general.types.pageList');
+                        type.label = this.$tc('sw-category.base.general.types.newPage');
                     }
 
                     if (type.value === 'folder') {
-                        type.label = this.$tc('sw-category.base.general.types.entrypoint');
+                        type.label = this.$tc('sw-category.base.general.types.newFolder');
+                    }
+
+                    if (type.value === 'link') {
+                        type.label = this.$tc('sw-category.base.general.types.newLink');
                     }
 
                     return type;

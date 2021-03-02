@@ -6,9 +6,15 @@
               @modal-close="$emit('close')">
 
         {% block sw_confirm_modal_text %}
-            <p class="sw-confirm-modal__text">
-                {{ descriptionText }}
-            </p>
+            <slot>
+
+                {% block sw_confirm_modal_text_default %}
+                    <p class="sw-confirm-modal__text">
+                        {{ descriptionText }}
+                    </p>
+                {% endblock %}
+
+            </slot>
         {% endblock %}
 
         {% block sw_confirm_modal_footer %}

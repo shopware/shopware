@@ -16,6 +16,12 @@ describe('Checkout: Visual tests', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
+        cy.server();
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('cartInfo');
+
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Search product`,
             '.header-search-input',
@@ -39,14 +45,17 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('64');
+        cy.wait('@cartInfo').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.cart-item-price').contains('64');
+        });
 
         const continueShopping = Cypress.env('locale') === 'en-GB' ?
             'Continue shopping' : 'Weiter einkaufen';
         cy.contains(continueShopping).should('be.visible');
         cy.contains(continueShopping).click();
         cy.get('.header-cart-total').contains('64');
-        cy.get('.header-cart-total').click();
+        cy.get('.header-cart').click();
         cy.get('.offcanvas').should('be.visible');
 
         // Take snapshot for visual testing on desktop
@@ -83,18 +92,17 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
 
-        // Set payment and shipping
-        cy.contains('Zahlungsart auswählen').click();
-        cy.get('#confirmPaymentModal').should('be.visible');
-        cy.contains('Vorkasse').click();
-        cy.get('#confirmPaymentForm .btn-primary').click();
-        cy.get('#confirmPaymentModal').should('not.visible');
+        // Select invoice payment method and verify checked radio
+        const paymentMethodRadio = cy.get('.payment-method-radio').contains('Rechnung');
+        paymentMethodRadio.should('be.visible');
+        paymentMethodRadio.click();
+        paymentMethodRadio.get('input[type="radio"]').should('be.checked');
 
-        cy.contains('Versandart auswählen').click();
-        cy.get('#confirmShippingModal').should('be.visible');
-        cy.contains('Standard').click();
-        cy.get('#confirmShippingForm .btn-primary').click();
-        cy.get('#confirmShippingModal').should('not.visible');
+        // Select standard shipping and verify checked radio
+        const shippingMethodRadio = cy.get('.shipping-method-radio').contains('Standard');
+        shippingMethodRadio.should('be.visible');
+        shippingMethodRadio.click();
+        shippingMethodRadio.get('input[type="radio"]').should('be.checked');
 
         // Finish checkout
         cy.get('.confirm-tos .card-title').contains('AGB und Widerrufsbelehrung');

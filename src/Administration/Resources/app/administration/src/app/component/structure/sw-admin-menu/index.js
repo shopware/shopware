@@ -2,7 +2,7 @@ import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
 const { Component, Mixin } = Shopware;
-const { dom } = Shopware.Utils;
+const { dom, types } = Shopware.Utils;
 
 /**
  * @private
@@ -639,6 +639,17 @@ Component.register('sw-admin-menu', {
                 }
                 element.classList.remove(classList);
             });
+        },
+
+        isFirstPluginInMenuEntries(entry, menuEntries) {
+            const firstPluginEntry = menuEntries.find((menuEntry) => {
+                return menuEntry.moduleType === 'plugin';
+            });
+
+            if (!firstPluginEntry) {
+                return false;
+            }
+            return types.isEqual(entry, firstPluginEntry);
         }
     }
 });

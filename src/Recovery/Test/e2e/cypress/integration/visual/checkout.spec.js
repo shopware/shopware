@@ -93,16 +93,14 @@ describe('Checkout: Visual tests', () => {
         cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
 
         // Select invoice payment method and verify checked radio
-        const paymentMethodRadio = cy.get('.payment-method-radio').contains('Rechnung');
-        paymentMethodRadio.should('be.visible');
-        paymentMethodRadio.click();
-        paymentMethodRadio.get('input[type="radio"]').should('be.checked');
+        cy.get('.payment-method-radio').contains('Rechnung').should('be.visible');
+        cy.get('.payment-method-radio').contains('Rechnung').click();
+        cy.get('.payment-method-radio').contains('Rechnung').get('input[type="radio"]').should('be.checked');
 
         // Select standard shipping and verify checked radio
-        const shippingMethodRadio = cy.get('.shipping-method-radio').contains('Standard');
-        shippingMethodRadio.should('be.visible');
-        shippingMethodRadio.click();
-        shippingMethodRadio.get('input[type="radio"]').should('be.checked');
+        cy.get('.shipping-method-radio').contains('Standard').should('be.visible');
+        cy.get('.shipping-method-radio').contains('Standard').click();
+        cy.get('.shipping-method-radio').contains('Standard').get('input[type="radio"]').should('be.checked');
 
         // Finish checkout
         cy.get('.confirm-tos .card-title').contains('AGB und Widerrufsbelehrung');

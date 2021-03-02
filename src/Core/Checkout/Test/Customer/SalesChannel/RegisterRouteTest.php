@@ -625,7 +625,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -651,7 +651,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                '/store-api/account/register',
                 $registrationData
             );
 

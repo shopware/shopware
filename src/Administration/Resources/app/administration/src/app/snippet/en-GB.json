@@ -887,11 +887,11 @@
     "reload": "Reload",
     "alertText": "We have detected a license violation for at least one of your extensions in this installation. To fix the license violation and avoid legal consequences, book a extension subscription or buy/rent the extension (according to inflicted violation type). You do not use the extension anymore? Then delete it via the My Extensions. If none of these measures are taken, shopware AG reserves itself the right to charge penalty fees for any license violation.",
     "deletePlugin": "Delete extension permanently",
-    "messageDeleteConfirm": "Do you want to delete the extension \"{pluginName} \" completely?",
+    "messageDeleteConfirm": "Do you want to delete the extension \"{pluginName}\" completely?",
     "checkboxMessage": "I have taken notice of this message and eventually accruing consequences.",
     "closeModal": "Close notification",
     "ignorePlugin": "Ignore permanently",
-    "successfullyDeleted": "Erweiterung wurde gelöscht",
+    "successfullyDeleted": "Extension has been deleted",
     "table": {
       "plugin": "Extension",
       "warning": "Warning"

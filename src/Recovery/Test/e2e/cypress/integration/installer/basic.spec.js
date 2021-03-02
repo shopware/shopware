@@ -128,10 +128,6 @@ describe('Minimal install', () => {
         // See if return to Admin was successful
         cy.get('.sw-desktop').should('be.visible');
 
-        cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/sw/dashboard/index');
-        });
-
         // @frw in Administration: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
@@ -205,7 +201,7 @@ describe('Minimal install', () => {
         }, { responseTimeout: 60000 });
 
         cy.location().should((loc) => {
-            expect(loc.hash).to.eq('#/');
+            expect(loc.hash).to.eq('#/sw/dashboard/index');
             expect(loc.pathname).to.eq(`${Cypress.env('admin')}`);
         });
     });

@@ -236,7 +236,7 @@ describe('core/helper/flattree.helper.js', () => {
         ]);
     });
 
-    /** @deprecated tag:v6.5.0.0 can be removed when defaultPosition is removed */
+    /** @deprecated tag:v6.5.0 can be removed when defaultPosition is removed */
     describe('deprecated functions ', () => {
         it('should be possible to get all registered nodes', () => {
             expect(flatTree.getRegisteredNodes()).toBeInstanceOf(Map);

@@ -28,7 +28,7 @@ export default function createMenuService(moduleFactory) {
      * the flat tree instance.
      *
      * @memberOf module:app/service/menu
-     * @deprecated tag:6.5.0 will be removed. use getAdminNavigation and convert to tree by yourself
+     * @deprecated tag:v6.5.0 will be removed. use getAdminNavigation and convert to tree by yourself
      * @returns {Array} main menu as a data tree hierarchy
      */
     function getMainMenu() {

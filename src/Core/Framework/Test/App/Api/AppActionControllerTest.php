@@ -212,6 +212,9 @@ class AppActionControllerTest extends TestCase
                             'position' => 50,
                         ],
                     ],
+                    'mainModule' => [
+                        'source' => 'https://main-module',
+                    ],
                 ],
             ],
         ], $result);
@@ -219,11 +222,16 @@ class AppActionControllerTest extends TestCase
 
     private function removeQueryStringsFromResult(array $result): array
     {
-        $queryString = parse_url($result['modules'][0]['modules'][0]['source'], PHP_URL_QUERY);
-        $result['modules'][0]['modules'][0]['source'] = str_replace(
-            '?' . $queryString,
+        $result['modules'][0]['modules'][0]['source'] = preg_replace(
+            '/\?.*/',
             '',
             $result['modules'][0]['modules'][0]['source']
+        );
+
+        $result['modules'][0]['mainModule']['source'] = preg_replace(
+            '/\?.*/',
+            '',
+            $result['modules'][0]['mainModule']['source']
         );
 
         return $result;

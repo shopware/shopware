@@ -17,37 +17,27 @@ class ModuleLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use SystemConfigTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface  $appRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var ModuleLoader
-     */
-    private $moduleLoader;
+    private ModuleLoader $moduleLoader;
+
+    private string $defaultSecret = 's3cr3t';
 
     public function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->moduleLoader = $this->getContainer()->get(ModuleLoader::class);
+
         $this->context = Context::createDefaultContext();
     }
 
     public function testLoadModules(): void
     {
-        $this->registerModules();
+        $this->registerAppsWithModules();
 
-        $loadedModules = $this->moduleLoader->loadModules($this->context);
-
-        usort($loadedModules, function ($a, $b) {
-            return $a['name'] <=> $b['name'];
-        });
+        $loadedModules = $this->getSortedModules();
 
         $this->validateSources($loadedModules);
 
@@ -76,6 +66,7 @@ class ModuleLoaderTest extends TestCase
                         'position' => 1,
                     ],
                 ],
+                'mainModule' => null,
             ],
             [
                 'name' => 'App2',
@@ -92,13 +83,14 @@ class ModuleLoaderTest extends TestCase
                         'position' => 50,
                     ],
                 ],
+                'mainModule' => null,
             ],
         ], $loadedModules);
     }
 
     public function testLoadModulesReturnsNothingIfAppUrlChangeWasDetected(): void
     {
-        $this->registerModules();
+        $this->registerAppsWithModules();
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
@@ -106,21 +98,75 @@ class ModuleLoaderTest extends TestCase
             'value' => Uuid::randomHex(),
         ]);
 
-        $loadedModules = $this->moduleLoader->loadModules($this->context);
+        $loadedModules = $this->getSortedModules();
 
         static::assertEquals([], $loadedModules);
     }
 
-    private function registerModules(): void
+    public function testMainModules(): void
     {
-        $this->appRepository->create([[
-            'name' => 'App1',
+        $this->createApp('App1', [
+            'mainModule' => [
+                'source' => 'http://main-module-1',
+            ],
+        ]);
+        $this->createApp('App2', [
+            'modules' => [
+                [
+                    'label' => [
+                        'en-GB' => 'test module',
+                    ],
+                    'name' => 'test-app',
+                    'parent' => 'sw-catalogue',
+                ],
+            ],
+        ]);
+
+        $loadedModules = $this->getSortedModules();
+
+        $this->validateSource($loadedModules[0]['mainModule']['source'], 'http://main-module-1', $this->defaultSecret);
+        static::assertNull($loadedModules[1]['mainModule']);
+    }
+
+    public function testAppIsExcludedIfNeitherModulesNorMainModuleIsSet(): void
+    {
+        $this->createApp('App');
+
+        $modules = $this->getSortedModules();
+        static::assertEquals([], $modules);
+    }
+
+    private function createApp(string $name, ...$params): void
+    {
+        $payload = [
+            'name' => $name,
             'active' => true,
             'path' => __DIR__ . '/Manifest/_fixtures/test',
             'version' => '0.0.1',
-            'label' => 'test App1',
+            'label' => "test ${name}",
             'accessToken' => 'test',
-            'appSecret' => 's3cr3t',
+            'appSecret' => $this->defaultSecret,
+            'integration' => [
+                'label' => $name,
+                'writeAccess' => false,
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => $name,
+            ],
+        ];
+
+        foreach ($params as $additionalParams) {
+            $payload = array_merge($payload, $additionalParams);
+        }
+
+        $this->appRepository->create([$payload], $this->context);
+    }
+
+    private function registerAppsWithModules(): void
+    {
+        $this->createApp('App1', [
             'modules' => [
                 [
                     'label' => [
@@ -142,23 +188,9 @@ class ModuleLoaderTest extends TestCase
                     'position' => 1,
                 ],
             ],
-            'integration' => [
-                'label' => 'App1',
-                'writeAccess' => false,
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'name' => 'App1',
-            ],
-        ], [
-            'name' => 'App2',
-            'active' => true,
-            'path' => __DIR__ . '/Manifest/_fixtures/test',
-            'version' => '0.0.1',
-            'label' => 'test App2',
-            'accessToken' => 'test',
-            'appSecret' => 's3cr3t2',
+        ]);
+
+        $this->createApp('App2', [
             'modules' => [
                 [
                     'label' => [
@@ -170,23 +202,10 @@ class ModuleLoaderTest extends TestCase
                     'position' => 50,
                 ],
             ],
-            'integration' => [
-                'label' => 'App2',
-                'writeAccess' => false,
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'name' => 'App2',
-            ],
-        ], [
-            'name' => 'App3',
+        ]);
+
+        $this->createApp('App3', [
             'active' => false,
-            'path' => __DIR__ . '/Manifest/_fixtures/test',
-            'version' => '0.0.1',
-            'label' => 'test App3',
-            'accessToken' => 'test',
-            'appSecret' => 's3cr3t2',
             'modules' => [
                 [
                     'label' => [
@@ -196,24 +215,26 @@ class ModuleLoaderTest extends TestCase
                     'name' => 'third-app',
                 ],
             ],
-            'integration' => [
-                'label' => 'App3',
-                'writeAccess' => false,
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'name' => 'App3',
-            ],
-        ]], $this->context);
+        ]);
+    }
+
+    private function getSortedModules(): array
+    {
+        $modules = $this->moduleLoader->loadModules($this->context);
+
+        usort($modules, function ($a, $b) {
+            return $a['name'] <=> $b['name'];
+        });
+
+        return $modules;
     }
 
     private function validateSources(array &$loadedModules): void
     {
-        $this->validateSource($loadedModules[0]['modules'][0]['source'], 'https://first.app.com', 's3cr3t');
+        $this->validateSource($loadedModules[0]['modules'][0]['source'], 'https://first.app.com', $this->defaultSecret);
         unset($loadedModules[0]['modules'][0]['source']);
 
-        $this->validateSource($loadedModules[0]['modules'][1]['source'], 'https://first.app.com/second', 's3cr3t');
+        $this->validateSource($loadedModules[0]['modules'][1]['source'], 'https://first.app.com/second', $this->defaultSecret);
         unset($loadedModules[0]['modules'][1]['source']);
 
         static::assertNull($loadedModules[1]['modules'][0]['source']);

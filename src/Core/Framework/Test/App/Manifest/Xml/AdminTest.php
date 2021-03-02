@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 class AdminTest extends TestCase
 {
@@ -56,6 +57,9 @@ class AdminTest extends TestCase
         ], $secondModule->getLabel());
         static::assertEquals('sw-catalogue', $secondModule->getParent());
         static::assertEquals(50, $secondModule->getPosition());
+
+        $mainModule = $manifest->getAdmin()->getMainModule();
+        static::assertEquals('https://main-module', $mainModule->getSource());
     }
 
     public function testModulesWithStructureElements(): void
@@ -66,5 +70,18 @@ class AdminTest extends TestCase
         static::assertNull($moduleWithStructureElement->getSource());
         static::assertEquals('sw-catalogue', $moduleWithStructureElement->getParent());
         static::assertEquals(50, $moduleWithStructureElement->getPosition());
+    }
+
+    public function testMainModuleIsOptional(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithoutMainModule.xml');
+
+        static::assertNull($manifest->getAdmin()->getMainModule());
+    }
+
+    public function testManifestWithMultipleMainmodulesIsInvalid(): void
+    {
+        static::expectException(XmlParsingException::class);
+        Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithTwoMainModules.xml');
     }
 }

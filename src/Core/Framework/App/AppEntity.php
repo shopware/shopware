@@ -67,6 +67,11 @@ class AppEntity extends Entity
     /**
      * @var array|null
      */
+    protected $mainModule;
+
+    /**
+     * @var array|null
+     */
     protected $cookies;
 
     /**
@@ -245,6 +250,16 @@ class AppEntity extends Entity
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
+    }
+
+    public function getMainModule(): ?array
+    {
+        return $this->mainModule;
+    }
+
+    public function setMainModule(array $mainModule): void
+    {
+        $this->mainModule = $mainModule;
     }
 
     public function getCookies(): ?array

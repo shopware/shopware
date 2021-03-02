@@ -83,24 +83,19 @@ class Framework extends Bundle
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
 
-        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block and only keep else
-        if (!Feature::isActive('FEATURE_NEXT_12349')) {
-            $this->addCoreMigrationPath($container, __DIR__ . '/../Migration', 'Shopware\Core\Migration');
-        } else {
-            // configure migration directories
-            $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');
-            $migrationSourceV3->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_3', 'Shopware\Core\Migration\V6_3']);
+        // configure migration directories
+        $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');
+        $migrationSourceV3->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_3', 'Shopware\Core\Migration\V6_3']);
 
-            // we've moved the migrations from Shopware\Core\Migration to Shopware\Core\Migration\V6_3
-            $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2']);
+        // we've moved the migrations from Shopware\Core\Migration to Shopware\Core\Migration\V6_3
+        $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2']);
 
-            $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
-            $migrationSourceV4->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_4', 'Shopware\Core\Migration\V6_4']);
-            $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
+        $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
+        $migrationSourceV4->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_4', 'Shopware\Core\Migration\V6_4']);
+        $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
 
-            $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
-            $migrationSourceV5->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_5', 'Shopware\Core\Migration\V6_5']);
-        }
+        $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
+        $migrationSourceV5->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_5', 'Shopware\Core\Migration\V6_5']);
 
         parent::build($container);
     }

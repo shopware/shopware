@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Update\Command;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Steps\ErrorResult;
@@ -125,20 +124,15 @@ class UpdateCommand extends Command
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if branch on feature release (keep the collectAllVersion call)
-        if (!Feature::isActive('FEATURE_NEXT_12349')) {
-            $coreCollection = $migrationCollectionLoader->collect('core');
-        } else {
-            $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
-                // only execute safe destructive migrations
-                ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
-                : MigrationCollectionLoader::VERSION_SELECTION_ALL;
+        $versionSelectionMode = $modus === MigrationStep::UPDATE_DESTRUCTIVE
+            // only execute safe destructive migrations
+            ? MigrationCollectionLoader::VERSION_SELECTION_SAFE
+            : MigrationCollectionLoader::VERSION_SELECTION_ALL;
 
-            $coreCollection = $migrationCollectionLoader->collectAllForVersion(
-                (string) $this->container->get('shopware.version'),
-                $versionSelectionMode
-            );
-        }
+        $coreCollection = $migrationCollectionLoader->collectAllForVersion(
+            (string) $this->container->get('shopware.version'),
+            $versionSelectionMode
+        );
 
         if ($modus === MigrationStep::UPDATE) {
             $versions = $coreCollection->getExecutableMigrations();

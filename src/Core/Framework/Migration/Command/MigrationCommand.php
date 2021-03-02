@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -108,8 +107,7 @@ class MigrationCommand extends Command
 
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_12349) Only check for identifier
-        if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
+        if ($identifier === 'core') {
             return $this->loader->collectAllForVersion(
                 $this->shopwareVersion,
                 MigrationCollectionLoader::VERSION_SELECTION_ALL

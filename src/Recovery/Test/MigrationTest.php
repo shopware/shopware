@@ -3,7 +3,6 @@
 namespace Shopware\Recovery\Test;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Install\Console\Application as InstallApplication;
@@ -40,30 +39,8 @@ class MigrationTest extends TestCase
         $this->dropDatabase();
     }
 
-    public function testUpdateContainerMigrationSourcesOld(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12349', $this);
-
-        $config = require __DIR__ . '/../Update/config/config.php';
-        /** @var \Shopware\Recovery\Update\DependencyInjection\Container $container */
-        $container = new \Shopware\Recovery\Update\DependencyInjection\Container(new \Slim\Container(), $config);
-
-        /** @var MigrationSource[] $sources */
-        $sources = $container->get('migration.sources');
-
-        static::assertCount(1, $sources);
-        static::assertSame('core', $sources[0]->getName());
-        static::assertNotEmpty($sources[0]->getSourceDirectories());
-
-        /** @var MigrationSource $source */
-        $source = $container->get('migration.source');
-        static::assertSame($sources[0], $source);
-    }
-
     public function testUpdateContainerMigrationSourcesNew(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12349', $this);
-
         $config = require __DIR__ . '/../Update/config/config.php';
         /** @var \Shopware\Recovery\Update\DependencyInjection\Container $container */
         $container = new \Shopware\Recovery\Update\DependencyInjection\Container(new \Slim\Container(), $config);
@@ -81,30 +58,8 @@ class MigrationTest extends TestCase
         static::assertSame('core.V6_4', $sources[2]->getName());
     }
 
-    public function testInstallContainerMigrationSourcesOld(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12349', $this);
-
-        $config = require __DIR__ . '/../Install/config/production.php';
-        $container = new \Slim\Container();
-        $container->register(new ContainerProvider($config));
-
-        /** @var MigrationSource[] $sources */
-        $sources = $container->get('migration.sources');
-
-        static::assertCount(1, $sources);
-        static::assertSame('core', $sources[0]->getName());
-        static::assertNotEmpty($sources[0]->getSourceDirectories());
-
-        /** @var MigrationSource $source */
-        $source = $container->get('migration.source');
-        static::assertSame($sources[0], $source);
-    }
-
     public function testInstallContainerMigrationSourcesNew(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12349', $this);
-
         $config = require __DIR__ . '/../Install/config/production.php';
         $container = new \Slim\Container();
         $container->register(new ContainerProvider($config));

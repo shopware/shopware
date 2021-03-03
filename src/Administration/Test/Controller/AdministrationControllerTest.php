@@ -4,9 +4,14 @@ namespace Shopware\Administration\Test\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class AdministrationControllerTest extends TestCase
@@ -20,6 +25,16 @@ class AdministrationControllerTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
+
     protected function setup(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -27,6 +42,9 @@ class AdministrationControllerTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
+
+        $this->ids = new TestDataCollection(Context::createDefaultContext());
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
     public function testSnippetRoute(): void
@@ -93,6 +111,112 @@ class AdministrationControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(412, $response->getStatusCode());
+    }
+
+    public function testValidateEmailSuccess(): void
+    {
+        $browser = $this->createClient();
+        $this->createCustomer('foo@bar.de');
+
+        $browser->request(
+            'POST',
+            '/api/_admin/check-customer-email-valid',
+            [
+                'id' => Uuid::randomHex(),
+                'email' => 'foo1@bar.de',
+                'boundSalesChannelId' => null,
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true);
+        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('isValid', $response);
+    }
+
+    public function testValidateEmailFail(): void
+    {
+        $email = 'foo@bar.de';
+        $browser = $this->createClient();
+        $this->createCustomer($email);
+
+        $browser->request(
+            'POST',
+            '/api/_admin/check-customer-email-valid',
+            [
+                'id' => Uuid::randomHex(),
+                'email' => $email,
+                'boundSalesChannelId' => null,
+            ]
+        );
+
+        $content = $this->getBrowser()->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $response = json_decode($content, true);
+        static::assertEquals(400, $browser->getResponse()->getStatusCode());
+        static::assertSame('The email address ' . $email . ' is already in use', $response['errors'][0]['detail']);
+    }
+
+    private function createCustomer(string $email): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $this->customerRepository->create([
+            [
+                'id' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethod' => [
+                    'name' => 'Invoice',
+                    'active' => true,
+                    'description' => 'Default payment method',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
+                    'availabilityRule' => [
+                        'id' => Uuid::randomHex(),
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'cartCartAmount',
+                                'value' => [
+                                    'operator' => '>=',
+                                    'amount' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'salesChannels' => [
+                        [
+                            'id' => Defaults::SALES_CHANNEL,
+                        ],
+                    ],
+                ],
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => $email,
+                'password' => 'shopware',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'guest' => false,
+                'salutationId' => $this->getValidSalutationId(),
+                'customerNumber' => '12345',
+            ],
+        ], $this->ids->context);
+
+        return $customerId;
     }
 
     private function insertOtherLanguage(): string

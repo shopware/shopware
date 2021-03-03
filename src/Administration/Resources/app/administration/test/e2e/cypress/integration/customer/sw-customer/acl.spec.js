@@ -109,6 +109,8 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('#sw-field--customer-lastName').clear();
         cy.get('#sw-field--customer-lastName').type('Rika');
+        cy.get('#sw-field--customer-email').clear();
+        cy.get('#sw-field--customer-email').type('test@example.com');
         cy.get('.sw-customer-detail__save-action').click();
         cy.wait('@saveCustomer').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
@@ -151,7 +153,7 @@ describe('Customer: Test ACL privileges', () => {
 
         cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
-        cy.get(page.elements.customerMailInput).type('tester@example.com');
+        cy.get(page.elements.customerMailInput).type('test1@example.com');
 
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck(
@@ -216,5 +218,131 @@ describe('Customer: Test ACL privileges', () => {
         });
         cy.get(page.elements.modal).should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');
+    });
+
+    it('@customer: cannot create customer with duplicate email', () => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
+            method: 'post'
+        }).as('checkEmailValid');
+
+        const page = new CustomerPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'customer',
+                role: 'viewer'
+            }, {
+                key: 'customer',
+                role: 'editor'
+            }, {
+                key: 'customer',
+                role: 'creator'
+            }
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+        });
+
+        cy.get('.sw-customer-base-form__salutation-select')
+            .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
+
+        cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
+        cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
+        cy.get(page.elements.customerMailInput).type('test@example.com');
+
+        cy.get('.sw-customer-base-form__customer-group-select')
+            .typeSingleSelectAndCheck(
+                'Standard customer group',
+                '.sw-customer-base-form__customer-group-select'
+            );
+
+        cy.get('.sw-customer-base-form__sales-channel-select')
+            .typeSingleSelectAndCheck('Storefront', '.sw-customer-base-form__sales-channel-select');
+
+        cy.get('.sw-customer-base-form__payment-method-select')
+            .typeSingleSelectAndCheck('Invoice', '.sw-customer-base-form__payment-method-select');
+
+        cy.get('#sw-field--customer-password').type('shopware');
+
+        page.createBasicAddress(customer);
+        cy.get(page.elements.customerSaveAction).click();
+
+        cy.wait('@checkEmailValid').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+        });
+
+        cy.get('.sw-field--email .sw-field__error').contains('The email address test@example.com is already in use');
+    });
+
+    it('@customer: cannot edit customer with duplicate email', () => {
+        // Request we want to wait for later
+        cy.server();
+        const page = new CustomerPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'customer',
+                role: 'viewer'
+            }, {
+                key: 'customer',
+                role: 'editor'
+            }, {
+                key: 'customer',
+                role: 'creator'
+            }
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
+        });
+
+        cy.get('.sw-customer-base-form__salutation-select')
+            .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
+
+        cy.get('input[name=sw-field--customer-firstName]').type('Thuy');
+        cy.get('input[name=sw-field--customer-lastName]').type('Le');
+        cy.get(page.elements.customerMailInput).type('test1@example.com');
+
+        cy.get('.sw-customer-base-form__customer-group-select')
+            .typeSingleSelectAndCheck(
+                'Standard customer group',
+                '.sw-customer-base-form__customer-group-select'
+            );
+
+        cy.get('.sw-customer-base-form__sales-channel-select')
+            .typeSingleSelectAndCheck('Storefront', '.sw-customer-base-form__sales-channel-select');
+
+        cy.get('.sw-customer-base-form__payment-method-select')
+            .typeSingleSelectAndCheck('Invoice', '.sw-customer-base-form__payment-method-select');
+
+        cy.get('#sw-field--customer-password').type('shopware');
+
+        page.createBasicAddress(customer);
+        cy.get(page.elements.customerSaveAction).click();
+
+        cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
+            method: 'post'
+        }).as('checkEmailValid');
+
+        // open customer
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .get('.sw-data-grid__cell--firstName')
+            .contains('Eroni')
+            .click();
+
+        // Verify updated product
+        cy.get('.sw-customer-detail__open-edit-mode-action').should('not.be.disabled');
+        cy.get('.sw-customer-detail__open-edit-mode-action').click();
+        cy.get('#sw-field--customer-email').clear();
+        cy.get('#sw-field--customer-email').type('test1@example.com');
+        cy.get('.sw-customer-detail__save-action').click();
+        cy.wait('@checkEmailValid').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+        });
+
+        cy.get('.sw-field--email .sw-field__error').contains('The email address test1@example.com is already in use');
     });
 });

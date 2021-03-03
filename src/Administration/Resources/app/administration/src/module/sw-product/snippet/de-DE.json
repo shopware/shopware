@@ -21,7 +21,9 @@
       "copy": "Kopie",
       "cloneSuffix": "Varianten",
       "cloneNotice": "Die Produktvarianten werden dupliziert. Sollte dieser Prozess unterbrochen werden, kann es sein, dass nicht alle Varianten vollständig dupliziert werden. In diesem Fall kannst Du die Varianten im neuen Produkt erneut generieren.",
-      "cloneTitle": "Varianten duplizieren"
+      "cloneTitle": "Varianten duplizieren",
+      "tooltipModeSettings": "Moduseinstellungen",
+      "textAdvancedMode": "Erweiterter Modus"
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -145,7 +147,8 @@
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleVisibilityStructure": "Sichtbarkeitsstruktur"
     },
     "specifications": {
       "cardTitleMeasuresPackaging": "Measures & Packaging",

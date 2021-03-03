@@ -22,9 +22,15 @@ export default {
                 media: false,
                 rules: false,
                 variants: false,
-                defaultFeatureSet: false
+                defaultFeatureSet: false,
+                advancedMode: false
             },
-            localMode: false
+            localMode: false,
+            advancedModeSetting: {},
+            modeSettingsVisible: {
+                showSettingsInformation: true,
+                showLabellingCard: true
+            }
         };
     },
 
@@ -93,6 +99,10 @@ export default {
                 return !!state.product.parentId;
             }
             return false;
+        },
+
+        showModeSetting(state) {
+            return state.advancedModeSetting.value.advancedMode.enabled;
         }
     },
 
@@ -159,6 +169,14 @@ export default {
 
         setDefaultFeatureSet(state, newDefaultFeatureSet) {
             state.defaultFeatureSet = newDefaultFeatureSet;
+        },
+
+        setAdvancedModeSetting(state, newAdvancedModeSetting) {
+            state.advancedModeSetting = newAdvancedModeSetting;
+        },
+
+        setModeSettingVisible(state, newModeSettingVisible) {
+            state.modeSettingsVisible = newModeSettingVisible;
         }
     }
 };

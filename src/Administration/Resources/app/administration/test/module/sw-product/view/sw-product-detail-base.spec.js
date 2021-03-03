@@ -1,6 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product/view/sw-product-detail-base';
+import 'src/module/sw-product/component/sw-product-basic-form';
+import 'src/app/component/utils/sw-inherit-wrapper';
 import Vuex from 'vuex';
+import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -29,19 +32,25 @@ function createWrapper(privileges = []) {
             },
             'sw-product-packaging-form': true,
             'sw-product-seo-form': true,
-            'sw-product-settings-form': true,
             'sw-product-category-form': true,
             'sw-product-deliverability-form': true,
             'sw-product-price-form': true,
-            'sw-product-basic-form': true,
+            'sw-product-basic-form': Shopware.Component.build('sw-product-basic-form'),
             'sw-product-feature-set-form': true,
-            'sw-inherit-wrapper': true,
+            'sw-product-settings-form': true,
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
             'sw-empty-state': true,
             'sw-card': {
                 template: '<div><slot></slot><slot name="grid"></slot></div>'
             },
             'sw-context-menu-item': true,
-            'sw-media-modal-v2': true
+            'sw-media-modal-v2': true,
+            'sw-container': true,
+            'sw-field': true,
+            'sw-text-editor': true,
+            'sw-switch-field': true,
+            'sw-product-media-form': true,
+            'sw-entity-single-select': true
         },
         mocks: {
             $tc: snippetPath => snippetPath,
@@ -50,7 +59,8 @@ function createWrapper(privileges = []) {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve('bar')
+                    search: () => Promise.resolve('bar'),
+                    searchIds: () => Promise.resolve()
                 })
             },
             acl: {
@@ -75,6 +85,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         name: 'Billions',
         id: '1000000000'
     }];
+    Shopware.State.registerModule('swProductDetail', productStore);
     mockReviews.total = 1;
 
     beforeAll(() => {
@@ -108,6 +119,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 loading: {
                     product: false,
                     media: false
+                },
+                modeSettingsVisible: {
+                    showSettingsInformation: true,
+                    showLabellingCard: true
                 }
             },
             mutations: {
@@ -269,5 +284,69 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await wrapper.vm.setMediaAsCover(media);
 
         expect(wrapper.vm.product.coverId).toBe(media.id);
+    });
+
+    it('should be visible Promotion Switch ', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+        await wrapper.vm.$nextTick();
+        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+
+        const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
+
+        expect(promotionSwitch.exists()).toBe(true);
+        expect(modeSettingsVisible.showSettingsInformation).toBe(true);
+    });
+
+    it('should be visible Labelling card', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+        await wrapper.vm.$nextTick();
+        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+
+        const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
+
+        expect(labellingCardElement.exists()).toBe(true);
+        expect(modeSettingsVisible.showLabellingCard).toBe(true);
+    });
+
+    it('should be not visible Promotion Switch when commit setModeSettingVisible with falsy value', async () => {
+        wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+
+        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingsInformation: false });
+
+
+        wrapper.vm.$nextTick(() => {
+            const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+            const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
+
+            expect(promotionSwitch.attributes().style).toBe('display: none;');
+            expect(modeSettingsVisible.showSettingsInformation).toBe(false);
+        });
+    });
+
+    it('should be not visible Labelling card when commit setModeSettingVisible with falsy value', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+
+        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showLabellingCard: false });
+        await wrapper.vm.$nextTick();
+
+        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
+
+        expect(labellingCardElement.attributes().style).toBe('display: none;');
+        expect(modeSettingsVisible.showLabellingCard).toBe(false);
     });
 });

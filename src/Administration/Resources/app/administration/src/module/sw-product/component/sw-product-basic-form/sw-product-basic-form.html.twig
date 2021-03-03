@@ -103,13 +103,14 @@
 
             {% block sw_product_settings_form_mark_as_topseller_field %}
                 <sw-inherit-wrapper
+                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingsInformation"
                     v-model="product.markAsTopseller"
+                    class="sw-product-basic-form__promotion-switch"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.markAsTopseller">
                     <template #content="props">
 
-                        <sw-field
-                            type="switch"
+                        <sw-switch-field
                             :error="productMarkAsTopsellerError"
                             :mapInheritance="props"
                             :helpText="highlightHelpText"
@@ -117,7 +118,7 @@
                             :disabled="props.isInherited || !allowEdit"
                             :value="props.currentValue"
                             @change="props.updateCurrentValue">
-                        </sw-field>
+                        </sw-switch-field>
 
                     </template>
                 </sw-inherit-wrapper>

@@ -222,6 +222,15 @@
                         @clone-finish="onDuplicateFinish">
                     </sw-product-clone-modal>
                 {% endblock %}
+
+                {% block sw_product_settings_mode %}
+                    <sw-product-settings-mode
+                        v-if="feature.isActive('FEATURE_NEXT_12429')"
+                        :isLoading="isLoading"
+                        :modeSettings="advancedModeSetting"
+                        @settings-change="onChangeSettings">
+                    </sw-product-settings-mode>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
 

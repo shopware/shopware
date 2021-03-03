@@ -38,6 +38,7 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
     await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-recommendation');
     await import(/* webpackMode: 'eager' */ './component/sw-extensions-store-label-display');
+    await import(/* webpackMode: 'eager' */ './acl');
 }
 
 if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
@@ -63,6 +64,9 @@ Shopware.Module.register('sw-extension', {
             redirect: {
                 name: 'sw.extension.store.listing'
             },
+            meta: {
+                privilege: 'system.extension_store'
+            },
             component: 'sw-extension-store-index',
             children: {
                 listing: {
@@ -71,12 +75,18 @@ Shopware.Module.register('sw-extension', {
                     redirect: {
                         name: 'sw.extension.store.listing.app'
                     },
+                    meta: {
+                        privilege: 'system.extension_store'
+                    },
                     children: {
                         app: {
                             path: 'app',
                             component: 'sw-extension-store-listing',
                             propsData: {
                                 isTheme: false
+                            },
+                            meta: {
+                                privilege: 'system.extension_store'
                             }
                         },
                         theme: {
@@ -84,6 +94,9 @@ Shopware.Module.register('sw-extension', {
                             component: 'sw-extension-store-listing',
                             propsData: {
                                 isTheme: true
+                            },
+                            meta: {
+                                privilege: 'system.extension_store'
                             }
                         }
                     }
@@ -94,7 +107,8 @@ Shopware.Module.register('sw-extension', {
             component: 'sw-extension-store-detail',
             path: 'store/detail/:id',
             meta: {
-                parentPath: 'sw.extension.store'
+                parentPath: 'sw.extension.store',
+                privilege: 'system.extension_store'
             },
             props: {
                 default: (route) => {
@@ -188,6 +202,7 @@ Shopware.Module.register('sw-extension', {
         parent: 'sw-extension',
         label: 'sw-extension.mainMenu.store',
         path: 'sw.extension.store.listing',
+        privilege: 'system.extension_store',
         position: 10
     },
     {
@@ -195,6 +210,7 @@ Shopware.Module.register('sw-extension', {
         parent: 'sw-extension',
         label: 'sw-extension.mainMenu.purchased',
         path: 'sw.extension.my-extensions',
+        privilege: 'system.plugin_maintain',
         position: 10
     }
     ]

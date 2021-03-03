@@ -116,11 +116,6 @@ Component.register('sw-cms-list', {
             criteria.addAssociation('previewMedia')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            if (!this.feature.isActive('FEATURE_NEXT_11253')) {
-                criteria.addAssociation('sections');
-                criteria.addAssociation('categories');
-            }
-
             if (this.feature.isActive('FEATURE_NEXT_10078')) {
                 criteria.addAssociation('products');
             }

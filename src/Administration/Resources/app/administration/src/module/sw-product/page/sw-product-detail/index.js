@@ -573,7 +573,10 @@ Component.register('sw-product-detail', {
         loadAttributeSet() {
             Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api).then((res) => {
+            return this.customFieldSetRepository.search(
+                this.customFieldSetCriteria,
+                Shopware.Context.api
+            ).then((res) => {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);

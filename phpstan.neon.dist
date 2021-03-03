@@ -99,26 +99,9 @@ parameters:
         -
              message: '#Property OpenApi\\Annotations\\PathItem::\$(delete|get|patch|post|put) \(OpenApi\\Annotations\\(Delete|Get|Patch|Post|Put)\) does not accept string#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
         -
-            message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailBeforeSentEvent\\:\\:__construct\\(\\) has parameter \\$message with no typehint specified\\.$#"
-            count: 1
-            path: src/Core/Content/MailTemplate/Service/Event/MailBeforeSentEvent.php
-
-        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
-        -
-            message: '#Strict comparison using#'
-            path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        -
-            message: "#^Parameter \\#1 \\$data of class Swift_Attachment constructor expects string\\|Swift_OutputByteStream\\|null, string\\|false given\\.$#"
-            count: 1
-            path: src/Core/Content/Mail/Service/MailFactory.php
-
-        # Major Breaks not compatible (flag:FEATURE_NEXT_12246)
-        -
-            message: "#^Parameter \\#3 \\$contentType of class Swift_Attachment constructor expects string\\|null, string\\|false given\\.$#"
-            count: 1
-            path: src/Core/Content/Mail/Service/MailFactory.php
+                    message: '#Strict comparison using#'
+                    path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
         # storageName could not be null, because the `compile` method is called first
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'

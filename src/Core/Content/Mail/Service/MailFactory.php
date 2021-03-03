@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\Exception\FeatureActiveException;
-use Shopware\Core\Framework\Feature\Exception\FeatureNotActiveException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Mime\Email;
@@ -31,58 +28,6 @@ class MailFactory extends AbstractMailFactory
         $this->filesystem = $filesystem;
     }
 
-    /**
-     * @param array $sender     e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
-     * @param array $recipients e.g. ['shopware@example.com' => 'Shopware AG', 'symfony@example.com' => 'Symfony']
-     * @param array $contents   e.g. ['text/plain' => 'Foo', 'text/html' => '<h1>Bar</h1>']
-     *
-     * @feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) method will be removed. Use createMail instead.
-     */
-    public function createMessage(
-        string $subject,
-        array $sender,
-        array $recipients,
-        array $contents,
-        array $attachments,
-        ?array $binAttachments = null
-    ): \Swift_Message {
-        if (Feature::isActive('FEATURE_NEXT_12246')) {
-            throw new FeatureActiveException('FEATURE_NEXT_12246');
-        }
-
-        $this->assertValidAddresses(array_keys($recipients));
-
-        $message = (new \Swift_Message($subject))
-            ->setFrom($sender)
-            ->setTo($recipients);
-
-        foreach ($contents as $contentType => $data) {
-            $message->addPart($data, $contentType);
-        }
-
-        foreach ($attachments as $url) {
-            $attachment = new \Swift_Attachment(
-                $this->filesystem->read($url),
-                basename($url),
-                $this->filesystem->getMimetype($url)
-            );
-            $message->attach($attachment);
-        }
-
-        if (isset($binAttachments)) {
-            foreach ($binAttachments as $binAttachment) {
-                $attachment = new \Swift_Attachment(
-                    $binAttachment['content'],
-                    $binAttachment['fileName'],
-                    $binAttachment['mimeType']
-                );
-                $message->attach($attachment);
-            }
-        }
-
-        return $message;
-    }
-
     public function create(
         string $subject,
         array $sender,
@@ -92,10 +37,6 @@ class MailFactory extends AbstractMailFactory
         array $additionalData,
         ?array $binAttachments = null
     ): Email {
-        if (!Feature::isActive('FEATURE_NEXT_12246')) {
-            throw new FeatureNotActiveException('FEATURE_NEXT_12246');
-        }
-
         $this->assertValidAddresses(array_keys($recipients));
 
         $mail = (new Email())

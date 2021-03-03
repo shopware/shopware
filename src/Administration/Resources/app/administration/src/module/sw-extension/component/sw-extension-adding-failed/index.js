@@ -31,7 +31,10 @@ Component.register('sw-extension-adding-failed', {
         },
 
         isRent() {
-            return Utils.get(this.extension, 'storeLicense.variant') === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+            return Utils.get(
+                this.extension,
+                'storeLicense.variant'
+            ) === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
         },
 
         headline() {

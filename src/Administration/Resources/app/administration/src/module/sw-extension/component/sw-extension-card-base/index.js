@@ -236,7 +236,9 @@ Component.register('sw-extension-card-base', {
                 return;
             }
 
-            this.permissionModalActionLabel = this.$tc('sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall');
+            this.permissionModalActionLabel = this.$tc(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall'
+            );
             this.showPermissionsModal = true;
         },
 

@@ -32,7 +32,10 @@ Component.register('sw-extension-uninstall-modal', {
 
     computed: {
         title() {
-            return this.$t('sw-extension-store.component.sw-extension-uninstall-modal.title', { extensionName: this.extensionName });
+            return this.$t(
+                'sw-extension-store.component.sw-extension-uninstall-modal.title',
+                { extensionName: this.extensionName }
+            );
         }
     },
 

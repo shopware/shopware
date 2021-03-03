@@ -9,7 +9,6 @@ use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -26,13 +24,6 @@ class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
     public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
-
-    /**
-     * @var MailServiceInterface|null
-     *
-     * @deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) property mailService will be removed
-     */
-    private $mailService;
 
     /**
      * @var EntityRepositoryInterface
@@ -65,13 +56,12 @@ class MailSendSubscriber implements EventSubscriberInterface
     private $logger;
 
     /**
-     * @var AbstractMailService|null
+     * @var AbstractMailService
      */
     private $emailService;
 
     public function __construct(
-        ?MailServiceInterface $mailService,
-        ?AbstractMailService $emailService,
+        AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,
         MediaService $mediaService,
         EntityRepositoryInterface $mediaRepository,
@@ -79,7 +69,6 @@ class MailSendSubscriber implements EventSubscriberInterface
         DocumentService $documentService,
         LoggerInterface $logger
     ) {
-        $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
         $this->mediaRepository = $mediaRepository;
@@ -155,24 +144,11 @@ class MailSendSubscriber implements EventSubscriberInterface
         }
 
         try {
-            //@deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) remove complete if-else-branch
-            // and only keep the if-content
-            if (Feature::isActive('FEATURE_NEXT_12246') && $this->emailService !== null) {
-                $this->emailService->send(
-                    $data->all(),
-                    $event->getContext(),
-                    $this->getTemplateData($mailEvent)
-                );
-            } elseif ($this->mailService !== null) {
-                $this->mailService->send(
-                    $data->all(),
-                    $event->getContext(),
-                    $this->getTemplateData($mailEvent)
-                );
-            } else {
-                //@deprecated tag:v6.4.0 (flag:FEATURE_NEXT_12246) remove check for null and Exception on Feature Release
-                throw new \Exception('Either `emailService` or `mailService` needs to be defined. Neither is.');
-            }
+            $this->emailService->send(
+                $data->all(),
+                $event->getContext(),
+                $this->getTemplateData($mailEvent)
+            );
 
             $writes = array_map(static function ($id) {
                 return ['id' => $id, 'sent' => true];

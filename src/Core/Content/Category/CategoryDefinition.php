@@ -152,9 +152,7 @@ class CategoryDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
         ]);
 
-        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
-            $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
-        });
+        $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
 
         if (Feature::isActive('FEATURE_NEXT_13504')) {
             $collection->add((new TranslatedField('linkType'))->addFlags(new ApiAware()));

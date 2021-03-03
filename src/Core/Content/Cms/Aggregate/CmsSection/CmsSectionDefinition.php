@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class CmsSectionDefinition extends EntityDefinition
 {
@@ -73,10 +72,8 @@ class CmsSectionDefinition extends EntityDefinition
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
 
-        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
-            $collection->add(new VersionField());
-            $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
-        });
+        $collection->add(new VersionField());
+        $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
 
         return $collection;
     }

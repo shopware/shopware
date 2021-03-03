@@ -53,7 +53,6 @@
                 <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
-
                 {% set gallerySliderOptions = {
                     slider: {
                         navPosition: 'bottom',
@@ -64,8 +63,8 @@
                         startIndex: startIndexThumbnails ? startIndexThumbnails : null
                     },
                     thumbnailSlider: {
-                        autoWidth: (galleryPosition == "underneath") ? true : false,
-                        controls: (galleryPosition == "underneath") ? false : true,
+                        items: (galleryPosition == "underneath") ? 6 : 5,
+                        controls: true,
                         startIndex: startIndexThumbnails ? startIndexThumbnails : null,
                         responsive: {
                             xs: {
@@ -235,7 +234,7 @@
                         {% block element_image_gallery_inner_thumbnails_col %}
                             {% if imageCount > 1 %}
                                 <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}">
-                                    <div class="gallery-slider-thumbnails-container{% if imageCount > maxItemsToShowNav and galleryPosition == "underneath" %} hide-thumbs{% endif %}">
+                                    <div class="gallery-slider-thumbnails-container{% if galleryPosition == "underneath" %} is-underneath{% endif %}">
                                         {% block element_image_gallery_inner_thumbnails %}
                                             <div class="gallery-slider-thumbnails{% if galleryPosition == "underneath" %} is-underneath{% endif %}"
                                                  data-gallery-slider-thumbnails="true">
@@ -271,16 +270,27 @@
                                         {% endblock %}
 
                                         {% block element_image_gallery_inner_thumbnails_controls %}
-                                            {% if galleryPosition == "left" %}
-                                                <div data-thumbnail-slider-controls="true" class="gallery-slider-thumbnails-controls">
+                                            <div data-thumbnail-slider-controls="true" class="gallery-slider-thumbnails-controls">
+                                                {% block element_image_gallery_inner_thumbnails_controls_prev %}
                                                     <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
-                                                        {% sw_icon 'arrow-head-up' %}
+                                                        {% if galleryPosition == "left" %}
+                                                            {% sw_icon 'arrow-head-up' %}
+                                                        {% elseif galleryPosition == "underneath" %}
+                                                            {% sw_icon 'arrow-head-left' %}
+                                                        {% endif %}
                                                     </button>
+                                                {% endblock %}
+
+                                                {% block element_image_gallery_inner_thumbnails_controls_next %}
                                                     <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
-                                                        {% sw_icon 'arrow-head-down' %}
+                                                        {% if galleryPosition == "left" %}
+                                                            {% sw_icon 'arrow-head-down' %}
+                                                        {% elseif galleryPosition == "underneath" %}
+                                                            {% sw_icon 'arrow-head-right' %}
+                                                        {% endif %}
                                                     </button>
-                                                </div>
-                                            {% endif %}
+                                                {% endblock %}
+                                            </div>
                                         {% endblock %}
                                     </div>
                                 </div>

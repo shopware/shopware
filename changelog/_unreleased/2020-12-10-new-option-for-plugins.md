@@ -1,6 +1,7 @@
 ---
 title: New option for plugins using Composer 2
 issue: NEXT-1797
+flag: FEATURE_NEXT_1797
 author: Michael Telgmann
 author_github: @mitelg
 ---

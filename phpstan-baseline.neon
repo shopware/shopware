@@ -1917,7 +1917,7 @@ parameters:
 
 		-
 			message: "#^Binary operation \"\\+\" between int\\|string\\|false and 1 results in an error\\.$#"
-			count: 3
+			count: 1
 			path: src/Core/Framework/Adapter/Twig/TemplateFinder.php
 
 		-

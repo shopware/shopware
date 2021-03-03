@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -199,6 +200,45 @@ class SeoUrlTest extends TestCase
         $cases = [
             ['expected' => null, 'categoryId' => $childAId],
             ['expected' => null, 'categoryId' => $childA1Id],
+        ];
+
+        $this->runChecks($cases, $categoryRepository, $context, $salesChannelId);
+    }
+
+    public function testSearchCategoryWithLink(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $categoryPageId = Uuid::randomHex();
+        $categoryPage = [
+            [
+                'id' => $categoryPageId,
+                'name' => 'page',
+                'type' => 'page',
+            ],
+        ];
+
+        $categoryLinkId = Uuid::randomHex();
+        $categoryLink = [
+            [
+                'id' => $categoryLinkId,
+                'name' => 'link',
+                'type' => 'link',
+            ],
+        ];
+
+        $categories = array_merge($categoryLink, $categoryPage);
+        $categoryRepository->create($categories, Context::createDefaultContext());
+        $this->runWorker();
+
+        $context = $salesChannelContext->getContext();
+
+        $cases = [
+            ['expected' => null, 'categoryId' => $categoryPageId],
+            ['expected' => null, 'categoryId' => $categoryLinkId],
         ];
 
         $this->runChecks($cases, $categoryRepository, $context, $salesChannelId);
@@ -524,6 +564,13 @@ class SeoUrlTest extends TestCase
             /** @var SeoUrlCollection $seoUrls */
             $seoUrls = $category->getSeoUrls();
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+
+            if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+                static::assertCount(0, $category->getSeoUrls());
+
+                continue;
+            }
+
             $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
             $expectedCount = $case['expected'] === null ? 0 : 1;
             static::assertCount($expectedCount, $seoUrls->filterByProperty('isCanonical', true));

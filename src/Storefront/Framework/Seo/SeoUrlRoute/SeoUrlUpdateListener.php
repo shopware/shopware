@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
@@ -101,14 +102,16 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
         $query = $this->connection->createQueryBuilder();
 
-        $query->select('category.id');
+        $query->select('category.id, category.type');
         $query->from('category');
 
         foreach ($ids as $id) {
             $key = 'id' . $id;
-            $query->orWhere('category.path LIKE :' . $key);
+            $query->orWhere('category.type != :type AND category.path LIKE :' . $key);
             $query->setParameter($key, '%' . $id . '%');
         }
+
+        $query->setParameter('type', CategoryDefinition::TYPE_LINK);
 
         $children = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 

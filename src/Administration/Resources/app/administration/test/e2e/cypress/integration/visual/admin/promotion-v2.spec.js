@@ -40,8 +40,9 @@ describe('Promotion v2: Visual tests', () => {
         }).as('saveDiscount');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-promotion-v2-empty-state-hero').should('not.exist');
-        cy.takeSnapshot('Promotion listing', 'sw-promotion-v2-list');
+        cy.takeSnapshot('Promotion listing', '.sw-promotion-v2-list');
 
         cy.get('a[href="#/sw/promotion/v2/create"]').click();
 

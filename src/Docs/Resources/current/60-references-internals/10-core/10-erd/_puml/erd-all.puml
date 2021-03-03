@@ -1813,6 +1813,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(lastName) string
    company string
    title string
+   vatIds list
    customerNumber string
    customFields customFields
    remoteAddress remoteAddress

@@ -24,7 +24,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue: add variant with surcharge to product', () => {
+    it.skip('@catalogue: add variant with surcharge to product', () => {
         cy.window().then((win) => {
             const page = new ProductPageObject();
 

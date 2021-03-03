@@ -90,7 +90,10 @@ function getProductData(criteria) {
             ],
             productNumber: 'SW10001',
             name: 'Product 2',
-            id: 'dcc37f845b664e24b5b2e6e77c078e6c'
+            id: 'dcc37f845b664e24b5b2e6e77c078e6c',
+            manufacturer: {
+                name: 'Manufacturer B'
+            }
         },
         {
             active: true,
@@ -114,7 +117,10 @@ function getProductData(criteria) {
             productNumber: 'SW10000',
             name: 'Product 1',
             id: 'bc5ff49955be4b919053add552c2815d',
-            childCount: 8
+            childCount: 8,
+            manufacturer: {
+                name: 'Manufacturer A'
+            }
         }
     ];
 
@@ -136,6 +142,40 @@ function getProductData(criteria) {
             }
 
             return currencyValueA - currencyValueB;
+        });
+    }
+
+    // check if grid is sorting for name
+    const sortingForName = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('name'));
+
+    if (sortingForName) {
+        const sortDirection = criteria.sortings[0].order;
+        products.sort((productA, productB) => {
+            const nameA = productA.name.toLowerCase();
+            const nameB = productB.name.toLowerCase();
+
+            if (sortDirection === 'DESC') {
+                return nameA > nameB ? -1 : 1;
+            }
+
+            return nameA < nameB ? -1 : 1;
+        });
+    }
+
+    // check if grid is sorting for manufacturer name
+    const sortingForManufacturer = criteria.sortings.some(sortAttr => sortAttr.field.startsWith('manufacturer'));
+
+    if (sortingForManufacturer) {
+        const sortDirection = criteria.sortings[0].order;
+        products.sort((productA, productB) => {
+            const nameA = productA.manufacturer.name.toLowerCase();
+            const nameB = productB.manufacturer.name.toLowerCase();
+
+            if (sortDirection === 'DESC') {
+                return nameA > nameB ? -1 : 1;
+            }
+
+            return nameA < nameB ? -1 : 1;
         });
     }
 
@@ -259,9 +299,7 @@ function createWrapper() {
                 'sw-sidebar-item': {
                     template: '<div></div>'
                 },
-                'router-link': {
-                    template: '<div></div>'
-                },
+                'router-link': true,
                 'sw-language-switch': {
                     template: '<div></div>'
                 },
@@ -378,6 +416,54 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(firstSortedPoundCell.text()).toBe('22');
         expect(secondSortedPoundCell.text()).toBe('400');
+    });
+
+    it('should sort products by name', async () => {
+        await wrapper.vm.getList();
+
+        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--0');
+
+        await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const productNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--name');
+        const [firstProductNameASCSorted, secondProductNameASCSorted] = productNamesASCSorted.wrappers;
+
+        expect(firstProductNameASCSorted.text()).toBe('Product 1');
+        expect(secondProductNameASCSorted.text()).toBe('Product 2');
+
+        await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const productNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--name');
+        const [firstProductNameDESCSorted, secondProductNameDESCSorted] = productNamesDESCSorted.wrappers;
+
+        expect(firstProductNameDESCSorted.text()).toBe('Product 2');
+        expect(secondProductNameDESCSorted.text()).toBe('Product 1');
+    });
+
+    it('should sort products by Manufacturer name', async () => {
+        await wrapper.vm.getList();
+
+        const currencyColumnHeader = wrapper.find('.sw-data-grid__cell--header.sw-data-grid__cell--2');
+
+        await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const manufacturerNamesASCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
+        const [firstManufacturerNameASCSorted, secondManufacturerNameASCSorted] = manufacturerNamesASCSorted.wrappers;
+
+        expect(firstManufacturerNameASCSorted.text()).toBe('Manufacturer A');
+        expect(secondManufacturerNameASCSorted.text()).toBe('Manufacturer B');
+
+        await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const manufacturerNamesDESCSorted = wrapper.findAll('.sw-data-grid__cell--manufacturer-name');
+        const [firstManufacturerNameDESCSorted, secondManufacturerNameDESCSorted] = manufacturerNamesDESCSorted.wrappers;
+
+        expect(firstManufacturerNameDESCSorted.text()).toBe('Manufacturer B');
+        expect(secondManufacturerNameDESCSorted.text()).toBe('Manufacturer A');
     });
 
     it('should return price when given currency id', async () => {

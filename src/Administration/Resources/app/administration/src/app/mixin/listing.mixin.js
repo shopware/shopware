@@ -215,13 +215,13 @@ Mixin.register('listing', {
                     sortDirection: (this.sortDirection === 'ASC' ? 'DESC' : 'ASC')
                 });
             } else {
+                this.naturalSorting = column.naturalSorting;
                 this.updateRoute({
                     sortBy: column.dataIndex,
                     sortDirection: 'ASC',
                     naturalSorting: column.naturalSorting
                 });
             }
-            this.updateRoute();
         },
 
         onRefresh() {

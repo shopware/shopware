@@ -11,6 +11,7 @@ author: Timo Altholtmann
 * Updated dependency `dompurify` to `2.2.6`
 * Updated dependency `lodash` to `4.17.21`
 * Updated dependency `terser-webpack-plugin` to `4.2.3`
+* Updated dependency `prismjs` to `1.23.0`
 * Updated dev-dependency `sass-loader` to `8.0.2`
 * Updated dev-dependency `stylelint` to `13.11.0`
 * Removed dev-dependency `node-sass`, replaced by `sass`

@@ -440,6 +440,22 @@
       },
       "priceFilter": {
         "label": "Price"
+      },
+      "manufacturerFilter": {
+        "label": "Manufacturer",
+        "placeholder": "Select manufacturer..."
+      },
+      "salesChannelsFilter": {
+        "label": "Sales Channels",
+        "placeholder": "Select Sales Channels..."
+      },
+      "categoriesFilter": {
+        "label": "Categories",
+        "placeholder": "Select categories..."
+      },
+      "tagsFilter": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
       }
     },
     "notification": {

@@ -127,12 +127,19 @@ describe('Product: Testing filter and reset filter', () => {
             });
     });
 
-    it.skip('@catalogue: check filter function and display listing correctly', () => {
+    it('@catalogue: check filter function and display listing correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         cy.onlyOnFeature('FEATURE_NEXT_9831');
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
+        }).as('filterProduct');
 
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
@@ -140,14 +147,20 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-filter-panel').should('exist');
 
         // Check if Reset All button shows up
-        cy.get('.sw-sidebar-filter-panel__info a').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').should('not.exist');
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
 
         // Filter results with single criteria
         cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
         cy.get('.sw-filter-panel__item').eq(0).find('select').select('false');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('2');
 
         // Check notification badge after filtering
@@ -155,25 +168,38 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '1');
 
         // Combine multiple filter criterias
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('false');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('false');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('1');
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
     });
 
-    it.skip('@catalogue: check reset filter', () => {
+    it('@catalogue: check reset filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
         cy.onlyOnFeature('FEATURE_NEXT_9831');
 
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
+        }).as('filterProduct');
+
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
 
         // Check Reset and Reset All button at default state
-        cy.get('.sw-sidebar-filter-panel__info a').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').should('not.exist');
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
 
         // Check Reset button when filter is active
@@ -185,13 +211,16 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-filter-panel__item').eq(0).find('option:selected').should('have.value', '');
 
         // Reset All button should show up when there is active filter
-        cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
+        cy.get('.sw-filter-panel__item').eq(2).find('select').select('true');
         cy.get('.sw-sidebar-item__headline a').should('exist');
 
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
         cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.wait('@filterProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-page__smart-bar-amount').contains('28');
     });
 });

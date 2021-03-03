@@ -2,7 +2,12 @@
   "sw-settings-number-range": {
     "general": {
       "mainMenuItemGeneral": "Nummernkreise",
-      "placeholderSearchBar": "Nummernkreise durchsuchen ..."
+      "placeholderSearchBar": "Nummernkreise durchsuchen ...",
+      "infoGlobalType": "Für den Typ \"{typeName}\" kann es nur einen Nummernkreis geben. Soll der Nummernkreis für den Typ \"{typeName}\" geändert werden, muss die Anpassung hier erfolgen.",
+      "infoGlobalTypeTitle": "Globaler Nummernkreistyp \"{typeName}\"",
+      "infoGlobal": "Der Typ eines globalen Nummernkreises kann nicht geändert werden. Soll der Nummernkreis für \"{name}\" geändert werden, muss ein neuer erstellt werden.",
+      "infoGlobalTitle": "Dies ist ein globaler Nummernkreis für \"{name}\"",
+      "infoSalesChannelBound": "Um den Typ zu ändern entferne bitte zuerst die Verkaufskanal Zuordnung."
     },
     "list": {
       "textHeadline": "Nummernkreise",

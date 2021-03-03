@@ -2301,36 +2301,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
-			count: 4
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^Parameter \\#2 \\$field of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\PrimaryKeyNotProvidedException constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^Cannot call method getStorageName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
-
-		-
 			message: "#^Parameter \\#1 \\$attributeName of method Shopware\\\\Core\\\\System\\\\CustomField\\\\CustomFieldService\\:\\:getCustomField\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/CustomFieldsAccessorBuilder.php

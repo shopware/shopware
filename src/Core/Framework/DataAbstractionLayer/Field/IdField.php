@@ -26,4 +26,9 @@ class IdField extends Field implements StorageAware
     {
         return IdFieldSerializer::class;
     }
+
+    public function getExtractPriority(): int
+    {
+        return 75;
+    }
 }

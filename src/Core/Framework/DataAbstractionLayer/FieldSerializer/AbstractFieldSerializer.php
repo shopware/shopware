@@ -40,6 +40,11 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         $this->definitionRegistry = $definitionRegistry;
     }
 
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        return $data;
+    }
+
     protected function validate(
         array $constraints,
         KeyValuePair $data,

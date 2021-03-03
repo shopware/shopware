@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\AbstractExistenceGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -77,6 +78,7 @@ class EntityWriter implements EntityWriterInterface
         $this->registry = $registry;
     }
 
+    // TODO: prefetch
     public function sync(array $operations, WriteContext $context): array
     {
         $commandQueue = new WriteCommandQueue();
@@ -101,7 +103,10 @@ class EntityWriter implements EntityWriterInterface
             }
 
             $parameters = new WriteParameterBag($definition, $context, '', $commandQueue);
-            foreach ($operation->getPayload() as $index => $row) {
+            $rawData = $this->commandExtractor->normalize($definition, $operation->getPayload(), $parameters);
+            $this->gateway->prefetchExistences($parameters);
+
+            foreach ($rawData as $index => $row) {
                 $parameters->setPath('/' . $index);
                 $context->resetPaths();
 
@@ -142,7 +147,6 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($ids);
 
         $commandQueue = new WriteCommandQueue();
-
         $skipped = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
@@ -269,6 +273,11 @@ class EntityWriter implements EntityWriterInterface
         $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
+
+        $rawData = $this->commandExtractor->normalize($definition, $rawData, $parameters);
+        $writeContext->getExceptions()->tryToThrow();
+
+        $this->gateway->prefetchExistences($parameters);
 
         foreach ($rawData as $index => $row) {
             $parameters->setPath('/' . $index);
@@ -505,6 +514,10 @@ class EntityWriter implements EntityWriterInterface
 
     private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
     {
+        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
+        $ids = $this->commandExtractor->normalize($definition, $ids, $parameters);
+        $this->gateway->prefetchExistences($parameters);
+
         $resolved = $this->resolvePrimaryKeys($ids, $definition, $writeContext);
 
         if (!$definition instanceof MappingEntityDefinition) {

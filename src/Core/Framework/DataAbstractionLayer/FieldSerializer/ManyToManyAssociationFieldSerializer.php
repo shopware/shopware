@@ -31,6 +31,73 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtrator = $writeExtrator;
     }
 
+    public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
+    {
+        if (!$field instanceof ManyToManyAssociationField) {
+            throw new InvalidSerializerFieldException(ManyToManyAssociationField::class, $field);
+        }
+
+        $key = $field->getPropertyName();
+        $value = $data[$key] ?? null;
+
+        if ($value === null) {
+            return $data;
+        }
+
+        $referencedDefinition = $field->getMappingDefinition();
+
+        if (!\is_array($value)) {
+            throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+        }
+
+        $mappingAssociation = $this->getMappingAssociation($referencedDefinition, $field);
+
+        foreach ($value as $keyValue => $subresources) {
+            $mapped = $subresources;
+            if ($mappingAssociation) {
+                $mapped = $this->map($referencedDefinition, $field, $mappingAssociation, $subresources);
+            }
+
+            if (!\is_array($mapped)) {
+                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+            }
+
+            $clonedParams = $parameters->cloneForSubresource(
+                $referencedDefinition,
+                $parameters->getPath() . '/' . $key . '/' . $keyValue
+            );
+
+            $done = [];
+
+            foreach ($mapped as $property => $_) {
+                if (\array_key_exists($property, $done)) {
+                    continue;
+                }
+                $f = $referencedDefinition->getFields()->get($property);
+                if ($f === null) {
+                    continue;
+                }
+                $mapped = $f->getSerializer()->normalize($f, $mapped, $clonedParams);
+                $done[$property] = true;
+            }
+
+            /** @var Field $pkField */
+            foreach ($referencedDefinition->getPrimaryKeys() as $pkField) {
+                if (\array_key_exists($pkField->getPropertyName(), $done)) {
+                    continue;
+                }
+                $mapped = $pkField->getSerializer()->normalize($pkField, $mapped, $clonedParams);
+                $done[$pkField->getPropertyName()] = true;
+            }
+
+            $value[$keyValue] = $mapped;
+        }
+
+        $data[$key] = $value;
+
+        return $data;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -54,20 +121,13 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
             throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }
 
-        $mappingAssociation = $this->getMappingAssociation($referencedDefinition, $field);
-
         foreach ($value as $keyValue => $subresources) {
-            $mapped = $subresources;
-            if ($mappingAssociation) {
-                $mapped = $this->map($referencedDefinition, $field, $mappingAssociation, $subresources);
-            }
-
-            if (!\is_array($mapped)) {
+            if (!\is_array($subresources)) {
                 throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
             }
 
             $this->writeExtrator->extract(
-                $mapped,
+                $subresources,
                 $parameters->cloneForSubresource(
                     $referencedDefinition,
                     $parameters->getPath() . '/' . $key . '/' . $keyValue

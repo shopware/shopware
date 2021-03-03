@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -30,9 +31,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -53,14 +56,35 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private $exceptionHandlerRegistry;
 
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    private ?PrimaryKeyBag $primaryKeyBag = null;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        ExceptionHandlerRegistry $exceptionHandlerRegistry
+        ExceptionHandlerRegistry $exceptionHandlerRegistry,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->exceptionHandlerRegistry = $exceptionHandlerRegistry;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    }
+
+    public function prefetchExistences(WriteParameterBag $parameters): void
+    {
+        $this->primaryKeyBag = $parameters->getPrimaryKeyBag();
+
+        if ($this->primaryKeyBag->isPrefetchingCompleted()) {
+            return;
+        }
+
+        foreach ($this->primaryKeyBag->getPrimaryKeys() as $entity => $pks) {
+            $this->prefetch($this->definitionInstanceRegistry->getByEntityName($entity), $pks, $parameters);
+        }
+
+        $this->primaryKeyBag->setPrefetchingCompleted(true);
     }
 
     /**
@@ -130,6 +154,96 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $this->connection->rollBack();
 
             throw $e;
+        }
+    }
+
+    private function prefetch(EntityDefinition $definition, array $pks, WriteParameterBag $parameters): void
+    {
+        $pkFields = [];
+        /** @var StorageAware&Field $field */
+        foreach ($definition->getPrimaryKeys() as $field) {
+            if ($field instanceof StorageAware) {
+                $pkFields[$field->getStorageName()] = $field;
+            }
+        }
+
+        $query = $this->connection->createQueryBuilder();
+        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
+        $query->addSelect('1 as `exists`');
+
+        if ($definition->isChildrenAware()) {
+            $query->addSelect('parent_id');
+        } elseif ($definition->isInheritanceAware()) {
+            $parent = $this->getParentField($definition);
+
+            if ($parent !== null) {
+                $query->addSelect(
+                    EntityDefinitionQueryHelper::escape($parent->getStorageName())
+                    . ' as `parent`'
+                );
+            }
+        }
+
+        foreach ($pkFields as $storageName => $_) {
+            $query->addSelect(EntityDefinitionQueryHelper::escape($storageName));
+        }
+
+        $params = [];
+        $tupleCount = 0;
+
+        foreach ($pks as $cacheKey => $pk) {
+            // TODO: optimize - if we know it's generated in the normalize step, we don't need to fetch it to know that is does not exist
+//            if ($pk['generated']) {
+//                // entities which have generated ids do not exist yet
+//                $this->storeCache($cacheKey, []);
+//            }
+
+            $newIds = [];
+            /** @var Field&StorageAware $field */
+            foreach ($pkFields as $field) {
+                $id = $pk[$field->getPropertyName()] ?? null;
+                if ($id === null) {
+                    continue 2;
+                }
+                $newIds[] = Uuid::fromHexToBytes($id);
+            }
+
+            foreach ($newIds as $newId) {
+                $params[] = $newId;
+            }
+
+            ++$tupleCount;
+        }
+
+        if ($tupleCount <= 0) {
+            return;
+        }
+
+        $placeholders = $this->getPlaceholders(\count($pkFields), $tupleCount);
+        $columns = '`' . implode('`,`', array_keys($pkFields)) . '`';
+        if (\count($pkFields) > 1) {
+            $columns = '(' . $columns . ')';
+        }
+
+        $query->andWhere($columns . ' IN (' . $placeholders . ')');
+        $query->setParameters($params);
+
+        $result = $query->execute()->fetchAllAssociative();
+
+        $primaryKeyBag = $parameters->getPrimaryKeyBag();
+
+        foreach ($result as $state) {
+            $values = [];
+            foreach ($pkFields as $storageKey => $field) {
+                $values[$field->getPropertyName()] = Uuid::fromBytesToHex($state[$storageKey]);
+            }
+            $primaryKeyBag->addExistenceState($definition, $values, $state);
+        }
+
+        foreach ($pks as $pk) {
+            if (!$primaryKeyBag->hasExistence($definition, $pk)) {
+                $primaryKeyBag->addExistenceState($definition, $pk, []);
+            }
         }
     }
 
@@ -269,183 +383,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return $escaped;
     }
 
-    private function getParentField(EntityDefinition $definition): ?FkField
-    {
-        if (!$definition->isInheritanceAware()) {
-            return null;
-        }
-
-        /** @var ManyToOneAssociationField|null $parent */
-        $parent = $definition->getFields()->get('parent');
-
-        if (!$parent) {
-            throw new ParentFieldNotFoundException($definition);
-        }
-
-        if (!$parent instanceof ManyToOneAssociationField) {
-            throw new InvalidParentAssociationException($definition, $parent);
-        }
-
-        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
-
-        if (!$fk) {
-            throw new CanNotFindParentStorageFieldException($definition);
-        }
-        if (!$fk instanceof FkField) {
-            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
-        }
-
-        return $fk;
-    }
-
-    private function getCurrentState(EntityDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
-    {
-        $commands = $commandQueue->getCommandsForEntity($definition, $primaryKey);
-
-        $useDatabase = true;
-
-        $state = [];
-
-        foreach ($commands as $command) {
-            if ($command instanceof DeleteCommand) {
-                $state = [];
-                $useDatabase = false;
-
-                continue;
-            }
-
-            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
-                continue;
-            }
-
-            $state = array_replace_recursive($state, $command->getPayload());
-
-            if ($command instanceof InsertCommand) {
-                $useDatabase = false;
-            }
-        }
-
-        if (!$useDatabase) {
-            return $state;
-        }
-
-        $database = $this->fetchFromDatabase($definition, $primaryKey);
-
-        $parent = $this->getParentField($definition);
-
-        if ($parent && \array_key_exists('parent', $database)) {
-            $database[$parent->getStorageName()] = $database['parent'];
-            unset($database['parent']);
-        }
-
-        return array_replace_recursive($database, $state);
-    }
-
-    private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
-    {
-        // TODO: prepare and cache
-        $query = $this->connection->createQueryBuilder();
-        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
-
-        $fields = $definition->getPrimaryKeys();
-
-        /** @var StorageAware|Field $field */
-        foreach ($fields as $field) {
-            if (!\array_key_exists($field->getStorageName(), $primaryKey)) {
-                if (!\array_key_exists($field->getPropertyName(), $primaryKey)) {
-                    throw new PrimaryKeyNotProvidedException($definition, $field);
-                }
-
-                $primaryKey[$field->getStorageName()] = $primaryKey[$field->getPropertyName()];
-                unset($primaryKey[$field->getPropertyName()]);
-            }
-
-            $param = 'param_' . Uuid::randomHex();
-            $query->andWhere(EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' = :' . $param);
-            $query->setParameter($param, $primaryKey[$field->getStorageName()]);
-        }
-
-        $query->addSelect('1 as `exists`');
-
-        if ($definition->isChildrenAware()) {
-            $query->addSelect('parent_id');
-        } elseif ($definition->isInheritanceAware()) {
-            $parent = $this->getParentField($definition);
-
-            $query->addSelect(
-                EntityDefinitionQueryHelper::escape($parent->getStorageName())
-                . ' as `parent`'
-            );
-        }
-
-        $exists = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
-        if ($exists) {
-            return $exists;
-        }
-
-        return [];
-    }
-
-    private function isChild(EntityDefinition $definition, array $data, array $state, array $primaryKey, WriteCommandQueue $commandQueue): bool
-    {
-        if ($definition instanceof EntityTranslationDefinition) {
-            return $this->isTranslationChild($definition, $primaryKey, $commandQueue);
-        }
-
-        if (!$definition->isInheritanceAware()) {
-            return false;
-        }
-
-        $fk = $this->getParentField($definition);
-        //foreign key provided, !== null has parent otherwise not
-        if (\array_key_exists($fk->getPropertyName(), $data)) {
-            return isset($data[$fk->getPropertyName()]);
-        }
-
-        $association = $definition->getFields()->get('parent');
-        if (isset($data[$association->getPropertyName()])) {
-            return true;
-        }
-
-        return isset($state[$fk->getStorageName()]);
-    }
-
-    private function wasChild(EntityDefinition $definition, array $state): bool
-    {
-        if (!$definition->isInheritanceAware()) {
-            return false;
-        }
-
-        $fk = $this->getParentField($definition);
-
-        return isset($state[$fk->getStorageName()]);
-    }
-
-    private function isTranslationChild(EntityTranslationDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): bool
-    {
-        $parent = $definition->getParentDefinition();
-
-        if (!$parent->isInheritanceAware()) {
-            return false;
-        }
-
-        /** @var FkField $fkField */
-        $fkField = $definition->getFields()->getByStorageName(
-            $parent->getEntityName() . '_id'
-        );
-        $parentPrimaryKey = [
-            'id' => $primaryKey[$fkField->getStorageName()],
-        ];
-
-        if ($parent->isVersionAware()) {
-            $parentPrimaryKey['versionId'] = $primaryKey[$parent->getEntityName() . '_version_id'];
-        }
-
-        $existence = $this->getExistence($parent, $parentPrimaryKey, [], $commandQueue);
-
-        return $existence->isChild();
-    }
-
     private function generateChangeSets(array $commands): void
     {
         $primaryKeys = [];
@@ -535,5 +472,214 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
 
         return new ChangeSet([], [], $command instanceof DeleteCommand);
+    }
+
+    private function getPlaceholders(int $columnCount, int $tupleCount): string
+    {
+        if ($columnCount > 1) {
+            // multi column pk. Example: (product_id, language_id) IN ((p1, l1), (p2, l2), (px,lx),...)
+            $tupleStr = '(?' . str_repeat(',?', $columnCount - 1) . ')';
+        } else {
+            // single column pk. Example: category_id IN (c1, c2, c3,...)
+            $tupleStr = '?';
+        }
+
+        return $tupleStr . str_repeat(',' . $tupleStr, $tupleCount - 1);
+    }
+
+    private function getParentField(EntityDefinition $definition): ?FkField
+    {
+        if (!$definition->isInheritanceAware()) {
+            return null;
+        }
+
+        /** @var ManyToOneAssociationField|null $parent */
+        $parent = $definition->getFields()->get('parent');
+
+        if (!$parent) {
+            throw new ParentFieldNotFoundException($definition);
+        }
+
+        if (!$parent instanceof ManyToOneAssociationField) {
+            throw new InvalidParentAssociationException($definition, $parent);
+        }
+
+        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
+
+        if (!$fk) {
+            throw new CanNotFindParentStorageFieldException($definition);
+        }
+        if (!$fk instanceof FkField) {
+            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
+        }
+
+        return $fk;
+    }
+
+    private function getCurrentState(EntityDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): array
+    {
+        $commands = $commandQueue->getCommandsForEntity($definition, $primaryKey);
+
+        $useDatabase = true;
+
+        $state = [];
+
+        foreach ($commands as $command) {
+            if ($command instanceof DeleteCommand) {
+                $state = [];
+                $useDatabase = false;
+
+                continue;
+            }
+
+            if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            $state = array_replace_recursive($state, $command->getPayload());
+
+            if ($command instanceof InsertCommand) {
+                $useDatabase = false;
+            }
+        }
+
+        if (!$useDatabase) {
+            return $state;
+        }
+
+        $hexPrimaryKey = Uuid::fromBytesToHexList($primaryKey);
+
+        if ($this->primaryKeyBag === null) {
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            die();
+        }
+        $currentState = $this->primaryKeyBag->getExistenceState($definition, $hexPrimaryKey);
+        if ($currentState === null) {
+            $currentState = $this->fetchFromDatabase($definition, $primaryKey);
+        }
+
+        $parent = $this->getParentField($definition);
+
+        if ($parent && \array_key_exists('parent', $currentState)) {
+            $currentState[$parent->getStorageName()] = $currentState['parent'];
+            unset($currentState['parent']);
+        }
+
+        return array_replace_recursive($currentState, $state);
+    }
+
+    private function fetchFromDatabase(EntityDefinition $definition, array $primaryKey): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
+
+        $fields = $definition->getPrimaryKeys();
+
+        $pk = [];
+        /** @var Field&StorageAware $field */
+        foreach ($fields as $field) {
+            $pk[] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]
+                ?? $primaryKey[$field->getPropertyName()]);
+        }
+
+        /** @var Field&StorageAware $field */
+        foreach ($fields as $field) {
+            if (!\array_key_exists($field->getStorageName(), $primaryKey)) {
+                if (!\array_key_exists($field->getPropertyName(), $primaryKey)) {
+                    throw new PrimaryKeyNotProvidedException($definition, $field);
+                }
+
+                $primaryKey[$field->getStorageName()] = $primaryKey[$field->getPropertyName()];
+                unset($primaryKey[$field->getPropertyName()]);
+            }
+
+            $param = 'param_' . Uuid::randomHex();
+            $query->andWhere(EntityDefinitionQueryHelper::escape($field->getStorageName()) . ' = :' . $param);
+            $query->setParameter($param, $primaryKey[$field->getStorageName()]);
+        }
+
+        $query->addSelect('1 as `exists`');
+
+        if ($definition->isChildrenAware()) {
+            $query->addSelect('parent_id');
+        } elseif ($definition->isInheritanceAware()) {
+            $parent = $this->getParentField($definition);
+
+            if ($parent !== null) {
+                $query->addSelect(
+                    EntityDefinitionQueryHelper::escape($parent->getStorageName())
+                    . ' as `parent`'
+                );
+            }
+        }
+
+        $exists = $query->execute()->fetch(FetchMode::ASSOCIATIVE);
+        if (!$exists) {
+            $exists = [];
+        }
+
+        return $exists;
+    }
+
+    private function isChild(EntityDefinition $definition, array $data, array $state, array $primaryKey, WriteCommandQueue $commandQueue): bool
+    {
+        if ($definition instanceof EntityTranslationDefinition) {
+            return $this->isTranslationChild($definition, $primaryKey, $commandQueue);
+        }
+
+        if (!$definition->isInheritanceAware()) {
+            return false;
+        }
+
+        /** @var Field&StorageAware $fk */
+        $fk = $this->getParentField($definition);
+        //foreign key provided, !== null has parent otherwise not
+        if (\array_key_exists($fk->getPropertyName(), $data)) {
+            return isset($data[$fk->getPropertyName()]);
+        }
+
+        /** @var Field $association */
+        $association = $definition->getFields()->get('parent');
+        if (isset($data[$association->getPropertyName()])) {
+            return true;
+        }
+
+        return isset($state[$fk->getStorageName()]);
+    }
+
+    private function wasChild(EntityDefinition $definition, array $state): bool
+    {
+        if (!$definition->isInheritanceAware()) {
+            return false;
+        }
+
+        $fk = $this->getParentField($definition);
+
+        return $fk !== null && isset($state[$fk->getStorageName()]);
+    }
+
+    private function isTranslationChild(EntityTranslationDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): bool
+    {
+        $parent = $definition->getParentDefinition();
+
+        if (!$parent->isInheritanceAware()) {
+            return false;
+        }
+
+        /** @var FkField $fkField */
+        $fkField = $definition->getFields()->getByStorageName(
+            $parent->getEntityName() . '_id'
+        );
+        $parentPrimaryKey = [
+            'id' => $primaryKey[$fkField->getStorageName()],
+        ];
+
+        if ($parent->isVersionAware()) {
+            $parentPrimaryKey['versionId'] = $primaryKey[$parent->getEntityName() . '_version_id'];
+        }
+
+        $existence = $this->getExistence($parent, $parentPrimaryKey, [], $commandQueue);
+
+        return $existence->isChild();
     }
 }

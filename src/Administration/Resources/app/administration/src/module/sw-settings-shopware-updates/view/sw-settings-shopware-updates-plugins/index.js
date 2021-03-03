@@ -5,6 +5,8 @@ const { Component } = Shopware;
 Component.register('sw-settings-shopware-updates-plugins', {
     template,
 
+    inject: ['feature'],
+
     props: {
         isLoading: {
             type: Boolean
@@ -17,6 +19,9 @@ Component.register('sw-settings-shopware-updates-plugins', {
     methods: {
         openPluginManager() {
             this.$router.push({ name: 'sw.plugin.index' });
+        },
+        openMyExtensions() {
+            this.$router.push({ name: 'sw.extension.my-extensions.listing.app' });
         }
     },
     computed: {
@@ -33,6 +38,14 @@ Component.register('sw-settings-shopware-updates-plugins', {
                     rawData: true
                 }
             ];
+        },
+
+        cardTitle() {
+            if (this.feature.isActive('FEATURE_NEXT_12608')) {
+                return this.$tc('sw-settings-shopware-updates.cards.extensions');
+            }
+
+            return this.$tc('sw-settings-shopware-updates.cards.plugins');
         }
     }
 });

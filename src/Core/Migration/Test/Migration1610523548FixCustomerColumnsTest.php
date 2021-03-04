@@ -37,6 +37,24 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);
+
+        $sql = '
+            SELECT *
+            FROM `migration`
+            WHERE `class` = :class
+            AND `update_destructive` IS NOT NULL
+        ';
+
+        $result = $this->connection->executeQuery(
+            $sql,
+            ['class' => 'Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns']
+        );
+
+        // Skip test if destructive update was executed
+        if ($result->rowCount() > 0) {
+            static::markTestSkipped();
+        }
+
         $this->repository = $this->getContainer()->get('customer.repository');
 
         $this->connection->rollBack();

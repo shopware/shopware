@@ -57,6 +57,10 @@ shopware:
 
     feature:
         flags:
+            - name: FEATURE_NEXT_1797
+              default: false
+              major: true
+              description: "composer require for plugins"
             - name: FEATURE_NEXT_8172
               major: true
               description: "prevent plugins to extend the first level menu entries"

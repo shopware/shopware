@@ -59,6 +59,6 @@ ___
 * Changed occurrences of category url generation in multiple templates
 * Deprecated `layout/header/actions/service-menu-widget.html.twig`, menu has been moved to the bottom
 * Deprecated block `layout_header_top_bar_service` in `layout/header/top-bar.html.twig`
-* Changed category loading to prevent routing of categories with category type `folder`
+* Changed category loading to prevent routing of categories with category type `folder` (only if they are not the main category) and `link`
 * Fixed the link of categories with type `link` in the breadcrumb
 * Deprecated multiple variables in `layout/breadcrumb.html.twig`

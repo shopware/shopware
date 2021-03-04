@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -109,6 +110,32 @@ class CategoryRouteTest extends TestCase
         $this->assertCmsPage($this->ids->get('home-category'), $this->ids->get('home-cms-page'));
     }
 
+    public function testCategoryOfTypeFolder(): void
+    {
+        $id = $this->ids->get('folder');
+        $this->browser->request(
+            'POST',
+            '/store-api/category/' . $id,
+            [
+            ]
+        );
+
+        $this->assertError($id);
+    }
+
+    public function testCategoryOfTypeLink(): void
+    {
+        $id = $this->ids->get('link');
+        $this->browser->request(
+            'POST',
+            '/store-api/category/' . $id,
+            [
+            ]
+        );
+
+        $this->assertError($id);
+    }
+
     public function testHomeWithSalesChannelOverride(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
@@ -128,6 +155,19 @@ class CategoryRouteTest extends TestCase
         );
 
         $this->assertCmsPage($this->ids->get('home-category'), $this->ids->get('cms-page'));
+    }
+
+    private function assertError(string $categoryId): void
+    {
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $error = new CategoryNotFoundException($categoryId);
+        $expectedError = [
+            'status' => (string) $error->getStatusCode(),
+            'message' => $error->getMessage(),
+        ];
+
+        static::assertSame($expectedError['status'], $response['errors'][0]['status']);
+        static::assertSame($expectedError['message'], $response['errors'][0]['detail']);
     }
 
     private function assertCmsPage(string $categoryId, string $cmsPageId): void
@@ -187,6 +227,7 @@ class CategoryRouteTest extends TestCase
         $homeData = $childData = [
             'id' => $this->ids->create('category'),
             'name' => 'Test',
+            'type' => 'folder',
             'cmsPage' => [
                 'id' => $this->ids->create('cms-page'),
                 'type' => 'product_list',
@@ -211,10 +252,22 @@ class CategoryRouteTest extends TestCase
 
         $homeData['id'] = $this->ids->create('home-category');
         $homeData['cmsPage']['id'] = $this->ids->create('home-cms-page');
+
         $childData['parentId'] = $homeData['id'];
+        $childData['type'] = 'page';
+
+        $folderData = $childData;
+        $folderData['id'] = $this->ids->create('folder');
+        $folderData['type'] = 'folder';
+        unset($folderData['cmsPage']);
+
+        $linkData = $childData;
+        $linkData['id'] = $this->ids->create('link');
+        $linkData['type'] = 'link';
+        unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')
-            ->create([$homeData, $childData], $this->ids->context);
+            ->create([$homeData, $childData, $folderData, $linkData], $this->ids->context);
     }
 
     private function setVisibilities(): void

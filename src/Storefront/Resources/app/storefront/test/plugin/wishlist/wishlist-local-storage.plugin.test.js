@@ -6,10 +6,13 @@ import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugi
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import Storage from 'src/helper/storage/storage.helper';
+import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('WishlistLocalStoragePlugin tests', () => {
     let wishlistStoragePlugin = undefined;
     let spyInitializePlugins = jest.fn();
+    const guestLogoutBtn = document.createElement('a')
+    guestLogoutBtn.$emitter = new NativeEventEmitter();
 
     beforeEach(() => {
         CookieStorageHelper.setItem('wishlist-enabled', true);
@@ -17,6 +20,7 @@ describe('WishlistLocalStoragePlugin tests', () => {
         window.wishlistEnabled = true;
 
         const mockElement = document.createElement('div');
+
 
         window.PluginManager = {
             getPluginInstancesFromElement: () => {
@@ -26,6 +30,9 @@ describe('WishlistLocalStoragePlugin tests', () => {
                 return {
                     get: () => []
                 };
+            },
+            getPluginInstances: () => {
+                return [guestLogoutBtn];
             }
         };
 
@@ -60,7 +67,17 @@ describe('WishlistLocalStoragePlugin tests', () => {
 
         wishlistStoragePlugin.remove('PRODUCT_001');
         expect(wishlistStoragePlugin.getCurrentCounter()).toEqual(0);
-        expect(Storage.getItem(key)).toEqual(false);
+        expect(Storage.getItem(key)).toBeFalsy();
+    });
+
+    test('LocalWishlistStoragePlugin clear wishlist storage on guest logout', () => {
+        const key = wishlistStoragePlugin._getStorageKey();
+
+        wishlistStoragePlugin.add('PRODUCT_001');
+
+        guestLogoutBtn.$emitter.publish('guest-logout');
+
+        expect(Storage.getItem(key)).toBeFalsy();
     });
 });
 

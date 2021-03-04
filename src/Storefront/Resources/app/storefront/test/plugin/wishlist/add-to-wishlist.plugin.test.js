@@ -28,6 +28,9 @@ describe('AddToWishlistPlugin tests', () => {
                     get: () => []
                 };
             },
+            getPluginInstances: () => {
+                return new Map();
+            }
         };
 
         const wishlistBasket = document.createElement('div');

@@ -6,12 +6,20 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-packaging-form', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
 
     props: {
         allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        showSettingPackaging: {
             type: Boolean,
             required: false,
             default: true

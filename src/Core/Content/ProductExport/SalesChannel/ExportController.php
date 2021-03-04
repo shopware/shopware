@@ -131,7 +131,7 @@ class ExportController
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 
-        return (new Response($content, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
+        return (new Response($content ? $content : null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
             ->setCharset($encoding);
     }
 

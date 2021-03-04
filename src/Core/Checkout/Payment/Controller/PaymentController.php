@@ -64,8 +64,9 @@ class PaymentController extends AbstractController
             }
         }
 
-        if ($result->getFinishUrl()) {
-            return new RedirectResponse($result->getFinishUrl());
+        $finishUrl = $result->getFinishUrl();
+        if ($finishUrl) {
+            return new RedirectResponse($finishUrl);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

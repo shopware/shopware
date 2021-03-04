@@ -54,7 +54,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
             $this->context->buildViolation($constraint::INVALID_MESSAGE)
                 ->setCode(Type::INVALID_TYPE_ERROR)
                 ->setParameter('{{ type }}', $constraint->type)
-                ->setParameter('{{ value }}', $item)
+                ->setParameter('{{ value }}', (string) $item)
                 ->addViolation();
         }
     }

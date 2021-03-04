@@ -16,6 +16,8 @@ use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class SnippetFileLoaderTest extends TestCase
 {
@@ -235,6 +237,9 @@ class SnippetFileLoaderTest extends TestCase
     }
 }
 
+/**
+ * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+ */
 class MockedKernel extends Kernel
 {
     public function __construct(array $bundles)

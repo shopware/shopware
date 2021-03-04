@@ -370,6 +370,11 @@ class ThemeTest extends TestCase
                         return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
+                    public function getProjectDir()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                    }
+
                     public function getContainer()
                     {
                         return $this->kernel->{__FUNCTION__}(...\func_get_args());

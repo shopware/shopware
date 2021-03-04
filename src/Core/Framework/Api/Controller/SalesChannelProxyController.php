@@ -227,10 +227,11 @@ class SalesChannelProxyController extends AbstractController
 
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
-        $response = new Response();
-        $response->setContent(json_encode([
+        $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
-        ]));
+        ]);
+        $response = new Response();
+        $response->setContent($content ? $content : null);
 
         return $response;
     }

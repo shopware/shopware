@@ -178,10 +178,17 @@ class CacheStore implements StoreInterface
         );
     }
 
-    public function purge($url)
+    public function purge(string $url)
     {
         $http = preg_replace('#^https:#', 'http:', $url);
+        if ($http === null) {
+            return false;
+        }
+
         $https = preg_replace('#^http:#', 'https:', $url);
+        if ($https === null) {
+            return false;
+        }
 
         $httpPurged = $this->unlock(Request::create($http));
         $httpsPurged = $this->unlock(Request::create($https));

@@ -113,7 +113,7 @@ class AccountEditOrderPageLoader
     {
         $criteria = $this->createCriteria($request, $context);
         $apiRequest = new Request();
-        $apiRequest->query->set('checkPromotion', true);
+        $apiRequest->query->set('checkPromotion', 'true');
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
@@ -153,7 +153,7 @@ class AccountEditOrderPageLoader
 
         $routeRequest = new Request();
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-        $routeRequest->query->set('onlyAvailable', 1);
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);

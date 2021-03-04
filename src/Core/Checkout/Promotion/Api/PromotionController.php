@@ -50,6 +50,7 @@ class PromotionController extends AbstractController
      */
     public function generateIndividualCodes(Request $request): Response
     {
+        /** @var string $codePattern */
         $codePattern = $request->query->get('codePattern');
         $amount = (int) $request->query->get('amount');
 
@@ -100,6 +101,9 @@ class PromotionController extends AbstractController
      */
     public function getCodePreview(Request $request): Response
     {
-        return new JsonResponse($this->codeService->getPreview($request->query->get('codePattern')));
+        /** @var string $codePattern */
+        $codePattern = $request->query->get('codePattern');
+
+        return new JsonResponse($this->codeService->getPreview($codePattern));
     }
 }

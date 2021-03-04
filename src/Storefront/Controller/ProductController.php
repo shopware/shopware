@@ -111,7 +111,8 @@ class ProductController extends StorefrontController
     {
         $switchedOption = $request->query->get('switched');
 
-        $newOptions = json_decode($request->query->get('options'), true);
+        $options = $request->query->get('options');
+        $newOptions = $options !== null ? json_decode($options, true) : [];
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $salesChannelContext);
 

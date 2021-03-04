@@ -181,6 +181,7 @@ class ApiController extends AbstractController
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
+        /** @var string $term */
         $term = $request->query->get('term');
         $limit = $request->query->getInt('limit', 5);
 

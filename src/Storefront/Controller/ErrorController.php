@@ -9,7 +9,7 @@ use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ErrorController extends StorefrontController
@@ -20,9 +20,9 @@ class ErrorController extends StorefrontController
     protected $errorTemplateResolver;
 
     /**
-     * @var FlashBagInterface
+     * @var Session
      */
-    private $flashBag;
+    private $session;
 
     /**
      * @var HeaderPageletLoaderInterface
@@ -41,13 +41,13 @@ class ErrorController extends StorefrontController
 
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
-        FlashBagInterface $flashBag,
+        Session $session,
         HeaderPageletLoaderInterface $headerPageletLoader,
         SystemConfigService $systemConfigService,
         ErrorPageLoaderInterface $errorPageLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
-        $this->flashBag = $flashBag;
+        $this->session = $session;
         $this->headerPageletLoader = $headerPageletLoader;
         $this->errorPageLoader = $errorPageLoader;
         $this->systemConfigService = $systemConfigService;
@@ -59,8 +59,8 @@ class ErrorController extends StorefrontController
             $is404StatusCode = $exception instanceof HttpException
                 && $exception->getStatusCode() === Response::HTTP_NOT_FOUND;
 
-            if (!$is404StatusCode && !$this->flashBag->has('danger')) {
-                $this->flashBag->add('danger', $this->trans('error.message-default'));
+            if (!$is404StatusCode && !$this->session->getFlashBag()->has('danger')) {
+                $this->session->getFlashBag()->add('danger', $this->trans('error.message-default'));
             }
 
             $request->attributes->set('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
@@ -99,7 +99,7 @@ class ErrorController extends StorefrontController
 
         // After this controllers content is rendered (even if the flashbag was not used e.g. on a 404 page),
         // clear the existing flashbag messages
-        $this->flashBag->clear();
+        $this->session->getFlashBag()->clear();
 
         return $response;
     }

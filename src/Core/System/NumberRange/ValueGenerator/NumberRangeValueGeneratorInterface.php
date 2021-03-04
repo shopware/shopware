@@ -14,5 +14,5 @@ interface NumberRangeValueGeneratorInterface
     /**
      * generates a preview for a given pattern and start
      */
-    public function previewPattern(string $definition, string $pattern, int $start): string;
+    public function previewPattern(string $definition, ?string $pattern, int $start): string;
 }

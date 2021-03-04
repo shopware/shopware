@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 abstract class Plugin extends Bundle
 {
@@ -68,7 +68,7 @@ abstract class Plugin extends Bundle
     {
     }
 
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
         if (!$this->isActive()) {
             return;

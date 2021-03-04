@@ -13,7 +13,7 @@ parameters:
     symfony:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
-        container_xml_path: '..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
+        container_xml_path: '..%ShopwareHashedCacheDir%/Shopware_Development_KernelDevDebugContainer.xml'
         console_application_loader: ../dev-ops/analyze/console-application.php
 
     featureToggles:
@@ -71,7 +71,6 @@ parameters:
             path: src/Elasticsearch/Framework/DataAbstractionLayer/CriteriaParser.php
 
         # For BC with Symfony 4
-        - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
         -
             message: '#Method Shopware\\Core\\Content\\MailTemplate\\Service\\Event\\MailBeforeValidateEvent::addData\(\) has parameter \$value with no typehint specified#'
             path: src/Core/Content/MailTemplate/Service/Event/MailBeforeValidateEvent.php
@@ -106,11 +105,19 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
-        # Interface has an parameter which is commented out, which will be available with Symfony 5
+        # PhpStan cannot detect which interface that the calling function belongs to if we typehint multiple interfaces for a parameter.
         -
-            message: '#Method Symfony\\Component\\Cache\\Adapter\\AdapterInterface::clear\(\) invoked with 1 parameter, 0 required#'
-            path: src/Storefront/Framework/Cache/CacheDecorator.php
-
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getCatalogue\\(\\)\\.$#"
+            count: 2
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:setLocale\\(\\)\\.$#"
+            count: 1
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getLocale\\(\\)\\.$#"
+            count: 1
+            path: src/Core/Framework/Adapter/Translation/Translator.php
 services:
     -
         class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

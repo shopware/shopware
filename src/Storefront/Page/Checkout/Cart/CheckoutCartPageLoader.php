@@ -99,7 +99,7 @@ class CheckoutCartPageLoader
     private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
         $request = new Request();
-        $request->query->set('onlyAvailable', true);
+        $request->query->set('onlyAvailable', '1');
 
         return $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
     }
@@ -107,7 +107,7 @@ class CheckoutCartPageLoader
     private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
         $request = new Request();
-        $request->query->set('onlyAvailable', true);
+        $request->query->set('onlyAvailable', '1');
 
         /* @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRoute

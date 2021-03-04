@@ -22,7 +22,7 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
     /**
      * {@inheritdoc}
      */
-    public function getVersion($path)
+    public function getVersion(string $path)
     {
         return $this->applyVersion($path);
     }
@@ -33,7 +33,7 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
      *
      * @return string
      */
-    public function applyVersion($path)
+    public function applyVersion(string $path)
     {
         $localFile = $this->bundlePath . '/Resources/public/' . $path;
 

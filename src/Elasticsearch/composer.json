@@ -28,13 +28,13 @@
         "ext-curl": "*",
         "doctrine/dbal": "2.12.1",
         "elasticsearch/elasticsearch": "7.11.0",
-        "ongr/elasticsearch-dsl": "7.1.3",
+        "ongr/elasticsearch-dsl": "7.2.1",
         "shopware/core": "*",
-        "symfony/http-foundation": "~4.4.19",
-        "symfony/messenger": "~4.4.19"
+        "symfony/http-foundation": "~5.2.3",
+        "symfony/messenger": "~5.2.3"
     },
     "require-dev": {
-        "symfony/dependency-injection": "~4.4.19",
+        "symfony/dependency-injection": "~5.2.3",
         "phpunit/phpunit": "9.5.2"
     }
 }

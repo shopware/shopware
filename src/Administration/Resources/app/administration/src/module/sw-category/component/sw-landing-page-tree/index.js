@@ -203,6 +203,7 @@ Component.register('sw-landing-page-tree', {
                 cloneChildren: false,
                 overwrites: {
                     name: `${contextItem.data.name} ${this.$tc('sw-product.general.copy')}`,
+                    url: `${contextItem.data.url}-${this.$tc('sw-product.general.copy')}`,
                     active: false
                 }
             };

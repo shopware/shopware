@@ -232,7 +232,7 @@ describe('Order: Testing filter and reset filter', () => {
             });
     });
 
-    it('@catalogue: check filter function and display listing correctly', () => {
+    it.skip('@catalogue: check filter function and display listing correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
@@ -294,7 +294,7 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
     });
 
-    it('@catalogue: check reset filter', () => {
+    it.skip('@catalogue: check reset filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);

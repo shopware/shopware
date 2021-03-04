@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
+use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileGeneratorInterface;
@@ -121,6 +122,10 @@ class DocumentService
             $orderId,
             $config->jsonSerialize()
         );
+
+        if ($documentConfiguration->getDocumentNumber()) {
+            $this->checkDocumentNumberAlreadyExits($documentTypeName, $documentConfiguration->getDocumentNumber(), $context);
+        }
 
         if (property_exists($documentConfiguration, 'referencedDocumentType')) {
             if ($referencedDocumentId === null) {
@@ -491,5 +496,19 @@ class DocumentService
             ->addAssociation('addresses.country')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod');
+    }
+
+    private function checkDocumentNumberAlreadyExits(string $documentTypeName, ?string $documentNumber, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('documentType');
+        $criteria->addFilter(new EqualsFilter('documentType.technicalName', $documentTypeName));
+        $criteria->addFilter(new EqualsFilter('config.documentNumber', $documentNumber));
+
+        $result = $this->documentRepository->searchIds($criteria, $context);
+
+        if ($result->getTotal() !== 0) {
+            throw new DocumentNumberAlreadyExistsException($documentNumber);
+        }
     }
 }

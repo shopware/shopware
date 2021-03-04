@@ -1,11 +1,15 @@
 import template from './sw-order-document-settings-modal.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-order-document-settings-modal', {
     template,
 
     inject: ['numberRangeService'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         order: {

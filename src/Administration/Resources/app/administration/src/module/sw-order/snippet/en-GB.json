@@ -280,7 +280,13 @@
       "labelDownloadPdf": "Download PDF",
       "labelCreateNew": "Create new",
       "messageEmptyTitle": "No documents yet",
-      "messageEmptySubline": "Manage documents here."
+      "messageEmptySubline": "Manage documents here.",
+      "error": {
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated."
+      },
+      "info": {
+        "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
+      }
     },
     "documentModal": {
       "modalTitle": "Create document",

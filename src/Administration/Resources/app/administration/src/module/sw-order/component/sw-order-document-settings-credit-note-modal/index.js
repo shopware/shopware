@@ -56,6 +56,12 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                     false
                 ).then((response) => {
                     this.documentConfig.custom.creditNoteNumber = response.number;
+                    if (response.number !== this.documentConfig.documentNumber) {
+                        this.createNotificationInfo({
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                        });
+                    }
+                    this.documentConfig.documentNumber = response.number;
                     this.callDocumentCreate(additionalAction);
                 });
             } else {

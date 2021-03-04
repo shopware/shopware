@@ -1,9 +1,13 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     created() {
         this.createdComponent();
@@ -18,6 +22,13 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
                     false
                 ).then((response) => {
                     this.documentConfig.custom.invoiceNumber = response.number;
+                    if (response.number !== this.documentConfig.documentNumber) {
+                        this.createNotificationInfo({
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                        });
+                    }
+
+                    this.documentConfig.documentNumber = response.number;
                     this.callDocumentCreate(additionalAction);
                 });
             } else {

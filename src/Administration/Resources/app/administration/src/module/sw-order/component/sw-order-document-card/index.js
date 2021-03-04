@@ -1,3 +1,4 @@
+import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import '../sw-order-document-settings-invoice-modal/';
@@ -21,7 +22,8 @@ Component.register('sw-order-document-card', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('notification')
     ],
 
     props: {
@@ -157,6 +159,28 @@ Component.register('sw-order-document-card', {
                 this.documentTypes = response;
                 this.cardLoading = false;
             });
+
+            this.documentService.setListener(this.convertStoreEventToVueEvent);
+        },
+
+        convertStoreEventToVueEvent({ action, payload }) {
+            if (action === DocumentEvents.DOCUMENT_FAILED) {
+                let errorMessage = payload.detail;
+                if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
+                    const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
+                    errorMessage = this.$tc(translationKey, 1, payload.meta.parameters || {});
+                }
+
+                this.createNotificationError({
+                    message: errorMessage
+                });
+            } else if (action === DocumentEvents.DOCUMENT_FINISHED) {
+                this.showModal = false;
+                this.$nextTick().then(() => {
+                    this.getList();
+                    this.$emit('document-save');
+                });
+            }
         },
 
         getList() {
@@ -240,7 +264,6 @@ Component.register('sw-order-document-card', {
         },
 
         onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
-            this.showModal = false;
             this.$nextTick().then(() => {
                 return this.createDocument(
                     this.order.id,
@@ -250,10 +273,7 @@ Component.register('sw-order-document-card', {
                     file
                 );
             }).then((response) => {
-                this.getList();
-                this.$emit('document-save');
-
-                if (additionalAction === 'download') {
+                if (response && additionalAction === 'download') {
                     this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
                 }
             });

@@ -1,5 +1,10 @@
 import ApiService from '../api.service';
 
+const DocumentEvents = {
+    DOCUMENT_FAILED: 'create-document-fail',
+    DOCUMENT_FINISHED: 'create-document-finished'
+};
+
 /**
  * Gateway for the API end point "document"
  * @class
@@ -9,6 +14,7 @@ class DocumentApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'document') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'documentService';
+        this.$listener = () => ({});
     }
 
     createDocument(orderId,
@@ -46,7 +52,16 @@ class DocumentApiService extends ApiService {
                         headers
                     });
                 }
+
+                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+
                 return docCreated;
+            }).catch((error) => {
+                if (error.response && error.response.data && error.response.data.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop())
+                    );
+                }
             });
     }
 
@@ -73,6 +88,14 @@ class DocumentApiService extends ApiService {
                 }
             );
     }
+
+    createDocumentEvent(action, payload) {
+        return { action, payload };
+    }
+
+    setListener(callback) {
+        this.$listener = callback;
+    }
 }
 
-export default DocumentApiService;
+export { DocumentApiService as default, DocumentEvents };

@@ -233,38 +233,21 @@ class HookableEventFactoryTest extends TestCase
         static::assertEquals('product.written', $event->getName());
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
-            if (Feature::isActive('FEATURE_NEXT_13273')) {
-                static::assertEquals([[
-                    'entity' => 'product',
-                    'operation' => 'update',
-                    'primaryKey' => $id,
-                    'updatedFields' => [
-                        'parentVersionId',
-                        'productManufacturerVersionId',
-                        'cmsPageVersionId',
-                        'updatedAt',
-                        'id',
-                        'versionId',
-                        'name',
-                        'description',
-                    ],
-                ]], $event->getWebhookPayload());
-            } else {
-                static::assertEquals([[
-                    'entity' => 'product',
-                    'operation' => 'update',
-                    'primaryKey' => $id,
-                    'updatedFields' => [
-                        'parentVersionId',
-                        'productManufacturerVersionId',
-                        'updatedAt',
-                        'id',
-                        'versionId',
-                        'name',
-                        'description',
-                    ],
-                ]], $event->getWebhookPayload());
-            }
+            static::assertEquals([[
+                'entity' => 'product',
+                'operation' => 'update',
+                'primaryKey' => $id,
+                'updatedFields' => [
+                    'parentVersionId',
+                    'productManufacturerVersionId',
+                    'cmsPageVersionId',
+                    'updatedAt',
+                    'id',
+                    'versionId',
+                    'name',
+                    'description',
+                ],
+            ]], $event->getWebhookPayload());
         } else {
             static::assertEquals([[
                 'entity' => 'product',
@@ -324,38 +307,21 @@ class HookableEventFactoryTest extends TestCase
         static::assertEquals('product.written', $event->getName());
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
-            if (Feature::isActive('FEATURE_NEXT_13273')) {
-                static::assertEquals([[
-                    'entity' => 'product',
-                    'operation' => 'update',
-                    'primaryKey' => $id,
-                    'updatedFields' => [
-                        'parentVersionId',
-                        'productManufacturerVersionId',
-                        'cmsPageVersionId',
-                        'updatedAt',
-                        'id',
-                        'versionId',
-                        'name',
-                        'description',
-                    ],
-                ]], $event->getWebhookPayload());
-            } else {
-                static::assertEquals([[
-                    'entity' => 'product',
-                    'operation' => 'update',
-                    'primaryKey' => $id,
-                    'updatedFields' => [
-                        'parentVersionId',
-                        'productManufacturerVersionId',
-                        'updatedAt',
-                        'id',
-                        'versionId',
-                        'name',
-                        'description',
-                    ],
-                ]], $event->getWebhookPayload());
-            }
+            static::assertEquals([[
+                'entity' => 'product',
+                'operation' => 'update',
+                'primaryKey' => $id,
+                'updatedFields' => [
+                    'parentVersionId',
+                    'productManufacturerVersionId',
+                    'cmsPageVersionId',
+                    'updatedAt',
+                    'id',
+                    'versionId',
+                    'name',
+                    'description',
+                ],
+            ]], $event->getWebhookPayload());
         } else {
             static::assertEquals([[
                 'entity' => 'product',

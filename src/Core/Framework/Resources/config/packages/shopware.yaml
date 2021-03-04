@@ -111,10 +111,6 @@ shopware:
               default: false
               major: false
               description: "Refactoring of Elasticsearch"
-            - name: FEATURE_NEXT_13273
-              default: false
-              major: true
-              description: "Make CMS entities versionable"
             - name: FEATURE_NEXT_13504
               default: false
               major: true

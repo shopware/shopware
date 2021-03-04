@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\LandingPage\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,6 +37,37 @@ class LandingPageRouteTest extends TestCase
         ]);
 
         $this->createData();
+    }
+
+    public function testWithDifferentSalesChannel(): void
+    {
+        $this->createSalesChannel([
+            'id' => $this->ids->create('other-sales-channel'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://testing',
+                ],
+            ],
+        ]);
+
+        $this->createData([
+            'id' => $this->ids->create('new-landing-page'),
+            'salesChannels' => [
+                [
+                    'id' => $this->ids->get('other-sales-channel'),
+                ],
+            ],
+        ]);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/landing-page/' . $this->ids->get('new-landing-page')
+        );
+
+        $this->assertError($this->ids->get('new-landing-page'));
     }
 
     public function testCmsPageResolved(): void
@@ -108,7 +141,20 @@ class LandingPageRouteTest extends TestCase
         }
     }
 
-    private function createData(): void
+    private function assertError(string $landingPageId): void
+    {
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $error = new LandingPageNotFoundException($landingPageId);
+        $expectedError = [
+            'status' => (string) $error->getStatusCode(),
+            'message' => $error->getMessage(),
+        ];
+
+        static::assertSame($expectedError['status'], $response['errors'][0]['status']);
+        static::assertSame($expectedError['message'], $response['errors'][0]['detail']);
+    }
+
+    private function createData(array $override = []): void
     {
         $data = [
             'id' => $this->ids->create('landing-page'),
@@ -140,6 +186,8 @@ class LandingPageRouteTest extends TestCase
                 ],
             ],
         ];
+
+        $data = array_merge($data, $override);
 
         $this->getContainer()->get('landing_page.repository')
             ->create([$data], $this->ids->context);

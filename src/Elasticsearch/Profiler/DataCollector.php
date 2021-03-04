@@ -49,7 +49,7 @@ class DataCollector extends BaseDataCollector
             $time += $calledRequest['time'];
         }
 
-        return $time * 1000;
+        return (int) ($time * 1000);
     }
 
     public function getRequestAmount(): int

@@ -456,7 +456,9 @@
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Select tags..."
-      }
+      },
+      "messageEmptyTitle": "Nothing found",
+      "messageEmptySubline": "Edit your filters to see matching results."
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."

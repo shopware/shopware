@@ -378,7 +378,9 @@
       "productFilter": {
         "label": "Products",
         "placeholder": "Select products..."
-      }
+      },
+      "messageEmptyTitle": "Nothing found",
+      "messageEmptySubline": "Edit your filters to see matching results."
     }
   },
   "sw-privileges": {

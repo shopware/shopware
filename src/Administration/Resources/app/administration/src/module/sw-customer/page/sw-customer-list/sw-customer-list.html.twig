@@ -217,7 +217,17 @@
                     {% endblock %}
 
                     {% block sw_customer_list_empty_state %}
-                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
+                        <template v-if="!isLoading && !total">
+                            <sw-empty-state
+                                v-if="filterCriteria.length"
+                                :title="$tc('sw-customer.filter.messageEmptyTitle')"
+                                :subline="$tc('sw-customer.filter.messageEmptySubline')">
+                            </sw-empty-state>
+                            <sw-empty-state
+                                v-else
+                                :title="$tc('sw-customer.list.messageEmpty')">
+                            </sw-empty-state>
+                        </template>
                     {% endblock %}
                 </div>
             {% endblock %}

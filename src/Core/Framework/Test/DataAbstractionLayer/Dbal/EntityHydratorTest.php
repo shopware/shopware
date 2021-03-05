@@ -25,6 +25,10 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldPlainTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestDependencyDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestDependencySubDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestRootDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestSubDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -247,6 +251,66 @@ class EntityHydratorTest extends TestCase
 
         static::assertNull($customFields['custom_test_text']);
         static::assertSame('1', $customFields['custom_test_check']);
+    }
+
+    public function testSingleEntityDependencyWithDifferentlyLoadedAssociations(): void
+    {
+        $definition = $this->registerDefinition(
+            SingleEntityDependencyTestRootDefinition::class,
+            SingleEntityDependencyTestSubDefinition::class,
+            SingleEntityDependencyTestDependencyDefinition::class,
+            SingleEntityDependencyTestDependencySubDefinition::class,
+        );
+
+        $pickupPointId = Uuid::randomBytes();
+        $warehouseId = Uuid::randomBytes();
+        $zipcodeId = Uuid::randomBytes();
+        $countryId = Uuid::randomBytes();
+
+        $context = $this->createContext();
+
+        $rowWithoutWarehouseZipcodeHydration = [
+            'test.id' => $pickupPointId,
+            'test.name' => 'PickupPoint',
+            'test.warehouseId' => $warehouseId,
+            'test.warehouse.id' => $warehouseId,
+            'test.warehouse.name' => 'Warehouse',
+            'test.warehouse.zipcodeId' => $zipcodeId,
+            'test.zipcodeId' => $zipcodeId,
+            'test.zipcode.id' => $zipcodeId,
+            'test.zipcode.zipcode' => '00000',
+            'test.zipcode.countryId' => $countryId,
+            'test.zipcode.country.id' => $countryId,
+            'test.zipcode.country.iso' => 'DE',
+        ];
+
+        $rowWithWarehouseZipcodeHydration = [
+            'test.id' => $pickupPointId,
+            'test.name' => 'PickupPoint',
+            'test.warehouseId' => $warehouseId,
+            'test.warehouse.id' => $warehouseId,
+            'test.warehouse.name' => 'Warehouse',
+            'test.warehouse.zipcodeId' => $zipcodeId,
+            'test.warehouse.zipcode.id' => $zipcodeId,
+            'test.warehouse.zipcode.zipcode' => '00000',
+            'test.warehouse.zipcode.countryId' => $countryId,
+            'test.zipcodeId' => $zipcodeId,
+            'test.zipcode.id' => $zipcodeId,
+            'test.zipcode.zipcode' => '00000',
+            'test.zipcode.countryId' => $countryId,
+            'test.zipcode.country.id' => $countryId,
+            'test.zipcode.country.iso' => 'DE',
+        ];
+
+        $hydrator = new EntityHydrator();
+        $structsWithoutWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), ArrayEntity::class, $definition, [$rowWithoutWarehouseZipcodeHydration], 'test', $context);
+        static::assertNotNull($structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
+        static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithoutWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
+
+        $hydrator = new EntityHydrator();
+        $structsWithWarehouseZipcodeHydration = $hydrator->hydrate(new EntityCollection(), ArrayEntity::class, $definition, [$rowWithWarehouseZipcodeHydration], 'test', $context);
+        static::assertNotNull($structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country'));
+        static::assertEquals(Uuid::fromBytesToHex($countryId), $structsWithWarehouseZipcodeHydration->first()->get('zipcode')->get('country')->get('id'));
     }
 
     private function addLanguage(string $id, ?string $rootLanguage): void

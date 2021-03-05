@@ -49,7 +49,7 @@ PHP
     * ext-xml  
     * ext-zip  
     * ext-zlib
-* Composer 1.6 or higher
+* Composer 2.0 or higher
 
 SQL
 * MySQL 5.7.21 or higher

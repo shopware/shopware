@@ -104,8 +104,6 @@ class PluginCompatibilityTest extends TestCase
     public function tearDown(): void
     {
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
-        $this->removeApp(__DIR__ . '/../_fixtures/TestAppTheme');
-        $this->removePlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');
     }
 
     public function testGetExtensionFutureCompatibility(): void

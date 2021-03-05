@@ -113,5 +113,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         NoUselessCommentFixer::class => ['src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'],
         // Would otherwise fix the blocking whitespace in the currency formatter tests
         NonPrintableCharacterFixer::class => ['src/Core/System/Test/Currency/CurrencyFormatterTest.php'],
+        // skip php files in node modules (stylelint ships both js and php)
+        '**/node_modules'
     ]);
 };

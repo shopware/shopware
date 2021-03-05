@@ -50,6 +50,9 @@ parameters:
         - src/Elasticsearch/*Test.php
         - src/Storefront/*Test.php
 
+        # node_modules
+        - src/**/node_modules/*
+
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'

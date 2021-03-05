@@ -33,7 +33,7 @@ describe('Wishlist: for wishlist', () => {
                 body: {
                     null: {
                         'core.cart.wishlistEnabled': true,
-                        'core.listing.productsPerPage': 5
+                        'core.listing.productsPerPage': 4
                     }
                 }
             };
@@ -50,8 +50,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Wishlist state is set correctly', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.expect(win.salesChannelId).to.not.empty;
@@ -75,8 +73,6 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge display on header', () => {
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.window().then((win) => {
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('be.visible');
         })
@@ -84,8 +80,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Heart icon badge display on product box in product listing', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             let heartIcon = cy.get('.product-box .product-wishlist-action-circle').first();
@@ -108,8 +102,6 @@ describe('Wishlist: for wishlist', () => {
     it('@wishlist: Heart icon badge display in product detail', () => {
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.window().then((win) => {
             cy.get('.product-image-wrapper').click();
 
@@ -117,7 +109,7 @@ describe('Wishlist: for wishlist', () => {
 
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('not.be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().contains('Add to wish list');
+            cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().contains('Add to wishlist');
 
             cy.get('.product-wishlist-action').first().click();
 
@@ -129,8 +121,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Heart icon badge display the counter', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.get('#wishlist-basket').should('not.be.visible');
@@ -146,8 +136,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.window().then((win) => {
             cy.clearCookie('wishlist-enabled');
@@ -165,7 +153,7 @@ describe('Wishlist: for wishlist', () => {
             cy.get('.flashbags').should('be.visible');
             cy.get('.flashbags .alert-success').should('be.visible');
 
-            cy.get('.alert-content').contains('You have successfully added the product into the wishlist.')
+            cy.get('.alert-content').contains('You have successfully added the product to your wishlist.')
         })
     });
 
@@ -192,8 +180,6 @@ describe('Wishlist: for wishlist', () => {
         });
 
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.server();
         cy.route({
@@ -228,8 +214,6 @@ describe('Wishlist: for wishlist', () => {
         Array.from(products).forEach(product => cy.createProductFixture(product));
 
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         Array.from(products).slice(0, 4).forEach(item => {
             let heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();

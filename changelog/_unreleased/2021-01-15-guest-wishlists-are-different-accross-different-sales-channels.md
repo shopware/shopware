@@ -1,7 +1,6 @@
 ---
 title: Guest wishlists are different accross different sales channels
 issue: NEXT-13164
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 * Added a global javascript variable `window.salesChannelId` in `platform/src/Storefront/Resources/views/storefront/base.html.twig` to differentiate sales channel.

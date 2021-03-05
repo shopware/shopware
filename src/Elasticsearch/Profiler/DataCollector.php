@@ -41,7 +41,7 @@ class DataCollector extends BaseDataCollector
         $this->client->resetRequests();
     }
 
-    public function getTime(): int
+    public function getTime(): float
     {
         $time = 0;
 

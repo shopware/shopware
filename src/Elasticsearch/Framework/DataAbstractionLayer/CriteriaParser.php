@@ -47,14 +47,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
 {
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $helper;
+    private EntityDefinitionQueryHelper $helper;
 
     public function __construct(EntityDefinitionQueryHelper $helper)
     {
@@ -74,8 +72,10 @@ class CriteriaParser
         if ($field instanceof TranslatedField) {
             $ordered = [];
             foreach ($parts as $part) {
-                if ($part === $field->getPropertyName()) {
-                    $ordered[] = 'translated';
+                if (!Feature::isActive('FEATURE_NEXT_12158')) {
+                    if ($part === $field->getPropertyName()) {
+                        $ordered[] = 'translated';
+                    }
                 }
                 $ordered[] = $part;
             }
@@ -260,11 +260,11 @@ class CriteriaParser
     {
         $composite = new CompositeAggregation($aggregation->getName());
 
-        if ($aggregation->getSorting()) {
-            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+        if ($fieldSorting = $aggregation->getSorting()) {
+            $accessor = $this->buildAccessor($definition, $fieldSorting->getField(), $context);
 
             $sorting = new Bucketing\TermsAggregation($aggregation->getName() . '.sorting', $accessor);
-            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+            $sorting->addParameter('order', $fieldSorting->getDirection());
 
             $composite->addSource($sorting);
         }

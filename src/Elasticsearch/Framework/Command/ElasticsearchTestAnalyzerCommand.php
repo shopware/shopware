@@ -13,15 +13,9 @@ class ElasticsearchTestAnalyzerCommand extends Command
 {
     protected static $defaultName = 'es:test:analyzer';
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var ShopwareStyle
-     */
-    private $io;
+    private ?ShopwareStyle $io;
 
     public function __construct(Client $client)
     {
@@ -52,6 +46,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $analyzer) {
+                /** @var array{'tokens': array} $analyzed */
                 $analyzed = $this->client->indices()->analyze([
                     'body' => [
                         'analyzer' => $analyzer,

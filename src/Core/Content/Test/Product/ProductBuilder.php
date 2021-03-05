@@ -17,105 +17,47 @@ use Shopware\Core\Framework\Test\IdsCollection;
  */
 class ProductBuilder
 {
-    /**
-     * @var IdsCollection
-     */
-    protected $ids;
+    protected IdsCollection $ids;
 
-    /**
-     * @var string
-     */
-    protected $productNumber;
+    protected string $productNumber;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $id;
 
-    /**
-     * @var string|null
-     */
-    protected $name;
+    protected ?string $name;
 
-    /**
-     * @var array|null
-     */
-    protected $manufacturer;
+    protected ?array $manufacturer;
 
-    /**
-     * @var array|null
-     */
-    protected $tax;
+    protected ?array $tax;
 
-    /**
-     * @var bool
-     */
-    protected $active = true;
+    protected bool $active = true;
 
-    /**
-     * @var array
-     */
-    protected $price = [];
+    protected array $price = [];
 
-    /**
-     * @var array
-     */
-    protected $prices = [];
+    protected array $prices = [];
 
-    /**
-     * @var array
-     */
-    protected $categories = [];
+    protected array $categories = [];
 
-    /**
-     * @var array
-     */
-    protected $properties = [];
+    protected array $properties = [];
 
-    /**
-     * @var int
-     */
-    protected $stock;
+    protected int $stock;
 
-    /**
-     * @var string|null
-     */
-    protected $releaseDate;
+    protected ?string $releaseDate;
 
-    /**
-     * @var array
-     */
-    protected $customFields = [];
+    protected array $customFields = [];
 
-    /**
-     * @var array
-     */
-    protected $visibilities = [];
+    protected array $visibilities = [];
 
-    /**
-     * @var array|null
-     */
-    protected $purchasePrices;
+    protected ?array $purchasePrices;
 
-    /**
-     * @var float|null
-     */
-    protected $purchasePrice;
+    protected ?float $purchasePrice;
 
-    /**
-     * @var string|null
-     */
-    protected $parentId;
+    protected ?string $parentId;
 
-    /**
-     * @var array
-     */
-    protected $_dynamic = [];
+    protected array $_dynamic = [];
 
-    /**
-     * @var array[]
-     */
-    protected $children = [];
+    protected array $children = [];
+
+    protected array $translations = [];
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -158,7 +100,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function variant(array $data): ProductBuilder
+    public function variant(array $data): self
     {
         $this->children[] = $data;
 
@@ -255,7 +197,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function category(string $key): ProductBuilder
+    public function category(string $key): self
     {
         $this->categories[] = ['id' => $this->ids->create($key), 'name' => $key];
 
@@ -265,7 +207,7 @@ class ProductBuilder
     /**
      * @param array|object|string|float|int|bool|null $value
      */
-    public function customField(string $key, $value): ProductBuilder
+    public function customField(string $key, $value): self
     {
         $this->customFields[$key] = $value;
 
@@ -275,7 +217,7 @@ class ProductBuilder
     /**
      * @param array|object|string|float|int|bool|null $value
      */
-    public function add(string $key, $value): ProductBuilder
+    public function add(string $key, $value): self
     {
         $this->_dynamic[$key] = $value;
 
@@ -295,7 +237,7 @@ class ProductBuilder
         return array_filter($data);
     }
 
-    public function property(string $key, string $group): ProductBuilder
+    public function property(string $key, string $group): self
     {
         $this->properties[] = [
             'id' => $this->ids->get($key),
@@ -309,16 +251,28 @@ class ProductBuilder
         return $this;
     }
 
-    public function stock(int $stock): ProductBuilder
+    public function stock(int $stock): self
     {
         $this->stock = $stock;
 
         return $this;
     }
 
-    public function active(bool $active): void
+    public function active(bool $active): self
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * @param array|object|string|float|int|bool|null $value
+     */
+    public function translation(string $currencyId, string $key, $value): self
+    {
+        $this->translations[$currencyId][$key] = $value;
+
+        return $this;
     }
 
     private function fixPricesQuantity(): void

@@ -5,30 +5,19 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $elasticsearchHelper;
+    private ElasticsearchHelper $elasticsearchHelper;
 
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
@@ -60,11 +49,14 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         }
     }
 
-    private function isIndexReady(string $index, string $entity, int $expected): bool
+    private function isIndexReady(string $index, int $expected): bool
     {
+        if (Feature::isActive('FEATURE_NEXT_12158')) {
+            return $expected <= 0;
+        }
+
         $remote = $this->client->count([
             'index' => $index,
-            'type' => $entity,
         ]);
 
         return $remote['count'] >= $expected;
@@ -103,12 +95,11 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
         foreach ($indices as $row) {
             $index = $row['index'];
-            $entity = $row['entity'];
             $count = (int) $row['doc_count'];
 
             $this->client->indices()->refresh(['index' => $index]);
 
-            if (!$this->isIndexReady($index, $entity, $count)) {
+            if (!$this->isIndexReady($index, $count)) {
                 continue;
             }
 

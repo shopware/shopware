@@ -9,16 +9,9 @@ class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;
 
-    /**
-     * @var string
-     */
-    private $id;
+    private string $id;
 
-    /**
-     * @param string $id         Script
-     * @param array  $parameters Optional parameters
-     */
-    public function __construct($id, array $parameters = [])
+    public function __construct(string $id, array $parameters = [])
     {
         $this->id = $id;
         $this->setParameters($parameters);

@@ -8,20 +8,18 @@ use Psr\Log\LoggerInterface;
 
 class ClientFactory
 {
-    public static function createClient($hosts  /*,LoggerInterface $logger*/): Client
+    public static function createClient(string $hosts, LoggerInterface $logger, bool $debug): Client
     {
-        $logger = func_get_arg(1);
-
         $hosts = array_filter(explode(',', $hosts));
 
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts($hosts);
-        $clientBuilder->setSSLVerification(false);
 
-        if ($logger instanceof LoggerInterface) {
+        if ($debug) {
             $clientBuilder->setTracer($logger);
-            $clientBuilder->setLogger($logger);
         }
+
+        $clientBuilder->setLogger($logger);
 
         return $clientBuilder->build();
     }

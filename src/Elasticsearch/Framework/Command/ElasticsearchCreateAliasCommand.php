@@ -11,10 +11,7 @@ class ElasticsearchCreateAliasCommand extends Command
 {
     protected static $defaultName = 'es:create:alias';
 
-    /**
-     * @var CreateAliasTaskHandler
-     */
-    private $handler;
+    private CreateAliasTaskHandler $handler;
 
     public function __construct(CreateAliasTaskHandler $handler)
     {

@@ -22,35 +22,17 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     public const MAX_LIMIT = 10000;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $decorated;
+    private EntitySearcherInterface $decorated;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
-    /**
-     * @var CriteriaParser
-     */
-    private $criteriaParser;
+    private CriteriaParser $criteriaParser;
 
-    /**
-     * @var AbstractElasticsearchSearchHydrator
-     */
-    private $hydrator;
+    private AbstractElasticsearchSearchHydrator $hydrator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Client $client,
@@ -90,7 +72,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
-                'type' => $definition->getEntityName(),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);

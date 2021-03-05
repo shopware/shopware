@@ -34,10 +34,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionInstanceRegistry
@@ -65,15 +62,18 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 continue;
             }
 
-            $aggregations->add(
-                $this->hydrateAggregation($aggregation, $aggResult, $context)
-            );
+            $hydration = $this->hydrateAggregation($aggregation, $aggResult, $context);
+            if ($hydration) {
+                $aggregations->add(
+                    $hydration
+                );
+            }
         }
 
         return $aggregations;
     }
 
-    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): AggregationResult
+    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): ?AggregationResult
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:
@@ -140,7 +140,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         return new EntityResult($aggregation->getName(), $entities->getEntities());
     }
 
-    private function hydrateDateHistogram(DateHistogramAggregation $aggregation, array $result, Context $context)
+    private function hydrateDateHistogram(DateHistogramAggregation $aggregation, array $result, Context $context): ?DateHistogramResult
     {
         if (isset($result[$aggregation->getName()])) {
             $result = $result[$aggregation->getName()];
@@ -163,8 +163,8 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 
             $date = new \DateTime($key);
 
-            if ($aggregation->getFormat()) {
-                $value = $date->format($aggregation->getFormat());
+            if ($dateFormat = $aggregation->getFormat()) {
+                $value = $date->format($dateFormat);
             } else {
                 $value = EntityAggregator::formatDate($aggregation->getInterval(), $date);
             }

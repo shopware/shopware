@@ -8,24 +8,17 @@ use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class ElasticsearchIndexingCommand extends Command implements EventSubscriberInterface
+class ElasticsearchIndexingCommand extends Command
 {
     use ConsoleProgressTrait;
 
     protected static $defaultName = 'es:index';
 
-    /**
-     * @var ElasticsearchIndexer
-     */
-    private $indexer;
+    private ElasticsearchIndexer $indexer;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
     public function __construct(ElasticsearchIndexer $indexer, MessageBusInterface $messageBus)
     {

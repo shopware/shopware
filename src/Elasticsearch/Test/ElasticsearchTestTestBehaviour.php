@@ -5,7 +5,8 @@ namespace Shopware\Elasticsearch\Test;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Feature;
+use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -13,6 +14,8 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait ElasticsearchTestTestBehaviour
@@ -40,8 +43,8 @@ trait ElasticsearchTestTestBehaviour
     public function indexElasticSearch(): void
     {
         $this->getDiContainer()
-            ->get(EntityIndexerRegistry::class)
-            ->sendIndexingMessage(['elasticsearch.indexer']);
+            ->get(ElasticsearchIndexingCommand::class)
+            ->run(new ArrayInput([]), new NullOutput());
 
         $this->runWorker();
 
@@ -50,9 +53,11 @@ trait ElasticsearchTestTestBehaviour
             ->indices()
             ->refresh();
 
-        $this->getDiContainer()
-            ->get(CreateAliasTaskHandler::class)
-            ->run();
+        if (!Feature::isActive('FEATURE_NEXT_12158')) {
+            $this->getDiContainer()
+                ->get(CreateAliasTaskHandler::class)
+                ->run();
+        }
 
         $this->refreshIndex();
     }

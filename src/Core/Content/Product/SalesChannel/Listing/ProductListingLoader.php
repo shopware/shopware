@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -20,20 +21,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ProductListingLoader
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $repository;
+    private SalesChannelRepositoryInterface $repository;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(
         SalesChannelRepositoryInterface $repository,
@@ -52,6 +44,7 @@ class ProductListingLoader
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
 
+        $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
         $ids = $this->repository->searchIds($criteria, $context);
 
         $aggregations = $this->repository->aggregate($criteria, $context);

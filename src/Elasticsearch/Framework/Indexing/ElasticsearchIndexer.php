@@ -6,19 +6,17 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer as AbstractEntityIndexer;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -26,72 +24,30 @@ use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Symfony\Component\Messenger\MessageBusInterface;
 
-class ElasticsearchIndexer extends AbstractEntityIndexer
+class ElasticsearchIndexer extends AbstractMessageHandler
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepository;
+    private Connection $connection;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private ElasticsearchHelper $helper;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchRegistry $registry;
 
-    /**
-     * @var ElasticsearchRegistry
-     */
-    private $registry;
+    private IndexCreator $indexCreator;
 
-    /**
-     * @var IndexCreator
-     */
-    private $indexCreator;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private Client $client;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private DefinitionInstanceRegistry $entityRegistry;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $entityRegistry;
+    private LoggerInterface $logger;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private EntityRepositoryInterface $currencyRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
-
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     public function __construct(
-        EntityRepositoryInterface $languageRepository,
         Connection $connection,
         ElasticsearchHelper $helper,
         ElasticsearchRegistry $registry,
@@ -100,11 +56,9 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         Client $client,
         DefinitionInstanceRegistry $entityRegistry,
         LoggerInterface $logger,
-        MessageBusInterface $messageBus,
-        CacheClearer $cacheClearer,
-        EntityRepositoryInterface $currencyRepository
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $languageRepository
     ) {
-        $this->languageRepository = $languageRepository;
         $this->connection = $connection;
         $this->helper = $helper;
         $this->registry = $registry;
@@ -113,20 +67,14 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $this->client = $client;
         $this->entityRegistry = $entityRegistry;
         $this->logger = $logger;
-        $this->messageBus = $messageBus;
-        $this->cacheClearer = $cacheClearer;
         $this->currencyRepository = $currencyRepository;
-    }
-
-    public function getName(): string
-    {
-        return 'elasticsearch.indexer';
+        $this->languageRepository = $languageRepository;
     }
 
     /**
      * @param IndexerOffset|null $offset
      */
-    public function iterate($offset): ?EntityIndexingMessage
+    public function iterate($offset): ?ElasticsearchIndexingMessage
     {
         if (!$this->helper->allowIndexing()) {
             return null;
@@ -134,6 +82,10 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         if ($offset === null) {
             $offset = $this->init();
+        }
+
+        if ($offset->getLanguageId() === null) {
+            return null;
         }
 
         $language = $this->getLanguageForId($offset->getLanguageId());
@@ -163,21 +115,23 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return $this->iterate($offset);
     }
 
-    public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
-    {
-        return null;
-    }
-
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
         if (!$this->helper->allowIndexing()) {
             return;
         }
+
+        $alias = $this->helper->getIndexName($definition, Defaults::LANGUAGE_SYSTEM);
+
+        if (!$this->client->indices()->existsAlias(['name' => $alias])) {
+            $this->init();
+        }
+
         $messages = $this->generateMessages($definition, $ids);
 
         $indices = [];
 
-        /** @var EntityIndexingMessage $message */
+        /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
             $this->handle($message);
 
@@ -190,9 +144,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         }
 
         $indices = array_unique($indices);
-        $indices = array_filter($indices, function (string $index) {
-            return $this->client->indices()->exists(['index' => $index]);
-        });
+        $indices = array_filter($indices, fn (string $index) => $this->client->indices()->exists(['index' => $index]));
 
         if (empty($indices)) {
             return;
@@ -206,31 +158,31 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         }
     }
 
-    public function sendIndexingMessages(EntityDefinition $definition, array $ids): void
+    /**
+     * @param ElasticsearchIndexingMessage $message
+     */
+    public function handle($message): void
     {
+        if (!$message instanceof ElasticsearchIndexingMessage) {
+            return;
+        }
+
         if (!$this->helper->allowIndexing()) {
             return;
         }
 
-        $messages = $this->generateMessages($definition, $ids);
-
-        foreach ($messages as $message) {
-            $this->messageBus->dispatch($message);
-        }
-    }
-
-    public function handle(EntityIndexingMessage $message): void
-    {
-        if (!$this->helper->allowIndexing()) {
-            return;
-        }
-
-        /** @var IndexingDto $task */
         $task = $message->getData();
 
         $ids = $task->getIds();
 
         $index = $task->getIndex();
+
+        if (Feature::isActive('FEATURE_NEXT_12158')) {
+            $this->connection->executeUpdate('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
+                'idCount' => \count($ids),
+                'index' => $index,
+            ]);
+        }
 
         if (!$this->client->indices()->exists(['index' => $index])) {
             return;
@@ -248,51 +200,72 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
         }
 
-        $repository = $this->entityRegistry->getRepository($entity);
+        if (Feature::isActive('FEATURE_NEXT_12158')) {
+            $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
 
-        $criteria = new Criteria($ids);
+            $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
-        $definition->extendCriteria($criteria);
+            $documents = [];
+            foreach ($data as $id => $document) {
+                $documents[] = ['index' => ['_id' => $id]];
+                $documents[] = $document;
+            }
+        } else {
+            $repository = $this->entityRegistry->getRepository($entity);
 
-        /** @var EntitySearchResult $entities */
-        $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
-            $context->setConsiderInheritance(true);
+            $criteria = new Criteria($ids);
 
-            return $repository->search($criteria, $context);
-        });
+            $definition->extendCriteria($criteria);
 
-        $toRemove = array_filter($ids, function (string $id) use ($entities) {
-            return !$entities->has($id);
-        });
+            /** @var EntitySearchResult $entities */
+            $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
+                $context->setConsiderInheritance(true);
 
-        $entities = $definition->extendEntities($entities);
+                return $repository->search($criteria, $context);
+            });
 
-        $documents = $this->createDocuments($definition, $entities);
+            $toRemove = array_filter($ids, fn (string $id) => !$entities->has($id));
 
-        $documents = $this->mapExtensionsToRoot($documents);
+            $entities = $definition->extendEntities($entities);
 
-        $documents = $definition->extendDocuments($entities, $documents, $context);
+            $documents = $this->createDocuments($definition, $entities);
 
-        $documents = $this->mapDocuments($documents);
+            $documents = $this->mapExtensionsToRoot($documents);
+
+            $documents = $definition->extendDocuments($entities, $documents, $context);
+
+            $documents = $this->mapDocuments($documents);
+        }
 
         foreach ($toRemove as $id) {
             $documents[] = ['delete' => ['_id' => $id]];
         }
 
-        // index found entities
-        $result = $this->client->bulk([
+        $arguments = [
             'index' => $index,
-            'type' => $definition->getEntityDefinition()->getEntityName(),
             'body' => $documents,
-        ]);
+        ];
 
-        $this->cacheClearer->invalidateTags([$entity . '.id']);
+        $result = $this->client->bulk($arguments);
 
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
             throw new ElasticsearchIndexingException($errors);
         }
+
+        if (Feature::isActive('FEATURE_NEXT_12158')) {
+            $this->client->indices()->refresh([
+                'index' => $index,
+            ]);
+        }
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            ElasticsearchIndexingMessage::class,
+        ];
     }
 
     private function generateMessages(EntityDefinition $definition, array $ids): array
@@ -307,8 +280,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
             $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
 
-            $message = new EntityIndexingMessage($indexing, null, $context);
-            $message->setIndexer($this->getName());
+            $message = new ElasticsearchIndexingMessage($indexing, null, $context);
 
             $messages[] = $message;
         }
@@ -316,9 +288,9 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return $messages;
     }
 
-    private function createIndexingMessage(IndexerOffset $offset, Context $context): ?EntityIndexingMessage
+    private function createIndexingMessage(IndexerOffset $offset, Context $context): ?ElasticsearchIndexingMessage
     {
-        $definition = $this->registry->get($offset->getDefinition());
+        $definition = $this->registry->get((string) $offset->getDefinition());
 
         if (!$definition) {
             throw new \RuntimeException(sprintf('Definition %s not found', $offset->getDefinition()));
@@ -326,7 +298,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         $entity = $definition->getEntityDefinition()->getEntityName();
 
-        $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition(), $offset->getLastId());
+        $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition(), $offset->getLastId(), 100);
 
         $ids = $iterator->fetch();
 
@@ -335,7 +307,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             // increment last id with iterator offset
             $offset->setLastId($iterator->getOffset());
 
-            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $offset->getLanguageId());
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), (string) $offset->getLanguageId());
 
             $index = $alias . '_' . $offset->getTimestamp();
 
@@ -358,8 +330,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
     private function init(): IndexerOffset
     {
-        // reset all other indexing processes
-        $this->clearIndexingTasks();
+        $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
 
         $this->createScripts();
 
@@ -380,7 +351,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
                 $index = $alias . '_' . $timestamp->getTimestamp();
 
-                $this->indexCreator->createIndex($definition, $index, $context);
+                $this->indexCreator->createIndex($definition, $index, $alias, $context);
 
                 $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
 
@@ -434,7 +405,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $documents = [];
 
         foreach ($entities as $entity) {
-            $document = json_decode(json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION), true);
+            $document = json_decode(json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
 
             $fullText = $definition->buildFullText($entity);
 
@@ -452,7 +423,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
     {
         $errors = [];
         foreach ($result['items'] as $item) {
-            $item = $item['index'];
+            $item = $item['index'] ?? $item['delete'];
 
             if (\in_array($item['status'], [200, 201], true)) {
                 continue;
@@ -495,11 +466,6 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         );
     }
 
-    private function clearIndexingTasks(): void
-    {
-        $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
-    }
-
     private function getLanguageForId(string $languageId): ?LanguageEntity
     {
         $context = Context::createDefaultContext();
@@ -510,6 +476,11 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             ->search($criteria, $context);
 
         return $languages->get($languageId);
+    }
+
+    private function getCurrencies(): EntitySearchResult
+    {
+        return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
     }
 
     private function mapDocuments(array $documents): array
@@ -624,10 +595,5 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
                 ],
             ],
         ]);
-    }
-
-    private function getCurrencies(): EntitySearchResult
-    {
-        return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
     }
 }

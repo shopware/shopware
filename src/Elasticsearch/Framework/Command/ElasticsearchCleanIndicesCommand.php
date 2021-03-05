@@ -3,31 +3,20 @@
 namespace Shopware\Elasticsearch\Framework\Command;
 
 use Elasticsearch\Client;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ElasticsearchCleanIndicesCommand extends Command
 {
     protected static $defaultName = 'es:index:cleanup';
 
-    /**
-     * @var ShopwareStyle
-     */
-    private $io;
+    private ElasticsearchOutdatedIndexDetector $outdatedIndexDetector;
 
-    /**
-     * @var ElasticsearchOutdatedIndexDetector
-     */
-    private $outdatedIndexDetector;
-
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
     public function __construct(
         Client $client,
@@ -50,23 +39,20 @@ class ElasticsearchCleanIndicesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
-
+        $io = new SymfonyStyle($input, $output);
         $indices = $this->outdatedIndexDetector->get();
 
         if (empty($indices)) {
-            $this->io->writeln('No indices to be deleted.');
+            $io->writeln('No indices to be deleted.');
 
             return 0;
         }
 
-        $this->io->table(['Indices to be deleted:'], array_map(static function (string $name) {
-            return [$name];
-        }, $indices));
+        $io->table(['Indices to be deleted:'], array_map(static fn (string $name) => [$name], $indices));
 
         if (!$input->getOption('force')) {
-            if (!$this->io->confirm(sprintf('Delete these %d indices?', \count($indices)), false)) {
-                $this->io->writeln('Deletion aborted.');
+            if (!$io->confirm(sprintf('Delete these %d indices?', \count($indices)), false)) {
+                $io->writeln('Deletion aborted.');
 
                 return 1;
             }
@@ -76,7 +62,7 @@ class ElasticsearchCleanIndicesCommand extends Command
             $this->client->indices()->delete(['index' => $index]);
         }
 
-        $this->io->writeln('Indices deleted.');
+        $io->writeln('Indices deleted.');
 
         return 0;
     }

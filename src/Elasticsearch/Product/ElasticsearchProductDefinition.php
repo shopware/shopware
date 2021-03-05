@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -136,10 +135,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private function mapCheapestPrices(EntityCollection $collection, array $documents): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            return $documents;
-        }
-
         $prices = $this->connection->fetchAll(
             '
             SELECT LOWER(HEX(variant.id)) as id, variant.cheapest_price_accessor

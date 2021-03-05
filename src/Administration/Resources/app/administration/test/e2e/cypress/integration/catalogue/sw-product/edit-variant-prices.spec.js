@@ -94,13 +94,7 @@ describe('Product: Test variants', () => {
 
             // Validate in Storefront
             cy.visit('/');
-            if (win.Shopware.Feature.isActive('FEATURE_NEXT_10553')) {
-                cy.get('.product-image-wrapper').click();
-            } else {
-                cy.get('.product-price').contains('€64.00 - €100.00*');
-                cy.get('.product-action > .btn').contains('Details').click();
-            }
-
+            cy.get('.product-image-wrapper').click();
             cy.get('.product-detail-buy').should('be.visible');
 
             // Ensure that variant "Green" is checked at the moment the test runs

@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -528,10 +527,6 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
     private function createScripts(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            return;
-        }
-
         $script = "
             double getPrice(def accessors, def doc, def decimals, def round, def multiplier) {
                 for (accessor in accessors) {

@@ -182,6 +182,7 @@ describe('Product: Test variants', () => {
         cy.contains('.sw-field__label', 'Color').click();
         cy.contains('.sw-field__label', 'Size').click();
         cy.get('.sw-modal .sw-button--primary').click();
+        cy.get('.sw-modal').should('not.exist');
 
         // Verify in storefront
         cy.visit('/');

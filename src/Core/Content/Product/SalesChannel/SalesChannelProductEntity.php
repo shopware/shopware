@@ -8,18 +8,9 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
-use Shopware\Core\Framework\Feature;
 
 class SalesChannelProductEntity extends ProductEntity
 {
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed, use $calculatedCheapestPrice instead
-     *
-     * @var CalculatedListingPrice
-     */
-    protected $calculatedListingPrice;
-
     /**
      * @var PriceCollection
      */
@@ -36,9 +27,7 @@ class SalesChannelProductEntity extends ProductEntity
     protected $sortedProperties;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10553) - remove nullable flag
-     *
-     * @var CalculatedCheapestPrice|null
+     * @var CalculatedCheapestPrice
      */
     protected $calculatedCheapestPrice;
 
@@ -56,22 +45,6 @@ class SalesChannelProductEntity extends ProductEntity
      * @var CategoryEntity|null
      */
     protected $seoCategory;
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed, use $calculatedCheapestPrice instead
-     */
-    public function getCalculatedListingPrice(): ?CalculatedListingPrice
-    {
-        return $this->calculatedListingPrice;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed, use $calculatedCheapestPrice instead
-     */
-    public function setCalculatedListingPrice(CalculatedListingPrice $calculatedListingPrice): void
-    {
-        $this->calculatedListingPrice = $calculatedListingPrice;
-    }
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {
@@ -101,26 +74,6 @@ class SalesChannelProductEntity extends ProductEntity
     public function setSortedProperties(?PropertyGroupCollection $sortedProperties): void
     {
         $this->sortedProperties = $sortedProperties;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed, use $calculatedCheapestPrice.hasRange instead
-     */
-    public function hasPriceRange(): bool
-    {
-        if (Feature::isActive('FEATURE_NEXT_10553')) {
-            if ($this->getCalculatedCheapestPrice() !== null) {
-                return $this->getCalculatedCheapestPrice()->hasRange();
-            }
-
-            return $this->getCalculatedPrices()->count() > 1;
-        }
-
-        if ($this->getCalculatedListingPrice() !== null) {
-            return $this->getCalculatedListingPrice()->hasRange() || $this->getCalculatedPrices()->count() > 1;
-        }
-
-        return $this->getCalculatedPrices()->count() > 1;
     }
 
     public function isNew(): bool
@@ -153,18 +106,12 @@ class SalesChannelProductEntity extends ProductEntity
         $this->seoCategory = $category;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10553)
-     */
-    public function getCalculatedCheapestPrice(): ?CalculatedCheapestPrice
+    public function getCalculatedCheapestPrice(): CalculatedCheapestPrice
     {
         return $this->calculatedCheapestPrice;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10553)
-     */
-    public function setCalculatedCheapestPrice(?CalculatedCheapestPrice $calculatedCheapestPrice): void
+    public function setCalculatedCheapestPrice(CalculatedCheapestPrice $calculatedCheapestPrice): void
     {
         $this->calculatedCheapestPrice = $calculatedCheapestPrice;
     }

@@ -465,7 +465,7 @@ Component.register('sw-product-detail-context-prices', {
                 message: this.$tc('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
                 width: 275,
                 showDelay: 200,
-                disabled: !this.feature.isActive('FEATURE_NEXT_10553') || (itemIndex !== 0 || quantity !== 1)
+                disabled: (itemIndex !== 0 || quantity !== 1)
             };
         }
     }

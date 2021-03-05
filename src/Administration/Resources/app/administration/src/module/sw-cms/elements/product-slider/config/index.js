@@ -68,7 +68,7 @@ Component.register('sw-cms-el-config-product-slider', {
         },
 
         productStreamSortingOptions() {
-            const options = [{
+            return [{
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
                 value: 'name:ASC'
             }, {
@@ -83,29 +83,13 @@ Component.register('sw-cms-el-config-product-slider', {
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
                 value: 'random'
+            }, {
+                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
+                value: 'cheapestPrice:ASC'
+            }, {
+                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
+                value: 'cheapestPrice:DESC'
             }];
-
-            if (this.feature.isActive('FEATURE_NEXT_10553')) {
-                options.push({
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                    value: 'cheapestPrice:ASC'
-                });
-                options.push({
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                    value: 'cheapestPrice:DESC'
-                });
-            } else {
-                options.push({
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                    value: 'listingPrices:ASC'
-                });
-                options.push({
-                    label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                    value: 'listingPrices:DESC'
-                });
-            }
-
-            return options;
         },
 
         productStreamCriteria() {

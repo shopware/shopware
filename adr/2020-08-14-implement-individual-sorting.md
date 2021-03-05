@@ -45,7 +45,7 @@ The JSON for the fields column look like this:
     "naturalSorting": 0
   },
   {
-    "field": "product.listingPrices",
+    "field": "product.cheapestPrice",
     "order": "asc",
     "priority": 100,
     "naturalSorting": 0

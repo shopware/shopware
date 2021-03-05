@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -110,19 +109,6 @@ class EntityMapper
 
             case $field instanceof PriceField:
                 return $this->createPriceField($context);
-
-            case $field instanceof ListingPriceField:
-                return [
-                    'type' => 'nested',
-                    'properties' => [
-                        'ruleId' => self::KEYWORD_FIELD,
-                        'from' => self::PRICE_FIELD,
-                        'to' => self::PRICE_FIELD,
-                        'listPrice' => self::PRICE_FIELD,
-                        'createdAt' => self::DATE_FIELD,
-                        'updatedAt' => self::DATE_FIELD,
-                    ],
-                ];
 
             case $field instanceof CustomFields:
                 return ['type' => 'object', 'dynamic' => true];

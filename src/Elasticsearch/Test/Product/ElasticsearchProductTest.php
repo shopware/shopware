@@ -44,7 +44,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -1898,8 +1897,6 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPriceFilter(IdsCollection $ids): void
     {
         try {
-            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
-
             $cases = $this->providerCheapestPriceFilter();
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -1986,8 +1983,6 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPriceSorting(IdsCollection $ids): void
     {
         try {
-            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
-
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -2041,7 +2036,6 @@ class ElasticsearchProductTest extends TestCase
     public function testCheapestPriceAggregation(IdsCollection $ids): void
     {
         try {
-            Feature::skipTestIfInActive('FEATURE_NEXT_10553', $this);
             $affected = array_merge(
                 $ids->prefixed('p.'),
                 $ids->prefixed('v.')

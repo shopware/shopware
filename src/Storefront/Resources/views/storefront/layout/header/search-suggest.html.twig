@@ -43,39 +43,20 @@
 
                                             {% block layout_search_suggest_result_price %}
                                                 <div class="col-auto search-suggest-product-price">
-                                                    {% if feature('FEATURE_NEXT_10553') %}
-                                                        {% set price = product.calculatedPrice %}
-                                                        {% if product.calculatedPrices.count > 0 %}
-                                                            {% set price = product.calculatedPrices.last %}
-                                                        {% endif %}
+                                                    {% set price = product.calculatedPrice %}
+                                                    {% if product.calculatedPrices.count > 0 %}
+                                                        {% set price = product.calculatedPrices.last %}
+                                                    {% endif %}
 
-                                                        {% set referencePrice = price.referencePrice %}
+                                                    {% set referencePrice = price.referencePrice %}
 
-                                                        {% if product.calculatedPrices.count > 1 %}
-                                                            {{ "listing.listingTextFrom"|trans|sw_sanitize }}
-                                                        {% endif %}
-                                                        {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                    {% if product.calculatedPrices.count > 1 %}
+                                                        {{ "listing.listingTextFrom"|trans|sw_sanitize }}
+                                                    {% endif %}
+                                                    {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
 
-                                                        {% if price.referencePrice is not null %}
-                                                            <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
-                                                        {% endif %}
-                                                        {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) content will be removed #}
-                                                    {% else %}
-                                                        {% set price = product.calculatedPrice %}
-
-                                                        {% if product.priceRange %}
-                                                            {{ product.calculatedListingPrice.from.unitPrice|currency }}
-                                                            -
-                                                            {{ product.calculatedListingPrice.to.unitPrice|currency}}
-                                                        {% elseif product.calculatedPrices|length == 1 %}
-                                                            {{ product.calculatedPrices.first.unitPrice|currency }}
-                                                        {% else %}
-                                                            {{ price.unitPrice|currency }}
-                                                        {% endif %}
-
-                                                        {% if price.referencePrice is not null %}
-                                                            <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
-                                                        {% endif %}
+                                                    {% if price.referencePrice is not null %}
+                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}

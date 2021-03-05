@@ -10,7 +10,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductSubscriber implements EventSubscriberInterface
@@ -29,13 +28,12 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         /** @var ProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            if (Feature::isActive('FEATURE_NEXT_10553')) {
-                $price = $product->getCheapestPrice();
-                if ($price instanceof CheapestPriceContainer) {
-                    $resolved = $price->resolve($event->getContext());
-                    $product->setCheapestPriceContainer($price);
-                    $product->setCheapestPrice($resolved);
-                }
+            $price = $product->getCheapestPrice();
+
+            if ($price instanceof CheapestPriceContainer) {
+                $resolved = $price->resolve($event->getContext());
+                $product->setCheapestPriceContainer($price);
+                $product->setCheapestPrice($resolved);
             }
 
             $product->setVariation(

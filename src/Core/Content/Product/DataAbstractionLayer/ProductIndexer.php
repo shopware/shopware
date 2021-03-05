@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-//@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - Will be removed
-use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -16,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -51,13 +48,6 @@ class ProductIndexer extends EntityIndexer
      * @var ProductCategoryDenormalizer
      */
     private $categoryDenormalizer;
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - will be removed
-     *
-     * @var ListingPriceUpdater
-     */
-    private $listingPriceUpdater;
 
     /**
      * @var CheapestPriceUpdater
@@ -106,8 +96,6 @@ class ProductIndexer extends EntityIndexer
         CacheClearer $cacheClearer,
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,
-        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - will be removed
-        ListingPriceUpdater $listingPriceUpdater,
         InheritanceUpdater $inheritanceUpdater,
         RatingAverageUpdater $ratingAverageUpdater,
         SearchKeywordUpdater $searchKeywordUpdater,
@@ -123,8 +111,6 @@ class ProductIndexer extends EntityIndexer
         $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
         $this->categoryDenormalizer = $categoryDenormalizer;
-        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - will be removed
-        $this->listingPriceUpdater = $listingPriceUpdater;
         $this->searchKeywordUpdater = $searchKeywordUpdater;
         $this->inheritanceUpdater = $inheritanceUpdater;
         $this->ratingAverageUpdater = $ratingAverageUpdater;
@@ -197,14 +183,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->categoryDenormalizer->update($ids, $context);
 
-        //@feature-deprecated (flag:FEATURE_NEXT_10553) tag:v6.4.0 - listing price updater will be removed
-        if (!Feature::isActive('FEATURE_NEXT_10553')) {
-            $this->listingPriceUpdater->update($parentIds, $context);
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_10553')) {
-            $this->cheapestPriceUpdater->update($parentIds, $context);
-        }
+        $this->cheapestPriceUpdater->update($parentIds, $context);
 
         $this->ratingAverageUpdater->update($parentIds, $context);
 

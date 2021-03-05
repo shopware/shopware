@@ -3,9 +3,7 @@
         {% block page_product_detail_price_block %}
             <div class="product-block-prices">
                 {% block page_product_detail_price_block_table %}
-                    {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) element will no longer use class table-sm and table-bordered #}
-                    {# @feature-deprecated tag:v6.4.0 (flag: FEATURE_NEXT_10553) class "product-block-prices-table" will be removed use "product-block-prices-grid" instead #}
-                    <table class="table {% if not feature('FEATURE_NEXT_10553') %}table-sm table-bordered product-block-prices-table{% else %}product-block-prices-grid{% endif %}">
+                    <table class="table product-block-prices-grid">
                         {% block page_product_detail_price_block_table_head %}
                             <thead class="product-block-prices-head">
                                 {% block page_product_detail_price_block_table_head_inner %}

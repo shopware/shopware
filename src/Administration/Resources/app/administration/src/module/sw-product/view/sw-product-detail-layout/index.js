@@ -67,11 +67,22 @@ Component.register('sw-product-detail-layout', {
         }
     },
 
-    mounted() {
-        this.handleGetCmsPage();
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            // Keep current layout configuration if page sections exist
+            const sections = Utils.get(this.currentPage, 'sections', []);
+
+            if (sections.length) {
+                return;
+            }
+
+            this.handleGetCmsPage();
+        },
+
         onOpenLayoutModal() {
             if (!this.acl.can('product.editor')) {
                 return;

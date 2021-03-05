@@ -281,6 +281,10 @@ Component.register('sw-product-detail-base', {
 
             const newMedia = this.productMediaRepository.create(Context.api);
             newMedia.mediaId = media.id;
+            newMedia.media = {
+                url: media.url,
+                id: media.id
+            };
 
             if (isEmpty(this.product.media)) {
                 this.setMediaAsCover(newMedia);

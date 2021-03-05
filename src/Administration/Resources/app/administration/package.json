@@ -127,7 +127,7 @@
     "less": "3.9.0",
     "less-loader": "5.0.0",
     "opn": "6.0.0",
-    "prismjs": "1.21.0",
+    "prismjs": "1.23.0",
     "sass": "1.32.8",
     "sass-loader": "8.0.2",
     "semver": "6.3.0",
@@ -142,7 +142,7 @@
     "webpack-hot-middleware": "2.25.0"
   },
   "engines": {
-    "node": ">=6.14.0 || >=8.10.0 || >=9.10.0",
+    "node": ">=12.21.0",
     "npm": ">= 6.5.0"
   },
   "browserslist": [

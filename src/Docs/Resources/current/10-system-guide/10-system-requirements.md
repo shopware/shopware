@@ -56,7 +56,7 @@ SQL
 * MariaDB 10.3.22 or higher
 
 JavaScript
-* Node.js 10.13.0 or higher
+* Node.js 12.21.0 or higher
 * NPM 6.5.0 or higher
 
 Various

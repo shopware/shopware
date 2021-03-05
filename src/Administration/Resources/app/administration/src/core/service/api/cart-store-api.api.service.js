@@ -98,7 +98,7 @@ class CartStoreService extends ApiService {
 
     shouldPriceUpdated(item, isNewProductItem) {
         const isUnitPriceEdited = item.price.unitPrice !== item.priceDefinition.price;
-        const isTaxRateEdited = item.price.taxRules[0].taxRate !== item.priceDefinition.taxRules[0].taxRate;
+        const isTaxRateEdited = Shopware.Utils.get(item, 'price.taxRules[0].taxRate', null) !== Shopware.Utils.get(item, 'priceDefinition.taxRules[0].taxRate', null);
         const isCustomItem = item.type === this.getLineItemTypes().CUSTOM;
 
         const isExistingProductAndUnitPriceIsEdited = !isNewProductItem && isUnitPriceEdited;
@@ -143,7 +143,7 @@ class CartStoreService extends ApiService {
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const isNewProductItem = item._isNew && item.type === this.getLineItemTypes().PRODUCT;
+        const isNewProductItem = item._isNew === true && item.type === this.getLineItemTypes().PRODUCT;
         const id = item.identifier || item.id || utils.createId();
         const route = this.getRouteForItem(id, salesChannelId, isNewProductItem);
         const headers = {

@@ -31,6 +31,7 @@ Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    previewMediaId foreignKey
    customFields translated
    locked writeLockIndicator
+   primary_key(versionId) version
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -42,6 +43,7 @@ TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTransla
    updatedAt updatedAt
    primary_key(cmsPageId) foreignKey
    primary_key(languageId) foreignKey
+   primary_key(cmsPageVersionId) referenceVersion
 }
 Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(Content Section)") {
    primary_key(id) id
@@ -57,6 +59,8 @@ Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_sectio
    cssClass string
    not_null(pageId) foreignKey
    customFields customFields
+   primary_key(versionId) version
+   not_null(cmsPageVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -77,6 +81,8 @@ Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Co
    cssClass string
    not_null(sectionId) foreignKey
    customFields customFields
+   primary_key(versionId) version
+   not_null(cmsSectionVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -90,6 +96,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    customFields translated
    data json
    not_null(blockId) foreignKey
+   not_null(cmsBlockVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

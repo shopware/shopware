@@ -5,7 +5,6 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -307,16 +306,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function collectMigrations(): MigrationCollection
     {
-        if (Feature::isActive('FEATURE_NEXT_12349')) {
-            return $this->getContainer()
-                ->get(MigrationCollectionLoader::class)
-                ->collectAllForVersion(
-                    $this->getContainer()->getParameter('kernel.shopware_version'),
-                    MigrationCollectionLoader::VERSION_SELECTION_ALL
-                );
-        }
-
-        return $this->getContainer()->get(MigrationCollectionLoader::class)->collect('core');
+        return $this->getContainer()
+            ->get(MigrationCollectionLoader::class)
+            ->collectAllForVersion(
+                $this->getContainer()->getParameter('kernel.shopware_version'),
+                MigrationCollectionLoader::VERSION_SELECTION_ALL
+            );
     }
 
     private function setupDB(Connection $orgConnection): Connection

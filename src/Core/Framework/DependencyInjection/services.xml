@@ -98,21 +98,18 @@ base-uri 'self';
             <argument type="string">core.V6_3</argument>
 
             <tag name="shopware.migration_source"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_4"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core.V6_4</argument>
             <tag name="shopware.migration_source"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_5"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core.V6_5</argument>
             <tag name="shopware.migration_source"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12349"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\MigrationSource.null"

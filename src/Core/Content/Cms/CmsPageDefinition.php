@@ -85,9 +85,7 @@ class CmsPageDefinition extends EntityDefinition
             );
         }
 
-        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
-            $collection->add((new VersionField())->addFlags(new ApiAware()));
-        });
+        $collection->add((new VersionField())->addFlags(new ApiAware()));
 
         if (Feature::isActive('FEATURE_NEXT_13504')) {
             $collection->add(

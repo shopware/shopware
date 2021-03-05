@@ -7,7 +7,7 @@ namespace Shopware\Core\Migration;
  * Before that, it removes rows with duplicated `technical_name` from table `document_type`
  */
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_12349) tag:6.5.0.0 - Will be deleted. Migrations are now namespaced by major version
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
  */
 class Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType extends \Shopware\Core\Migration\V6_3\Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType
 {

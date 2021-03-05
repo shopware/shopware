@@ -115,33 +115,10 @@ class Container extends BaseContainer
         };
 
         $container['migration.source'] = static function ($c) {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $coreBundleMigrations = [
-                    SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
-                    SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',
-                ];
-            } else {
-                $coreBundleMigrations = [
-                    SW_PATH . '/vendor/shopware/core/Migration' => 'Shopware\\Core\\Migration',
-                    SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
-                ];
-            }
-
-            // @feature-deprecated (flag:FEATURE_NEXT_12349) Always return an empty array
-            if ($c['feature.isActive']('FEATURE_NEXT_12349')) {
-                // the migrations moved into core.V6_3
-                $coreBundleMigrations = [];
-            }
-
-            return new CoreMigrationSource('core', $coreBundleMigrations);
+            return new CoreMigrationSource('core', []);
         };
 
         $container['migration.sources'] = static function ($c) {
-            // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if block
-            if (!$c['feature.isActive']('FEATURE_NEXT_12349')) {
-                return [$c['migration.source']];
-            }
-
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBasePath = SW_PATH . '/platform/src/Core';
                 $storefrontBasePath = SW_PATH . '/platform/src/Storefront';

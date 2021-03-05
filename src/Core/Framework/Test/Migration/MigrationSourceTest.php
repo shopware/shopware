@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -12,24 +11,10 @@ class MigrationSourceTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider provideCoreRegexData
-     */
-    public function testCoreRegex(string $subject, bool $shoulMatch): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12349', $this);
-
-        $pattern = $this->getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core')->getNamespacePattern();
-
-        static::assertSame($shoulMatch, (bool) preg_match("/$pattern/", $subject, $subject));
-    }
-
-    /**
      * @dataProvider provideCoreRegexDataV6_3
      */
     public function testCoreRegexV63(string $subject, bool $shoulMatch): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12349', $this);
-
         $pattern = $this->getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core.V6_3')->getNamespacePattern();
 
         static::assertSame($shoulMatch, (bool) preg_match("/$pattern/", $subject, $subject));

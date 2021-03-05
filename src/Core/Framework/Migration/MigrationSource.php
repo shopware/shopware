@@ -79,9 +79,6 @@ class MigrationSource
         return '(' . implode('|', $patterns) . ')';
     }
 
-    /**
-     * @internal (flag::FEATURE_NEXT_12349)
-     */
     public function mapToOldName(string $className): ?string
     {
         $replacementPatterns = $this->getReplacementPatterns();
@@ -104,9 +101,6 @@ class MigrationSource
         return $oldName;
     }
 
-    /**
-     * @internal (flag::FEATURE_NEXT_12349)
-     */
     public function getReplacementPatterns(): array
     {
         $patterns = $this->replacementPatterns;

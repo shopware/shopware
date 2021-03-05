@@ -2,7 +2,6 @@
 use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Recovery\Common\HttpClient\Client;
@@ -571,15 +570,10 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
     $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
-    // @feature-deprecated (flag:FEATURE_NEXT_12349) Remove if branch on feature release (keep the collectAllVersion call)
-    if (!Feature::isActive('FEATURE_NEXT_12349')) {
-        $coreMigrations = $migrationCollectionLoader->collect('core');
-    } else {
-        $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
-            $container->offsetGet('shopware.version'),
-            MigrationCollectionLoader::VERSION_SELECTION_ALL
-        );
-    }
+    $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+        $container->offsetGet('shopware.version'),
+        MigrationCollectionLoader::VERSION_SELECTION_ALL
+    );
 
     $resultMapper = new ResultMapper();
 

@@ -1,7 +1,6 @@
 ---
 title: CMS entities version aware
 issue: NEXT-13273
-flag: FEATURE_NEXT_13273
 author: Jan Pietrzyk
 author_email: j.pietrzyk@shopware.com 
 author_github: @JanPietrzyk

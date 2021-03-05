@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class CmsSlotDefinition extends EntityDefinition
 {
@@ -71,9 +70,7 @@ class CmsSlotDefinition extends EntityDefinition
             (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new ApiAware()),
         ]);
 
-        Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
-            $collection->add((new ReferenceVersionField(CmsBlockDefinition::class))->addFlags(new Required(), new ApiAware()));
-        });
+        $collection->add((new ReferenceVersionField(CmsBlockDefinition::class))->addFlags(new Required(), new ApiAware()));
 
         return $collection;
     }

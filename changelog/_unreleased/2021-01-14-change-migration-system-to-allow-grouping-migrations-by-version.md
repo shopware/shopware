@@ -1,7 +1,6 @@
 ---
 title: Change migration system to allow grouping migrations by version
 issue: NEXT-12349
-flag: FEATURE_NEXT_12349 
 ---
 # Core
 * Added `MigrationSource`s `\Shopware\Core\Framework\Migration\MigrationSource.core.V6_3` and `\Shopware\Core\Framework\Migration\MigrationSource.core.V6_4`

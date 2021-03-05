@@ -103,19 +103,10 @@ shopware:
               major: true
               description: "Improve product UX"
               # issue: NEXT-13759
-            - name: FEATURE_NEXT_12349
-              default: false
-              major: true
-              description: "Group migrations into major versions"
-              # issue: NEXT-13749
             - name: FEATURE_NEXT_12158
               default: false
               major: false
               description: "Refactoring of Elasticsearch"
-            - name: FEATURE_NEXT_13273
-              default: false
-              major: true
-              description: "Make CMS entities versionable"
             - name: FEATURE_NEXT_13504
               default: false
               major: true

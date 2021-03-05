@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -39,7 +38,6 @@ class CmsEntityTest extends TestCase
      */
     public function testCmsEntityIsVersionable(string $entityDefinitionClass): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13273', $this);
         /** @var EntityDefinition $definition */
         $definition = $this->getContainer()->get($entityDefinitionClass);
 
@@ -62,15 +60,12 @@ class CmsEntityTest extends TestCase
 
     public function testTranslationDefinitionsAreVersionAware(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13273', $this);
         static::assertTrue($this->getContainer()->get(CmsPageTranslationDefinition::class)->isVersionAware());
         static::assertTrue($this->getContainer()->get(CmsSlotTranslationDefinition::class)->isVersionAware());
     }
 
     public function testCreatingAPageVersion(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13273', $this);
-
         $repository = $this->getContainer()->get('cms_page.repository');
         $context = Context::createDefaultContext();
         $fixture = $this->getCmsPageFixture();

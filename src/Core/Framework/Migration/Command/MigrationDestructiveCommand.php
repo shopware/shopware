@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,8 +36,7 @@ class MigrationDestructiveCommand extends MigrationCommand
 
     protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_12349) Only check for identifier
-        if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
+        if ($identifier === 'core') {
             $mode = $input->getOption('version-selection-mode');
             if (!\is_string($mode)) {
                 throw new \InvalidArgumentException('version-selection-mode should be a string');

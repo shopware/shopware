@@ -50,6 +50,7 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    keywords translated
    cmsPageId foreignKey
    productStreamId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

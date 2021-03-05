@@ -246,9 +246,8 @@ class ProductDefinition extends EntityDefinition
                 (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())
             );
 
-            Feature::ifActive('FEATURE_NEXT_13273', function () use ($collection): void {
-                $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()));
-            });
+            $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()));
+
             $collection->add(
                 (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())
             );

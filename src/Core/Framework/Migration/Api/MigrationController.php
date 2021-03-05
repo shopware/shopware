@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Migration\Api;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -106,8 +105,7 @@ class MigrationController extends AbstractController
     {
         $identifier = $request->request->get('identifier', 'core');
 
-        // @feature-deprecated (flag:FEATURE_NEXT_12349) Only check for identifier
-        if (Feature::isActive('FEATURE_NEXT_12349') && $identifier === 'core') {
+        if ($identifier === 'core') {
             return $this->loader->collectAllForVersion($this->shopwareVersion, $mode);
         }
 

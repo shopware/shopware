@@ -112,6 +112,7 @@ class CategoryRouteTest extends TestCase
 
     public function testCategoryOfTypeFolder(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
         $id = $this->ids->get('folder');
         $this->browser->request(
             'POST',
@@ -125,6 +126,7 @@ class CategoryRouteTest extends TestCase
 
     public function testCategoryOfTypeLink(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
         $id = $this->ids->get('link');
         $this->browser->request(
             'POST',

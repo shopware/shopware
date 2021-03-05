@@ -635,6 +635,14 @@ Component.register('sw-category-detail', {
                 this.landingPage.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (this.landingPageId !== 'create') {
+                if (this.landingPage.salesChannels.length === 0) {
+                    this.addLandingPageSalesChannelError();
+
+                    return;
+                }
+            }
+
             this.isLoading = true;
             this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
@@ -649,19 +657,9 @@ Component.register('sw-category-detail', {
                 this.isLoading = false;
 
                 if (this.landingPage.salesChannels.length === 0) {
-                    const shopwareError = new Shopware.Classes.ShopwareError(
-                        {
-                            code: 'landing_page_sales_channel_blank',
-                            detail: 'This value should not be blank.',
-                            status: '400'
-                        }
-                    );
+                    this.addLandingPageSalesChannelError();
 
-                    Shopware.State.dispatch('error/addApiError',
-                        {
-                            expression: `landing_page.${this.landingPage.id}.salesChannels`,
-                            error: shopwareError
-                        });
+                    return;
                 }
 
                 this.createNotificationError({
@@ -669,6 +667,28 @@ Component.register('sw-category-detail', {
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
+            });
+        },
+
+        addLandingPageSalesChannelError() {
+            const shopwareError = new Shopware.Classes.ShopwareError(
+                {
+                    code: 'landing_page_sales_channel_blank',
+                    detail: 'This value should not be blank.',
+                    status: '400'
+                }
+            );
+
+            Shopware.State.dispatch('error/addApiError',
+                {
+                    expression: `landing_page.${this.landingPage.id}.salesChannels`,
+                    error: shopwareError
+                });
+
+            this.createNotificationError({
+                message: this.$tc(
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                )
             });
         },
 

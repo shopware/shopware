@@ -56,7 +56,15 @@
                                          aria-expanded="true"
                                          aria-controls="collapseFooter{{ loop.index }}">
 
-                                        {{ root.category.translated.name }}
+                                        {% if root.category.type == 'folder' %}
+                                            {{ root.category.translated.name }}
+                                        {% else %}
+                                            <a href="{{ category_url(root.category) }}"
+                                               {% if root.category.translated.linkNewTab %}target="_blank"{% endif %}
+                                               title="{{ root.category.translated.name }}">
+                                                {{ root.category.translated.name }}
+                                            </a>
+                                        {% endif %}
                                         {% block layout_footer_navigation_information_icons %}
                                             <div class="footer-column-toggle">
                                                 <span class="footer-plus-icon">
@@ -87,11 +95,16 @@
                                                         {% block layout_footer_navigation_information_link_item %}
                                                             <li class="footer-link-item">
                                                                 {% block layout_footer_navigation_information_link %}
-                                                                    <a class="footer-link"
-                                                                       href="{{ category_url(category) }}"
-                                                                       title="{{ name }}">
-                                                                        {{ name }}
-                                                                    </a>
+                                                                    {% if category.type == 'folder' %}
+                                                                        <div>{{ name }}</div>
+                                                                    {% else %}
+                                                                        <a class="footer-link"
+                                                                           href="{{ category_url(category) }}"
+                                                                           {% if category.translated.linkNewTab %}target="_blank"{% endif %}
+                                                                           title="{{ name }}">
+                                                                            {{ name }}
+                                                                        </a>
+                                                                    {% endif %}
                                                                 {% endblock %}
                                                             </li>
                                                         {% endblock %}

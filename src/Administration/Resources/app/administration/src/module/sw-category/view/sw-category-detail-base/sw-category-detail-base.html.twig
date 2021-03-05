@@ -67,7 +67,7 @@
                     <sw-single-select
                         v-if="feature.isActive('FEATURE_NEXT_13504')"
                         class="sw-category-detail-base__type-selection"
-                        :helpText="$tc('sw-category.base.general.types.help')"
+                        :helpText="categoryTypeHelpText"
                         :label="$tc('sw-category.base.general.types.title')"
                         v-model="category.type"
                         :disabled="!acl.can('category.editor')"

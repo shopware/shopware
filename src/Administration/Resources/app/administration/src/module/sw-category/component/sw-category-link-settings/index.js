@@ -86,6 +86,14 @@ Component.register('sw-category-link-settings', {
             criteria.addAssociation('options.group');
 
             return criteria;
+        },
+
+        categoryCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.category.id)]));
+            criteria.addFilter(Criteria.equals('type', 'page'));
+
+            return criteria;
         }
     },
 

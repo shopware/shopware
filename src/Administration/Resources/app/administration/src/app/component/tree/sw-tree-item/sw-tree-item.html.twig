@@ -203,7 +203,8 @@
                                           :shouldFocus="shouldFocus"
                                           :activeFocusId="activeFocusId"
                                           :displayCheckbox="displayCheckbox"
-                                          :disableContextMenu="disableContextMenu">
+                                          :disableContextMenu="disableContextMenu"
+                                          :getIsHighlighted="getIsHighlighted">
 
                                 {% block sw_tree_item_children_items_slots %}
                                     <template #content="{ item, openTreeItem, getName: innerGetName }">

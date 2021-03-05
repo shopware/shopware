@@ -86,6 +86,15 @@ Component.register('sw-category-detail-base', {
             return categoryTypes;
         },
 
+        categoryTypeHelpText() {
+            // ToDo NEXT-13760: insert final snippets for category type help texts
+            if (['page', 'folder', 'link'].includes(this.category.type)) {
+                return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
+            }
+
+            return null;
+        },
+
         // @deprecated tag:v6.5.0 - can be removed completely
         productAssignmentTypes() {
             return [

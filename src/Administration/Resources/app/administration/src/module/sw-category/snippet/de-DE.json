@@ -14,6 +14,8 @@
       "treeHeadline": "Kategoriestruktur",
       "treeHeadSelected": "{count} ausgewählt",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
+      "errorNavigationEntryPoint": "Diese Kategorie ist als Hauptnavigation in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
+      "errorNavigationEntryPointMultiple": "Eine oder mehrere Kategorien sind als Hauptnavigation in mind. einem Verkaufskanal definiert und können deshalb nicht gelöscht werden.",
       "actions": {
         "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",
         "createSub": "Neue Subkategorie",
@@ -27,7 +29,7 @@
       "products": "Produkte",
       "seo": "SEO",
       "columnInfoHeader": "Fußzeilen-Element",
-      "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als nicht-klickbare Spaltenüberschrift angezeigt. Alle untergeordneten Kategorien werden als klickbare Zeilen unterhalb der Spaltenüberschrift dargestellt."
+      "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
     },
     "base": {
       "general": {
@@ -43,9 +45,14 @@
           "folder": "Strukturkategorie",
           "link": "Benutzerdefinierter Link",
           "newPage": "Seite / Liste",
-          "newFolder": "Strukturkategorie / Einstiegspunkt",
+          "newFolder": "Strukturelement / Einstiegspunkt",
           "newLink": "Link",
-          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung."
+          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
+          "helpText": {
+            "page": "Eine Seite / Liste hat zugehörige Produkte und kann direkt mit dem zugeordneten Layout aufgerufen werden.",
+            "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
+            "link": "Ein Link ermöglicht den Verweis auf ein Produkt, eine andere Kategorie, eine Landingpage oder eine externe Seite."
+          }
         }
       },
       "entry-point": {
@@ -70,8 +77,11 @@
         "buttonConfigureHome": "Startseite konfigurieren",
         "types": {
           "labelMainNavigation": "Hauptnavigation",
+          "helpTextMainNavigation": "Der Einstiegspunkt für die Hauptnavigation ist ein Pflichtfeld für Verkaufskanäle. Wenn Sie diese Kategorie als Einstiegspunkt für die Hauptnavigation einem oder mehreren Verkaufskanälen zuordnen, können Sie diese Zuordnung nur am Verkaufskanal selbst ändern.",
           "labelFooterNavigation": "Footernavigation",
-          "labelServiceNavigation": "Servicenavigation"
+          "helpTextFooterNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Footernavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien auf der nächsten Ebene zu Spalten. So können Sie Ihre Footernavigation in mehrere Bereiche unterteilen.",
+          "labelServiceNavigation": "Servicenavigation",
+          "helpTextServiceNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Servicenavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien der nächsten Ebene als zweite Navigation im Fußbereich angezeigt."
         }
       },
       "entry-point-modal": {

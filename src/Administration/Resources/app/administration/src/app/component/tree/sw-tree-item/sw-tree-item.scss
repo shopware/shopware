@@ -116,6 +116,14 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
     }
 
+    &.is--highlighted > .sw-tree-item__element {
+        .sw-tree-item__label {
+            background-color: $color-gray-100;
+            padding: 1px 3px;
+            border-radius: $border-radius-default;
+        }
+    }
+
     .sw-tree-item__toggle {
         width: 15px;
         height: 24px;

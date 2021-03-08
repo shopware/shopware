@@ -27,7 +27,7 @@ function createWrapper(propsData = {}) {
     });
 }
 
-describe('src/module/sw-extension/component/sw-extension-card-base', () => {
+describe('SwagExtensionStore/module/sw-extension-store/component/sw-extension-card-base', () => {
     /** @type Wrapper */
     let wrapper;
 

@@ -78,6 +78,20 @@
     }
   },
   "sw-extension-store": {
+    "landing-page": {
+      "enablingShopwareStore": "Aktivieren des Shopware-Stores ...",
+      "takeMinutes": "This may take a few minutes.",
+      "activationErrorTitle": "Dies kann ein paar Minuten dauern",
+      "activationErrorDescription": "Versuche es noch einmal. Wenn es nicht funktioniert, bitte Deinen Administrator um Hilfe.",
+      "retryButton": "Wiederholen",
+      "activationSuccessTitle": "Erfolgreich aktiviert",
+      "activationSuccessDescription": "Viel Spaß beim Stöbern im Shopware Store.",
+      "label": "Jetzt verfügbar",
+      "activationDescriptionTitleFirst": "Erweiterungen einfach entdecken und kaufen -",
+      "activationDescriptionTitleSecond": "direkt aus Ihrem eigenen Shopware-Shop heraus.",
+      "activationDescriptionTitleDescription": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die du nahtlos in deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse.",
+      "activate": "Aktivieren"
+    },
     "title": "Store",
     "descriptionTextModule": "Verwalte Deine Erweiterungen",
     "general": {

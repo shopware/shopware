@@ -12,7 +12,6 @@ export default {
                 filter: {}
             },
             extensionListing: [],
-            storeCategories: [],
             categoriesLanguageId: null,
             myExtensions: {
                 loading: true,
@@ -53,10 +52,6 @@ export default {
         licensedExtensions(state, licensedExtensions) {
             state.licensedExtensions.data = licensedExtensions;
             state.licensedExtensions.loading = false;
-        },
-
-        storeCategories(state, categories) {
-            state.storeCategories = categories;
         },
 
         categoriesLanguageId(state, languageId) {

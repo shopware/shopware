@@ -1,7 +1,0 @@
-{% block sw_extension_label_display %}
-	<div class="sw-extensions-store-label-display">
-		<div class="sw-extension-label" v-for="item in labels" :key="item.label" :style="{ 'background-color': item.color || '#fff', 'color': determineTextColor(item.color)}">
-			{{item.label}}
-		</div>
-	</div>
-{% endblock %}

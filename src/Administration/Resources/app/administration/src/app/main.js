@@ -19,6 +19,7 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
+import ExtensionHelperService from 'src/app/service/extension-helper.service';
 import LanguageAutoFetchingService from 'src/app/service/language-auto-fetching.service';
 import SearchTypeService from 'src/app/service/search-type.service';
 import ShortcutService from 'src/app/service/shortcut.service';
@@ -97,6 +98,13 @@ Application
     })
     .addServiceProvider('customFieldDataProviderService', () => {
         return CustomFieldService();
+    })
+    .addServiceProvider('extensionHelperService', () => {
+        return new ExtensionHelperService({
+            storeService: Shopware.Service('storeService'),
+            pluginService: Shopware.Service('pluginService'),
+            extensionStoreDataService: Shopware.Service('extensionStoreDataService')
+        });
     })
     .addServiceProvider('languageAutoFetchingService', () => {
         return LanguageAutoFetchingService();

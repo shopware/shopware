@@ -7,6 +7,7 @@
             "buttonNextPayPalInfo": "Configure",
             "buttonBack": "Back",
             "buttonInstall": "Install",
+            "buttonActivate": "Activate",
             "buttonFinish": "Finish",
             "buttonConfigureLater": "Configure later",
             "pluginInstalled": "Installed"
@@ -103,6 +104,18 @@
             "labelCreateDomain": "Create a new shop domain",
             "testEnvironment": "Test environment"
         },
+        "store": {
+          "modalTitle": "Shopware Store",
+          "loadStatusCollect": "Collect store information...",
+          "takeMinutes": "This may take a few minutes.",
+          "alreadyActivated": "Store is already successfully activated.",
+          "enablingStore": "Enabling the Shopware Store ... ",
+          "activationErrorTitle": "Error on activation",
+          "activationErrorDescription": "Please ask your administrator for help.",
+          "headingOne": "Explore and buy extensions easily -",
+          "headingTwo": "right from within your own Shopware shop.",
+          "description": "Activate the all new Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills."
+        },
         "finish": {
             "headlineAllDone": "All done!",
             "message": "Your Shopware 6 {edition} is now verified.",
@@ -114,14 +127,16 @@
             "forumLabel": "Forum",
             "forumUrl": "https://forum.shopware.com/",
             "roadmapLabel": "Roadmap",
-            "roadmapUrl": "https://www.shopware.com/en/roadmap/"
+            "roadmapUrl": "https://www.shopware.com/en/roadmap/",
+            "modalTitle": "Done"
         },
         "stepItemTitle": {
             "dataImport": "Data import",
             "mailer": "Mailer configuration",
             "setupPaypal": "PayPal setup",
             "plugins": "Plugins",
-            "shopware": "Shopware Account"
+            "shopware": "Shopware Account",
+            "store": "Shopware Store"
         }
     },
     "sw-privileges": {

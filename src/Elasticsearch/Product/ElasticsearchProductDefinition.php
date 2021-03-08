@@ -81,8 +81,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'dynamic_templates' => [
                     [
                         'cheapest_price' => [
-                            'match_pattern' => 'regex',
-                            'match' => '^cheapest_price_rule',
+                            'match' => 'cheapest_price_rule*',
                             'mapping' => ['type' => 'double'],
                         ],
                     ],

@@ -56,8 +56,9 @@ class LandingPageLoader
         $page = LandingPage::createFrom($page);
 
         $metaInformation = new MetaInformation();
+        $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
         $page->setCmsPage($cmsPage);
-        $metaInformation->setMetaTitle($landingPage->getMetaTitle() ?? '');
+        $metaInformation->setMetaTitle($metaTitle ?? '');
         $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
         $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
         $page->setMetaInformation($metaInformation);

@@ -43,7 +43,7 @@
                 <template v-slot="{ active }">
                     {% block sw_cms_layout_assignment_modal_tab_categories %}
                         <sw-tabs-item
-                            v-if="page.type === 'page'"
+                            v-if="page.type === 'page' || page.type === 'landingpage'"
                             :activeTab="active"
                             :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
                             class="sw-cms-layout-assignment-modal__tab-categories"
@@ -68,9 +68,41 @@
                             {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
                         </sw-tabs-item>
                     {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
+                        <sw-tabs-item
+                            v-if="feature.isActive('FEATURE_NEXT_12032') && page.type === 'landingpage'"
+                            :activeTab="active"
+                            :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
+                            :disabled="!acl.can('system.system_config')"
+                            v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    showOnDisabledElements: true,
+                                    disabled: acl.can('system.system_config')
+                                }"
+                            class="sw-cms-layout-assignment-modal__tab-landing-pages"
+                            name="landing_pages">
+                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages') }}
+                        </sw-tabs-item>
+                    {% endblock %}
                 </template>
 
                 <template #content="{ active }">
+                    {% block sw_cms_layout_assignment_modal_landing_page_select %}
+                        <template v-if="active === 'landing_pages'">
+
+                            {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
+                                <sw-entity-multi-select
+                                    class="sw-cms-layout-assignment-modal__landing-page-select"
+                                    v-model="page.landingPages"
+                                    :label="$tc('global.entities.landing_page')"
+                                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
+                                    entityName="landing_page">
+                                </sw-entity-multi-select>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
                     {% block sw_cms_layout_assignment_modal_category_select %}
                         <template v-if="!isProductDetailPage && active === 'categories'">
 
@@ -197,6 +229,22 @@
                         v-if="hasCategoriesWithAssignedLayouts"
                         class="sw-cms-layout-assignment-modal__confirm-text-assigned-layouts">
                         {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategoriesAssignedLayouts') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_landing_pages %}
+                    <p
+                        v-if="hasDeletedLandingPages"
+                        class="sw-cms-layout-assignment-modal__confirm-text-landing-pages">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPages') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_assigned_layouts_landing_pages %}
+                    <p
+                        v-if="hasLandingPagesWithAssignedLayouts"
+                        class="sw-cms-layout-assignment-modal__confirm-text-assigned-layouts">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPagesAssignedLayouts') }}
                     </p>
                 {% endblock %}
 

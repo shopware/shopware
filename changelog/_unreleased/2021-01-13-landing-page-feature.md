@@ -48,6 +48,12 @@ ___
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-landing-page-detail-cms/sw-landing-page-detail-cms.html.twig`
     * `src/Administration/Resources/app/administration/src/module/sw-category/view/sw-landing-page-detail-cms/sw-landing-page-detail-cms.scss`
 * Added landing page routes to `sw-category` module
+* Added new optional property `headline` to `sw-category-layout-card` component
+* Added new blocks to `sw-cms-layout-assignment-modal` so landing page layouts can be assigned to landing pages via cms modal:
+    * `sw_cms_layout_assignment_modal_tab_landing_pages`
+    * `sw_cms_layout_assignment_modal_landing_page_select`
+    * `sw_cms_layout_assignment_modal_confirm_changes_text_landing_pages`
+    * `sw_cms_layout_assignment_modal_confirm_changes_text_assigned_layouts_landing_pages`
 * Changed `sw-category-tree` handling to `$set` and `$delete` methods
 ___
 # Storefront

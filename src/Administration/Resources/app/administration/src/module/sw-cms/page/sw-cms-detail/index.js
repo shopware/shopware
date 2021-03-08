@@ -246,9 +246,13 @@ Component.register('sw-cms-detail', {
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
                 criteria
                     .addAssociation('products.manufacturer');
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_12032')) {
+                criteria.addAssociation('landingPages');
             }
 
             return criteria;

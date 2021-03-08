@@ -16,6 +16,7 @@
                 <sw-cms-layout-modal
                     v-if="showLayoutSelectionModal"
                     :cmsPageTypes="pageTypes"
+                    :headline="headline"
                     @modal-layout-select="onLayoutSelect"
                     @modal-close="closeLayoutModal">
                 </sw-cms-layout-modal>

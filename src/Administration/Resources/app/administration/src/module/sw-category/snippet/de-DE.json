@@ -221,7 +221,8 @@
         "editInPagebuilderEmpty": "Neues Layout erstellen",
         "editContent": "Inhalte bearbeiten",
         "defaultTitle": "Standard-Layout",
-        "defaultDesc": "Kategorieseite"
+        "defaultDesc": "Kategorieseite",
+        "cmsLayoutModalHeadline": "Landingpage"
       }
     },
     "modal": {

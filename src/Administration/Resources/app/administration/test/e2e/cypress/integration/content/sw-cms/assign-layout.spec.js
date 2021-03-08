@@ -2,20 +2,121 @@
 
 describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     beforeEach(() => {
+        let salesChannel;
         cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();
+                return cy.searchViaAdminApi({
+                    endpoint: 'sales-channel',
+                    data: {
+                        field: 'name',
+                        type: 'equals',
+                        value: 'Storefront'
+                    }
+                });
             })
-            .then(() => {
+            .then((data) => {
+                salesChannel = data.id;
                 return cy.createCmsFixture();
             })
             .then(() => {
                 return cy.createDefaultFixture('cms-page', {}, 'cms-page-shop-page');
             })
             .then(() => {
+                return cy.createDefaultFixture('cms-page', { name: 'Testing page', type: 'landingpage' }, 'cms-page-shop-page');
+            })
+            .then((page) => {
+                page.name = 'Initial Page';
+                page.type = 'landingpage';
+
+                return cy.createDefaultFixture('landing-page', {
+                    cmsPage: page,
+                    salesChannels: [
+                        {
+                            id: salesChannel
+                        }
+                    ]
+                });
+            })
+            .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
             });
+    });
+
+    it('@base @content: assign layout to landing page from layout editor', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12032');
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'patch'
+        }).as('saveData');
+
+        // Go to detail view
+        cy.get('.sw-cms-list-item--1').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
+
+        // Add simple text block
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('.sw-cms-sidebar__block-preview')
+            .first()
+            .dragTo('.sw-cms-section__empty-stage');
+        cy.get('.sw-cms-block').should('be.visible');
+        cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
+
+        // Open layout assignment from sidebar
+        cy.get('.sw-sidebar-navigation-item[title="Layout assignment"]').click();
+        cy.get('.sw-cms-sidebar__layout-assignment-content').should('be.visible');
+        cy.get('.sw-cms-sidebar__layout-assignment-open').click();
+
+        // Layout assignment modal should be visible
+        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+        cy.get('.sw-cms-layout-assignment-modal__tabs').should('be.visible');
+
+        // Navigate to shop pages tab
+        cy.get('.sw-cms-layout-assignment-modal__tab-landing-pages').click();
+
+        // Assign landing page
+        cy.get('.sw-cms-layout-assignment-modal__landing-page-select').typeMultiSelectAndCheck('Testingpage');
+
+        // Confirm layout assignment
+        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+
+        // Warning modal should appear because landing page has an assigned layout
+        cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('be.visible');
+        cy.get('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').should('be.visible').contains('landing pages');
+
+        // Confirm changes
+        cy.get('.sw-cms-layout-assignment-modal__action-changes-confirm').click();
+
+        // Assignment modal should disappear
+        cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('not.be.visible');
+        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
+
+        // Save the layout
+        cy.get('.sw-cms-detail__save-action').click();
+
+        // Verify request is successful and contains landingPages
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+            expect(xhr.request.body).to.have.property('landingPages');
+        });
+
+
+        // Collapse category and expand landing page tree
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
+        cy.get('.sw-category-detail__landing-page-collapse .sw-sidebar-collapse__indicator').click();
+
+        // Verify layout is assigned to landing page
+        cy.get('.sw-tree-item__element').contains('Testingpage').click();
+        cy.get('.sw-landing-page-detail__tab-cms').scrollIntoView().click();
+        cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
+        cy.get('.sw-category-layout-card__desc-headline').contains('Testing page');
+
+        // Verify layout in storefront
+        cy.visit('/landingpage');
+        cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
     });
 
     it('@base @content: assign layout to category from layout editor', () => {
@@ -26,7 +127,14 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         }).as('saveData');
 
         // Go to detail view
-        cy.get('.sw-cms-list-item--1').click();
+        cy.onlyOnFeature('FEATURE_NEXT_12032', () => {
+            cy.get('.sw-cms-list-item--3').click();
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_12032', () => {
+            cy.get('.sw-cms-list-item--2').click();
+        });
+
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
@@ -104,7 +212,14 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         }).as('saveShopPageData');
 
         // Go to detail view
-        cy.get('.sw-cms-list-item--0').click();
+        cy.onlyOnFeature('FEATURE_NEXT_12032', () => {
+            cy.get('.sw-cms-list-item--2').click();
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_12032', () => {
+            cy.get('.sw-cms-list-item--1').click();
+        });
+
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block

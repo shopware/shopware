@@ -7,8 +7,9 @@
             {% endif %}
 
             {% set listPrice = price.listPrice.percentage > 0 %}
+            {% set hasRange = product.calculatedPrices.count > 1 %}
 
-            {% if listPrice %}
+            {% if listPrice and not hasRange %}
                 <div class="badge badge-danger badge-discount">
                     <span>&#37;</span>
                 </div>

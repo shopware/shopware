@@ -3,6 +3,7 @@ import './sw-plugin-updates-grid.scss';
 
 const { Component, Mixin, State } = Shopware;
 const storeService = Shopware.Service('storeService');
+const cacheApiService = Shopware.Service('cacheApiService');
 
 Component.register('sw-plugin-updates-grid', {
     template,
@@ -22,7 +23,8 @@ Component.register('sw-plugin-updates-grid', {
     data() {
         return {
             limit: 25,
-            isLoading: false,
+            isFetchingUpdates: false,
+            isUpdatingPlugin: false,
             updateQueue: [],
             showLoginModal: false,
             unsubscribeStore: null,
@@ -60,6 +62,10 @@ Component.register('sw-plugin-updates-grid', {
 
         noUpdates() {
             return !this.isLoading && this.total < 1;
+        },
+
+        isLoading() {
+            return this.isFetchingUpdates || this.isUpdatingPlugin;
         }
     },
 
@@ -74,16 +80,28 @@ Component.register('sw-plugin-updates-grid', {
     },
 
     methods: {
-        onUpdate(update) {
+        async onUpdate(update) {
             this.addToQueue(update);
-            this.startDownload();
+            this.isUpdatingPlugin = true;
+            try {
+                await this.startDownload();
+                await this.clearCacheAndReloadPage();
+            } finally {
+                this.isUpdatingPlugin = false;
+            }
         },
 
-        updateAll() {
+        async updateAll() {
             this.updates.forEach((update) => {
                 this.addToQueue(update);
             });
-            this.startDownload();
+            this.isUpdatingPlugin = true;
+            try {
+                await this.startDownload();
+                await this.clearCacheAndReloadPage();
+            } finally {
+                this.isUpdatingPlugin = false;
+            }
         },
 
         addToQueue(update) {
@@ -120,12 +138,12 @@ Component.register('sw-plugin-updates-grid', {
             this.unsubscribeStore = State.subscribeAction({
                 before: ({ type }) => {
                     if (type === 'swPlugin/fetchAvailableUpdates') {
-                        this.isLoading = true;
+                        this.isFetchingUpdates = true;
                     }
                 },
                 after: ({ type }) => {
                     if (type === 'swPlugin/fetchAvailableUpdates') {
-                        this.isLoading = false;
+                        this.isFetchingUpdates = false;
                     }
                 }
             });
@@ -168,6 +186,11 @@ Component.register('sw-plugin-updates-grid', {
                 }
             }
             return Promise.resolve();
+        },
+
+        async clearCacheAndReloadPage() {
+            await cacheApiService.clear();
+            window.location.reload();
         }
     }
 });

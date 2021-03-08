@@ -71,6 +71,7 @@
                         :label="$tc('sw-category.base.general.types.title')"
                         v-model="category.type"
                         :disabled="!acl.can('category.editor')"
+                        :error="categoryTypeError"
                         :options="categoryTypes">
                     </sw-single-select>
                 {% endblock %}

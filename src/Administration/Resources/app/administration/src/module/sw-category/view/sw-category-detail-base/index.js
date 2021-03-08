@@ -77,6 +77,7 @@ Component.register('sw-category-detail-base', {
 
                     if (type.value === 'link') {
                         type.label = this.$tc('sw-category.base.general.types.newLink');
+                        type.disabled = this.isSalesChannelEntryPoint;
                     }
 
                     return type;

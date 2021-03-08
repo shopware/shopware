@@ -22,6 +22,7 @@ ___
 * Updated dependency `terser-webpack-plugin` to `4.2.3`
 * Updated dev-dependency `webpack-dev-server` to `3.11.2`
 * Updated dev-dependency `stylelint` to `13.11.0`
+* Updated dev-dependency `sass-loader` to `7.2.0`
 * Removed dev-dependency `node-sass`, replaced by `sass`
 * Added dev-dependency `sass@1.32.8`
 ___

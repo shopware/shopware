@@ -1,5 +1,7 @@
 {% sw_extends 'storefront/component/account/register.html.twig' %}
 
+{% set hasSelectedBusiness = page.group.translated.registrationOnlyCompanyRegistration %}
+
 {% block component_account_register_header %}
     {% if page.group.translated.registrationTitle is not empty %}
         <div class="card-title">

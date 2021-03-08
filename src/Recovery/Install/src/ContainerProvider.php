@@ -239,7 +239,7 @@ class ContainerProvider implements ServiceProviderInterface
             $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
 
             return [
-                $c['migration.source'],
+                new CoreMigrationSource('core', []),
                 $v3,
                 $v4,
                 new CoreMigrationSource('core.V6_5', [

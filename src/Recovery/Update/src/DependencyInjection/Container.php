@@ -114,10 +114,6 @@ class Container extends BaseContainer
             return new PathBuilder($baseDir, $updateDir, $backupDir);
         };
 
-        $container['migration.source'] = static function ($c) {
-            return new CoreMigrationSource('core', []);
-        };
-
         $container['migration.sources'] = static function ($c) {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBasePath = SW_PATH . '/platform/src/Core';
@@ -142,7 +138,7 @@ class Container extends BaseContainer
             $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
 
             return [
-                $c['migration.source'],
+                new CoreMigrationSource('core', []),
                 $v3,
                 $v4,
                 new CoreMigrationSource('core.V6_5', [

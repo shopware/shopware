@@ -178,7 +178,10 @@
       "placeholderSearchBar": "Search Landing pages...",
       "treeHeadSelected": "{count} selected",
       "buttonCreate": "Add Landing page",
-      "treeHeadline": "Landing pages"
+      "treeHeadline": "Landing pages",
+      "actions": {
+        "actionsDisabledInLanguage": "Landing pages can only be created in the default language."
+      }
     },
     "base": {
       "general": {

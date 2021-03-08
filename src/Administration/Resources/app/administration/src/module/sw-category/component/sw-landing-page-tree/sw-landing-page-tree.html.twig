@@ -58,10 +58,11 @@
                                 #actions="{
                                     onDuplicate,
                                     onChangeRoute,
-                                    deleteElement
+                                    deleteElement,
+                                    toolTip
                                 }">
                                 {% block sw_landing_page_tree_items_actions %}
-                                    <sw-context-button class="sw-tree-item__context_button">
+                                    <sw-context-button v-tooltip="toolTip" class="sw-tree-item__context_button" :disabled="disableContextMenu">
 
                                         {% block sw_landing_page_tree_items_actions_edit %}
                                             <sw-context-menu-item @click="onChangeRoute(item)">
@@ -100,6 +101,7 @@
         {% block sw_landing_page_tree_action %}
             <div class="sw-landing-page-tree__add-button">
                 <sw-button
+                    :disabled="disableContextMenu"
                     :routerLink="newLandingPageUrl()"
                     size="small"
                     variant="ghost">

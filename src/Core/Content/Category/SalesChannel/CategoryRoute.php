@@ -97,7 +97,11 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_13504') && $category->getType() === CategoryDefinition::TYPE_FOLDER) {
+        if (Feature::isActive('FEATURE_NEXT_13504')
+            && ($category->getType() === CategoryDefinition::TYPE_FOLDER
+                || $category->getType() === CategoryDefinition::TYPE_LINK)
+            && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
+        ) {
             throw new CategoryNotFoundException($navigationId);
         }
 

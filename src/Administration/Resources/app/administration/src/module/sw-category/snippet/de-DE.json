@@ -177,7 +177,10 @@
       "placeholderSearchBar": "Durchsuche alle Landingpages ...",
       "treeHeadSelected": "{count} ausgewählt",
       "buttonCreate": "Landingpage hinzufügen",
-      "treeHeadline": "Landingpages"
+      "treeHeadline": "Landingpages",
+      "actions": {
+        "actionsDisabledInLanguage": "Landingpages können nur in der Standardsprache erstellt werden."
+      }
     },
     "base": {
       "general": {

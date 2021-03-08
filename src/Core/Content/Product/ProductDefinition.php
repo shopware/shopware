@@ -27,7 +27,6 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -177,7 +176,7 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('keywords'))->addFlags(new ApiAware(SalesChannelApiSource::class), new Inherited()),
+            (new TranslatedField('keywords'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new ApiAware(), new Inherited()),

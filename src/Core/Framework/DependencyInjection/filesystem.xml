@@ -11,32 +11,32 @@
             <argument type="tagged" tag="shopware.filesystem.plugin"/>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.public" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.public%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.private" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.temp">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.temp" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.temp%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.theme">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.theme" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.theme%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.sitemap">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.sitemap" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.sitemap%</argument>
         </service>
 
-        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.asset">
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.asset" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
             <argument>%shopware.filesystem.asset%</argument>
         </service>

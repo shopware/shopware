@@ -128,6 +128,7 @@ abstract class Bundle extends SymfonyBundle
                 'plugins/' . $containerPrefix,
             ]
         );
+        $filesystem->setPublic(true);
 
         $container->setDefinition($serviceId, $filesystem);
     }

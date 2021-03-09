@@ -312,7 +312,7 @@ Component.register('sw-media-upload-v2', {
             await this.mediaRepository.save(targetEntity, Context.api);
             this.mediaService.addUpload(this.uploadTag, { src: url, targetId: targetEntity.id, ...fileInfo });
 
-            this.closeUrlModal();
+            this.useFileUpload();
         },
 
         onFileInputChange() {

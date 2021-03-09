@@ -178,9 +178,18 @@ Component.register('sw-order-list', {
                 'line-item-filter': {
                     property: 'lineItems.product',
                     label: this.$tc('sw-order.filters.productFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.productFilter.placeholder')
+                    placeholder: this.$tc('sw-order.filters.productFilter.placeholder'),
+                    criteria: this.productCriteria,
+                    displayVariants: true
                 }
             });
+        },
+
+        productCriteria() {
+            const productCriteria = new Criteria();
+            productCriteria.addAssociation('options.group');
+
+            return productCriteria;
         }
     },
 

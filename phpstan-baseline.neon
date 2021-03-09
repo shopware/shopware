@@ -1516,16 +1516,6 @@ parameters:
 			path: src/Core/Content/ProductExport/Event/ProductExportLoggingEvent.php
 
 		-
-			message: "#^Parameter \\#2 \\$salesChannelId of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextFactory\\:\\:create\\(\\) expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php
-
-		-
-			message: "#^Parameter \\#2 \\$salesChannelId of class Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ScheduledTask\\\\ProductExportPartialGeneration constructor expects string, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php
-
-		-
 			message: "#^Cannot call method getLocaleId\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportPartialGenerationHandler.php
@@ -1769,16 +1759,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function ltrim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Filesystem/PrefixFilesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Translation\\\\Translator\\:\\:warmUp\\(\\) has parameter \\$cacheDir with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Translation/Translator.php
-
-		-
-			message: "#^Parameter \\#1 \\$locale of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Translation\\\\Translator\\:\\:setLocale\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Translation/Translator.php
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
@@ -2252,7 +2232,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 6
+			count: 7
 			path: src/Core/Framework/DataAbstractionLayer/Cache/EntityCacheKeyGenerator.php
 
 		-
@@ -2966,11 +2946,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Criteria.php
 
 		-
-			message: "#^Parameter \\#2 \\$entities of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection, iterable given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\ContainsFilter\\:\\:__construct\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Filter/ContainsFilter.php
@@ -3524,11 +3499,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteScopeRegistry\\:\\:\\$routeScopes \\(array\\<Shopware\\\\Core\\\\Framework\\\\Routing\\\\AbstractRouteScope\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/RouteScopeRegistry.php
-
-		-
-			message: "#^Parameter \\#2 \\$token of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextServiceInterface\\:\\:get\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/SalesChannelRequestContextResolver.php
 
 		-
 			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\|null\\.$#"
@@ -4171,11 +4141,6 @@ parameters:
 			path: src/Core/System/Currency/CurrencyFormatter.php
 
 		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Currency/CurrencyFormatter.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Currency\\\\Rule\\\\CurrencyRule\\:\\:\\$currencyIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
 			count: 1
 			path: src/Core/System/Currency/Rule/CurrencyRule.php
@@ -4449,11 +4414,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Service\\\\ConfigurationService\\:\\:\\$bundles \\(array\\) does not accept iterable\\<Symfony\\\\Component\\\\HttpKernel\\\\Bundle\\\\BundleInterface\\>\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Service/ConfigurationService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getSubArray\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/SystemConfigService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getId\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
@@ -4746,11 +4706,6 @@ parameters:
 			path: src/Storefront/Framework/Cache/CacheResponseSubscriber.php
 
 		-
-			message: "#^Parameter \\#1 \\$tags of method Symfony\\\\Component\\\\Cache\\\\CacheItem\\:\\:tag\\(\\) expects array\\<string\\>\\|string, array given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/CacheStore.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmerRegistry\\:\\:\\$warmers \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheRouteWarmer\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheRouteWarmerRegistry.php
@@ -4759,11 +4714,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheWarmer\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheWarmer.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ObjectCacheKeyFinder\\:\\:loop\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ObjectCacheKeyFinder.php
 
 		-
 			message: "#^Parameter \\#3 \\$subject of function preg_replace_callback expects array\\|string, string\\|false given\\.$#"
@@ -4779,6 +4729,11 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorRegistry\\:\\:\\$validators \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/StorefrontMediaValidatorRegistry.php
+
+		-
+			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ObjectCacheKeyFinder\\:\\:loop\\(\\) has parameter \\$data with no typehint specified\\.$#"
+			count: 1
+			path: src/Storefront/Framework/Cache/ObjectCacheKeyFinder.php
 
 		-
 			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
@@ -4812,11 +4767,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$request of method Shopware\\\\Storefront\\\\Controller\\\\ErrorController\\:\\:error\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/StorefrontSubscriber.php
-
-		-
-			message: "#^Parameter \\#2 \\$token of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextServiceInterface\\:\\:get\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/StorefrontSubscriber.php
 

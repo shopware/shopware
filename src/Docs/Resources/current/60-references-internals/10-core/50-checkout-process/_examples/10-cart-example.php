@@ -197,6 +197,7 @@ namespace DocsTest {
     use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
     use Shopware\Core\Framework\Uuid\Uuid;
     use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+    use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
     class DocsLineItemTest extends TestCase
@@ -334,7 +335,7 @@ namespace DocsTest {
         {
             return $this->getContainer()
                 ->get(SalesChannelContextService::class)
-                ->get(Defaults::SALES_CHANNEL, $this->salesChannelToken);
+                ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $this->salesChannelToken));
         }
 
         private function ensureProductInCart(): void

@@ -489,7 +489,7 @@ Order state management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-statemachine.md)
 
-#### SystemConfig <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### SystemConfig <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig)
 

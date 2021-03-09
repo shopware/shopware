@@ -56,7 +56,61 @@ parameters:
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
-        # Dynamic php code in DAL
+        -
+            message: '#Call to an undefined method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityDefinition\|Shopware\\Core\\System\\SalesChannel\\Entity\\SalesChannelDefinitionInterface::getEntityName\(\)\.#'
+            path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
+        -
+            message: '#Method Shopware\\Core\\System\\SystemConfig\\SystemConfigService::trace\(\) has no return typehint specified\.#'
+            path: src/Core/System/SystemConfig/SystemConfigService.php
+        -
+            message: '#Parameter \#3 \$entities of class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult constructor expects Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection, iterable given\.#'
+            path: src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php
+        -
+            message: '#Method Shopware\\Storefront\\Theme\\ThemeConfigValueAccessor::get\(\) has no return typehint specified\.#'
+            path: src/Storefront/Theme/ThemeConfigValueAccessor.php
+        -
+            message: '#Method Shopware\\Storefront\\Theme\\ThemeConfigValueAccessor::trace\(\) has no return typehint specified\.#'
+            path: src/Storefront/Theme/ThemeConfigValueAccessor.php
+        -
+            message: '#Method Shopware\\Storefront\\Framework\\Cache\\CacheTracer::trace\(\) has no return typehint specified\.#'
+            path: src/Storefront/Framework/Cache/CacheTracer.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::trace\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface\|Symfony\\Contracts\\Translation\\TranslatorInterface::getCatalogue\(\)\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface\|Symfony\\Contracts\\Translation\\TranslatorInterface::getLocale\(\)\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::warmUp\(\) has parameter \$cacheDir with no typehint specified\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Parameter \#1 \$locale of method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::setLocale\(\) expects string, string\|null given\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\Translation\\TranslatorBagInterface|Symfony\\Contracts\\Translation\\TranslatorInterface::setLocale\(\)\.#'
+            path: src/Core/Framework/Adapter/Translation/Translator.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheTracer::trace\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Cache/CacheTracer.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheCompressor::compress\(\) has parameter \$content with no typehint specified\.#'
+            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheCompressor::uncompress\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
+        -
+            message: '#Parameter \#1 \$variable_representation of function unserialize expects string, string\|false given\.#'
+            path: src/Core/Framework/Adapter/Cache/CacheCompressor.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\AbstractCacheTracer::trace\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Cache/AbstractCacheTracer.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\AbstractTranslator::trace\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Translation/AbstractTranslator.php
+
         - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
         - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
         - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'
@@ -108,19 +162,7 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\ReferenceVersionField::getStorageName\(\) should return string but returns string\|null#'
             path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
-        # PhpStan cannot detect which interface that the calling function belongs to if we typehint multiple interfaces for a parameter.
-        -
-            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getCatalogue\\(\\)\\.$#"
-            count: 2
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:setLocale\\(\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Adapter/Translation/Translator.php
-        -
-            message: "#^Call to an undefined method Symfony\\\\Component\\\\Translation\\\\TranslatorBagInterface\\|Symfony\\\\Contracts\\\\Translation\\\\LocaleAwareInterface\\|Symfony\\\\Contracts\\\\Translation\\\\TranslatorInterface\\:\\:getLocale\\(\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Adapter/Translation/Translator.php
+
 services:
     -
         class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

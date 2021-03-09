@@ -35,7 +35,24 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\SystemConfigLoader">
+            <argument type="service" id="system_config.repository"/>
             <argument type="service" id="plugin.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoaderInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Command\ConfigGet">

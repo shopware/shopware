@@ -238,6 +238,17 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CachedRuleLoader" decorates="Shopware\Core\Checkout\Cart\RuleLoader" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CachedRuleLoader.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\CachedRuleLoaderInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\RuleLoader">
             <argument type="service" id="rule.repository"/>
         </service>

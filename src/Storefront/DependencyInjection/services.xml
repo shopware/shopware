@@ -15,15 +15,28 @@
     <services>
         <defaults autowire="true"/>
 
+        <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\CachedDomainLoader.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\DomainLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
                  decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument>%shopware.routing.registered_api_prefixes%</argument>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\DomainLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
@@ -46,6 +59,20 @@
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
 
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\TemplateConfigAccessor">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor" />
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
+            <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\TemplateConfigAccessor"/>
             <tag name="twig.extension"/>
         </service>
 
@@ -396,9 +423,17 @@
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer" />
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
+        <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer.inner"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator">
+            <argument>%shopware.cache.invalidation.http_cache%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheResponseSubscriber">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
@@ -498,7 +533,7 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
     </services>

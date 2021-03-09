@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionFixtureBuilder
@@ -52,7 +52,7 @@ class PromotionFixtureBuilder
 
     public function __construct(
         string $promotionId,
-        SalesChannelContextFactory $salesChannelContextFactory,
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $promotionRepository,
         EntityRepositoryInterface $promotionSetgroupRepository,
         EntityRepositoryInterface $promotionDiscountRepository

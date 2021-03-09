@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -32,6 +33,7 @@ class WhitelistRuleFieldTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('product.repository');
         parent::setUp();

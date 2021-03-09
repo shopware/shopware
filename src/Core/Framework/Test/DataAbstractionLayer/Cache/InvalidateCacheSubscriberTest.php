@@ -16,12 +16,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
+    }
 
     public function testInvalidate(): void
     {

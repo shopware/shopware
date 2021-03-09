@@ -119,6 +119,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('media_id', new EntitySearchResult(
+            'media',
             1,
             new MediaCollection([$media]),
             null,

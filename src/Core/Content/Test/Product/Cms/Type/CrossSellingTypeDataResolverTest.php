@@ -105,6 +105,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
+            'product',
             1,
             new ProductCollection(),
             null,

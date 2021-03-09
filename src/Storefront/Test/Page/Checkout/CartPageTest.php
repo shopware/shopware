@@ -46,6 +46,7 @@ class CartPageTest extends TestCase
     {
         $response = new ShippingMethodRouteResponse(
             new EntitySearchResult(
+                'shipping_method',
                 0,
                 new ShippingMethodCollection(),
                 null,

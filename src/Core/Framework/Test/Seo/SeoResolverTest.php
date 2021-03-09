@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\SeoResolver;
-use Shopware\Core\Content\Seo\SeoResolverInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -23,7 +23,7 @@ class SeoResolverTest extends TestCase
     private $seoUrlRepository;
 
     /**
-     * @var SeoResolverInterface
+     * @var AbstractSeoResolver
      */
     private $seoResolver;
 
@@ -49,13 +49,13 @@ class SeoResolverTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '//');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '//');
         static::assertEquals(['pathInfo' => '/', 'isCanonical' => false], $resolved);
     }
 
@@ -65,10 +65,10 @@ class SeoResolverTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/foo/bar');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/foo/bar');
         static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
 
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'foo/bar');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'foo/bar');
         static::assertEquals(['pathInfo' => '/foo/bar', 'isCanonical' => false], $resolved);
     }
 
@@ -100,30 +100,30 @@ class SeoResolverTest extends TestCase
         ], Context::createDefaultContext());
 
         // pathInfo
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'detail/1234');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'detail/1234');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/detail/1234');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/detail/1234');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // old canonical
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'awesome-product');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/awesome-product');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(0, $resolved['isCanonical']);
         static::assertEquals('/awesome-product-v2', $resolved['canonicalPathInfo']);
 
         // canonical
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, 'awesome-product-v2');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, 'awesome-product-v2');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
-        $resolved = $this->seoResolver->resolveSeoPath($context->getLanguageId(), $salesChannelId, '/awesome-product-v2');
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product-v2');
         static::assertEquals('/detail/1234', $resolved['pathInfo']);
         static::assertEquals(1, $resolved['isCanonical']);
     }
@@ -164,10 +164,10 @@ class SeoResolverTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $actual = $this->seoResolver->resolveSeoPath($this->deLanguageId, $salesChannelDeId, 'awesome-product-de');
+        $actual = $this->seoResolver->resolve($this->deLanguageId, $salesChannelDeId, 'awesome-product-de');
         static::assertEquals($deId, Uuid::fromBytesToHex($actual['id']));
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $salesChannelDeId, 'awesome-product-en');
+        $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $salesChannelDeId, 'awesome-product-en');
         static::assertEquals($enId, Uuid::fromBytesToHex($actual['id']));
     }
 
@@ -209,11 +209,11 @@ class SeoResolverTest extends TestCase
 
         $unknownSalesChannelId = Uuid::randomHex();
         // returns default for unknown sales channels
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $unknownSalesChannelId, 'awesome-product');
+        $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $unknownSalesChannelId, 'awesome-product');
         static::assertEquals('/detail/default', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $otherSalesChannelId, 'awesome-product');
+        $actual = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $otherSalesChannelId, 'awesome-product');
         static::assertEquals('/detail/other', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
     }

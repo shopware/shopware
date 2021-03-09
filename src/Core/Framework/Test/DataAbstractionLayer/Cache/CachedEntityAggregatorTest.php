@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -36,6 +37,7 @@ class CachedEntityAggregatorTest extends TestCase
     {
         parent::setUp();
         $this->cache = $this->getContainer()->get('cache.object');
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
     }
 
     public function testCacheHit(): void

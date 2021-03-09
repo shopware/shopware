@@ -85,6 +85,7 @@ class StoreControllerTest extends TestCase
         $pluginRepository->method('search')
             ->willReturn(
                 new EntitySearchResult(
+                    'plugin',
                     1,
                     new EntityCollection([
                         $this->getPluginStub(),

@@ -35,7 +35,7 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
         $productReviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $productReviewRouteMock->method('load')->willReturn(
             new ProductReviewRouteResponse(
-                new EntitySearchResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+                new EntitySearchResult('product', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 

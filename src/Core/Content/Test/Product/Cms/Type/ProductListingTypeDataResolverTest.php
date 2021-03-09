@@ -30,7 +30,7 @@ class ProductListingTypeDataResolverTest extends TestCase
         $mock = $this->createMock(ProductListingRoute::class);
         $mock->method('load')->willReturn(
             new ProductListingRouteResponse(
-                new ProductListingResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+                new ProductListingResult('product', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 

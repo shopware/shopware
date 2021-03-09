@@ -26,13 +26,12 @@ class ProductGatewayTest extends TestCase
 
         $repository = $this->createMock(SalesChannelRepositoryInterface::class);
         $emptySearchResult = new EntitySearchResult(
+            'product',
             0,
             new ProductCollection(),
             null,
             new Criteria(),
-            $context->getContext(),
-            1,
-            null
+            $context->getContext()
         );
         $repository->method('search')->willReturn($emptySearchResult);
 

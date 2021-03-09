@@ -134,10 +134,14 @@ class CachedNavigationRoute extends AbstractNavigationRoute
             $this->generateKey($active, $rootId, $depth, $request, $context, $criteria)
         );
 
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . self::buildName($active));
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . self::buildName($active));
 
-            return CacheCompressor::uncompress($item);
+                return CacheCompressor::uncompress($item);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . self::buildName($active));

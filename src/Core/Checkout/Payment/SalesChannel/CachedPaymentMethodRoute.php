@@ -118,10 +118,14 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
             $this->generateKey($request, $context, $criteria)
         );
 
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . self::buildName($context->getSalesChannelId()));
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . self::buildName($context->getSalesChannelId()));
 
-            return CacheCompressor::uncompress($item);
+                return CacheCompressor::uncompress($item);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));

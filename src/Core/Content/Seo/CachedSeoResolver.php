@@ -41,10 +41,15 @@ class CachedSeoResolver extends AbstractSeoResolver
         ]));
 
         $item = $this->cache->getItem($key);
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . $name);
 
-            return CacheCompressor::uncompress($item);
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . $name);
+
+                return CacheCompressor::uncompress($item);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . $name);

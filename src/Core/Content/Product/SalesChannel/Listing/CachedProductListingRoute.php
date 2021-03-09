@@ -96,10 +96,14 @@ class CachedProductListingRoute extends AbstractProductListingRoute
             $this->generateKey($categoryId, $request, $context, $criteria)
         );
 
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . self::buildName($categoryId));
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . self::buildName($categoryId));
 
-            return CacheCompressor::uncompress($item);
+                return CacheCompressor::uncompress($item);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . self::buildName($categoryId));

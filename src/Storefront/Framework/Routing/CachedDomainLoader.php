@@ -36,10 +36,14 @@ class CachedDomainLoader extends AbstractDomainLoader
         }
         $item = $this->cache->getItem(self::CACHE_KEY);
 
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . self::CACHE_KEY);
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . self::CACHE_KEY);
 
-            return CacheCompressor::uncompress($item);
+                return CacheCompressor::uncompress($item);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . self::CACHE_KEY);

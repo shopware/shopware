@@ -61,14 +61,18 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         $item = $this->cache->getItem($key);
 
-        if ($item->isHit() && $item->get()) {
-            $this->logger->info('cache-hit: ' . $name);
+        try {
+            if ($item->isHit() && $item->get()) {
+                $this->logger->info('cache-hit: ' . $name);
 
-            /** @var SalesChannelContext $context */
-            $context = CacheCompressor::uncompress($item);
-            $context->assign(['token' => $token]);
+                /** @var SalesChannelContext $context */
+                $context = CacheCompressor::uncompress($item);
+                $context->assign(['token' => $token]);
 
-            return $context;
+                return $context;
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
         }
 
         $this->logger->info('cache-miss: ' . $name);

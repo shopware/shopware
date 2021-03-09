@@ -116,6 +116,12 @@
           "headingTwo": "right from within your own Shopware shop.",
           "description": "Activate the all new Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills."
         },
+        "markets": {
+          "modalTitle": "Shopware Markets",
+          "heading": "Shopware Markets",
+          "description": "Shopware Markets enables you to connect your Shop to the Amazon and eBay marketplaces - while making the transfer of products and orders as convenient as possible.<br>Shopware Markets was designed to even further grow your business with the help of Sales Channels*¹.",
+          "footnote": "*¹ A paid subscription is required to use Shopware Markets added Sales Channels."
+        },
         "finish": {
             "headlineAllDone": "All done!",
             "message": "Your Shopware 6 {edition} is now verified.",
@@ -136,7 +142,8 @@
             "setupPaypal": "PayPal setup",
             "plugins": "Plugins",
             "shopware": "Shopware Account",
-            "store": "Shopware Store"
+            "store": "Shopware Store",
+            "markets": "Shopware Markets"
         }
     },
     "sw-privileges": {

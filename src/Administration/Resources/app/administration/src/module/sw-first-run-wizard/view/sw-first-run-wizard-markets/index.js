@@ -1,9 +1,10 @@
-import template from './sw-first-run-wizard-paypal-credentials.html.twig';
+import template from './sw-first-run-wizard-markets.html.twig';
+import './sw-first-run-wizard-markets.scss';
 
-const { Component } = Shopware;
-
-Component.register('sw-first-run-wizard-paypal-credentials', {
+Shopware.Component.register('sw-first-run-wizard-markets', {
     template,
+
+    inject: ['extensionHelperService'],
 
     computed: {
         buttonConfig() {
@@ -17,19 +18,11 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
                     disabled: false
                 },
                 {
-                    key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
-                    position: 'right',
-                    variant: null,
-                    action: 'sw.first.run.wizard.index.markets',
-                    disabled: false
-                },
-                {
                     key: 'next',
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.markets',
+                    action: 'sw.first.run.wizard.index.plugins',
                     disabled: false
                 }
             ];
@@ -42,16 +35,27 @@ Component.register('sw-first-run-wizard-paypal-credentials', {
 
     methods: {
         createdComponent() {
-            this.setTitle();
             this.updateButtons();
+            this.setTitle();
+            this.installMarkets();
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.markets.modalTitle'));
         },
 
         updateButtons() {
             this.$emit('buttons-update', this.buttonConfig);
+        },
+
+        installMarkets() {
+            Promise.all([this.extensionHelperService.downloadAndActivateExtension('SwagMarkets')])
+                .catch((error) => {
+                    Shopware.Utils.debug.error(error);
+                })
+                .finally(() => {
+                    this.isInstalling = false;
+                });
         }
     }
 });

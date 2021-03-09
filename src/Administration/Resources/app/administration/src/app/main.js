@@ -102,7 +102,7 @@ Application
         return new ExtensionHelperService({
             storeService: Shopware.Service('storeService'),
             pluginService: Shopware.Service('pluginService'),
-            extensionStoreDataService: Shopware.Service('extensionStoreDataService')
+            extensionApiService: Shopware.Service('extensionApiService')
         });
     })
     .addServiceProvider('languageAutoFetchingService', () => {

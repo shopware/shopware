@@ -12,7 +12,7 @@
       "role-grid": {
         "labelName": "Name",
         "labelDescription": "Description",
-        "messageEmptyTitle": "No rolFes yet",
+        "messageEmptyTitle": "No roles yet",
         "messageEmptySubline": "Create roles to start managing user rights.",
         "contextMenuEdit": "Edit",
         "contextMenuDelete": "Delete",

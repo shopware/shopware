@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CachedProductListingRouteInvalidator implements EventSubscriberInterface

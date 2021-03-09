@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
+use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -125,6 +127,8 @@ class ThemeService
             'salesChannelId' => $salesChannelId,
         ]], $context);
 
+        $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId));
+
         return true;
     }
 
@@ -139,6 +143,8 @@ class ThemeService
 
         $data = ['id' => $themeId];
         $data['configValues'] = null;
+
+        $this->dispatcher->dispatch(new ThemeConfigResetEvent($themeId));
 
         $this->themeRepository->update([$data], $context);
     }

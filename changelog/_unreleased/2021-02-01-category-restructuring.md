@@ -34,6 +34,8 @@ ___
     * `sw-category-entry-point-overwrite-modal`
     * `sw-category-sales-channel-multi-select`
 * Added entry point overwrite check on save to `sw-category-detail`
+* Added validation for navigation categories to `sw-category-tree`
+* Added function for highlighting to `sw-tree-item`
 * Refactored `mainNavigationCriteria` in `sw-sales-channel-detail-base` to allow entry points as main navigation entries
 * Added internal link settings to `sw-category-link-settings`
 * Added new computed properties to `sw-category-link-settings/index.js`
@@ -53,6 +55,7 @@ ___
 # Storefront
 * Removed service menu from top bar
 * Added service category listing to all viewports in footer
+* Changed footer headlines to be clickable as page / list
 * Added labeling and toggling of Home button in Navigation
 * Added possibility to overwrite Home cms page and meta data per Sales Channel
 * Added `category_url` function for rendering category urls for better link type handling

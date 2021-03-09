@@ -51,6 +51,19 @@ Component.register('sw-category-entry-point-card', {
             return this.category[this.selectedEntryPoint];
         },
 
+        helpText() {
+            switch (this.selectedEntryPoint) {
+                case 'navigationSalesChannels':
+                    return this.$tc('sw-category.base.entry-point-card.types.helpTextMainNavigation');
+                case 'footerSalesChannels':
+                    return this.$tc('sw-category.base.entry-point-card.types.helpTextFooterNavigation');
+                case 'serviceSalesChannels':
+                    return this.$tc('sw-category.base.entry-point-card.types.helpTextServiceNavigation');
+                default:
+                    return '';
+            }
+        },
+
         hasExistingNavigation() {
             return this.initialNavigationSalesChannels.length > 0;
         },

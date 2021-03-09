@@ -192,10 +192,52 @@ describe('Category: Create several categories', () => {
         cy.onlyOnFeature('FEATURE_NEXT_13504');
         const page = new CategoryPageObject();
 
-        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
-        cy.get('.tree-link').click();
+        // we need to create a new category, because Home can not be a link because it's an entry point
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/category`,
+            method: 'post'
+        }).as('saveData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/category`,
+            method: 'post'
+        }).as('loadCategory');
 
-        cy.get('.sw-loader').should('not.exist');
+        // Add category before root one
+        cy.get(`${page.elements.categoryTreeItemInner}__icon`).should('be.visible');
+        cy.clickContextMenuItem(
+            `${page.elements.categoryTreeItem}__sub-action`,
+            page.elements.contextMenuButton,
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+        );
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
+            if ($btn) {
+                cy.get(`${page.elements.categoryTreeItemInner}__content input`).should('be.visible');
+                cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
+            }
+        });
+
+        // Save and verify category
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+            cy.get('.sw-loader').should('not.exist');
+        });
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
+            }
+        });
+        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
+        cy.contains('Categorian').click();
+
+        // Assign category and set it active
+        cy.wait('@loadCategory').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').scrollIntoView().should('be.visible');

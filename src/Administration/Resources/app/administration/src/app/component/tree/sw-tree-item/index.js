@@ -125,6 +125,14 @@ Component.register('sw-tree-item', {
             type: Function,
             required: false,
             default: null
+        },
+
+        getIsHighlighted: {
+            type: Function,
+            required: false,
+            default: () => {
+                return false;
+            }
         }
     },
 
@@ -204,7 +212,8 @@ Component.register('sw-tree-item', {
                 'is--no-children': this.item.childCount <= 0,
                 'is--marked-inactive': this.markInactive && !this.item.data.active,
                 'is--focus': this.shouldFocus && this.activeFocusId === this.item.id,
-                'is--no-checkbox': !this.displayCheckbox
+                'is--no-checkbox': !this.displayCheckbox,
+                'is--highlighted': this.isHighlighted
             };
         },
 
@@ -249,6 +258,10 @@ Component.register('sw-tree-item', {
 
         isDisabled() {
             return this.currentEditElement !== null || this.disableContextMenu;
+        },
+
+        isHighlighted() {
+            return this.getIsHighlighted(this.item);
         }
     },
 

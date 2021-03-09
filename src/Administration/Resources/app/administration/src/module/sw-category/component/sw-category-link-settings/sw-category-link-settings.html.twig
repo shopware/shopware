@@ -57,6 +57,7 @@
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('global.entities.category')"
                 :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+                :criteria="categoryCriteria"
                 entity="category">
             </sw-entity-single-select>
         {% endblock %}

@@ -14,6 +14,8 @@
       "treeHeadline": "Category structure",
       "treeHeadSelected": "{count} selected",
       "emptyStateHeadline": "No category selected",
+      "errorNavigationEntryPoint": "This category is defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
+      "errorNavigationEntryPointMultiple": "One or more categories are defined as a main navigation of at least one Sales Channel and can therefore not be deleted.",
       "actions": {
         "actionsDisabledInLanguage": "Categories can only be created in the default language.",
         "createSub": "New subcategory",
@@ -27,7 +29,7 @@
       "products": "Products",
       "seo": "SEO",
       "columnInfoHeader": "Footer element",
-      "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a non-clickable headline for the column. All categories below are displayed as clickable rows below the column headline."
+      "columnInfo": "This category sets up a designated column in the footer. The category name will be displayed as a headline for the column. All categories on the first level below this category are displayed as rows below the column headline."
     },
     "base": {
       "general": {
@@ -45,7 +47,12 @@
           "newPage": "Page / List",
           "newFolder": "Structuring element / Entry point",
           "newLink": "Link",
-          "help": "A structure category is not callable by itself, but is only used for outlining purposes."
+          "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
+          "helpText": {
+            "page": "A page / list has associated products and can be accessed directly with the assigned layout.",
+            "folder": "A structuring element / entry point will only be displayed in the structure and is not directly accessible except it is assigned as an entry point of a Sales Channel.",
+            "link": "A link allows for reference to a product, another category, a landing page or an external site."
+          }
         }
       },
       "entry-point": {
@@ -70,8 +77,11 @@
         "buttonConfigureHome": "Configure home",
         "types": {
           "labelMainNavigation": "Main navigation",
+          "helpTextMainNavigation": "The entry point for the main navigation is a mandatory field for Sales Channels. If you assign this category as the entry point for the Main navigation to one or more Sales Channels, you can only change this assignment on the sales channel itself.",
           "labelFooterNavigation": "Footer navigation",
-          "labelServiceNavigation": "Service navigation"
+          "helpTextFooterNavigation": "If you assign this category as the entry point for the Footer navigation to one or more Sales Channels, the categories on the next level will be columns. This allows you to divide your footer navigation into several areas.",
+          "labelServiceNavigation": "Service navigation",
+          "helpTextServiceNavigation": "If you assign this category as the entry point for the Service navigation to one or more Sales Channels, the categories on the next level will be displayed as a second navigation in the footer area."
         }
       },
       "entry-point-modal": {

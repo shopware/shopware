@@ -35,7 +35,7 @@
             url="https://swag-test.com/do-stuff">
             <label>Do Stuff</label>
         </action-button>
-        <module name="first-module" source="https://test.com">
+        <module name="first-module" source="https://test.com" parent="sw-catalogue" position="50">
             <label>My first own module</label>
             <label lang="de-DE">Mein erstes eigenes Modul</label>
         </module>

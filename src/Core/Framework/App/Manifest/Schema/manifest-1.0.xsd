@@ -127,7 +127,7 @@
     <xs:complexType name="admin">
         <xs:sequence>
             <xs:element name="action-button" maxOccurs="unbounded" minOccurs="0" type="action-button"/>
-            <xs:element name="module" minOccurs="0" type="module"/>
+            <xs:element name="module" maxOccurs="unbounded" minOccurs="0" type="module"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="permissions">
@@ -162,8 +162,11 @@
         <xs:sequence>
             <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
         </xs:sequence>
-        <xs:attribute type="xs:anyURI" name="source" use="required"/>
+        <xs:attribute type="xs:anyURI" name="source" default="null"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <!-- @deprecated manifest:v1.1 will be required in future versions-->
+        <xs:attribute type="xs:string" name="parent" default="null"/>
+        <xs:attribute type="xs:integer" name="position" default="0"/>
     </xs:complexType>
     <xs:complexType name="webhook">
         <xs:attribute type="xs:string" name="name" use="required"/>

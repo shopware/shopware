@@ -198,6 +198,18 @@ class AppActionControllerTest extends TestCase
                             ],
                             'source' => 'https://test.com',
                             'name' => 'first-module',
+                            'parent' => 'sw-test-structure-module',
+                            'position' => 10,
+                        ],
+                        [
+                            'label' => [
+                                'en-GB' => 'My menu entry for modules',
+                                'de-DE' => 'Mein Menüeintrag für Module',
+                            ],
+                            'source' => null,
+                            'name' => 'structure-module',
+                            'parent' => 'sw-catalogue',
+                            'position' => 50,
                         ],
                     ],
                 ],

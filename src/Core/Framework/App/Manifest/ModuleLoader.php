@@ -87,23 +87,14 @@ class ModuleLoader
     {
         $modules = [];
 
+        try {
+            $shopId = $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return [];
+        }
+
         foreach ($app->getModules() as $module) {
-            $uri = $this->generateQueryString($module['source']);
-
-            if ($uri === null) {
-                continue;
-            }
-
-            /** @var string $secret */
-            $secret = $app->getAppSecret();
-            $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
-
-            $module['source'] = Uri::withQueryValue(
-                $uri,
-                'shopware-shop-signature',
-                $signature
-            )->__toString();
-
+            $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module);
             $modules[] = $module;
         }
 
@@ -121,16 +112,31 @@ class ModuleLoader
         return $labels;
     }
 
-    private function generateQueryString(string $uri): ?UriInterface
+    private function getModuleUrlWithQuery(AppEntity $app, string $shopId, array $module): ?string
+    {
+        $registeredSource = $module['source'] ?? null;
+
+        if ($registeredSource === null) {
+            return null;
+        }
+
+        $uri = $this->generateQueryString($registeredSource, $shopId);
+
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
+        $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
+
+        return Uri::withQueryValue(
+            $uri,
+            'shopware-shop-signature',
+            $signature
+        )->__toString();
+    }
+
+    private function generateQueryString(string $uri, string $shopId): UriInterface
     {
         $date = new \DateTime();
         $uri = new Uri($uri);
-
-        try {
-            $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return null;
-        }
 
         return Uri::withQueryValues($uri, [
             'shop-id' => $shopId,

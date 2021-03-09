@@ -83,25 +83,25 @@ class Manifest
     {
         try {
             $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
+
+            /** @var \DOMElement $meta */
+            $meta = $doc->getElementsByTagName('meta')->item(0);
+            $metadata = Metadata::fromXml($meta);
+            $setup = $doc->getElementsByTagName('setup')->item(0);
+            $setup = $setup === null ? null : Setup::fromXml($setup);
+            $admin = $doc->getElementsByTagName('admin')->item(0);
+            $admin = $admin === null ? null : Admin::fromXml($admin);
+            $permissions = $doc->getElementsByTagName('permissions')->item(0);
+            $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
+            $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
+            $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
+            $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
+            $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
+            $cookies = $doc->getElementsByTagName('cookies')->item(0);
+            $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
-
-        /** @var \DOMElement $meta */
-        $meta = $doc->getElementsByTagName('meta')->item(0);
-        $metadata = Metadata::fromXml($meta);
-        $setup = $doc->getElementsByTagName('setup')->item(0);
-        $setup = $setup === null ? null : Setup::fromXml($setup);
-        $admin = $doc->getElementsByTagName('admin')->item(0);
-        $admin = $admin === null ? null : Admin::fromXml($admin);
-        $permissions = $doc->getElementsByTagName('permissions')->item(0);
-        $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
-        $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
-        $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
-        $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
-        $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
-        $cookies = $doc->getElementsByTagName('cookies')->item(0);
-        $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
 
         return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies);
     }

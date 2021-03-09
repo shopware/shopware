@@ -17,14 +17,26 @@ class Module extends XmlElement
     protected $label;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $source;
+    protected $source = null;
 
     /**
      * @var string
      */
     protected $name;
+
+    /**
+     * @deprecated manifest:v1.1 will be required in future versions
+     *
+     * @var string|null
+     */
+    protected $parent = null;
+
+    /**
+     * @var int
+     */
+    protected $position = 1;
 
     private function __construct(array $data)
     {
@@ -43,7 +55,7 @@ class Module extends XmlElement
         return $this->label;
     }
 
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->source;
     }
@@ -53,12 +65,22 @@ class Module extends XmlElement
         return $this->name;
     }
 
+    public function getParent(): ?string
+    {
+        return $this->parent;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
         foreach ($element->attributes as $attribute) {
-            $values[$attribute->name] = XmlUtils::phpize($attribute->value);
+            $values[self::kebabCaseToCamelCase($attribute->name)] = XmlUtils::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

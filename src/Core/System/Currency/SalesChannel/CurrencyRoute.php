@@ -24,9 +24,8 @@ class CurrencyRoute extends AbstractCurrencyRoute
      */
     private $currencyRepository;
 
-    public function __construct(
-        SalesChannelRepositoryInterface $currencyRepository
-    ) {
+    public function __construct(SalesChannelRepositoryInterface $currencyRepository)
+    {
         $this->currencyRepository = $currencyRepository;
     }
 

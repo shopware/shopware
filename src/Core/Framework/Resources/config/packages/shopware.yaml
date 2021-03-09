@@ -95,6 +95,9 @@ shopware:
               default: false
               major: false
               description: "Filters & Search for Admin Grids"
+            - name: FEATURE_NEXT_10514
+              default: false
+              major: false
             - name: FEATURE_NEXT_12429
               default: false
               major: true
@@ -117,3 +120,17 @@ shopware:
 
     logger:
         file_rotation_count: 14
+
+    cache:
+        invalidation:
+            delay: 0
+            http_cache: ['logged-in', 'cart-filled']
+            product_listing_route: []
+            product_detail_route: []
+            product_search_route: [ ]
+            product_suggest_route: [ ]
+            payment_method_route: []
+            shipping_method_route: []
+            navigation_route: []
+            language_route: []
+            currency_route: []

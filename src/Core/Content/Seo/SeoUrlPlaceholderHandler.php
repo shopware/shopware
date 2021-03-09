@@ -2,12 +2,8 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -22,23 +18,23 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     private $router;
 
     /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $seoUrlRepository;
-
-    /**
      * @var RequestStack
      */
     private $requestStack;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
-        SalesChannelRepositoryInterface $seoUrlRepository
+        Connection $connection
     ) {
         $this->router = $router;
-        $this->seoUrlRepository = $seoUrlRepository;
         $this->requestStack = $requestStack;
+        $this->connection = $connection;
     }
 
     /**
@@ -88,21 +84,27 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
             return [];
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('isCanonical', true));
-        $criteria->addFilter(new EqualsAnyFilter('pathInfo', $mapping));
-        $criteria->addSorting(new FieldSorting('salesChannelId'));
-        $criteria->setTitle('seo-url::replacement');
+        $query = $this->connection->createQueryBuilder();
+        $query->addSelect(['seo_path_info', 'path_info']);
 
-        /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+        $query->from('seo_url');
+        $query->andWhere('seo_url.is_canonical = 1');
+        $query->andWhere('seo_url.path_info IN (:pathInfo)');
+        $query->andWhere('seo_url.language_id = :languageId');
+        $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
+        $query->andWhere('is_deleted = 0');
+        $query->setParameter('pathInfo', $mapping, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
+        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
+        $query->addOrderBy('seo_url.sales_channel_id');
 
+        $seoUrls = $query->execute()->fetchAll();
         foreach ($seoUrls as $seoUrl) {
-            $seoPathInfo = trim($seoUrl->getSeoPathInfo());
+            $seoPathInfo = trim($seoUrl['seo_path_info']);
             if ($seoPathInfo === '') {
                 continue;
             }
-            $key = self::DOMAIN_PLACEHOLDER . $seoUrl->getPathInfo() . '#';
+            $key = self::DOMAIN_PLACEHOLDER . $seoUrl['path_info'] . '#';
             $mapping[$key] = $seoPathInfo;
         }
 

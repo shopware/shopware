@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -33,7 +34,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SalesChannelContextFactory
+class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     /**
      * @var EntityRepositoryInterface
@@ -144,6 +145,11 @@ class SalesChannelContextFactory
         $this->currencyCountryRepository = $currencyCountryRepository;
     }
 
+    public function getDecorated(): AbstractSalesChannelContextFactory
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
         $context = $this->getContext($salesChannelId, $options);
@@ -239,6 +245,7 @@ class SalesChannelContextFactory
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
+            $options[SalesChannelContextService::DOMAIN_ID] ?? null,
             $salesChannel,
             $currency,
             $customerGroup,

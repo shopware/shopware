@@ -6,24 +6,21 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Config\Util\XmlUtils;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SystemConfigService
 {
@@ -48,20 +45,42 @@ class SystemConfigService
     private $configReader;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var array
      */
-    private $pluginRepository;
+    private $keys = ['all' => true];
+
+    /**
+     * @var array
+     */
+    private $traces = [];
+
+    /**
+     * @var AbstractSystemConfigLoader
+     */
+    private $loader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $systemConfigRepository,
         ConfigReader $configReader,
-        EntityRepositoryInterface $pluginRepository
+        AbstractSystemConfigLoader $loader,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
         $this->configReader = $configReader;
-        $this->pluginRepository = $pluginRepository;
+        $this->loader = $loader;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public static function buildName(string $key): string
+    {
+        return 'config.' . $key;
     }
 
     /**
@@ -69,6 +88,10 @@ class SystemConfigService
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
+        foreach (array_keys($this->keys) as $trace) {
+            $this->traces[$trace][self::buildName($key)] = true;
+        }
+
         $config = $this->load($salesChannelId);
 
         $parts = explode('.', $key);
@@ -128,6 +151,8 @@ class SystemConfigService
     }
 
     /**
+     * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
+     *
      * gets all available shop configs and returns them as an array
      */
     public function all(?string $salesChannelId = null): array
@@ -136,6 +161,8 @@ class SystemConfigService
     }
 
     /**
+     * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
+     *
      * @throws InvalidDomainException
      * @throws InvalidUuidException
      * @throws InconsistentCriteriaIdsException
@@ -218,6 +245,8 @@ class SystemConfigService
                 $this->systemConfigRepository->delete([['id' => $id]], Context::createDefaultContext());
             }
 
+            $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $value, $salesChannelId));
+
             return;
         }
 
@@ -228,6 +257,7 @@ class SystemConfigService
             'salesChannelId' => $salesChannelId,
         ];
         $this->systemConfigRepository->upsert([$data], Context::createDefaultContext());
+        $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $value, $salesChannelId));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void
@@ -303,6 +333,26 @@ class SystemConfigService
         $this->systemConfigRepository->delete($ids, Context::createDefaultContext());
     }
 
+    public function trace(string $key, \Closure $param)
+    {
+        $this->traces[$key] = [];
+        $this->keys[$key] = true;
+
+        $result = $param();
+
+        unset($this->keys[$key]);
+
+        return $result;
+    }
+
+    public function getTrace(string $key): array
+    {
+        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
+        unset($this->traces[$key]);
+
+        return $trace;
+    }
+
     private function load(?string $salesChannelId): array
     {
         $key = $salesChannelId ?? 'global';
@@ -311,102 +361,9 @@ class SystemConfigService
             return $this->configs[$key];
         }
 
-        $criteria = new Criteria();
-        $criteria->setTitle('system-config::load');
-
-        if ($salesChannelId === null) {
-            $criteria->addFilter(new EqualsFilter('salesChannelId', null));
-        } else {
-            $criteria->addFilter(
-                new MultiFilter(
-                    MultiFilter::CONNECTION_OR,
-                    [
-                        new EqualsFilter('salesChannelId', $salesChannelId),
-                        new EqualsFilter('salesChannelId', null),
-                    ]
-                )
-            );
-        }
-
-        $criteria->addSorting(
-            new FieldSorting('salesChannelId', FieldSorting::ASCENDING),
-            new FieldSorting('id', FieldSorting::ASCENDING)
-        );
-        $criteria->setLimit(500);
-
-        $systemConfigs = new SystemConfigCollection();
-        $iterator = new RepositoryIterator($this->systemConfigRepository, Context::createDefaultContext(), $criteria);
-
-        while ($chunk = $iterator->fetch()) {
-            $systemConfigs->merge($chunk->getEntities());
-        }
-
-        $this->configs[$key] = $this->buildSystemConfigArray($systemConfigs);
+        $this->configs[$key] = $this->loader->load($salesChannelId);
 
         return $this->configs[$key];
-    }
-
-    /**
-     * The keys of the system configs look like `core.loginRegistration.showPhoneNumberField`.
-     * This method splits those strings and builds an array structure
-     *
-     * ```
-     * Array
-     * (
-     *     [core] => Array
-     *         (
-     *             [loginRegistration] => Array
-     *                 (
-     *                     [showPhoneNumberField] => 'someValue'
-     *                 )
-     *         )
-     * )
-     * ```
-     */
-    private function buildSystemConfigArray(SystemConfigCollection $systemConfigs): array
-    {
-        $configValues = [];
-
-        foreach ($systemConfigs as $systemConfig) {
-            $keys = explode('.', $systemConfig->getConfigurationKey());
-
-            $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
-        }
-
-        return $this->filterNotActivatedPlugins($configValues);
-    }
-
-    private function filterNotActivatedPlugins(array $configValues): array
-    {
-        $notActivatedPlugins = $this->getNotActivatedPlugins();
-        foreach (array_keys($configValues) as $key) {
-            $notActivatedPlugin = $notActivatedPlugins->filter(function (PluginEntity $plugin) use ($key) {
-                return $plugin->getName() === $key;
-            })->first();
-
-            if ($notActivatedPlugin) {
-                unset($configValues[$key]);
-            }
-        }
-
-        return $configValues;
-    }
-
-    private function getSubArray(array $configValues, array $keys, $value): array
-    {
-        $key = array_shift($keys);
-
-        if (empty($keys)) {
-            $configValues[$key] = $value;
-        } else {
-            if (!\array_key_exists($key, $configValues)) {
-                $configValues[$key] = [];
-            }
-
-            $configValues[$key] = $this->getSubArray($configValues[$key], $keys, $value);
-        }
-
-        return $configValues;
     }
 
     /**
@@ -435,13 +392,5 @@ class SystemConfigService
         $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return array_shift($ids);
-    }
-
-    private function getNotActivatedPlugins(): EntityCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', false));
-
-        return $this->pluginRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 }

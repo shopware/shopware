@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -76,12 +77,15 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         return [
             'shopware' => [
+                //@feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Remove with feature flag
                 'config' => $this->getConfig($context),
+                //@feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Remove with feature flag
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
                 'dateFormat' => \DATE_ATOM,
                 'csrfEnabled' => $this->csrfEnabled,
                 'csrfMode' => $this->csrfMode,
             ],
+            'themeId' => $themeId,
             'controllerName' => $controllerInfo->getName(),
             'controllerAction' => $controllerInfo->getAction(),
             'context' => $context,
@@ -90,8 +94,15 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ];
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Remove with feature flag
+     */
     protected function getThemeConfig(string $salesChannelId, ?string $themeId): array
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return [];
+        }
+
         $themeConfig = [
             'breakpoint' => [
                 'xs' => 0,
@@ -163,8 +174,15 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return $controllerInfo;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Remove with feature flag
+     */
     private function getConfig(SalesChannelContext $context): array
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return [];
+        }
+
         return array_merge(
             $this->getDefaultConfiguration(),
             $this->systemConfigService->all($context->getSalesChannel()->getId())

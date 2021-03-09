@@ -11,7 +11,10 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CartRuleLoader
 {
-    public const CHECKOUT_RULE_LOADER_CACHE_KEY = 'all-rules';
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Use \Shopware\Core\Checkout\Cart\CachedRuleLoader::CACHE_KEY instead
+     */
+    public const CHECKOUT_RULE_LOADER_CACHE_KEY = CachedRuleLoader::CACHE_KEY;
     private const MAX_ITERATION = 7;
 
     /**
@@ -40,7 +43,7 @@ class CartRuleLoader
     private $cache;
 
     /**
-     * @var RuleLoader
+     * @var AbstractRuleLoader
      */
     private $ruleLoader;
 
@@ -49,7 +52,7 @@ class CartRuleLoader
         Processor $processor,
         LoggerInterface $logger,
         TagAwareAdapterInterface $cache,
-        RuleLoader $loader
+        AbstractRuleLoader $loader
     ) {
         $this->cartPersister = $cartPersister;
         $this->processor = $processor;
@@ -77,7 +80,7 @@ class CartRuleLoader
     public function reset(): void
     {
         $this->rules = null;
-        $this->cache->deleteItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
+        $this->cache->deleteItem(CachedRuleLoader::CACHE_KEY);
     }
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
@@ -149,20 +152,7 @@ class CartRuleLoader
             return $this->rules;
         }
 
-        $item = $this->cache->getItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
-
-        $rules = $item->get();
-        if ($item->isHit() && $rules) {
-            return $this->rules = $rules;
-        }
-
-        $rules = $this->ruleLoader->load($context);
-
-        $item->set($rules);
-
-        $this->cache->save($item);
-
-        return $this->rules = $rules;
+        return $this->rules = $this->ruleLoader->load($context);
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

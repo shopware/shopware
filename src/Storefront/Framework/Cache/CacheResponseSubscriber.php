@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,8 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    public const STATE_LOGGED_IN = 'logged-in';
-    public const STATE_CART_FILLED = 'cart-filled';
+    public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
+    public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
     public const CURRENCY_COOKIE = 'sw-currency';
     public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';

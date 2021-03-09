@@ -3,50 +3,30 @@
 namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
-class SeoResolver implements SeoResolverInterface
+class SeoResolver extends AbstractSeoResolver
 {
     /**
      * @var Connection
      */
     private $connection;
 
-    /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
-
-    /**
-     * @var EntityCacheKeyGenerator
-     */
-    private $cacheKeyGenerator;
-
-    public function __construct(Connection $connection, TagAwareAdapterInterface $cache, EntityCacheKeyGenerator $cacheKeyGenerator)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->cache = $cache;
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
-    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array
+    public function getDecorated(): AbstractSeoResolver
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
         $seoPathInfo = ltrim($pathInfo, '/');
-        if ($seoPathInfo === '') {
-            return ['pathInfo' => '/', 'isCanonical' => false];
-        }
-
-        $key = md5($languageId . '-' . $salesChannelId . '-' . $pathInfo);
-
-        $item = $this->cache->getItem($key);
-        if ($item->isHit()) {
-            return $item->get();
-        }
 
         $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical')
@@ -91,21 +71,6 @@ class SeoResolver implements SeoResolverInterface
         }
 
         $seoPath['pathInfo'] = '/' . ltrim($seoPath['pathInfo'], '/');
-
-        $item->set($seoPath);
-
-        if ($item instanceof ItemInterface) {
-            $tags = [SeoUrlDefinition::ENTITY_NAME . '.id'];
-
-            if (isset($seoPath['id'])) {
-                $id = Uuid::fromBytesToHex($seoPath['id']);
-                $tags[] = $this->cacheKeyGenerator->getEntityTag($id, SeoUrlDefinition::ENTITY_NAME);
-            }
-
-            $item->tag($tags);
-        }
-
-        $this->cache->save($item);
 
         return $seoPath;
     }

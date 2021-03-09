@@ -68,6 +68,8 @@ class Context extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     *
      * @var bool
      */
     protected $useCache = true;
@@ -218,6 +220,9 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function disableCache(callable $function)
     {
         $previous = $this->useCache;
@@ -228,6 +233,9 @@ class Context extends Struct
         return $result;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function getUseCache(): bool
     {
         return $this->useCache;
@@ -247,6 +255,9 @@ class Context extends Struct
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function enableCache(callable $function)
     {
         $previous = $this->useCache;

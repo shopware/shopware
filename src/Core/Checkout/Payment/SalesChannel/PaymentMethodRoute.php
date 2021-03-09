@@ -26,9 +26,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      */
     private $paymentMethodsRepository;
 
-    public function __construct(
-        SalesChannelRepositoryInterface $paymentMethodsRepository
-    ) {
+    public function __construct(SalesChannelRepositoryInterface $paymentMethodsRepository)
+    {
         $this->paymentMethodsRepository = $paymentMethodsRepository;
     }
 

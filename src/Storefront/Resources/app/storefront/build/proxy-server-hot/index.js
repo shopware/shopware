@@ -16,9 +16,9 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
         try {
             //reject the connection when requesting from the wrong host
             const requestHost = client_req.hostname || client_req.headers.host;
-            if (requestHost.split(':')[0] !== originalHost) {
+            if (requestHost.split(':')[0] !== proxyHost) {
                 //noinspection ExceptionCaughtLocallyJS
-                throw 'Rejecting request "' + client_req.method + ' ' + requestHost + client_req.url + '" on proxy server for "' + originalUrl + '"';
+                throw 'Rejecting request "' + client_req.method + ' ' + proxyHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
             }
 
             const requestOptions = {

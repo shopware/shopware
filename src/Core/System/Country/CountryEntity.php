@@ -121,6 +121,13 @@ class CountryEntity extends Entity
      */
     protected $currencyCountryRoundings;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     *
+     * @var float|null
+     */
+    protected $taxFreeFrom;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -329,5 +336,21 @@ class CountryEntity extends Entity
     public function setCurrencyCountryRoundings(CurrencyCountryRoundingCollection $currencyCountryRoundings): void
     {
         $this->currencyCountryRoundings = $currencyCountryRoundings;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function getTaxFreeFrom(): ?float
+    {
+        return $this->taxFreeFrom;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function setTaxFreeFrom(?float $taxFreeFrom): void
+    {
+        $this->taxFreeFrom = $taxFreeFrom;
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -53,7 +55,7 @@ class CountryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -93,5 +95,11 @@ class CountryDefinition extends EntityDefinition
             (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
                 ->addFlags(new CascadeDelete()),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_14114')) {
+            $collection->add((new FloatField('tax_free_from', 'taxFreeFrom'))->addFlags(new ApiAware()));
+        }
+
+        return $collection;
     }
 }

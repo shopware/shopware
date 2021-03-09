@@ -122,6 +122,11 @@ shopware:
               major: false
               description: "Image assignment for variants"
               # issue: NEXT-6544
+            - name: FEATURE_NEXT_14114
+              default: false
+              major: false
+              description: "Brexit Changes"
+              # issue: NEXT-14114
 
     logger:
         file_rotation_count: 14

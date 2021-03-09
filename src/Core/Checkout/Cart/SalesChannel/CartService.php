@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
@@ -191,6 +192,9 @@ class CartService
         if (isset($this->cart[$cart->getToken()])) {
             unset($this->cart[$cart->getToken()]);
         }
+
+        $cart = $this->createNew($context->getToken(), $cart->getName());
+        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return $orderId;
     }

@@ -6,13 +6,14 @@
     "permissions": {},
     "roles": {
       "general": {
-        "labelCreateNewRole": "Create new role",
+        "labelCreateNewRole": "Create role",
         "cardLabel": "Roles"
       },
       "role-grid": {
         "labelName": "Name",
         "labelDescription": "Description",
-        "messageEmptyTitle": "No roles yet",
+        "messageEmptyTitle": "No rolFes yet",
+        "messageEmptySubline": "Create roles to start managing user rights.",
         "contextMenuEdit": "Edit",
         "contextMenuDelete": "Delete",
         "titleModalDelete": "Delete role",
@@ -21,10 +22,10 @@
         "labelButtonDelete": "Delete",
         "notification": {
           "deleteSuccess":  {
-            "message": "Role \"{name}\" has been deleted."
+            "message": "Role \"{name}\" deleted."
           },
           "deleteError": {
-            "message": "An error occurred while deleting the role \"{name}\"."
+            "message": "The role \"{name}\" could not be deleted."
           }
         }
       },
@@ -47,7 +48,7 @@
       },
       "view": {
         "detailed": {
-          "alertText": "In this view privileges can be configured in detail. This configuration is only necessary in exceptional situations. If e.g. extensions are used in the system that add new datasets but do not have privileges, they can be configured here. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab."
+          "alertText": "Configure privileges in detail. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab and are not not configurable. This configuration is only necessary if e.g. extensions are used that add new datasets but do not have privileges, these can be configured here."
         }
       },
       "tabs": {
@@ -64,7 +65,7 @@
         "cardLabel": "Users"
       },
       "user-grid": {
-        "labelUsername": "Username",
+        "labelUsername": "User name",
         "labelFirstName": "First name",
         "labelLastName": "Last name",
         "labelRoles": "Roles",
@@ -78,10 +79,10 @@
         "labelButtonDelete": "Delete",
         "notification": {
           "deleteSuccess": {
-            "message": "User \"{name}\" has been deleted."
+            "message": "User \"{name}\" deleted."
           },
           "deleteError": {
-            "message": "An error occurred while deleting the user \"{name}\"."
+            "message": "The user \"{name}\" could not be deleted."
           },
           "deleteUserLoggedInError": {
             "message": "Users cannot delete themselves."
@@ -93,10 +94,10 @@
         "labelIntegrationsCard": "Integrations",
         "labelFirstName": "First name",
         "labelLastName": "Last name",
-        "labelEmail": "Email",
+        "labelEmail": "Email address",
         "errorEmailUsed": "This email address is already in use.",
         "errorUsernameUsed": "This username is already in use.",
-        "labelUsername": "Username",
+        "labelUsername": "User name",
         "labelPassword": "Password",
         "labelProfilePicture": "Profile picture",
         "labelLanguage": "User interface language",
@@ -108,17 +109,19 @@
         "labelNewPassword": "New password",
         "labelNewUser": "New user",
         "placeholderNewPassword": "Enter new password...",
-        "placeholderNewPasswordConfirm": "Re-enter new password...",
+        "placeholderNewPasswordConfirm": "Confirm new password...",
         "labelButtonCancel": "Cancel",
         "labelButtonChangePassword": "Change",
         "labelButtonSave": "Save",
+        "writeAccess": "Write",
+        "readAccess": "Read",
         "contextMenuEdit": "Edit",
         "contextMenuDelete": "Delete",
         "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
-        "addAccessKey": "New access key",
+        "addAccessKey": "Create access key",
         "labelAccessKey": "Access key",
         "labelPermissions": "Permissions",
-        "disabledRoleSelectWarning": "Roles are only available for users who are not \"administrator\".",
+        "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",
         "passwordConfirmation": {
           "titleConfirmPasswordModal": "Enter your current password to confirm",
           "labelConfirmPassword": "Password",
@@ -140,18 +143,18 @@
           "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
           "labelFieldLabel": "Name",
           "idFieldLabel": "Access key ID",
-          "secretFieldLabel": "Secret access key",
+          "secretFieldLabel": "Secure access key",
           "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
-          "messageSaveSuccess": "Integration has been saved.",
+          "messageSaveSuccess": "Integration saved.",
           "messageSaveError": "Integration could not be saved.",
           "messageCreateNewError": "Integration could not be saved."
         },
         "notification": {
           "saveError": {
-            "message": "An error occurred while saving the user \"{name}\"."
+            "message": "The user \"{name}\" could not be saved."
           },
           "saveSuccess": {
-            "message": "User \"{name}\" has been saved."
+            "message": "User \"{name}\" saved."
           },
           "invalidEmailErrorMessage": "Please enter a valid email address.",
           "duplicateEmailErrorMessage": "This email address has been registered already."
@@ -205,7 +208,7 @@
       },
       "routes": {
         "label": "Routes",
-        "api_action_access-key_integration": "Create new API key",
+        "api_action_access-key_integration": "Create API keys",
         "api_acl_privileges_get": "Read all ACL privileges",
         "api_acl_privileges_route_get": "Read ACL route privileges",
         "api_action_cache_info": "Read cache info",

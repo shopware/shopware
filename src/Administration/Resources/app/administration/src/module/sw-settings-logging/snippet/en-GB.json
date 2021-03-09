@@ -1,7 +1,7 @@
 {
   "sw-settings-logging": {
     "general": {
-      "mainMenuItemGeneral": "Logging",
+      "mainMenuItemGeneral": "Event logs",
       "placeholderSearchBar": "Search logs..."
     },
     "list": {
@@ -35,7 +35,7 @@
   "sw-privileges": {
     "additional_permissions": {
       "system": {
-        "logging": "Logging"
+        "logging": "Event logs"
       }
     }
   }

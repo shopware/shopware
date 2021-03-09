@@ -17,7 +17,7 @@
         {% block cms_form_privacy_opt_in_label %}
             <label for="{{ identifierTemplate|format(_key) }}" class=" custom-control-label">
                 {{ "general.privacyNotice"|trans({
-                    '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                    '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </label>
         {% endblock %}

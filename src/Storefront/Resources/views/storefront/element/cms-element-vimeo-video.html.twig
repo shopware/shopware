@@ -47,7 +47,7 @@
                     backdropClasses: [ 'cms-element-vimeo-video__backdrop' ],
                     confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,
                     overlayText: 'component.cms.vimeo.privacyNotice'|trans({
-                        '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage }),
+                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
                         '%platform%': 'Vimeo'
                     })|raw
                 } %}

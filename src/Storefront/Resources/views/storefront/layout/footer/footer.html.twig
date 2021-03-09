@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="footer-contact-form">
                                     {{ 'footer.serviceContactLink'|trans({
-                                        '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.contactPage })
+                                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.contactPage') })
                                     })|raw }}
                                 </div>
                             </div>
@@ -201,13 +201,13 @@
                     {% if context.taxState == "gross" %}
                         <p>
                             {{ "footer.includeVat"|trans({
-                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
                             })|raw }}
                         </p>
                     {% else %}
                         <p>
                             {{ "footer.excludeVat"|trans({
-                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
                             })|raw }}
                         </p>
                     {% endif %}

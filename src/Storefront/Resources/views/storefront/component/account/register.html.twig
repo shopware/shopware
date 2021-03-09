@@ -45,7 +45,7 @@
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
+                                        'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
                                         'accountType': data.get('accountType')
                                     } %}
                                 {% endblock %}
@@ -74,7 +74,7 @@
                                                    placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}"
                                                    name="email"
                                                    value="{{ data.get('email') }}"
-                                                   {% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
+                                                   {% if config('core.loginRegistration.requireEmailConfirmation') %}
                                                    data-form-validation-equal="personalMail"
                                                    {% endif %}
                                                    required="required">
@@ -145,25 +145,25 @@
                                                        id="personalPassword"
                                                        placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}"
                                                        name="password"
-                                                       minlength="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
-                                                       {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
+                                                       minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
+                                                       {% if config('core.loginRegistration.requirePasswordConfirmation') %}
                                                        data-form-validation-equal="newPassword"
                                                        {% endif %}
-                                                       {% if shopware.config.core.loginRegistration.passwordMinLength != 0 %}
-                                                       data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                       {% if config('core.loginRegistration.passwordMinLength') != 0 %}
+                                                       data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
                                                        data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
-                                                           '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                           '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                        })|sw_sanitize }}"
                                                        {% endif %}
                                                        required="required">
                                             {% endblock %}
 
                                             {% block component_account_register_personal_password_description %}
-                                                {% if shopware.config.core.loginRegistration.passwordMinLength != 0 %}
+                                                {% if config('core.loginRegistration.passwordMinLength') != 0 %}
                                                     <small class="form-text js-validation-message"
                                                            data-form-validation-length-text="true">
                                                         {{ "account.personalPasswordDescription"|trans({
-                                                            '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                            '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                         })|sw_sanitize }}
                                                     </small>
                                                 {% endif %}
@@ -197,7 +197,7 @@
                                                        id="personalPasswordConfirmation"
                                                        placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}"
                                                        name="passwordConfirmation"
-                                                       minlength="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                       minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
                                                        data-form-validation-equal="newPassword"
                                                        data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}"
                                                        required="required">
@@ -226,19 +226,19 @@
                                             {{ formGroupMail }}
                                         </div>
                                         <div class="form-group col-sm-6">
-                                            {% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
+                                            {% if config('core.loginRegistration.requireEmailConfirmation') %}
                                                 {{ formGroupMailConfirmation }}
-                                            {% elseif not shopware.config.core.loginRegistration.requirePasswordConfirmation %}
+                                            {% elseif not config('core.loginRegistration.requirePasswordConfirmation') %}
                                                 {{ formGroupPassword }}
                                             {% endif %}
                                         </div>
                                         <div class="form-group col-sm-6">
-                                            {% if shopware.config.core.loginRegistration.requireEmailConfirmation or shopware.config.core.loginRegistration.requirePasswordConfirmation %}
+                                            {% if config('core.loginRegistration.requireEmailConfirmation') or config('core.loginRegistration.requirePasswordConfirmation') %}
                                                 {{ formGroupPassword }}
                                             {% endif %}
                                         </div>
                                         <div class="form-group col-sm-6">
-                                            {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
+                                            {% if config('core.loginRegistration.requirePasswordConfirmation') %}
                                                 {{ formGroupPasswordConfirmation }}
                                             {% endif %}
                                         </div>
@@ -327,7 +327,7 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

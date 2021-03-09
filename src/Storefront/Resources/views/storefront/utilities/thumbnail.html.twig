@@ -2,15 +2,16 @@
 {% if load is not defined %}
     {% set load = true %}
 {% endif %}
+
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
     {% if columns and sizes is not defined %}
         {# set image size for every viewport #}
         {% set sizes = {
-            'xs': (shopware.theme.breakpoint.sm - 1) ~'px',
-            'sm': (shopware.theme.breakpoint.md - 1) ~'px',
-            'md': ((shopware.theme.breakpoint.lg - 1) / columns)|round(0, 'ceil') ~'px',
-            'lg': ((shopware.theme.breakpoint.xl - 1) / columns)|round(0, 'ceil') ~'px'
+            'xs': (theme_config('breakpoint.sm') - 1) ~'px',
+            'sm': (theme_config('breakpoint.md') - 1) ~'px',
+            'md': ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
+            'lg': ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
         } %}
 
         {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
@@ -39,11 +40,18 @@
             {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
         {% endif %}
 
-        {% if thumbnails|first.width > shopware.theme.breakpoint|reverse|first %}
+        {% set breakpoint = {
+            'xs': theme_config('breakpoint.sm'),
+            'sm': theme_config('breakpoint.md'),
+            'md': theme_config('breakpoint.lg'),
+            'lg': theme_config('breakpoint.xl')
+        } %}
+
+        {% if thumbnails|first.width > breakpoint|reverse|first %}
             {% set maxWidth = thumbnails|first.width %}
         {% endif %}
 
-        {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
+        {% for key, value in breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
     {% endapply %}{% endset %}
 {% endif %}
 <img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}

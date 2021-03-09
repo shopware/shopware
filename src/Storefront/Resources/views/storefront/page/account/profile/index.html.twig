@@ -38,7 +38,7 @@
 
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
-                                            'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
+                                            'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
                                             'showVatIdField': true,
                                             'data': context.customer,
                                             'onlyCompanyRegistration': context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
@@ -303,9 +303,9 @@
                                                                        placeholder="{{ "account.profilePasswordCreateNew"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                                        name="password[newPassword]"
                                                                        data-form-validation-equal="newPassword"
-                                                                       data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                                       data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
                                                                        data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
-                                                                           '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                                           '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                                        })|sw_sanitize }}"
                                                                        required="required">
                                                             {% endblock %}
@@ -412,7 +412,7 @@
                 {% endblock %}
 
                 {% block page_account_profile_delete_account %}
-                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion %}
+                    {% if config('core.loginRegistration.allowCustomerDeletion') %}
                         <div class="account-deleting py-4">
                             {{ 'account.profileDelete'|trans({
                                 '%target%': '#confirmDeleteAccountModal'
@@ -422,7 +422,7 @@
                 {% endblock %}
 
                 {% block page_account_delete_account_confirm_modal %}
-                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion %}
+                    {% if config('core.loginRegistration.allowCustomerDeletion') %}
                         <div class="modal fade confirm-delete-account-modal"
                              id="confirmDeleteAccountModal"
                              tabindex="1"

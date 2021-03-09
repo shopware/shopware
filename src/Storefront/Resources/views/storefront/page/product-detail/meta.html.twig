@@ -4,7 +4,7 @@
     <meta property="og:type"
           content="product"/>
     <meta property="og:site_name"
-          content="{{ shopware.config.core.basicInformation.shopName }}"/>
+          content="{{ config('core.basicInformation.shopName') }}"/>
     <meta property="og:url"
           content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
     <meta property="og:title"
@@ -27,7 +27,7 @@
     <meta name="twitter:card"
           content="product"/>
     <meta name="twitter:site"
-          content="{{ shopware.config.core.basicInformation.shopName }}"/>
+          content="{{ config('core.basicInformation.shopName') }}"/>
     <meta name="twitter:title"
           content="{{ metaTitle }}"/>
     <meta name="twitter:description"

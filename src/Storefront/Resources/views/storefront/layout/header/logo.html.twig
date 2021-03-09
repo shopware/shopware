@@ -7,22 +7,22 @@
                 {% block layout_header_logo_image %}
                     <picture class="header-logo-picture">
                             {% block layout_header_logo_image_tablet %}
-                            {% if shopware.theme['sw-logo-tablet'] and shopware.theme['sw-logo-tablet'] != shopware.theme['sw-logo-desktop'] %}
-                                <source srcset="{{ shopware.theme['sw-logo-tablet'] |sw_encode_url }}"
-                                        media="(min-width: {{ shopware.theme.breakpoint.md }}px) and (max-width: {{ shopware.theme.breakpoint.lg - 1 }}px)">
+                            {% if theme_config('sw-logo-tablet') and theme_config('sw-logo-tablet') != theme_config('sw-logo-desktop') %}
+                                <source srcset="{{ theme_config('sw-logo-tablet') |sw_encode_url }}"
+                                        media="(min-width: {{ theme_config('breakpoint.md') }}px) and (max-width: {{ theme_config('breakpoint.lg') - 1 }}px)">
                             {% endif %}
                         {% endblock %}
 
                         {% block layout_header_logo_image_mobile %}
-                            {% if shopware.theme['sw-logo-mobile'] and shopware.theme['sw-logo-mobile'] != shopware.theme['sw-logo-desktop'] %}
-                                <source srcset="{{ shopware.theme['sw-logo-mobile'] |sw_encode_url }}"
-                                        media="(max-width: {{ shopware.theme.breakpoint.md - 1 }}px)">
+                            {% if theme_config('sw-logo-mobile') and theme_config('sw-logo-mobile') != theme_config('sw-logo-desktop') %}
+                                <source srcset="{{ theme_config('sw-logo-mobile') |sw_encode_url }}"
+                                        media="(max-width: {{ theme_config('breakpoint.md') - 1 }}px)">
                             {% endif %}
                         {% endblock %}
 
                         {% block layout_header_logo_image_default %}
-                            {% if shopware.theme['sw-logo-desktop'] %}
-                                <img src="{{ shopware.theme['sw-logo-desktop'] |sw_encode_url }}"
+                            {% if theme_config('sw-logo-desktop') %}
+                                <img src="{{ theme_config('sw-logo-desktop') |sw_encode_url }}"
                                      alt="{{ "header.logoLink"|trans|striptags }}"
                                      class="img-fluid header-logo-main-img"/>
                             {% endif %}

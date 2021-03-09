@@ -8,7 +8,7 @@
                             {{ "checkout.finishUpdateHeader"|trans|sw_sanitize }}
                         {% else %}
                             {{ "checkout.finishHeader"|trans({
-                                '%shop%': shopware.config.core.basicInformation.shopName
+                                '%shop%': config('core.basicInformation.shopName')
                             })|sw_sanitize }}
                         {% endif %}
                     </h1>

@@ -1,5 +1,5 @@
 {% block component_account_register_company_fields %}
-    {% set accountTypeRequired = shopware.config.core.loginRegistration.showAccountTypeSelection %}
+    {% set accountTypeRequired = config('core.loginRegistration.showAccountTypeSelection') %}
 
     {% if accountTypeRequired or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
         <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">

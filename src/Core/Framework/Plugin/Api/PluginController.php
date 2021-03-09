@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -24,6 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @RouteScope(scopes={"api"})
+ * @Acl({"system.plugin_maintain"})
  */
 class PluginController extends AbstractController
 {

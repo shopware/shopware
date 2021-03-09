@@ -200,14 +200,14 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->updateSession($token);
     }
 
-    public function updateSessionAfterLogout(CustomerLogoutEvent $event): void
+    public function updateSessionAfterLogout(): void
     {
-        $newToken = $event->getSalesChannelContext()->getToken();
+        $newToken = Random::getAlphanumericString(32);
 
-        $this->updateSession($newToken);
+        $this->updateSession($newToken, true);
     }
 
-    public function updateSession(string $token): void
+    public function updateSession(string $token, bool $destroyOldSession = false): void
     {
         $master = $this->requestStack->getMasterRequest();
         if (!$master) {
@@ -222,7 +222,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $session = $master->getSession();
-        $session->migrate();
+        $session->migrate($destroyOldSession);
         $session->set('sessionId', $session->getId());
 
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);

@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,11 +67,6 @@ class AuthController extends StorefrontController
     private $logoutRoute;
 
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfig;
-
-    /**
      * @var CartService
      */
     private $cartService;
@@ -83,7 +77,6 @@ class AuthController extends StorefrontController
         AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute,
         AbstractResetPasswordRoute $resetPasswordRoute,
         AbstractLoginRoute $loginRoute,
-        SystemConfigService $systemConfig,
         AbstractLogoutRoute $logoutRoute,
         CartService $cartService
     ) {
@@ -93,7 +86,6 @@ class AuthController extends StorefrontController
         $this->resetPasswordRoute = $resetPasswordRoute;
         $this->loginRoute = $loginRoute;
         $this->logoutRoute = $logoutRoute;
-        $this->systemConfig = $systemConfig;
         $this->cartService = $cartService;
     }
 
@@ -168,11 +160,6 @@ class AuthController extends StorefrontController
 
         try {
             $this->logoutRoute->logout($context, $dataBag);
-            $salesChannelId = $context->getSalesChannel()->getId();
-            if ($request->hasSession() && $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
-                $request->getSession()->invalidate();
-            }
-
             $this->addFlash(self::SUCCESS, $this->trans('account.logoutSucceeded'));
 
             $parameters = [];

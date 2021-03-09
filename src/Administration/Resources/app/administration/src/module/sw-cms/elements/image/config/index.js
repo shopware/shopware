@@ -78,8 +78,15 @@ Component.register('sw-cms-el-config-image', {
         },
 
         updateElementData(media = null) {
-            this.$set(this.element.data, 'mediaId', media === null ? null : media.id);
-            this.$set(this.element.data, 'media', media);
+            const mediaId = media === null ? null : media.id;
+
+            if (!this.element.data) {
+                this.$set(this.element, 'data', { mediaId });
+                this.$set(this.element, 'data', { media });
+            } else {
+                this.$set(this.element.data, 'mediaId', mediaId);
+                this.$set(this.element.data, 'media', media);
+            }
         },
 
         onOpenMediaModal() {

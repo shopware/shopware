@@ -60,10 +60,19 @@ Component.register('sw-product-detail-layout', {
 
     watch: {
         cmsPageId() {
-            this.product.slotConfig = null;
-            State.commit('swProductDetail/setProduct', this.product);
             State.dispatch('cmsPageState/resetCmsPageState');
             this.handleGetCmsPage();
+        },
+
+        product: {
+            deep: true,
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.updateCmsPageDataMapping();
+            }
         }
     },
 
@@ -109,6 +118,8 @@ Component.register('sw-product-detail-layout', {
             }
 
             this.product.cmsPageId = cmsPageId;
+            this.product.slotConfig = null;
+            State.commit('swProductDetail/setProduct', this.product);
         },
 
         handleGetCmsPage() {

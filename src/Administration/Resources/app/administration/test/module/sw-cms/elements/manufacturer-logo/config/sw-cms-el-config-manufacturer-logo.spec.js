@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/elements/image/component';
-import 'src/module/sw-cms/elements/manufacturer-logo/component';
+import 'src/module/sw-cms/elements/image/config';
+import 'src/module/sw-cms/elements/manufacturer-logo/config';
 
 function createWrapper(propsOverride) {
-    return shallowMount(Shopware.Component.build('sw-cms-el-manufacturer-logo'), {
+    return shallowMount(Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
         propsData: {
             element: {
                 config: {
@@ -44,6 +44,14 @@ function createWrapper(propsOverride) {
             defaultConfig: {},
             ...propsOverride
         },
+        stubs: {
+            'sw-cms-mapping-field': true,
+            'sw-media-upload-v2': true,
+            'sw-upload-listener': true,
+            'sw-text-field': true,
+            'sw-select-field': true,
+            'sw-field': true
+        },
         data() {
             return {
                 cmsPageState: {
@@ -53,11 +61,18 @@ function createWrapper(propsOverride) {
                 }
             };
         },
+        mocks: {
+            $tc: (value) => value
+        },
         provide: {
+            repositoryFactory: {
+                create: () => {}
+            },
             cmsService: {
                 getCmsElementRegistry: () => {
                     return {};
                 },
+
                 getPropertyByMappingPath: () => {
                     return {};
                 }
@@ -66,7 +81,7 @@ function createWrapper(propsOverride) {
     });
 }
 
-describe('module/sw-cms/elements/manufacturer-logo/component', () => {
+describe('module/sw-cms/elements/manufacturer-logo/config', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -82,7 +97,7 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
     });
 
-    it('should not initially map to a product manufacturer media if element data media has value', () => {
+    it('should not initially map to a product manufacturer media if element translated config', () => {
         wrapper = createWrapper({
             element: {
                 config: {
@@ -101,65 +116,19 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
                         url: 'http://shopware.com/image.jpg',
                         id: '1'
                     }
+                },
+                translated: {
+                    config: {
+                        media: {
+                            source: 'static',
+                            value: '1'
+                        }
+                    }
                 }
             }
         });
 
         expect(wrapper.vm.element.config.media.source).toBe('static');
         expect(wrapper.vm.element.config.media.value).toBe('1');
-    });
-
-    it('should update style regarding to config value', async () => {
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '40px',
-            'align-self': null
-        });
-
-        await wrapper.setProps({
-            element: {
-                config: {
-                    ...wrapper.props().element.config,
-                    displayMode: {
-                        source: 'statics',
-                        value: 'cover'
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: '50px'
-                    }
-                },
-                data: {}
-            }
-        });
-
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '50px',
-            'align-self': null
-        });
-
-        await wrapper.setProps({
-            element: {
-                config: {
-                    ...wrapper.props().element.config,
-                    displayMode: {
-                        source: 'statics',
-                        value: 'standard'
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: 'center'
-                    }
-                },
-                data: {}
-            }
-        });
-
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '40px',
-            'align-self': 'center'
-        });
     });
 });

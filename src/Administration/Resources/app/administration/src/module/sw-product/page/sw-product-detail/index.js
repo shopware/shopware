@@ -175,7 +175,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('featureSet');
 
             if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria.addAssociation('cmsPage');
+                criteria.getAssociation('manufacturer')
+                    .addAssociation('media');
             }
 
             return criteria;
@@ -859,6 +860,10 @@ Component.register('sw-product-detail', {
 
             const newMedia = this.mediaRepository.create(Shopware.Context.api);
             newMedia.mediaId = mediaItem.id;
+            newMedia.media = {
+                url: mediaItem.url,
+                id: mediaItem.id
+            };
 
             return new Promise((resolve) => {
                 // if no other media exists

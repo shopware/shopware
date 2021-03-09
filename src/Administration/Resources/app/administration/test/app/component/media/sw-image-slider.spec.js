@@ -51,12 +51,13 @@ describe('src/app/component/base/sw-image-slider', () => {
     it('should display every image, even in an object, independent if the link is external or not', () => {
         const wrapper = createWrapper();
         const containerScrollable = wrapper.find('.sw-image-slider__image-container-scrollable');
-        const elementWrappers = wrapper.findAll(
-            '.sw-image-slider__image-container-scrollable > .sw-image-slider__image-container-element-wrapper'
+        const actualImages = wrapper.findAll(
+            '.sw-image-slider__image-container-scrollable .sw-image-slider__image-container-element-image'
         );
 
         expect(containerScrollable.exists()).toBeTruthy();
-        expect(elementWrappers.length).toBe(images.length);
+        expect(actualImages.length).toBe(images.length);
+        expect(actualImages.at(1).attributes().src).toBe(images[1]);
     });
 
     it('should display descriptions, if enabled and existing', () => {

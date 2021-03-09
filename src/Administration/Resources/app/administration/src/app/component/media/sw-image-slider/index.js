@@ -132,7 +132,8 @@ Component.register('sw-image-slider', {
             const link = this.isImageObject(image) ? image.src : image;
 
             try {
-                URL(link);
+                // eslint-disable-next-line no-new
+                new URL(link);
             } catch (e) {
                 return Filter.getByName('asset')(link);
             }

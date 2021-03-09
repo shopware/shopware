@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
@@ -20,6 +21,8 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 class SalesChannelContext extends Struct
 {
+    use StateAwareTrait;
+
     /**
      * Unique token for context, e.g. stored in session or provided in request headers
      *
@@ -107,9 +110,15 @@ class SalesChannelContext extends Struct
      */
     private $totalRounding;
 
+    /**
+     * @var string|null
+     */
+    private $domainId;
+
     public function __construct(
         Context $baseContext,
         string $token,
+        ?string $domainId,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
@@ -137,6 +146,7 @@ class SalesChannelContext extends Struct
         $this->context = $baseContext;
         $this->itemRounding = $itemRounding;
         $this->totalRounding = $totalRounding;
+        $this->domainId = $domainId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -284,6 +294,46 @@ class SalesChannelContext extends Struct
     public function getSalesChannelId(): string
     {
         return $this->getSalesChannel()->getId();
+    }
+
+    public function addState(string $state): void
+    {
+        $this->context->addState($state);
+    }
+
+    public function removeState(string $state): void
+    {
+        $this->context->removeState($state);
+    }
+
+    public function hasState(string ...$states): bool
+    {
+        return $this->context->hasState(...$states);
+    }
+
+    public function getStates(): array
+    {
+        return $this->context->getStates();
+    }
+
+    public function getDomainId(): ?string
+    {
+        return $this->domainId;
+    }
+
+    public function getLanguageIdChain(): array
+    {
+        return $this->context->getLanguageIdChain();
+    }
+
+    public function getVersionId(): string
+    {
+        return $this->context->getVersionId();
+    }
+
+    public function considerInheritance(): bool
+    {
+        return $this->context->considerInheritance();
     }
 
     public function getTotalRounding(): CashRoundingConfig

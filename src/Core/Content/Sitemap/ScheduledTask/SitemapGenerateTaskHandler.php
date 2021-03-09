@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -23,7 +23,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     private EntityRepositoryInterface $salesChannelRepository;
 
-    private SalesChannelContextFactory $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
     private SitemapExporterInterface $sitemapExporter;
 
@@ -36,7 +36,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         EntityRepositoryInterface $salesChannelRepository,
-        SalesChannelContextFactory $salesChannelContextFactory,
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
         SitemapExporterInterface $sitemapExporter,
         LoggerInterface $logger,
         SystemConfigService $systemConfigService,

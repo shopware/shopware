@@ -8,9 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed. Caching is implemented for store api routes
+ */
 class CachedEntityReader implements EntityReaderInterface
 {
     /**
@@ -40,6 +44,10 @@ class CachedEntityReader implements EntityReaderInterface
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return $this->decorated->read($definition, $criteria, $context);
+        }
+
         if (!$context->getUseCache()) {
             return $this->decorated->read($definition, $criteria, $context);
         }

@@ -116,9 +116,10 @@ class ElasticsearchHelper
             return false;
         }
 
-        // while indexing or not cacheable call?
-        if (!$context->getUseCache()) {
-            return false;
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            if (!$context->getUseCache()) {
+                return false;
+            }
         }
 
         if (Feature::isActive('FEATURE_NEXT_12158')) {

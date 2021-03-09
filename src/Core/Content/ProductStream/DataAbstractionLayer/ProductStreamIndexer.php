@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -150,7 +151,10 @@ class ProductStreamIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new ProductStreamIndexerEvent($ids, $message->getContext()));
 
-        $this->cacheClearer->invalidateIds($ids, ProductStreamDefinition::ENTITY_NAME);
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds($ids, ProductStreamDefinition::ENTITY_NAME);
+        }
     }
 
     private function buildPayload(array $filter): string

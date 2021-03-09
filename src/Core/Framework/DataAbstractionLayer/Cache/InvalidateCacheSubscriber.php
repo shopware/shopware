@@ -11,8 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
+ */
 class InvalidateCacheSubscriber implements EventSubscriberInterface
 {
     /**
@@ -49,8 +53,12 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
         ];
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     public function entitiesWritten(EntityWrittenContainerEvent $event): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return;
+        }
         $keys = [];
 
         $events = $event->getEvents();

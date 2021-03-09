@@ -127,6 +127,17 @@ class EntityWrittenContainerEvent extends NestedEvent
         return $this->findPrimaryKeys($entity);
     }
 
+    public function getPrimaryKeysWithPayload(string $entity): array
+    {
+        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
+            if ($result->getOperation() === EntityWriteResult::OPERATION_DELETE) {
+                return true;
+            }
+
+            return !empty($result->getPayload());
+        });
+    }
+
     public function getPrimaryKeysWithPropertyChange(string $entity, array $properties): array
     {
         return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($properties) {

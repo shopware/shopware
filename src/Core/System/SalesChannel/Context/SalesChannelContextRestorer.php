@@ -14,7 +14,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class SalesChannelContextRestorer
 {
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $factory;
 
@@ -39,7 +39,7 @@ class SalesChannelContextRestorer
     private $cartRuleLoader;
 
     public function __construct(
-        SalesChannelContextFactory $factory,
+        AbstractSalesChannelContextFactory $factory,
         SalesChannelContextPersister $contextPersister,
         CartService $cartService,
         CartRuleLoader $cartRuleLoader,

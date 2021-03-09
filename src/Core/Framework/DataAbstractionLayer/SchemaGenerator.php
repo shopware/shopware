@@ -130,8 +130,8 @@ EOL;
             case $field instanceof TranslatedField:
                 return null;
 
-            case $field instanceof WhitelistRuleField:
-            case $field instanceof BlacklistRuleField:
+            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CartPriceField:
             case $field instanceof CalculatedPriceField:
             case $field instanceof PriceDefinitionField:

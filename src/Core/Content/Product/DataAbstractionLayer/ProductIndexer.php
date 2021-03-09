@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -193,10 +194,13 @@ class ProductIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
 
-        $this->cacheClearer->invalidateIds(
-            array_unique(array_merge($ids, $parentIds, $childrenIds)),
-            ProductDefinition::ENTITY_NAME
-        );
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds(
+                array_unique(array_merge($ids, $parentIds, $childrenIds)),
+                ProductDefinition::ENTITY_NAME
+            );
+        }
     }
 
     private function getChildrenIds(array $ids): array

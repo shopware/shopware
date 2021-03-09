@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Framework\Context;
@@ -71,6 +72,7 @@ class ProductListingLoader
         // no products found, no need to continue
         if (empty($ids->getIds())) {
             return new EntitySearchResult(
+                ProductDefinition::ENTITY_NAME,
                 0,
                 new ProductCollection(),
                 $aggregations,
@@ -95,6 +97,7 @@ class ProductListingLoader
         $this->addExtensions($ids, $entities, $mapping);
 
         return new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
             $ids->getTotal(),
             $entities->getEntities(),
             $aggregations,

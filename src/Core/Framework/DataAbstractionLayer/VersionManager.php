@@ -542,7 +542,7 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, ?string $versionId = null, bool $isClone = false): void
     {
-        if ($writeContext->getContext()->hasExtension(self::DISABLE_AUDIT_LOG)) {
+        if ($writeContext->getContext()->hasState(self::DISABLE_AUDIT_LOG)) {
             return;
         }
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();

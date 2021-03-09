@@ -107,6 +107,7 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
         return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($association->getLocalField());
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function buildRuleWhere(FieldResolverContext $context, EntityDefinition $definition, string $alias): string
     {
         $ruleCondition = $this->queryHelper->buildRuleCondition($definition, $context->getQuery(), $alias, $context->getContext());

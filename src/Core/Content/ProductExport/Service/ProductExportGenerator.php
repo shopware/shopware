@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -111,10 +112,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
 
         $context = $this->salesChannelContextService->get(
-            $productExport->getStorefrontSalesChannelId(),
-            $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+            new SalesChannelContextServiceParameters(
+                $productExport->getStorefrontSalesChannelId(),
+                $contextToken,
+                $productExport->getSalesChannelDomain()->getLanguageId(),
+                $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+            )
         );
 
         $this->translator->injectSettings(

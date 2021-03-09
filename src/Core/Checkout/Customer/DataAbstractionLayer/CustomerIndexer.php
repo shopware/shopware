@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CustomerIndexer extends EntityIndexer
@@ -101,9 +102,12 @@ class CustomerIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context));
 
-        $this->cacheClearer->invalidateIds(
-            array_unique(array_merge($ids)),
-            CustomerDefinition::ENTITY_NAME
-        );
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds(
+                array_unique(array_merge($ids)),
+                CustomerDefinition::ENTITY_NAME
+            );
+        }
     }
 }

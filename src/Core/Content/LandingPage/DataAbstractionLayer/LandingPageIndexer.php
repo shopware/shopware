@@ -101,6 +101,7 @@ class LandingPageIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context));
 
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
         $this->cacheClearer->invalidateIds($ids, LandingPageDefinition::ENTITY_NAME);
     }
 }

@@ -123,8 +123,8 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             // json fields
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
-            case $field instanceof WhitelistRuleField:
-            case $field instanceof BlacklistRuleField:
+            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CalculatedPriceField:
             case $field instanceof CartPriceField:
             case $field instanceof PriceDefinitionField:

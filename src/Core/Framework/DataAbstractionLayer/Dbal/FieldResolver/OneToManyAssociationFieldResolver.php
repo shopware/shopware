@@ -109,6 +109,7 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
         return EntityDefinitionQueryHelper::escape($field->getReferenceField());
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function buildRuleWhere(FieldResolverContext $context, EntityDefinition $reference, string $alias): ?string
     {
         $ruleWhere = $this->queryHelper->buildRuleCondition($reference, $context->getQuery(), $alias, $context->getContext());

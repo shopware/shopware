@@ -37,6 +37,7 @@ class GuestWishlistPageletLoader
 
         if (empty($criteria->getIds())) {
             $response = new ProductListResponse(new EntitySearchResult(
+                'wishlist',
                 0,
                 new ProductCollection(),
                 null,

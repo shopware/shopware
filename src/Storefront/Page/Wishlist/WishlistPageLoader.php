@@ -63,6 +63,7 @@ class WishlistPageLoader
                 new LoadWishlistRouteResponse(
                     new CustomerWishlistEntity(),
                     new EntitySearchResult(
+                        'wishlist',
                         0,
                         new ProductCollection(),
                         null,

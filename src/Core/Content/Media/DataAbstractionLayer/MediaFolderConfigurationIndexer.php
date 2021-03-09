@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -117,6 +118,9 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context));
 
-        $this->cacheClearer->invalidateIds($ids, MediaFolderConfigurationDefinition::ENTITY_NAME);
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds($ids, MediaFolderConfigurationDefinition::ENTITY_NAME);
+        }
     }
 }

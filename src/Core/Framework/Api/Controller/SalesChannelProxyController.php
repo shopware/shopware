@@ -35,6 +35,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -388,10 +389,12 @@ class SalesChannelProxyController extends AbstractController
         $contextToken = $this->getContextToken($request);
 
         $salesChannelContext = $this->contextService->get(
-            $salesChannelId,
-            $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+            new SalesChannelContextServiceParameters(
+                $salesChannelId,
+                $contextToken,
+                $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+            )
         );
 
         return $salesChannelContext;

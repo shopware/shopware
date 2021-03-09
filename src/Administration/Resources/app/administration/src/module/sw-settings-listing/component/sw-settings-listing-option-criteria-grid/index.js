@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -45,9 +45,17 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         customFieldCriteria() {
             const criteria = new Criteria();
 
-            criteria.addFilter(
-                Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs)
-            );
+            if (this.customFieldSetIDs) {
+                criteria.addFilter(
+                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs)
+                );
+            }
+
+            if (this.getProductSortingFieldsByName().length) {
+                criteria.addFilter(
+                    Criteria.equalsAny('id', this.getProductSortingFieldsByName())
+                );
+            }
 
             return criteria;
         },
@@ -74,6 +82,9 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Can be removed completely. The computed prop was used to provide the options prop of an sw-single-select which has been replaced with sw-entity-single-select.
+         */
         unusedCustomFields() {
             return this.customFields.filter(customField => {
                 return !this.productSortingEntity.fields.some(field => {
@@ -356,13 +367,54 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         getCustomFieldName(customField) {
-            const inlineSnippet = this.getInlineSnippet(customField.config.label);
+            const inlineSnippet = customField && this.getInlineSnippet(customField.config.label);
 
             if (!inlineSnippet) {
-                return customField.name;
+                return customField && customField.name;
             }
 
             return inlineSnippet;
+        },
+
+        customFieldCriteriaSingleSelect(customField) {
+            const criteria = new Criteria();
+
+            if (this.customFieldSetIDs) {
+                criteria.addFilter(
+                    Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs)
+                );
+            }
+
+            if (this.getProductSortingFieldsByName(customField).length) {
+                criteria.addFilter(Criteria.not(
+                    'AND',
+                    [
+                        Criteria.equalsAny('id', this.getProductSortingFieldsByName(customField))
+                    ]
+                ));
+            }
+
+            return criteria;
+        },
+
+        async changeCustomField(key, field) {
+            const customField = this.sortedProductSortingFields.find((item) => {
+                return item.field === 'customField' || item.name === key;
+            });
+
+            customField.field = `customFields.${field.name}`;
+
+            await this.fetchCustomFields();
+        },
+
+        getProductSortingFieldsByName(customField = null) {
+            return this.sortedProductSortingFields.filter((item) => {
+                if (customField) {
+                    return /^customFields\./.test(item.field) && item.field !== customField.field;
+                }
+
+                return /^customFields\./.test(item.field);
+            }).map(item => item.name) || {};
         }
     }
 });

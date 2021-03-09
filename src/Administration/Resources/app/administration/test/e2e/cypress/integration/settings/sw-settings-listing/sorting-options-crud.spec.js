@@ -161,7 +161,7 @@ describe('Listing: Test crud operations', () => {
 
         // validate entry
         // custom field selection should visible
-        cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-single-select').should('be.visible');
+        cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select').should('be.visible');
         cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
         cy.get('.sw-data-grid__cell--priority .sw-data-grid__cell-content').contains('1');
 
@@ -170,7 +170,7 @@ describe('Listing: Test crud operations', () => {
             .should('be.visible')
             .should('be.disabled');
 
-        const customFieldSelection = '.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-single-select';
+        const customFieldSelection = '.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select';
 
         cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);
 

@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Store\Struct\CartPositionStruct;
-use Shopware\Core\Framework\Store\Struct\CartStruct;
-use Shopware\Core\Framework\Store\Struct\LicenseCollection;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 /**
@@ -16,18 +13,10 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
 {
     private StoreClient $client;
 
-    private LicenseLoader $licenseLoader;
-
-    private ExtensionDownloader $extensionDownloader;
-
     public function __construct(
-        StoreClient $client,
-        LicenseLoader $licenseLoader,
-        ExtensionDownloader $extensionDownloader
+        StoreClient $client
     ) {
         $this->client = $client;
-        $this->licenseLoader = $licenseLoader;
-        $this->extensionDownloader = $extensionDownloader;
     }
 
     public function cancelSubscription(int $licenseId, Context $context): void

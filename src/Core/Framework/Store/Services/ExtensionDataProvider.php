@@ -11,11 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
-use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
-use Shopware\Core\Framework\Store\Struct\ReviewCollection;
-use Shopware\Core\Framework\Store\Struct\ReviewSummaryStruct;
 
 /**
  * @internal
@@ -23,11 +19,6 @@ use Shopware\Core\Framework\Store\Struct\ReviewSummaryStruct;
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
-
-    /**
-     * @var StoreClient
-     */
-    private $dataClient;
 
     /**
      * @var ExtensionLoader
@@ -50,13 +41,11 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
     private $extensionListingLoader;
 
     public function __construct(
-        StoreClient $client,
         ExtensionLoader $extensionLoader,
         EntityRepositoryInterface $appRepository,
         EntityRepositoryInterface $pluginRepository,
         ExtensionListingLoader $extensionListingLoader
     ) {
-        $this->dataClient = $client;
         $this->extensionLoader = $extensionLoader;
         $this->appRepository = $appRepository;
         $this->pluginRepository = $pluginRepository;

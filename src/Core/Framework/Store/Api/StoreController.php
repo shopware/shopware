@@ -319,9 +319,4 @@ class StoreController extends AbstractStoreController
             'items' => $extensions,
         ]);
     }
-
-    public function categoriesAction(Context $context): Response
-    {
-        return new JsonResponse($this->storeClient->getCategories($context));
-    }
 }

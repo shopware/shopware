@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController;
-use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
-use Shopware\Core\Framework\Store\Exception\InvalidVariantIdException;
 use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;

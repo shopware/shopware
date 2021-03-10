@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Store\Struct\LicenseCollection;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 abstract class AbstractExtensionStoreLicensesService

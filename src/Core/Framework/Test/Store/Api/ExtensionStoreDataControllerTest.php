@@ -4,14 +4,11 @@ namespace Shopware\Core\Framework\Test\Store\Api;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreDataController;
-use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\HttpFoundation\Request;
 
 class ExtensionStoreDataControllerTest extends TestCase
 {

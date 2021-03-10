@@ -6,11 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 

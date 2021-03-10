@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\Framework\Test\Store\Service;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
-use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
-use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
-use Shopware\Core\Framework\Store\Struct\ReviewCollection;
-use Shopware\Core\Framework\Store\Struct\ReviewSummaryStruct;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

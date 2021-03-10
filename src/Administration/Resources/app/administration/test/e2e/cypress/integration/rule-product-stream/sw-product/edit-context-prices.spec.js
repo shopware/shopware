@@ -78,7 +78,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .clear()
             .type(`${priceGross02EUR}{enter}`)
-        .blur();
+            .blur();
 
         // Add price link in third rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock`)
@@ -95,7 +95,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .clear()
             .type(`${priceGross11USD}{enter}`)
-        .blur();
+            .blur();
 
         // Duplicate Price Rule
         cy.get(`${priceGroup}-0 .sw-product-detail-context-prices__toolbar-duplicate`)

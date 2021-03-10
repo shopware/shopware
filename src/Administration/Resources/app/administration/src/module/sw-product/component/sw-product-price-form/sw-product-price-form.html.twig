@@ -1,6 +1,6 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
-        <sw-container columns="1fr 1fr" gap="0px 30px" class="sw-product-price-form__prices">
+        <sw-container columns="1fr 2fr" gap="0px 30px" class="sw-product-price-form__prices">
             <div>
                 {% block sw_product_price_form_tax_field %}
                     <sw-inherit-wrapper
@@ -34,12 +34,14 @@
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}
+            </div>
 
+            <div>
+                {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-list-price-field" component #}
                 {% block sw_product_price_form_purchase_price_field %}
                     <sw-inherit-wrapper
-                        v-if="!isLoading"
+                        v-if="!feature.isActive('FEATURE_NEXT_12429') && !isLoading"
                         v-model="product.purchasePrices"
-                        label=" "
                         class="sw-product-price-form__purchase-prices"
                         :hasParent="!!parentProduct.id"
                         :inheritedValue="parentProduct.purchasePrices"
@@ -57,30 +59,32 @@
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}
+
+
+                {% block sw_product_price_form_price_field %}
+                    <sw-inherit-wrapper
+                        v-if="!isLoading"
+                        v-model="prices"
+                        :hasParent="!!parentProduct.id"
+                        :inheritedValue="parentProduct.price"
+                        :customRemoveInheritanceFunction="removePriceInheritation">
+                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                            <sw-list-price-field
+                                required
+                                vertical
+                                :price="currentValue[1]"
+                                :purchasePrices="currentValue[0]"
+                                :taxRate="productTaxRate"
+                                :disabled="isInherited || !allowEdit"
+                                :error="productPriceError ? productPriceError[0] : null"
+                                :currency="defaultCurrency"
+                                :showSettingPrice="modeSettingsVisible.showSettingPrice">
+                            </sw-list-price-field>
+                        </template>
+                    </sw-inherit-wrapper>
+                {% endblock %}
             </div>
 
-            {% block sw_product_price_form_price_field %}
-                <sw-inherit-wrapper
-                    v-if="!isLoading"
-                    v-model="product.price"
-                    label=" "
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.price"
-                    :customRemoveInheritanceFunction="removePriceInheritation">
-                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                        <sw-list-price-field
-                            :price="currentValue"
-                            required
-                            :vertical="true"
-                            :taxRate="productTaxRate"
-                            :disabled="isInherited || !allowEdit"
-                            :error="productPriceError ? productPriceError[0] : null"
-                            :currency="defaultCurrency">
-                        </sw-list-price-field>
-                    </template>
-                </sw-inherit-wrapper>
-
-            {% endblock %}
         </sw-container>
 
         <sw-container columns="1fr" justify="end" class="sw-product-price-form__links">

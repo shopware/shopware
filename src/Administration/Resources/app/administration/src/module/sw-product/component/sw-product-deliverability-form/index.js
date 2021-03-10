@@ -6,6 +6,8 @@ const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-deliverability-form', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -22,7 +24,8 @@ Component.register('sw-product-deliverability-form', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'loading'
+            'loading',
+            'modeSettingsVisible'
         ]),
 
         ...mapPropertyErrors('product', [

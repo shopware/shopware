@@ -8,7 +8,8 @@
       "columnLinkOnly": "Versteckt",
       "linkAdvancedVisibility": "Erweitere Sichtbarkeit konfigurieren",
       "labelVisibility": "Sichtbarkeit",
-      "closeModal": "Übernehmen"
+      "closeModal": "Übernehmen",
+      "bodyVisibility": "Füge Verkaufskanäle hinzu, die dieses Produkt anzeigen. Über den unten stehenden Link kannst Du die Sichtbarkeit des Produktes in Deinen Storefront-Verkausfkanälen weiter beeinflussen."
     },
     "general": {
       "mainMenuItemGeneral": "Produkte",
@@ -53,7 +54,10 @@
       "textAddSearchKeyword": "Hier klicken, um Schlagwörter hinzuzufügen",
       "textEnterValidSearchKeyword": "Suchbare Schlagwörter",
       "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden.",
-      "helpTextTags": "Tags sind nur für den internen Gebrauch gedacht. Sie helfen dabei, Produkte zu gruppieren, Regeln anzuwenden oder dienen als individuelle Suchbegriffe."
+      "helpTextTags": "Tags sind nur für den internen Gebrauch gedacht. Sie helfen dabei, Produkte zu gruppieren, Regeln anzuwenden oder dienen als individuelle Suchbegriffe.",
+      "categoriesTitle": "Kategorien und Tags",
+      "descriptionCategories": "Füge Kategorien hinzu, damit das Produkt in der Hauptnavigation der Storefront oder von API-Verbindungen gefunden werden kann. Kategorien, die Du hinzufügen möchtest sollten verfügbar und im jeweiligen Verkaufskanal aktiv sein, damit Du sie hier auswählen kannst.",
+      "descriptionTags": "Tags helfen Dir dabei Produkte schneller zu finden. Mit ihnen ist es einfach, Produkte zu gruppieren and sie können mit dem Rule Builder verwendet werden, um Aufgaben zu automatisieren"
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",

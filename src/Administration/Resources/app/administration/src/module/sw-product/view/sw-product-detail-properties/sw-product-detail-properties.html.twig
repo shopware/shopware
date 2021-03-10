@@ -49,7 +49,7 @@
                                             {% block sw_product_detail_properties_empty_state_text_link %}
                                                 <router-link
                                                     v-if="isInherited"
-                                                    :to="{ name: 'sw.product.detail.properties', params: { id: product.parentId } }"
+                                                    :to="{ name: 'sw.product.detail.specifications', params: { id: product.parentId } }"
                                                     class="sw-product-detail-properties__parent-properties-link">
                                                     {{ $tc('sw-product.properties.linkPropertiesOfParent') }}
                                                     <sw-icon name="default-arrow-simple-right" small></sw-icon>

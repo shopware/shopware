@@ -18,6 +18,19 @@ exports[`components/form/sw-list-price-field should renders correctly 1`] = `
   </div>
    
   <div
+    class="sw-list-price-field__price"
+  >
+    <sw-price-field-stub
+      class="sw-purchase-price-field"
+      currency="[object Object]"
+      grosslabel="sw-product.priceForm.labelPurchasePriceGross"
+      netlabel="sw-product.priceForm.labelPurchasePriceNet"
+      price="[object Object]"
+      taxrate="[object Object]"
+    />
+  </div>
+   
+  <div
     class="sw-list-price-field__list-price"
   >
     <sw-price-field-stub

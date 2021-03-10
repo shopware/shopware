@@ -34,7 +34,10 @@ export default {
                 showCharacteristicsCard: true,
                 showCustomFieldCard: true,
                 showPropertiesCard: true,
-                showCustomProduct: true
+                showCustomProduct: true,
+                showSettingPrice: true,
+                showSettingDelivery: true,
+                showSettingStructure: true
             }
         };
     },

@@ -247,7 +247,7 @@ Component.register('sw-product-detail', {
                 },
                 {
                     key: 'visibility_structure',
-                    label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                    label: 'sw-product.detailBase.cardTitleAssignment',
                     enabled: true,
                     tabSetting: 'general'
                 },
@@ -452,7 +452,10 @@ Component.register('sw-product-detail', {
                 showCustomFieldCard: this.getModeEnabledByKey('custom_fields') && this.showModeSetting,
                 showPropertiesCard: this.getModeEnabledByKey('properties'),
                 showCustomProduct: this.getModeEnabledByKey('custom_products') && this.showModeSetting,
-                showSettingPackaging: this.getModeEnabledByKey('measures_packaging') && this.showModeSetting
+                showSettingPackaging: this.getModeEnabledByKey('measures_packaging') && this.showModeSetting,
+                showSettingPrice: this.getModeEnabledByKey('prices') && this.showModeSetting,
+                showSettingDelivery: this.getModeEnabledByKey('deliverability') && this.showModeSetting,
+                showSettingStructure: this.getModeEnabledByKey('visibility_structure') && this.showModeSetting
             };
         },
 

@@ -142,7 +142,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: test multidimensional variant with diversification', () => {
+    it.skip('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

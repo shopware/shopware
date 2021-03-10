@@ -76,7 +76,7 @@ Component.register('sw-category-detail-base', {
                     }
 
                     if (type.value === 'link') {
-                        type.label = this.$tc('sw-category.base.general.types.newLink');
+                        type.label = this.typeLinkLabel;
                         type.disabled = this.isSalesChannelEntryPoint;
                     }
 
@@ -85,6 +85,14 @@ Component.register('sw-category-detail-base', {
             }
 
             return categoryTypes;
+        },
+
+        typeLinkLabel() {
+            if (this.isSalesChannelEntryPoint) {
+                return this.$tc('sw-category.base.general.types.linkUnavailable');
+            }
+
+            return this.$tc('sw-category.base.general.types.newLink');
         },
 
         categoryTypeHelpText() {

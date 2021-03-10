@@ -47,6 +47,7 @@
           "newPage": "Seite / Liste",
           "newFolder": "Strukturelement / Einstiegspunkt",
           "newLink": "Link",
+          "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
           "helpText": {
             "page": "Eine Seite / Liste hat zugehörige Produkte und kann direkt mit dem zugeordneten Layout aufgerufen werden.",

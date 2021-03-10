@@ -50,61 +50,34 @@ class CategoryUrlGeneratorTest extends TestCase
         static::assertNull($this->urlGenerator->generate($category));
     }
 
-    public function testLinkCategory(): void
+    /**
+     * @dataProvider dataProviderLinkTypes
+     */
+    public function testLinkType(?string $type, string $route): void
     {
         $category = new CategoryEntity();
         $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->setInternalLink(Uuid::randomHex());
-        $category->addTranslated('internalLink', $category->getInternalLink());
+        $category->setLinkType($type);
+        $category->addTranslated('linkType', $type);
 
-        static::assertSame('frontend.navigation.page', $this->urlGenerator->generate($category));
-    }
+        static::assertNull($this->urlGenerator->generate($category));
 
-    public function testLinkProduct(): void
-    {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_PRODUCT);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_PRODUCT);
-        $category->setInternalLink(Uuid::randomHex());
-        $category->addTranslated('internalLink', $category->getInternalLink());
-
-        static::assertSame('frontend.detail.page', $this->urlGenerator->generate($category));
-    }
-
-    public function testLinkLandingPage(): void
-    {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_LANDING_PAGE);
-        $category->setInternalLink(Uuid::randomHex());
-        $category->addTranslated('internalLink', $category->getInternalLink());
-
-        static::assertSame('frontend.landing.page', $this->urlGenerator->generate($category));
-    }
-
-    public function testLinkExternalTypeSet(): void
-    {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_EXTERNAL);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_EXTERNAL);
         $category->setExternalLink(self::EXTERNAL_URL);
         $category->addTranslated('externalLink', $category->getExternalLink());
+        $category->setInternalLink(Uuid::randomHex());
+        $category->addTranslated('internalLink', $category->getInternalLink());
 
-        static::assertSame(self::EXTERNAL_URL, $this->urlGenerator->generate($category));
+        static::assertSame($route, $this->urlGenerator->generate($category));
     }
 
-    public function testLinkExternalTypeNotSet(): void
+    public function dataProviderLinkTypes(): array
     {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setExternalLink(self::EXTERNAL_URL);
-        $category->addTranslated('externalLink', $category->getExternalLink());
-
-        static::assertSame(self::EXTERNAL_URL, $this->urlGenerator->generate($category));
+        return [
+            [CategoryDefinition::LINK_TYPE_PRODUCT, 'frontend.detail.page'],
+            [CategoryDefinition::LINK_TYPE_CATEGORY, 'frontend.navigation.page'],
+            [CategoryDefinition::LINK_TYPE_LANDING_PAGE, 'frontend.landing.page'],
+            [CategoryDefinition::LINK_TYPE_EXTERNAL, self::EXTERNAL_URL],
+            [null, self::EXTERNAL_URL],
+        ];
     }
 }

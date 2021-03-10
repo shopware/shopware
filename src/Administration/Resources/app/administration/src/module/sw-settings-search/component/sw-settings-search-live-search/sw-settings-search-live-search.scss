@@ -5,7 +5,7 @@
         font-size: $font-size-small;
     }
 
-    &__rebuild-link {
+    &__show-example-link {
         display: grid;
         grid-auto-flow: column;
         grid-column-gap: 4px;
@@ -14,6 +14,7 @@
         color: $color-shopware-brand-500;
         font-size: $font-size-small;
         text-decoration: underline;
+        cursor: pointer;
     }
 
     &__search-results {

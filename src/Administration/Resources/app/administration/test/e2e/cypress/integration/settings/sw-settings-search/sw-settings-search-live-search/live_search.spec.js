@@ -20,12 +20,11 @@ describe('Search settings: Live Search', () => {
             });
     });
 
-    it('@settings: link should go back to general tab', () => {
+    it('@settings: link should open the example popup', () => {
         cy.contains('Storefront live search');
 
-        cy.contains('Rebuild search index');
-        cy.get('.sw-settings-search-live-search__rebuild-link').click();
-        cy.location('hash').should('contain', '#/sw/settings/search/index/general');
+        cy.get('.sw-settings-search-live-search__show-example-link').click();
+        cy.get('.sw-modal.sw-settings-search-example-modal').should('be.visible');
     });
 
     it('@settings: Search for a keyword with no result', () => {

@@ -45,7 +45,6 @@ describe('Search: Test ACL privileges', () => {
 
         cy.get('.sw-settings-search-excluded-search-terms').scrollIntoView();
         cy.get('.sw-settings-search-excluded-search-terms').should('be.visible');
-        cy.get('.sw-settings-search__search-index-warning-text').should('be.visible');
 
         // live search tab should be accessible
         cy.get('.sw-settings-search__general-tab').scrollIntoView();
@@ -706,6 +705,10 @@ describe('Search: Test ACL privileges', () => {
         // go to search module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-settings-search').click();
+
+        cy.get('.sw-settings-search__general-tab').scrollIntoView();
+        cy.get('.sw-settings-search__live-search-tab').should('be.visible').click();
+        cy.get('.sw-settings-search-live-search').should('be.visible');
 
         cy.get('.sw-settings-search__search-index-rebuild-button').scrollIntoView().click();
         cy.awaitAndCheckNotification('Building product indexes.');

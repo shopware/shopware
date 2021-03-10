@@ -43,7 +43,8 @@ Component.register('sw-settings-search-live-search', {
             salesChannels: [],
             salesChannelId: this.currentSalesChannelId,
             liveSearchResults: null,
-            searchInProgress: false
+            searchInProgress: false,
+            showExampleModal: false
         };
     },
 
@@ -118,6 +119,14 @@ Component.register('sw-settings-search-live-search', {
         changeSalesChannel(salesChannelId) {
             this.salesChannelId = salesChannelId;
             this.$emit('sales-channel-change', salesChannelId);
+        },
+
+        onShowExampleModal() {
+            this.showExampleModal = true;
+        },
+
+        onCloseExampleModal() {
+            this.showExampleModal = false;
         }
     }
 });

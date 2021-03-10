@@ -129,7 +129,7 @@ Component.register('sw-first-run-wizard-modal', {
                 ['success', 'info', 'disabled', 'disabled', 'disabled', 'disabled'],
                 ['success', 'success', 'info', 'disabled', 'disabled', 'disabled'],
                 ['success', 'success', 'success', 'info', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'success', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'success', 'info', 'disabled'],
                 ['success', 'success', 'success', 'success', 'success', 'info'],
                 ['success', 'success', 'success', 'success', 'success', 'success']
             ];

@@ -85,7 +85,7 @@ describe('Minimal install', () => {
         // @install: installation
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Installation');
-        cy.get('.database-import-finish', { timeout: 120000 }).should('be.visible');
+        cy.get('.database-import-finish', { timeout: 180000 }).should('be.visible');
 
         // Take snapshot for visual testing
         cy.takeSnapshot(`Database migration finished`, 'section.content--main');
@@ -180,13 +180,19 @@ describe('Minimal install', () => {
         // @frw: skip account login
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--disabled span').contains('Shopware');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Account');
+        cy.get('.sw-button span').contains('Skip').click();
+
+        // @frw: skip store page
+        cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
+        cy.get('.sw-step-display').should('be.visible');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Store');
         cy.get('.sw-button span').contains('Skip').click();
 
         // @frw: finish
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--disabled span').contains('Shopware');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--success span').contains('Shopware Store');
 
         cy.server();
         cy.route({

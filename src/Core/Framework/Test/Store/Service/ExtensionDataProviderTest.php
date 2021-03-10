@@ -95,14 +95,13 @@ class ExtensionDataProviderTest extends TestCase
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
     }
 
-    private function setListingResponse(): void
+    public function testItLoadsRemoteExtensions(): void
     {
-        $requestHandler = $this->getRequestHandler();
-        $requestHandler->reset();
-        $requestHandler->append(new Response(
-            200,
-            [ExtensionDataProvider::HEADER_NAME_TOTAL_COUNT => '2'],
-            \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json')
-        ));
+        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
+        $this->getRequestHandler()->reset();
+        $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
+        static::assertEquals(7, $installedExtensions->count());
     }
 }

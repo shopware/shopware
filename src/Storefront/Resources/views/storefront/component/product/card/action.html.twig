@@ -1,7 +1,7 @@
 {% block component_product_box_action_inner %}
     {% set id = product.id %}
 
-    {% if shopware.config.core.listing.allowBuyInListing %}
+    {% if config('core.listing.allowBuyInListing') %}
         <div class="product-action">
             {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
             {% set displayFrom = product.calculatedPrices.count > 1 %}

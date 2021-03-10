@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PromotionIndexer extends EntityIndexer
@@ -110,7 +111,10 @@ class PromotionIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new PromotionIndexerEvent($ids, $message->getContext()));
 
-        $this->cacheClearer->invalidateIds($ids, PromotionDefinition::ENTITY_NAME);
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds($ids, PromotionDefinition::ENTITY_NAME);
+        }
     }
 
     private function isGeneratingIndividualCode(EntityWrittenContainerEvent $event): bool

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -377,8 +378,13 @@ GROUP BY product_id;
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function clearCache(array $ids): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return;
+        }
+
         $tags = [];
         foreach ($ids as $id) {
             $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->definition->getEntityName());

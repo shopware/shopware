@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class SalesChannelContextServiceTest extends TestCase
 {
@@ -30,7 +31,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $persister->method('load')->willReturn(['expired' => true]);
         $expiredToken = Uuid::randomHex();
-        $context = $service->get(Defaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM);
+        $context = $service->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
         static::assertNotEquals($expiredToken, $context->getToken());
     }
 
@@ -48,7 +49,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $persister->method('load')->willReturn(['expired' => false]);
         $noneExpiringToken = Uuid::randomHex();
-        $context = $service->get(Defaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM);
+        $context = $service->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
         static::assertEquals($noneExpiringToken, $context->getToken());
     }
 }

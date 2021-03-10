@@ -13,5 +13,5 @@ abstract class AbstractProductListingRoute
 {
     abstract public function getDecorated(): AbstractProductListingRoute;
 
-    abstract public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext, Criteria $criteria): ProductListingRouteResponse;
+    abstract public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse;
 }

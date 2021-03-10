@@ -121,6 +121,11 @@ class SwSanitizeTwigFilter extends AbstractExtension
 
     private bool $cacheEnabled;
 
+    /**
+     * @var array
+     */
+    private $cache = [];
+
     public function __construct(?string $cacheDir = null, bool $cacheEnabled = true)
     {
         $this->cacheDir = (string) $cacheDir;
@@ -144,12 +149,19 @@ class SwSanitizeTwigFilter extends AbstractExtension
             $hash .= '-override';
         }
 
+        $textKey = $hash . md5($text);
+        if (isset($this->cache[$textKey])) {
+            return $this->cache[$textKey];
+        }
+
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        return $this->purifiers[$hash]->purify($text);
+        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
+
+        return $this->cache[$textKey];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

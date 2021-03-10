@@ -16,7 +16,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_first_name %}
-                {% set firstNameFieldRequired = shopware.config.core.basicInformation.firstNameFieldRequired == true %}
+                {% set firstNameFieldRequired = config('core.basicInformation.firstNameFieldRequired') == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'firstName',
@@ -29,7 +29,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_last_name %}
-                {% set lastNameFieldRequired = shopware.config.core.basicInformation.lastNameFieldRequired == true %}
+                {% set lastNameFieldRequired = config('core.basicInformation.lastNameFieldRequired') == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'lastName',
@@ -57,7 +57,7 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phome %}
-                {% set phoneNumberFieldRequired = shopware.config.core.basicInformation.phoneNumberFieldRequired == true %}
+                {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'phone',
@@ -104,7 +104,7 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}

@@ -21,11 +21,11 @@ class LanguageRoute extends AbstractLanguageRoute
     /**
      * @var SalesChannelRepositoryInterface
      */
-    private $languageRepository;
+    private $repository;
 
-    public function __construct(SalesChannelRepositoryInterface $languageRepository)
+    public function __construct(SalesChannelRepositoryInterface $repository)
     {
-        $this->languageRepository = $languageRepository;
+        $this->repository = $repository;
     }
 
     public function getDecorated(): AbstractLanguageRoute
@@ -70,6 +70,8 @@ class LanguageRoute extends AbstractLanguageRoute
     {
         $criteria->addAssociation('translationCode');
 
-        return new LanguageRouteResponse($this->languageRepository->search($criteria, $context));
+        return new LanguageRouteResponse(
+            $this->repository->search($criteria, $context)
+        );
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -39,6 +40,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
 
     public function testExtensionsAreNotConsidered(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
         $criteria = new Criteria();
         $extension = new Criteria();
         $extension->addExtension('test', new ArrayStruct());

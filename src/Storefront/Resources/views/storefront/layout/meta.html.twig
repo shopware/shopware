@@ -1,7 +1,8 @@
 {% block layout_head_inner %}
     {% set metaInformation = page.metaInformation %}
-    {% set basicConfig = shopware.config.core.basicInformation %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160, '…') %}
+    {% set basicConfig = config('core.basicInformation') %}
+    {% set maxLength = config('seo.descriptionMaxLength') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 160, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
 
@@ -39,7 +40,7 @@
                 <meta property="og:description"
                       content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
                 <meta property="og:image"
-                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+                      content="{{ theme_config('sw-logo-desktop') }}"/>
 
                 <meta name="twitter:card"
                       content="summary"/>
@@ -50,7 +51,7 @@
                 <meta name="twitter:description"
                       content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
                 <meta name="twitter:image"
-                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+                      content="{{ theme_config('sw-logo-desktop') }}"/>
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}
@@ -61,7 +62,7 @@
                 <meta itemprop="isFamilyFriendly"
                       content="{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image"
-                      content="{{ shopware.theme['sw-logo-desktop'] }}"/>
+                      content="{{ theme_config('sw-logo-desktop') }}"/>
             {% endblock %}
 
             {% block layout_head_meta_tags_hreflangs %}
@@ -73,21 +74,21 @@
 
         {% block layout_head_favicon %}
             <link rel="shortcut icon"
-                  href="{{ shopware.theme['sw-logo-favicon'] }}">
+                  href="{{ theme_config('sw-logo-favicon') }}">
         {% endblock %}
 
         {% block layout_head_apple %}
             <link rel="apple-touch-icon"
                   sizes="180x180"
-                  href="{{ shopware.theme['sw-logo-share'] }}">
+                  href="{{ theme_config('sw-logo-share') }}">
         {% endblock %}
 
         {% block layout_head_android %}
             <link rel="icon"
                   sizes="192x192"
-                  href="{{ shopware.theme['sw-logo-share'] }}">
+                  href="{{ theme_config('sw-logo-share') }}">
             <meta name="theme-color"
-                  content="{{ shopware.theme['sw-color-brand-primary'] }}"/>
+                  content="{{ theme_config('sw-color-brand-primary') }}"/>
         {% endblock %}
 
         {% block layout_head_canonical %}
@@ -108,7 +109,8 @@
             {% if isHMRMode %}
                 {# CSS will be loaded from the JS automatically #}
             {% else %}
-                {% for file in shopware.theme.assets.css %}
+                {% set assets = theme_config('assets.css') %}
+                {% for file in assets %}
                     <link rel="stylesheet"
                       href="{{ asset(file, 'theme') }}">
                 {% endfor %}

@@ -17,8 +17,8 @@ abstract class AbstractNavigationRoute
     abstract public function getDecorated(): AbstractNavigationRoute;
 
     abstract public function load(
-        string $requestActiveId,
-        string $requestRootId,
+        string $activeId,
+        string $rootId,
         Request $request,
         SalesChannelContext $context,
         Criteria $criteria

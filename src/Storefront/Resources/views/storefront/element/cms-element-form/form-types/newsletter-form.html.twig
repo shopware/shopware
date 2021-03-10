@@ -82,7 +82,7 @@
         {% endblock %}
 
         {% block cms_form_newsletter_captcha %}
-            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
         {% endblock %}
 
         {% block cms_form_newsletter_privacy %}

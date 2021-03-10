@@ -36,7 +36,7 @@ class Entity extends Struct
     /**
      * @var string|null
      */
-    protected $_entityName;
+    private $_entityName;
 
     public function setUniqueIdentifier(string $identifier): void
     {

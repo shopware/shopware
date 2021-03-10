@@ -73,7 +73,7 @@
                             </div>
                         {% endblock %}
 
-                        {% if shopware.config.core.cart.wishlistEnabled %}
+                        {% if config('core.cart.wishlistEnabled') %}
                             {% block layout_header_actions_wishlist %}
                                 <div class="col-auto">
                                     <div class="header-wishlist">

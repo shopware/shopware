@@ -168,8 +168,6 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
             (new ChildCountField())->addFlags(new ApiAware()),
-            (new BlacklistRuleField()),
-            (new WhitelistRuleField()),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
             (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected()),
             (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited()),
@@ -239,6 +237,11 @@ class ProductDefinition extends EntityDefinition
             (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
         ]);
+
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $collection->add(new BlacklistRuleField());
+            $collection->add(new WhitelistRuleField());
+        }
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(

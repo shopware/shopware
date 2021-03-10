@@ -49,17 +49,30 @@
             <argument type="service" id="seo_url.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="slugify"/>
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry">
             <argument type="tagged" tag="shopware.seo_url.route"/>
         </service>
 
+        <service id="Shopware\Core\Content\Seo\EmptyPathInfoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-2000">
+            <argument type="service" id="Shopware\Core\Content\Seo\EmptyPathInfoResolver.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\CachedSeoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Content\Seo\CachedSeoResolver.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\CachedSeoResolverInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Seo\SeoResolver" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\Api\SeoActionController" public="true">
@@ -95,7 +108,7 @@
         <service id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface" class="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler" public="true">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="router.default"/>
-            <argument type="service" id="sales_channel.seo_url.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension">

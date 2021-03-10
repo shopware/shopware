@@ -287,6 +287,7 @@ class CriteriaPartResolver
         return $resolver->join($context);
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function buildRuleWhere(QueryBuilder $query, Context $context, EntityDefinition $definition, string $alias): string
     {
         $ruleCondition = $this->helper->buildRuleCondition($definition, $query, $alias, $context);

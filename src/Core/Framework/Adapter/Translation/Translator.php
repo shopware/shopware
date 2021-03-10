@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -15,16 +16,15 @@ use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
-use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-class Translator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
+class Translator extends AbstractTranslator
 {
     use TranslatorTrait;
 
     /**
-     * @var TranslatorInterface|TranslatorBagInterface|LocaleAwareInterface
+     * @var TranslatorInterface|TranslatorBagInterface
      */
     private $translator;
 
@@ -78,6 +78,16 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LocaleA
      */
     private $environment;
 
+    /**
+     * @var array
+     */
+    private $keys = ['all' => true];
+
+    /**
+     * @var array
+     */
+    private $traces = [];
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
@@ -94,6 +104,36 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LocaleA
         $this->snippetService = $snippetService;
         $this->languageRepository = $languageRepository;
         $this->environment = $environment;
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'translator.' . $id;
+    }
+
+    public function getDecorated(): AbstractTranslator
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function trace(string $key, \Closure $param)
+    {
+        $this->traces[$key] = [];
+        $this->keys[$key] = true;
+
+        $result = $param();
+
+        unset($this->keys[$key]);
+
+        return $result;
+    }
+
+    public function getTrace(string $key): array
+    {
+        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
+        unset($this->traces[$key]);
+
+        return $trace;
     }
 
     /**
@@ -129,6 +169,10 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LocaleA
     {
         if ($domain === null) {
             $domain = 'messages';
+        }
+
+        foreach (array_keys($this->keys) as $trace) {
+            $this->traces[$trace][self::buildName($id)] = true;
         }
 
         return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);

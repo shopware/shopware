@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -28,12 +28,12 @@ class SitemapGenerateCommand extends Command
 
     private SitemapExporterInterface $sitemapExporter;
 
-    private SalesChannelContextFactory $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         SitemapExporterInterface $sitemapExporter,
-        SalesChannelContextFactory $salesChannelContextFactory
+        AbstractSalesChannelContextFactory $salesChannelContextFactory
     ) {
         parent::__construct();
 

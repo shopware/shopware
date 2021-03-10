@@ -80,7 +80,8 @@ class ThemeServiceTest extends TestCase
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),
             $this->getContainer()->get('media.repository'),
-            $this->getContainer()->get(ThemeCompiler::class)
+            $this->getContainer()->get(ThemeCompiler::class),
+            $this->getContainer()->get('event_dispatcher')
         );
 
         $method->setAccessible(true);

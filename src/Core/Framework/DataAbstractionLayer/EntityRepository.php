@@ -83,14 +83,14 @@ class EntityRepository implements EntityRepositoryInterface
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
-        $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
+
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $this->eventDispatcher->dispatch(
                 new EntitySearchedEvent($criteria, $this->definition, $context)
             );
             $entities = $this->read($criteria, $context);
 
-            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context, $page, $criteria->getLimit());
+            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $context);
         }
 
         $ids = $this->searchIds($criteria, $context);
@@ -117,7 +117,7 @@ class EntityRepository implements EntityRepositoryInterface
             $element->addExtension('search', new ArrayEntity($data));
         }
 
-        $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context, $page, $criteria->getLimit());
+        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $context);
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());

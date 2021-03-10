@@ -262,6 +262,7 @@ class EntityDefinitionQueryHelper
         return $query;
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     public function buildRuleCondition(EntityDefinition $definition, QueryBuilder $query, string $alias, Context $context): ?string
     {
         $ids = $context->getRuleIds();
@@ -635,6 +636,7 @@ class EntityDefinitionQueryHelper
     }
 
     /**
+     * @internal (flag:FEATURE_NEXT_10514) Remove complete function
      * Adds a blacklist and whitelist where condition to the provided query.
      * This function is only for internal usage for the root entity of the query.
      */
@@ -642,6 +644,7 @@ class EntityDefinitionQueryHelper
     {
         $ids = $context->getRuleIds();
 
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
         if ($definition->isBlacklistAware() && $ids) {
             $accessor = self::escape($definition->getEntityName()) . '.`blacklist_ids`';
 

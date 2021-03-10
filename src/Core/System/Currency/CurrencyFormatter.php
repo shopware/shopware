@@ -2,21 +2,14 @@
 
 namespace Shopware\Core\System\Currency;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class CurrencyFormatter
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $languageRepository;
-
     /**
      * @var string[]
      */
@@ -27,9 +20,14 @@ class CurrencyFormatter
      */
     private $formatter = [];
 
-    public function __construct(EntityRepositoryInterface $languageRepository)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
     {
-        $this->languageRepository = $languageRepository;
+        $this->connection = $connection;
     }
 
     /**
@@ -40,7 +38,7 @@ class CurrencyFormatter
     {
         $decimals = $decimals ?? $context->getRounding()->getDecimals();
 
-        $locale = $this->getLocale($languageId, $context);
+        $locale = $this->getLocale($languageId);
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
@@ -58,25 +56,23 @@ class CurrencyFormatter
         return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
     }
 
-    private function getLocale(string $languageId, Context $context): string
+    private function getLocale(string $languageId): string
     {
         if (\array_key_exists($languageId, $this->localeCache)) {
             return $this->localeCache[$languageId];
         }
 
-        $criteria = (new Criteria())
-            ->addAssociation('locale')
-            ->addFilter(new EqualsFilter('language.id', $languageId));
+        $code = $this->connection->fetchColumn('
+            SELECT `locale`.`code`
+            FROM `locale`
+            INNER JOIN `language` ON `language`.`locale_id` = `locale`.`id`
+            WHERE `language`.`id` = :id
+        ', ['id' => Uuid::fromHexToBytes($languageId)]);
 
-        $criteria->setTitle('currency-formatter::load-locale');
-
-        /** @var LanguageEntity|null $language */
-        $language = $this->languageRepository->search($criteria, $context)->get($languageId);
-
-        if ($language === null) {
+        if ($code === null) {
             throw new LanguageNotFoundException($languageId);
         }
 
-        return $this->localeCache[$languageId] = $language->getLocale()->getCode();
+        return $this->localeCache[$languageId] = $code;
     }
 }

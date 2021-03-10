@@ -109,6 +109,22 @@
             <argument type="service" id="sales_channel.payment_method.repository"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.payment_method_route%</argument>
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRouteInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>

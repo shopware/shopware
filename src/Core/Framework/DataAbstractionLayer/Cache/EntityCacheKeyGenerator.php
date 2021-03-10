@@ -16,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class EntityCacheKeyGenerator
 {
@@ -31,6 +33,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Generates a unique entity cache key.
      * Considers a provided criteria with additional loaded associations and different context states.
      */
@@ -44,13 +47,14 @@ class EntityCacheKeyGenerator
         ];
 
         if ($criteria && \count($criteria->getAssociations()) > 0) {
-            $keys[] = md5(json_encode($criteria->getAssociations()));
+            $keys[] = md5((string) json_encode($criteria->getAssociations()));
         }
 
         return md5(implode('-', $keys));
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Generates a cache key for a criteria inside the read process.
      * Considers different associations and context states.
      */
@@ -67,6 +71,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Generates a unique cache key for a search result.
      */
     public function getSearchCacheKey(EntityDefinition $definition, Criteria $criteria, Context $context): string
@@ -82,6 +87,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Generates the unique cache key for the provided aggregation. Used as cache key for cached aggregation results.
      */
     public function getAggregationCacheKey(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): string
@@ -98,6 +104,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Defines the tag for a single entity. Used for invalidation if this entity is written
      *
      * @param string|EntityDefinition $entityName
@@ -117,6 +124,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Calculates all relevant cache tags for a search requests. Considers all accessed fields of the criteria.
      */
     public function getSearchTags(EntityDefinition $definition, Criteria $criteria): array
@@ -133,6 +141,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Calculates all cache tags for the provided aggregation. Considers the criteria filters and queries.
      */
     public function getAggregationTags(EntityDefinition $definition, Criteria $criteria, Aggregation $aggregation): array
@@ -152,6 +161,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
      * Calculates all tags for a single entity. Considers the language chain, context states and loaded associations
      *
      * @return string[]
@@ -219,9 +229,70 @@ class EntityCacheKeyGenerator
         return array_keys(array_flip($keys));
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
+     */
     public function getFieldTag(EntityDefinition $definition, string $fieldName): string
     {
         return $definition->getEntityName() . '.' . $fieldName;
+    }
+
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
+     */
+    public function getContextHash(Context $context): string
+    {
+        return md5(json_encode([
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            $context->getCurrencyId(),
+            $context->getRuleIds(),
+            $context->considerInheritance(),
+        ]));
+    }
+
+    public function getSalesChannelContextHash(SalesChannelContext $context): string
+    {
+        return md5(json_encode([
+            $context->getSalesChannelId(),
+            $context->getDomainId(),
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            $context->getCurrencyId(),
+            $context->getRuleIds(),
+        ]));
+    }
+
+    public function getCriteriaHash(Criteria $criteria): string
+    {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return md5(json_encode([
+                $criteria->getIds(),
+                $criteria->getFilters(),
+                $criteria->getTerm(),
+                $criteria->getPostFilters(),
+                $criteria->getQueries(),
+                $criteria->getSorting(),
+                $criteria->getLimit(),
+                $criteria->getOffset() ?? 0,
+                $criteria->getTotalCountMode(),
+                $criteria->getGroupFields(),
+                $criteria->getAggregations(),
+            ]));
+        }
+
+        return md5(json_encode([
+            $criteria->getIds(),
+            $criteria->getFilters(),
+            $criteria->getTerm(),
+            $criteria->getPostFilters(),
+            $criteria->getQueries(),
+            $criteria->getSorting(),
+            $criteria->getLimit(),
+            $criteria->getOffset() ?? 0,
+            $criteria->getTotalCountMode(),
+            $criteria->getGroupFields(),
+        ]));
     }
 
     private function getDefinitionCacheKey(EntityDefinition $definition): string
@@ -292,37 +363,10 @@ class EntityCacheKeyGenerator
         return $associations;
     }
 
-    private function getCriteriaHash(Criteria $criteria): string
-    {
-        return md5(json_encode([
-            $criteria->getIds(),
-            $criteria->getFilters(),
-            $criteria->getTerm(),
-            $criteria->getPostFilters(),
-            $criteria->getQueries(),
-            $criteria->getSorting(),
-            $criteria->getLimit(),
-            $criteria->getOffset(),
-            $criteria->getTotalCountMode(),
-            $criteria->getGroupFields(),
-        ]));
-    }
-
     private function getAggregationHash(Criteria $criteria): string
     {
         return md5(json_encode([
             $criteria->getFilters(),
-        ]));
-    }
-
-    private function getContextHash(Context $context): string
-    {
-        return md5(json_encode([
-            $context->getLanguageIdChain(),
-            $context->getVersionId(),
-            $context->getCurrencyFactor(),
-            $context->getRuleIds(),
-            $context->considerInheritance(),
         ]));
     }
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,17 +88,15 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
         $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
+        $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID);
 
-        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId;
+        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId . $domainId;
 
         if (!empty($this->cache[$cacheKey])) {
             $context = $this->cache[$cacheKey];
         } else {
             $context = $this->contextService->get(
-                $salesChannelId,
-                $contextToken,
-                $language,
-                $currencyId
+                new SalesChannelContextServiceParameters((string) $salesChannelId, (string) $contextToken, $language, $currencyId, $domainId)
             );
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
         }
@@ -118,7 +117,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
 
         $context = $this->contextService
-            ->get($salesChannelId, $contextToken, $language, $currencyId);
+            ->get(new SalesChannelContextServiceParameters($salesChannelId, $contextToken, $language, $currencyId));
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);

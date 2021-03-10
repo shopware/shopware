@@ -8,11 +8,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
+use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
+use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ThemeService
 {
@@ -41,18 +46,22 @@ class ThemeService
      */
     private $themeCompiler;
 
+    private EventDispatcherInterface $dispatcher;
+
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         EntityRepositoryInterface $mediaRepository,
-        ThemeCompilerInterface $themeCompiler
+        ThemeCompilerInterface $themeCompiler,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->mediaRepository = $mediaRepository;
         $this->themeCompiler = $themeCompiler;
+        $this->dispatcher = $dispatcher;
     }
 
     public function compileTheme(
@@ -94,6 +103,10 @@ class ThemeService
             $data['parentThemeId'] = $parentThemeId;
         }
 
+        if (\array_key_exists('configValues', $data)) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues']));
+        }
+
         if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
             $data['configValues'] = array_replace_recursive($theme->getConfigValues(), $data['configValues']);
         }
@@ -114,6 +127,8 @@ class ThemeService
             'salesChannelId' => $salesChannelId,
         ]], $context);
 
+        $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId));
+
         return true;
     }
 
@@ -128,6 +143,8 @@ class ThemeService
 
         $data = ['id' => $themeId];
         $data['configValues'] = null;
+
+        $this->dispatcher->dispatch(new ThemeConfigResetEvent($themeId));
 
         $this->themeRepository->update([$data], $context);
     }
@@ -193,8 +210,15 @@ class ThemeService
         return $themeConfig;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, use theme_config in templates instead.
+     */
     public function getResolvedThemeConfiguration(string $themeId, Context $context): array
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return [];
+        }
+
         $config = $this->getThemeConfiguration($themeId, false, $context);
         $resolvedConfig = [];
         $mediaItems = [];

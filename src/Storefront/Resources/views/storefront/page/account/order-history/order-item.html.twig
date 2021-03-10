@@ -146,7 +146,7 @@
                                         {% endblock %}
 
                                         {% block page_account_order_item_context_menu_cancel_order %}
-                                            {% if orderState != ORDER_STATE_CANCELLED and shopware.config.core.cart.enableOrderRefunds %}
+                                            {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
                                                 <button type="button"
                                                         class="order-table-header-context-menu-content-link"
                                                         data-toggle="modal"

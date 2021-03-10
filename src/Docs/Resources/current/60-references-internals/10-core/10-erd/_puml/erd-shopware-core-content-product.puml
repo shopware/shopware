@@ -70,8 +70,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    optionIds manyToManyId
    tagIds manyToManyId
    childCount childCount
-   blacklistIds blacklistRule
-   whitelistIds whitelistRule
    customFieldSetSelectionActive bool
    sales int
    cheapestPrice cheapestPrice
@@ -85,6 +83,8 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    customSearchKeywords translated
    canonicalProductId foreignKey
+   blacklistIds blacklistRule
+   whitelistIds whitelistRule
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

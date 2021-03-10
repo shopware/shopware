@@ -2301,6 +2301,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testPaginatedAssociationWithBlacklist(): void
     {
+        //@internal (FEATURE_NEXT_10514) remove this case
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
+
         $manufacturerId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();

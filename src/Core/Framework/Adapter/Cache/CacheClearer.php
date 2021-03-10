@@ -68,6 +68,9 @@ class CacheClearer extends AbstractMessageHandler
         $this->messageBus = $messageBus;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Function will be removed, new cache pattern uses CacheInvalidationLogger
+     */
     public function invalidateTags(array $tags): void
     {
         foreach ($this->adapters as $adapter) {
@@ -77,6 +80,9 @@ class CacheClearer extends AbstractMessageHandler
         }
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Function will be removed, new cache pattern uses CacheInvalidationLogger
+     */
     public function invalidateIds(array $ids, string $entity): void
     {
         $ids = array_filter($ids);

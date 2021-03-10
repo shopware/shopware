@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
@@ -9,7 +11,6 @@ use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
@@ -17,48 +18,34 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CacheStore implements StoreInterface
 {
-    /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
+    private TagAwareAdapterInterface $cache;
 
-    /**
-     * @var array
-     */
-    private $locks = [];
+    private array $locks = [];
 
-    /**
-     * @var CacheStateValidator
-     */
-    private $stateValidator;
+    private CacheStateValidator $stateValidator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var string
-     */
-    private $cacheHash;
+    private string $cacheHash;
 
-    /**
-     * @var CacheTagCollection
-     */
-    private $cacheTagCollection;
+    private CacheTagCollection $cacheTagCollection;
+
+    private AbstractCacheTracer $tracer;
 
     public function __construct(
         string $cacheHash,
         TagAwareAdapterInterface $cache,
         CacheStateValidator $stateValidator,
         EventDispatcherInterface $eventDispatcher,
-        CacheTagCollection $cacheTagCollection
+        CacheTagCollection $cacheTagCollection,
+        AbstractCacheTracer $tracer
     ) {
         $this->cache = $cache;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->cacheHash = $cacheHash;
         $this->cacheTagCollection = $cacheTagCollection;
+        $this->tracer = $tracer;
     }
 
     public function lookup(Request $request)
@@ -72,7 +59,7 @@ class CacheStore implements StoreInterface
         }
 
         /** @var Response $response */
-        $response = unserialize($item->get());
+        $response = CacheCompressor::uncompress($item);
 
         if (!$this->stateValidator->isValid($request, $response)) {
             return null;
@@ -94,14 +81,30 @@ class CacheStore implements StoreInterface
         }
 
         $item = $this->cache->getItem($key);
-        $item->set(serialize($response));
+
+        $item = CacheCompressor::compress($item, $response);
         $item->expiresAt($response->getExpires());
 
         $tags = $this->cacheTagCollection->getTags();
 
-        if (!empty($tags) && $item instanceof CacheItem) {
-            $item->tag($tags);
-        }
+        $tags = array_merge($tags, $this->tracer->get('all'));
+
+        $tags = array_filter($tags, static function (string $tag): bool {
+            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
+            if (strpos($tag, 'theme-config') !== false) {
+                return false;
+            }
+
+            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
+            if (strpos($tag, 'system-config') !== false) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $item->tag($tags);
+        sort($tags);
 
         $this->cache->save($item);
 

@@ -26,7 +26,7 @@
 
 {% block page_checkout_confirm_tos_control %}
     {{ "checkout.confirmTermsReminder"|trans({
-        '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.tosPage })
+        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
     })|raw }}
 {% endblock %}
 
@@ -97,7 +97,7 @@
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
-            {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+            {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
                         data-toggle="modal"

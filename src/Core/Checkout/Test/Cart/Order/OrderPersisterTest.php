@@ -92,6 +92,7 @@ class OrderPersisterTest extends TestCase
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
             new EntitySearchResult(
+                'order',
                 1,
                 new EntityCollection([$order]),
                 null,

@@ -140,6 +140,7 @@ class Generator extends TestCase
         return new SalesChannelContext(
             $baseContext,
             Uuid::randomHex(),
+            Uuid::randomHex(),
             $salesChannel,
             $currency,
             $currentCustomerGroup,

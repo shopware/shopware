@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
@@ -14,7 +13,6 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -51,7 +49,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
      * @OA\Get(
      *      path="/search",
      *      summary="Search",
@@ -84,11 +81,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         );
 
         $this->searchBuilder->build($request, $criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            new ProductSearchCriteriaEvent($request, $criteria, $context),
-            ProductEvents::PRODUCT_SEARCH_CRITERIA
-        );
 
         $result = $this->productListingLoader->load($criteria, $context);
 

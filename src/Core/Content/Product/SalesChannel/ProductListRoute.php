@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class ProductListListRoute extends AbstractProductListRoute
+class ProductListRoute extends AbstractProductListRoute
 {
     /**
      * @var SalesChannelRepositoryInterface

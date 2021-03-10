@@ -129,7 +129,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_delivery_date %}
-                                                    {% if deliveryPosition and deliveryPosition.deliveryDate and shopware.config.core.cart.showDeliveryTime %}
+                                                    {% if deliveryPosition and deliveryPosition.deliveryDate and config('core.cart.showDeliveryTime') %}
                                                         <div class="cart-item-delivery-date">
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
                                                                 '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),
@@ -139,7 +139,7 @@
                                                     {% endif %}
                                                 {% endblock %}
 
-                                                {% if shopware.config.core.cart.wishlistEnabled and lineItem.type == 'product' %}
+                                                {% if config('core.cart.wishlistEnabled') and lineItem.type == 'product' %}
                                                     {% block page_checkout_item_wishlist %}
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
@@ -191,7 +191,7 @@
                                                 {% if quantityInformation.maxPurchase %}
                                                     {% set maxQuantity = quantityInformation.maxPurchase %}
                                                 {% else %}
-                                                    {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
+                                                    {% set maxQuantity = config('core.cart.maxQuantity') %}
                                                 {% endif %}
 
                                                 {% block page_product_detail_buy_quantity %}

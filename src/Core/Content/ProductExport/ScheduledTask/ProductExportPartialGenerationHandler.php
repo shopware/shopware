@@ -16,16 +16,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $salesChannelContextFactory;
 
@@ -81,7 +82,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
-        SalesChannelContextFactory $salesChannelContextFactory,
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EntityRepository $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,
         MessageBusInterface $messageBus,
@@ -199,10 +200,12 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         );
 
         $context = $this->salesChannelContextService->get(
-            $productExport->getStorefrontSalesChannelId(),
-            $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+            new SalesChannelContextServiceParameters(
+                $productExport->getStorefrontSalesChannelId(),
+                $contextToken,
+                $productExport->getSalesChannelDomain()->getLanguageId(),
+                $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+            )
         );
 
         $this->translator->injectSettings(

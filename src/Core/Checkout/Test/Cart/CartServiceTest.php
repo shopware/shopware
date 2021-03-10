@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -319,7 +320,7 @@ class CartServiceTest extends TestCase
 
         $newtoken = $this->accountService->login($mail, $context);
 
-        $context = $contextService->get(Defaults::SALES_CHANNEL, $newtoken);
+        $context = $contextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $newtoken));
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 

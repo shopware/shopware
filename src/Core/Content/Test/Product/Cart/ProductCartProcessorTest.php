@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class ProductCartProcessorTest extends TestCase
 {
@@ -81,7 +82,7 @@ class ProductCartProcessorTest extends TestCase
         $service = $this->getContainer()->get(CartService::class);
         $token = $this->ids->create('token');
         $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(Defaults::SALES_CHANNEL, $token);
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -152,7 +153,7 @@ class ProductCartProcessorTest extends TestCase
 
         $token = $this->ids->create('token');
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY);
+        $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
         $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
@@ -577,7 +578,7 @@ class ProductCartProcessorTest extends TestCase
 
         $token = $this->ids->create('token');
         $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(Defaults::SALES_CHANNEL, $token);
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
 
         $cart = $this->cartService->getCart($token, $context);
         $this->cartService->add($cart, $product, $context);

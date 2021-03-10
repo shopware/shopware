@@ -6,5 +6,16 @@
         {% set layout = 'standard' %}
     {% endif %}
 
-    {% sw_include "@Storefront/storefront/component/product/card/box-" ~ layout ~ ".html.twig" ignore missing %}
+    {% if layout == 'standard' %}
+        {% sw_include "@Storefront/storefront/component/product/card/box-standard.html.twig" %}
+    {% elseif layout == 'image' %}
+        {% sw_include "@Storefront/storefront/component/product/card/box-image.html.twig" %}
+    {% elseif layout == 'minimal' %}
+        {% sw_include "@Storefront/storefront/component/product/card/box-minimal.html.twig" %}
+    {% elseif layout == 'wishlist' %}
+        {% sw_include "@Storefront/storefront/component/product/card/box-wishlist.html.twig" %}
+    {% else %}
+        {% set template = "@Storefront/storefront/component/product/card/box-" ~ layout ~ ".html.twig" %}
+        {% sw_include template ignore missing %}
+    {% endif %}
 {% endblock %}

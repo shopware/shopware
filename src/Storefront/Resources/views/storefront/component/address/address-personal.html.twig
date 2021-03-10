@@ -1,7 +1,7 @@
 {# Provides customer type, salutation, title, firstname, lastname and birthday fields for address forms (e.g. registering a user, creating or updating an address) #}
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
-        {% if onlyCompanyRegistration or (shopware.config.core.loginRegistration.showAccountTypeSelection and not hideCustomerTypeSelect) %}
+        {% if onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect) %}
             <div class="form-row">
                 <div class="form-group col-md-3 col-sm-6 contact-type">
                     {% block component_address_personal_account_type_label %}
@@ -12,7 +12,7 @@
                     {% endblock %}
 
                     {% block component_address_personal_account_type_select %}
-                            {% if onlyCompanyRegistration or shopware.config.core.loginRegistration.showAccountTypeSelection %}
+                            {% if onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection') %}
                                 <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
                                     id="{{ prefix }}accountType"
                                     {% if onlyCompanyRegistration %}disabled{% endif %}
@@ -118,7 +118,7 @@
             {% endblock %}
 
             {% block component_address_personal_fields_title %}
-                {% if shopware.config.core.loginRegistration.showTitleField %}
+                {% if config('core.loginRegistration.showTitleField') %}
                     <div class="form-group col-md-3 col-sm-6">
                         {% block component_address_personal_fields_title_label %}
                             <label class="form-label"
@@ -207,7 +207,7 @@
     {% endblock %}
 
     {% block component_address_personal_company %}
-        {% if (onlyCompanyRegistration or shopware.config.core.loginRegistration.showAccountTypeSelection) and activeRoute == 'frontend.account.profile.page' %}
+        {% if (onlyCompanyRegistration or config('core.loginRegistration.showAccountTypeSelection')) and activeRoute == 'frontend.account.profile.page' %}
             <div class="js-field-toggle-contact-type-company">
                 {% block component_address_personal_company_fields %}
                     <div class="form-row">
@@ -248,7 +248,7 @@
 
     {% block component_address_personal_vat_id %}
         {% if showVatIdField %}
-            {% if shopware.config.core.loginRegistration.showAccountTypeSelection or onlyCompanyRegistration %}
+            {% if config('core.loginRegistration.showAccountTypeSelection') or onlyCompanyRegistration %}
                 <div class="js-field-toggle-contact-type-company js-field-toggle-contact-type-vat-id">
                     {% block component_address_personal_vat_id_fields %}
                         <div class="form-row">
@@ -269,7 +269,7 @@
         {% if showBirthdayField %}
             {% block component_address_personal_fields_birthday_label %}
                 <label for="{{ prefix }}personalBirthday">
-                    {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.birthdayFieldRequired ? "general.required"|trans|sw_sanitize }}
+                    {{ "account.personalBirthdayLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.birthdayFieldRequired') ? "general.required"|trans|sw_sanitize }}
                 </label>
             {% endblock %}
 
@@ -280,7 +280,7 @@
                             <select id="{{ prefix }}personalBirthday"
                                     name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
                                     class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
-                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayDay') %}
                                     <option selected="selected"
                                             value="">
@@ -309,7 +309,7 @@
                         <div class="form-group col-md-2 col-4">
                             <select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
                                     class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
-                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayMonth') %}
                                     <option selected="selected"
                                             value="">
@@ -341,7 +341,7 @@
 
                             <select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
                                     class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
-                                    {{ shopware.config.core.loginRegistration.birthdayFieldRequired ? 'required="required"' }}>
+                                    {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                                 {% if not data.get('birthdayYear') %}
                                     <option selected="selected"
                                             value="">

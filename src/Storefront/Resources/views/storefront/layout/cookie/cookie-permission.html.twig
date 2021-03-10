@@ -1,5 +1,5 @@
 {% block layout_cookie_permission_inner %}
-    {% set acceptAllCookies = shopware.config.core.basicInformation.acceptAllCookies %}
+    {% set acceptAllCookies = config('core.basicInformation.acceptAllCookies') %}
     <div
         class="cookie-permission-container"
         data-cookie-permission="true">
@@ -9,7 +9,7 @@
                 {% block layout_cookie_permission_inner_content %}
                     <div class="col cookie-permission-content">
                         {{ "cookie.message"|trans({
-                            '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.privacyPage })
+                            '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                         })|raw }}
                     </div>
                 {% endblock %}

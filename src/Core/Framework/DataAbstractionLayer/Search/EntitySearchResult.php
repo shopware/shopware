@@ -9,6 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 class EntitySearchResult extends EntityCollection
 {
     /**
+     * @var string
+     */
+    protected $entity;
+
+    /**
      * @var int
      */
     protected $total;
@@ -44,23 +49,23 @@ class EntitySearchResult extends EntityCollection
     protected $limit;
 
     final public function __construct(
+        string $entity,
         int $total,
         EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
         Criteria $criteria,
-        Context $context,
-        int $page = 1,
-        ?int $limit = null
+        Context $context
     ) {
         $this->entities = $entities;
         $this->total = $total;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
-        $this->page = $page;
-        $this->limit = $limit;
+        $this->limit = $criteria->getLimit();
+        $this->page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
 
         parent::__construct($entities);
+        $this->entity = $entity;
     }
 
     public function filter(\Closure $closure)
@@ -150,16 +155,25 @@ class EntitySearchResult extends EntityCollection
         $this->limit = $limit;
     }
 
+    public function getEntity(): string
+    {
+        return $this->entity;
+    }
+
+    public function setEntity(string $entity): void
+    {
+        $this->entity = $entity;
+    }
+
     protected function createNew(iterable $elements = [])
     {
         return new static(
+            $this->entity,
             $this->total,
             $elements,
             $this->aggregations,
             $this->criteria,
-            $this->context,
-            $this->page,
-            $this->limit
+            $this->context
         );
     }
 }

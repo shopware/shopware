@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -85,30 +84,6 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertEquals('GET /: fresh', $response->headers->get('x-symfony-cache'));
 
         $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'b');
-
-        $response = $kernel->handle($request);
-        static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
-    }
-
-    public function testInvalidation(): void
-    {
-        $kernel = $this->getCacheKernel();
-
-        $request = $this->createRequest();
-
-        $kernel->handle($request);
-        $response = $kernel->handle($request);
-        static::assertEquals('GET /: fresh', $response->headers->get('x-symfony-cache'));
-
-        $navigationId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = (SELECT sales_channel_id FROM sales_channel_domain LIMIT 1) ');
-
-        $repository = $this->getContainer()->get('category.repository');
-
-        // update category > cache should be invalidated
-        $repository->update([
-            ['id' => $navigationId, 'name' => 'test'],
-        ], Context::createDefaultContext());
 
         $response = $kernel->handle($request);
         static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));

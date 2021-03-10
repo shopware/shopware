@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
@@ -364,15 +365,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     private function setSalesChannelContext(ExceptionEvent $event): void
     {
-        $contextToken = $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $salesChannelId = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $contextToken = (string) $event->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $salesChannelId = (string) $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
         $context = $this->contextService->get(
-            $salesChannelId,
-            $contextToken,
-            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+            new SalesChannelContextServiceParameters(
+                $salesChannelId,
+                $contextToken,
+                $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+                $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+                $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
+            )
         );
+
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 

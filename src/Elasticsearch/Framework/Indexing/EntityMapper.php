@@ -89,8 +89,8 @@ class EntityMapper
                 return null;
 
             case $field instanceof ListField:
-            case $field instanceof BlacklistRuleField:
-            case $field instanceof WhitelistRuleField:
+            case $field instanceof BlacklistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof WhitelistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
                 return self::KEYWORD_FIELD;
 
             case $field instanceof ParentAssociationField:

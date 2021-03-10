@@ -1,7 +1,7 @@
 {% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
 {% set paginationConfig = { page: currentPage }|json_encode %}
 
-{% set disableEmptyFilter = shopware.config.core.listing.disableEmptyFilterOptions %}
+{% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
 
 {% set listingPagination = {
     sidebar: sidebar,

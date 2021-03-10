@@ -45,7 +45,7 @@
                 {% endblock %}
             {% endif %}
             {% block component_address_zipcode_city %}
-                {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
+                {% if config('core.address.showZipcodeInFrontOfCity') %}
                     {{ address.zipcode }} {{ address.city }}<br/>
                 {% else %}
                     {{ address.zipcode }} {{ address.city }}<br/>

@@ -58,7 +58,7 @@ class ErdTypeMap
 {
     private static array $fieldTypeMap = [
         CustomFields::class => 'customFields',
-        BlacklistRuleField::class => 'blacklistRule',
+        BlacklistRuleField::class => 'blacklistRule',   //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
         BlobField::class => 'blob',
         BoolField::class => 'bool',
         CalculatedPriceField::class => 'calculatedPrice',

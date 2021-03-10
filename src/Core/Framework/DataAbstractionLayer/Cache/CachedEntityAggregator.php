@@ -11,9 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed. Caching is implemented for store api routes
+ */
 class CachedEntityAggregator implements EntityAggregatorInterface
 {
     /**
@@ -43,6 +47,10 @@ class CachedEntityAggregator implements EntityAggregatorInterface
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return $this->decorated->aggregate($definition, $criteria, $context);
+        }
+
         if (!$context->getUseCache()) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }

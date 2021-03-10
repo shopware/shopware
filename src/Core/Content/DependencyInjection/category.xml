@@ -32,6 +32,21 @@
             <argument type="service" id="sales_channel.category.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.navigation_route%</argument>
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRouteInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -98,6 +99,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         $this->cartPersister->save($cart, $context);
 
         $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
+        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return new CartResponse($cart);
     }

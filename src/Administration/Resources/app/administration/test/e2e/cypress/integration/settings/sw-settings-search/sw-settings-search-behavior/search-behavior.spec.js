@@ -1,12 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
-import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
+import CategoryPageObject from '../../../../support/pages/module/sw-category.page-object';
 
 describe('Product Search: Test crud operations', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_10552');
-    });
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -14,10 +10,11 @@ describe('Product Search: Test crud operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+                cy.onlyOnFeature('FEATURE_NEXT_10552');
             });
     });
 
-    it('@base @settings: create search configuration for search behaviour', () => {
+    it('@settings: create search configuration for search behaviour', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -25,14 +22,11 @@ describe('Product Search: Test crud operations', () => {
             method: 'patch'
         }).as('saveData');
 
-        // Make sure that everything need to load first.
-        cy.wait(3000);
-
         // Change value of Minimal search term length
         cy.get('.sw-settings-search__search-behaviour-term-length input').clear().type('10');
 
         // Check for Or Behaviour option
-        cy.get('input[type="radio"]#sw-field--searchBehaviourConfigs-andLogic-1').check();
+        cy.get('input[type="radio"]#sw-field--searchBehaviourConfigs-andLogic-1').check({ force: true });
 
         cy.get('.sw-settings-search__button-save').click();
 
@@ -40,9 +34,11 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        cy.awaitAndCheckNotification('The configuration has been saved.');
     });
 
-    it('@base @settings: create search configuration for search behaviour bases on another language', () => {
+    it('@settings: create search configuration for search behaviour bases on another language', () => {
         const page = new CategoryPageObject();
         // Request we want to wait for later
         cy.server();
@@ -51,9 +47,6 @@ describe('Product Search: Test crud operations', () => {
             method: 'patch'
         }).as('saveData');
 
-        // Make sure that everything need to load first.
-        cy.wait(3000);
-
         // Choose German language
         page.changeTranslation('Deutsch', 0);
 
@@ -61,7 +54,7 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__search-behaviour-term-length input').clear().type('19');
 
         // Check for Or Behaviour option
-        cy.get('input[type="radio"]#sw-field--searchBehaviourConfigs-andLogic-1').check();
+        cy.get('input[type="radio"]#sw-field--searchBehaviourConfigs-andLogic-1').check({ force: true });
 
         cy.get('.sw-settings-search__button-save').click();
 
@@ -69,5 +62,7 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        cy.awaitAndCheckNotification('The configuration has been saved.');
     });
 });

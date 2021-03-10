@@ -51,6 +51,10 @@ Component.register('sw-settings-search-search-index', {
         },
 
         latestBuild() {
+            if (!this.latestProductIndexed) {
+                return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
+            }
+
             const latestBuildDate = new Date(this.latestProductIndexed.createdAt);
             const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
             return format.date(latestBuildDate, options);

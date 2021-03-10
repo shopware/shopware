@@ -53,6 +53,7 @@
       "textRebuildSearchIndexDescription": "Rebuilding the search index takes a little time. During that time it is mandatory to keep this window/tab open in order to successfully rebuild the search index. You'll be notified as soon as the process has finished.",
       "textRebuildingSearchIndex": "Rebuilding search index",
       "textLastedBuild": "Latest build:",
+      "textSearchNotIndexedYet": "Search not indexed yet",
       "list": {
         "columnSearchable": "Searchable",
         "columnRankingPoints": "Ranking points",

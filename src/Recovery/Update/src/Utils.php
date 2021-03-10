@@ -150,7 +150,9 @@ class Utils
     public static function getConnection($shopPath)
     {
         if (file_exists($shopPath . '/.env')) {
-            (new Dotenv())->load($shopPath . '/.env');
+            (new Dotenv())
+                ->usePutenv(true)
+                ->load($shopPath . '/.env');
         }
 
         if (getenv('DATABASE_URL') && $db = parse_url(getenv('DATABASE_URL'))) {

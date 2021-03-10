@@ -56,7 +56,8 @@ class Container extends BaseContainer
                 return [];
             }
 
-            return (new DotEnv(false))
+            return (new DotEnv())
+                ->usePutenv(true)
                 ->parse(file_get_contents($c['default.env.path']), $c['default.env.path']);
         };
 
@@ -70,10 +71,14 @@ class Container extends BaseContainer
 
             return static function () use ($defaultPath, $path): void {
                 if (is_readable((string) $defaultPath)) {
-                    (new Dotenv(false))->load((string) $defaultPath);
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $defaultPath);
                 }
                 if (is_readable((string) $path)) {
-                    (new Dotenv(false))->load((string) $path);
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $path);
                 }
             };
         };
@@ -114,10 +119,6 @@ class Container extends BaseContainer
             return new PathBuilder($baseDir, $updateDir, $backupDir);
         };
 
-        $container['migration.source'] = static function ($c) {
-            return new CoreMigrationSource('core', []);
-        };
-
         $container['migration.sources'] = static function ($c) {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBasePath = SW_PATH . '/platform/src/Core';
@@ -142,7 +143,7 @@ class Container extends BaseContainer
             $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
 
             return [
-                $c['migration.source'],
+                new CoreMigrationSource('core', []),
                 $v3,
                 $v4,
                 new CoreMigrationSource('core.V6_5', [

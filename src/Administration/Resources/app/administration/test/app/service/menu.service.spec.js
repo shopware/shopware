@@ -59,8 +59,17 @@ describe('src/app/service/menu.service', () => {
         it('returns modules from apps', () => {
             const navigation = menuService.getNavigationFromApps(testApps);
 
-            expect(navigation).toHaveLength(4);
+            expect(navigation).toHaveLength(5);
             expect(navigation).toEqual([
+                expect.objectContaining({
+                    id: 'app-testAppA-standardModule',
+                    path: 'sw.my.apps.index',
+                    parent: 'sw-catalogue',
+                    params: {
+                        appName: 'testAppA',
+                        moduleName: 'standardModule'
+                    }
+                }),
                 expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     path: 'sw.my.apps.index',
@@ -102,6 +111,12 @@ describe('src/app/service/menu.service', () => {
             const navigation = menuService.getNavigationFromApps(testApps);
             expect(navigation).toEqual([
                 expect.objectContaining({
+                    id: 'app-testAppA-standardModule',
+                    label: {
+                        translated: true,
+                        label: 'test App A deutsch - Standardmodul'
+                    }
+                }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,
@@ -136,6 +151,12 @@ describe('src/app/service/menu.service', () => {
             const navigation = menuService.getNavigationFromApps(testApps);
             expect(navigation).toEqual([
                 expect.objectContaining({
+                    id: 'app-testAppA-standardModule',
+                    label: {
+                        translated: true,
+                        label: 'test App A english - Standard module'
+                    }
+                }), expect.objectContaining({
                     id: 'app-testAppA-noPosition',
                     label: {
                         translated: true,

@@ -50,7 +50,10 @@ class ModuleLoader
         $criteria = new Criteria();
         $containsModulesFilter = new NotFilter(
             MultiFilter::CONNECTION_AND,
-            [new EqualsFilter('modules', '[]')]
+            [
+                new EqualsFilter('modules', '[]'),
+                new EqualsFilter('mainModule', null),
+            ]
         );
         $appActiveFilter = new EqualsFilter('active', true);
         $criteria->addFilter($containsModulesFilter, $appActiveFilter)
@@ -64,12 +67,19 @@ class ModuleLoader
 
     private function formatPayload(AppCollection $apps): array
     {
+        try {
+            $shopId = $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return [];
+        }
+
         $appModules = [];
 
         foreach ($apps as $app) {
-            $modules = $this->formatModules($app);
+            $modules = $this->formatModules($shopId, $app);
+            $mainModule = $this->formatMainModule($shopId, $app);
 
-            if (empty($modules)) {
+            if (empty($modules) && !$mainModule) {
                 continue;
             }
 
@@ -77,21 +87,16 @@ class ModuleLoader
                 'name' => $app->getName(),
                 'label' => $this->mapTranslatedLabels($app),
                 'modules' => $modules,
+                'mainModule' => $mainModule,
             ];
         }
 
         return $appModules;
     }
 
-    private function formatModules(AppEntity $app): array
+    private function formatModules(string $shopId, AppEntity $app): array
     {
         $modules = [];
-
-        try {
-            $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return [];
-        }
 
         foreach ($app->getModules() as $module) {
             $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module);
@@ -99,6 +104,17 @@ class ModuleLoader
         }
 
         return $modules;
+    }
+
+    private function formatMainModule(string $shopId, AppEntity $app): ?array
+    {
+        if ($app->getMainModule() === null) {
+            return null;
+        }
+
+        return [
+            'source' => $this->getUrlWithQuery($app, $shopId, $app->getMainModule()['source']),
+        ];
     }
 
     private function mapTranslatedLabels(AppEntity $app): array
@@ -120,7 +136,12 @@ class ModuleLoader
             return null;
         }
 
-        $uri = $this->generateQueryString($registeredSource, $shopId);
+        return $this->getUrlWithQuery($app, $shopId, $registeredSource);
+    }
+
+    private function getUrlWithQuery(AppEntity $app, string $shopId, string $source): string
+    {
+        $uri = $this->generateQueryString($source, $shopId);
 
         /** @var string $secret */
         $secret = $app->getAppSecret();

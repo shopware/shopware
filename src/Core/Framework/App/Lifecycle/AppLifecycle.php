@@ -234,6 +234,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
             $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
+            $this->updateMainModule($manifest, $id, $context);
         }
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
@@ -345,6 +346,22 @@ class AppLifecycle extends AbstractAppLifecycle
                 []
             ),
         ];
+
+        $this->appRepository->update([$payload], $context);
+    }
+
+    private function updateMainModule(Manifest $manifest, string $id, Context $context): void
+    {
+        $payload = [
+            'id' => $id,
+            'mainModule' => [],
+        ];
+
+        if ($manifest->getAdmin() !== null && $manifest->getAdmin()->getMainModule() !== null) {
+            $payload['mainModule'] = [
+                'source' => $manifest->getAdmin()->getMainModule()->getSource(),
+            ];
+        }
 
         $this->appRepository->update([$payload], $context);
     }

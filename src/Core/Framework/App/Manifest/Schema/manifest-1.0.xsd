@@ -128,6 +128,7 @@
         <xs:sequence>
             <xs:element name="action-button" maxOccurs="unbounded" minOccurs="0" type="action-button"/>
             <xs:element name="module" maxOccurs="unbounded" minOccurs="0" type="module"/>
+            <xs:element name="main-module" maxOccurs="1" minOccurs="0" type="main-module"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="permissions">
@@ -167,6 +168,9 @@
         <!-- @deprecated manifest:v1.1 will be required in future versions-->
         <xs:attribute type="xs:string" name="parent" default="null"/>
         <xs:attribute type="xs:integer" name="position" default="0"/>
+    </xs:complexType>
+    <xs:complexType name="main-module">
+        <xs:attribute type="xs:anyURI" name="source" use="required"/>
     </xs:complexType>
     <xs:complexType name="webhook">
         <xs:attribute type="xs:string" name="name" use="required"/>

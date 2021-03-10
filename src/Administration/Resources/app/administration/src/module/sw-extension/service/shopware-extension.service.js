@@ -141,16 +141,7 @@ export default class ShopwareExtensionService {
     }
 
     canBeOpened(extension) {
-        if (extension.isTheme) {
-            return true;
-        }
-
-        if (extension.type === this.EXTENSION_TYPES.APP) {
-            return !!this._getFirstAppModule(extension.name);
-        }
-
-        // TODO check for plugins
-        return false;
+        return !!this.getOpenLink(extension);
     }
 
     getOpenLink(extension) {
@@ -159,7 +150,7 @@ export default class ShopwareExtensionService {
         }
 
         if (extension.type === this.EXTENSION_TYPES.APP) {
-            return this._getLinkToFirstModuleOfExtension(extension);
+            return this._getLinkToApp(extension);
         }
 
         // TODO get link for plugins
@@ -189,32 +180,37 @@ export default class ShopwareExtensionService {
         };
     }
 
-    _getLinkToFirstModuleOfExtension(extension) {
-        const appModule = this._getFirstAppModule(extension.name);
+    _getLinkToApp(extension) {
+        const app = this._getAppFromStore(extension.name);
 
-        if (!appModule) {
+        if (!app) {
             return null;
         }
 
+        if (this._appHasMainModule(app)) {
+            return this._createLinkToModule(app.name);
+        }
+
+        return null;
+    }
+
+    _getAppFromStore(extensionName) {
+        return Shopware.State.get('shopwareApps').apps.find((innerApp) => {
+            return innerApp.name === extensionName;
+        });
+    }
+
+    _appHasMainModule(app) {
+        return !!app.mainModule && !!app.mainModule.source;
+    }
+
+    _createLinkToModule(appName) {
         return {
             name: 'sw.my.apps.index',
             params: {
-                appName: extension.name,
-                moduleName: appModule.name
+                appName
             }
         };
-    }
-
-    _getFirstAppModule(extensionName) {
-        const app = Shopware.State.get('shopwareApps').apps.find((innerApp) => {
-            return innerApp.name === extensionName;
-        });
-
-        if (!app || app.modules.length <= 0) {
-            return null;
-        }
-
-        return app.modules[0];
     }
 
     _orderByType(variants) {

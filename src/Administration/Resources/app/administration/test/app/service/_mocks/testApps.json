@@ -7,6 +7,16 @@
     },
     "modules": [
       {
+        "name": "standardModule",
+        "label": {
+          "de-DE": "Standardmodul",
+          "en-GB": "Standard module"
+        },
+        "parent": "sw-catalogue",
+        "position": "50",
+        "source": "https:\/\/shopware.apps\/module1"
+      },
+      {
         "name": "noPosition",
         "label": {
           "de-DE": "Modul ohne Position",
@@ -24,7 +34,10 @@
         "position": 50,
         "source": "https:\/\/shopware.apps\/"
       }
-    ]
+    ],
+    "mainModule": {
+         "source": "https://shopware.apps/login"
+    }
   },
   {
     "name": "testAppB",
@@ -53,6 +66,7 @@
         "position": 50,
         "source": null
       }
-    ]
+    ],
+    "mainModule": null
   }
 ]

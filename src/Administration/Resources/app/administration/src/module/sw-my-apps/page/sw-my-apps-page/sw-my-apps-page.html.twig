@@ -1,6 +1,6 @@
 {% block sw_my_apps_page %}
     <sw-page class="sw-my-apps-page">
-        <template #smart-bar-header>
+        <template v-if="!suspend" #smart-bar-header>
             {% block sw_my_apps_page_header %}
                 <h2>{{ heading }}</h2>
             {% endblock %}

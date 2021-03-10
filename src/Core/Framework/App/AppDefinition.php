@@ -57,6 +57,8 @@ class AppDefinition extends EntityDefinition
         return [
             'active' => false,
             'configurable' => false,
+            'modules' => [],
+            'cookies' => [],
         ];
     }
 
@@ -82,6 +84,7 @@ class AppDefinition extends EntityDefinition
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new ListField('modules', 'modules', JsonField::class),
+            new JsonField('main_module', 'mainModule'),
             new ListField('cookies', 'cookies', JsonField::class),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),

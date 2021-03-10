@@ -250,7 +250,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 this.$emit('criteria-add', fieldName);
 
                 const record = this.productSortingEntity.fields.find(field => field.field === fieldName);
-                if (record) {
+                if (record && this.$refs.dataGrid) {
                     this.$refs.dataGrid.onDbClickCell(record);
                 }
 

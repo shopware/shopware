@@ -141,4 +141,20 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     it('should display the fallback snippet for the smart bar heading', async () => {
         expect(wrapper.vm.smartBarHeading).toBe('sw-settings-listing.create.smartBarTitle');
     });
+
+    it('should transform customField fields onSave', async () => {
+        wrapper.vm.$router.push = jest.fn();
+
+        wrapper.vm.productSortingRepository.save = jest.fn().mockResolvedValue({
+            config: {
+                data: JSON.stringify([])
+            }
+        });
+        wrapper.vm.transformCustomFieldCriterias = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.productSortingRepository.save).toHaveBeenCalled();
+        expect(wrapper.vm.transformCustomFieldCriterias).toHaveBeenCalled();
+    });
 });

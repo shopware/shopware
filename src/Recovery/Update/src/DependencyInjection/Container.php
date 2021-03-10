@@ -56,7 +56,8 @@ class Container extends BaseContainer
                 return [];
             }
 
-            return (new DotEnv(false))
+            return (new DotEnv())
+                ->usePutenv(true)
                 ->parse(file_get_contents($c['default.env.path']), $c['default.env.path']);
         };
 
@@ -70,10 +71,14 @@ class Container extends BaseContainer
 
             return static function () use ($defaultPath, $path): void {
                 if (is_readable((string) $defaultPath)) {
-                    (new Dotenv(false))->load((string) $defaultPath);
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $defaultPath);
                 }
                 if (is_readable((string) $path)) {
-                    (new Dotenv(false))->load((string) $path);
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $path);
                 }
             };
         };

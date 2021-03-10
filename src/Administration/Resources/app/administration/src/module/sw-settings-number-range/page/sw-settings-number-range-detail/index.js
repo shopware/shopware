@@ -49,6 +49,17 @@ Component.register('sw-settings-number-range-detail', {
             return this.placeholder(this.numberRange, 'name');
         },
 
+        disableNumberRangeTypeSelect() {
+            return this.numberRange.type.global ||
+              this.numberRange.global ||
+              (
+                  this.numberRange.type !== null &&
+                  this.numberRange.numberRangeSalesChannels &&
+                  this.numberRange.numberRangeSalesChannels.length > 0
+              ) ||
+              !this.acl.can('number_ranges.editor');
+        },
+
         numberRangeRepository() {
             return this.repositoryFactory.create('number_range');
         },
@@ -71,6 +82,20 @@ Component.register('sw-settings-number-range-detail', {
 
             criteria.addFilter(
                 Criteria.equals('global', false)
+            );
+
+            criteria.addSorting(
+                Criteria.sort('typeName', 'ASC')
+            );
+
+            return criteria;
+        },
+
+        numberRangeTypeCriteriaGlobal() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.equals('global', true)
             );
 
             criteria.addSorting(
@@ -341,6 +366,17 @@ Component.register('sw-settings-number-range-detail', {
             newNumberRangeSalesChannel.salesChannelId = salesChannel.id;
 
             this.numberRange.numberRangeSalesChannels.push(newNumberRangeSalesChannel);
+
+            // fix select gets out of view
+            if (this.numberRange.numberRangeSalesChannels.length <= 1) {
+                this.$nextTick().then(() => {
+                    const scrollableArea = document.querySelector('.sw-card-view__content');
+
+                    if (scrollableArea) {
+                        scrollableArea.scrollTop += 78;
+                    }
+                });
+            }
         },
 
         removeSalesChannel(salesChannel) {

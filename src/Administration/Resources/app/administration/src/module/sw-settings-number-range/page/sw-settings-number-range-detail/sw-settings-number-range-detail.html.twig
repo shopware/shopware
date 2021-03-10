@@ -50,6 +50,17 @@
 
                 {% block sw_settings_number_range_detail_content_card %}
                     <sw-card :title="$tc('sw-settings-number-range.detail.configCard')">
+                        {% block sw_settings_number_range_detail_content_global_warning %}
+                            <sw-alert
+                                v-if="numberRange && numberRange.type && numberRange.type.global"
+                                class="sw-number_range-quickinfo__alert-global-type"
+                                variant="warning"
+                                :title="$tc('sw-settings-number-range.general.infoGlobalTypeTitle', 0, {typeName: numberRange.type.typeName})"
+                            >
+                                {{ $tc('sw-settings-number-range.general.infoGlobalType', 0, {typeName: numberRange.type.typeName}) }}
+                            </sw-alert>
+                        {% endblock %}
+
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
 
                             {% block sw_settings_number_range_detail_content_field_name %}
@@ -153,8 +164,28 @@
                         </sw-container>
                     </sw-card>
                 {% endblock %}
+
                 {% block sw_settings_number_range_detail_assignment_card %}
-                    <sw-card :title="$tc('sw-settings-number-range.detail.assignmentCard')">
+                    <sw-card :title="$tc('sw-settings-number-range.detail.assignmentCard')" class="sw-settings-number-range-detail-assignment">
+                        {% block sw_settings_number_range_detail_assignment_card_global_warning %}
+                            <sw-alert
+                                v-if="numberRange !== null && numberRange.global && !numberRange.type.global"
+                                class="sw-number_range-quickinfo__alert-global-type"
+                                variant="warning"
+                                :title="$tc('sw-settings-number-range.general.infoGlobalTitle', 0, {name: numberRange.name})"
+                            >
+                                {{ $tc('sw-settings-number-range.general.infoGlobal', 0, {name: numberRange.name}) }}
+                            </sw-alert>
+                            <sw-alert v-if="
+                                        numberRange.type !== null &&
+                                        numberRange.numberRangeSalesChannels &&
+                                        numberRange.numberRangeSalesChannels.length > 0"
+                                      class="sw-number_range-quickinfo__alert-global-type"
+                                      variant="warning"
+                            >
+                                {{ $tc('sw-settings-number-range.general.infoSalesChannelBound', 0, {name: numberRange.name}) }}
+                            </sw-alert>
+                        {% endblock %}
                         <sw-container columns="repeat(auto-fit, minmax(100%, 1fr))" gap="0px 30px">
                             {% block sw_sales_channel_detail_base_general_input_type %}
                                 <sw-entity-single-select
@@ -162,12 +193,12 @@
                                     entity="number_range_type"
                                     v-model="numberRange.typeId"
                                     class="sw-number-range-detail__select-type"
+                                    :disabled="disableNumberRangeTypeSelect"
                                     required
                                     id="numberRangeTypes"
                                     labelProperty="typeName"
-                                    :disabled="!this.acl.can('number_ranges.editor')"
                                     :label="$tc('sw-settings-number-range.detail.labelType')"
-                                    :criteria="numberRangeTypeCriteria"
+                                    :criteria="numberRange.type.global ? numberRangeTypeCriteriaGlobal : numberRangeTypeCriteria"
                                     @change="onChangeType">
                                 </sw-entity-single-select>
                             {% endblock %}

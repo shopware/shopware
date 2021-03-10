@@ -340,10 +340,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
-        $criteria = (new Criteria([$id]))->addAssociation('media');
+        $criteria = (new Criteria(array_unique(array_filter([$id, $salesChannel->getShippingMethodId()]))))
+            ->addAssociation('media');
         $criteria->setTitle('context-factory::shipping-method');
 
-        return $this->shippingMethodRepository->search($criteria, $context)->get($id);
+        $shippingMethods = $this->shippingMethodRepository
+            ->search($criteria, $context);
+
+        return $shippingMethods->get($id) ?? $shippingMethods->get($salesChannel->getShippingMethodId());
     }
 
     private function getContext(string $salesChannelId, array $session): Context

@@ -3,7 +3,9 @@
         <sw-notifications ref="notifications"></sw-notifications>
         <sw-duplicated-media-v2 v-if="isLoggedIn"></sw-duplicated-media-v2>
         <router-view></router-view>
-        <sw-license-violation></sw-license-violation>
         <sw-settings-cache-modal v-if="isLoggedIn"></sw-settings-cache-modal>
+
+        {% block sw_admin_plugin_entry %}
+        {% endblock %}
     </div>
 {% endblock %}

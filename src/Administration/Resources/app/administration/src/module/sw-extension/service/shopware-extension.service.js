@@ -1,8 +1,7 @@
 export default class ShopwareExtensionService {
-    constructor(appModulesService, extensionStoreActionService, extensionStoreLicensesService, discountCampaignService) {
+    constructor(appModulesService, extensionStoreActionService, discountCampaignService) {
         this.appModuleService = appModulesService;
         this.extensionStoreActionService = extensionStoreActionService;
-        this.extensionStoreLicensesService = extensionStoreLicensesService;
         this.discountCampaignService = discountCampaignService;
 
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
@@ -15,12 +14,6 @@ export default class ShopwareExtensionService {
             APP: 'app',
             PLUGIN: 'plugin'
         });
-    }
-
-    async purchaseExtension(extensionId, variantId, tocAccepted, permissionsAccepted) {
-        await this.extensionStoreLicensesService.purchaseExtension(extensionId, variantId, tocAccepted, permissionsAccepted);
-
-        await this.updateExtensionData();
     }
 
     async installExtension(extensionName, type) {
@@ -66,9 +59,9 @@ export default class ShopwareExtensionService {
     updateExtensionData() {
         Shopware.State.commit('shopwareExtensions/loadMyExtensions');
 
-        const extensionDataService = Shopware.Service('extensionStoreDataService');
+        const extensionDataService = Shopware.Service('extensionApiService');
 
-        return extensionDataService.refreshExtensions()
+        return extensionDataService.refresh()
             .then(() => {
                 return extensionDataService.getMyExtensions(
                     { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }

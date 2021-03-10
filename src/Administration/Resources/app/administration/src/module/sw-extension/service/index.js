@@ -1,6 +1,4 @@
 import ExtensionStoreActionService from './extension-store-action.service';
-import ExtensionStoreDataService from './extension-store-data.service';
-import ExtensionLicenseService from './extension-store-licenses.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ShopwareDiscountCampaignService from './discount-campaign.service';
 import ExtensionApiService from './extension.api.service';
@@ -22,20 +20,6 @@ Application.addServiceProvider('extensionStoreActionService', () => {
     );
 });
 
-Application.addServiceProvider('extensionStoreDataService', () => {
-    return new ExtensionStoreDataService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
-    );
-});
-
-Application.addServiceProvider('extensionStoreLicensesService', () => {
-    return new ExtensionLicenseService(
-        Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
-    );
-});
-
 Application.addServiceProvider('shopwareDiscountCampaignService', () => {
     return new ShopwareDiscountCampaignService();
 });
@@ -44,7 +28,6 @@ Application.addServiceProvider('shopwareExtensionService', () => {
     return new ShopwareExtensionService(
         Shopware.Service('appModulesService'),
         Shopware.Service('extensionStoreActionService'),
-        Shopware.Service('extensionStoreLicensesService'),
         Shopware.Service('shopwareDiscountCampaignService')
     );
 });

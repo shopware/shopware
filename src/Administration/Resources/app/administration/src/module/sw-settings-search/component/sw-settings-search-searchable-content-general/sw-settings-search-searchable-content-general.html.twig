@@ -18,6 +18,7 @@
                         <sw-button
                             variant="ghost"
                             size="small"
+                            :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.creator')"
                             @click="onAddField">
                             {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
                         </sw-button>
@@ -38,6 +39,7 @@
                 :showSelection="false"
                 :isLoading="isLoading"
                 :items="searchConfigs"
+                :allowInlineEdit="acl.can('product_search_config.editor')"
                 @inline-edit-save="onInlineEditSave"
                 @inline-edit-cancel="onInlineEditCancel">
                 {% block sw_settings_search_searchable_content_general_field %}
@@ -134,19 +136,21 @@
                 {% block sw_settings_search_searchable_content_general_columns_actions %}
                     <template #actions="{ item }">
                         {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
-                            <a
+                            <sw-context-menu-item
                                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
+                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.editor')"
                                 @click="onResetRanking(item)">
                                 {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
-                            </a>
+                            </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_settings_search_searchable_content_general_columns_actions_delete %}
-                            <a
+                            <sw-context-menu-item
                                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-remove"
+                                :disabled="feature.isActive('FEATURE_NEXT_10552') && !acl.can('product_search_config.deleter')"
                                 @click="onRemove(item)">
                                 {{ $tc('sw-settings-search.generalTab.list.textRemove') }}
-                            </a>
+                            </sw-context-menu-item>
                         {% endblock %}
                     </template>
                 {% endblock %}

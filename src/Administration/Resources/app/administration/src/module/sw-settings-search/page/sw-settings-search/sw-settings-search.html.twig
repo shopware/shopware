@@ -22,8 +22,10 @@
             <template #smart-bar-actions>
                 {% block sw_settings_search_smart_bar_actions_save %}
                     <sw-button
+                        v-tooltip.bottom="tooltipSave"
                         class="sw-settings-search__button-save"
                         variant="primary"
+                        :disabled="feature.isActive('FEATURE_NEXT_10552') && !allowSave"
                         @click="onSaveSearchSettings">
                         {{ $tc('global.default.save') }}
                     </sw-button>
@@ -39,6 +41,7 @@
                             {% block sw_setting_search_tabs_general %}
                                 <sw-tabs-item
                                     v-bind="$props"
+                                    class="sw-settings-search__general-tab"
                                     :route="{ name: 'sw.settings.search.index.general' }"
                                     @click="onTabChange">
                                     {{ $tc('sw-settings-search.page.generalTab') }}
@@ -48,6 +51,7 @@
                             {% block sw_setting_search_tabs_live_search %}
                                 <sw-tabs-item
                                     v-bind="$props"
+                                    class="sw-settings-search__live-search-tab"
                                     :route="{ name: 'sw.settings.search.index.liveSearch' }">
                                     {{ $tc('sw-settings-search.page.liveSearchTab') }}
                                 </sw-tabs-item>

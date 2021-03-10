@@ -1,9 +1,14 @@
-import template from './sw-settings-search-searchable-content-genera.html.twig';
+import template from './sw-settings-search-searchable-content-general.html.twig';
 
 const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-search-searchable-content-general', {
     template,
+
+    inject: [
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),

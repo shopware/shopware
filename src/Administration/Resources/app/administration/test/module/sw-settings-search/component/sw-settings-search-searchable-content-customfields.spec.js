@@ -3,6 +3,7 @@ import 'src/module/sw-settings-search/component/sw-settings-search-searchable-co
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-skeleton';
+import 'src/app/component/context-menu/sw-context-menu-item';
 
 const customFields = mockCustomFieldData();
 
@@ -53,7 +54,7 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content-customfields'), {
@@ -77,6 +78,18 @@ function createWrapper() {
                 create() {
                     return mockCustomFieldRepository();
                 }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 
@@ -86,7 +99,8 @@ function createWrapper() {
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
             'sw-data-grid-skeleton': Shopware.Component.build('sw-data-grid-skeleton'),
-            'sw-context-button': true
+            'sw-context-button': true,
+            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item')
         },
 
         propsData: {
@@ -100,14 +114,18 @@ function createWrapper() {
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-customfields', () => {
     it('should be a Vue.JS component', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render empty state when isEmpty variable is true', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
 
         await wrapper.setProps({
             isEmpty: true
@@ -116,8 +134,45 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
     });
 
-    it('Should call to remove function when click to remove action', async () => {
-        const wrapper = createWrapper();
+    it('Should not able to remove item without editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+        wrapper.vm.onRemove = jest.fn();
+
+        await wrapper.setProps({
+            searchConfigs: [
+                {
+                    apiAlias: null,
+                    createdAt: '2021-01-29T02:18:11.171+00:00',
+                    customFieldId: '123456',
+                    field: 'categories.customFields',
+                    id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                    ranking: 0,
+                    searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                    searchable: false,
+                    tokenize: false
+                }
+            ],
+            isLoading: false
+        });
+
+        const firstRow = wrapper.find(
+            '.sw-data-grid__row.sw-data-grid__row--0'
+        );
+
+        const buttonContext = await firstRow.find(
+            '.sw-settings-search__searchable-content-list-remove'
+        );
+        expect(buttonContext.isVisible()).toBeTruthy();
+        expect(buttonContext.classes()).toContain('is--disabled');
+    });
+
+    it('Should able to remove item when click to remove action if having deleter privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.deleter'
+        ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.onRemove = jest.fn();
 
@@ -149,8 +204,10 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.vm.onRemove).toHaveBeenCalled();
     });
 
-    it('Should emitted to delete-config when call the remove function ', async () => {
-        const wrapper = createWrapper();
+    it('Should emitted to delete-config when call the remove function if having deleter privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.deleter'
+        ]);
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
@@ -177,8 +234,10 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.emitted('config-delete')).toBeTruthy();
     });
 
-    it('Should call to reset ranking function when click to reset ranking action', async () => {
-        const wrapper = createWrapper();
+    it('Should call to reset ranking function when click to reset ranking action if having editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.onResetRanking = jest.fn();
 
@@ -209,8 +268,10 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.vm.onResetRanking).toHaveBeenCalled();
     });
 
-    it('Should emitted to save-config when call the reset ranking function', async () => {
-        const wrapper = createWrapper();
+    it('Should emitted to save-config when call the reset ranking function if having the editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({

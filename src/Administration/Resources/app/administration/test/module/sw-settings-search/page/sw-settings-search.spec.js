@@ -3,7 +3,7 @@ import 'src/module/sw-settings-search/page/sw-settings-search';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -18,7 +18,8 @@ function createWrapper() {
                 }
             },
             $device: {
-                onResize: () => {}
+                onResize: () => {},
+                getSystemKey: () => {}
             }
         },
 
@@ -36,6 +37,18 @@ function createWrapper() {
                         return Promise.resolve();
                     }
                 })
+            },
+            feature: {
+                isActive: () => true
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
             }
         },
 
@@ -83,9 +96,20 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should able to save product search config', async () => {
-        // TODO: This is because It will implement test ACL in another ticket.
-        const wrapper = createWrapper();
+    it('should not able to save product search config without editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const saveButton = wrapper.find('.sw-settings-search__button-save');
+        expect(saveButton.attributes().disabled).toBe('disabled');
+    });
+
+    it('should able to save product search config if having editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
@@ -93,8 +117,18 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('onSaveSearchSettings: should call to save function when the save button was clicked', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
+
         await wrapper.vm.$nextTick();
+
+        wrapper.setData({
+            productSearchConfigs: {
+                andLogic: true,
+                minSearchLength: 2
+            }
+        });
 
         const onSaveSearchSettingsSpy = jest.spyOn(wrapper.vm, 'onSaveSearchSettings');
         wrapper.vm.productSearchRepository.save = jest.fn();
@@ -108,7 +142,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should be show successful notification when save configuration is succeed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -130,7 +166,9 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     });
 
     it('should be show error notification when save configuration is failed', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
 
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();

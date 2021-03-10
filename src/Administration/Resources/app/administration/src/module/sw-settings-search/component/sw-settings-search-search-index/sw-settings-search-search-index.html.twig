@@ -23,7 +23,7 @@
             <sw-button-process variant="ghost"
                                class="sw-settings-search__search-index-rebuild-button"
                                :isLoading="isRebuildInProgress"
-                               :disabled="isRebuildInProgress"
+                               :disabled="feature.isActive('FEATURE_NEXT_10552') && (isRebuildInProgress || !acl.can('product_search_config.editor'))"
                                :processSuccess="isRebuildSuccess"
                                @process-finish="buildFinish"
                                @click="rebuildSearchIndex">

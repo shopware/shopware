@@ -6,7 +6,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-search-excluded-search-terms', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [
         Mixin.getByName('notification')

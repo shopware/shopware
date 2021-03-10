@@ -264,29 +264,44 @@ Component.register('sw-product-detail', {
             return [
                 {
                     key: 'measures_packaging',
-                    label: 'Measures & Packaging',
+                    label: 'sw-product.specifications.cardTitleMeasuresPackaging',
                     enabled: true,
                     tabSetting: 'specifications'
                 },
                 {
                     key: 'properties',
-                    label: 'Properties',
+                    label: 'sw-product.specifications.cardTitleProperties',
                     enabled: true,
                     tabSetting: 'specifications'
                 },
                 {
                     key: 'essential_characteristics',
-                    label: 'Essential Characteristics',
+                    label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
                     enabled: true,
                     tabSetting: 'specifications'
                 },
                 {
                     key: 'custom_products',
-                    label: 'Custom Products',
+                    label: 'sw-product.specifications.cardTitleCustomProduct',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'custom_fields',
+                    label: 'sw-product.specifications.cardTitleCustomFields',
                     enabled: true,
                     tabSetting: 'specifications'
                 }
             ];
+        },
+
+        isAdvancedModeVisible() {
+            const detailRoute = [
+                'sw.product.detail.base',
+                'sw.product.detail.specifications'
+            ];
+
+            return detailRoute.includes(this.$route.name);
         }
     },
 
@@ -432,7 +447,12 @@ Component.register('sw-product-detail', {
         changeDisplaySettings() {
             return {
                 showSettingsInformation: this.getModeEnabledByKey('general_information') && this.showModeSetting,
-                showLabellingCard: this.getModeEnabledByKey('labelling') && this.showModeSetting
+                showLabellingCard: this.getModeEnabledByKey('labelling') && this.showModeSetting,
+                showCharacteristicsCard: this.getModeEnabledByKey('essential_characteristics') && this.showModeSetting,
+                showCustomFieldCard: this.getModeEnabledByKey('custom_fields') && this.showModeSetting,
+                showPropertiesCard: this.getModeEnabledByKey('properties'),
+                showCustomProduct: this.getModeEnabledByKey('custom_products') && this.showModeSetting,
+                showSettingPackaging: this.getModeEnabledByKey('measures_packaging') && this.showModeSetting
             };
         },
 

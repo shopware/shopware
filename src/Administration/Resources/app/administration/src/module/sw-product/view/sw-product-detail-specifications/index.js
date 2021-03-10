@@ -12,7 +12,8 @@ Component.register('sw-product-detail-specifications', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'customFieldSets'
+            'customFieldSets',
+            'modeSettingsVisible'
         ]),
 
         ...mapGetters('swProductDetail', [

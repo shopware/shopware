@@ -29,7 +29,12 @@ export default {
             advancedModeSetting: {},
             modeSettingsVisible: {
                 showSettingsInformation: true,
-                showLabellingCard: true
+                showLabellingCard: true,
+                showSettingPackaging: true,
+                showCharacteristicsCard: true,
+                showCustomFieldCard: true,
+                showPropertiesCard: true,
+                showCustomProduct: true
             }
         };
     },

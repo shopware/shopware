@@ -5,6 +5,7 @@ import 'src/module/sw-product/component/sw-product-settings-mode';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/module/sw-product/component/sw-product-basic-form';
 import 'src/app/component/structure/sw-card-view';
+import 'src/app/component/form/sw-switch-field';
 
 const mockSettings = {
     modeSettings: {
@@ -64,7 +65,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
             mocks: {
                 $store: Shopware.State._store,
                 $route: {
-                    name: 'sw.product.detail.base'
+                    name: 'sw.product.detail.base',
+                    params: {
+                        id: '1234'
+                    }
                 },
                 $tc: translationKey => translationKey,
                 $device: {
@@ -85,6 +89,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         },
                         search: async () => {
                             return Promise.resolve(mockSettings);
+                        },
+                        get: async () => {
+                            return Promise.resolve({
+                                variation: []
+                            });
                         }
                     })
                 },
@@ -94,7 +103,16 @@ describe('module/sw-product/page/sw-product-detail', () => {
             },
 
             stubs: {
-                'sw-page': true,
+                'sw-page': {
+                    template:
+                        `<div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content">
+                                <div class="sw-tabs"></div>
+                            </slot>
+                            <slot></slot>
+                        </div>`
+                },
                 'sw-product-variant-info': true,
                 'sw-button': true,
                 'sw-button-group': true,
@@ -106,7 +124,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-card-view': Shopware.Component.build('sw-card-view'),
                 'sw-language-info': true,
                 'router-view': true,
-                'sw-switch-field': true,
+                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
                 'sw-context-menu-divider': true,
                 'sw-field-error': true,
                 'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
@@ -114,7 +132,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 'sw-base-field': true,
                 'sw-product-settings-mode': Shopware.Component.build('sw-product-settings-mode'),
                 'sw-sidebar': true,
-                'sw-sidebar-media-item': true
+                'sw-sidebar-media-item': true,
+                'sw-loader': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true
             },
 
             propsData: {
@@ -157,5 +178,65 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBe(true);
+    });
+
+    it('should be visible item tabs ', async () => {
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+
+        await wrapper.setProps({
+            ...mockSettings,
+            productId: '1234'
+        });
+
+        const tabItemClassName = [
+            '.sw-product-detail__tab-advanced-prices',
+            '.sw-product-detail__tab-variants',
+            '.sw-product-detail__tab-layout',
+            '.sw-product-detail__tab-seo',
+            '.sw-product-detail__tab-cross-selling',
+            '.sw-product-detail__tab-reviews'
+        ];
+
+        tabItemClassName.forEach(item => {
+            expect(wrapper.find(item).exists()).toBe(true);
+        });
+        expect(wrapper.vm.$store.getters['swProductDetail/showModeSetting']).toBe(true);
+    });
+
+    it('should be not visible item tabs when advanced mode deactivate', async () => {
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+        wrapper.vm.userModeSettingsRepository.save = jest.fn(() => Promise.resolve());
+
+        await wrapper.setProps({
+            ...mockSettings,
+            productId: '1234'
+        });
+
+        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                advancedMode: {
+                    enabled: false
+                },
+                settings: []
+            }
+        });
+
+        const tabItemClassName = [
+            '.sw-product-detail__tab-variants',
+            '.sw-product-detail__tab-layout',
+            '.sw-product-detail__tab-seo',
+            '.sw-product-detail__tab-cross-selling',
+            '.sw-product-detail__tab-reviews'
+        ];
+        await wrapper.vm.$nextTick(() => {
+            tabItemClassName.forEach(item => {
+                expect(wrapper.find(item).attributes().style).toBe('display: none;');
+            });
+        });
+        expect(wrapper.vm.$store.getters['swProductDetail/showModeSetting']).toBe(false);
     });
 });

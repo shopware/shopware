@@ -23,54 +23,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
         parent::setUp();
     }
 
-    public function testPurchaseExtensionWithInvalidExtensionId(): void
-    {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
-
-        $controller = new ExtensionStoreLicensesController(
-            $provider
-        );
-
-        $request = new Request();
-        $request->request->set('extensionId', 'foo');
-
-        static::expectException(InvalidExtensionIdException::class);
-        $controller->purchaseExtension($request, Context::createDefaultContext());
-    }
-
-    public function testPurchaseExtensionWithInvalidVariantId(): void
-    {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
-
-        $controller = new ExtensionStoreLicensesController(
-            $provider
-        );
-
-        $request = new Request();
-        $request->request->set('extensionId', 1);
-        $request->request->set('variantId', 'foo');
-
-        static::expectException(InvalidVariantIdException::class);
-        $controller->purchaseExtension($request, Context::createDefaultContext());
-    }
-
-    public function testPurchaseExtension(): void
-    {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
-
-        $controller = new ExtensionStoreLicensesController(
-            $provider
-        );
-
-        $request = new Request();
-        $request->request->set('extensionId', 1);
-        $request->request->set('variantId', 1);
-
-        $response = $controller->purchaseExtension($request, Context::createDefaultContext());
-
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-    }
-
     public function testCancelSubscription(): void
     {
         $provider = $this->createMock(ExtensionStoreLicensesService::class);

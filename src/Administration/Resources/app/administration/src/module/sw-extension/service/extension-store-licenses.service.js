@@ -6,21 +6,9 @@ export default class ExtensionLicenseService extends ApiService {
         this.name = 'extensionStoreLicensesService';
     }
 
-    async getLicensedExtensions(context) {
-        const { data } = await this.httpClient.get('_action/extension/licensed', {
-            headers: this.basicHeaders(context),
-            version: 3
-        });
-
-        const licensedExtensions = data.data;
-        licensedExtensions.total = data.meta.total;
-
-        return licensedExtensions;
-    }
-
     async purchaseExtension(extensionId, variantId, tocAccepted, permissionsAccepted) {
         await this.httpClient.post(
-            '_action/extension/purchase',
+            '_action/extension-store/purchase',
             { extensionId, variantId, tocAccepted, permissionsAccepted },
             {
                 headers: this.basicHeaders(),

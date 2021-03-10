@@ -34,49 +34,6 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
     }
 
-    public function testGetLicensedExtensions(): void
-    {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json')));
-
-        $licenses = $this->extensionLicensesService->getLicensedExtensions($this->getContextWithStoreToken());
-
-        static::assertCount(1, $licenses);
-        static::assertSame('free', $licenses->first()->getVariant());
-    }
-
-    public function testPurchaseExtensionCreatesCartAndProcessesIt(): void
-    {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-        $this->setResponsesToPurchaseExtension();
-
-        $this->extensionLicensesService->purchaseExtension(5, 5, $this->getContextWithStoreToken());
-
-        $appDir = $this->getContainer()->getParameter('shopware.app_dir') . '/TestApp';
-        static::assertFileExists($appDir);
-        (new Filesystem())->remove($appDir);
-    }
-
-    public function testCancelSubscriptionRemovesLicense(): void
-    {
-        $context = $this->getContextWithStoreToken();
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-        $this->setResponsesToPurchaseExtension();
-
-        $this->extensionLicensesService->purchaseExtension(5, 5, $context);
-
-        $this->setCancelationResponses();
-
-        $this->extensionLicensesService->cancelSubscription(1, $context);
-
-        static::assertEquals(
-            '/swplatform/pluginlicenses/1/cancel?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
-            $this->getRequestHandler()->getLastRequest()->getRequestTarget()
-        );
-    }
-
     public function testCancelSubscriptionNotInstalled(): void
     {
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
@@ -121,22 +78,6 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $source->setIsAdmin(true);
 
         return Context::createDefaultContext($source);
-    }
-
-    private function setResponsesToPurchaseExtension(): void
-    {
-        $this->getRequestHandler()->reset();
-        $exampleCart = file_get_contents(__DIR__ . '/../_fixtures/responses/example-cart.json');
-
-        // createCart will respond with a cart
-        $this->getRequestHandler()->append(new Response(200, [], $exampleCart));
-
-        // processCart will return an Created Response with no body
-        $this->getRequestHandler()->append(new Response(201, [], null));
-
-        // return path to app files from install extension
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
     }
 
     private function setLicensesRequest(string $licenseBody): void

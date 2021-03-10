@@ -16,7 +16,7 @@ export default class ExtensionStoreDataService extends ApiService {
     }
 
     async listingFilters(context) {
-        const res = await this.httpClient.get('_action/extension/store-filters', {
+        const res = await this.httpClient.get('_action/extension-store/store-filters', {
             headers: this.basicHeaders(context),
             version: 3
         });
@@ -27,7 +27,7 @@ export default class ExtensionStoreDataService extends ApiService {
     async getExtensionList(search, context) {
         const criteria = this._getCriteriaFromSearch(search);
 
-        const { data } = await this.httpClient.post('_action/extension/list', criteria.parse(), {
+        const { data } = await this.httpClient.post('_action/extension-store/list', criteria.parse(), {
             headers: this.basicHeaders(context),
             version: 3
         });
@@ -40,7 +40,7 @@ export default class ExtensionStoreDataService extends ApiService {
     }
 
     async getDetail(id, context) {
-        const { data } = await this.httpClient.get(`_action/extension/detail/${id}`, {
+        const { data } = await this.httpClient.get(`_action/extension-store/detail/${id}`, {
             headers: this.basicHeaders(context),
             version: 3
         });
@@ -63,7 +63,7 @@ export default class ExtensionStoreDataService extends ApiService {
             limit
         );
 
-        const { data } = await this.httpClient.get(`_action/extension/${id}/reviews`, {
+        const { data } = await this.httpClient.get(`_action/extension-store/${id}/reviews`, {
             headers: this.basicHeaders(),
             params: criteria.parse(),
             version: 3

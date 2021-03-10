@@ -11,14 +11,6 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 abstract class AbstractExtensionDataProvider
 {
-    abstract public function getListing(ExtensionCriteria $criteria, Context $context): ExtensionCollection;
-
-    abstract public function getListingFilters(array $parameters, Context $context): array;
-
-    abstract public function getExtensionDetails(int $id, Context $context): ExtensionStruct;
-
-    abstract public function getReviews(int $extensionId, ExtensionCriteria $criteria, Context $context): array;
-
     abstract public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection;
 
     abstract public function getAppEntityFromTechnicalName(string $technicalName, Context $context): AppEntity;

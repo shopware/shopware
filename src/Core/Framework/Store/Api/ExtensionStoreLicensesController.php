@@ -32,28 +32,6 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
-     */
-    public function purchaseExtension(Request $request, Context $context): JsonResponse
-    {
-        $extensionId = $request->request->get('extensionId');
-        $variantId = $request->request->get('variantId');
-
-        if (!is_numeric($extensionId)) {
-            throw new InvalidExtensionIdException();
-        }
-
-        if (!is_numeric($variantId)) {
-            throw new InvalidVariantIdException();
-        }
-
-        $this->extensionStoreLicensesService->purchaseExtension((int) $extensionId, (int) $variantId, $context);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Since("6.4.0.0")
      * @Route("/api/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
      */
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse

@@ -30,32 +30,6 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
         $this->extensionDownloader = $extensionDownloader;
     }
 
-    public function getLicensedExtensions(Context $context): LicenseCollection
-    {
-        $licenseCollection = new LicenseCollection();
-
-        $licensesResponse = $this->client->getLicenses($context);
-
-        foreach ($licensesResponse['data'] as $license) {
-            $licenseCollection->add($this->licenseLoader->loadFromArray($license));
-        }
-
-        $licenseCollection->setTotal(\count($licensesResponse['data']));
-
-        return $licenseCollection;
-    }
-
-    public function purchaseExtension(int $extensionId, int $variantId, Context $context): void
-    {
-        $cart = $this->client->createCart($extensionId, $variantId, $context);
-
-        $this->client->orderCart($cart, $context);
-
-        foreach ($this->getExtensionNamesFromCart($cart) as $name) {
-            $this->extensionDownloader->download($name, $context);
-        }
-    }
-
     public function cancelSubscription(int $licenseId, Context $context): void
     {
         $this->client->cancelSubscription($licenseId, $context);
@@ -72,15 +46,5 @@ class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesServic
     protected function getDecorated(): AbstractExtensionStoreLicensesService
     {
         throw new DecorationPatternException(self::class);
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getExtensionNamesFromCart(CartStruct $cart): array
-    {
-        return array_map(static function (CartPositionStruct $position): string {
-            return $position->getExtensionName();
-        }, $cart->getPositions()->getElements());
     }
 }

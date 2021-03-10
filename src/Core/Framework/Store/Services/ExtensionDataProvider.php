@@ -63,39 +63,6 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
         $this->extensionListingLoader = $extensionListingLoader;
     }
 
-    public function getListing(ExtensionCriteria $criteria, Context $context): ExtensionCollection
-    {
-        $listingResponse = $this->dataClient->listExtensions($criteria, $context);
-        $extensionListing = $this->extensionLoader->loadFromListingArray($context, $listingResponse['data']);
-
-        $total = $listingResponse['headers'][self::HEADER_NAME_TOTAL_COUNT][0] ?? 0;
-        $extensionListing->setTotal((int) $total);
-
-        return $extensionListing;
-    }
-
-    public function getListingFilters(array $parameters, Context $context): array
-    {
-        return $this->dataClient->listListingFilters($parameters, $context);
-    }
-
-    public function getExtensionDetails(int $id, Context $context): ExtensionStruct
-    {
-        $detailResponse = $this->dataClient->extensionDetail($id, $context);
-
-        return $this->extensionLoader->loadFromArray($context, $detailResponse);
-    }
-
-    public function getReviews(int $extensionId, ExtensionCriteria $criteria, Context $context): array
-    {
-        $reviewsResponse = $this->dataClient->extensionDetailReviews($extensionId, $criteria, $context);
-
-        return [
-            'summary' => ReviewSummaryStruct::fromArray($reviewsResponse['summary']),
-            'reviews' => new ReviewCollection($reviewsResponse['reviews']),
-        ];
-    }
-
     public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection
     {
         $criteria = $searchCriteria ? $searchCriteria : new Criteria();

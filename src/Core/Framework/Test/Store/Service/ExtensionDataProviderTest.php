@@ -53,32 +53,6 @@ class ExtensionDataProviderTest extends TestCase
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
     }
 
-    public function testGetListingFilters(): void
-    {
-        $requestHandler = $this->getRequestHandler();
-        $requestHandler->reset();
-        $requestHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json')));
-
-        $filters = $this->extensionDataProvider->getListingFilters([], Context::createDefaultContext());
-
-        static::assertSame(json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/filter.json'), true), $filters);
-    }
-
-    public function testItReturnsAListing(): void
-    {
-        $this->setListingResponse();
-
-        $criteria = ExtensionCriteria::fromArray([
-            'limit' => 10,
-            'page' => 1,
-        ]);
-
-        $listing = $this->extensionDataProvider->getListing($criteria, $this->context);
-
-        static::assertInstanceOf(ExtensionCollection::class, $listing);
-        static::assertEquals(2, $listing->count());
-    }
-
     public function testItReturnsInstalledAppsAsExtensionCollection(): void
     {
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
@@ -91,41 +65,6 @@ class ExtensionDataProviderTest extends TestCase
         static::assertInstanceOf(ExtensionStruct::class, $installedExtension);
         static::assertNull($installedExtension->getId());
         static::assertEquals('Swag App Test', $installedExtension->getLabel());
-    }
-
-    public function testItLoadsRemoteExtensions(): void
-    {
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
-
-        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        static::assertEquals(7, $installedExtensions->count());
-    }
-
-    public function testItReturnsAnExtensionDetail(): void
-    {
-        $extensionId = 12161;
-
-        $this->setDetailResponse($extensionId);
-        $extensionDetail = $this->extensionDataProvider->getExtensionDetails($extensionId, $this->context);
-
-        static::assertNotNull($extensionDetail);
-        static::assertEquals($extensionId, $extensionDetail->getId());
-        static::assertEquals('Change your privacy policy!', $extensionDetail->getPrivacyPolicyExtension());
-    }
-
-    public function testItReturnsReviewsForExtension(): void
-    {
-        $extensionId = 12161;
-
-        $this->setReviewsResponse($extensionId);
-        $extensionReviews = $this->extensionDataProvider->getReviews($extensionId, new ExtensionCriteria(), $this->context);
-
-        static::assertInstanceOf(ReviewCollection::class, $extensionReviews['reviews']);
-        static::assertInstanceOf(ReviewSummaryStruct::class, $extensionReviews['summary']);
-        static::assertCount(3, $extensionReviews['reviews']);
-        static::assertEquals(7, $extensionReviews['summary']->getNumberOfRatings());
     }
 
     public function testGetAppEntityFromTechnicalName(): void
@@ -156,29 +95,6 @@ class ExtensionDataProviderTest extends TestCase
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
     }
 
-    private function setReviewsResponse($extensionId): void
-    {
-        $requestHandler = $this->getRequestHandler();
-        $requestHandler->reset();
-        $requestHandler->append(
-            function (Request $request) use ($extensionId): Response {
-                $matches = [];
-                preg_match('/\/swplatform\/extensionstore\/extensions\/(.*)\/reviews/', $request->getUri()->getPath(), $matches);
-
-                static::assertEquals(
-                    $extensionId,
-                    $matches[1]
-                );
-
-                return new Response(
-                    200,
-                    [],
-                    \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-reviews.json')
-                );
-            }
-        );
-    }
-
     private function setListingResponse(): void
     {
         $requestHandler = $this->getRequestHandler();
@@ -188,28 +104,5 @@ class ExtensionDataProviderTest extends TestCase
             [ExtensionDataProvider::HEADER_NAME_TOTAL_COUNT => '2'],
             \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json')
         ));
-    }
-
-    private function setDetailResponse($extensionId): void
-    {
-        $requestHandler = $this->getRequestHandler();
-        $requestHandler->reset();
-        $requestHandler->append(
-            function (Request $request) use ($extensionId): Response {
-                $matches = [];
-                preg_match('/\/swplatform\/extensionstore\/extensions\/(.*)/', $request->getUri()->getPath(), $matches);
-
-                static::assertEquals(
-                    $extensionId,
-                    $matches[1]
-                );
-
-                return new Response(
-                    200,
-                    [],
-                    \file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json')
-                );
-            }
-        );
     }
 }

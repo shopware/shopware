@@ -36,6 +36,20 @@
                             </template>
                         {% endblock %}
 
+                        {% block sw_multi_select_filter_content_path_label %}
+                            <template v-else-if="filter.displayPath" #selection-label-property="{ item, index }">
+                                <sw-highlight-text
+                                    v-tooltip="{
+                                            message: getBreadcrumb(item),
+                                            width: 300
+                                        }"
+                                    selected=""
+                                    :key="item.id"
+                                    :text="getLabelName(item)">
+                                </sw-highlight-text>
+                            </template>
+                        {% endblock %}
+
                         {% block sw_multi_select_filter_content_variant_result_item %}
                             <template v-if="filter.displayVariants" #result-item="{ item, index }">
                                 <li is="sw-select-result" v-bind="{ item, index }">
@@ -44,6 +58,26 @@
                                             <sw-product-variant-info :variations="item.variation">
                                                 {{ item.translated.name || item.name }}
                                             </sw-product-variant-info>
+                                        </span>
+                                    {% endblock %}
+                                </li>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_multi_select_filter_content_path_result_item %}
+                            <template v-else-if="filter.displayPath" #result-item="{ item, index }">
+                                <li is="sw-select-result" v-bind="{ item, index }">
+                                    {% block sw_multi_select_filter_content_path_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-highlight-text
+                                                v-tooltip="{
+                                                    message: getBreadcrumb(item),
+                                                    width: 300
+                                                }"
+                                                selected=""
+                                                :key="item.id"
+                                                :text="getLabelName(item)">
+                                            </sw-highlight-text>
                                         </span>
                                     {% endblock %}
                                 </li>

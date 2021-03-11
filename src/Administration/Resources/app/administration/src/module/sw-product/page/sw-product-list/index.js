@@ -144,7 +144,8 @@ Component.register('sw-product-list', {
                 'categories-filter': {
                     property: 'categories',
                     label: this.$tc('sw-product.filters.categoriesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
+                    displayPath: true
                 },
                 'price-filter': {
                     property: 'price',

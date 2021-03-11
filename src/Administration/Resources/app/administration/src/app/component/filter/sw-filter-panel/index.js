@@ -76,6 +76,21 @@ Component.register('sw-filter-panel', {
 
         showFilter(filter, type) {
             return filter.type === type && this.defaults.includes(filter.name);
+        },
+
+        getBreadcrumb(item) {
+            if (item.breadcrumb) {
+                return item.breadcrumb.join(' / ');
+            }
+            return item.translated.name || item.name;
+        },
+
+        getLabelName(item) {
+            if (item.breadcrumb && item.breadcrumb.length > 1) {
+                return `.. / ${item.translated.name || item.name} `;
+            }
+
+            return item.translated.name || item.name;
         }
     }
 });

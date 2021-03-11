@@ -45,6 +45,27 @@ const mockProducts = [
     }
 ];
 
+const mockLandingPages = [
+    {
+        name: 'Landing Page 1',
+        url: 'landingpage1',
+        id: 'uuidLand1',
+        cmsPageId: null
+    },
+    {
+        name: 'Landing Page 2',
+        url: 'landingpage2',
+        id: 'uuidLand2',
+        cmsPageId: null
+    },
+    {
+        name: 'Landing Page 3',
+        url: 'landingpage3',
+        id: 'uuidLand3',
+        cmsPageId: null
+    }
+];
+
 function createWrapper(layoutType = 'product_list', privileges = []) {
     const localVue = createLocalVue();
 
@@ -56,6 +77,7 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
             page: {
                 categories: new EntityCollection(null, null, null, new Criteria(), mockCategories),
                 products: new EntityCollection(null, null, null, new Criteria(), mockProducts),
+                landingPages: new EntityCollection(null, null, null, new Criteria(), mockLandingPages),
                 type: layoutType,
                 id: 'uuid007'
             }
@@ -77,6 +99,7 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
                       `
             },
             'sw-multi-select': true,
+            'sw-entity-multi-select': true,
             'sw-loader': true,
             'sw-icon': true,
             'sw-cms-product-assignment': true
@@ -131,6 +154,9 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });
@@ -182,6 +208,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         // Tab container should exist but not the individual tabs
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-categories').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-landing-pages').exists()).toBeFalsy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeFalsy();
     });
 
@@ -661,12 +688,14 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = createWrapper();
         const discardCategoryChangesSpy = jest.spyOn(wrapper.vm, 'discardCategoryChanges');
         const discardShopPageChangesSpy = jest.spyOn(wrapper.vm, 'discardShopPageChanges');
+        const discardLandingPageChangesSpy = jest.spyOn(wrapper.vm, 'discardLandingPageChanges');
         const onModalCloseSpy = jest.spyOn(wrapper.vm, 'onModalClose');
 
         wrapper.find('.sw-cms-layout-assignment-modal__action-cancel').trigger('click');
 
         expect(discardCategoryChangesSpy).toHaveBeenCalledTimes(1);
         expect(discardShopPageChangesSpy).toHaveBeenCalledTimes(1);
+        expect(discardLandingPageChangesSpy).toHaveBeenCalledTimes(1);
         expect(onModalCloseSpy).toHaveBeenCalledTimes(1);
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });
@@ -884,6 +913,219 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                 name: 'Product 1',
                 id: 'uuid2'
             }
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeFalsy();
+        expect(wrapper.emitted('confirm')).toBeFalsy();
+    });
+
+    it('should render tabs when type is landing pages', async () => {
+        const wrapper = createWrapper('landingpage');
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-categories').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-landing-pages').exists()).toBeTruthy();
+    });
+
+    it('should store previous landing pages on component creation', async () => {
+        const wrapper = createWrapper('landingpage');
+
+        expect(wrapper.vm.previousLandingPages).toEqual(mockLandingPages);
+        expect(wrapper.vm.previousLandingPageIds).toEqual(expect.arrayContaining(['uuidLand1', 'uuidLand2', 'uuidLand3']));
+    });
+
+    it('should add landing pages', async () => {
+        const wrapper = createWrapper();
+        const newPage = {
+            name: 'New Landing Page',
+            id: 'uuidLand4'
+        };
+
+        wrapper.setData({
+            page: {
+                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                    ...mockLandingPages,
+                    newPage
+                ])
+            }
+        });
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for main modal
+
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
+            newPage
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('should add a landing page which already has a different assigned layout', async () => {
+        const wrapper = createWrapper();
+
+        const newPage1 = {
+            name: 'New Landing Page',
+            id: 'uuidLand4',
+            cmsPageId: 'totallyDifferentId'
+        };
+
+        const newPage2 = {
+            name: 'New Landing Page',
+            id: 'uuidLand4',
+            cmsPageId: 'totallyDifferentId'
+        };
+
+        wrapper.setData({
+            page: {
+                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                    ...mockLandingPages,
+                    newPage1,
+                    newPage2
+                ])
+            }
+        });
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because one new category has already an assigned layout
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').exists()).toBeTruthy();
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for warning modal to close
+        await wrapper.vm.$nextTick(); // Wait for main modal to close
+
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
+            newPage1,
+            newPage2
+        ]));
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('should remove landing pages and confirm', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.setData({
+            page: {
+                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                    {
+                        name: 'Computers',
+                        id: 'uuid1'
+                    },
+                    {
+                        name: 'Home',
+                        id: 'uuid2'
+                    }
+                ])
+            }
+        });
+
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed landing page
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-landing-pages').exists()).toBeTruthy();
+
+        // Confirm changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
+
+        await wrapper.vm.$nextTick(); // Wait for validation
+        await wrapper.vm.$nextTick(); // Wait for warning modal to close
+        await wrapper.vm.$nextTick(); // Wait for main modal to close
+
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('should remove landing pages but discard changes', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.setData({
+            page: {
+                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                    {
+                        name: 'Computers',
+                        id: 'uuid1'
+                    },
+                    {
+                        name: 'Home',
+                        id: 'uuid2'
+                    }
+                ])
+            }
+        });
+
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed landing page
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-landing-pages').exists()).toBeTruthy();
+
+        // Discard changes
+        wrapper.find('.sw-cms-layout-assignment-modal__action-changes-discard').trigger('click');
+
+        // Wait for warning modal to disappear
+        await wrapper.vm.$nextTick();
+
+        // Verify landing pages are restored to initial landing pages
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining(mockLandingPages));
+        expect(wrapper.emitted('modal-close')).toBeTruthy();
+        expect(wrapper.emitted('confirm')).toBeFalsy();
+    });
+
+    it('should remove landing pages but keep editing', async () => {
+        const wrapper = createWrapper();
+        const page1 = {
+            name: 'Computers',
+            id: 'uuid1'
+        };
+        const page2 = {
+            name: 'Home',
+            id: 'uuid2'
+        };
+
+        wrapper.setData({
+            page: {
+                landingPages: new EntityCollection(null, null, null, new Criteria(), [
+                    page1,
+                    page2
+                ])
+            }
+        });
+
+        // Confirm
+        wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+
+        // Wait for warning modal
+        await wrapper.vm.$nextTick();
+
+        // Change warning should appear because of removed landing pages
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-landing-pages').exists()).toBeTruthy();
+
+        // Keep editing
+        wrapper.find('.sw-cms-layout-assignment-modal__action-keep-editing').trigger('click');
+
+        // Verify landing pages are still the same modified landing pages
+        expect(wrapper.vm.page.landingPages).toEqual(expect.arrayContaining([
+            page1,
+            page2
         ]));
         expect(wrapper.emitted('modal-close')).toBeFalsy();
         expect(wrapper.emitted('confirm')).toBeFalsy();

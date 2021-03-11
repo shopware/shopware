@@ -222,7 +222,8 @@
         "editInPagebuilderEmpty": "Create new layout",
         "editContent": "Edit content",
         "defaultTitle": "Default layout",
-        "defaultDesc": "Category page"
+        "defaultDesc": "Category page",
+        "cmsLayoutModalHeadline": "Landing page"
       }
     },
     "modal": {

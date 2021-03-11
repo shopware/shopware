@@ -32,6 +32,12 @@ Component.register('sw-category-layout-card', {
             default() {
                 return ['page', 'landingpage', 'product_list'];
             }
+        },
+
+        headline: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 

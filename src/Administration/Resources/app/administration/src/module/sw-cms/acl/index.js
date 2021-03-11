@@ -10,6 +10,7 @@ Shopware.Service('privileges')
                     'media:read',
                     'cms_section:read',
                     'category:read',
+                    'landing_page:read',
                     'media_default_folder:read',
                     'media_folder:read',
                     'sales_channel:read',
@@ -43,7 +44,8 @@ Shopware.Service('privileges')
                     'product_stream:read',
                     'currency:read',
                     'product_manufacturer:read',
-                    'category:update'
+                    'category:update',
+                    'landing_page:update'
                 ],
                 dependencies: [
                     'cms.viewer'

@@ -89,23 +89,6 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Services\LicenseLoader">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Services\AbstractStoreCategoryProvider" class="Shopware\Core\Framework\Store\Services\StoreCategoryProvider">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreCategoryController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreCategoryProvider"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
             <argument type="service" id="language.repository"/>
             <argument type="service" id="theme.repository"/>

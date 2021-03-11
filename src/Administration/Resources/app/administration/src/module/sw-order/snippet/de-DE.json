@@ -333,7 +333,7 @@
       },
       "orderDateFilter": {
         "label": "Bestelldatum",
-        "placeholder": "Von ... / Bis ..."
+        "placeholder": "Von ... / bis ..."
       },
       "statusFilter": {
         "label": "Bestellstatus",
@@ -380,7 +380,7 @@
         "placeholder": "Produkte auswählen ..."
       },
       "messageEmptyTitle": "Nichts gefunden",
-      "messageEmptySubline": "Bearbeite Deine Filter um passende Ergebnisse zu sehen."
+      "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     }
   },
   "sw-privileges": {

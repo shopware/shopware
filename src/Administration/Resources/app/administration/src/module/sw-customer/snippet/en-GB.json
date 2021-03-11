@@ -221,7 +221,7 @@
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
+      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of eight characters."
     },
     "filter": {
       "salutation": {
@@ -253,7 +253,7 @@
         "placeholder": "Select tags..."
       },
       "messageEmptyTitle": "Nothing found",
-      "messageEmptySubline": "Edit your filters to see matching results."
+      "messageEmptySubline": "Edit your filters to find results."
     }
   },
   "sw-privileges": {

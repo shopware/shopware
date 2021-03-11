@@ -13,7 +13,7 @@
 
         <input-field type="bool">
             <name>customerIpAddressesNotAnonymously</name>
-            <label>Save customer ID addresses in plain text</label>
+            <label>Save customer IP addresses as plain text</label>
             <label lang="de-DE">Kunden-IP-Adressen in Klartext speichern</label>
         </input-field>
 
@@ -106,14 +106,14 @@
         <input-field type="bool">
             <name>additionalAddressField2Required</name>
             <label>Additional address 2 field required</label>
-            <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Adresszusatzzeile 2 als Pflichtfeld behandeln</label>
         </input-field>
 
         <input-field type="bool">
             <name>invalidateSessionOnLogOut</name>
             <label>Clear and delete cart on log out</label>
             <label lang="de-DE">Warenkorb bei Abmeldung löschen</label>
-            <helpText>When the setting is activated, the cart won't be saved and can't be restored after login.</helpText>
+            <helpText>If activated, the cart won't be saved and can't be restored after login.</helpText>
             <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden.</helpText>
         </input-field>
 
@@ -132,7 +132,7 @@
         <input-field type="bool">
             <name>vatIdFieldRequired</name>
             <label>VAT Reg.No. required</label>
-            <label lang="de-DE">Umsatzsteuer-Id als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Umsatzsteuer-ID als Pflichtfeld behandeln</label>
         </input-field>
     </card>
 </config>

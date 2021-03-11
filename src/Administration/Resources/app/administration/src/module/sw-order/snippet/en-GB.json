@@ -332,8 +332,8 @@
         "placeholder": "Select document status..."
       },
       "orderDateFilter": {
-        "label": "Order Date",
-        "placeholder": "From... / To..."
+        "label": "Order date",
+        "placeholder": "From... / to..."
       },
       "statusFilter": {
         "label": "Order status",
@@ -380,7 +380,7 @@
         "placeholder": "Select products..."
       },
       "messageEmptyTitle": "Nothing found",
-      "messageEmptySubline": "Edit your filters to see matching results."
+      "messageEmptySubline": "Edit your filters to find results."
     }
   },
   "sw-privileges": {

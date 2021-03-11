@@ -422,7 +422,7 @@
       "templateSelectFieldPlaceholder": "Select a template..."
     },
     "layoutAssignment": {
-      "title": "Default fallback",
+      "title": "Default value",
       "subtitle": "Product page",
       "textAssignLayout": "Assign layout",
       "textChangeLayout": "Change layout",
@@ -439,7 +439,7 @@
         "placeholder": "Select an image status..."
       },
       "releaseDateFilter": {
-        "label": "Release Date"
+        "label": "Release date"
       },
       "stockFilter": {
         "label": "Stock"
@@ -464,7 +464,7 @@
         "placeholder": "Select tags..."
       },
       "messageEmptyTitle": "Nothing found",
-      "messageEmptySubline": "Edit your filters to see matching results."
+      "messageEmptySubline": "Edit your filters to see results."
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."

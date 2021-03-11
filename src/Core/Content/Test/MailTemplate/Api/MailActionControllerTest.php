@@ -55,7 +55,7 @@ class MailActionControllerTest extends TestCase
         static::assertInstanceOf(Email::class, $message);
         static::assertSame('My precious subject', $message->getSubject());
         static::assertSame(
-            'doNotReply@localhost',
+            'doNotReply@localhost.com',
             current($message->getFrom())->getAddress(),
             print_r($message->getFrom(), true)
         );

@@ -32,6 +32,13 @@ class MailerTransportFactory extends Transport
         $emailAgent = $configService->getString('core.mailerSettings.emailAgent');
 
         if ($emailAgent === '') {
+            if (!empty($_SERVER['MAILER_URL'])) {
+                try {
+                    return parent::fromString($_SERVER['MAILER_URL']);
+                } catch (\Throwable $e) {
+                    // Mailer Url not valid. Use standard sendmail
+                }
+            }
             $dsn = new Dsn(
                 'sendmail',
                 'default'

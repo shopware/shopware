@@ -26,12 +26,12 @@ class MailServiceTest extends TestCase
     public function senderEmailDataProvider(): array
     {
         return [
-            ['basic@example', 'basic@example', null, null],
-            ['config@example', null, 'config@example', null],
-            ['basic@example', 'basic@example', 'config@example', null],
-            ['data@example', 'basic@example', 'config@example', 'data@example'],
-            ['data@example', 'basic@example', null, 'data@example'],
-            ['data@example', null, 'config@example', 'data@example'],
+            ['basic@example.com', 'basic@example.com', null, null],
+            ['config@example.com', null, 'config@example.com', null],
+            ['basic@example.com', 'basic@example.com', 'config@example.com', null],
+            ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'],
+            ['data@example.com', 'basic@example.com', null, 'data@example.com'],
+            ['data@example.com', null, 'config@example.com', 'data@example.com'],
         ];
     }
 
@@ -72,7 +72,7 @@ class MailServiceTest extends TestCase
 
         $data = [
             'senderName' => 'Foo Bar',
-            'recipients' => ['baz@example' => 'Baz'],
+            'recipients' => ['baz@example.com' => 'Baz'],
             'salesChannelId' => $salesChannel['id'],
             'contentHtml' => '<h1>Test</h1>',
             'contentPlain' => 'Test',

@@ -14,7 +14,7 @@ class MailerTransportFactoryTest extends TestCase
 
     public function testFactoryWithoutConfig(): void
     {
-        $original = new SendmailTransport();
+        $original = new EsmtpTransport();
 
         $factory = $this->getContainer()->get('mailer.transport_factory');
 

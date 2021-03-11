@@ -21,9 +21,6 @@ class MockSortableSnippetFile implements SortableSnippetFileInterface
      */
     private $iso;
 
-    /**
-     * @var int
-     */
     private int $priority;
 
     public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true, int $priority = 0)

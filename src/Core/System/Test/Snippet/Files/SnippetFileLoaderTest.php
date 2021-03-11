@@ -270,7 +270,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
-        static::assertCount(3,  $collection->getSnippetFilesByIso('de-DE'));
+        static::assertCount(3, $collection->getSnippetFilesByIso('de-DE'));
 
         $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
         static::assertEquals('test', $snippetFile->getName());

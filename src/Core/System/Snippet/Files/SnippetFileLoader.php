@@ -65,7 +65,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             function (SnippetFileInterface $a, SnippetFileInterface $b) {
                 $prioA = ($a instanceof SortableSnippetFileInterface) ? $a->getPriority() : 0;
                 $prioB = ($b instanceof SortableSnippetFileInterface) ? $b->getPriority() : 0;
-                if ($prioA == $prioB) {
+                if ($prioA === $prioB) {
                     return 0;
                 }
 

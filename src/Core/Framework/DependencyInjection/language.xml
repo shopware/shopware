@@ -50,5 +50,11 @@
             <argument type="service" id="logger" />
         </service>
 
+        <service id="Shopware\Core\System\Language\Command\LanguageChangeDefaultCommand">
+            <argument id="locale.repository" type="service"/>
+            <argument id="language.repository" type="service"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

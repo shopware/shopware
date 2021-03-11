@@ -3,12 +3,13 @@
 
         {% block sw_category_entry_point_card_selection %}
             <sw-single-select
+                class="sw-category-entry-point-card__entry-point-selection"
                 v-model="selectedEntryPoint"
                 :options="entryPoints"
                 :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
                 :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
                 :helpText="helpText"
-                :disabled="hasExistingNavigation"
+                :disabled="hasExistingNavigation || !acl.can('category.editor')"
                 @change="onEntryPointChange">
             </sw-single-select>
         {% endblock %}
@@ -37,17 +38,19 @@
         {% block sw_category_entry_point_card_sales_channel_selection %}
             <sw-category-sales-channel-multi-select
                 v-if="associatedCollection"
+                class="sw-category-entry-point-card__sales-channel-selection"
                 @change="onSalesChannelChange"
                 :entityCollection="associatedCollection"
-                :disabled="!selectedEntryPoint"
                 :label="salesChannelSelectionLabel"
                 :criteria="salesChannelCriteria"
-                :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')">
+                :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
+                :disabled="!selectedEntryPoint || !acl.can('category.editor')">
             </sw-category-sales-channel-multi-select>
         {% endblock %}
 
         {% block sw_category_entry_point_card_button_configure_home %}
             <sw-button
+                class="sw-category-entry-point-card__button-configure-home"
                 variant="ghost"
                 size="small"
                 :disabled="selectedEntryPoint !== 'navigationSalesChannels' || category.navigationSalesChannels.length === 0"

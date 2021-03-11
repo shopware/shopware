@@ -45,7 +45,7 @@
                                     {% if category.type == 'folder' %}
                                         <div class="nav-link main-navigation-link"
                                             {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ categorId }}"
+                                                data-flyout-menu-trigger="{{ category.id }}"
                                             {% endif %}
                                               title="{{ name }}">
                                             <div class="main-navigation-link-text">

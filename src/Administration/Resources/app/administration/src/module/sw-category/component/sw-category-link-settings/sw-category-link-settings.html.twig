@@ -30,6 +30,7 @@
         {% block sw_category_detail_link_type_select_main %}
             <sw-single-select
                 v-if="feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__type"
                 v-model="mainType"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.link.mainTypeLabel')"
@@ -41,6 +42,7 @@
         {% block sw_category_detail_link_type_select_entity %}
             <sw-single-select
                 v-if="isInternal && feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__entity"
                 v-model="category.linkType"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.link.internalTypeLabel')"
@@ -53,6 +55,7 @@
         {% block sw_category_detail_link_type_select_entity_category %}
             <sw-entity-single-select
                 v-if="category.linkType === 'category' && feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__selection-category"
                 v-model="category.internalLink"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('global.entities.category')"
@@ -65,6 +68,7 @@
         {% block sw_category_detail_link_type_select_entity_product %}
             <sw-entity-single-select
                 v-if="category.linkType === 'product' && feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__selection-product"
                 v-model="category.internalLink"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('global.entities.product')"
@@ -78,6 +82,7 @@
         {% block sw_category_detail_link_type_select_entity_landing_page %}
             <sw-entity-single-select
                 v-if="category.linkType === 'landing_page' && feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__selection-landing-page"
                 v-model="category.internalLink"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('global.entities.landing_page')"
@@ -89,6 +94,7 @@
         {% block sw_category_detail_link_field %}
             <sw-text-field
                 v-if="isExternal || !feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__external-link"
                 v-model="category.externalLink"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.link.linkLabel')"
@@ -99,6 +105,7 @@
         {% block sw_category_detail_link_new_tab %}
             <sw-switch-field
                 v-if="feature.isActive('FEATURE_NEXT_13504')"
+                class="sw-category-link-settings__link-new-tab"
                 v-model="category.linkNewTab"
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.link.linkNewTabLabel')">

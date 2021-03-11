@@ -184,6 +184,23 @@ Component.register('sw-category-detail', {
             };
         },
 
+        landingPageTooltipSave() {
+            if (!this.acl.can('landing_page.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('landing_page.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
         tooltipCancel() {
             return {
                 message: 'ESC',

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class CategoryUrlGeneratorTest extends TestCase
 {
@@ -24,6 +25,11 @@ class CategoryUrlGeneratorTest extends TestCase
      */
     private $replacer;
 
+    /**
+     * @var SalesChannelEntity
+     */
+    private $salesChannel;
+
     public function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
@@ -31,6 +37,8 @@ class CategoryUrlGeneratorTest extends TestCase
         $this->replacer = $this->getMockBuilder(SeoUrlPlaceholderHandlerInterface::class)->getMock();
         $this->urlGenerator = new CategoryUrlGenerator($this->replacer);
         $this->replacer->method('generate')->willReturnArgument(0);
+        $this->salesChannel = new SalesChannelEntity();
+        $this->salesChannel->setNavigationCategoryId(Uuid::randomHex());
     }
 
     public function testPage(): void
@@ -39,7 +47,7 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setId(Uuid::randomHex());
         $category->setType(CategoryDefinition::TYPE_PAGE);
 
-        static::assertSame('frontend.navigation.page', $this->urlGenerator->generate($category));
+        static::assertSame('frontend.navigation.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     public function testFolder(): void
@@ -47,7 +55,20 @@ class CategoryUrlGeneratorTest extends TestCase
         $category = new CategoryEntity();
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
-        static::assertNull($this->urlGenerator->generate($category));
+        static::assertNull($this->urlGenerator->generate($category, $this->salesChannel));
+    }
+
+    public function testLinkCategoryHome(): void
+    {
+        $category = new CategoryEntity();
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
+        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_CATEGORY);
+        $category->setInternalLink(Uuid::randomHex());
+        $category->addTranslated('internalLink', $category->getInternalLink());
+        $this->salesChannel->setNavigationCategoryId($category->getInternalLink());
+
+        static::assertSame('frontend.home.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     /**
@@ -60,14 +81,14 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setLinkType($type);
         $category->addTranslated('linkType', $type);
 
-        static::assertNull($this->urlGenerator->generate($category));
+        static::assertNull($this->urlGenerator->generate($category, $this->salesChannel));
 
         $category->setExternalLink(self::EXTERNAL_URL);
         $category->addTranslated('externalLink', $category->getExternalLink());
         $category->setInternalLink(Uuid::randomHex());
         $category->addTranslated('internalLink', $category->getInternalLink());
 
-        static::assertSame($route, $this->urlGenerator->generate($category));
+        static::assertSame($route, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     public function dataProviderLinkTypes(): array

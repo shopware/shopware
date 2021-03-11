@@ -101,10 +101,11 @@
         {% block sw_landing_page_tree_action %}
             <div class="sw-landing-page-tree__add-button">
                 <sw-button
-                    :disabled="disableContextMenu"
+                    class="sw-landing-page-tree__add-button-button"
                     :routerLink="newLandingPageUrl()"
                     size="small"
-                    variant="ghost">
+                    variant="ghost"
+                    :disabled="disableContextMenu || !acl.can('landing_page.creator')">
                     {{ $tc('sw-landing-page.general.buttonCreate') }}
                 </sw-button>
             </div>

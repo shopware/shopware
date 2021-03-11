@@ -43,9 +43,14 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
             return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $category->getId()]);
         }
 
+        $linkType = $category->getTranslation('linkType');
         $internalLink = $category->getTranslation('internalLink');
 
-        switch ($category->getTranslation('linkType')) {
+        if (!$internalLink && $linkType && $linkType !== CategoryDefinition::LINK_TYPE_EXTERNAL) {
+            return null;
+        }
+
+        switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
                 return $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $internalLink]);
 

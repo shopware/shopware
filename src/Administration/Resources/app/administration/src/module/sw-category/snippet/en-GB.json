@@ -47,6 +47,7 @@
           "newPage": "Page / List",
           "newFolder": "Structuring element / Entry point",
           "newLink": "Link",
+          "linkUnavailable": "Link (not selectable if category is defined as entry point)",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
           "helpText": {
             "page": "A page / list has associated products and can be accessed directly with the assigned layout.",

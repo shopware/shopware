@@ -135,9 +135,20 @@ Component.register('sw-category-tree', {
 
             // reload after save
             if (oldVal && newVal.id === oldVal.id) {
-                this.categoryRepository.get(newVal.id, Shopware.Context.api).then((newCategory) => {
-                    this.loadedCategories[newCategory.id] = newCategory;
-                    this.loadedCategories = { ...this.loadedCategories };
+                const affectedCategoryIds = [
+                    newVal.id,
+                    ...oldVal.navigationSalesChannels.map(salesChannel => salesChannel.navigationCategoryId),
+                    ...oldVal.footerSalesChannels.map(salesChannel => salesChannel.footerCategoryId),
+                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId)
+                ];
+
+                const criteria = Criteria.fromCriteria(this.criteria)
+                    .setIds(affectedCategoryIds.filter((value, index, self) => {
+                        return value !== null && self.indexOf(value) === index;
+                    }));
+
+                this.categoryRepository.search(criteria, Shopware.Context.api).then((categories) => {
+                    this.addCategories(categories);
                 });
             }
         },
@@ -416,10 +427,10 @@ Component.register('sw-category-tree', {
             }).href;
         },
 
-        isHighlighted(item) {
-            return (item.data.navigationSalesChannels !== null && item.data.navigationSalesChannels.length > 0)
-                || (item.data.serviceSalesChannels !== null && item.data.serviceSalesChannels.length > 0)
-                || (item.data.footerSalesChannels !== null && item.data.footerSalesChannels.length > 0);
+        isHighlighted({ data: category }) {
+            return (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0)
+                || (category.serviceSalesChannels !== null && category.serviceSalesChannels.length > 0)
+                || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
         }
     }
 });

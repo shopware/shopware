@@ -60,6 +60,18 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $this->loadPluginSnippets($snippetFileCollection);
 
         $this->loadAppSnippets($snippetFileCollection);
+
+        $snippetFileCollection->sort(
+            function (SnippetFileInterface $a, SnippetFileInterface $b) {
+                $prioA = ($a instanceof SortableSnippetFileInterface) ? $a->getPriority() : 0;
+                $prioB = ($b instanceof SortableSnippetFileInterface) ? $b->getPriority() : 0;
+                if ($prioA == $prioB) {
+                    return 0;
+                }
+
+                return ($prioA < $prioB) ? -1 : 1;
+            }
+        );
     }
 
     private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
@@ -154,10 +166,12 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function getPluginAuthors(): array
     {
         if (!$this->pluginAuthors) {
-            $authors = $this->connection->fetchAll('
+            $authors = $this->connection->fetchAll(
+                '
             SELECT `base_class` AS `baseClass`, `author`
             FROM `plugin`
-        ');
+        '
+            );
 
             $this->pluginAuthors = FetchModeHelper::keyPair($authors);
         }

@@ -12,10 +12,13 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\SortableSnippetFileInterface;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
+use Shopware\Core\System\Test\Snippet\Mock\MockSortableSnippetFile;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -234,6 +237,54 @@ class SnippetFileLoaderTest extends TestCase
         static::assertEquals('en-GB', $snippetFile->getIso());
         static::assertEquals('Plugin Manufacturer', $snippetFile->getAuthor());
         static::assertTrue($snippetFile->isBase());
+    }
+
+    public function testLoadSnippetFilesAndOrderThem(): void
+    {
+        $kernel = new MockedKernel(
+            [
+                new ShopwareBundleWithSnippets(),
+            ]
+        );
+
+        $collection = new SnippetFileCollection(
+            [
+                new MockSortableSnippetFile('storefront-38.de-DE', 'de-DE', '{}', false, 38),
+                new MockSortableSnippetFile('storefront-42.de-DE', 'de-DE', '{}', false, 42),
+                new GenericSnippetFile(
+                    'test',
+                    __DIR__ . '/_fixtures/ShopwareBundleWithSnippets/Resources/snippet/storefront.de-DE.json',
+                    'de-DE',
+                    'test Author',
+                    true
+                ),
+            ]
+        );
+
+        $snippetFileLoader = new SnippetFileLoader(
+            $kernel,
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        static::assertCount(3,  $collection->getSnippetFilesByIso('de-DE'));
+
+        $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
+        static::assertEquals('test', $snippetFile->getName());
+        static::assertInstanceOf(SnippetFileInterface::class, $snippetFile);
+
+        $snippetFile = $collection->getSnippetFilesByIso('de-DE')[1];
+        static::assertEquals('storefront-38.de-DE', $snippetFile->getName());
+        static::assertInstanceOf(SortableSnippetFileInterface::class, $snippetFile);
+        static::assertSame(38, $snippetFile->getPriority());
+
+        $snippetFile = $collection->getSnippetFilesByIso('de-DE')[2];
+        static::assertEquals('storefront-42.de-DE', $snippetFile->getName());
+        static::assertInstanceOf(SortableSnippetFileInterface::class, $snippetFile);
+        static::assertSame(42, $snippetFile->getPriority());
     }
 }
 

@@ -30,7 +30,7 @@
       "placeholderSalesChannels": "Select Sales Channels...",
       "placeholderMailTemplate": "Select an email template...",
       "titleRecipientsCard": "Email recipients",
-      "textEmptyStateRecipients": "There are no additional recipients for this event yet. - Customer emails will be sent regardless.",
+      "textEmptyStateRecipients": "Add alternative recipients - If set customer emails will be supended!",
       "columnRecipientName": "Name",
       "columnRecipientMail": "Email address",
       "addRecipientButton": "Add recipient",

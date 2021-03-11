@@ -30,7 +30,7 @@
       "placeholderSalesChannels": "Wähle Verkaufskanäle aus...",
       "placeholderMailTemplate": "Wähle ein E-Mail-Template aus ...",
       "titleRecipientsCard": "E-Mail-Empfänger",
-      "textEmptyStateRecipients": "Es gibt noch keine zusätzlichen Empfänger für dieses Event. - Kunden-E-Mails werden unabhängig davon versendet.",
+      "textEmptyStateRecipients": "Alternative Empfänger hinzufügen - Wenn gesetzt, werden keine Kunden-E-Mails versendet!",
       "columnRecipientName": "Name",
       "columnRecipientMail": "E-Mail-Adresse",
       "addRecipientButton": "Empfänger hinzufügen",

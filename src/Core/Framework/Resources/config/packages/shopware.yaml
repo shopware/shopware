@@ -127,6 +127,11 @@ shopware:
               major: false
               description: "Brexit Changes"
               # issue: NEXT-14114
+            - name: FEATURE_NEXT_12455
+              default: false
+              major: false
+              description: "Captcha Integration"
+              # issue: NEXT-12455
 
     logger:
         file_rotation_count: 14

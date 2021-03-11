@@ -3,10 +3,12 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\CookieController;
+use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 
 class CookieControllerTest extends TestCase
 {
@@ -50,5 +52,26 @@ class CookieControllerTest extends TestCase
 
         static::assertCount(0, $response->filterXPath('//input[@id="cookie_Comfort features"]'));
         static::assertCount(0, $response->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
+    }
+
+    public function testCookieRequiredGroupIncludeGoogleReCaptchaWhenActive(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_12455', $this);
+
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.basicInformation.activeCaptchas', []);
+
+        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas', []);
+
+        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(0, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+
+        $systemConfig->set('core.basicInformation.activeCaptchas', [GoogleReCaptchaV3::CAPTCHA_NAME]);
+
+        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas', []);
+
+        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
+        static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
     }
 }

@@ -46,6 +46,8 @@ class RequestTransformer implements RequestTransformerInterface
 
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
+    public const ORIGINAL_REQUEST_URI = 'sw-original-request-uri';
+
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
         self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
@@ -141,6 +143,8 @@ class RequestTransformer implements RequestTransformerInterface
             $salesChannel['salesChannelId']
         );
 
+        $currentRequestUri = $request->getRequestUri();
+
         /**
          * - Remove "virtual" suffix of domain mapping shopware.de/de
          * - To get only the host shopware.de as real request uri shopware.de/
@@ -217,6 +221,7 @@ class RequestTransformer implements RequestTransformerInterface
 
         $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
 
         return $transformedRequest;
     }

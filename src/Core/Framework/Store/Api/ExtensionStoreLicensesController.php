@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
-use Shopware\Core\Framework\Store\Exception\InvalidVariantIdException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,28 +26,6 @@ class ExtensionStoreLicensesController extends AbstractController
     public function __construct(AbstractExtensionStoreLicensesService $extensionStoreLicensesService)
     {
         $this->extensionStoreLicensesService = $extensionStoreLicensesService;
-    }
-
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
-     */
-    public function purchaseExtension(Request $request, Context $context): JsonResponse
-    {
-        $extensionId = $request->request->get('extensionId');
-        $variantId = $request->request->get('variantId');
-
-        if (!is_numeric($extensionId)) {
-            throw new InvalidExtensionIdException();
-        }
-
-        if (!is_numeric($variantId)) {
-            throw new InvalidVariantIdException();
-        }
-
-        $this->extensionStoreLicensesService->purchaseExtension((int) $extensionId, (int) $variantId, $context);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

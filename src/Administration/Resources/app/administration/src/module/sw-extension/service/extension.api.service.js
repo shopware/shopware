@@ -34,6 +34,17 @@ export default class ExtensionApiService extends ApiService {
             });
     }
 
+    async getMyExtensions() {
+        const headers = this.getBasicHeaders();
+
+        const { data } = await this.httpClient.get(`/_action/${this.getApiBasePath()}/installed`, {
+            headers,
+            version: 3
+        });
+
+        return data;
+    }
+
     uninstall(extensionName, { keepUserData = true }) {
         const headers = this.getBasicHeaders();
 

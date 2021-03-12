@@ -9,7 +9,7 @@ class StoreTokenMissingException extends ShopwareHttpException
 {
     public function __construct()
     {
-        parent::__construct('Store host is missing');
+        parent::__construct('Store token is missing');
     }
 
     public function getErrorCode(): string

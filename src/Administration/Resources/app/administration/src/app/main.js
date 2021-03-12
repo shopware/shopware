@@ -23,7 +23,6 @@ import ExtensionHelperService from 'src/app/service/extension-helper.service';
 import LanguageAutoFetchingService from 'src/app/service/language-auto-fetching.service';
 import SearchTypeService from 'src/app/service/search-type.service';
 import ShortcutService from 'src/app/service/shortcut.service';
-import LicenseViolationsService from 'src/app/service/license-violations.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
@@ -123,9 +122,6 @@ Application
     })
     .addServiceProvider('shortcutService', () => {
         return ShortcutService(factoryContainer.shortcut);
-    })
-    .addServiceProvider('licenseViolationService', () => {
-        return LicenseViolationsService(Application.getContainer('service').storeService);
     })
     .addServiceProvider('localeHelper', () => {
         return new LocaleHelperService({

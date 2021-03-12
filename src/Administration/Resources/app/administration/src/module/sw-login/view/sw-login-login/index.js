@@ -51,7 +51,9 @@ Component.register('sw-login-login', {
                 setTimeout(resolve, 150);
             });
 
-            this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
+            if (this.licenseViolationService) {
+                this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
+            }
 
             return animationPromise.then(() => {
                 this.$parent.isLoginSuccess = false;

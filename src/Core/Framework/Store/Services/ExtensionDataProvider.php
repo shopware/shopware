@@ -11,11 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
-use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
-use Shopware\Core\Framework\Store\Struct\ReviewCollection;
-use Shopware\Core\Framework\Store\Struct\ReviewSummaryStruct;
 
 /**
  * @internal
@@ -23,11 +19,6 @@ use Shopware\Core\Framework\Store\Struct\ReviewSummaryStruct;
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
-
-    /**
-     * @var StoreClient
-     */
-    private $dataClient;
 
     /**
      * @var ExtensionLoader
@@ -50,50 +41,15 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
     private $extensionListingLoader;
 
     public function __construct(
-        StoreClient $client,
         ExtensionLoader $extensionLoader,
         EntityRepositoryInterface $appRepository,
         EntityRepositoryInterface $pluginRepository,
         ExtensionListingLoader $extensionListingLoader
     ) {
-        $this->dataClient = $client;
         $this->extensionLoader = $extensionLoader;
         $this->appRepository = $appRepository;
         $this->pluginRepository = $pluginRepository;
         $this->extensionListingLoader = $extensionListingLoader;
-    }
-
-    public function getListing(ExtensionCriteria $criteria, Context $context): ExtensionCollection
-    {
-        $listingResponse = $this->dataClient->listExtensions($criteria, $context);
-        $extensionListing = $this->extensionLoader->loadFromListingArray($context, $listingResponse['data']);
-
-        $total = $listingResponse['headers'][self::HEADER_NAME_TOTAL_COUNT][0] ?? 0;
-        $extensionListing->setTotal((int) $total);
-
-        return $extensionListing;
-    }
-
-    public function getListingFilters(array $parameters, Context $context): array
-    {
-        return $this->dataClient->listListingFilters($parameters, $context);
-    }
-
-    public function getExtensionDetails(int $id, Context $context): ExtensionStruct
-    {
-        $detailResponse = $this->dataClient->extensionDetail($id, $context);
-
-        return $this->extensionLoader->loadFromArray($context, $detailResponse);
-    }
-
-    public function getReviews(int $extensionId, ExtensionCriteria $criteria, Context $context): array
-    {
-        $reviewsResponse = $this->dataClient->extensionDetailReviews($extensionId, $criteria, $context);
-
-        return [
-            'summary' => ReviewSummaryStruct::fromArray($reviewsResponse['summary']),
-            'reviews' => new ReviewCollection($reviewsResponse['reviews']),
-        ];
     }
 
     public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection

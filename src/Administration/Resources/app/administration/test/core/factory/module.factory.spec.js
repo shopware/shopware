@@ -416,8 +416,6 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should not allow plugin modules to create menu entries on first level', () => {
-        Shopware.Feature.isActive = () => true;
-
         const pluginModule = register('sw-foo', {
             type: 'plugin',
             routes: {

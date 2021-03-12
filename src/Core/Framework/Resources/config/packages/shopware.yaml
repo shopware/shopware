@@ -61,10 +61,6 @@ shopware:
               default: false
               major: true
               description: "composer require for plugins"
-            - name: FEATURE_NEXT_8172
-              major: true
-              description: "prevent plugins to extend the first level menu entries"
-              # issue: NEXT-12267 # TODO: changelog
             - name: FEATURE_NEXT_10078
               major: false
               description: "cms product page layouts"

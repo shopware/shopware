@@ -99,7 +99,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@editSearchConfigs').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
     });
 
     // Searchable content section - General tab
@@ -150,7 +150,7 @@ describe('Search: Test ACL privileges', () => {
         //
         cy.get(`.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`).dblclick();
         cy.get('.sw-settings-search-field-select')
-            .typeSingleSelectAndCheck('Categories custom fields', '.sw-settings-search-field-select');
+            .typeSingleSelectAndCheck('Category custom fields', '.sw-settings-search-field-select');
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRow}--0 #sw-field--item-ranking`).clear().type('2000');
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -167,7 +167,7 @@ describe('Search: Test ACL privileges', () => {
         // Check field already created
         cy.get('.sw-settings-search__searchable-content-general .sw-data-grid__row--0 .sw-data-grid__cell-content:first')
             .invoke('text').then((text) => {
-                expect(text.trim()).equal('Categories custom fields');
+                expect(text.trim()).equal('Category custom fields');
             });
     });
 
@@ -257,13 +257,13 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@updateSearchConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
 
         cy.get('.sw-settings-search__searchable-content-reset-button').click();
         cy.wait('@updateSearchConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
 
         // Check ranking points already reset
         cy.get('.sw-settings-search__searchable-content-general .sw-data-grid__row--0 .sw-data-grid__cell-value')
@@ -313,7 +313,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@deleteSearchConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
 
         // Make sure that the field was deleted
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -592,7 +592,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('Excluded term create success.');
+        cy.awaitAndCheckNotification('Excluded search term created.');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
     });
@@ -632,7 +632,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('Excluded term update success.');
+        cy.awaitAndCheckNotification('Excluded search term updated.');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('update');
     });
@@ -665,7 +665,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('Excluded term delete success.');
+        cy.awaitAndCheckNotification('Excluded search term deleted.');
 
         // Bulk delete excluded term
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -680,7 +680,7 @@ describe('Search: Test ACL privileges', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.awaitAndCheckNotification('Excluded term delete success.');
+        cy.awaitAndCheckNotification('Excluded search term deleted.');
     });
 
     // Rebuild search index section

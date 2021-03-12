@@ -22,6 +22,7 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -128,7 +129,10 @@ class ProductController extends StorefrontController
             $salesChannelContext
         );
 
-        return new JsonResponse(['url' => $url]);
+        $response = new JsonResponse(['url' => $url]);
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+
+        return $response;
     }
 
     /**

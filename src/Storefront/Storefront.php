@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
+use Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -45,6 +46,7 @@ class Storefront extends Bundle implements ThemeInterface
         $container->setParameter('storefrontRoot', $this->getPath());
 
         $container->addCompilerPass(new DisableTemplateCachePass());
+        $container->addCompilerPass(new ReverseProxyCompilerPass());
 
         // configure migration directories
         $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');

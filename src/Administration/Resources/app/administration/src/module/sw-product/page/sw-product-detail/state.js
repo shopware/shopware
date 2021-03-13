@@ -27,18 +27,18 @@ export default {
             },
             localMode: false,
             advancedModeSetting: {},
-            modeSettingsVisible: {
-                showSettingsInformation: true,
-                showLabellingCard: true,
-                showSettingPackaging: true,
-                showCharacteristicsCard: true,
-                showCustomFieldCard: true,
-                showPropertiesCard: true,
-                showCustomProduct: true,
-                showSettingPrice: true,
-                showSettingDelivery: true,
-                showSettingStructure: true
-            }
+            modeSettings: [
+                'general_information',
+                'prices',
+                'deliverability',
+                'visibility_structure',
+                'media',
+                'labelling',
+                'measures_packaging',
+                'properties',
+                'essential_characteristics',
+                'custom_fields'
+            ]
         };
     },
 
@@ -110,6 +110,30 @@ export default {
         },
 
         showModeSetting(state) {
+            if (state.product && state.product.parentId) {
+                return true;
+            }
+
+            return state.advancedModeSetting.value.advancedMode.enabled;
+        },
+
+        showProductCard(state, getters) {
+            return (key) => {
+                if (state.product && state.product.parentId) {
+                    return true;
+                }
+
+                const cardKeys = ['essential_characteristics', 'custom_fields', 'labelling'];
+
+                if (cardKeys.includes(key) && !getters.showModeSetting) {
+                    return false;
+                }
+
+                return state.modeSettings.includes(key);
+            };
+        },
+
+        advanceModeEnabled(state) {
             return state.advancedModeSetting.value.advancedMode.enabled;
         }
     },
@@ -183,8 +207,8 @@ export default {
             state.advancedModeSetting = newAdvancedModeSetting;
         },
 
-        setModeSettingVisible(state, newModeSettingVisible) {
-            state.modeSettingsVisible = newModeSettingVisible;
+        setModeSettings(state, newModeSettings) {
+            state.modeSettings = newModeSettings;
         }
     }
 };

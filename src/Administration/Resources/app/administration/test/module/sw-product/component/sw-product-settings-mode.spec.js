@@ -51,7 +51,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                                 key: 'general_information',
                                 label: 'sw-product.detailBase.cardTitleProductInfo',
                                 enabled: true,
-                                tabSetting: 'general'
+                                name: 'general'
                             }
                         ]
                     }
@@ -96,7 +96,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: false,
-                            tabSetting: 'general'
+                            name: 'general'
                         }
                     ]
                 }
@@ -127,7 +127,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: false,
-                            tabSetting: 'general'
+                            name: 'general'
                         }
                     ]
                 }
@@ -158,7 +158,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: true,
-                            tabSetting: 'general'
+                            name: 'general'
                         }
                     ]
                 }

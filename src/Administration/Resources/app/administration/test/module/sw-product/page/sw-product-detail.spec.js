@@ -19,31 +19,31 @@ const mockSettings = {
                     key: 'general_information',
                     label: 'sw-product.detailBase.cardTitleProductInfo',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'prices',
                     label: 'sw-product.detailBase.cardTitlePrices',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'deliverability',
                     label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'visibility_structure',
                     label: 'sw-product.detailBase.cardTitleVisibilityStructure',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'labelling',
                     label: 'sw-product.detailBase.cardTitleSettings',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 }
             ]
         }
@@ -238,5 +238,20 @@ describe('module/sw-product/page/sw-product-detail', () => {
             });
         });
         expect(wrapper.vm.$store.getters['swProductDetail/showModeSetting']).toBe(false);
+    });
+
+    it('should be not visible Advance mode setting on the variant product page', async () => {
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+
+        Shopware.State.commit('swProductDetail/setProduct', {
+            parentId: '1234'
+        });
+
+        const contextButton = wrapper.find('.sw-product-settings-mode');
+        await wrapper.vm.$nextTick(() => {
+            expect(contextButton.exists()).toBe(false);
+        });
     });
 });

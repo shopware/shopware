@@ -27,11 +27,11 @@ Component.register('sw-product-settings-mode', {
         settings() {
             switch (this.$route.name) {
                 case 'sw.product.detail.base': {
-                    return this.modeSettings.value.settings.filter(item => item.tabSetting === 'general');
+                    return this.modeSettings.value.settings.filter(({ name }) => name === 'general');
                 }
 
                 case 'sw.product.detail.specifications': {
-                    return this.modeSettings.value.settings.filter(item => item.tabSetting === 'specifications');
+                    return this.modeSettings.value.settings.filter(({ name }) => name === 'specifications');
                 }
 
                 default: {
@@ -42,8 +42,12 @@ Component.register('sw-product-settings-mode', {
     },
 
     methods: {
-        onChangeModeSettings() {
+        onChangeSetting() {
             this.$emit('settings-change');
+        },
+
+        onChangeSettingItem() {
+            this.$emit('settings-item-change');
         }
     }
 });

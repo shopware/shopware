@@ -144,12 +144,46 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     product: false,
                     media: false
                 },
-                modeSettingsVisible: {
-                    showSettingsInformation: true,
-                    showLabellingCard: true,
-                    showSettingPrice: true,
-                    showSettingDelivery: true,
-                    showSettingStructure: true
+                advancedModeSetting: {
+                    value: {
+                        settings: [
+                            {
+                                key: 'general_information',
+                                label: 'sw-product.detailBase.cardTitleProductInfo',
+                                enabled: true,
+                                name: 'general'
+                            },
+                            {
+                                key: 'prices',
+                                label: 'sw-product.detailBase.cardTitlePrices',
+                                enabled: true,
+                                name: 'general'
+                            },
+                            {
+                                key: 'deliverability',
+                                label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                                enabled: true,
+                                name: 'general'
+                            },
+                            {
+                                key: 'visibility_structure',
+                                label: 'sw-product.detailBase.cardTitleVisibilityStructure',
+                                enabled: true,
+                                name: 'general'
+                            },
+                            {
+                                key: 'labelling',
+                                label: 'sw-product.detailBase.cardTitleSettings',
+                                enabled: true,
+                                name: 'general'
+                            }
+                        ],
+                        advancedMode: {
+                            enabled: true,
+                            label: 'sw-product.general.textAdvancedMode'
+                        }
+
+                    }
                 }
             },
             mutations: {
@@ -319,12 +353,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
-
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
 
         expect(promotionSwitch.exists()).toBe(true);
-        expect(modeSettingsVisible.showSettingsInformation).toBe(true);
+        expect(showModeSetting).toBe(true);
     });
 
     it('should be visible Labelling card', async () => {
@@ -333,12 +366,26 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
-
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
 
         expect(labellingCardElement.exists()).toBe(true);
-        expect(modeSettingsVisible.showLabellingCard).toBe(true);
+        expect(showModeSetting).toBe(true);
+    });
+
+    it('should be visible Media card', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+        await wrapper.vm.$nextTick();
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
+
+        await wrapper.vm.$nextTick(() => {
+            expect(mediaCardElement.exists()).toBe(true);
+            expect(showProductCard('media')).toBe(true);
+        });
     });
 
     it('should be visible price item fields', async () => {
@@ -347,7 +394,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
             '.sw-price-field.sw-list-price-field__list-price'
@@ -357,7 +404,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             priceFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(true);
             });
-            expect(modeSettingsVisible.showSettingPrice).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
@@ -367,7 +414,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const deliveryFieldsClassName = [
             '.product-deliverability-form__delivery-time',
             '.sw-product-deliverability__restock-field',
@@ -381,7 +428,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             deliveryFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(true);
             });
-            expect(modeSettingsVisible.showSettingDelivery).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
@@ -391,7 +438,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
             '.sw-product-category-form__search-keyword-field'
@@ -401,11 +448,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             structureFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(true);
             });
-            expect(modeSettingsVisible.showSettingStructure).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
-    it('should be not visible Promotion Switch when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Promotion Switch when commit setAdvancedModeSetting with falsy value', async () => {
         wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
@@ -413,63 +460,77 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             isActive: () => true
         };
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingsInformation: false });
+        Shopware.State.commit('swProductDetail/setAdvancedModeSetting', {
+            value: {
+                settings: [
+                    {
+                        key: 'general_information',
+                        label: 'sw-product.detailBase.cardTitleProductInfo',
+                        enabled: false,
+                        name: 'general'
+                    }
+                ],
+                advancedMode: {
+                    enabled: true,
+                    label: 'sw-product.general.textAdvancedMode'
+                }
+            }
+        });
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
 
         wrapper.vm.$nextTick(() => {
-            const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
             const promotionSwitch = wrapper.find('.sw-product-basic-form__promotion-switch');
 
             expect(promotionSwitch.attributes().style).toBe('display: none;');
-            expect(modeSettingsVisible.showSettingsInformation).toBe(false);
+            expect(showProductCard('general_information')).toBe(false);
         });
     });
 
-    it('should be not visible Labelling card when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Labelling card when commit setModeSettings with falsy value', async () => {
         wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showLabellingCard: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
         await wrapper.vm.$nextTick();
-
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
         const labellingCardElement = wrapper.find('.sw-product-detail-base__labelling-card');
 
         expect(labellingCardElement.attributes().style).toBe('display: none;');
-        expect(modeSettingsVisible.showLabellingCard).toBe(false);
+        expect(showProductCard('labelling')).toBe(false);
     });
 
-    it('should be not visible price item fields when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible price item fields when commit setModeSettings with falsy value', async () => {
         wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
             '.sw-price-field.sw-list-price-field__list-price'
         ];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingPrice: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             priceFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(false);
             });
-            expect(modeSettingsVisible.showSettingPrice).toBe(false);
+            expect(showProductCard('prices')).toBe(false);
         });
     });
 
-    it('should be not visible Deliverability item fields when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Deliverability item fields when commit setModeSettings with falsy value', async () => {
         wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
         const deliveryFieldsClassName = [
             '.product-deliverability-form__delivery-time',
             '.sw-product-deliverability__restock-field',
@@ -479,35 +540,50 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
             '.sw-product-deliverability__max-purchase'
         ];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingDelivery: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             deliveryFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(false);
             });
-            expect(modeSettingsVisible.showSettingDelivery).toBe(false);
+            expect(showProductCard('deliverability')).toBe(false);
         });
     });
 
-    it('should be not visible Structure item fields when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Structure item fields when commit setAdvancedModeSetting with falsy value', async () => {
         wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
             '.sw-product-category-form__search-keyword-field'
         ];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingStructure: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             structureFieldsClassName.forEach(item => {
                 expect(wrapper.find(item).exists()).toBe(false);
             });
-            expect(modeSettingsVisible.showSettingStructure).toBe(false);
+            expect(showProductCard('visibility_structure')).toBe(false);
         });
+    });
+
+    it('should be not visible Media card when commit setModeSettings with falsy value', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.feature = {
+            isActive: () => true
+        };
+
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
+        await wrapper.vm.$nextTick();
+        const mediaCardElement = wrapper.find('.sw-product-detail-base__media');
+
+        expect(mediaCardElement.attributes().style).toBe('display: none;');
+        expect(showProductCard('media')).toBe(false);
     });
 });

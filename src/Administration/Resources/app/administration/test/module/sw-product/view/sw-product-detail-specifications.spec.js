@@ -61,16 +61,53 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 product: {},
                 parentProduct: {},
                 customFieldSets: [],
-                modeSettingsVisible: {
-                    showSettingPackaging: true,
-                    showPropertiesCard: true,
-                    showCharacteristicsCard: true,
-                    showCustomProduct: true,
-                    showCustomFieldCard: true
+                advancedModeSetting: {
+                    value: {
+                        settings: [
+                            {
+                                key: 'measures_packaging',
+                                label: 'sw-product.specifications.cardTitleMeasuresPackaging',
+                                enabled: true,
+                                name: 'specifications'
+                            },
+                            {
+                                key: 'properties',
+                                label: 'sw-product.specifications.cardTitleProperties',
+                                enabled: true,
+                                name: 'specifications'
+                            },
+                            {
+                                key: 'essential_characteristics',
+                                label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
+                                enabled: true,
+                                name: 'specifications'
+                            },
+                            {
+                                key: 'custom_products',
+                                label: 'sw-product.specifications.cardTitleCustomProduct',
+                                enabled: true,
+                                name: 'specifications'
+                            },
+                            {
+                                key: 'custom_fields',
+                                label: 'sw-product.specifications.cardTitleCustomFields',
+                                enabled: true,
+                                name: 'specifications'
+                            }
+                        ],
+                        advancedMode: {
+                            enabled: true,
+                            label: 'sw-product.general.textAdvancedMode'
+                        }
+
+                    }
                 }
             },
             getters: {
-                isLoading: () => false
+                isLoading: () => false,
+                showProductCard: () => () => {
+                    return true;
+                }
             }
         });
     });
@@ -87,7 +124,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
         await wrapper.vm.$nextTick(() => {
             // expect the some item fields in Packaging exist
@@ -95,20 +132,20 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 expect(wrapper.find(item).exists()).toBe(true);
             });
 
-            expect(modeSettingsVisible.showSettingPackaging).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
-    it('should be not visible field items in Measures Packaging card when commit setModeSettingVisible with falsy value',
+    it('should be not visible field items in Measures Packaging card when commit setModeSettings with falsy value',
         async () => {
             const wrapper = createWrapper();
             wrapper.vm.feature = {
                 isActive: () => true
             };
             await wrapper.vm.$nextTick();
-            const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+            const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-            Shopware.State.commit('swProductDetail/setModeSettingVisible', { showSettingPackaging: false });
+            Shopware.State.commit('swProductDetail/setModeSettings', []);
 
             await wrapper.vm.$nextTick(() => {
                 // expect the some item fields in Packaging not exist
@@ -116,7 +153,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                     expect(wrapper.find(item).exists()).toBe(false);
                 });
 
-                expect(modeSettingsVisible.showSettingPackaging).toBe(false);
+                expect(showProductCard('measures_packaging')).toBe(false);
             });
         });
 
@@ -126,27 +163,27 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-properties').exists()).toBe(true);
-            expect(modeSettingsVisible.showPropertiesCard).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
-    it('should be not visible Properties card when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Properties card when commit showModeSetting with falsy value', async () => {
         const wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showPropertiesCard: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-properties').exists()).toBe(false);
-            expect(modeSettingsVisible.showPropertiesCard).toBe(false);
+            expect(showProductCard('properties')).toBe(false);
         });
     });
 
@@ -156,27 +193,27 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').exists()).toBe(true);
-            expect(modeSettingsVisible.showCharacteristicsCard).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
-    it('should be not visible Essential Characteristics card when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Essential Characteristics card when commit showModeSetting with falsy value', async () => {
         const wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showCharacteristicsCard: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__essential-characteristics').exists()).toBe(false);
-            expect(modeSettingsVisible.showCharacteristicsCard).toBe(false);
+            expect(showProductCard('essential_characteristics')).toBe(false);
         });
     });
 
@@ -186,27 +223,27 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__custom-product').exists()).toBe(true);
-            expect(modeSettingsVisible.showCustomProduct).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
-    it('should be not visible Custom Product card when commit setModeSettingVisible with falsy value', async () => {
+    it('should be not visible Custom Product card when commit showModeSetting with falsy value', async () => {
         const wrapper = createWrapper();
         wrapper.vm.feature = {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showCustomProduct: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__custom-product').exists()).toBe(true);
-            expect(modeSettingsVisible.showCustomProduct).toBe(true);
+            expect(showProductCard('custom_products')).toBe(false);
         });
     });
 
@@ -216,11 +253,11 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showModeSetting = wrapper.vm.$store.getters['swProductDetail/showModeSetting'];
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__custom-fields').exists()).toBe(true);
-            expect(modeSettingsVisible.showCustomFieldCard).toBe(true);
+            expect(showModeSetting).toBe(true);
         });
     });
 
@@ -230,13 +267,13 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
             isActive: () => true
         };
         await wrapper.vm.$nextTick();
-        const modeSettingsVisible = wrapper.vm.$store.state.swProductDetail.modeSettingsVisible;
+        const showProductCard = wrapper.vm.$store.getters['swProductDetail/showProductCard'];
 
-        Shopware.State.commit('swProductDetail/setModeSettingVisible', { showCustomFieldCard: false });
+        Shopware.State.commit('swProductDetail/setModeSettings', []);
 
         await wrapper.vm.$nextTick(() => {
             expect(wrapper.find('.sw-product-detail-specification__custom-fields').exists()).toBe(false);
-            expect(modeSettingsVisible.showCustomFieldCard).toBe(false);
+            expect(showProductCard('custom_fields')).toBe(false);
         });
     });
 });

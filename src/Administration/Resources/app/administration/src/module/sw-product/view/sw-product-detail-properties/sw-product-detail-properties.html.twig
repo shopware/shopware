@@ -10,7 +10,7 @@
         {% block sw_product_detail_properties_assignment_card %}
             <sw-card
                 v-else-if="product.properties && product.properties.length > 0"
-                :title="$tc('sw-product.properties.cardTitleProperties')">
+                :title="$tc('sw-product.specifications.cardTitleProperties')">
                 {% block sw_product_detail_properties_assignment_card_assignment %}
                     <sw-property-assignment
                         v-if="propertiesAvailable && product.properties"

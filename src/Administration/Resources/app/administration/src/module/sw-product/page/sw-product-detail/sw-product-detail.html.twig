@@ -86,13 +86,32 @@
             <sw-card-view slot="content">
 
                 {% block sw_product_detail_content_top %}
-                    <router-link
-                        :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }"
-                        v-if="isChild"
-                        class="sw-card__back-link">
-                            <sw-icon name="default-arrow-simple-left" small></sw-icon>
-                            {{ $tc('sw-product.general.backToParent') }}
-                    </router-link>
+                    <template v-if="!feature.isActive('FEATURE_NEXT_12429')">
+                        <router-link
+                            v-if="isChild"
+                            class="sw-card__back-link"
+                            :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }">
+                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
+                                {{ $tc('sw-product.general.backToParent') }}
+                        </router-link>
+                    </template>
+                    <template v-else>
+                        <router-link
+                            v-if="!isLoading && isChild && !advanceModeEnabled"
+                            class="sw-card__back-link"
+                            :to="{ name: 'sw.product.detail.base', params: { id: product.parentId } }">
+                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
+                                {{ $tc('sw-product.general.backToGeneralOverview') }}
+                        </router-link>
+
+                        <router-link
+                            v-if="!isLoading && isChild && advanceModeEnabled"
+                            class="sw-card__back-link"
+                            :to="{ name: 'sw.product.detail.variants', params: { id: product.parentId } }">
+                                <sw-icon name="default-arrow-simple-left" small></sw-icon>
+                                {{ $tc('sw-product.general.backToParent') }}
+                        </router-link>
+                    </template>
                 {% endblock %}
 
                 {% block sw_product_detail_content_language_info %}
@@ -226,10 +245,11 @@
 
                 {% block sw_product_settings_mode %}
                     <sw-product-settings-mode
-                        v-if="feature.isActive('FEATURE_NEXT_12429') && isAdvancedModeVisible"
+                        v-if="feature.isActive('FEATURE_NEXT_12429') && showAdvanceModeSetting"
                         :isLoading="isLoading"
                         :modeSettings="advancedModeSetting"
-                        @settings-change="onChangeSettings">
+                        @settings-item-change="onChangeSettingItem"
+                        @settings-change="onChangeSetting">
                     </sw-product-settings-mode>
                 {% endblock %}
             </sw-card-view>

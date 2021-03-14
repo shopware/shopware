@@ -35,7 +35,7 @@ describe('Product Search: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
     });
 
     it('@settings: create search configuration for search behaviour bases on another language', () => {
@@ -63,6 +63,6 @@ describe('Product Search: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
     });
 });

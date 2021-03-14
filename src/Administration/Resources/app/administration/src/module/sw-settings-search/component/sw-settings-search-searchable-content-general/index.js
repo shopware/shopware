@@ -52,9 +52,6 @@ Component.register('sw-settings-search-searchable-content-general', {
     },
 
     methods: {
-        onAddField() {
-            this.$emit('config-add');
-        },
 
         getMatchingFields(fieldName) {
             if (!fieldName) {
@@ -131,15 +128,6 @@ Component.register('sw-settings-search-searchable-content-general', {
             const fieldConfigDefault = this.fieldConfigs.find(fieldConfig => fieldConfig.value === fieldName);
 
             return fieldConfigDefault ? fieldConfigDefault.defaultConfigs.ranking : 0;
-        },
-
-        onRemove(currentField) {
-            if (!currentField.field) {
-                this.$emit('data-load');
-                return;
-            }
-
-            this.$emit('config-delete', currentField.id);
         }
     }
 });

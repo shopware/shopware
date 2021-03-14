@@ -28,6 +28,10 @@ Component.register('sw-settings-search-searchable-content', {
         return {
             showExampleModal: false,
             defaultTab: 'general',
+            tabNames: {
+                generalTab: 'general',
+                customTab: 'customfields'
+            },
             isLoading: false,
             isEnabledReset: true,
             searchConfigFields: [],
@@ -182,7 +186,7 @@ Component.register('sw-settings-search-searchable-content', {
             criteria.addFilter(Criteria.equals('searchConfigId', this.searchConfigId));
             criteria.addSorting(Criteria.sort('field', 'ESC'));
 
-            if (this.defaultTab === 'general') {
+            if (this.defaultTab === this.tabNames.generalTab) {
                 criteria.addFilter(Criteria.equals('customFieldId', null));
             } else {
                 criteria.addFilter(Criteria.not(
@@ -203,26 +207,26 @@ Component.register('sw-settings-search-searchable-content', {
                 property: 'field',
                 label: 'sw-settings-search.generalTab.list.columnContent',
                 inlineEdit: 'string',
-                sortable: false,
+                sortable: true,
                 width: '250px'
             }, {
                 property: 'searchable',
                 label: 'sw-settings-search.generalTab.list.columnSearchable',
                 align: 'center',
                 inlineEdit: 'string',
-                sortable: false
+                sortable: true
             }, {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
                 align: 'right',
-                sortable: false
+                sortable: true
             }, {
                 property: 'tokenize',
                 inlineEdit: 'string',
                 label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
                 align: 'center',
-                sortable: false
+                sortable: true
             }];
         }
     },
@@ -275,7 +279,7 @@ Component.register('sw-settings-search-searchable-content', {
         },
 
         onResetToDefault() {
-            const isGeneralTab = this.defaultTab === 'general';
+            const isGeneralTab = this.defaultTab === this.tabNames.generalTab;
 
             this.searchConfigFields.forEach((searchConfigField) => {
                 searchConfigField.ranking =

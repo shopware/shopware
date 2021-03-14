@@ -2,7 +2,7 @@
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
-describe('Product Search: Test crud operations', () => {
+describe('Product Search: Test crud operations of custom field', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -272,7 +272,7 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.awaitAndCheckNotification('The configuration has been saved.');
+        cy.awaitAndCheckNotification('Configuration saved.');
 
         cy.get('.sw-settings-search__searchable-content-add-button').should('exist');
         cy.get('.sw-settings-search__searchable-content-add-button').click();

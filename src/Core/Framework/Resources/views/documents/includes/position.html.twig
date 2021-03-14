@@ -61,7 +61,6 @@ All blocks of this template are available in the template which renders this tem
             {% block document_line_item_table_prices %}
                 {% if config.displayPrices %}
                     {% block document_line_item_table_row_tax_rate %}
-                        <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
                         <td class="align-right">{% for tax in lineItem.price.taxRules %}{{ tax.taxRate }}%{% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
                     {% endblock %}
                     {% block document_line_item_row_table_unit_price %}

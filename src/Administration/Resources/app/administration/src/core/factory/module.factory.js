@@ -180,21 +180,13 @@ function registerModule(moduleId, module) {
         module.navigation = module.navigation.filter((navigationEntry) => {
             navigationEntry.moduleType = module.type;
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
+            if (module.type === 'plugin' && !navigationEntry.parent) {
                 warn(
                     'ModuleFactory',
                     'Navigation entries from plugins are not allowed on the first level.',
                     'Set a property "parent" to register your navigation entry'
                 );
                 return false;
-            }
-
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
-                warn(
-                    'ModuleFactory',
-                    'Navigation entries from plugins are not allowed on the first level.',
-                    'The support for first level entries for plugins will be removed in 6.4.0'
-                );
             }
 
             if (!navigationEntry.id && !navigationEntry.path && !navigationEntry.parent && !navigationEntry.link) {

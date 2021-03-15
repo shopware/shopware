@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -55,18 +54,13 @@ class SeoUrlTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
-
-        if (Feature::isActive('FEATURE_NEXT_12032')) {
-            $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
-        }
+        $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
 
         $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
     }
 
     public function testSearchLandingPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12032', $this);
-
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
@@ -93,8 +87,6 @@ class SeoUrlTest extends TestCase
 
     public function testLandingPageUpdate(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12032', $this);
-
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 

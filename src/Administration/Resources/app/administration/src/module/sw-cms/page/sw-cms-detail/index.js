@@ -238,6 +238,7 @@ Component.register('sw-cms-detail', {
 
             criteria
                 .addAssociation('categories')
+                .addAssociation('landingPages')
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -249,10 +250,6 @@ Component.register('sw-cms-detail', {
             if (this.feature.isActive('FEATURE_NEXT_10078')) {
                 criteria
                     .addAssociation('products.manufacturer');
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_12032')) {
-                criteria.addAssociation('landingPages');
             }
 
             return criteria;

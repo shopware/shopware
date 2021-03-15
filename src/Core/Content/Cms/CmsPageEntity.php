@@ -79,8 +79,6 @@ class CmsPageEntity extends Entity
     protected $locked;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageCollection|null
      */
     protected $landingPages;
@@ -225,17 +223,11 @@ class CmsPageEntity extends Entity
         return array_shift($elements);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPages(): ?LandingPageCollection
     {
         return $this->landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;

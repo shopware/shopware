@@ -136,10 +136,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.previousCategories = [...this.page.categories];
             this.previousCategoryIds = this.page.categories.getIds();
 
-            if (this.feature.isActive('FEATURE_NEXT_12032')) {
-                this.previousLandingPages = [...this.page.landingPages];
-                this.previousLandingPageIds = this.page.landingPages.getIds();
-            }
+            this.previousLandingPages = [...this.page.landingPages];
+            this.previousLandingPageIds = this.page.landingPages.getIds();
 
             if (this.feature.isActive('FEATURE_NEXT_10078')) {
                 this.previousProducts = [...this.page.products];
@@ -278,7 +276,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
 
         validateLandingPages() {
             // Skip validation when user has confirmed changes
-            if (this.confirmedLandingPages || !this.feature.isActive('FEATURE_NEXT_12032')) {
+            if (this.confirmedLandingPages) {
                 return Promise.resolve();
             }
 
@@ -391,10 +389,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         },
 
         discardLandingPageChanges() {
-            if (!this.feature.isActive('FEATURE_NEXT_12032')) {
-                return;
-            }
-
             this.page.landingPages = new EntityCollection(
                 this.page.landingPages.source,
                 this.page.landingPages.entity,

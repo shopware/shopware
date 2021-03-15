@@ -412,8 +412,6 @@ class SalesChannelEntity extends Entity
     protected $wishlists;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageCollection|null
      */
     protected $landingPages;
@@ -1172,17 +1170,11 @@ class SalesChannelEntity extends Entity
         $this->wishlists = $wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPages(): ?LandingPageCollection
     {
         return $this->landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;

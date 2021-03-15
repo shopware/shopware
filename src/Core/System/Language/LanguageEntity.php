@@ -349,8 +349,6 @@ class LanguageEntity extends Entity
     protected $productSearchConfig;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageTranslationCollection|null
      */
     protected $landingPageTranslations;
@@ -941,17 +939,11 @@ class LanguageEntity extends Entity
         $this->productSearchConfig = $productSearchConfig;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPageTranslations(): ?LandingPageTranslationCollection
     {
         return $this->landingPageTranslations;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPageTranslations(LandingPageTranslationCollection $landingPageTranslations): void
     {
         $this->landingPageTranslations = $landingPageTranslations;

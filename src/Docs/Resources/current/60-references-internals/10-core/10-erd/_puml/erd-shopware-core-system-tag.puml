@@ -42,6 +42,8 @@ ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMetho
 }
 ForeignTable(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition, "newsletter_recipient_tag") {
 }
+ForeignTable(ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition, "landing_page_tag") {
+}
 
 ' relationshipd
 
@@ -52,4 +54,5 @@ ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutCustomerAggregateCust
 ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition
 ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition
 ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition
 @enduml

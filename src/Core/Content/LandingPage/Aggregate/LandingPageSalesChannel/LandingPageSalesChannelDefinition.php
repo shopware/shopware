@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @internal (flag:FEATURE_NEXT_12032)
- */
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_sales_channel';
@@ -31,8 +28,7 @@ class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 
     public function since(): ?string
     {
-        // May insert correct since-value
-        return '6.3.5.0';
+        return '6.4.0.0';
     }
 
     protected function defineFields(): FieldCollection

@@ -1359,6 +1359,7 @@ TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPro
 }
 Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    primary_key(id) id
+   primary_key(versionId) version
    name translated
    not_null(type) string
    entity string
@@ -1366,7 +1367,6 @@ Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    previewMediaId foreignKey
    customFields translated
    locked writeLockIndicator
-   primary_key(versionId) version
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1575,6 +1575,47 @@ TranslationTable(ShopwareCoreContentImportExportImportExportProfileTranslationDe
    updatedAt updatedAt
    primary_key(importExportProfileId) foreignKey
    primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page\n(__EMPTY__)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   active bool
+   name translated
+   customFields translated
+   slotConfig translated
+   metaTitle translated
+   metaDescription translated
+   keywords translated
+   url translated
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition, "landing_page_translation\n((Translations))") {
+   not_null(name) string
+   not_null(url) string
+   slotConfig json
+   metaTitle longText
+   metaDescription longText
+   keywords longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(landingPageId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+}
+Table(ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition, "landing_page_tag\n(M:N Mapping)") {
+   primary_key(landingPageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+   primary_key(tagId) foreignKey
+}
+Table(ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition, "landing_page_sales_channel\n(M:N Mapping)") {
+   primary_key(landingPageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+   primary_key(salesChannelId) foreignKey
 }
 Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales channel customer)") {
    primary_key(id) id
@@ -2187,6 +2228,7 @@ ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSel
 ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition
@@ -2220,6 +2262,7 @@ ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> Shop
 ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelAnalyticsSalesChannelAnalyticsDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
@@ -2291,6 +2334,7 @@ ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> Shopwa
 ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreContentCategoryCategoryDefinition
@@ -2379,6 +2423,7 @@ ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTransla
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
 ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentLandingPageLandingPageDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
 ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition
@@ -2391,6 +2436,10 @@ ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
 ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageLandingPageDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition

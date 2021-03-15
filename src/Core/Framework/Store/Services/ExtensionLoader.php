@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Services;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -45,7 +45,7 @@ class ExtensionLoader
     private $installedThemeNames = null;
 
     /**
-     * @var AppLoader
+     * @var AbstractAppLoader
      */
     private $appLoader;
 
@@ -62,7 +62,7 @@ class ExtensionLoader
     public function __construct(
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $themeRepository,
-        AppLoader $appLoader,
+        AbstractAppLoader $appLoader,
         ConfigurationService $configurationService
     ) {
         $this->languageRepository = $languageRepository;

@@ -142,6 +142,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             ->addAssociation('manufacturer')
             ->addAssociation('media')
             ->addAssociation('prices')
+            ->addAssociation('options.group')
             ->addAssociation('properties.group');
 
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);

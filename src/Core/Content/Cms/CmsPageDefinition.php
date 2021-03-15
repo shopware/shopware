@@ -73,17 +73,12 @@ class CmsPageDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete()),
+            (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete()),
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
                 (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete())
-            );
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $collection->add(
-                (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete())
             );
         }
 

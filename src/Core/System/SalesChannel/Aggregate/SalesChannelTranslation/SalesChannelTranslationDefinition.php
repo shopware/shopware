@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
@@ -53,17 +52,14 @@ class SalesChannelTranslationDefinition extends EntityTranslationDefinition
     {
         $fields = new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            new JsonField('home_slot_config', 'homeSlotConfig'),
+            (new BoolField('home_enabled', 'homeEnabled'))->addFlags(new Required()),
+            new StringField('home_name', 'homeName'),
+            new StringField('home_meta_title', 'homeMetaTitle'),
+            new StringField('home_meta_description', 'homeMetaDescription'),
+            new StringField('home_keywords', 'homeKeywords'),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $fields->add(new JsonField('home_slot_config', 'homeSlotConfig'));
-            $fields->add((new BoolField('home_enabled', 'homeEnabled'))->addFlags(new Required()));
-            $fields->add(new StringField('home_name', 'homeName'));
-            $fields->add(new StringField('home_meta_title', 'homeMetaTitle'));
-            $fields->add(new StringField('home_meta_description', 'homeMetaDescription'));
-            $fields->add(new StringField('home_keywords', 'homeKeywords'));
-        }
 
         return $fields;
     }

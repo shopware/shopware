@@ -83,7 +83,6 @@ describe('Category: Create several categories', () => {
     });
 
     it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         const page = new CategoryPageObject();
 
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
@@ -139,57 +138,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible');
     });
 
-    it('@base @catalogue: should hide the elements not needed for a Structuring element', () => {
-        cy.skipOnFeature('FEATURE_NEXT_13504');
-        const page = new CategoryPageObject();
-
-        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
-        cy.get('.tree-link').click();
-
-        cy.get('.sw-loader').should('not.exist');
-
-        cy.get('.sw-category-layout-card').should('exist');
-        cy.get('.sw-category-detail-base__menu').should('exist');
-        cy.get('.sw-many-to-many-assignment-card').should('exist');
-        cy.get('.sw-category-seo-form').should('exist');
-        cy.get('.sw-seo-url__card').should('exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView();
-        cy.get('.sw-category-detail__tab-cms').should('be.visible');
-        cy.get('.sw-category-link-settings').should('not.exist');
-
-        // change category type to Structuring element
-        cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Structuring element', '.sw-category-detail-base__type-selection');
-
-        cy.get('.sw-category-layout-card').should('not.exist');
-        cy.get('.sw-many-to-many-assignment-card').should('not.exist');
-        cy.get('.sw-category-seo-form').should('not.exist');
-        cy.get('.sw-seo-url__card').should('not.exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView();
-        cy.get('.sw-category-detail__tab-cms').should('not.be.visible');
-        cy.get('.sw-category-link-settings').should('not.exist');
-
-        cy.get('.sw-category-detail-base__menu').should('exist');
-
-        // change category type back to Category
-        cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Category', '.sw-category-detail-base__type-selection');
-
-        cy.get('.sw-category-layout-card').should('exist');
-        cy.get('.sw-category-detail-base__menu').should('exist');
-        cy.get('.sw-many-to-many-assignment-card').should('exist');
-        cy.get('.sw-category-seo-form').should('exist');
-        cy.get('.sw-seo-url__card').should('exist');
-        cy.get('.sw-category-link-settings').should('not.exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView();
-        cy.get('.sw-category-detail__tab-cms').should('be.visible');
-    });
-
     it('@base @catalogue: should hide the elements not needed for a Link', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         const page = new CategoryPageObject();
 
         // we need to create a new category, because Home can not be a link because it's an entry point
@@ -281,53 +230,5 @@ describe('Category: Create several categories', () => {
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible').click();
         cy.get('.sw-category-layout-card').should('exist');
-    });
-
-    it('@base @catalogue: should hide the elements not needed for a Customisable link', () => {
-        cy.skipOnFeature('FEATURE_NEXT_13504');
-        const page = new CategoryPageObject();
-
-        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
-        cy.get('.tree-link').click();
-
-        cy.get('.sw-loader').should('not.exist');
-
-        cy.get('.sw-category-layout-card').should('exist');
-        cy.get('.sw-category-detail-base__menu').should('exist');
-        cy.get('.sw-many-to-many-assignment-card').should('exist');
-        cy.get('.sw-category-seo-form').should('exist');
-        cy.get('.sw-seo-url__card').should('exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible');
-
-        cy.get('.sw-category-link-settings').should('not.exist');
-
-        // change category type to Customisable link
-        cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Customisable link', '.sw-category-detail-base__type-selection');
-
-
-        cy.get('.sw-category-layout-card').should('not.exist');
-        cy.get('.sw-many-to-many-assignment-card').should('not.exist');
-        cy.get('.sw-category-seo-form').should('not.exist');
-        cy.get('.sw-seo-url__card').should('not.exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('not.be.visible');
-        cy.get('.sw-category-detail-base__menu').should('not.exist');
-
-        cy.get('.sw-category-link-settings').should('exist');
-
-        // change category type back to Category
-        cy.get('.sw-category-detail-base__type-selection')
-            .typeSingleSelectAndCheck('Category', '.sw-category-detail-base__type-selection');
-
-        cy.get('.sw-category-layout-card').should('exist');
-        cy.get('.sw-category-detail-base__menu').should('exist');
-        cy.get('.sw-many-to-many-assignment-card').should('exist');
-        cy.get('.sw-category-seo-form').should('exist');
-        cy.get('.sw-seo-url__card').should('exist');
-        cy.get('.sw-category-link-settings').should('not.exist');
-
-        cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible');
     });
 });

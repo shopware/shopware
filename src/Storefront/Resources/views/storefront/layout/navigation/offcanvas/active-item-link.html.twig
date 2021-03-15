@@ -1,7 +1,7 @@
 {% block layout_navigation_offcanvas_navigation_category_headline %}
     <a class="nav-item nav-link navigation-offcanvas-headline"
        href="{{ category_url(item) }}"
-       {% if item.translated.linkNewTab %}target="_blank"{% endif %}
+       {% if category_linknewtab(item) %}target="_blank"{% endif %}
        itemprop="url">
         {% block layout_navigation_offcanvas_navigation_category_headline_text %}
             <span itemprop="name">

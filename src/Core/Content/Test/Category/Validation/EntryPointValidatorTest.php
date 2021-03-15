@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -38,8 +37,6 @@ class EntryPointValidatorTest extends TestCase
 
     public function testChangeNavigationFail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
-
         $context = Context::createDefaultContext();
         $categoryId = $this->getValidCategoryId();
         $this->salesChannelRepository->update([
@@ -60,8 +57,6 @@ class EntryPointValidatorTest extends TestCase
 
     public function testChangeServiceFail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
-
         $context = Context::createDefaultContext();
         $categoryId = $this->getValidCategoryId();
 

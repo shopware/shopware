@@ -316,12 +316,26 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
    maintenanceIpWhitelist list
    customFields translated
    paymentMethodIds manyToManyId
+   homeCmsPageId foreignKey
+   not_null(homeCmsPageVersionId) referenceVersion
+   homeSlotConfig translated
+   homeEnabled translated
+   homeName translated
+   homeMetaTitle translated
+   homeMetaDescription translated
+   homeKeywords translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
+   homeSlotConfig json
+   not_null(homeEnabled) bool
+   homeName string
+   homeMetaTitle string
+   homeMetaDescription string
+   homeKeywords string
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -791,14 +805,17 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    name translated
    customFields translated
    slotConfig translated
+   linkType translated
+   internalLink translated
    externalLink translated
+   linkNewTab translated
    description translated
    metaTitle translated
    metaDescription translated
    keywords translated
    cmsPageId foreignKey
-   productStreamId foreignKey
    not_null(cmsPageVersionId) referenceVersion
+   productStreamId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -807,7 +824,10 @@ TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategory
    not_null(name) string
    breadcrumb list
    slotConfig json
+   linkType string
+   internalLink id
    externalLink string
+   linkNewTab bool
    description longText
    metaTitle longText
    metaDescription longText
@@ -2249,6 +2269,7 @@ ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSales
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSystemConfigSystemConfigDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition

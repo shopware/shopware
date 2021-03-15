@@ -10,7 +10,7 @@ Component.register('sw-category-view', {
         'placeholder'
     ],
 
-    inject: ['acl', 'feature'],
+    inject: ['acl'],
 
     props: {
         isLoading: {
@@ -39,11 +39,7 @@ Component.register('sw-category-view', {
         },
 
         isPage() {
-            if (this.type === 'folder' || this.type === 'link' || this.type === 'column') {
-                return false;
-            }
-
-            return (this.feature.isActive('FEATURE_NEXT_13504'));
+            return this.type !== 'folder' && this.type !== 'link';
         }
     }
 });

@@ -360,6 +360,7 @@ ShopwareCoreCheckoutPayment --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentCms --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemSystemConfig --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentCategory --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProduct --> ShopwareCoreSystemSalesChannel

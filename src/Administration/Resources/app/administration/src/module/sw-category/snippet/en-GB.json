@@ -41,12 +41,9 @@
         "labelCategoryTagsPlaceholder": "Enter tags individually...",
         "types": {
           "title": "Category type",
-          "page": "Category",
-          "folder": "Structuring element",
-          "link": "Customisable link",
-          "newPage": "Page / List",
-          "newFolder": "Structuring element / Entry point",
-          "newLink": "Link",
+          "page": "Page / List",
+          "folder": "Structuring element / Entry point",
+          "link": "Link",
           "linkUnavailable": "Link (not selectable if category is defined as entry point)",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes.",
           "helpText": {
@@ -54,18 +51,6 @@
             "folder": "A structuring element / entry point will only be displayed in the structure and is not directly accessible except it is assigned as an entry point of a Sales Channel.",
             "link": "A link allows for reference to a product, another category, a landing page or an external site."
           }
-        }
-      },
-      "entry-point": {
-        "title": "Entry point",
-        "navigation": {
-          "descriptionGeneral": "You have assigned this category as an entry point for the main navigation in these Sales Channels:"
-        },
-        "serviceSales": {
-          "descriptionGeneral": "You have assigned this category as an entry point for the service navigation in these Sales Channels:"
-        },
-        "footerSales": {
-          "descriptionGeneral": "You have assigned this category as an entry point for the footer navigation in these Sales Channels:"
         }
       },
       "entry-point-card": {

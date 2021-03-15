@@ -9,7 +9,7 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 Component.register('sw-category-detail-products', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         'placeholder'

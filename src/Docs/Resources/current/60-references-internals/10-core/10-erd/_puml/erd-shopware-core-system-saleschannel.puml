@@ -52,12 +52,26 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
    maintenanceIpWhitelist list
    customFields translated
    paymentMethodIds manyToManyId
+   homeCmsPageId foreignKey
+   not_null(homeCmsPageVersionId) referenceVersion
+   homeSlotConfig translated
+   homeEnabled translated
+   homeName translated
+   homeMetaTitle translated
+   homeMetaDescription translated
+   homeKeywords translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
+   homeSlotConfig json
+   not_null(homeEnabled) bool
+   homeName string
+   homeMetaTitle string
+   homeMetaDescription string
+   homeKeywords string
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -146,6 +160,8 @@ ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 }
 ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
 ForeignTable(ShopwareCoreSystemSystemConfigSystemConfigDefinition, "system_config") {
 }
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
@@ -202,6 +218,7 @@ ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutShi
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreSystemSystemConfigSystemConfigDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentCategoryCategoryDefinition

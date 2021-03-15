@@ -80,16 +80,7 @@
                     {% endblock %}
 
                     {# @deprecated tag:v6.5.0 - will be removed #}
-                    {% block sw_category_detail_layout_desc_link %}
-                        <router-link
-                            v-if="cmsPage && acl.can('category.editor') && !feature.isActive('FEATURE_NEXT_13504')"
-                            class="sw-category-layout-card__desc-link"
-                            :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
-
-                            {{ $tc('sw-category.base.cms.editContent') }}
-                            <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                        </router-link>
-                    {% endblock %}
+                    {% block sw_category_detail_layout_desc_link %}{% endblock %}
 
                 </div>
             {% endblock %}

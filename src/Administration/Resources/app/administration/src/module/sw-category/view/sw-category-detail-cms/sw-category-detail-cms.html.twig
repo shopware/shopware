@@ -3,7 +3,7 @@
 
         {% block sw_category_detail_cms_layout %}
             <sw-category-layout-card
-                v-if="category.type === 'page' && feature.isActive('FEATURE_NEXT_13504')"
+                v-if="category.type === 'page'"
                 v-bind="{ category, cmsPage, isLoading }">
             </sw-category-layout-card>
         {% endblock %}

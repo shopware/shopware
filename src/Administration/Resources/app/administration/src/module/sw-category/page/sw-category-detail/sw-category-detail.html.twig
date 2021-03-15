@@ -202,7 +202,7 @@
 
                 {% block sw_category_content_entry_point_overwrite_modal %}
                     <sw-category-entry-point-overwrite-modal
-                        v-if="showEntryPointOverwriteModal && feature.isActive('FEATURE_NEXT_13504')"
+                        v-if="showEntryPointOverwriteModal"
                         :salesChannels="entryPointOverwriteSalesChannels"
                         @cancel="cancelEntryPointOverwrite"
                         @confirm="confirmEntryPointOverwrite">

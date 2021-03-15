@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,6 +32,7 @@ class CategoryUrlExtension extends AbstractExtension
     {
         return [
             new TwigFunction('category_url', [$this, 'getCategoryUrl'], ['needs_context' => true, 'is_safe_callback' => [$this->routingExtension, 'isUrlGenerationSafe']]),
+            new TwigFunction('category_linknewtab', [$this, 'isLinkNewTab']),
         ];
     }
 
@@ -42,5 +44,18 @@ class CategoryUrlExtension extends AbstractExtension
         }
 
         return $this->categoryUrlGenerator->generate($category, $salesChannel);
+    }
+
+    public function isLinkNewTab(CategoryEntity $categoryEntity): bool
+    {
+        if ($categoryEntity->getType() !== CategoryDefinition::TYPE_LINK) {
+            return false;
+        }
+
+        if (!$categoryEntity->getTranslation('linkNewTab')) {
+            return false;
+        }
+
+        return true;
     }
 }

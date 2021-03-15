@@ -70,17 +70,13 @@ export default {
 
             criteria.addAssociation('tags')
                 .addAssociation('media')
-                .addAssociation('navigationSalesChannels')
+                .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
                 .addAssociation('serviceSalesChannels')
                 .addAssociation('footerSalesChannels');
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_13504')) {
-                criteria.addAssociation('navigationSalesChannels.homeCmsPage.previewMedia');
-            }
-
             return repository.get(id, apiContext, criteria).then((category) => {
                 category.isColumn = false;
-                if (category.parentId !== null && Shopware.Feature.isActive('FEATURE_NEXT_13504')) {
+                if (category.parentId !== null) {
                     const parentCriteria = new Criteria();
                     parentCriteria.addAssociation('footerSalesChannels');
 

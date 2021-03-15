@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-category-detail-cms', {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: ['acl'],
 
     props: {
         isLoading: {

@@ -27,53 +27,32 @@
                     {% endblock %}
                 </sw-container>
 
-                {% block sw_category_detail_information_type %}
-                    <div class="sw-category-detail-base__type-container">
-
-                        {% block sw_category_detail_information_type %}
-                            <sw-single-select
-                                v-if="!feature.isActive('FEATURE_NEXT_13504')"
-                                class="sw-category-detail-base__type-selection"
-                                :helpText="$tc('sw-category.base.general.types.help')"
-                                :label="$tc('sw-category.base.general.types.title')"
-                                v-model="category.type"
-                                :disabled="!acl.can('category.editor')"
-                                :error="categoryTypeError"
-                                :options="categoryTypes">
-                            </sw-single-select>
-
-                            <sw-entity-tag-select
-                                v-if="feature.isActive('FEATURE_NEXT_13504') && category && !isLoading"
-                                class="sw-category-detail-base__tags"
-                                :label="$tc('sw-category.base.general.labelCategoryTags')"
-                                :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
-                                :disabled="!acl.can('category.editor')"
-                                v-model="category.tags">
-                            </sw-entity-tag-select>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
                 {% block sw_category_detail_information_tags %}
                     <sw-entity-tag-select
-                        v-if="!feature.isActive('FEATURE_NEXT_13504') && category && !isLoading"
+                        v-if="category && !isLoading"
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
                         :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
                         :disabled="!acl.can('category.editor')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
+                {% endblock %}
 
-                    <sw-single-select
-                        v-if="feature.isActive('FEATURE_NEXT_13504')"
-                        class="sw-category-detail-base__type-selection"
-                        :helpText="categoryTypeHelpText"
-                        :label="$tc('sw-category.base.general.types.title')"
-                        v-model="category.type"
-                        :disabled="!acl.can('category.editor')"
-                        :error="categoryTypeError"
-                        :options="categoryTypes">
-                    </sw-single-select>
+                {% block sw_category_detail_information_type %}
+                    <div class="sw-category-detail-base__type-container">
+
+                        {% block sw_category_detail_information_type %}
+                            <sw-single-select
+                                class="sw-category-detail-base__type-selection"
+                                :helpText="categoryTypeHelpText"
+                                :label="$tc('sw-category.base.general.types.title')"
+                                v-model="category.type"
+                                :disabled="!acl.can('category.editor')"
+                                :error="categoryTypeError"
+                                :options="categoryTypes">
+                            </sw-single-select>
+                        {% endblock %}
+                    </div>
                 {% endblock %}
 
             </sw-card>
@@ -82,13 +61,8 @@
         <!-- Type specific settings -->
 
         {% block sw_category_detail_entry_point %}
-            <sw-category-sales-channel-card
-                v-if="!feature.isActive('FEATURE_NEXT_13504') && isSalesChannelEntryPoint"
-                v-bind="{ category, isLoading }">
-            </sw-category-sales-channel-card>
-
             <sw-category-entry-point-card
-                v-if="feature.isActive('FEATURE_NEXT_13504') && (category.type === 'folder' || category.type === 'page') && !category.isColumn"
+                v-if="(category.type === 'folder' || category.type === 'page') && !category.isColumn"
                 v-bind="{ category, isLoading }">
             </sw-category-entry-point-card>
         {% endblock %}
@@ -101,12 +75,7 @@
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - moved to cms tab in block `sw_category_detail_cms_layout` #}
-        {% block sw_category_detail_layout %}
-            <sw-category-layout-card
-                v-if="category.type === 'page' && !feature.isActive('FEATURE_NEXT_13504')"
-                v-bind="{ category, cmsPage, isLoading }">
-            </sw-category-layout-card>
-        {% endblock %}
+        {% block sw_category_detail_layout %}{% endblock %}
 
         <template v-if="category.type !== 'link'">
             {% block sw_category_detail_menu %}
@@ -115,129 +84,36 @@
 
             {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
             {% block sw_category_detail_products %}
-                <sw-many-to-many-assignment-card
-                    v-if="!feature.isActive('FEATURE_NEXT_13504') && category.type !== 'folder'"
-                    class="sw-category-detail-base__products"
-                    :title="$tc('sw-category.base.products.productAssignmentHeadline')"
-                    :entityCollection="category.products"
-                    :columns="productColumns"
-                    :isLoading="isLoading"
-                    :disabled="!acl.can('category.editor')"
-                    :localMode="category.isNew()"
-                    :criteria="productCriteria"
-                    :selectLabel="$tc('sw-category.base.products.productAssignmentLabel')"
-                    :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
-                    @paginate="onPaginateManualProductAssignment">
+
+                {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+                {% block sw_category_detail_product_assignment_type_select %}
 
                     {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                    {% block sw_category_detail_product_assignment_type_select %}
-                        <template #prepend-select>
-
-                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                            {% block sw_category_detail_product_assignment_type_select_field %}
-                                <sw-single-select
-                                    class="sw-category-detail__product-assignment-type-select"
-                                    v-model="category.productAssignmentType"
-                                    :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
-                                    :error="categoryProductAssignmentTypeError"
-                                    :options="productAssignmentTypes"
-                                    :disabled="!acl.can('category.editor')"
-                                    required>
-                                </sw-single-select>
-                            {% endblock %}
-
-                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                            {% block sw_category_detail_product_assignment_manual_alert %}
-                                <sw-alert
-                                    v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
-                                    variant="info">
-                                    {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
-                                </sw-alert>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
+                    {% block sw_category_detail_product_assignment_type_select_field %}{% endblock %}
 
                     {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                    {% block sw_category_detail_product_assignment_stream_select %}
-                        <template
-                            v-if="category.productAssignmentType === 'product_stream'"
-                            #select>
+                    {% block sw_category_detail_product_assignment_manual_alert %}{% endblock %}
 
-                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                            {% block sw_category_detail_product_assignment_stream_select_field %}
-                                <sw-entity-single-select
-                                    class="sw-category-detail__product-stream-select"
-                                    entity="product_stream"
-                                    :disabled="!acl.can('category.editor')"
-                                    :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
-                                    :helpText="dynamicProductGroupHelpText"
-                                    :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
-                                    :error="productStreamInvalidError || categoryProductStreamIdError"
-                                    v-model="category.productStreamId">
-                                </sw-entity-single-select>
-                            {% endblock %}
+                {% endblock %}
 
-                            {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                            {% block sw_category_detail_product_assignment_stream_preview_link %}
-                                <div class="sw-category-detail-base__product-stream-preview-link">
-                                    <router-link
-                                        v-if="category.productStreamId"
-                                        :to="{ name: 'sw.product.stream.detail', params: { id: category.productStreamId } }">
-                                        {{ $tc('sw-category.base.products.dynamicProductGroupDetailLinkText') }}
-                                        <sw-icon
-                                            name="default-arrow-simple-right"
-                                            small>
-                                        </sw-icon>
-                                    </router-link>
-                                </div>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
+                {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+                {% block sw_category_detail_product_assignment_stream_select %}
 
                     {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-                    {% block sw_category_detail_product_assignment_stream_preview_grid %}
-                        <template
-                            v-if="category.productAssignmentType === 'product_stream'"
-                            #data-grid>
-                            <sw-product-stream-grid-preview
-                                :filters="productStreamFilter"
-                                :columns="productColumns">
-                            </sw-product-stream-grid-preview>
-                        </template>
-                    {% endblock %}
+                    {% block sw_category_detail_product_assignment_stream_select_field %}{% endblock %}
 
-                    <template v-slot:[nameColumn]="{ item, column }">
-                        <router-link
-                            :to="{ name: column.routerLink, params: { id: item.id } }">
-                            <sw-product-variant-info :variations="item.options">
-                                {{ item.name || item.translated.name }}
-                            </sw-product-variant-info>
-                        </router-link>
-                    </template>
+                    {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+                    {% block sw_category_detail_product_assignment_stream_preview_link %}{% endblock %}
 
-                    <template v-slot:[manufacturerColumn]="{ item, column }">
-                        <router-link
-                            v-if="item.manufacturerId"
-                            :to="{ name: column.routerLink, params: { id: item.manufacturerId } }">
-                            {{ item.manufacturer.name || item.manufacturer.translated.name }}
-                        </router-link>
-                        <span v-else></span>
-                    </template>
+                {% endblock %}
 
-                    <template #empty-state>
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+                {% block sw_category_detail_product_assignment_stream_preview_grid %}{% endblock %}
 
-                        <p>{{ $tc('sw-category.base.products.productAssignmentEmptyStateDescription') }}</p>
-                    </template>
-                </sw-many-to-many-assignment-card>
             {% endblock %}
 
             {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
-            {% block sw_category_detail_seo %}
-                <sw-category-detail-seo v-if="category.type !== 'folder' && !feature.isActive('FEATURE_NEXT_13504')"
-                                        :isLoading="isLoading">
-                </sw-category-detail-seo>
-            {% endblock %}
+            {% block sw_category_detail_seo %}{% endblock %}
 
             {# @deprecated tag:v6.5.0 - will be removed #}
             {% block sw_category_detail_seo_card %}{% endblock %}

@@ -6,7 +6,6 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -95,7 +94,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             return;
         }
 
-        $isHome = $salesChannel->getNavigationCategoryId() === $category->getId() && Feature::isActive('FEATURE_NEXT_13504');
+        $isHome = $salesChannel->getNavigationCategoryId() === $category->getId();
 
         $metaDescription = $isHome && $salesChannel->getTranslation('homeMetaDescription')
             ? $salesChannel->getTranslation('homeMetaDescription')

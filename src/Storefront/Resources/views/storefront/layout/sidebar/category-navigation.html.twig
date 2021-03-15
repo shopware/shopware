@@ -37,7 +37,7 @@
                             {% block layout_navigation_categories_link %}
                                 <a class="category-navigation-link{% if item.category.id is same as(activeResult.id) %} is-active{% endif %}"
                                    href="{{ category_url(item.category) }}"
-                                   {% if category.translated.linkNewTab %}target="_blank"{% endif %}>
+                                   {% if category_linknewtab(category) %}target="_blank"{% endif %}>
                                     {% block layout_navigation_categories_link_name %}
                                         {{ item.category.translated.name }}
                                     {% endblock %}

@@ -46,7 +46,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -85,15 +84,10 @@ class SalesChannelDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        $defaults = [
+        return [
             'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
+            'homeEnabled' => true,
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $defaults['homeEnabled'] = true;
-        }
-
-        return $defaults;
     }
 
     public function since(): ?string
@@ -151,6 +145,16 @@ class SalesChannelDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', 'id')),
 
+            new FkField('home_cms_page_id', 'homeCmsPageId', CmsPageDefinition::class),
+            (new ReferenceVersionField(CmsPageDefinition::class, 'home_cms_page_version_id'))->addFlags(new Required()),
+            new ManyToOneAssociationField('homeCmsPage', 'home_cms_page_id', CmsPageDefinition::class, 'id', false),
+            new TranslatedField('homeSlotConfig'),
+            new TranslatedField('homeEnabled'),
+            new TranslatedField('homeName'),
+            new TranslatedField('homeMetaTitle'),
+            new TranslatedField('homeMetaDescription'),
+            new TranslatedField('homeKeywords'),
+
             (new OneToManyAssociationField('domains', SalesChannelDomainDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete()),
 
             (new OneToManyAssociationField('systemConfigs', SystemConfigDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
@@ -176,18 +180,6 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $fields->add(new FkField('home_cms_page_id', 'homeCmsPageId', CmsPageDefinition::class));
-            $fields->add(new ManyToOneAssociationField('homeCmsPage', 'home_cms_page_id', CmsPageDefinition::class, 'id', false));
-            $fields->add((new ReferenceVersionField(CmsPageDefinition::class, 'home_cms_page_version_id'))->addFlags(new Required()));
-            $fields->add(new TranslatedField('homeSlotConfig'));
-            $fields->add(new TranslatedField('homeEnabled'));
-            $fields->add(new TranslatedField('homeName'));
-            $fields->add(new TranslatedField('homeMetaTitle'));
-            $fields->add(new TranslatedField('homeMetaDescription'));
-            $fields->add(new TranslatedField('homeKeywords'));
-        }
 
         return $fields;
     }

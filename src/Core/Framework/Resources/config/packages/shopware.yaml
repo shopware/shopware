@@ -94,11 +94,6 @@ shopware:
               major: true
               description: "Improve product UX"
               # issue: NEXT-13759
-            - name: FEATURE_NEXT_13504
-              default: false
-              major: true
-              description: "Improve category UX"
-              # issue: NEXT-13760
             - name: FEATURE_NEXT_13810
               default: false
               major: true

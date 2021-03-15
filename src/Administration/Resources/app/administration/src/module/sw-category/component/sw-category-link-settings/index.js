@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-link-settings', {
     template,
 
-    inject: ['acl', 'feature'],
+    inject: ['acl'],
 
     props: {
         category: {

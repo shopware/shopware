@@ -122,7 +122,9 @@ Component.register('sw-product-list', {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder')
                 },
                 'product-without-images-filter': {
                     property: 'media',
@@ -148,7 +150,9 @@ Component.register('sw-product-list', {
                     property: 'price',
                     label: this.$tc('sw-product.filters.priceFilter.label'),
                     digits: 20,
-                    min: 0
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder')
                 },
                 'tags-filter': {
                     property: 'tags',
@@ -158,7 +162,7 @@ Component.register('sw-product-list', {
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
-                    dateType: 'datetime'
+                    dateType: 'datetime-local'
                 }
             });
         }

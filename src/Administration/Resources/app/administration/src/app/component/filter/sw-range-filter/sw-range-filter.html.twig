@@ -1,12 +1,8 @@
 {% block sw_range_filter %}
-    <sw-base-filter
-        :title="filter.label"
-        :active="active"
-        :showResetButton="!!value.from || !!value.to"
-        @filter-reset="resetFilter">
+    <sw-base-filter v-bind="$attrs" v-on="$listeners" class="sw-range-filter">
         {% block sw_range_filter_content %}
             <sw-container :columns="columns" :gap="gap">
-                <slot name="from-field" v-bind="{ value, changeFromValue }">
+                <slot name="from-field">
                     {% block sw_range_filter_from_field %}{% endblock %}
                 </slot>
 
@@ -16,7 +12,7 @@
                     {% endblock %}
                 </slot>
 
-                <slot name="to-field" v-bind="{ value, changeToValue }">
+                <slot name="to-field">
                     {% block sw_range_filter_to_field %}{% endblock %}
                 </slot>
             </sw-container>

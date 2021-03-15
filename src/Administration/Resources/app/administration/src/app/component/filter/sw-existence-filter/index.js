@@ -3,6 +3,9 @@ import template from './sw-existence-filter.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
 Component.register('sw-existence-filter', {
     template,
 

@@ -332,8 +332,7 @@
         "placeholder": "Dokumentstatus auswählen ..."
       },
       "orderDateFilter": {
-        "label": "Bestelldatum",
-        "placeholder": "Von ... / bis ..."
+        "label": "Bestelldatum"
       },
       "statusFilter": {
         "label": "Bestellstatus",

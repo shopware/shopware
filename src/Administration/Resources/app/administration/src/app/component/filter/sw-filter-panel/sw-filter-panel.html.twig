@@ -1,7 +1,7 @@
 {% block sw_filter_panel %}
     <div class="sw-filter-panel">
         {% block sw_filter_panel_item %}
-            <div class="sw-filter-panel__item" v-for="filter in filters" :key="filter.name">
+            <div class="sw-filter-panel__item" v-for="filter in filters" :key="filter.name" :id="filter.name">
                 <div v-if="false"></div>
 
                 {% block sw_filter_panel_extension_point %}{% endblock %}
@@ -34,6 +34,7 @@
                     v-else-if="showFilter(filter, 'date-filter')"
                     :filter="filter"
                     :active="!!activeFilters[filter.name]"
+                    :config="filter.config"
                     @filter-update="updateFilter"
                     @filter-reset="resetFilter">
                 </sw-date-filter>
@@ -50,6 +51,12 @@
                     v-else-if="showFilter(filter, 'number-filter')"
                     :filter="filter"
                     :active="!!activeFilters[filter.name]"
+                    :step="filter.step"
+                    :digits="filter.digits"
+                    :numberType="filter.numberType"
+                    :min="filter.min"
+                    :max="filter.max"
+                    allowEmpty
                     @filter-update="updateFilter"
                     @filter-reset="resetFilter">
                 </sw-number-filter>

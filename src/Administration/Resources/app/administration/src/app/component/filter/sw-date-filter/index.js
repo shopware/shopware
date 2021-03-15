@@ -1,4 +1,5 @@
 import template from './sw-date-filter.html.twig';
+import './sw-date-filter.scss';
 
 const { Component } = Shopware;
 
@@ -44,11 +45,17 @@ Component.register('sw-date-filter', {
     },
 
     methods: {
-        updateFilter(...params) {
-            this.$emit('filter-update', ...params);
+        updateFilter(params) {
+            if (!this.dateValue.from && !this.dateValue.to) {
+                this.$emit('filter-reset', this.filter.name);
+                return;
+            }
+
+            this.$emit('filter-update', this.filter.name, params);
         },
 
         resetFilter() {
+            this.dateValue = { from: null, to: null };
             this.$emit('filter-reset', this.filter.name);
         }
     }

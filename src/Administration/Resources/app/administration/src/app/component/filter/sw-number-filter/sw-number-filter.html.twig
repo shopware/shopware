@@ -1,42 +1,34 @@
 {% block sw_number_filter %}
     <sw-range-filter
+        class="sw-number-filter"
+        :title="filter.label"
         :filter="filter"
         :active="active"
-        v-model="numberValue"
+        :value="numberValue"
+        :property="filter.property"
+        :showResetButton="!!numberValue.from || !!numberValue.to"
         @filter-update="updateFilter"
         @filter-reset="resetFilter">
         {% block sw_number_filter_from_field %}
-            <template #from-field="{ value, changeFromValue }">
+            <template #from-field>
                 <sw-number-field
+                    v-model="numberValue.from"
+                    v-bind="$attrs"
                     class="sw-number-filter__from"
-                    size="small"
-                    :numberType="filter.numberType"
-                    :step="filter.step"
-                    :min="filter.min"
-                    :max="filter.max"
-                    :digits="filter.digits"
-                    allowEmpty
-                    :value="value.from"
                     :label="$tc('global.default.from')"
-                    @change="changeFromValue">
+                    :placeholder="filter.fromPlaceholder">
                 </sw-number-field>
             </template>
         {% endblock %}
 
         {% block sw_number_filter_to_field %}
-            <template #to-field="{ value, changeToValue }">
+            <template #to-field>
                 <sw-number-field
+                    v-model="numberValue.to"
+                    v-bind="$attrs"
                     class="sw-number-filter__to"
-                    size="small"
-                    :numberType="filter.numberType"
-                    :step="filter.step"
-                    :min="filter.min"
-                    :max="filter.max"
-                    :digits="filter.digits"
-                    allowEmpty
-                    :value="value.to"
                     :label="$tc('global.default.to')"
-                    @change="changeToValue">
+                    :placeholder="filter.toPlaceholder">
                 </sw-number-field>
             </template>
         {% endblock %}

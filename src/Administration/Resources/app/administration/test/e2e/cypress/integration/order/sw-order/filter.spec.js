@@ -4,7 +4,7 @@ const uuid = require('uuid/v4');
 
 describe('Order: Testing filter and reset filter', () => {
     before(() => {
-        let currencyId, countryId, paymentMethodId, salesChannelId, groupId, salutationId, stateMachineId, shippingMethodId;
+        let currencyId, countryId, paymentMethodId, salesChannelId, salutationId, stateMachineId, shippingMethodId;
 
         cy.setToInitialState()
             .then(() => {
@@ -71,8 +71,7 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(data => {
-                groupId = data.id;
+            .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'salutation',
                     data: {
@@ -111,7 +110,7 @@ describe('Order: Testing filter and reset filter', () => {
             })
             .then(auth => {
                 const orders = [];
-                for (let i = 1; i <= 10; i++) {
+                for (let i = 1; i < 10; i += 1) {
                     orders.push(
                         {
                             name: `order-${i}`,
@@ -232,7 +231,7 @@ describe('Order: Testing filter and reset filter', () => {
             });
     });
 
-    it.skip('@catalogue: check filter function and display listing correctly', () => {
+    it('@order: check filter function and display listing correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
@@ -251,8 +250,8 @@ describe('Order: Testing filter and reset filter', () => {
             method: 'post'
         }).as('getStateMachineState');
 
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
 
         cy.get('.sw-filter-panel').should('exist');
 
@@ -271,30 +270,21 @@ describe('Order: Testing filter and reset filter', () => {
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-page__smart-bar-amount').contains('10');
+        cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Check notification badge after filtering
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('exist');
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '1');
 
         // Combine multiple filter criterias
-        cy.get('.sw-filter-panel__item').eq(1).find('input').type('order state 1');
-
-        cy.wait('@getStateMachineState').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get('.sw-select-result-list__item-list li').contains('order state 1').click();
-
-        cy.wait('@filterOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.get('#status-filter .sw-entity-multi-select').scrollIntoView();
+        cy.get('#status-filter .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1'});
 
         cy.get('.sw-page__smart-bar-amount').contains('1');
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
     });
 
-    it.skip('@catalogue: check reset filter', () => {
+    it('@order: check reset filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
@@ -313,7 +303,7 @@ describe('Order: Testing filter and reset filter', () => {
             method: 'post'
         }).as('getStateMachineState');
 
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').click();
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
         // Check Reset and Reset All button at default state
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
@@ -328,25 +318,21 @@ describe('Order: Testing filter and reset filter', () => {
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-page__smart-bar-amount').contains('10');
+        cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Reset All button should show up when there is active filter
-        cy.get('.sw-filter-panel__item').eq(1).find('input').type('order state 1');
+        cy.get('#status-filter .sw-entity-multi-select').scrollIntoView();
+        cy.get('#status-filter .sw-entity-multi-select').typeMultiSelectAndCheck('order state 2', { searchTerm: 'order state 2'});
 
-        cy.wait('@getStateMachineState').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get('.sw-select-result-list__item-list li').contains('order state 1').click();
         cy.get('.sw-sidebar-item__headline a').should('exist');
 
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
         cy.wait('@filterOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-page__smart-bar-amount').contains('10');
+        cy.get('.sw-page__smart-bar-amount').contains('9');
     });
 });

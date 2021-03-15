@@ -108,7 +108,7 @@ describe('Customer: Test filter and reset filter', () => {
 
     })
 
-    it('@Customer: check filter function and display list correctly', () => {
+    it('@customer: check filter function and display list correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -128,8 +128,8 @@ describe('Customer: Test filter and reset filter', () => {
         }).as('getPaymentMethod');
 
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
-        cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filter"]').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filters"]').should('exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
 
         cy.get('.sw-filter-panel').should('exist');
 
@@ -147,8 +147,8 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('.sw-page__smart-bar-amount').contains('27');
 
         // Check notification badge after filtering
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('have.text', '1');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '1');
 
         cy.testListing({
             sorting: {
@@ -161,7 +161,7 @@ describe('Customer: Test filter and reset filter', () => {
             limit: 25
         });
 
-        cy.log('change Sorting direction from DESC to ASC')
+        cy.log('change Sorting direction from DESC to ASC');
         cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -200,11 +200,11 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('.sw-page__smart-bar-amount').contains('1');
 
         // Check notification badge after filtering with multiple filters criteria
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('have.text', '3');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '3');
     });
 
-    it('@Customer: check reset filter and reset all filter', () => {
+    it('@customer: check reset filter and reset all filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -219,8 +219,8 @@ describe('Customer: Test filter and reset filter', () => {
         }).as('filterCustomer');
 
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
-        cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filter"]').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filter"]').find('.notification-badge').should('not.exist');
+        cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filters"]').should('exist');
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
 
         cy.get('.sw-filter-panel').should('exist');
 

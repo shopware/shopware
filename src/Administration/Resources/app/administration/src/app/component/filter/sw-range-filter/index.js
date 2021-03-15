@@ -7,19 +7,14 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-range-filter', {
     template,
 
-    model: {
-        prop: 'value',
-        event: 'change'
-    },
-
     props: {
-        filter: {
+        value: {
             type: Object,
             required: true
         },
 
-        active: {
-            type: Boolean,
+        property: {
+            type: String,
             required: true
         },
 
@@ -27,11 +22,6 @@ Component.register('sw-range-filter', {
             type: Boolean,
             required: false,
             default: true
-        },
-
-        value: {
-            type: Object,
-            required: true
         }
     },
 
@@ -48,11 +38,7 @@ Component.register('sw-range-filter', {
     watch: {
         value: {
             deep: true,
-            handler(newValue, oldValue) {
-                if (!newValue.from && !oldValue.from && !newValue.to && !oldValue.to) {
-                    return;
-                }
-
+            handler(newValue) {
                 this.updateFilter(newValue);
             }
         }
@@ -64,37 +50,21 @@ Component.register('sw-range-filter', {
 
     methods: {
         createdComponent() {
-            this.updateFilter(this.value);
-        },
-
-        changeFromValue(newValue) {
-            const range = { ...this.value, from: newValue };
-            this.$emit('change', range);
-        },
-
-        changeToValue(newValue) {
-            const range = { ...this.value, to: newValue };
-            this.$emit('change', range);
-        },
-
-        updateFilter(range) {
-            if (!range.from && !range.to) {
-                this.$emit('filter-reset');
+            if (!this.value.to && !this.value.from) {
                 return;
             }
 
+            this.updateFilter(this.value);
+        },
+
+        updateFilter(range) {
             const params = {
                 ...(range.from ? { gte: range.from } : {}),
                 ...(range.to ? { lte: range.to } : {})
             };
 
-            const filterCriteria = [Criteria.range(this.filter.property, params)];
-            this.$emit('filter-update', this.filter.name, filterCriteria);
-        },
-
-        resetFilter() {
-            this.$emit('change', { from: null, to: null });
-            this.$emit('filter-reset');
+            const filterCriteria = [Criteria.range(this.property, params)];
+            this.$emit('filter-update', filterCriteria);
         }
     }
 });

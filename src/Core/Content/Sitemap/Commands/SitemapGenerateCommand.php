@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
+use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Defaults;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SitemapGenerateCommand extends Command
 {
@@ -30,16 +32,20 @@ class SitemapGenerateCommand extends Command
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         SitemapExporterInterface $sitemapExporter,
-        AbstractSalesChannelContextFactory $salesChannelContextFactory
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct();
 
         $this->salesChannelRepository = $salesChannelRepository;
         $this->sitemapExporter = $sitemapExporter;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -73,6 +79,10 @@ class SitemapGenerateCommand extends Command
         $context = Context::createDefaultContext();
 
         $criteria = $this->createCriteria($salesChannelId);
+
+        $this->eventDispatcher->dispatch(
+            new SitemapSalesChannelCriteriaEvent($criteria)
+        );
 
         $salesChannels = $this->salesChannelRepository->search($criteria, $context);
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Defaults;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
@@ -33,6 +35,8 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 
     private MessageBusInterface $messageBus;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         EntityRepositoryInterface $salesChannelRepository,
@@ -40,7 +44,8 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         SitemapExporterInterface $sitemapExporter,
         LoggerInterface $logger,
         SystemConfigService $systemConfigService,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->salesChannelRepository = $salesChannelRepository;
@@ -49,6 +54,7 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         $this->logger = $logger;
         $this->systemConfigService = $systemConfigService;
         $this->messageBus = $messageBus;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getHandledMessages(): iterable
@@ -73,6 +79,10 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             NotFilter::CONNECTION_AND,
             [new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API)]
         ));
+
+        $this->eventDispatcher->dispatch(
+            new SitemapSalesChannelCriteriaEvent($criteria)
+        );
 
         $salesChannels = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
 

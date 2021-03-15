@@ -53,7 +53,8 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             $this->getContainer()->get(SitemapExporter::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get(SystemConfigService::class),
-            $this->messageBusMock
+            $this->messageBusMock,
+            $this->getContainer()->get('event_dispatcher')
         );
         $this->salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
     }

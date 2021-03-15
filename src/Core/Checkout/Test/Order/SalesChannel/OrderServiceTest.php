@@ -223,11 +223,11 @@ class OrderServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
-            $phpunit->assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
+        $innerEvent = null;
+
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, &$innerEvent): void {
+            $innerEvent = $event;
             $eventDidRun = true;
         };
 
@@ -237,10 +237,14 @@ class OrderServiceTest extends TestCase
             $orderDeliveryId,
             'cancel',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            Context::createDefaultContext() //DefaultContext is intended to test if the language of the order is used
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertNotNull($innerEvent);
+        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $innerEvent->getContents()['text/html']);
+        static::assertStringContainsString($url, $innerEvent->getContents()['text/html']);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
         $this->salesChannelContext = $previousContext;

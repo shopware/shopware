@@ -75,14 +75,6 @@ Component.register('sw-product-detail-base', {
     watch: {
         product() {
             /**
-             * @deprecated tag:v6.5.0 - The logic `onLayoutSelect` will be removed because
-             * the modal was moved from this component to `sw-product-detail-layout` component.
-             */
-            if (this.product.cmsPageId) {
-                this.onLayoutSelect(this.product.cmsPageId);
-            }
-
-            /**
              * @deprecated tag:v6.5.0 - The logic `reloadReviews` will be removed because
              * its relevant view was moved from this component to `sw-product-detail-reviews` component.
              */

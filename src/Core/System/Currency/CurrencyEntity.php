@@ -113,6 +113,13 @@ class CurrencyEntity extends Entity
      */
     protected $totalRounding;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     *
+     * @var float|null
+     */
+    protected $taxFreeFrom;
+
     public function getIsoCode(): string
     {
         return $this->isoCode;
@@ -309,5 +316,21 @@ class CurrencyEntity extends Entity
     public function getDecimalPrecision(): int
     {
         return $this->itemRounding->getDecimals();
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function getTaxFreeFrom(): ?float
+    {
+        return $this->taxFreeFrom;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function setTaxFreeFrom(?float $taxFreeFrom): void
+    {
+        $this->taxFreeFrom = $taxFreeFrom;
     }
 }

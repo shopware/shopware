@@ -7,7 +7,6 @@ use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -20,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -61,34 +59,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     public function getMapping(Context $context): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_12158')) {
-            $definition = $this->definition;
-
-            return [
-                '_source' => ['includes' => ['id']],
-                'properties' => array_replace(
-                    $this->mapper->mapFields($definition, $context),
-                    [
-                        'categoriesRo' => $this->mapper->mapField($definition, $definition->getField('categoriesRo'), $context),
-                        'properties' => $this->mapper->mapField($definition, $definition->getField('properties'), $context),
-                        'manufacturer' => $this->mapper->mapField($definition, $definition->getField('manufacturer'), $context),
-                        'tags' => $this->mapper->mapField($definition, $definition->getField('tags'), $context),
-                        'options' => $this->mapper->mapField($definition, $definition->getField('options'), $context),
-                        'visibilities' => $this->mapper->mapField($definition, $definition->getField('visibilities'), $context),
-                        'configuratorSettings' => $this->mapper->mapField($definition, $definition->getField('configuratorSettings'), $context),
-                    ]
-                ),
-                'dynamic_templates' => [
-                    [
-                        'cheapest_price' => [
-                            'match' => 'cheapest_price_rule*',
-                            'mapping' => ['type' => 'double'],
-                        ],
-                    ],
-                ],
-            ];
-        }
-
         return [
             '_source' => ['includes' => ['id']],
             'properties' => [
@@ -160,53 +130,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ];
     }
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - The fetch method will be used
-     */
-    public function extendCriteria(Criteria $criteria): void
+    public function extendDocuments(array $documents, Context $context): array
     {
-        $criteria
-            ->addAssociation('categoriesRo')
-            ->addAssociation('properties')
-            ->addAssociation('manufacturer')
-            ->addAssociation('tags')
-            ->addAssociation('configuratorSettings')
-            ->addAssociation('options')
-            ->addAssociation('visibilities')
-        ;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - $collection Argument, Add calling to this method also in ElasticsearchIndexer
-     */
-    public function extendDocuments(EntityCollection $collection, array $documents, Context $context): array
-    {
-        $currencies = $context->getExtension('currencies');
-
-        if (!$currencies instanceof EntityCollection) {
-            throw new \RuntimeException('Currencies are required for indexing process');
-        }
-
-        foreach ($documents as &$document) {
-            $prices = [];
-
-            $purchase = [];
-            foreach ($currencies as $currency) {
-                /** @var ProductEntity $entity */
-                $entity = $collection->get($document['id']);
-
-                $key = 'c_' . $currency->getId();
-
-                $prices[$key] = $this->getCurrencyPrice($entity->getId(), $entity->getPrice(), $currency);
-
-                $purchase[$key] = $this->getCurrencyPurchasePrice($entity->getPurchasePrices(), $currency);
-            }
-
-            $document['price'] = $prices;
-            $document['purchasePrices'] = $purchase;
-        }
-
-        return $this->mapCheapestPrices($collection, $documents);
+        return $documents;
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
@@ -311,42 +237,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             }
 
             $documents[$id] = $document;
-        }
-
-        return $documents;
-    }
-
-    private function mapCheapestPrices(EntityCollection $collection, array $documents): array
-    {
-        $prices = $this->connection->fetchAll(
-            '
-            SELECT LOWER(HEX(variant.id)) as id, variant.cheapest_price_accessor
-            FROM product variant
-            WHERE variant.id IN (:ids)
-        ',
-            ['ids' => Uuid::fromHexToBytesList($collection->getIds())],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $prices = FetchModeHelper::keyPair($prices);
-
-        foreach ($documents as &$document) {
-            $id = $document['id'];
-
-            if (!isset($prices[$id])) {
-                continue;
-            }
-
-            $price = json_decode($prices[$id], true);
-            foreach ($price as $rule => $currencies) {
-                foreach ($currencies as $currency => $taxes) {
-                    $key = 'cheapest_price_' . $rule . '_' . $currency . '_gross';
-                    $document[$key] = $taxes['gross'];
-
-                    $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
-                    $document[$key] = $taxes['net'];
-                }
-            }
         }
 
         return $documents;

@@ -142,10 +142,6 @@ parameters:
         # Must be fixed with a custom rule
         - '#Cannot call method fetch.*\(\) on Doctrine\\DBAL\\Driver\\ResultStatement\|int#'
         - '#Call to an undefined method Doctrine\\DBAL\\Driver\\ResultStatement::rowCount\(\)\.#'
-        # We know that the fields exists
-        -
-            message: '#Parameter \#2 \$field of method Shopware\\Elasticsearch\\Framework\\Indexing\\EntityMapper::mapField\(\) expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field, Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field\|null given#'
-            path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php
         # Exception for CopyBatch file system plugin. It is called via magic method
         - '#Call to an undefined method League\\Flysystem\\FilesystemInterface::copyBatch\(\)\.#'
         -

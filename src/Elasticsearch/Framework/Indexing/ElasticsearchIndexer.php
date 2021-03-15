@@ -9,19 +9,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
-use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
@@ -39,8 +36,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private Client $client;
 
-    private DefinitionInstanceRegistry $entityRegistry;
-
     private LoggerInterface $logger;
 
     private EntityRepositoryInterface $currencyRepository;
@@ -54,7 +49,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         IndexCreator $indexCreator,
         IteratorFactory $iteratorFactory,
         Client $client,
-        DefinitionInstanceRegistry $entityRegistry,
         LoggerInterface $logger,
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $languageRepository
@@ -65,7 +59,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->indexCreator = $indexCreator;
         $this->iteratorFactory = $iteratorFactory;
         $this->client = $client;
-        $this->entityRegistry = $entityRegistry;
         $this->logger = $logger;
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
@@ -177,12 +170,10 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $index = $task->getIndex();
 
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            $this->connection->executeUpdate('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
-                'idCount' => \count($ids),
-                'index' => $index,
-            ]);
-        }
+        $this->connection->executeStatement('UPDATE elasticsearch_index_task SET `doc_count` = `doc_count` - :idCount WHERE `index` = :index', [
+            'idCount' => \count($ids),
+            'index' => $index,
+        ]);
 
         if (!$this->client->indices()->exists(['index' => $index])) {
             return;
@@ -200,41 +191,14 @@ class ElasticsearchIndexer extends AbstractMessageHandler
             throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
+        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
 
-            $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
+        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
-            $documents = [];
-            foreach ($data as $id => $document) {
-                $documents[] = ['index' => ['_id' => $id]];
-                $documents[] = $document;
-            }
-        } else {
-            $repository = $this->entityRegistry->getRepository($entity);
-
-            $criteria = new Criteria($ids);
-
-            $definition->extendCriteria($criteria);
-
-            /** @var EntitySearchResult $entities */
-            $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
-                $context->setConsiderInheritance(true);
-
-                return $repository->search($criteria, $context);
-            });
-
-            $toRemove = array_filter($ids, fn (string $id) => !$entities->has($id));
-
-            $entities = $definition->extendEntities($entities);
-
-            $documents = $this->createDocuments($definition, $entities);
-
-            $documents = $this->mapExtensionsToRoot($documents);
-
-            $documents = $definition->extendDocuments($entities, $documents, $context);
-
-            $documents = $this->mapDocuments($documents);
+        $documents = [];
+        foreach ($data as $id => $document) {
+            $documents[] = ['index' => ['_id' => $id]];
+            $documents[] = $document;
         }
 
         foreach ($toRemove as $id) {
@@ -254,11 +218,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
             throw new ElasticsearchIndexingException($errors);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            $this->client->indices()->refresh([
-                'index' => $index,
-            ]);
-        }
+        $this->client->indices()->refresh([
+            'index' => $index,
+        ]);
     }
 
     public static function getHandledMessages(): iterable
@@ -370,53 +332,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
             $definitions,
             $timestamp->getTimestamp()
         );
-    }
-
-    private function mapExtensionsToRoot(array $documents): array
-    {
-        $extensions = [];
-
-        foreach ($documents as $key => $document) {
-            if ($key === 'extensions') {
-                $extensions = $document;
-                unset($documents['extensions']);
-
-                continue;
-            }
-
-            if (\is_array($document)) {
-                $documents[$key] = $this->mapExtensionsToRoot($document);
-            }
-        }
-
-        foreach ($extensions as $extensionKey => $extension) {
-            if (\is_array($extension)) {
-                $documents[$extensionKey] = $this->mapExtensionsToRoot($extension);
-            } else {
-                $documents[$extensionKey] = $extension;
-            }
-        }
-
-        return $documents;
-    }
-
-    private function createDocuments(AbstractElasticsearchDefinition $definition, iterable $entities): array
-    {
-        $documents = [];
-
-        foreach ($entities as $entity) {
-            $document = json_decode(json_encode($entity, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
-
-            $fullText = $definition->buildFullText($entity);
-
-            $document['_unique_identifier'] = $entity->getUniqueIdentifier();
-            $document['fullText'] = $fullText->getFullText();
-            $document['fullTextBoosted'] = $fullText->getBoosted();
-
-            $documents[$entity->getUniqueIdentifier()] = $document;
-        }
-
-        return $documents;
     }
 
     private function parseErrors(array $result): array

@@ -1,8 +1,16 @@
 ---
 title: Elasticsearch refactoring
 issue: NEXT-12159
-feature: FEATURE_NEXT_12158
 ---
+
+# Administration
+
+* Changed product stream condition service from exclude to include pattern
+    * Replaced `isPropertyInBlacklist` with `isPropertyInAllowList`
+    * Replaced `addToGeneralBlacklist` with `addToGeneralAllowList`
+    * Replaced `addToEntityBlacklist` with `addToEntityAllowList`
+    * Replaced `removeFromGeneralBlacklist` with `removeFromGeneralAllowList`
+___
 
 # Core
 
@@ -30,6 +38,17 @@ ___
 * Deprecated `AbstractElasticsearchDefinition::extendCriteria`, use `fetch` instead
 * Deprecated `AbstractElasticsearchDefinition::extendEntities`, use `extendDocuments` instead
 * Changed `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` to register it as own message handler and depend no longer on the entity indexer
+* Removed method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendCriteria`
+* Removed method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendEntities`
+* Removed parameter `$collection` from method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:extendDocuments`
+* Removed method `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition:buildFullText`
+* Removed method `Shopware\Elasticsearch\Product\ElasticsearchProductDefinition:extendCriteria`
+* Removed parameter `$collection` from method `Shopware\Elasticsearch\Product\ElasticsearchProductDefinition:extendDocuments`
+* Removed method `Shopware\Elasticsearch\Test\Product\ElasticsearchProductTest:testTermsAggregationWithLimit`
+* Removed method `Shopware\Elasticsearch\Test\Product\ElasticsearchProductTest:testTermsAggregationWithSorting`
+* Removed method `Shopware\Elasticsearch\Test\Product\ElasticsearchProductTest:testFilterAggregationWithTerms`
+* Removed following class `Shopware\Elasticsearch\Framework\FullText`
+
 ___
 # Upgrade Information
 

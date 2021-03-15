@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
+use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -118,7 +120,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($styleFiles as $file) {
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
-        $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
+        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
+        $this->eventDispatcher->dispatch($concatenatedStylesEvent);
+        $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
@@ -128,9 +132,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($scriptFiles as $file) {
             $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
+        $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
+        $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
 
         $scriptFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-        $this->filesystem->put($scriptFilepath, $concatenatedScripts);
+        $this->filesystem->put($scriptFilepath, $concatenatedScriptsEvent->getConcatenatedScripts());
 
         // assets
         if ($withAssets) {

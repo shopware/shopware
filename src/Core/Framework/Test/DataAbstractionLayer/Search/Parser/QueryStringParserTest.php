@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -91,6 +93,72 @@ class QueryStringParserTest extends TestCase
             [['type' => 'contains', 'field' => 'foo', 'value' => false], false],
             [['type' => 'contains', 'field' => 'foo', 'value' => 1], false],
             [['type' => 'contains', 'field' => 'foo', 'value' => 0], false],
+        ];
+    }
+
+    /**
+     * @dataProvider prefixFilterDataProvider
+     */
+    public function testPrefixFilter(array $filter, bool $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(InvalidFilterQueryException::class);
+        }
+
+        /** @var EqualsFilter $result */
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+
+        static::assertInstanceOf(PrefixFilter::class, $result);
+
+        static::assertEquals($result->getField(), 'product.' . $filter['field']);
+        static::assertEquals($result->getValue(), $filter['value']);
+    }
+
+    public function prefixFilterDataProvider(): array
+    {
+        return [
+            [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false],
+            [['type' => 'prefix', 'field' => 'foo', 'value' => ''], true],
+            [['type' => 'prefix', 'field' => '', 'value' => 'bar'], true],
+            [['type' => 'prefix', 'field' => 'foo'], true],
+            [['type' => 'prefix', 'value' => 'bar'], true],
+            [['type' => 'prefix', 'field' => 'foo', 'value' => true], false],
+            [['type' => 'prefix', 'field' => 'foo', 'value' => false], false],
+            [['type' => 'prefix', 'field' => 'foo', 'value' => 1], false],
+            [['type' => 'prefix', 'field' => 'foo', 'value' => 0], false],
+        ];
+    }
+
+    /**
+     * @dataProvider suffixFilterDataProvider
+     */
+    public function testSuffixFilter(array $filter, bool $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(InvalidFilterQueryException::class);
+        }
+
+        /** @var EqualsFilter $result */
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+
+        static::assertInstanceOf(SuffixFilter::class, $result);
+
+        static::assertEquals($result->getField(), 'product.' . $filter['field']);
+        static::assertEquals($result->getValue(), $filter['value']);
+    }
+
+    public function suffixFilterDataProvider(): array
+    {
+        return [
+            [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false],
+            [['type' => 'suffix', 'field' => 'foo', 'value' => ''], true],
+            [['type' => 'suffix', 'field' => '', 'value' => 'bar'], true],
+            [['type' => 'suffix', 'field' => 'foo'], true],
+            [['type' => 'suffix', 'value' => 'bar'], true],
+            [['type' => 'suffix', 'field' => 'foo', 'value' => true], false],
+            [['type' => 'suffix', 'field' => 'foo', 'value' => false], false],
+            [['type' => 'suffix', 'field' => 'foo', 'value' => 1], false],
+            [['type' => 'suffix', 'field' => 'foo', 'value' => 0], false],
         ];
     }
 

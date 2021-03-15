@@ -15,8 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -103,6 +105,10 @@ class SqlQueryParser
                 return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
             case $query instanceof ContainsFilter:
                 return $this->parseContainsFilter($query, $definition, $root, $context);
+            case $query instanceof PrefixFilter:
+                return $this->parsePrefixFilter($query, $definition, $root, $context);
+            case $query instanceof SuffixFilter:
+                return $this->parseSuffixFilter($query, $definition, $root, $context);
             case $query instanceof RangeFilter:
                 return $this->parseRangeFilter($query, $definition, $root, $context);
             case $query instanceof NotFilter:
@@ -163,6 +169,36 @@ class SqlQueryParser
 
         $escaped = addcslashes($query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped . '%');
+
+        return $result;
+    }
+
+    private function parsePrefixFilter(PrefixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    {
+        $key = $this->getKey();
+
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+
+        $result = new ParseResult();
+        $result->addWhere($field . ' LIKE :' . $key);
+
+        $escaped = addcslashes($query->getValue(), '\\_%');
+        $result->addParameter($key, $escaped . '%');
+
+        return $result;
+    }
+
+    private function parseSuffixFilter(SuffixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    {
+        $key = $this->getKey();
+
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+
+        $result = new ParseResult();
+        $result->addWhere($field . ' LIKE :' . $key);
+
+        $escaped = addcslashes($query->getValue(), '\\_%');
+        $result->addParameter($key, '%' . $escaped);
 
         return $result;
     }

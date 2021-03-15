@@ -6,5 +6,4 @@ author_email: lember@hochwarth-it.de
 author_github: sebi007
 ---
 # Core
-* Added `SitemapSalesChannelCriteriaEvent`
-* Added event dispatcher event to change sales channel criteria when generating sitemaps
+* Added new event `Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent` to exclude sales channel from sitemap generation

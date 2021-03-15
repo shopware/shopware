@@ -81,7 +81,7 @@ class SitemapGenerateCommand extends Command
         $criteria = $this->createCriteria($salesChannelId);
 
         $this->eventDispatcher->dispatch(
-            new SitemapSalesChannelCriteriaEvent($criteria)
+            new SitemapSalesChannelCriteriaEvent($criteria, $context)
         );
 
         $salesChannels = $this->salesChannelRepository->search($criteria, $context);

@@ -80,11 +80,13 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             [new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API)]
         ));
 
+        $context = Context::createDefaultContext();
+
         $this->eventDispatcher->dispatch(
-            new SitemapSalesChannelCriteriaEvent($criteria)
+            new SitemapSalesChannelCriteriaEvent($criteria, $context)
         );
 
-        $salesChannels = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {

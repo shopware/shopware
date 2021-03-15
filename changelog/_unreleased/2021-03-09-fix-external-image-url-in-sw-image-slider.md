@@ -1,6 +1,6 @@
 ---
 title: Fix external image URLs in sw-image-slider
-issue: 
+issue: NEXT-14190
 author: Sebastian Diez
 author_email: s.diez@seidemann-web.com
 author_github: @s-diez

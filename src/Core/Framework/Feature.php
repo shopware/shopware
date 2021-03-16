@@ -98,6 +98,19 @@ class Feature
         $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
     }
 
+    /**
+     * Triggers a silenced deprecation notice.
+     *
+     * @param string $sinceVersion  The version of the package that introduced the deprecation
+     * @param string $removeVersion The version of the package when the deprectated code will be removed
+     * @param string $message       The message of the deprecation
+     * @param mixed  ...$args       Values to insert in the message using printf() formatting
+     */
+    public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
+    {
+        trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
+    }
+
     public static function getAll(): array
     {
         $resolvedFlags = [];

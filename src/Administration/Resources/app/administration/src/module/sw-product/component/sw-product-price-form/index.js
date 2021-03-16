@@ -23,7 +23,8 @@ Component.register('sw-product-price-form', {
 
     data() {
         return {
-            displayMaintainCurrencies: false
+            displayMaintainCurrencies: false,
+            limitPricesItem: 2
         };
     },
 
@@ -60,7 +61,21 @@ Component.register('sw-product-price-form', {
         },
 
         prices() {
-            return [this.product.purchasePrices, this.product.price];
+            const prices = [];
+
+            if (this.product && this.product.price) {
+                prices.push(this.product.price);
+            }
+
+            if (this.product && this.product.purchasePrices) {
+                prices.push(this.product.purchasePrices);
+            }
+
+            return prices;
+        },
+
+        parentPrices() {
+            return [this.product.price || this.parentProduct.price, this.product.purchasePrices || this.parentProduct.purchasePrices];
         }
     },
 
@@ -74,6 +89,10 @@ Component.register('sw-product-price-form', {
                 net: defaultRefPrice.net,
                 linked: defaultRefPrice.linked
             }];
+        },
+
+        inheritationCheckFunction() {
+            return this.prices.length < this.limitPricesItem;
         },
 
         onMaintainCurrenciesClose(prices) {

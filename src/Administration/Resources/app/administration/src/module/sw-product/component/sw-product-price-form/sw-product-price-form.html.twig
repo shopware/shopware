@@ -66,14 +66,15 @@
                         v-if="!isLoading"
                         v-model="prices"
                         :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentProduct.price"
-                        :customRemoveInheritanceFunction="removePriceInheritation">
+                        :inheritedValue="parentPrices"
+                        :customRemoveInheritanceFunction="removePriceInheritation"
+                        :customInheritationCheckFunction="inheritationCheckFunction">
                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
                             <sw-list-price-field
                                 required
                                 vertical
-                                :price="currentValue[1]"
-                                :purchasePrices="currentValue[0]"
+                                :price="currentValue[0]"
+                                :purchasePrices="currentValue[1]"
                                 :taxRate="productTaxRate"
                                 :disabled="isInherited || !allowEdit"
                                 :error="productPriceError ? productPriceError[0] : null"

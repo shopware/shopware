@@ -67,11 +67,6 @@ shopware:
             - name: FEATURE_NEXT_11917
               major: false
               description: "dynamic plugin acl privileges"
-            - name: FEATURE_NEXT_12108
-              default: false
-              major: true
-              description: "show property group in rule builder and dpg"
-              # issue: NEXT-13753
             - name: FEATURE_NEXT_10552
               default: false
               major: true

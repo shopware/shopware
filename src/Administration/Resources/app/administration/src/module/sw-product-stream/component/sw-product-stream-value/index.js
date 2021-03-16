@@ -218,7 +218,7 @@ Component.register('sw-product-stream-value', {
         propertyCriteria() {
             const criteria = new Criteria();
 
-            if (this.feature.isActive('FEATURE_NEXT_12108') && this.definition.entity === 'property_group_option') {
+            if (this.definition.entity === 'property_group_option') {
                 criteria.addAssociation('group');
 
                 if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {

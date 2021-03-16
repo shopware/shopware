@@ -42,19 +42,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
@@ -238,10 +225,6 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">
             <argument type="service" id="customer_group.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerVatIdsDeprecationUpdater">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">

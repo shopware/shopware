@@ -29,12 +29,12 @@ function getCollection() {
         null
     );
 }
-function createWrapper() {
+function createWrapper(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-multi-select-filter'), {
+    const options = {
         localVue,
         stubs: {
             'sw-base-filter': Shopware.Component.build('sw-base-filter'),
@@ -80,6 +80,11 @@ function createWrapper() {
             },
             active: true
         }
+    };
+
+    return shallowMount(Shopware.Component.build('sw-multi-select-filter'), {
+        ...options,
+        ...customOptions
     });
 }
 
@@ -174,5 +179,42 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         expect(wrapper.vm.values.length).not.toEqual(0);
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+    });
+
+    it('should display slot "selection-label-property" correct', async () => {
+        const wrapper = createWrapper({
+            slots: {
+                'selection-label-property': '<div class="selected-label">Selected label</div>'
+            }
+        });
+
+        expect(wrapper.find('.selected-label').exists()).toBeFalsy();
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.selected-label').exists()).toBeTruthy();
+    });
+
+    it('should display slot "result-item" correct', async () => {
+        const wrapper = createWrapper({
+            slots: {
+                'result-item': 'List item'
+            }
+        });
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-select-result-list__item-list').text()).toBe('List item');
     });
 });

@@ -28,6 +28,27 @@
                     :active="!!activeFilters[filter.name]"
                     @filter-update="updateFilter"
                     @filter-reset="resetFilter">
+                        {% block sw_multi_select_filter_content_variant_label %}
+                            <template v-if="filter.displayVariants" #selection-label-property="{ item, index }">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_multi_select_filter_content_variant_result_item %}
+                            <template v-if="filter.displayVariants" #result-item="{ item, index }">
+                                <li is="sw-select-result" v-bind="{ item, index }">
+                                    {% block sw_multi_select_filter_content_variant_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-product-variant-info :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </span>
+                                    {% endblock %}
+                                </li>
+                            </template>
+                        {% endblock %}
                 </sw-multi-select-filter>
 
                 <sw-date-filter

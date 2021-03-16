@@ -221,7 +221,6 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>

@@ -50,7 +50,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
@@ -75,11 +74,6 @@ class CriteriaParser
         if ($field instanceof TranslatedField) {
             $ordered = [];
             foreach ($parts as $part) {
-                if (!Feature::isActive('FEATURE_NEXT_12158')) {
-                    if ($part === $field->getPropertyName()) {
-                        $ordered[] = 'translated';
-                    }
-                }
                 $ordered[] = $part;
             }
             $parts = $ordered;

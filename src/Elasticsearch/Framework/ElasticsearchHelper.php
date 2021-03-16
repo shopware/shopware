@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -122,22 +121,11 @@ class ElasticsearchHelper
             }
         }
 
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            if (!$context->hasState(Context::STATE_ELASTICSEARCH_AWARE)) {
-                return false;
-            }
-
-            return true;
-        }
-        if (!$this->client->ping()) {
-            return $this->logOrThrowException(new ServerNotAvailableException());
+        if (!$context->hasState(Context::STATE_ELASTICSEARCH_AWARE)) {
+            return false;
         }
 
-        if ($this->hasIndexDocuments($definition, $context)) {
-            return true;
-        }
-
-        return $this->logOrThrowException(new NoIndexedDocumentsException($definition->getEntityName()));
+        return true;
     }
 
     public function handleIds(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -281,22 +269,5 @@ class ElasticsearchHelper
         $entityName = $definition->getEntityName();
 
         return $this->registry->has($entityName);
-    }
-
-    private function hasIndexDocuments(EntityDefinition $definition, Context $context): bool
-    {
-        $index = $this->getIndexName($definition, $context->getLanguageId());
-
-        $exists = $this->client->indices()->exists(['index' => $index]);
-        if (!$exists) {
-            return false;
-        }
-
-        $count = $this->client->count(['index' => $index]);
-        if (!\array_key_exists('count', $count)) {
-            return false;
-        }
-
-        return $count['count'] > 0;
     }
 }

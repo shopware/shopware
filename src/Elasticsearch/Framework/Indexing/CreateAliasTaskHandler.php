@@ -5,7 +5,6 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
@@ -49,19 +48,6 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         }
     }
 
-    private function isIndexReady(string $index, int $expected): bool
-    {
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            return $expected <= 0;
-        }
-
-        $remote = $this->client->count([
-            'index' => $index,
-        ]);
-
-        return $remote['count'] >= $expected;
-    }
-
     private function createAlias(string $index, string $alias): void
     {
         $exist = $this->client->indices()->existsAlias(['name' => $alias]);
@@ -99,7 +85,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
             $this->client->indices()->refresh(['index' => $index]);
 
-            if (!$this->isIndexReady($index, $count)) {
+            if ($count <= 0) {
                 continue;
             }
 

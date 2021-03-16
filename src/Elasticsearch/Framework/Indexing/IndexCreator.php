@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 class IndexCreator
@@ -44,9 +43,7 @@ class IndexCreator
             'body' => $mapping,
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_12158')) {
-            $this->createAliasIfNotExisting($index, $alias);
-        }
+        $this->createAliasIfNotExisting($index, $alias);
     }
 
     private function indexExists(string $index): bool

@@ -48,7 +48,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -766,93 +765,6 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithLimit(IdsCollection $data): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
-
-        try {
-            $aggregator = $this->createEntityAggregator();
-
-            // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addAggregation(
-                new TermsAggregation('manufacturer-ids', 'product.manufacturer.id', 2, new FieldSorting('product.manufacturer.name'))
-            );
-
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-
-            static::assertCount(1, $aggregations);
-
-            static::assertTrue($aggregations->has('manufacturer-ids'));
-
-            /** @var TermsResult $result */
-            $result = $aggregations->get('manufacturer-ids');
-            static::assertInstanceOf(TermsResult::class, $result);
-
-            static::assertCount(2, $result->getBuckets());
-
-            static::assertContains($data->get('m1'), $result->getKeys());
-            static::assertContains($data->get('m2'), $result->getKeys());
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testTermsAggregationWithSorting(IdsCollection $data): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
-
-        try {
-            $aggregator = $this->createEntityAggregator();
-
-            // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addAggregation(
-                new TermsAggregation('manufacturer-ids', 'product.manufacturer.id', null, new FieldSorting('product.manufacturer.name', FieldSorting::DESCENDING))
-            );
-
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-
-            static::assertCount(1, $aggregations);
-
-            static::assertTrue($aggregations->has('manufacturer-ids'));
-
-            /** @var TermsResult $result */
-            $result = $aggregations->get('manufacturer-ids');
-            static::assertInstanceOf(TermsResult::class, $result);
-
-            static::assertCount(3, $result->getBuckets());
-
-            $ordered = $data->getList(['m3', 'm2', 'm1']);
-            static::assertEquals(array_values($ordered), $result->getKeys());
-
-            // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addAggregation(
-                new TermsAggregation('manufacturer-ids', 'product.manufacturer.id', null, new FieldSorting('product.manufacturer.name', FieldSorting::ASCENDING))
-            );
-
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-
-            /** @var TermsResult $result */
-            $result = $aggregations->get('manufacturer-ids');
-            $ordered = $data->getList(['m1', 'm2', 'm3']);
-            static::assertEquals(array_values($ordered), $result->getKeys());
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
     public function testSumAggregation(IdsCollection $data): void
     {
         try {
@@ -1442,66 +1354,6 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(2, $products->getIds());
             static::assertTrue($products->has($data->get('product-1')));
             static::assertTrue($products->has($data->get('product-3')));
-
-            if (Feature::isActive('FEATURE_NEXT_12158')) {
-                // groupId is not indexed anymore
-                return;
-            }
-
-            // check filter for categories
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addFilter(new EqualsAnyFilter('product.properties.groupId', [$data->get('color')]));
-
-            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-
-            static::assertCount(4, $products->getIds());
-            static::assertTrue($products->has($data->get('product-1')));
-            static::assertTrue($products->has($data->get('product-2')));
-            static::assertTrue($products->has($data->get('product-3')));
-            static::assertTrue($products->has($data->get('product-4')));
-            static::assertFalse($products->has($data->get('product-5')));
-        } catch (\Exception $e) {
-            static::tearDown();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @depends testIndexing
-     */
-    public function testFilterAggregationWithTerms(IdsCollection $data): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_12158', $this);
-
-        try {
-            $aggregator = $this->createEntityAggregator();
-
-            // check simple search without any restrictions
-            $criteria = new Criteria($data->prefixed('p'));
-            $criteria->addAggregation(
-                new FilterAggregation(
-                    'properties-filter',
-                    new TermsAggregation('properties', 'product.properties.id'),
-                    [new EqualsAnyFilter('product.properties.groupId', [$data->get('color')])]
-                )
-            );
-
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-
-            static::assertCount(1, $aggregations);
-
-            static::assertTrue($aggregations->has('properties'));
-
-            /** @var TermsResult $result */
-            $result = $aggregations->get('properties');
-            static::assertInstanceOf(TermsResult::class, $result);
-
-            static::assertTrue($result->has($data->get('red')));
-            static::assertTrue($result->has($data->get('green')));
-            static::assertFalse($result->has($data->get('xl')));
-            static::assertFalse($result->has($data->get('l')));
-            static::assertCount(2, $result->getBuckets());
         } catch (\Exception $e) {
             static::tearDown();
 

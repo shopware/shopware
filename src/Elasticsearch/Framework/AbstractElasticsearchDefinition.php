@@ -7,14 +7,8 @@ use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
 abstract class AbstractElasticsearchDefinition
@@ -43,28 +37,7 @@ abstract class AbstractElasticsearchDefinition
         ];
     }
 
-    /**
-     * This function defines which data should be selected and provided to the elasticsearch server
-     *
-     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - The fetch method will be used
-     */
-    public function extendCriteria(Criteria $criteria): void
-    {
-    }
-
-    /**
-     * Allows to add none database specific data to the entities.
-     * This function is typically used to build elasticsearch completion fields,
-     * n-grams or other calculated fields for the search engine
-     *
-     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - The fetch method will be used
-     */
-    public function extendEntities(EntityCollection $collection): EntityCollection
-    {
-        return $collection;
-    }
-
-    public function extendDocuments(EntityCollection $collection, array $documents, Context $context): array
+    public function extendDocuments(array $documents, Context $context): array
     {
         return $documents;
     }
@@ -91,50 +64,6 @@ abstract class AbstractElasticsearchDefinition
         $bool->addParameter('minimum_should_match', 1);
 
         return $bool;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_12158) tag:v6.4.0 - Use extend entities instead
-     */
-    public function buildFullText(Entity $entity): FullText
-    {
-        $fullText = [];
-        $boosted = [];
-
-        foreach ($this->getEntityDefinition()->getFields() as $field) {
-            $real = $field;
-
-            $isTranslated = $field instanceof TranslatedField;
-
-            if ($isTranslated) {
-                $real = EntityDefinitionQueryHelper::getTranslatedField($this->getEntityDefinition(), $field);
-            }
-
-            if (!$real instanceof StringField) {
-                continue;
-            }
-
-            try {
-                if ($isTranslated) {
-                    $value = $entity->getTranslation($real->getPropertyName());
-                } else {
-                    $value = $entity->get($real->getPropertyName());
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-
-            $fullText[] = $value;
-
-            if ($isTranslated || $field instanceof NumberRangeField) {
-                $boosted[] = $value;
-            }
-        }
-
-        $fullText = array_filter($fullText);
-        $boosted = array_filter($boosted);
-
-        return new FullText(implode(' ', $fullText), implode(' ', $boosted));
     }
 
     protected function stripText(string $text): string

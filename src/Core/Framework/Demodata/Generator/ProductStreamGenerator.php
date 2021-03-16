@@ -51,9 +51,9 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
             ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GT => $faker->numberBetween(1, 500), RangeFilter::LT => $faker->numberBetween(500, 1000)]],
             ['field' => 'stock', 'type' => 'equals', 'value' => '1000'],
             ['field' => 'name', 'type' => 'contains', 'value' => 'Awesome'],
-            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => implode('|', [$context->getRandomId('category'), $context->getRandomId('category')])],
+            ['field' => 'categoriesRo.id', 'type' => 'equalsAny', 'value' => implode('|', [$context->getRandomId('category'), $context->getRandomId('category')])],
             ['field' => 'id', 'type' => 'equalsAny', 'value' => implode('|', [$context->getRandomId('product'), $context->getRandomId('product')])],
-            ['field' => 'manufacturer.id', 'type' => 'equals', 'value' => $context->getRandomId('product_manufacturer')],
+            ['field' => 'manufacturerId', 'type' => 'equals', 'value' => $context->getRandomId('product_manufacturer')],
         ];
 
         $pool[] = ['type' => 'multi', 'operator' => 'AND', 'queries' => [$faker->randomElement($pool), $faker->randomElement($pool)]];

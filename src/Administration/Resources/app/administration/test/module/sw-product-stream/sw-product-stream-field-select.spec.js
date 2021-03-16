@@ -10,7 +10,7 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-product-stream-field-select'), {
         provide: {
             conditionDataProviderService: {
-                isPropertyInBlacklist: () => false
+                isPropertyInAllowList: () => true
             },
             productCustomFields: []
         },

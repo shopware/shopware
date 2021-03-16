@@ -49,6 +49,7 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
         padding: 0 0 $spacer;
         justify-content: center;
         background-color: $white;
+        margin: 0 30px;
     }
 
     .gallery-slider {
@@ -73,6 +74,14 @@ Displays a single image or a gallery slider in a zoom modal with zoom functions.
 
     .gallery-slider-thumbnails-item {
         width: auto;
+    }
+
+    .gallery-slider-thumbnails-controls-next {
+        right: -30px;
+    }
+
+    .gallery-slider-thumbnails-controls-prev {
+        left: -30px;
     }
 
     .image-zoom-container {

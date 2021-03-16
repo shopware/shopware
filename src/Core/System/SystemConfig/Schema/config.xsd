@@ -12,13 +12,13 @@
         </xs:unique>
     </xs:element>
     <xs:complexType name="card">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
             <xs:element name="name" type="xs:string" minOccurs="0"/>
             <xs:element name="input-field" type="input-field" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="component" type="component" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="flag" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="component">
         <xs:sequence>

@@ -63,7 +63,7 @@
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="navigation-flyout-teaser-image-container"
                                href="{{ category_url(category) }}"
-                               {% if category_linknewtab(treeItem.category) %}target="_blank"{% endif %}
+                               {% if category_linknewtab(category) %}target="_blank"{% endif %}
                                title="{{ name }}">
                                 {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
                                     media: category.media,

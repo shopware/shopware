@@ -45,7 +45,6 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
     });
 
     it('@base @content: assign layout to landing page from layout editor', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -127,14 +126,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         }).as('saveData');
 
         // Go to detail view
-        cy.onlyOnFeature('FEATURE_NEXT_12032', () => {
-            cy.get('.sw-cms-list-item--3').click();
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_12032', () => {
-            cy.get('.sw-cms-list-item--2').click();
-        });
-
+        cy.get('.sw-cms-list-item--3').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
@@ -187,9 +179,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
-        cy.onlyOnFeature('FEATURE_NEXT_13504', () => {
-            cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
-        });
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-layout-card__desc-headline').contains('Vierte Wand');
 
@@ -212,14 +202,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         }).as('saveShopPageData');
 
         // Go to detail view
-        cy.onlyOnFeature('FEATURE_NEXT_12032', () => {
-            cy.get('.sw-cms-list-item--2').click();
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_12032', () => {
-            cy.get('.sw-cms-list-item--1').click();
-        });
-
+        cy.get('.sw-cms-list-item--2').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block

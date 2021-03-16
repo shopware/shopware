@@ -10,12 +10,9 @@
                         itemscope="itemscope"
                         itemtype="http://schema.org/SiteNavigationElement">
                         {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
-                        {% if not feature('FEATURE_NEXT_13504') %}
-                            {% set homeLabel = "general.homeLink"|trans %}
-                        {% endif %}
 
                         {% block layout_main_navigation_menu_home %}
-                            {% if context.salesChannel.translated.homeEnabled or not feature('FEATURE_NEXT_13504') %}
+                            {% if context.salesChannel.translated.homeEnabled %}
                                 <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link"
                                     href="{{ path('frontend.home.page') }}"
                                     itemprop="url"
@@ -57,7 +54,7 @@
                                            href="{{ category_url(category) }}"
                                            itemprop="url"
                                            {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}
-                                           {% if category.translated.linkNewTab %}target="_blank"{% endif %}
+                                           {% if category_linknewtab(category) %}target="_blank"{% endif %}
                                            title="{{ name }}">
                                             <div class="main-navigation-link-text">
                                                 <span itemprop="name">{{ name }}</span>

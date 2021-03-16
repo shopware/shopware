@@ -235,6 +235,12 @@ Table(ShopwareCoreContentImportExport, "Shopware\Core\Content\ImportExport\n(Imp
    import_export_file Table
    import_export_profile_translation Table
 }
+Table(ShopwareCoreContentLandingPage, "Shopware\Core\Content\LandingPage\n(Landing Pages)") {
+   landing_page Table
+   landing_page_translation Table
+   landing_page_tag Table
+   landing_page_sales_channel Table
+}
 Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)") {
    customer Table
    customer_group_translation Table
@@ -342,6 +348,7 @@ ShopwareCoreCheckoutPromotion --> ShopwareCoreSystemLanguage
 ShopwareCoreContentSeo --> ShopwareCoreSystemLanguage
 ShopwareCoreSystemTax --> ShopwareCoreSystemLanguage
 ShopwareCoreContentImportExport --> ShopwareCoreSystemLanguage
+ShopwareCoreContentLandingPage --> ShopwareCoreSystemLanguage
 ShopwareStorefront --> ShopwareCoreSystemLanguage
 ShopwareCoreSystemSalesChannel --> ShopwareCoreContentSeo
 ShopwareCoreContentProduct --> ShopwareCoreContentSeo
@@ -353,6 +360,7 @@ ShopwareCoreCheckoutPayment --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentCms --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemSystemConfig --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentCategory --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProduct --> ShopwareCoreSystemSalesChannel
@@ -362,6 +370,7 @@ ShopwareCoreSystemNumberRange --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutPromotion --> ShopwareCoreSystemSalesChannel
 ShopwareCoreCheckoutDocument --> ShopwareCoreSystemSalesChannel
 ShopwareCoreContentProductExport --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentLandingPage --> ShopwareCoreSystemSalesChannel
 ShopwareStorefront --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemSnippet --> ShopwareCoreSystemSalesChannel
 ShopwareCoreSystemCountry --> ShopwareCoreSystemCountry
@@ -401,6 +410,7 @@ ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemTag
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemTag
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemTag
 ShopwareCoreContentNewsletter --> ShopwareCoreSystemTag
+ShopwareCoreContentLandingPage --> ShopwareCoreSystemTag
 ShopwareCoreContentCategory --> ShopwareCoreContentCategory
 ShopwareCoreContentMedia --> ShopwareCoreContentCategory
 ShopwareCoreContentProduct --> ShopwareCoreContentCategory
@@ -434,8 +444,11 @@ ShopwareCoreContentProductStream --> ShopwareCoreContentProductStream
 ShopwareCoreContentProductExport --> ShopwareCoreContentProductStream
 ShopwareCoreContentProperty --> ShopwareCoreContentProperty
 ShopwareCoreContentCms --> ShopwareCoreContentCms
+ShopwareCoreContentLandingPage --> ShopwareCoreContentCms
 ShopwareCoreContentMailTemplate --> ShopwareCoreContentMailTemplate
 ShopwareCoreContentImportExport --> ShopwareCoreContentImportExport
+ShopwareCoreContentLandingPage --> ShopwareCoreContentLandingPage
+ShopwareCoreContentLandingPage --> ShopwareCoreContentSeo
 ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer

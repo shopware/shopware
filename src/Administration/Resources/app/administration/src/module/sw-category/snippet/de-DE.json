@@ -41,12 +41,9 @@
         "labelCategoryTagsPlaceholder": "Gib einzelne Tags ein ...",
         "types": {
           "title": "Kategorietyp",
-          "page": "Kategorie",
-          "folder": "Strukturkategorie",
-          "link": "Benutzerdefinierter Link",
-          "newPage": "Seite / Liste",
-          "newFolder": "Strukturelement / Einstiegspunkt",
-          "newLink": "Link",
+          "page": "Seite / Liste",
+          "folder": "Strukturelement / Einstiegspunkt",
+          "link": "Link",
           "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
           "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
           "helpText": {
@@ -54,18 +51,6 @@
             "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
             "link": "Ein Link ermöglicht den Verweis auf ein Produkt, eine andere Kategorie, eine Landingpage oder eine externe Seite."
           }
-        }
-      },
-      "entry-point": {
-        "title": "Einstiegspunkt",
-        "navigation": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
-        },
-        "serviceSales": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
-        },
-        "footerSales": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
         }
       },
       "entry-point-card": {

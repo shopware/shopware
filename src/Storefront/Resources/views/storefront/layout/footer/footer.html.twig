@@ -60,7 +60,7 @@
                                             {{ root.category.translated.name }}
                                         {% else %}
                                             <a href="{{ category_url(root.category) }}"
-                                               {% if root.category.translated.linkNewTab %}target="_blank"{% endif %}
+                                               {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
                                                title="{{ root.category.translated.name }}">
                                                 {{ root.category.translated.name }}
                                             </a>
@@ -100,7 +100,7 @@
                                                                     {% else %}
                                                                         <a class="footer-link"
                                                                            href="{{ category_url(category) }}"
-                                                                           {% if category.translated.linkNewTab %}target="_blank"{% endif %}
+                                                                           {% if category_linknewtab(category) %}target="_blank"{% endif %}
                                                                            title="{{ name }}">
                                                                             {{ name }}
                                                                         </a>
@@ -183,7 +183,7 @@
                                         <li class="footer-service-menu-item">
                                             <a class="footer-service-menu-link"
                                                href="{{ category_url(serviceMenuItem) }}"
-                                               {% if serviceMenuItem.translated.linkNewTab %}target="_blank"{% endif %}
+                                               {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
                                                title="{{ serviceMenuItem.translated.name }}">
                                                 {{ serviceMenuItem.translated.name }}
                                             </a>

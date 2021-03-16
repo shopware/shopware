@@ -14,8 +14,7 @@ Component.register('sw-category-detail', {
         'acl',
         'cmsService',
         'repositoryFactory',
-        'seoUrlService',
-        'feature'
+        'seoUrlService'
     ],
 
     provide() {
@@ -583,7 +582,7 @@ Component.register('sw-category-detail', {
                 this.category.slotConfig = cloneDeep(pageOverrides);
             }
 
-            if (!this.entryPointOverwriteConfirmed && this.feature.isActive('FEATURE_NEXT_13504')) {
+            if (!this.entryPointOverwriteConfirmed) {
                 this.checkForEntryPointOverwrite();
                 if (this.showEntryPointOverwriteModal) {
                     return;

@@ -91,7 +91,6 @@
         <service id="Shopware\Core\Content\Category\Validation\EntryPointValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_13504"/>
         </service>
     </services>
 </container>

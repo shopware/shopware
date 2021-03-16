@@ -24,13 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @internal (flag:FEATURE_NEXT_12032)
- */
 class LandingPageDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'landing_page';
@@ -52,8 +48,7 @@ class LandingPageDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        // May insert correct since-value
-        return '6.3.5.0';
+        return '6.4.0.0';
     }
 
     protected function defineFields(): FieldCollection

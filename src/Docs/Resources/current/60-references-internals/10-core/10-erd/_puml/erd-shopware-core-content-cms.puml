@@ -24,6 +24,7 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    primary_key(id) id
+   primary_key(versionId) version
    name translated
    not_null(type) string
    entity string
@@ -31,7 +32,6 @@ Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    previewMediaId foreignKey
    customFields translated
    locked writeLockIndicator
-   primary_key(versionId) version
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -114,6 +114,10 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
+ForeignTable(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
@@ -123,6 +127,8 @@ ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreCo
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition

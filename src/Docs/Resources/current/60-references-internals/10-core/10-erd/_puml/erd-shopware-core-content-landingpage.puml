@@ -1,0 +1,87 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page\n(__EMPTY__)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   active bool
+   name translated
+   customFields translated
+   slotConfig translated
+   metaTitle translated
+   metaDescription translated
+   keywords translated
+   url translated
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition, "landing_page_translation\n((Translations))") {
+   not_null(name) string
+   not_null(url) string
+   slotConfig json
+   metaTitle longText
+   metaDescription longText
+   keywords longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(landingPageId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+}
+Table(ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition, "landing_page_tag\n(M:N Mapping)") {
+   primary_key(landingPageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+   primary_key(tagId) foreignKey
+}
+Table(ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition, "landing_page_sales_channel\n(M:N Mapping)") {
+   primary_key(landingPageId) foreignKey
+   primary_key(landingPageVersionId) referenceVersion
+   primary_key(salesChannelId) foreignKey
+}
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
+ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+
+' relationshipd
+
+ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageLandingPageDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentLandingPageLandingPageDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTranslationLandingPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageTagLandingPageTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreContentLandingPageAggregateLandingPageSalesChannelLandingPageSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+@enduml

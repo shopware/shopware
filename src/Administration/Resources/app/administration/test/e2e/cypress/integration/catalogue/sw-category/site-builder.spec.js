@@ -14,7 +14,6 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with main navigation', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
@@ -119,7 +118,6 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with footer navigation', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
@@ -164,7 +162,6 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with service navigation', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
@@ -209,7 +206,6 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as internal link to the main category', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
@@ -257,7 +253,6 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as external link in new tab', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_13504');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
         cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');

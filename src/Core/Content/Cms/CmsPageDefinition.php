@@ -56,6 +56,7 @@ class CmsPageDefinition extends EntityDefinition
     {
         $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
@@ -71,25 +72,13 @@ class CmsPageDefinition extends EntityDefinition
             (new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete()),
+            (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete()),
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_10078')) {
             $collection->add(
                 (new OneToManyAssociationField('products', ProductDefinition::class, 'cms_page_id'))->addFlags(new RestrictDelete())
-            );
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_12032')) {
-            $collection->add(
-                (new OneToManyAssociationField('landingPages', LandingPageDefinition::class, 'cms_page_id'))->addFlags(new ApiAware(), new RestrictDelete())
-            );
-        }
-
-        $collection->add((new VersionField())->addFlags(new ApiAware()));
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $collection->add(
-                (new OneToManyAssociationField('homeSalesChannels', SalesChannelDefinition::class, 'home_cms_page_id'))->addFlags(new RestrictDelete())
             );
         }
 

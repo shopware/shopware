@@ -11,8 +11,7 @@ Component.register('sw-category-detail-base', {
 
     inject: [
         'repositoryFactory',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [
@@ -57,34 +56,21 @@ Component.register('sw-category-detail-base', {
 
     computed: {
         categoryTypes() {
-            let categoryTypes = [
-                { value: 'page', label: this.$tc('sw-category.base.general.types.page') },
-                { value: 'folder', label: this.$tc('sw-category.base.general.types.folder') },
-                { value: 'link', label: this.$tc('sw-category.base.general.types.link') }
+            return [
+                {
+                    value: 'page',
+                    label: this.$tc('sw-category.base.general.types.page')
+                },
+                {
+                    value: 'folder',
+                    label: this.$tc('sw-category.base.general.types.folder')
+                },
+                {
+                    value: 'link',
+                    label: this.typeLinkLabel,
+                    disabled: this.isSalesChannelEntryPoint
+                }
             ];
-
-            // Renames the existing types to the new ones if the feature is active
-            if (this.feature.isActive('FEATURE_NEXT_13504')) {
-                // These can be removed on Feature Flag removal, as long as the snippets are replaced
-                categoryTypes = categoryTypes.map((type) => {
-                    if (type.value === 'page') {
-                        type.label = this.$tc('sw-category.base.general.types.newPage');
-                    }
-
-                    if (type.value === 'folder') {
-                        type.label = this.$tc('sw-category.base.general.types.newFolder');
-                    }
-
-                    if (type.value === 'link') {
-                        type.label = this.typeLinkLabel;
-                        type.disabled = this.isSalesChannelEntryPoint;
-                    }
-
-                    return type;
-                });
-            }
-
-            return categoryTypes;
         },
 
         typeLinkLabel() {
@@ -92,11 +78,10 @@ Component.register('sw-category-detail-base', {
                 return this.$tc('sw-category.base.general.types.linkUnavailable');
             }
 
-            return this.$tc('sw-category.base.general.types.newLink');
+            return this.$tc('sw-category.base.general.types.link');
         },
 
         categoryTypeHelpText() {
-            // ToDo NEXT-13760: insert final snippets for category type help texts
             if (['page', 'folder', 'link'].includes(this.category.type)) {
                 return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
             }

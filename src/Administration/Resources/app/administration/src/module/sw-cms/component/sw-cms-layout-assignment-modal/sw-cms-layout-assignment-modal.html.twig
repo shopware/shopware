@@ -71,7 +71,7 @@
 
                     {% block sw_cms_layout_assignment_modal_tab_landing_pages %}
                         <sw-tabs-item
-                            v-if="feature.isActive('FEATURE_NEXT_12032') && page.type === 'landingpage'"
+                            v-if="page.type === 'landingpage'"
                             :activeTab="active"
                             :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
                             :disabled="!acl.can('system.system_config')"

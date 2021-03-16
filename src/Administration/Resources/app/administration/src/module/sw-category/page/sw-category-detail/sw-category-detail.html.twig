@@ -132,7 +132,6 @@
 
                 {% block sw_landing_page_collapse %}
                     <sw-sidebar-collapse
-                        v-if="feature.isActive('FEATURE_NEXT_12032')"
                         class="sw-category-detail__landing-page-collapse"
                         :expandOnLoading="landingPageId !== null">
                         <template slot="header">
@@ -203,7 +202,7 @@
 
                 {% block sw_category_content_entry_point_overwrite_modal %}
                     <sw-category-entry-point-overwrite-modal
-                        v-if="showEntryPointOverwriteModal && feature.isActive('FEATURE_NEXT_13504')"
+                        v-if="showEntryPointOverwriteModal"
                         :salesChannels="entryPointOverwriteSalesChannels"
                         @cancel="cancelEntryPointOverwrite"
                         @confirm="confirmEntryPointOverwrite">
@@ -212,7 +211,7 @@
 
                 {% block sw_landing_page_content_view %}
                     <sw-landing-page-view
-                        v-if="feature.isActive('FEATURE_NEXT_12032') && landingPage"
+                        v-if="landingPage"
                         ref="landingPageView"
                         :isLoading="isLoading"
                     ></sw-landing-page-view>

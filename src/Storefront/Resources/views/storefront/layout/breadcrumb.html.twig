@@ -31,7 +31,7 @@
                                     <a href="{{ category_url(breadcrumbCategory) }}"
                                        class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
                                        title="{{ name }}"
-                                       {% if breadcrumbCategory.translated.linkNewTab %}target="_blank"{% endif %}
+                                       {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
                                        itemprop="item">
                                         <link itemprop="url"
                                               href="{{ category_url(breadcrumbCategory) }}"/>

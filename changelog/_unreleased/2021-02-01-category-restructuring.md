@@ -1,7 +1,6 @@
 ---
 title: Restructuring of category module
 issue: NEXT-10540
-flag: FEATURE_NEXT_13504
 author: Krispin Lütjann & Max Stegmeyer
 ---
 # Core

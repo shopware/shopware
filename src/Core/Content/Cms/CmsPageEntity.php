@@ -79,15 +79,11 @@ class CmsPageEntity extends Entity
     protected $locked;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageCollection|null
      */
     protected $landingPages;
 
     /**
-     * @internal (flag:FEATURE_NEXT_13504)
-     *
      * @var CmsPageCollection|null
      */
     protected $homeSalesChannels;
@@ -225,33 +221,21 @@ class CmsPageEntity extends Entity
         return array_shift($elements);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPages(): ?LandingPageCollection
     {
         return $this->landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_13504)
-     */
     public function getHomeSalesChannels(): ?CmsPageCollection
     {
         return $this->homeSalesChannels;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_13504)
-     */
     public function setHomeSalesChannels(CmsPageCollection $homeSalesChannels): void
     {
         $this->homeSalesChannels = $homeSalesChannels;

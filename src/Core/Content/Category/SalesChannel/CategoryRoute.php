@@ -11,7 +11,6 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -97,8 +96,7 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_13504')
-            && ($category->getType() === CategoryDefinition::TYPE_FOLDER
+        if (($category->getType() === CategoryDefinition::TYPE_FOLDER
                 || $category->getType() === CategoryDefinition::TYPE_LINK)
             && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
         ) {
@@ -109,10 +107,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $slotConfig = $category->getTranslation('slotConfig');
 
         $salesChannel = $context->getSalesChannel();
-        if ($category->getId() === $salesChannel->getNavigationCategoryId()
-            && Feature::isActive('FEATURE_NEXT_13504')
-            && $salesChannel->getHomeCmsPageId()
-        ) {
+        if ($category->getId() === $salesChannel->getNavigationCategoryId() && $salesChannel->getHomeCmsPageId()) {
             $pageId = $salesChannel->getHomeCmsPageId();
             $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
         }

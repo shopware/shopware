@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\Service;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -26,21 +25,10 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_13504)
-     */
     public function generate(CategoryEntity $category, ?SalesChannelEntity $salesChannel): ?string
     {
         if ($category->getType() === CategoryDefinition::TYPE_FOLDER) {
             return null;
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_13504')) {
-            if ($category->getTranslation('externalLink')) {
-                return $category->getTranslation('externalLink');
-            }
-
-            return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $category->getId()]);
         }
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {

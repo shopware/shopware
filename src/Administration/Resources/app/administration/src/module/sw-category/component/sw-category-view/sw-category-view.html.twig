@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block sw_category_view_column_info %}
-            <sw-alert v-if="feature.isActive('FEATURE_NEXT_13504') && category.isColumn"
+            <sw-alert v-if="category.isColumn"
                       class="swag-category-view__column-info"
                       variant="info">
                 <div class="swag-category-view__column-info-header" >{{ $tc('sw-category.view.columnInfoHeader') }}</div>
@@ -39,12 +39,6 @@
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
                         v-show="cmsPage || isPage"
-                        :disabled="!acl.can('category.editor') && !feature.isActive('FEATURE_NEXT_13504')"
-                        v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('category.editor') || feature.isActive('FEATURE_NEXT_13504'),
-                            showOnDisabledElements: true
-                        }"
                         class="sw-category-detail__tab-cms"
                         :route="{ name: 'sw.category.detail.cms' }"
                         :title="$tc('sw-category.view.cms')">

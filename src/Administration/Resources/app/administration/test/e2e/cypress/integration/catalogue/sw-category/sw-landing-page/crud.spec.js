@@ -14,7 +14,6 @@ describe('Category: Landing pages', () => {
     });
 
     it('@catalogue: create a landing page and check storefront behavior', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
         cy.server();
         cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
         cy.route('POST', `${Cypress.env('apiPath')}/landing-page`).as('saveLandingPage');

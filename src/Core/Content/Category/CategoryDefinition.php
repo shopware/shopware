@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
@@ -124,7 +123,10 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new TranslatedField('slotConfig'),
+            (new TranslatedField('linkType'))->addFlags(new ApiAware()),
+            (new TranslatedField('internalLink'))->addFlags(new ApiAware()),
             (new TranslatedField('externalLink'))->addFlags(new ApiAware()),
+            (new TranslatedField('linkNewTab'))->addFlags(new ApiAware()),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware()),
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware()),
@@ -140,6 +142,7 @@ class CategoryDefinition extends EntityDefinition
             new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
 
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware()),
+            (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()),
             (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
@@ -151,14 +154,6 @@ class CategoryDefinition extends EntityDefinition
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
         ]);
-
-        $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
-
-        if (Feature::isActive('FEATURE_NEXT_13504')) {
-            $collection->add((new TranslatedField('linkType'))->addFlags(new ApiAware()));
-            $collection->add((new TranslatedField('linkNewTab'))->addFlags(new ApiAware()));
-            $collection->add((new TranslatedField('internalLink'))->addFlags(new ApiAware()));
-        }
 
         return $collection;
     }

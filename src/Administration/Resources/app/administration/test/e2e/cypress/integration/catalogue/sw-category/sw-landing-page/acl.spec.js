@@ -38,7 +38,6 @@ describe('Landing pages: Test ACL privileges', () => {
     });
 
     it('@catalogue: can duplicate landing pages', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -94,7 +93,6 @@ describe('Landing pages: Test ACL privileges', () => {
     });
 
     it('@catalogue: can create landing pages', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -155,8 +153,6 @@ describe('Landing pages: Test ACL privileges', () => {
     });
 
     it('@catalogue: can view landing pages', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
-
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -194,8 +190,6 @@ describe('Landing pages: Test ACL privileges', () => {
     });
 
     it('@catalogue: can edit landing pages', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
-
         const page = new CategoryPageObject();
         cy.loginAsUserWithPermissions([
             {
@@ -257,7 +251,6 @@ describe('Landing pages: Test ACL privileges', () => {
     });
 
     it('@catalogue: can delete landing pages', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12032');
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',

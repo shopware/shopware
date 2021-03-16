@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -112,7 +111,6 @@ class CategoryRouteTest extends TestCase
 
     public function testCategoryOfTypeFolder(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
         $id = $this->ids->get('folder');
         $this->browser->request(
             'POST',
@@ -126,7 +124,6 @@ class CategoryRouteTest extends TestCase
 
     public function testCategoryOfTypeLink(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
         $id = $this->ids->get('link');
         $this->browser->request(
             'POST',
@@ -140,8 +137,6 @@ class CategoryRouteTest extends TestCase
 
     public function testHomeWithSalesChannelOverride(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13504', $this);
-
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[

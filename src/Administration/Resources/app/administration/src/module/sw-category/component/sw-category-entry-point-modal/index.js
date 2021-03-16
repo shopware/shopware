@@ -7,8 +7,7 @@ Component.register('sw-category-entry-point-modal', {
     template,
 
     inject: [
-        'acl',
-        'feature'
+        'acl'
     ],
 
     props: {

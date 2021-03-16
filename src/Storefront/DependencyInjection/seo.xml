@@ -22,7 +22,6 @@
             <argument type="service" id="Shopware\Core\Content\LandingPage\LandingPageDefinition"/>
 
             <tag name="shopware.seo_url.route"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12032"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener">

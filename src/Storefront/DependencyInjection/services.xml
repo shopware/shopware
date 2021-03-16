@@ -452,6 +452,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer"/>
+            <tag name="kernel.event_listener"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway">

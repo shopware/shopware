@@ -41,7 +41,7 @@
         "loginNotificationMessage": "You are logged in to the Shopware Account."
       },
       "tabs": {
-        "app": "Apps & Plugins",
+        "app": "Apps",
         "theme": "Theme",
         "recommendation": "Recommendations",
         "shopwareAccount": "Shopware Account"

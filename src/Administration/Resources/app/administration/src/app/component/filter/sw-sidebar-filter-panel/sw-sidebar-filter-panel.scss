@@ -8,6 +8,12 @@
         margin: 0;
         padding: 0 25px;
         border-bottom: 1px solid $color-gray-300;
+
+        a {
+            float: left;
+            width: 100%;
+            padding-left: 15px;
+        }
     }
 
     a {
@@ -15,6 +21,5 @@
         color: $color-shopware-brand-500;
         text-decoration: underline;
         cursor: pointer;
-        padding-right: 200px;
     }
 }

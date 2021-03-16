@@ -8,13 +8,6 @@ export default () => {
             return accumulator;
         }
 
-        // Remove the whole if-block on feature removal, also the inner if-block
-        if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-            if (item.includes('./sw-plugin/')) {
-                return accumulator;
-            }
-        }
-
         const module = context(item).default;
         accumulator.push(module);
         return accumulator;

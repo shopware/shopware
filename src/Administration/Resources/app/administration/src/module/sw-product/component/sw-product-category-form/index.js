@@ -39,7 +39,10 @@ Component.register('sw-product-category-form', {
             'isChild'
         ]),
 
-        ...mapPropertyErrors('product', ['tags']),
+        ...mapPropertyErrors('product', [
+            'tags',
+            'active'
+        ]),
 
         hasSelectedVisibilities() {
             if (this.product && this.product.visibilities) {

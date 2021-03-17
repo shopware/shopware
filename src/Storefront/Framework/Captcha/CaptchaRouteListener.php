@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,11 +21,17 @@ class CaptchaRouteListener implements EventSubscriberInterface
      */
     private $captchas;
 
+    private ?ErrorController $errorController;
+
     private SystemConfigService $systemConfigService;
 
-    public function __construct(iterable $captchas, SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        iterable $captchas,
+        ?ErrorController $errorController = null,
+        SystemConfigService $systemConfigService
+    ) {
         $this->captchas = $captchas;
+        $this->errorController = $errorController;
         $this->systemConfigService = $systemConfigService;
     }
 
@@ -73,7 +80,27 @@ class CaptchaRouteListener implements EventSubscriberInterface
             if (
                 $captcha->supports($event->getRequest(), $captchaConfig) && !$captcha->isValid($event->getRequest(), $captchaConfig)
             ) {
-                throw new CaptchaInvalidException($captcha);
+                if (!Feature::isActive('FEATURE_NEXT_12455')) {
+                    throw new CaptchaInvalidException($captcha);
+                }
+
+                if ($captcha->shouldBreak()) {
+                    throw new CaptchaInvalidException($captcha);
+                }
+
+                $violations = $captcha->getViolations();
+
+                /** @var ErrorController $errorController */
+                $errorController = $this->errorController;
+
+                $request = $event->getRequest();
+                $event->setController(function () use (
+                    $errorController,
+                    $violations,
+                    $request
+                ) {
+                    return $errorController->onCaptchaFailure($violations, $request);
+                });
             }
         }
     }

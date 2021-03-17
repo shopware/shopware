@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 abstract class AbstractCaptcha
 {
@@ -46,6 +47,17 @@ abstract class AbstractCaptcha
     abstract public function getName(): string;
 
     /**
+     * Returns true when the CAPTCHA doesn't need to provide information on how to pass
+     * the check to customers. An exception will be thrown instead as soon as the CAPTCHA check fails
+     *
+     * @internal (flag:FEATURE_NEXT_12455)
+     */
+    public function shouldBreak(): bool
+    {
+        return true;
+    }
+
+    /**
      * getData returns data the captcha might need to render in the template for
      * the user to be able to correctly fill in the captcha value, for example
      * an image of distorted text.
@@ -53,5 +65,13 @@ abstract class AbstractCaptcha
     public function getData(): ?array
     {
         return null;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12455)
+     */
+    public function getViolations(): ConstraintViolationList
+    {
+        return new ConstraintViolationList();
     }
 }

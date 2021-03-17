@@ -10,9 +10,10 @@
     "captcha": {
       "label": {
         "honeypot": "Honeypot Captcha",
+        "basicCaptcha": "Einfaches CAPTCHA",
         "googleReCaptchaV2": "Google reCAPTCHA v2",
-        "googleReCaptchaV2SiteKey": "Google reCAPTCHA v2 Websiteschlüssel",
-        "googleReCaptchaV2SecretKey": "Google reCAPTCHA v2 geheimer Schlüssel",
+        "googleReCaptchaV2SiteKey": "Website-Schlüssel für Google reCAPTCHA v2",
+        "googleReCaptchaV2SecretKey": "Geheimer Schlüssel für Google reCAPTCHA v2",
         "googleReCaptchaV2Invisible": "Google reCAPTCHA v2 unsichtbar",
         "googleReCaptchaV3": "Google reCAPTCHA v3",
         "googleReCaptchaV3SiteKey": "Google reCAPTCHA v3 Websiteschlüssel",

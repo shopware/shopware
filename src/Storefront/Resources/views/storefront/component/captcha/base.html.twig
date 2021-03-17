@@ -3,7 +3,12 @@
         {% for captcha in captchas %}
             {% if feature('FEATURE_NEXT_12455') %}
                 {% if captcha.isActive %}
-                    {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha.name) %}
+                    {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha.name)
+                        with {
+                        'additionalClass': additionalClass,
+                        'formId': formId
+                        }
+                    %}
                 {% endif %}
             {% else %}
                 {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha) %}

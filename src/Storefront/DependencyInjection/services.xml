@@ -204,6 +204,13 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPageletLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"/>
@@ -504,6 +511,7 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
             <argument type="tagged" tag="shopware.storefront.captcha"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -514,6 +522,18 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.storefront.captcha"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
+            <argument type="service" id="session"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator">
+            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="shopware.captcha.client" class="GuzzleHttp\Client">

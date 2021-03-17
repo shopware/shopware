@@ -90,6 +90,7 @@ import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
 import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import FadingPlugin from 'src/plugin/fading/fading.plugin';
+import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -161,6 +162,9 @@ PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
+if (Feature.isActive('FEATURE_NEXT_12455')) {
+    PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
+}
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {

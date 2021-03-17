@@ -2,15 +2,18 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class ErrorController extends StorefrontController
 {
@@ -102,5 +105,29 @@ class ErrorController extends StorefrontController
         $this->session->getFlashBag()->clear();
 
         return $response;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_12455)
+     */
+    public function onCaptchaFailure(
+        ConstraintViolationList $violations,
+        Request $request
+    ): Response {
+        $formViolations = new ConstraintViolationException($violations, []);
+        if (!$request->isXmlHttpRequest()) {
+            return $this->forwardToRoute($request->get('_route'), ['formViolations' => $formViolations]);
+        }
+
+        $response = [];
+        $response[] = [
+            'type' => 'danger',
+            'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                'type' => 'danger',
+                'list' => [$this->trans('error.' . $formViolations->getViolations()->get(0)->getCode())],
+            ]),
+        ];
+
+        return new JsonResponse($response);
     }
 }

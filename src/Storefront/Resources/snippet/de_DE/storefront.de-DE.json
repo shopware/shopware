@@ -72,7 +72,10 @@
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
     "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
-    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
+    "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht mehr gültig!",
+    "captcha" : {
+      "basic-captcha-invalid": "CAPTCHA-Eingabe ungültig. Bitte überprüfen Sie Ihre Eingaben."
+    }
   },
   "account": {
     "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut",
@@ -560,7 +563,8 @@
   "captcha": {
     "googleReCaptcha": {
       "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und\\n<a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
-    }
+    },
+    "basicCaptchaLabel" : "Bitte geben Sie die abgebildeten Zeichen ein*"
   },
   "cookie": {
     "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",

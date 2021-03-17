@@ -134,6 +134,7 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
+                // TODO: add error handling
                 this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;

@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-plugin-card', {
     template,
 
-    inject: ['storeService', 'pluginService', 'cacheApiService'],
+    inject: ['storeService', 'pluginService', 'cacheApiService', 'extensionHelperService'],
 
     props: {
         plugin: {
@@ -44,13 +44,9 @@ Component.register('sw-plugin-card', {
             this.pluginIsLoading = true;
             this.pluginIsSaveSuccessful = false;
 
-            return this.storeService.downloadPlugin(pluginName, true)
+            return this.extensionHelperService.downloadAndActivateExtension(pluginName)
                 .then(() => {
                     this.pluginIsSaveSuccessful = true;
-                    return this.pluginService.install(pluginName);
-                })
-                .then(() => {
-                    return this.pluginService.activate(pluginName);
                 })
                 .finally(() => {
                     this.pluginIsLoading = false;

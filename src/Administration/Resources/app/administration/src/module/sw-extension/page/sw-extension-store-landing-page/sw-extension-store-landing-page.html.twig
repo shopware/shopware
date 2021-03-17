@@ -25,10 +25,10 @@
                     </sw-label>
 
                     <h2>
-                        {{ $tc('sw-extension-store.landing-page.activationErrorTitle') }}
+                        {{ error && error.title || $tc('sw-extension-store.landing-page.activationErrorTitle') }}
                     </h2>
                     <p>
-                        {{ $tc('sw-extension-store.landing-page.activationErrorDescription') }}
+                        {{ error && error.detail || $tc('sw-extension-store.landing-page.activationErrorDescription') }}
                     </p>
 
                     <sw-button @click="activateStore" variant="primary">

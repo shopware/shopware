@@ -12,7 +12,8 @@ Shopware.Component.register('sw-extension-store-landing-page', {
     data() {
         return {
             isLoading: false,
-            activationStatus: null
+            activationStatus: null,
+            error: null
         };
     },
 
@@ -35,6 +36,16 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 })
                 .catch(error => {
                     this.activationStatus = 'error';
+
+                    if (error &&
+                        error.response &&
+                        error.response.data &&
+                        Array.isArray(error.response.data.errors) &&
+                        error.response.data.errors[0]
+                    ) {
+                        this.error = error.response.data.errors[0];
+                    }
+
                     Shopware.Utils.debug.error(error);
                 })
                 .finally(() => {

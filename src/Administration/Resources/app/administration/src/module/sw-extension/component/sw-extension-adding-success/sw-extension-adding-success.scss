@@ -1,0 +1,24 @@
+@import "~scss/variables.scss";
+
+.sw-extension-adding-success {
+    text-align: center;
+
+    .sw-circle-icon {
+        margin: 16px auto;
+    }
+
+    h3 {
+        font-size: $font-size-large;
+        margin-bottom: 0.5em;
+    }
+
+    p {
+        font-size: $font-size-small;
+        line-height: 1.5;
+        color: $color-gray-500;
+    }
+
+    .sw-button {
+        margin-top: 16px;
+    }
+}

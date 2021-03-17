@@ -52,10 +52,10 @@
             </sw-label>
 
             <h2>
-                {{ $tc('sw-first-run-wizard.store.activationErrorTitle') }}
+                {{ error && error.title || $tc('sw-first-run-wizard.store.activationErrorTitle') }}
             </h2>
             <p>
-                {{ $tc('sw-first-run-wizard.store.activationErrorDescription') }}
+                {{ error && error.detail || $tc('sw-first-run-wizard.store.activationErrorDescription') }}
             </p>
         </template>
 

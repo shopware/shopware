@@ -1,0 +1,78 @@
+@import "~scss/variables";
+
+.sw-license-violation-confirm-delete {
+    z-index: 1300;
+}
+
+.sw-license-violation {
+    z-index: 1200;
+
+    .sw-modal__body {
+        font-size: $font-size-small;
+        padding: 0;
+    }
+
+    .sw-license-violation__alert {
+        margin: 20px;
+        line-height: 1.5;
+
+        a {
+            text-decoration: none;
+            color: $color-shopware-brand-500;
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+
+    .sw-license-violation__table {
+        border-collapse: collapse;
+        margin: 25px 10px 0 10px;
+
+        tr {
+            border-bottom: 1px solid $color-gray-300;
+        }
+
+        th,
+        td {
+            text-align: left;
+            vertical-align: top;
+            padding: 20px 10px;
+        }
+    }
+
+    .sw-license-violation__table-name {
+        display: flex;
+
+        img {
+            max-width: 40px;
+            margin-right: 10px;
+        }
+    }
+
+    td.sw-license-violation__table-actions {
+        text-align: right;
+
+        div.sw-license-violation__table-actions-wrap {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+    }
+
+    .sw-license-violation__table-action-remove {
+        color: $color-crimson-500;
+        text-decoration: none;
+        margin-right: 8px;
+    }
+
+    .sw-modal__footer {
+        grid-auto-columns: auto;
+
+        .sw-field--checkbox {
+            margin-bottom: 0;
+            margin-right: 20px;
+        }
+    }
+}

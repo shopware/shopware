@@ -61,6 +61,24 @@
                             {{ dateFilter(extension.storeLicense.creationDate, { year: 'numeric' }) }}
                         </span>
                     {% endblock %}
+
+                    {% block sw_extension_card_base_meta_info_version %}
+                        <section>
+                            {% block sw_extension_card_base_meta_info_version_label %}
+                                <span v-if="extension.version">
+                                    {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
+                                </span>
+                            {% endblock %}
+
+                            {% block sw_extension_card_base_meta_info_version_update %}
+                                <span v-if="isUpdateable">
+                                    <a href="" @click.prevent="updateExtension">
+                                        {{ $tc('sw-extension.my-extensions.listing.update') }}
+                                    </a>
+                                </span>
+                            {% endblock %}
+                        </section>
+                    {% endblock %}
                 {% endblock %}
             </div>
         {% endblock %}

@@ -15,6 +15,22 @@ async function initDependencies() {
     await import(/* webpackMode: 'eager' */ './component/sw-extension-card-bought');
     await import(/* webpackMode: 'eager' */ './component/sw-self-maintained-extension-card');
     await import(/* webpackMode: 'eager' */ './component/sw-extension-my-extensions-listing-controls');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-deactivation-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-removal-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-uninstall-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-stars');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-card');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-summary');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation-inputs');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-reply');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-select-rating');
+    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-failed');
+    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
     await import(/* webpackMode: 'eager' */ './acl');
 }
 

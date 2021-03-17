@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+use Shopware\Core\Framework\Feature;
+
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
@@ -83,8 +85,18 @@ class CookieProvider implements CookieProviderInterface
      */
     public function getCookieGroups(): array
     {
+        $requiredCookies = self::REQUIRED_COOKIES;
+
+        if (Feature::isActive('FEATURE_NEXT_12455')) {
+            $requiredCookies['entries'][] = [
+                'snippet_name' => 'cookie.groupRequiredGoogleReCaptcha',
+                'cookie' => '_GRECAPTCHA',
+                'value' => '1',
+            ];
+        }
+
         return [
-            self::REQUIRED_COOKIES,
+            $requiredCookies,
             self::STATISTICAL_COOKIES,
             self::COMFORT_FEATURES_COOKIES,
         ];

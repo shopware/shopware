@@ -568,6 +568,7 @@
     "groupRequiredSession": "Session",
     "groupRequiredCsrf": "CSRF protection",
     "groupRequiredTimezone": "Timezone",
+    "groupRequiredGoogleReCaptcha": "Google reCAPTCHA",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

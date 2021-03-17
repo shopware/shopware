@@ -1,7 +1,6 @@
 ---
 title: Extend property select to show property group
 issue: NEXT-12264
-flag: FEATURE_NEXT_12108
 author_github: @Dominik28111
 ---
 # Administration

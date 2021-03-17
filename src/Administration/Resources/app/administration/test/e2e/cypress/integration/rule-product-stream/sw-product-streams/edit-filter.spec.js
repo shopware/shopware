@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
@@ -49,7 +49,7 @@ describe('Dynamic product group: Test various filters', () => {
                         },
                         {
                             name: 'Green'
-                        },
+                        }
                     ]
                 });
             })
@@ -62,7 +62,7 @@ describe('Dynamic product group: Test various filters', () => {
                         },
                         {
                             name: 'Test 2'
-                        },
+                        }
                     ]
                 });
             })
@@ -118,11 +118,7 @@ describe('Dynamic product group: Test various filters', () => {
     resultCases.forEach(resultCase => {
         context(`Search property with term ${resultCase.value}`, () => {
             it('@rule: search product property with operator "Is equal to"', () => {
-                cy.window().then((win) => {
-                    if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12108')) {
-                        return;
-                    }
-
+                cy.window().then(() => {
                     const page = new ProductStreamObject();
 
                     // Verify product stream details
@@ -156,11 +152,7 @@ describe('Dynamic product group: Test various filters', () => {
             });
 
             it('@rule: search product property with operator "Is equal to any of"', () => {
-                cy.window().then((win) => {
-                    if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12108')) {
-                        return;
-                    }
-
+                cy.window().then(() => {
                     const page = new ProductStreamObject();
 
                     // Verify product stream details
@@ -174,7 +166,11 @@ describe('Dynamic product group: Test various filters', () => {
 
                     cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 
-                    page.selectFieldAndOperator('@currentProductStreamFilter', 'Properties.Property value', 'Is equal to any of');
+                    page.selectFieldAndOperator(
+                        '@currentProductStreamFilter',
+                        'Properties.Property value',
+                        'Is equal to any of'
+                    );
 
                     cy.get('@currentProductStreamFilter').within(() => {
                         cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);

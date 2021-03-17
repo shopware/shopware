@@ -101,7 +101,7 @@
 
                 {% block sw_product_stream_value_entity_multi_value %}
                     <sw-entity-multi-id-select
-                        v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equalsAny' && feature.isActive('FEATURE_NEXT_12108')"
+                        v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equalsAny'"
                         size="medium"
                         :repository="repository"
                         :criteria="propertyCriteria"

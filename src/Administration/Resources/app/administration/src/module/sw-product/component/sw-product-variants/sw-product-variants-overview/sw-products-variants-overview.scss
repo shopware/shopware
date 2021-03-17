@@ -3,7 +3,6 @@ $sw-products-variants-generated-variants-toolbar-background: #f8f9fa;
 $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
 
 .sw-product-variants-overview {
-
     .sw-configuration-option-list__toolbar {
         background-color: $sw-products-variants-generated-variants-toolbar-background;
         border-bottom: 1px solid $sw-products-variants-generated-variants-toolbar-border;
@@ -19,7 +18,6 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             }
         }
     }
-
 
     .sw-product-variants-overview__data-grid {
         .sw-data-grid__wrapper {
@@ -53,6 +51,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         .sw-inheritance-switch {
             margin-right: 8px;
         }
+
         .sw-inheritance-switch:not(.sw-inheritance-switch--disabled) {
             cursor: pointer;
         }
@@ -65,6 +64,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             content: '-';
             margin: 0 5px;
         }
+
         &:last-child::after {
             display: none;
         }
@@ -94,10 +94,10 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             }
 
             .sw-tree-item__element {
-                grid-template-columns: 30px auto 30px;
+                grid-template-columns: 30px 24px 1fr;
 
                 .sw-tree-item__icon {
-                    display: none;
+                    margin-right: 8px;
                 }
 
                 .sw-tree-item__actions {
@@ -105,17 +105,24 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
                 }
             }
 
-            .sw-tree-item.is--no-children .sw-tree-item__element{
-                grid-template-columns: 30px 24px auto 30px;
+            .sw-tree-item.is--no-children .sw-tree-item__element {
+                grid-template-columns: 0 24px 24px 1fr;
             }
 
-            .sw-tree-item__element .sw-tree-item__selection{
+            .sw-tree-item__element .sw-tree-item__selection {
                 display: none;
             }
-            .sw-tree-item.is--no-children .sw-tree-item__element .sw-tree-item__selection{
+
+            .sw-tree-item.is--no-children .sw-tree-item__element .sw-tree-item__selection {
                 display: block;
             }
 
+            .sw-product-variants-overview__filter-buttons {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 40px;
+            }
         }
     }
 

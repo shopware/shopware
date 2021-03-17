@@ -29,16 +29,19 @@
                                     <sw-context-menu v-show="filterWindowOpen">
                                         <sw-container columns="1fr" gap="5px">
 
-                                            {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                                                <sw-button @click="resetFilterOptions()">
-                                                    {{ $tc('sw-product.variations.overview.filterReset') }}
-                                                </sw-button>
-                                            {% endblock %}
-                                            {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
-                                                <sw-button variant="primary" @click="getList()">
-                                                    {{ $tc('sw-product.variations.overview.filter') }}
-                                                </sw-button>
-                                            {% endblock %}
+                                            <template v-if="!feature.isActive('FEATURE_NEXT_6544')">
+                                                {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
+                                                    <sw-button @click="resetFilterOptions()">
+                                                        {{ $tc('sw-product.variations.overview.filterReset') }}
+                                                    </sw-button>
+                                                {% endblock %}
+
+                                                {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
+                                                    <sw-button variant="primary" @click="getList()">
+                                                        {{ $tc('sw-product.variations.overview.filter') }}
+                                                    </sw-button>
+                                                {% endblock %}
+                                            </template>
 
                                             {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
                                                 <sw-tree v-show="filterOptions.length"
@@ -59,6 +62,22 @@
                                                         </sw-tree-item>
                                                     </template>
                                                 </sw-tree>
+                                            {% endblock %}
+
+                                            {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
+                                                <div v-if="feature.isActive('FEATURE_NEXT_6544')" class="sw-product-variants-overview__filter-buttons">
+                                                    {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
+                                                        <sw-button @click="resetFilterOptions()">
+                                                            {{ $tc('sw-product.variations.overview.filterReset') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_product_variants_overview_option_list_toolbar_container_button_update_list %}
+                                                        <sw-button variant="primary" @click="getList()">
+                                                            {{ $tc('sw-product.variations.overview.filter') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </div>
                                             {% endblock %}
 
                                         </sw-container>

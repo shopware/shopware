@@ -10,7 +10,8 @@ Component.register('sw-product-variants-overview', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     mixins: [

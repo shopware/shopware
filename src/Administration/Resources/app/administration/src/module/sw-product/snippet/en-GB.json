@@ -314,7 +314,7 @@
       "generationNotificationCountDeletion": "One variant will be deleted | {count} variants will be deleted",
       "generationNotificationButtonCancel": "Cancel",
       "generationNotificationButtonContinue": "Generate",
-      "generatedFilterList": "Filter",
+      "generatedFilterList": "Filter list",
       "generatedListColumnVariation": "Name",
       "generatedListColumnPrice": "Price (gross / net)",
       "generatedListColumnProductNumber": "Product number",

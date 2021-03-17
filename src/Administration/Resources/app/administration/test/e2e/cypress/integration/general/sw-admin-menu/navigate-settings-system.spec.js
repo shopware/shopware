@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Administration: Check module navigation in settings', () => {
     beforeEach(() => {
@@ -131,6 +131,7 @@ describe('Administration: Check module navigation in settings', () => {
     });
 
     it('@base @navigation: navigate to plugin module', () => {
+        cy.skipOnFeature('FEATURE_NEXT_12608');
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/plugin/refresh`,

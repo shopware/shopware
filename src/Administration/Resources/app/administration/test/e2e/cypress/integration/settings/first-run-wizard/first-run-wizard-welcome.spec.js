@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('FirstRunWizard Test language Auto-Install', () => {
     beforeEach(() => {
@@ -75,9 +75,13 @@ function runTroughFirstRunWizard() {
             cy.get('.footer-right > :nth-child(1)').click().then(() => {
                 cy.get('.footer-right > :nth-child(1)').click().then(() => {
                     cy.get('.footer-right > .sw-button').click().then(() => {
-                        cy.get('.footer-right > :nth-child(1)').click().then(() => {
-                            cy.get('.footer-right > .sw-button').click().then(() => {
+                        cy.get('.footer-right > .sw-button').click().then(() => {
+                            cy.get('.footer-right > :nth-child(1)').click().then(() => {
+                                cy.get('.footer-right > :nth-child(1)').click().then(() => {
+                                    cy.get('.footer-right > .sw-button').click().then(() => {
 
+                                    });
+                                });
                             });
                         });
                     });

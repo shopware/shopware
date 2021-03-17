@@ -1,8 +1,8 @@
 export default class ExtensionHelperService {
-    constructor({ storeService, pluginService, extensionStoreDataService }) {
+    constructor({ storeService, pluginService, extensionApiService }) {
         this.storeService = storeService;
         this.pluginService = pluginService;
-        this.extensionStoreDataService = extensionStoreDataService;
+        this.extensionApiService = extensionApiService;
     }
 
     async downloadAndActivateExtension(extensionName) {
@@ -22,7 +22,7 @@ export default class ExtensionHelperService {
     }
 
     downloadStoreExtension(extensionName) {
-        return this.storeService.downloadPlugin(extensionName, true);
+        return this.storeService.downloadPlugin(extensionName, true, true);
     }
 
     installStoreExtension(extensionName) {
@@ -34,7 +34,7 @@ export default class ExtensionHelperService {
     }
 
     async getStatusOfExtension(extensionName) {
-        const extensions = await this.extensionStoreDataService.getMyExtensions();
+        const extensions = await this.extensionApiService.getMyExtensions();
         const extension = extensions.find(e => e && e.name === extensionName);
 
         if (!extension) {

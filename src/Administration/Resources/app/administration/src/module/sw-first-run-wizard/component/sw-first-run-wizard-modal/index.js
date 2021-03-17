@@ -55,30 +55,35 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 3
                 },
+                markets: {
+                    name: 'sw.first.run.wizard.index.markets',
+                    variant: 'large',
+                    navigationIndex: 4
+                },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 4
+                    navigationIndex: 5
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 5
+                    navigationIndex: 6
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 5
+                    navigationIndex: 6
                 },
                 store: {
                     name: 'sw.first.run.wizard.index.store',
                     variant: 'large',
-                    navigationIndex: 6
+                    navigationIndex: 7
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 7
+                    navigationIndex: 8
                 }
             }
         };
@@ -124,14 +129,15 @@ Component.register('sw-first-run-wizard-modal', {
 
         stepInitialItemVariants() {
             const navigationSteps = [
-                ['disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['info', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['success', 'info', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['success', 'success', 'info', 'disabled', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'info', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'success', 'info', 'disabled'],
-                ['success', 'success', 'success', 'success', 'success', 'info'],
-                ['success', 'success', 'success', 'success', 'success', 'success']
+                ['disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['info', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['success', 'info', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['success', 'success', 'info', 'disabled', 'disabled', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'info', 'disabled', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'success', 'info', 'disabled', 'disabled'],
+                ['success', 'success', 'success', 'success', 'success', 'info', 'disabled'],
+                ['success', 'success', 'success', 'success', 'success', 'success', 'info'],
+                ['success', 'success', 'success', 'success', 'success', 'success', 'success']
             ];
             const { navigationIndex } = this.currentStep;
 

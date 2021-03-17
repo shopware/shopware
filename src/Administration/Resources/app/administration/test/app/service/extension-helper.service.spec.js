@@ -20,7 +20,7 @@ describe('src/app/service/extension-helper.service.js', () => {
                 install: jest.fn(() => Promise.resolve()),
                 activate: jest.fn(() => Promise.resolve())
             },
-            extensionStoreDataService: {
+            extensionApiService: {
                 getMyExtensions: () => {
                     return Promise.resolve([
                         extensionMock

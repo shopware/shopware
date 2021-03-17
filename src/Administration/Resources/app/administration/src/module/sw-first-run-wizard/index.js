@@ -15,6 +15,7 @@ import './view/sw-first-run-wizard-shopware-base';
 import './view/sw-first-run-wizard-shopware-account';
 import './view/sw-first-run-wizard-shopware-domain';
 import './view/sw-first-run-wizard-store';
+import './view/sw-first-run-wizard-markets';
 import './view/sw-first-run-wizard-finish';
 
 const { Module } = Shopware;
@@ -111,6 +112,13 @@ Module.register('sw-first-run-wizard', {
                                 privilege: 'admin'
                             }
                         }
+                    }
+                },
+                markets: {
+                    component: 'sw-first-run-wizard-markets',
+                    path: 'markets',
+                    meta: {
+                        privilege: 'admin'
                     }
                 },
                 plugins: {

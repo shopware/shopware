@@ -218,6 +218,30 @@ class SystemConfigServiceTest extends TestCase
         static::assertTrue($actual);
     }
 
+    /**
+     * This test verifies that a STRING bool value is also correctly interpreted.
+     * The actual type that is being used in CLI is string and not bool.
+     * So we convert "true" and "false" to true and false
+     */
+    public function testSetGetSalesChannelBoolWithStringTypes(): void
+    {
+        $this->systemConfigService->set('foo.bar', 'false');
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        static::assertFalse($actual);
+
+        $this->systemConfigService->set('foo.bar', 'FALSE');
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        static::assertFalse($actual);
+
+        $this->systemConfigService->set('foo.bar', 'true', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        static::assertTrue($actual);
+
+        $this->systemConfigService->set('foo.bar', 'TRUE', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        static::assertTrue($actual);
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');

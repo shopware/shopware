@@ -233,6 +233,21 @@ class SystemConfigService
      */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
+        if (\is_string($value)) {
+            // incoming data is actually string
+            // so we define 2 string words and convert it into a real bool
+            // otherwise the internal storage will always use TRUE on a value
+            // and setting of FALSE will thus never work
+            if (strtolower($value) === 'true') {
+                $value = true;
+            }
+
+            if (strtolower($value) === 'false') {
+                $value = false;
+            }
+        }
+
+
         // reset internal cache
         $this->configs = [];
 

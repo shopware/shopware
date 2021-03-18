@@ -54,8 +54,12 @@ describe('Checkout: Visual tests', () => {
             'Continue shopping' : 'Weiter einkaufen';
         cy.contains(continueShopping).should('be.visible');
         cy.contains(continueShopping).click();
-        cy.get('.header-cart-total').scrollIntoView()
-        cy.get('.header-cart-total').contains('64');
+
+        cy.wait('@cartInfo').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.header-cart-total').contains('64');
+        });
+
         cy.get('.header-cart').click();
         cy.get('.offcanvas').should('be.visible');
 

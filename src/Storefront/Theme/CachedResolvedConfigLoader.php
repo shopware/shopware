@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
@@ -30,10 +29,6 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     public function load(string $themeId, SalesChannelContext $context): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load($themeId, $context);
-        }
-
         $name = self::buildName($themeId);
 
         $key = md5(implode('-', [

@@ -411,7 +411,7 @@ The new indexers work as follows:
 2. each indexer takes care of indexing a whole entity
 3. if several data on an entity need to be indexed, a single indexer takes care of the successive updating of the data
 4. an event is thrown at the end of the indexer so that plugins can subscribe to the event to index additional data for this entity
-5. finally, the updated ids are passed to the `CacheClearer` to invalidate the corresponding caches
+
 
 #### The new base class
 The base `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` class looks as follows:
@@ -458,7 +458,6 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -473,9 +472,6 @@ class ProductIndexer extends EntityIndexer
 
     /** @var EntityRepositoryInterface */
     private $repository;
-
-    /** @var CacheClearer */
-    private $cacheClearer;
 
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
@@ -523,8 +519,6 @@ class ProductIndexer extends EntityIndexer
         // update all required data
 
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $message->getContext()));
-
-        $this->cacheClearer->invalidateIds($ids, ProductDefinition::ENTITY_NAME);
     }
 }
 ```

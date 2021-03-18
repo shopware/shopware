@@ -398,19 +398,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
     }
 
-    private function mapDocuments(array $documents): array
-    {
-        $mapped = [];
-        foreach ($documents as $document) {
-            $id = $document['_unique_identifier'];
-            unset($document['_unique_identifier']);
-            $mapped[] = ['index' => ['_id' => $id]];
-            $mapped[] = $document;
-        }
-
-        return $mapped;
-    }
-
     private function createScripts(): void
     {
         $script = "

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -14,16 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
  */
 class OneToManyAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(EntityDefinitionQueryHelper $queryHelper)
-    {
-        $this->queryHelper = $queryHelper;
-    }
-
     public function join(FieldResolverContext $context): string
     {
         $field = $context->getField();
@@ -53,8 +42,6 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
 
         $versionWhere = $this->buildVersionWhere($context, $field);
 
-        $ruleWhere = $this->buildRuleWhere($context, $field->getReferenceDefinition(), $alias);
-
         $context->getQuery()->leftJoin(
             EntityDefinitionQueryHelper::escape($context->getAlias()),
             EntityDefinitionQueryHelper::escape($field->getReferenceDefinition()->getEntityName()),
@@ -62,7 +49,7 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
             str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '#source# = #alias#.#reference_column#' . $versionWhere . $ruleWhere
+                '#source# = #alias#.#reference_column#' . $versionWhere
             )
         );
 
@@ -107,16 +94,5 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
         }
 
         return EntityDefinitionQueryHelper::escape($field->getReferenceField());
-    }
-
-    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    private function buildRuleWhere(FieldResolverContext $context, EntityDefinition $reference, string $alias): ?string
-    {
-        $ruleWhere = $this->queryHelper->buildRuleCondition($reference, $context->getQuery(), $alias, $context->getContext());
-        if ($ruleWhere !== null) {
-            $ruleWhere = ' AND ' . $ruleWhere;
-        }
-
-        return $ruleWhere;
     }
 }

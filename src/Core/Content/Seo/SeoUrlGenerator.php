@@ -75,9 +75,7 @@ class SeoUrlGenerator
 
         /** @var RepositoryIterator $iterator */
         $iterator = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
-            return $context->disableCache(static function (Context $context) use ($repository, $criteria) {
-                return new RepositoryIterator($repository, $context, $criteria);
-            });
+            return new RepositoryIterator($repository, $context, $criteria);
         });
 
         while ($entities = $iterator->fetch()) {

@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedDomainLoader extends AbstractDomainLoader
@@ -31,9 +30,6 @@ class CachedDomainLoader extends AbstractDomainLoader
 
     public function load(): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load();
-        }
         $item = $this->cache->getItem(self::CACHE_KEY);
 
         try {

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
@@ -45,7 +44,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
 /**
  * @internal
@@ -123,8 +121,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             // json fields
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
-            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CalculatedPriceField:
             case $field instanceof CartPriceField:
             case $field instanceof PriceDefinitionField:

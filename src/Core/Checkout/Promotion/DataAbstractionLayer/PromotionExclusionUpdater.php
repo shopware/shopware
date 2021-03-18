@@ -5,33 +5,18 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionExclusionUpdater
 {
     /**
-     * @var EntityCacheKeyGenerator
-     */
-    private $cacheKeyGenerator;
-
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var Connection
      */
     private $connection;
 
-    public function __construct(EntityCacheKeyGenerator $cacheKeyGenerator, CacheClearer $cache, Connection $connection)
+    public function __construct(Connection $connection)
     {
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->cacheClearer = $cache;
         $this->connection = $connection;
     }
 
@@ -46,13 +31,9 @@ class PromotionExclusionUpdater
             return;
         }
 
-        $tags = [];
-
         foreach ($ids as $id) {
             // get exclusions for this id and prepare it as hex array
             $exclusions = $this->getExclusionIds($id);
-
-            $this->addTags($tags, [$id]);
 
             // create empty array if there are no exclusions
             $promotionExclusions = [];
@@ -65,10 +46,7 @@ class PromotionExclusionUpdater
                 }
             }
 
-            // delete all references that are not in exclusions array of this entity
-            $affectedRows = $this->deleteFromJSON($id, $promotionExclusions);
-
-            $this->addTags($tags, $affectedRows);
+            $this->deleteFromJSON($id, $promotionExclusions);
 
             // if there are no references in exclusions we don't need to update anything
             if (\count($promotionExclusions) === 0) {
@@ -77,8 +55,6 @@ class PromotionExclusionUpdater
 
             // check for corrupted data in database. If a excluded promotion could not be found it will not be present in results
             $results = $this->getExistingIds($promotionExclusions);
-
-            $this->addTags($tags, $results);
 
             if (\count($results) === \count($promotionExclusions)) {
                 // if there is no corrupted data we will add id to all excluded promotions too
@@ -111,10 +87,6 @@ class PromotionExclusionUpdater
 
             // add exclusions to all excluded promotions too
             $this->addToJSON($id, $onlyAddThisExistingIds);
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateTags($tags);
         }
     }
 
@@ -271,8 +243,6 @@ class PromotionExclusionUpdater
             return [];
         }
 
-        //$hexIds = array_map('strtolower', $hexIds);
-
         $validValues = array_values(array_filter($hexIds, function ($hexId) {
             return Uuid::isValid((string) $hexId);
         }));
@@ -286,17 +256,5 @@ class PromotionExclusionUpdater
         }, $validValues);
 
         return $bytes;
-    }
-
-    private function addTags(array &$tags, array $addTags): void
-    {
-        foreach ($addTags as $tag) {
-            $tag = $this->cacheKeyGenerator->getEntityTag($tag, PromotionDefinition::ENTITY_NAME);
-
-            if (isset($tags[$tag])) {
-                continue;
-            }
-            $tags[$tag] = $tag;
-        }
     }
 }

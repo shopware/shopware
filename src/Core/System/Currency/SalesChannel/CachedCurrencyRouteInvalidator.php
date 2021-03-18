@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Currency\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
@@ -36,10 +35,6 @@ class CachedCurrencyRouteInvalidator implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $this->logger->log(array_merge(
             $this->getChangedAssignments($event),
             $this->getChangedCurrencies($event)

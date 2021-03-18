@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -36,9 +35,6 @@ class CachedSalesChannelContextFactoryInvalidator implements EventSubscriberInte
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
         $keys = array_map([CachedSalesChannelContextFactory::class, 'buildName'], $ids);
 

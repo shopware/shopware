@@ -4,16 +4,11 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -23,24 +18,15 @@ class SeoUrlPersister
 
     private EntityRepositoryInterface $seoUrlRepository;
 
-    private EntityCacheKeyGenerator $cacheKeyGenerator;
-
-    private CacheClearer $cache;
-
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $seoUrlRepository,
-        EntityCacheKeyGenerator $cacheKeyGenerator,
-        CacheClearer $cache,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->connection = $connection;
         $this->seoUrlRepository = $seoUrlRepository;
-
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->cache = $cache;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -53,8 +39,6 @@ class SeoUrlPersister
 
         $updatedFks = [];
         $obsoleted = [];
-
-        $seoUrlIds = [];
 
         $processed = [];
 
@@ -93,13 +77,10 @@ class SeoUrlPersister
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
-                $seoUrlIds[] = $existing['id'];
             }
 
             $insert = [];
             $insert['id'] = Uuid::randomBytes();
-
-            $seoUrlIds[] = Uuid::fromBytesToHex($insert['id']);
 
             if ($salesChannelId) {
                 $insert['sales_channel_id'] = Uuid::fromHexToBytes($salesChannelId);
@@ -145,8 +126,6 @@ class SeoUrlPersister
         }
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
-
-        $this->invalidateEntityCache($seoUrlIds);
     }
 
     private function skipUpdate($existing, $seoUrl): bool
@@ -205,13 +184,6 @@ class SeoUrlPersister
             return;
         }
 
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $tags = $this->cacheKeyGenerator->getSearchTags($this->seoUrlRepository->getDefinition(), new Criteria());
-
-            $this->cache->invalidateTags($tags);
-        }
-
         $ids = Uuid::fromHexToBytesList($ids);
 
         $this->connection->createQueryBuilder()
@@ -247,22 +219,5 @@ class SeoUrlPersister
         RetryableQuery::retryable(function () use ($query): void {
             $query->execute();
         });
-    }
-
-    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    private function invalidateEntityCache(array $seoUrlIds = []): void
-    {
-        if (Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
-        $tags = $this->cacheKeyGenerator->getSearchTags($this->seoUrlRepository->getDefinition(), new Criteria());
-
-        if (!empty($seoUrlIds)) {
-            foreach ($seoUrlIds as $id) {
-                $tags[] = $this->cacheKeyGenerator->getEntityTag($id, SeoUrlDefinition::ENTITY_NAME);
-            }
-        }
-        $this->cache->invalidateTags($tags);
     }
 }

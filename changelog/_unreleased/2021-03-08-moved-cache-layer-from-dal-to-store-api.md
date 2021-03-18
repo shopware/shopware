@@ -1,7 +1,6 @@
 ---
 title: Moved cache layer from DAL to store api
 issue: NEXT-11735
-flag: FEATURE_NEXT_10514
 author: OliverSkroblin
 author_email: o.skroblin@shopware.com
 author_github: OliverSkroblin
@@ -24,24 +23,20 @@ author_github: OliverSkroblin
     * Added `ShippingMethodRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined 
 * Added cache layer for product suggest store api route
     * Added `CachedProductSuggestRoute`, which adds a cache around the product suggest route
-    * Added `CachedProductSuggestRouteInvalidator`, which invalidates the cache for the route
     * Added `ProductSuggestRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `ProductSuggestRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for product search store api route
     * Added `CachedProductSearchRoute`, which adds a cache around the product search route
-    * Added `CachedProductSearchRouteInvalidator`, which invalidates the cache for the route
     * Added `ProductSearchRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `ProductSearchRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
     * Added `ResolvedCriteriaProductSearchRoute`, which resolves the criteria before the cached route is called. This way the route gets a resolved criterion and does not have to listen to all request parameters. 
 * Added cache layer for product listing store api route
     * Added `CachedProductListingRoute`, which adds a cache around the product listing route
-    * Added `CachedProductListingRouteInvalidator`, which invalidates the cache for the route
     * Added `ProductListingRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `ProductListingRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
     * Added `ResolveCriteriaProductListingRoute`, which resolves the criteria before the cached route is called. This way the route gets a resolved criterion and does not have to listen to all request parameters. 
 * Added cache layer for product detail store api route
     * Added `CachedProductDetailRoute`, which adds a cache around the product detail route
-    * Added `CachedProductDetailRouteInvalidator`, which invalidates the cache for the route
     * Added `ProductDetailRouteCacheKeyEvent`, which is triggered when the cache key for the route is generated
     * Added `ProductDetailRouteCacheTagsEvent`, which is triggered when the cache item is written, and the attached tags are determined
 * Added cache layer for payment method store api route

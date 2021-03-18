@@ -149,19 +149,17 @@ class SearchKeywordUpdater
     {
         $context->setConsiderInheritance(true);
 
-        return $context->disableCache(function (Context $context) use ($ids, $configFields) {
-            $criteria = new Criteria($ids);
-            $criteria->setLimit(50);
+        $criteria = new Criteria($ids);
+        $criteria->setLimit(50);
 
-            if (Feature::isActive('FEATURE_NEXT_10552')) {
-                $fields = $this->getAssociationFields(array_column($configFields, 'field'));
-                $criteria->addAssociations(array_filter(array_unique($fields)));
-            } else {
-                $criteria->addAssociation('manufacturer');
-            }
+        if (Feature::isActive('FEATURE_NEXT_10552')) {
+            $fields = $this->getAssociationFields(array_column($configFields, 'field'));
+            $criteria->addAssociations(array_filter(array_unique($fields)));
+        } else {
+            $criteria->addAssociation('manufacturer');
+        }
 
-            return new RepositoryIterator($this->productRepository, $context, $criteria);
-        });
+        return new RepositoryIterator($this->productRepository, $context, $criteria);
     }
 
     private function delete(array $ids, string $languageId, string $versionId): void

@@ -5,14 +5,12 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PromotionIndexer extends EntityIndexer
@@ -26,11 +24,6 @@ class PromotionIndexer extends EntityIndexer
      * @var EntityRepositoryInterface
      */
     private $repository;
-
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
 
     /**
      * @var PromotionExclusionUpdater
@@ -50,14 +43,12 @@ class PromotionIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        CacheClearer $cacheClearer,
         PromotionExclusionUpdater $exclusionUpdater,
         PromotionRedemptionUpdater $redemptionUpdater,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->cacheClearer = $cacheClearer;
         $this->exclusionUpdater = $exclusionUpdater;
         $this->redemptionUpdater = $redemptionUpdater;
         $this->eventDispatcher = $eventDispatcher;
@@ -110,11 +101,6 @@ class PromotionIndexer extends EntityIndexer
         $this->redemptionUpdater->update($ids, $message->getContext());
 
         $this->eventDispatcher->dispatch(new PromotionIndexerEvent($ids, $message->getContext()));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($ids, PromotionDefinition::ENTITY_NAME);
-        }
     }
 
     private function isGeneratingIndividualCode(EntityWrittenContainerEvent $event): bool

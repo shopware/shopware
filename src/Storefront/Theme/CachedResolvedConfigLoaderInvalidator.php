@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
-use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -29,9 +28,6 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 
     public function invalidate(ThemeConfigChangedEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
         $tags = [CachedResolvedConfigLoader::buildName($event->getThemeId())];
         $keys = array_keys($event->getConfig());
 

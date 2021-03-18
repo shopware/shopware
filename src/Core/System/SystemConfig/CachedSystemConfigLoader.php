@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedSystemConfigLoader extends AbstractSystemConfigLoader
@@ -31,10 +30,6 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 
     public function load(?string $salesChannelId): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load($salesChannelId);
-        }
-
         $key = 'system-config-' . $salesChannelId;
 
         $item = $this->cache->getItem($key);

@@ -4,14 +4,12 @@ namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CustomerIndexer extends EntityIndexer
@@ -27,11 +25,6 @@ class CustomerIndexer extends EntityIndexer
     private $repository;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var ManyToManyIdFieldUpdater
      */
     private $manyToManyIdFieldUpdater;
@@ -44,13 +37,11 @@ class CustomerIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        CacheClearer $cacheClearer,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->cacheClearer = $cacheClearer;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -101,13 +92,5 @@ class CustomerIndexer extends EntityIndexer
         $this->manyToManyIdFieldUpdater->update(CustomerDefinition::ENTITY_NAME, $ids, $context);
 
         $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds(
-                array_unique(array_merge($ids)),
-                CustomerDefinition::ENTITY_NAME
-            );
-        }
     }
 }

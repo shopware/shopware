@@ -66,9 +66,7 @@ class CategoryBreadcrumbUpdater
 
         $all = array_filter(array_values(array_keys(array_flip($all))));
 
-        $languages = $context->enableCache(function (Context $context) {
-            return $this->languageRepository->search(new Criteria(), $context);
-        });
+        $languages = $this->languageRepository->search(new Criteria(), $context);
 
         /** @var LanguageEntity $language */
         foreach ($languages as $language) {
@@ -90,13 +88,9 @@ class CategoryBreadcrumbUpdater
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
         /** @var CategoryCollection $categories */
-        $categories = $context->disableCache(
-            function (Context $context) use ($all) {
-                return $this->categoryRepository
-                    ->search(new Criteria($all), $context)
-                    ->getEntities();
-            }
-        );
+        $categories = $this->categoryRepository
+            ->search(new Criteria($all), $context)
+            ->getEntities();
 
         $update = $this->connection->prepare('
             INSERT INTO `category_translation` (`category_id`, `category_version_id`, `language_id`, `breadcrumb`, `created_at`)

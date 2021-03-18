@@ -19,7 +19,6 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -79,10 +78,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateProductIds(ProductChangedEventInterface $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $this->logger->log(
             array_map([self::class, 'buildProductTag'], $event->getIds())
         );
@@ -90,10 +85,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $this->logger->log(
             array_map([self::class, 'buildStreamTag'], $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
         );
@@ -101,9 +92,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateSearch(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
         $this->logger->log([
             'product-suggest-route',
             'product-search-route',
@@ -112,10 +100,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateDetailRoute(ProductChangedEventInterface $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $this->logger->log(
             array_map([CachedProductDetailRoute::class, 'buildName'], $event->getIds())
         );
@@ -123,10 +107,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateManufacturerFilters(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $event->getPrimaryKeys(ProductManufacturerDefinition::ENTITY_NAME);
 
         if (empty($ids)) {
@@ -150,10 +130,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidatePropertyFilters(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $event->getPrimaryKeys(PropertyGroupDefinition::ENTITY_NAME);
 
         if (empty($ids)) {
@@ -178,10 +154,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateProductAssignment(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         //Used to detect changes to the product category assignment
         $ids = $event->getPrimaryKeys(ProductCategoryDefinition::ENTITY_NAME);
 
@@ -194,10 +166,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateListings(ProductChangedEventInterface $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(category_id)) as category_id
              FROM product_category_tree
@@ -215,10 +183,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateStreamListings(ProductChangedEventInterface $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id))
              FROM category
@@ -236,10 +200,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateIndexedCategories(CategoryIndexerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $this->logger->log(
             array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds())
         );
@@ -247,10 +207,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateLayouts(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME);
         if (empty($ids)) {
             return;
@@ -272,10 +228,6 @@ class CachedProductRouteInvalidator implements EventSubscriberInterface
 
     public function invalidateCrossSellingRoute(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $ids = $event->getPrimaryKeys(ProductCrossSellingDefinition::ENTITY_NAME);
 
         if (empty($ids)) {

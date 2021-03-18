@@ -25,7 +25,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="service" id="media.repository"/>
             <argument type="tagged" tag="shopware.asset"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -50,7 +50,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
-            <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
             <argument type="service" id="event_dispatcher"/>
         </service>

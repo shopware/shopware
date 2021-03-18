@@ -79,7 +79,6 @@ class ThemeServiceTest extends TestCase
             $registry,
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),
-            $this->getContainer()->get('media.repository'),
             $this->getContainer()->get(ThemeCompiler::class),
             $this->getContainer()->get('event_dispatcher')
         );

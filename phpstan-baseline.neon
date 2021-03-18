@@ -2191,16 +2191,6 @@ parameters:
 			path: src/Core/Framework/Bundle.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Context\\:\\:disableCache\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Context.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Context\\:\\:enableCache\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Context.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Context\\:\\:enableInheritance\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Context.php
@@ -2211,37 +2201,7 @@ parameters:
 			path: src/Core/Framework/Context.php
 
 		-
-			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Cache\\\\CachedEntityAggregator\\:\\:getAggregationResult\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Cache/CachedEntityAggregator.php
-
-		-
-			message: "#^Parameter \\#1 \\$aggregation of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Cache\\\\CachedEntityAggregator\\:\\:removeFilterAggregation\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Aggregation\\\\Aggregation\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Cache/CachedEntityAggregator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Cache\\\\CachedEntityAggregator\\:\\:getAggregation\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Cache/CachedEntityAggregator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Cache\\\\CachedEntityReader\\:\\:loadFilterResult\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Cache/CachedEntityReader.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
-			count: 7
-			path: src/Core/Framework/DataAbstractionLayer/Cache/EntityCacheKeyGenerator.php
-
-		-
-			message: "#^Cannot call method getFields\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Cache/EntityCacheKeyGenerator.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Cache\\\\EntityCacheKeyGenerator\\:\\:getFieldTag\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null given\\.$#"
 			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Cache/EntityCacheKeyGenerator.php
 
@@ -2318,11 +2278,6 @@ parameters:
 		-
 			message: "#^Cannot call method getClass\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
 			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
-
-		-
-			message: "#^Parameter \\#2 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\EntityDefinitionQueryHelper\\:\\:isInherited\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 3
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
 		-
@@ -4729,11 +4684,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorRegistry\\:\\:\\$validators \\(array\\<Shopware\\\\Storefront\\\\Framework\\\\Media\\\\StorefrontMediaValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/StorefrontMediaValidatorRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ObjectCacheKeyFinder\\:\\:loop\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ObjectCacheKeyFinder.php
 
 		-
 			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"

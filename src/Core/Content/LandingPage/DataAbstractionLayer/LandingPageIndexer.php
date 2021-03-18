@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\LandingPage\DataAbstractionLayer;
 
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -26,11 +25,6 @@ class LandingPageIndexer extends EntityIndexer
     private $repository;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var ManyToManyIdFieldUpdater
      */
     private $manyToManyIdFieldUpdater;
@@ -43,13 +37,11 @@ class LandingPageIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        CacheClearer $cacheClearer,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->cacheClearer = $cacheClearer;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -100,8 +92,5 @@ class LandingPageIndexer extends EntityIndexer
         $this->manyToManyIdFieldUpdater->update(LandingPageDefinition::ENTITY_NAME, $ids, $context);
 
         $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        $this->cacheClearer->invalidateIds($ids, LandingPageDefinition::ENTITY_NAME);
     }
 }

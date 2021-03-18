@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Cache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -102,7 +101,6 @@ class CacheClearerTest extends TestCase
             $filesystem,
             $cacheDir,
             'test',
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get('messenger.bus.shopware')
         );
 

@@ -200,7 +200,6 @@
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="promotion.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater"/>
             <tag name="shopware.entity_indexer"/>
@@ -209,13 +208,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

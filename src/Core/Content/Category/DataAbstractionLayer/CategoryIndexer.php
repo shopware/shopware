@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -51,11 +49,6 @@ class CategoryIndexer extends EntityIndexer
     private $breadcrumbUpdater;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -67,7 +60,6 @@ class CategoryIndexer extends EntityIndexer
         ChildCountUpdater $childCountUpdater,
         TreeUpdater $treeUpdater,
         CategoryBreadcrumbUpdater $breadcrumbUpdater,
-        CacheClearer $cacheClearer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
@@ -76,7 +68,6 @@ class CategoryIndexer extends EntityIndexer
         $this->treeUpdater = $treeUpdater;
         $this->breadcrumbUpdater = $breadcrumbUpdater;
         $this->connection = $connection;
-        $this->cacheClearer = $cacheClearer;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -166,11 +157,6 @@ class CategoryIndexer extends EntityIndexer
         $this->connection->commit();
 
         $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($ids, CategoryDefinition::ENTITY_NAME);
-        }
     }
 
     private function fetchChildren(array $categoryIds, string $versionId): array

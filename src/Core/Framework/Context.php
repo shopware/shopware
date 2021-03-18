@@ -68,13 +68,6 @@ class Context extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
-     *
-     * @var bool
-     */
-    protected $useCache = true;
-
-    /**
      * @var CashRoundingConfig
      */
     protected $rounding;
@@ -220,27 +213,6 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
-     */
-    public function disableCache(callable $function)
-    {
-        $previous = $this->useCache;
-        $this->useCache = false;
-        $result = $function($this);
-        $this->useCache = $previous;
-
-        return $result;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
-     */
-    public function getUseCache(): bool
-    {
-        return $this->useCache;
-    }
-
     public function isAllowed(string $privilege): bool
     {
         if ($this->source instanceof AdminApiSource) {
@@ -253,19 +225,6 @@ class Context extends Struct
     public function setRuleIds(array $ruleIds): void
     {
         $this->ruleIds = array_filter(array_values($ruleIds));
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
-     */
-    public function enableCache(callable $function)
-    {
-        $previous = $this->useCache;
-        $this->useCache = true;
-        $result = $function($this);
-        $this->useCache = $previous;
-
-        return $result;
     }
 
     public function enableInheritance(callable $function)

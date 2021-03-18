@@ -46,7 +46,6 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -1077,13 +1076,6 @@ class ApiController extends AbstractController
     private function isCollection(array $array): bool
     {
         return array_keys($array) === range(0, \count($array) - 1);
-    }
-
-    private function hasScope(Request $request, string $scopeIdentifier): bool
-    {
-        $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
-
-        return isset($scopes[$scopeIdentifier]);
     }
 
     private function getEntityDefinition(string $entityName): EntityDefinition

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
@@ -39,7 +38,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
 class EntityMapper
 {
@@ -89,8 +87,6 @@ class EntityMapper
                 return null;
 
             case $field instanceof ListField:
-            case $field instanceof BlacklistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-            case $field instanceof WhitelistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
                 return self::KEYWORD_FIELD;
 
             case $field instanceof ParentAssociationField:

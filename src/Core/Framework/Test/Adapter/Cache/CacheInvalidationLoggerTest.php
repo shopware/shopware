@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Adapter\Cache;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -19,7 +18,6 @@ class CacheInvalidationLoggerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Feature::skipTestIfInActive('FEATURE_NEXT_10514', $this);
     }
 
     /**

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -34,11 +32,6 @@ class ProductIndexer extends EntityIndexer
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
 
     /**
      * @var VariantListingUpdater
@@ -96,7 +89,6 @@ class ProductIndexer extends EntityIndexer
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
-        CacheClearer $cacheClearer,
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,
         InheritanceUpdater $inheritanceUpdater,
@@ -112,7 +104,6 @@ class ProductIndexer extends EntityIndexer
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
-        $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
         $this->categoryDenormalizer = $categoryDenormalizer;
         $this->searchKeywordUpdater = $searchKeywordUpdater;
@@ -192,23 +183,13 @@ class ProductIndexer extends EntityIndexer
 
         $this->ratingAverageUpdater->update($parentIds, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->streamUpdater->updateProducts(array_merge($ids, $parentIds, $childrenIds), $context);
-        }
+        $this->streamUpdater->updateProducts(array_merge($ids, $parentIds, $childrenIds), $context);
 
         $this->searchKeywordUpdater->update($ids, $context);
 
         $this->connection->commit();
 
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds(
-                array_unique(array_merge($ids, $parentIds, $childrenIds)),
-                ProductDefinition::ENTITY_NAME
-            );
-        }
     }
 
     private function getChildrenIds(array $ids): array

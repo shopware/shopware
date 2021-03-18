@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
@@ -42,7 +41,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
 class SchemaGenerator
 {
@@ -130,8 +128,6 @@ EOL;
             case $field instanceof TranslatedField:
                 return null;
 
-            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CartPriceField:
             case $field instanceof CalculatedPriceField:
             case $field instanceof PriceDefinitionField:

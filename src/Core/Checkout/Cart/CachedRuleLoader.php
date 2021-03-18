@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedRuleLoader extends AbstractRuleLoader
@@ -33,10 +32,6 @@ class CachedRuleLoader extends AbstractRuleLoader
 
     public function load(Context $context): RuleCollection
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load($context);
-        }
-
         $item = $this->cache->getItem(self::CACHE_KEY);
 
         try {

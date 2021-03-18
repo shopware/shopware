@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -81,10 +80,7 @@ class EntityAggregatorTest extends TestCase
             new TermsAggregation('category-ids', 'product.categories.id')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -133,12 +129,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(
-            function (Context $context) use ($criteria) {
-                return $this->aggregator->aggregate($this->definition, $criteria, $context);
-            }
-        );
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -222,10 +213,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -252,10 +240,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -282,10 +267,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -311,10 +293,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -339,10 +318,7 @@ class EntityAggregatorTest extends TestCase
             new TermsAggregation('category-ids', 'product.categories.id', 2)
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('category-ids'));
 
@@ -363,10 +339,7 @@ class EntityAggregatorTest extends TestCase
             new AvgAggregation('avg-price', 'product.price')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('avg-price'));
 
@@ -395,10 +368,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -444,10 +414,7 @@ class EntityAggregatorTest extends TestCase
             new SumAggregation('sum-price', 'product.price')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('sum-price'));
 
@@ -476,10 +443,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -525,10 +489,7 @@ class EntityAggregatorTest extends TestCase
             new MaxAggregation('max-price', 'product.price')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('max-price'));
 
@@ -557,10 +518,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -606,10 +564,7 @@ class EntityAggregatorTest extends TestCase
             new MinAggregation('min-price', 'product.price')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('min-price'));
 
@@ -638,10 +593,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -687,10 +639,7 @@ class EntityAggregatorTest extends TestCase
             new CountAggregation('count-manufacturer', 'product.manufacturerId')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('count-manufacturer'));
 
@@ -719,10 +668,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('categories'));
 
@@ -769,10 +715,7 @@ class EntityAggregatorTest extends TestCase
             new StatsAggregation('stats-price', 'product.price')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('stats-price'));
 
@@ -804,10 +747,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -862,10 +802,7 @@ class EntityAggregatorTest extends TestCase
             new EntityAggregation('manufacturers', 'product.manufacturerId', 'product_manufacturer')
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('manufacturers'));
 
@@ -898,10 +835,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('categories'));
 
@@ -964,10 +898,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('avg-price'));
 
@@ -1001,10 +932,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));
 
@@ -1117,10 +1045,7 @@ class EntityAggregatorTest extends TestCase
             )
         );
 
-        /** @var AggregationResultCollection $result */
-        $result = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->aggregator->aggregate($this->definition, $criteria, $context);
-        });
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         static::assertTrue($result->has('release-histogram'));
 

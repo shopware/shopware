@@ -8,8 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -37,11 +35,6 @@ class ThemeService
     private $themeSalesChannelRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
      * @var ThemeCompilerInterface
      */
     private $themeCompiler;
@@ -52,14 +45,12 @@ class ThemeService
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
-        EntityRepositoryInterface $mediaRepository,
         ThemeCompilerInterface $themeCompiler,
         EventDispatcherInterface $dispatcher
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
-        $this->mediaRepository = $mediaRepository;
         $this->themeCompiler = $themeCompiler;
         $this->dispatcher = $dispatcher;
     }
@@ -208,48 +199,6 @@ class ThemeService
         $themeConfig['fields'] = $configFields;
 
         return $themeConfig;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, use theme_config in templates instead.
-     */
-    public function getResolvedThemeConfiguration(string $themeId, Context $context): array
-    {
-        if (Feature::isActive('FEATURE_NEXT_10514')) {
-            return [];
-        }
-
-        $config = $this->getThemeConfiguration($themeId, false, $context);
-        $resolvedConfig = [];
-        $mediaItems = [];
-        if (!\array_key_exists('fields', $config)) {
-            return [];
-        }
-
-        foreach ($config['fields'] as $key => $data) {
-            if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
-                $mediaItems[$data['value']][] = $key;
-            }
-            $resolvedConfig[$key] = $data['value'];
-        }
-
-        /** @var string[] $mediaIds */
-        $mediaIds = array_keys($mediaItems);
-        $criteria = new Criteria($mediaIds);
-        $criteria->setTitle('theme-service::resolve-media');
-        $result = $this->mediaRepository->search($criteria, $context);
-
-        foreach ($result as $media) {
-            if (!\array_key_exists($media->getId(), $mediaItems)) {
-                continue;
-            }
-
-            foreach ($mediaItems[$media->getId()] as $key) {
-                $resolvedConfig[$key] = $media->getUrl();
-            }
-        }
-
-        return $resolvedConfig;
     }
 
     public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array

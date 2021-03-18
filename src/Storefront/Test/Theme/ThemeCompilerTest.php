@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -72,7 +72,7 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(ThemeFileImporter::class),
             $mediaRepository,
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            $this->getContainer()->get(CacheClearer::class)
+            $this->getContainer()->get(CacheInvalidationLogger::class)
         );
     }
 

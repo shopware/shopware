@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -43,8 +42,6 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $saleChannelProductEntity = new SalesChannelProductEntity();
         $saleChannelProductEntity->setId('product123');
         $mockConfiguratorLoader = $this->createMock(ProductConfiguratorLoader::class);

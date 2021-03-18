@@ -8,8 +8,6 @@ criteria.addAssociation('properties');
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-description-reviews',
-    flag: Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
-    hidden: !Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
     label: 'sw-cms.elements.productDescriptionReviews.label',
     component: 'sw-cms-el-product-description-reviews',
     configComponent: 'sw-cms-el-config-product-description-reviews',

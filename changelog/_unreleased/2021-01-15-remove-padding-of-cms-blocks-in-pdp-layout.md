@@ -1,7 +1,6 @@
 ---
 title: Remove padding of CMS blocks in PDP layout
 issue: NEXT-13102
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Changed `processBlock` method in `sw-cms-detail` component to adjust the default config of CMS blocks if need.

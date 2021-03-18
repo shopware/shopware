@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -55,15 +54,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private $breadcrumbBuilder;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var SalesChannelCmsPageLoaderInterface
      */
     private $cmsPageLoader;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var ProductDefinition
      */
     private $productDefinition;
@@ -127,10 +122,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         );
 
         $configurator = $this->configuratorLoader->load($product, $context);
-
-        if (!Feature::isActive('FEATURE_NEXT_10078')) {
-            return new ProductDetailRouteResponse($product, $configurator);
-        }
 
         $pageId = $product->getCmsPageId();
 

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
@@ -51,7 +50,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new StringField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware()),
@@ -60,15 +59,8 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             (new StringField('pack_unit', 'packUnit'))->addFlags(new ApiAware()),
             (new StringField('pack_unit_plural', 'packUnitPlural'))->addFlags(new ApiAware()),
             new ListField('custom_search_keywords', 'customSearchKeywords'),
+            (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_10078')) {
-            $collection->add(
-                (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware())
-            );
-        }
-
-        return $collection;
     }
 }

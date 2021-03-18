@@ -21,8 +21,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
 
     inject: [
         'systemConfigApiService',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     data() {
@@ -139,10 +138,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.previousLandingPages = [...this.page.landingPages];
             this.previousLandingPageIds = this.page.landingPages.getIds();
 
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                this.previousProducts = [...this.page.products];
-                this.previousProductIds = this.page.products.getIds();
-            }
+            this.previousProducts = [...this.page.products];
+            this.previousProductIds = this.page.products.getIds();
 
             this.loadSystemConfig();
         },
@@ -307,10 +304,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         },
 
         validateProducts() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
-                return Promise.resolve();
-            }
-
             // Skip validation when user has confirmed changes
             if (this.confirmedProducts) {
                 return Promise.resolve();
@@ -407,10 +400,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         },
 
         discardProductChanges() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
-                return;
-            }
-
             this.page.products = new EntityCollection(
                 this.page.products.source,
                 this.page.products.entity,

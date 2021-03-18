@@ -172,12 +172,12 @@ Component.register('sw-product-detail', {
                 .addAssociation('mainCategories')
                 .addAssociation('options.group')
                 .addAssociation('customFieldSets')
+                .addAssociation('featureSet')
+                .addAssociation('cmsPage')
                 .addAssociation('featureSet');
 
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria.getAssociation('manufacturer')
-                    .addAssociation('media');
-            }
+            criteria.getAssociation('manufacturer')
+                .addAssociation('media');
 
             return criteria;
         },

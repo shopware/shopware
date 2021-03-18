@@ -6,9 +6,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 class BuyBoxStruct extends Struct
 {
     /**

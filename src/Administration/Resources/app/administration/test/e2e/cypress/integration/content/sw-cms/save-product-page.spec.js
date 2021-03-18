@@ -18,8 +18,6 @@ describe('CMS: check validation of product detail page', () => {
     });
 
     it('@content: create product detail page', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_10078');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page`,

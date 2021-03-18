@@ -1,7 +1,6 @@
 ---
 title: Replace text placeholder by skeleton on Product box element
 issue: NEXT-12240
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added computed property `displaySkeleton` in `module/sw-cms/elements/product-box/component/index.js` to handle display skeleton when product has no data

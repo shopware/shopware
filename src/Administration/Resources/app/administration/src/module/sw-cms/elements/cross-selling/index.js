@@ -8,8 +8,6 @@ criteria.addAssociation('crossSellings.assignedProducts.product');
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'cross-selling',
-    flag: Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
-    hidden: !Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
     label: 'sw-cms.elements.crossSelling.label',
     component: 'sw-cms-el-cross-selling',
     configComponent: 'sw-cms-el-config-cross-selling',

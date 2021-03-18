@@ -236,27 +236,16 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
             (new FkField('canonical_product_id', 'canonicalProductId', ProductDefinition::class))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToOneAssociationField('canonicalProduct', 'canonical_product_id', ProductDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited()),
+
+            (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited()),
+            (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
+            (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('slotConfig'))->addFlags(new Inherited()),
         ]);
 
         if (!Feature::isActive('FEATURE_NEXT_10514')) {
             $collection->add(new BlacklistRuleField());
             $collection->add(new WhitelistRuleField());
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_10078')) {
-            $collection->add(
-                (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())
-            );
-
-            $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()));
-
-            $collection->add(
-                (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())
-            );
-            $collection->add(
-                (new TranslatedField('slotConfig'))
-                    ->addFlags(new Inherited())
-            );
         }
 
         return $collection;

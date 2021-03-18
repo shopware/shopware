@@ -1,7 +1,6 @@
 ---
 title: Fix losing layout config when navigating to general tab
 issue: NEXT-14036
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Changed watcher `product` in `src/module/sw-product/view/sw-product-detail-base/index.js` to prevent updating cmsPage when user navigate to general tab of product detail page

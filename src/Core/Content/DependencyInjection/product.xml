@@ -186,24 +186,20 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductNameCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
             <tag name="shopware.cms.data_resolver"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <tag name="shopware.cms.data_resolver"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
@@ -433,7 +429,6 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
             <argument type="service" id="product_review.repository"/>
             <tag name="shopware.cms.data_resolver"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10078"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter">

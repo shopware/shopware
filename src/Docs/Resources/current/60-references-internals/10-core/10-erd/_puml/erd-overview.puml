@@ -430,6 +430,7 @@ ShopwareCoreContentProduct --> ShopwareCoreContentProduct
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutOrder --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
+ShopwareCoreContentCms --> ShopwareCoreContentProduct
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
 ShopwareCoreContentProductStream --> ShopwareCoreContentProduct

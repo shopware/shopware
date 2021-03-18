@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,8 +29,6 @@ class ProductDetailCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $resolverMock = $this->getMockBuilder(AbstractProductDetailCmsElementResolver::class)->onlyMethods(['getType'])->getMockForAbstractClass();
         $resolverMock->method('getType')->willReturn('dummy-type');
         $this->dummyResolver = $resolverMock;

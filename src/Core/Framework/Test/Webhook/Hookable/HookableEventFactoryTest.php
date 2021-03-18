@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -232,38 +231,21 @@ class HookableEventFactoryTest extends TestCase
         $event = $hookables[0];
         static::assertEquals('product.written', $event->getName());
 
-        if (Feature::isActive('FEATURE_NEXT_10078')) {
-            static::assertEquals([[
-                'entity' => 'product',
-                'operation' => 'update',
-                'primaryKey' => $id,
-                'updatedFields' => [
-                    'parentVersionId',
-                    'productManufacturerVersionId',
-                    'cmsPageVersionId',
-                    'updatedAt',
-                    'id',
-                    'versionId',
-                    'name',
-                    'description',
-                ],
-            ]], $event->getWebhookPayload());
-        } else {
-            static::assertEquals([[
-                'entity' => 'product',
-                'operation' => 'update',
-                'primaryKey' => $id,
-                'updatedFields' => [
-                    'parentVersionId',
-                    'productManufacturerVersionId',
-                    'updatedAt',
-                    'id',
-                    'versionId',
-                    'name',
-                    'description',
-                ],
-            ]], $event->getWebhookPayload());
-        }
+        static::assertEquals([[
+            'entity' => 'product',
+            'operation' => 'update',
+            'primaryKey' => $id,
+            'updatedFields' => [
+                'parentVersionId',
+                'productManufacturerVersionId',
+                'cmsPageVersionId',
+                'updatedAt',
+                'id',
+                'versionId',
+                'name',
+                'description',
+            ],
+        ]], $event->getWebhookPayload());
     }
 
     public function testCreatesMultipleHookables(): void
@@ -306,38 +288,21 @@ class HookableEventFactoryTest extends TestCase
         $event = $hookables[0];
         static::assertEquals('product.written', $event->getName());
 
-        if (Feature::isActive('FEATURE_NEXT_10078')) {
-            static::assertEquals([[
-                'entity' => 'product',
-                'operation' => 'update',
-                'primaryKey' => $id,
-                'updatedFields' => [
-                    'parentVersionId',
-                    'productManufacturerVersionId',
-                    'cmsPageVersionId',
-                    'updatedAt',
-                    'id',
-                    'versionId',
-                    'name',
-                    'description',
-                ],
-            ]], $event->getWebhookPayload());
-        } else {
-            static::assertEquals([[
-                'entity' => 'product',
-                'operation' => 'update',
-                'primaryKey' => $id,
-                'updatedFields' => [
-                    'parentVersionId',
-                    'productManufacturerVersionId',
-                    'updatedAt',
-                    'id',
-                    'versionId',
-                    'name',
-                    'description',
-                ],
-            ]], $event->getWebhookPayload());
-        }
+        static::assertEquals([[
+            'entity' => 'product',
+            'operation' => 'update',
+            'primaryKey' => $id,
+            'updatedFields' => [
+                'parentVersionId',
+                'productManufacturerVersionId',
+                'cmsPageVersionId',
+                'updatedAt',
+                'id',
+                'versionId',
+                'name',
+                'description',
+            ],
+        ]], $event->getWebhookPayload());
 
         $event = $hookables[1];
         static::assertEquals('product_price.written', $event->getName());

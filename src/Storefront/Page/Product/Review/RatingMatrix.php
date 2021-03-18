@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_10078) tag:v6.4.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
+ * @deprecated tag:v6.5.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
  */
 class RatingMatrix extends Struct
 {

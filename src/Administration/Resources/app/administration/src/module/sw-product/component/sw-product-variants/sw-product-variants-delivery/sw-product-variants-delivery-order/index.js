@@ -65,7 +65,7 @@ Component.register('sw-product-variants-delivery-order', {
 
                 return {
                     id: group.id,
-                    name: group.name,
+                    name: group.translated.name,
                     childCount: children.length,
                     parentId: null,
                     afterId: index > 0 ? sortedGroups[index - 1].id : null,
@@ -91,7 +91,7 @@ Component.register('sw-product-variants-delivery-order', {
 
                     return {
                         id: option.id,
-                        name: option.name,
+                        name: option.translated.name,
                         childCount: 0,
                         parentId: option.groupId,
                         afterId,

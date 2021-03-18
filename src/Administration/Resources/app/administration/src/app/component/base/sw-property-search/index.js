@@ -261,7 +261,7 @@ Component.register('sw-property-search', {
 
         sortOptions(options) {
             if (options.length > 0 && options[0].group.sortingType === 'alphanumeric') {
-                options.sort((a, b) => (a.name.localeCompare(b.name, undefined, { numeric: true })));
+                options.sort((a, b) => (a.translated.name.localeCompare(b.translated.name, undefined, { numeric: true })));
             } else {
                 options.sort((a, b) => (a.position - b.position));
             }

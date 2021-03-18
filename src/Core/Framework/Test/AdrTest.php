@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
 class AdrTest extends TestCase
@@ -11,7 +12,13 @@ class AdrTest extends TestCase
     {
         $adrs = [];
         $finder = new Finder();
-        $finder->in(__DIR__ . '/../../../../adr/')->files()->sortByName()->depth('0')->name('*.md')->notName('_template.md')->notName('index.md');
+
+        try {
+            $finder->in(__DIR__ . '/../../../../adr/')->files()->sortByName()->depth('0')->name('*.md')->notName('_template.md')->notName('index.md');
+        } catch (DirectoryNotFoundException $e) {
+            static::markTestSkipped('Adr Directory does not exist.');
+        }
+
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $adrs[] = (string) $file->getFilename();

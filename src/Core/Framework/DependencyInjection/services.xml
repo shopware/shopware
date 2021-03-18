@@ -473,10 +473,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger">
             <argument>%shopware.cache.invalidation.delay%</argument>
+            <argument>%shopware.cache.invalidation.count%</argument>
             <argument type="collection">
                 <argument type="service" id="cache.object"/>
                 <argument type="service" id="cache.http"/>

@@ -25,8 +25,11 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
 
     private int $delay;
 
+    private int $count;
+
     public function __construct(
         int $delay,
+        int $count,
         array $adapters,
         TagAwareAdapterInterface $cache,
         EventDispatcherInterface $dispatcher,
@@ -38,6 +41,7 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
         $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->cache = $cache;
         $this->delay = $delay;
+        $this->count = $count;
     }
 
     public static function getHandledMessages(): iterable
@@ -105,6 +109,10 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
 
             $invalidate[] = $key;
             unset($values[$key]);
+
+            if (\count($invalidate) > $this->count) {
+                break;
+            }
         }
 
         $item = CacheCompressor::compress($item, $values);

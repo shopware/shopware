@@ -85,7 +85,6 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
             $this->tracer->get($name),
             [$name, self::ALL_TAG]
         ));
-        sort($keys);
 
         $item = CacheCompressor::compress($item, $context);
         $item->tag($keys);

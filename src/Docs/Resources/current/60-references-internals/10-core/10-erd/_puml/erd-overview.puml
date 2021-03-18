@@ -162,6 +162,7 @@ Table(ShopwareCoreContentMedia, "Shopware\Core\Content\Media\n(Media/File manage
 }
 Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product Table
+   product_stream_mapping Table
    product_category Table
    product_custom_field_set Table
    product_tag Table
@@ -431,9 +432,9 @@ ShopwareCoreSystemDeliveryTime --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutOrder --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutCustomer --> ShopwareCoreContentProduct
 ShopwareCoreContentCms --> ShopwareCoreContentProduct
+ShopwareCoreContentProductStream --> ShopwareCoreContentProduct
 ShopwareCoreContentProperty --> ShopwareCoreContentProduct
 ShopwareCoreContentRule --> ShopwareCoreContentProduct
-ShopwareCoreContentProductStream --> ShopwareCoreContentProduct
 ShopwareCoreCheckoutShipping --> ShopwareCoreSystemDeliveryTime
 ShopwareCoreSystemDeliveryTime --> ShopwareCoreSystemDeliveryTime
 ShopwareCoreContentNewsletter --> ShopwareCoreContentNewsletter

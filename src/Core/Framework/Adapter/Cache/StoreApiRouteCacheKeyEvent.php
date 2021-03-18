@@ -16,9 +16,9 @@ class StoreApiRouteCacheKeyEvent extends Event implements SalesChannelAware
 
     protected SalesChannelContext $context;
 
-    protected Criteria $criteria;
+    protected ?Criteria $criteria;
 
-    public function __construct(array $parts, Request $request, SalesChannelContext $context, Criteria $criteria)
+    public function __construct(array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
     {
         $this->parts = $parts;
         $this->request = $request;
@@ -41,7 +41,7 @@ class StoreApiRouteCacheKeyEvent extends Event implements SalesChannelAware
         return $this->context;
     }
 
-    public function getCriteria(): Criteria
+    public function getCriteria(): ?Criteria
     {
         return $this->criteria;
     }

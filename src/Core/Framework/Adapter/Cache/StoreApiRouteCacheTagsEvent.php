@@ -17,11 +17,11 @@ class StoreApiRouteCacheTagsEvent extends Event implements SalesChannelAware
 
     protected SalesChannelContext $context;
 
-    protected Criteria $criteria;
+    protected ?Criteria $criteria;
 
     private StoreApiResponse $response;
 
-    public function __construct(array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
+    public function __construct(array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, ?Criteria $criteria)
     {
         $this->tags = $tags;
         $this->request = $request;
@@ -45,7 +45,7 @@ class StoreApiRouteCacheTagsEvent extends Event implements SalesChannelAware
         return $this->context;
     }
 
-    public function getCriteria(): Criteria
+    public function getCriteria(): ?Criteria
     {
         return $this->criteria;
     }

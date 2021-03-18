@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Storefront\Framework\Cache\CacheStore;
-use Shopware\Storefront\Framework\Cache\CacheTagCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -56,7 +56,7 @@ class CacheWarmer extends AbstractMessageHandler
     private $cacheIdLoader;
 
     /**
-     * @var CacheTagCollection
+     * @var \Shopware\Core\Framework\Adapter\Cache\CacheTagCollection
      */
     private $cacheTagCollection;
 

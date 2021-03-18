@@ -237,4 +237,5 @@ return [
     Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition::class => 'M:N Mapping',
     Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition::class => 'M:N Mapping',
     'Shopware\\Core\\Content\\LandingPage' => 'Landing Pages',
+    Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition::class => 'M:N Mapping',
 ];

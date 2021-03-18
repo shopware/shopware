@@ -92,6 +92,11 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    updatedAt updatedAt
    translated json
 }
+Table(ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition, "product_stream_mapping\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   primary_key(productStreamId) foreignKey
+}
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
    primary_key(productId) foreignKey
    primary_key(productVersionId) referenceVersion
@@ -327,6 +332,8 @@ ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustome
 }
 ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
+ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
+}
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
 ForeignTable(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set") {
@@ -344,8 +351,6 @@ ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
-}
-ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
 }
 
 ' relationshipd
@@ -370,12 +375,14 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutOrderAggrega
 ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition

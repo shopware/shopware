@@ -47,6 +47,22 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute" decorates="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.category_route%</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\SalesChannel\CachedCategoryRouteInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>

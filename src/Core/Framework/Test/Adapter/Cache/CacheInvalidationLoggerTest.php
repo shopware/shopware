@@ -42,6 +42,7 @@ class CacheInvalidationLoggerTest extends TestCase
 
         $logger = new CacheInvalidationLogger(
             $delay,
+            150,
             [$adapter],
             $storage,
             $this->getContainer()->get('event_dispatcher'),

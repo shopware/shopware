@@ -28,8 +28,6 @@ class CacheStore implements StoreInterface
 
     private string $cacheHash;
 
-    private CacheTagCollection $cacheTagCollection;
-
     private AbstractCacheTracer $tracer;
 
     public function __construct(
@@ -37,14 +35,12 @@ class CacheStore implements StoreInterface
         TagAwareAdapterInterface $cache,
         CacheStateValidator $stateValidator,
         EventDispatcherInterface $eventDispatcher,
-        CacheTagCollection $cacheTagCollection,
         AbstractCacheTracer $tracer
     ) {
         $this->cache = $cache;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->cacheHash = $cacheHash;
-        $this->cacheTagCollection = $cacheTagCollection;
         $this->tracer = $tracer;
     }
 
@@ -85,9 +81,7 @@ class CacheStore implements StoreInterface
         $item = CacheCompressor::compress($item, $response);
         $item->expiresAt($response->getExpires());
 
-        $tags = $this->cacheTagCollection->getTags();
-
-        $tags = array_merge($tags, $this->tracer->get('all'));
+        $tags = $this->tracer->get('all');
 
         $tags = array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
@@ -104,7 +98,6 @@ class CacheStore implements StoreInterface
         });
 
         $item->tag($tags);
-        sort($tags);
 
         $this->cache->save($item);
 

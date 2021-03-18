@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductSuggestRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -140,7 +141,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         $event = new ProductSuggestRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(implode('-', $event->getParts()));
+        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
@@ -153,6 +154,6 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         $event = new ProductSuggestRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return $event->getTags();
+        return array_unique(array_filter($event->getTags()));
     }
 }

@@ -90,6 +90,8 @@ class ProductIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
+    private ProductStreamUpdater $streamUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -104,7 +106,8 @@ class ProductIndexer extends EntityIndexer
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         StockUpdater $stockUpdater,
         EventDispatcherInterface $eventDispatcher,
-        CheapestPriceUpdater $cheapestPriceUpdater
+        CheapestPriceUpdater $cheapestPriceUpdater,
+        ProductStreamUpdater $streamUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -120,6 +123,7 @@ class ProductIndexer extends EntityIndexer
         $this->stockUpdater = $stockUpdater;
         $this->eventDispatcher = $eventDispatcher;
         $this->cheapestPriceUpdater = $cheapestPriceUpdater;
+        $this->streamUpdater = $streamUpdater;
     }
 
     public function getName(): string
@@ -187,6 +191,10 @@ class ProductIndexer extends EntityIndexer
         $this->cheapestPriceUpdater->update($parentIds, $context);
 
         $this->ratingAverageUpdater->update($parentIds, $context);
+
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->streamUpdater->updateProducts(array_merge($ids, $parentIds, $childrenIds), $context);
+        }
 
         $this->searchKeywordUpdater->update($ids, $context);
 

@@ -99,6 +99,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $streamResult = $result->get(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier())->getEntities();
 
             $slider->setProducts($streamResult);
+            $slider->setStreamId($productConfig->getValue());
         }
     }
 

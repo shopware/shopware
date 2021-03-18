@@ -80,6 +80,11 @@
     .sw-extension-card-base__meta-info {
         color: $color-gray-500;
         text-align: right;
+
+        a {
+            color: $color-shopware-brand-500;
+            margin-left: 4px;
+        }
     }
 
     .sw-extension-card-base__open-extension {

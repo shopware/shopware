@@ -1,0 +1,66 @@
+@import "~scss/variables";
+
+$padding-star: 10%;
+
+.sw-extension-rating-stars {
+    display: inline-block;
+    direction: rtl;
+    width: fit-content;
+
+    &__wrapper {
+        display: grid;
+        grid-auto-flow: column;
+    }
+
+    &__star {
+        transition: color 0.2s ease-in;
+        background: none;
+        border: none;
+        outline: none;
+        color: $color-gray-200;
+        display: inline-block;
+        position: relative;
+
+        .sw-icon {
+            height: auto;
+        }
+
+        > .sw-icon {
+            padding: 0 $padding-star;
+        }
+
+        &--is-rated {
+            color: $color-module-yellow-600;
+        }
+    }
+
+    &__partial-star {
+        position: absolute;
+        left: $padding-star;
+        top: 0;
+        color: $color-module-yellow-600;
+        transform: scaleX(-1);
+
+        &-wrapper {
+            overflow: hidden;
+            display: block;
+        }
+    }
+
+    &--is-editable {
+        .sw-extension-rating-stars__wrapper {
+            .sw-extension-rating-stars__star {
+                cursor: pointer;
+
+                &--is-rated:hover {
+                    color: #e9e1a8;
+                }
+            }
+
+            & > .sw-extension-rating-stars__star:hover,
+            & > .sw-extension-rating-stars__star:hover ~ .sw-extension-rating-stars__star {
+                color: $color-module-yellow-600;
+            }
+        }
+    }
+}

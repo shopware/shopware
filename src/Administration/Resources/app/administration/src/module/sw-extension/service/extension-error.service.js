@@ -30,7 +30,10 @@ export default class ExtensionErrorService {
     _getNotification(error) {
         return this.errorCodes[error.code] ?
             this.errorCodes[error.code] :
-            this.fallbackError;
+            {
+                title: error.title || this.fallbackError.title,
+                message: error.detail || this.fallbackError.detail
+            };
     }
 
     _translateRawNotification(notification, translator) {

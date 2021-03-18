@@ -114,7 +114,7 @@ Component.register('sw-extension-my-extensions-listing', {
 
         openStore() {
             this.$router.push({
-                name: 'sw.extension.store.index'
+                name: 'sw.extension.store.listing'
             });
         },
 

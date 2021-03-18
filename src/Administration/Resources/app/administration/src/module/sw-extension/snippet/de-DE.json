@@ -21,7 +21,9 @@
             "name-asc": "Name, aufsteigend",
             "name-desc": "Name, absteigend"
           }
-        }
+        },
+        "version": "Version",
+        "update": "Update"
       },
       "account": {
         "headline": "Shopware Account",
@@ -47,8 +49,8 @@
         "shopwareAccount": "Shopware Account"
       },
       "fileUpload": {
-        "buttonFileUpload": "Plugin hochladen",
-        "messageUploadSuccess": "Das Plugin wurde hochgeladen."
+        "buttonFileUpload": "Extension hochladen",
+        "messageUploadSuccess": "Die Extension wurde hochgeladen."
       }
     },
     "errors": {

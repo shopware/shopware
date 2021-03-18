@@ -439,7 +439,9 @@
       },
       "imagesFilter": {
         "label": "Images",
-        "placeholder": "Select an image status..."
+        "placeholder": "Select an image status...",
+        "textHasCriteria": "At least one product image assigned",
+        "textNoCriteria": "No product images assigned"
       },
       "releaseDateFilter": {
         "label": "Release date"

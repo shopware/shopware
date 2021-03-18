@@ -46,7 +46,9 @@ Component.register('sw-order-list', {
                 'customer-group-filter',
                 'tag-filter',
                 'line-item-filter'
-            ]
+            ],
+            storeKey: 'grid.filter.order',
+            activeFilterNumber: 0
         };
     },
 
@@ -229,18 +231,26 @@ Component.register('sw-order-list', {
             this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            return this.orderRepository.search(this.orderCriteria, Shopware.Context.api).then((response) => {
+            let criteria = this.orderCriteria;
+            if (this.feature.isActive('FEATURE_NEXT_9831')) {
+                criteria = await Shopware.Service('filterService')
+                    .mergeWithStoredFilters(this.storeKey, this.orderCriteria);
+            }
+
+            this.activeFilterNumber = criteria.filters.length;
+
+            try {
+                const response = await this.orderRepository.search(criteria, Shopware.Context.api);
+
                 this.total = response.total;
                 this.orders = response;
                 this.isLoading = false;
-
-                return response;
-            }).catch(() => {
+            } catch {
                 this.isLoading = false;
-            });
+            }
         },
 
         getBillingAddress(order) {

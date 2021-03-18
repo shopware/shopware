@@ -30,6 +30,16 @@ Component.register('sw-number-filter', {
         };
     },
 
+    watch: {
+        'filter.value': {
+            handler() {
+                if (this.filter.value) {
+                    this.numberValue = { ...this.filter.value };
+                }
+            }
+        }
+    },
+
     methods: {
         updateFilter(params) {
             if (!this.numberValue.from && !this.numberValue.to) {
@@ -37,12 +47,17 @@ Component.register('sw-number-filter', {
                 return;
             }
 
-            this.$emit('filter-update', this.filter.name, params);
+            const { value } = this.filter;
+            if (value && value.from === this.numberValue.from && value.to === this.numberValue.to) {
+                return;
+            }
+
+            this.$emit('filter-update', this.filter.name, params, this.numberValue);
         },
 
         resetFilter() {
             this.numberValue = { from: null, to: null };
-            this.$emit('filter-reset', this.filter.name);
+            this.$emit('filter-reset', this.filter.name, this.numberValue);
         }
     }
 });

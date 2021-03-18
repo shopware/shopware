@@ -44,6 +44,16 @@ Component.register('sw-date-filter', {
         }
     },
 
+    watch: {
+        'filter.value': {
+            handler() {
+                if (this.filter.value) {
+                    this.dateValue = { ...this.filter.value };
+                }
+            }
+        }
+    },
+
     methods: {
         updateFilter(params) {
             if (!this.dateValue.from && !this.dateValue.to) {
@@ -51,12 +61,17 @@ Component.register('sw-date-filter', {
                 return;
             }
 
-            this.$emit('filter-update', this.filter.name, params);
+            const { value } = this.filter;
+            if (value && value.from === this.dateValue.from && value.to === this.dateValue.to) {
+                return;
+            }
+
+            this.$emit('filter-update', this.filter.name, params, this.dateValue);
         },
 
         resetFilter() {
             this.dateValue = { from: null, to: null };
-            this.$emit('filter-reset', this.filter.name);
+            this.$emit('filter-reset', this.filter.name, this.dateValue);
         }
     }
 });

@@ -76,7 +76,9 @@ function createWrapper(customOptions) {
                 schema: {
                     entity: 'entity',
                     referenceField: 'id'
-                }
+                },
+                value: null,
+                filterCriteria: null
             },
             active: true
         }
@@ -117,10 +119,11 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         list.at(0).trigger('click');
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'category-filter',
-            [Criteria.equalsAny('category.id', ['id1'])]
-        ]);
+        const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
+
+        expect(name).toEqual('category-filter');
+        expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
+        expect(value.first()).toEqual({ id: 'id1', name: 'first' });
 
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
@@ -133,9 +136,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             { id: 'id2', name: 'item2' }
         ]);
 
-        await wrapper.setData({
-            values: entityCollection
-        });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: entityCollection } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -159,6 +160,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         await wrapper.setProps({ active: false });
 
         expect(wrapper.vm.values.length).toEqual(0);
+        expect(wrapper.vm.filter.value).toBeNull();
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
@@ -177,7 +179,6 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.setProps({ active: true });
 
-        expect(wrapper.vm.values.length).not.toEqual(0);
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 
@@ -188,16 +189,20 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             }
         });
 
-        expect(wrapper.find('.selected-label').exists()).toBeFalsy();
-
-        wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        list.at(0).trigger('click');
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                label: 'Test',
+                schema: {
+                    entity: 'entity',
+                    referenceField: 'id'
+                },
+                value: [{ id: 'id1', name: 'first' }],
+                filterCriteria: null
+            }
+        });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.selected-label').exists()).toBeTruthy();

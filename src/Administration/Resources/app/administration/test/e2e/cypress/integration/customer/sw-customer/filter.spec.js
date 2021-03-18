@@ -3,10 +3,21 @@ const uuid = require('uuid/v4');
 
 describe('Customer: Test filter and reset filter', () => {
     before(() => {
-        let countryId, paymentMethodId, salesChannelId, groupId, salutationId;
+        let countryId; let paymentMethodId; let salesChannelId; let groupId; let salutationId; let
+            userId;
         cy.setToInitialState().then(() => {
             cy.searchViaAdminApi({
-                endpoint: 'country', data: {
+                data: {
+                    field: 'username',
+                    value: 'admin'
+                },
+                endpoint: 'user'
+            });
+        }).then((user) => {
+            userId = user.id;
+            cy.searchViaAdminApi({
+                endpoint: 'country',
+                data: {
                     field: 'iso',
                     type: 'equals',
                     value: 'DE'
@@ -20,44 +31,48 @@ describe('Customer: Test filter and reset filter', () => {
                         type: 'equals',
                         value: 'Invoice'
                     }
-                })
+                });
             }).then(data => {
-                paymentMethodId = data.id
+                paymentMethodId = data.id;
                 return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel', data: {
+                    endpoint: 'sales-channel',
+                    data: {
                         field: 'name',
                         type: 'equals',
                         value: 'Storefront'
                     }
-                })
+                });
             }).then(data => {
                 salesChannelId = data.id;
                 return cy.searchViaAdminApi({
-                    endpoint: 'customer-group', data: {
+                    endpoint: 'customer-group',
+                    data: {
                         field: 'name',
                         type: 'equals',
                         value: 'Standard customer group'
                     }
+                });
+            })
+                .then(data => {
+                    groupId = data.id;
+                    return cy.searchViaAdminApi({
+                        endpoint: 'salutation',
+                        data: {
+                            field: 'displayName',
+                            type: 'equals',
+                            value: 'Mr.'
+                        }
+                    });
                 })
-            }).then(data => {
-                groupId = data.id;
-                return cy.searchViaAdminApi({
-                    endpoint: 'salutation', data: {
-                        field: 'displayName',
-                        type: 'equals',
-                        value: 'Mr.'
-                    }
+                .then(data => {
+                    salutationId = data.id;
+                    return cy.authenticate();
                 })
-            }).then(data => {
-                salutationId = data.id;
-                return cy.authenticate()
-            }).then(auth => {
-
-                let customers = [];
-                for (let i = 1; i <= 26; i++) {
-                    const standInId = uuid().replace(/-/g, '');
-                    customers.push(
-                        {
+                .then(auth => {
+                    let customers = [];
+                    for (let i = 1; i <= 26; i++) {
+                        const standInId = uuid().replace(/-/g, '');
+                        customers.push({
                             firstName: 'Pep',
                             lastName: `Eroni-${i}`,
                             defaultPaymentMethodId: paymentMethodId,
@@ -65,48 +80,87 @@ describe('Customer: Test filter and reset filter', () => {
                             defaultShippingAddressId: standInId,
                             customerNumber: uuid().replace(/-/g, ''),
                             email: `test-${i}@example.com`
-                        }
-                    );
-                }
+                        });
+                    }
 
-                customers.push(
-                    {
+                    customers.push({
                         firstName: 'Pepper',
-                        lastName: `Eroni-27`,
+                        lastName: 'Eroni-27',
                         defaultPaymentMethodId: paymentMethodId,
                         defaultBillingAddressId: uuid().replace(/-/g, ''),
                         defaultShippingAddressId: uuid().replace(/-/g, ''),
                         customerNumber: uuid().replace(/-/g, ''),
-                        email: `test-27@example.com`,
+                        email: 'test-27@example.com',
                         active: false
-                    }
-                );
+                    });
 
-                customers = customers.map(customer => Object.assign({ countryId, salesChannelId, salutationId, groupId }, customer));
-                return cy.request({
-                    headers: {
-                        Accept: 'application/vnd.api+json',
-                        Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
-                    },
-                    method: 'POST',
-                    url: '/api/_action/sync',
-                    qs: {
-                        response: true
-                    },
-                    body: {
-                        'write-customer': {
-                            'entity': 'customer',
-                            'action': 'upsert',
-                            'payload': customers
+                    customers = customers.map(customer => Object.assign({ countryId, salesChannelId, salutationId, groupId }, customer));
+                    cy.request({
+                        headers: {
+                            Accept: 'application/vnd.api+json',
+                            Authorization: `Bearer ${auth.access}`,
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'POST',
+                        url: '/api/_action/sync',
+                        qs: {
+                            response: true
+                        },
+                        body: {
+                            'write-customer': {
+                                entity: 'customer',
+                                action: 'upsert',
+                                payload: customers
+                            }
                         }
+                    });
 
-                    }
-                })
-            });
+                    cy.request({
+                        headers: {
+                            Accept: 'application/vnd.api+json',
+                            Authorization: `Bearer ${auth.access}`,
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'POST',
+                        url: '/api/_action/sync',
+                        qs: {
+                            response: true
+                        },
+                        body: {
+                            'write-user-config': {
+                                entity: 'user_config',
+                                action: 'upsert',
+                                payload: [
+                                    {
+                                        createdAt: '2021-01-21T06:52:41.857+00:00',
+                                        id: '021150d043ee49e18642daef58e92c96',
+                                        key: 'grid.filter.customer',
+                                        updatedAt: '2021-01-21T06:54:00.252+00:00',
+                                        userId: userId,
+                                        value: {
+                                            'salutation-filter': {
+                                                value: [{
+                                                    id: 'adada1a3529b491284b550a80932ab58'
+                                                }],
+                                                criteria: [{
+                                                    type: 'equalsAny',
+                                                    field: 'salutation.id',
+                                                    value: 'adada1a3529b491284b550a80932ab58'
+                                                }]
+                                            },
+                                            'account-status-filter': {
+                                                value: 'true',
+                                                criteria: [{ type: 'equals', field: 'active', value: true }]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    });
+                });
         });
-
-    })
+    });
 
     it('@customer: check filter function and display list correctly', () => {
         cy.loginViaApi();
@@ -125,15 +179,24 @@ describe('Customer: Test filter and reset filter', () => {
             method: 'post'
         }).as('getPaymentMethod');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
         cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filters"]').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
+
+        // Check if saved user filter is loaded
+        cy.wait('@getUserConfig').then(() => {
+            cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
+            // Check if Reset All button shows up
+            cy.get('.sw-sidebar-item__headline a').should('exist');
+        });
 
         cy.get('.sw-filter-panel').should('exist');
 
-        // Check if Reset All button shows up
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
 
         // Filter results with single criteria
         cy.get('.sw-filter-panel__item').eq(0).find('input').click();
@@ -214,27 +277,38 @@ describe('Customer: Test filter and reset filter', () => {
             method: 'post'
         }).as('filterCustomer');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
         cy.get('.sw_sidebar__navigation-list li').eq(1).click();
         cy.get('.sw_sidebar__navigation-list li').eq(1).find('button[title="Filters"]').should('exist');
-        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
+        // Check if saved user filter is loaded
+        cy.wait('@getUserConfig').then(() => {
+            cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('exist');
+        });
 
         cy.get('.sw-filter-panel').should('exist');
 
-        // Check Reset and Reset All button at default state
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
 
-        // Check Reset button when filter is active
-        cy.get('.sw-filter-panel__item').eq(0).find('input').click();
-        cy.get('.sw-select-result-list__item-list li').contains('Mr.').click();
         cy.wait('@filterCustomer').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
+
+        // Check Reset button when filter is active
+        cy.get('.sw-filter-panel__item:nth-child(1) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(1) .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
+
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
 
         // Click Reset button to reset filter
         cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').click();
-        cy.get('.sw-filter-panel__item').eq(0).find('li.sw-select-selection-list__item-holder').should('not.exist');
+
+        cy.wait('@getUserConfig').then((xhr) => {
+            cy.get('.sw-filter-panel__item').eq(0).find('li.sw-select-selection-list__item-holder').should('not.exist');
+        });
 
         // Reset All button should show up when there is active filter
         cy.get('.sw-filter-panel__item').eq(1).find('select').select('true');
@@ -247,9 +321,7 @@ describe('Customer: Test filter and reset filter', () => {
         // Click Reset All button
         cy.get('.sw-sidebar-item__headline a').click();
         cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.wait('@filterCustomer').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
         cy.get('.sw-page__smart-bar-amount').contains('27');
     });
 });

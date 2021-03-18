@@ -7,51 +7,70 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
 import { shallowMount } from '@vue/test-utils';
 
+const filters = [
+    {
+        name: 'filter1',
+        type: 'boolean-filter',
+        label: 'filter1',
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter2',
+        type: 'existence-filter',
+        label: 'filter2',
+        schema: {
+            localField: 'id'
+        },
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter3',
+        type: 'multi-select-filter',
+        label: 'filter3',
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter4',
+        type: 'string-filter',
+        label: 'filter4',
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter5',
+        type: 'number-filter',
+        label: 'filter5',
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter6',
+        type: 'price-filter',
+        label: 'filter6',
+        value: null,
+        filterCriteria: null
+    },
+    {
+        name: 'filter7',
+        type: 'date-filter',
+        label: 'filter7',
+        value: null,
+        filterCriteria: null
+    }
+];
+
+let savedFilterData = {};
+
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-filter-panel'), {
         propsData: {
             title: 'Filter',
             entity: 'product',
-            filters: [
-                {
-                    name: 'filter1',
-                    type: 'boolean-filter',
-                    label: 'filter1'
-                },
-                {
-                    name: 'filter2',
-                    type: 'existence-filter',
-                    label: 'filter2',
-                    schema: {
-                        localField: 'id'
-                    }
-                },
-                {
-                    name: 'filter3',
-                    type: 'multi-select-filter',
-                    label: 'filter3'
-                },
-                {
-                    name: 'filter4',
-                    type: 'string-filter',
-                    label: 'filter4'
-                },
-                {
-                    name: 'filter5',
-                    type: 'number-filter',
-                    label: 'filter5'
-                },
-                {
-                    name: 'filter6',
-                    type: 'price-filter',
-                    label: 'filter6'
-                },
-                {
-                    name: 'filter7',
-                    type: 'date-filter',
-                    label: 'filter7'
-                }
-            ],
+            filters,
+            storeKey: 'config',
             defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7']
         },
         stubs: {
@@ -70,12 +89,31 @@ function createWrapper() {
             'sw-number-filter': true,
             'sw-date-filter': true
         },
+        provide: {
+            repositoryFactory: {
+                create: () => ({
+                    create: () => Promise.resolve({
+                        key: 'config',
+                        userId: '1'
+                    }),
+                    search: () => Promise.resolve(savedFilterData),
+                    save: () => Promise.resolve([])
+                })
+            }
+        },
         mocks: {
             $tc: key => key,
             $t: key => key
         }
     });
 }
+
+Shopware.Service().register('filterService', () => {
+    return {
+        getStoredFilters: () => Promise.resolve(savedFilterData),
+        saveFilters: (storeKey, storedFilters) => Promise.resolve(storedFilters)
+    };
+});
 
 describe('components/sw-filter-panel', () => {
     it('should render filter components correctly', async () => {
@@ -103,12 +141,18 @@ describe('components/sw-filter-panel', () => {
     });
 
     it('should remove filter when reset button is clicked', async () => {
+        savedFilterData = {
+            filter1: {}
+        };
+
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
         const options = wrapper.find('.sw-boolean-filter').findAll('option');
 
-        options.at(1).setSelected();
+        options.at(0).setSelected();
 
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -145,35 +189,26 @@ describe('components/sw-filter-panel', () => {
         expect(Object.keys(wrapper.vm.activeFilters).length).toEqual(0);
     });
 
-    it('should display the number of active filters correctly', async () => {
+    it('should change active filters when filter has default value', async () => {
+        savedFilterData = {
+            filter3: {
+                value: [
+                    {
+                        id: '5e59f3ea47a342dd8ff1a0af2cda4753'
+                    }
+                ],
+                criteria: {
+                    type: 'equalsAny',
+                    field: 'salutation.id',
+                    value: '5e59f3ea47a342dd8ff1a0af2cda4753'
+                }
+            }
+        };
+
         const wrapper = createWrapper();
 
-        // Activate a filter
-        wrapper.find('.sw-boolean-filter').findAll('option').at(1).setSelected();
-
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.emitted()['active-filter-number-update']).toBeTruthy();
-        expect(wrapper.emitted()['active-filter-number-update'][0]).toEqual([1]);
-
-        // Activate another filter
-        wrapper.find('.sw-existence-filter').findAll('option').at(1).setSelected();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted()['active-filter-number-update'][1]).toEqual([2]);
-
-        // Check number of active filters when reset filters
-        wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted()['active-filter-number-update'][2]).toEqual([1]);
-
-        wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted()['active-filter-number-update'][3]).toEqual([0]);
+        expect(Object.keys(wrapper.vm.activeFilters).length).toEqual(1);
     });
 });

@@ -20,10 +20,10 @@ Component.register('sw-boolean-filter', {
         }
     },
 
-    data() {
-        return {
-            value: null
-        };
+    computed: {
+        value() {
+            return this.filter.value;
+        }
     },
 
     methods: {
@@ -33,15 +33,12 @@ Component.register('sw-boolean-filter', {
                 return;
             }
 
-            this.value = newValue;
+            const filterCriteria = [Criteria.equals(this.filter.property, newValue === 'true')];
 
-            const filterCriteria = [Criteria.equals(this.filter.property, this.value === 'true')];
-
-            this.$emit('filter-update', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },
 
         resetFilter() {
-            this.value = null;
             this.$emit('filter-reset', this.filter.name);
         }
     }

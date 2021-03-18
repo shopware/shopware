@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-filter-panel', {
     template,
 
+    inject: ['repositoryFactory'],
+
     props: {
         entity: {
             type: String,
@@ -20,12 +22,19 @@ Component.register('sw-filter-panel', {
         defaults: {
             type: Array,
             required: true
+        },
+
+        storeKey: {
+            type: String,
+            required: true
         }
     },
 
     data() {
         return {
-            activeFilters: {}
+            activeFilters: {},
+            filterChanged: false,
+            storedFilters: null
         };
     },
 
@@ -46,32 +55,77 @@ Component.register('sw-filter-panel', {
 
         activeFiltersNumber() {
             return Object.keys(this.activeFilters).length;
+        },
+
+        listFilters() {
+            const savedFilters = { ...this.storedFilters };
+            const filters = [];
+
+            this.filters.forEach(el => {
+                const filter = { ...el };
+
+                filter.value = savedFilters[filter.name] ? savedFilters[filter.name].value : null;
+                filter.filterCriteria = savedFilters[filter.name] ? savedFilters[filter.name].criteria : null;
+
+                filters.push(filter);
+            });
+
+            return filters;
         }
     },
 
     watch: {
         criteria: {
             handler() {
-                this.$emit('criteria-changed', this.criteria);
+                if (this.filterChanged) {
+                    Shopware.Service('filterService').saveFilters(this.storeKey, this.storedFilters).then(response => {
+                        this.storedFilters = response;
+                    });
+                    this.$emit('criteria-changed', this.criteria);
+                }
             },
             deep: true
-        },
-        activeFiltersNumber() {
-            this.$emit('active-filter-number-update', this.activeFiltersNumber);
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        updateFilter(name, filter) {
+        createdComponent() {
+            Shopware.Service('filterService').getStoredFilters(this.storeKey).then(filters => {
+                this.storedFilters = filters;
+
+                this.listFilters.forEach(filter => {
+                    const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
+                    if (criteria) {
+                        this.$set(this.activeFilters, filter.name, criteria);
+                    }
+                });
+            });
+        },
+
+        updateFilter(name, filter, value) {
+            this.filterChanged = true;
             this.$set(this.activeFilters, name, filter);
+            this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
+            this.filterChanged = true;
             this.$delete(this.activeFilters, name);
+            this.storedFilters[name] = { value: null, criteria: null };
         },
 
         resetAll() {
+            this.filterChanged = true;
             this.activeFilters = {};
+
+            Object.values(this.storedFilters).forEach(el => {
+                el.value = null;
+                el.criteria = null;
+            });
         },
 
         showFilter(filter, type) {

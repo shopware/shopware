@@ -221,7 +221,9 @@
 
                     <sw-sidebar-filter-panel
                         entity="product"
+                        :storeKey="storeKey"
                         @criteria-changed="updateCriteria"
+                        :activeFilterNumber="activeFilterNumber"
                         :filters="listFilters"
                         :defaults="defaultFilters">
                     </sw-sidebar-filter-panel>

@@ -26,7 +26,9 @@ function createWrapper() {
             filter: {
                 property: 'manufacturerId',
                 name: 'manufacturerId',
-                label: 'Manufacturer ID'
+                label: 'Manufacturer ID',
+                filterCriteria: null,
+                value: null
             },
             active: true
         },
@@ -47,7 +49,8 @@ describe('components/sw-boolean-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
-            [Criteria.equals('manufacturerId', true)]
+            [Criteria.equals('manufacturerId', true)],
+            'true'
         ]);
     });
 
@@ -60,14 +63,15 @@ describe('components/sw-boolean-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
-            [Criteria.equals('manufacturerId', false)]
+            [Criteria.equals('manufacturerId', false)],
+            'false'
         ]);
     });
 
     it('should emit `filter-reset` event when user clicks Reset button from `Active` option', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'true' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'true' } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -78,7 +82,7 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-reset` event when user clicks Reset button from `Inactive` option', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'false' });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: 'false' } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
@@ -98,7 +102,8 @@ describe('components/sw-boolean-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
-            [Criteria.equals('manufacturerId', false)]
+            [Criteria.equals('manufacturerId', false)],
+            'false'
         ]);
     });
 
@@ -113,7 +118,8 @@ describe('components/sw-boolean-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
-            [Criteria.equals('manufacturerId', true)]
+            [Criteria.equals('manufacturerId', true)],
+            'true'
         ]);
     });
 
@@ -127,6 +133,7 @@ describe('components/sw-boolean-filter', () => {
         await wrapper.setProps({ active: false });
 
         expect(wrapper.vm.value).toEqual(null);
+        expect(wrapper.vm.filter.value).toEqual(null);
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 
@@ -139,7 +146,6 @@ describe('components/sw-boolean-filter', () => {
 
         await wrapper.setProps({ active: true });
 
-        expect(wrapper.vm.value).toEqual('true');
         expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 });

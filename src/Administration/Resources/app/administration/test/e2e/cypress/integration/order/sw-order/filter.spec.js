@@ -4,10 +4,21 @@ const uuid = require('uuid/v4');
 
 describe('Order: Testing filter and reset filter', () => {
     before(() => {
-        let currencyId, countryId, paymentMethodId, salesChannelId, salutationId, stateMachineId, shippingMethodId;
+        let currencyId; let countryId; let paymentMethodId; let salesChannelId; let groupId; let salutationId; let stateMachineId; let
+            shippingMethodId; let userId;
 
         cy.setToInitialState()
             .then(() => {
+                cy.searchViaAdminApi({
+                    data: {
+                        field: 'username',
+                        value: 'admin'
+                    },
+                    endpoint: 'user'
+                });
+            })
+            .then((user) => {
+                userId = user.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'state-machine',
                     data: {
@@ -27,7 +38,8 @@ describe('Order: Testing filter and reset filter', () => {
                         value: 'DE'
                     }
                 });
-            }).then(data => {
+            })
+            .then(data => {
                 countryId = data.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'payment-method',
@@ -71,7 +83,8 @@ describe('Order: Testing filter and reset filter', () => {
                     }
                 });
             })
-            .then(() => {
+            .then(data => {
+                groupId = data.id;
                 return cy.searchViaAdminApi({
                     endpoint: 'salutation',
                     data: {
@@ -208,7 +221,7 @@ describe('Order: Testing filter and reset filter', () => {
                     );
                 }
 
-                return cy.request({
+                cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
@@ -226,6 +239,48 @@ describe('Order: Testing filter and reset filter', () => {
                             payload: orders
                         }
 
+                    }
+                });
+
+                cy.request({
+                    headers: {
+                        Accept: 'application/vnd.api+json',
+                        Authorization: `Bearer ${auth.access}`,
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    url: '/api/_action/sync',
+                    qs: {
+                        response: true
+                    },
+                    body: {
+                        'write-user-config': {
+                            entity: 'user_config',
+                            action: 'upsert',
+                            payload: [
+                                {
+                                    createdAt: '2021-01-21T06:52:41.857+00:00',
+                                    id: '021150d043ee49e18642daef58e92c96',
+                                    key: 'grid.filter.order',
+                                    updatedAt: '2021-01-21T06:54:00.252+00:00',
+                                    userId: userId,
+                                    value: {
+                                        'document-filter': {
+                                            value: 'true',
+                                            criteria: [{
+                                                type: 'not',
+                                                queries: [{
+                                                    type: 'equals',
+                                                    field: 'documents.id',
+                                                    value: null
+                                                }],
+                                                operator: 'AND'
+                                            }]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 });
             });
@@ -248,14 +303,31 @@ describe('Order: Testing filter and reset filter', () => {
             method: 'post'
         }).as('getStateMachineState');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
+        cy.wait('@filterOrder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
-        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('not.exist');
+
+        // Check if saved user filter is loaded
+        cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '1');
+
+        // Check if Reset All button shows up
+        cy.get('.sw-sidebar-item__headline a').should('exist');
+        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('exist');
 
         cy.get('.sw-filter-panel').should('exist');
 
-        // Check if Reset All button shows up
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
+
+        cy.wait('@filterOrder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // Filter results with single criteria
         cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
@@ -275,8 +347,8 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '1');
 
         // Combine multiple filter criterias
-        cy.get('#status-filter .sw-entity-multi-select').scrollIntoView();
-        cy.get('#status-filter .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1'});
+        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 1', { searchTerm: 'order state 1' });
 
         cy.get('.sw-page__smart-bar-amount').contains('1');
         cy.get('.sw-sidebar-navigation-item').eq(1).find('.notification-badge').should('have.text', '2');
@@ -299,11 +371,18 @@ describe('Order: Testing filter and reset filter', () => {
             method: 'post'
         }).as('getStateMachineState');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/user-config`,
+            method: 'post'
+        }).as('getUserConfig');
+
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
 
-        // Check Reset and Reset All button at default state
-        cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        cy.get('.sw-filter-panel__item').eq(0).find('.sw-base-filter__reset').should('not.exist');
+        cy.get('.sw-sidebar-item__headline a').click();
+
+        cy.wait('@filterOrder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // Check Reset button when filter is active
         cy.get('.sw-filter-panel__item').eq(0).find('select').select('true');
@@ -317,8 +396,8 @@ describe('Order: Testing filter and reset filter', () => {
         cy.get('.sw-page__smart-bar-amount').contains('9');
 
         // Reset All button should show up when there is active filter
-        cy.get('#status-filter .sw-entity-multi-select').scrollIntoView();
-        cy.get('#status-filter .sw-entity-multi-select').typeMultiSelectAndCheck('order state 2', { searchTerm: 'order state 2'});
+        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').scrollIntoView();
+        cy.get('.sw-filter-panel__item:nth-child(3) .sw-entity-multi-select').typeMultiSelectAndCheck('order state 2', { searchTerm: 'order state 2' });
 
         cy.get('.sw-sidebar-item__headline a').should('exist');
 

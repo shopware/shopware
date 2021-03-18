@@ -247,8 +247,10 @@
                     {% block sw_customer_list_sidebar_filter %}
                         <sw-sidebar-filter-panel
                             entity="customer"
+                            :storeKey="storeKey"
                             :filters="listFilters"
                             :defaults="defaultFilters"
+                            :activeFilterNumber="activeFilterNumber"
                             @criteria-changed="updateCriteria">
                         </sw-sidebar-filter-panel>
                     {% endblock %}

@@ -38,7 +38,9 @@ Component.register('sw-customer-list', {
                 'billing-address-country-filter',
                 'shipping-address-country-filter',
                 'tags-filter'
-            ]
+            ],
+            storeKey: 'grid.filter.customer',
+            activeFilterNumber: 0
         };
     },
 
@@ -148,6 +150,15 @@ Component.register('sw-customer-list', {
         this.createdComponent();
     },
 
+    watch: {
+        defaultCriteria: {
+            handler() {
+                this.getList();
+            },
+            deep: true
+        }
+    },
+
     methods: {
         createdComponent() {
             this.loadFilterValues();
@@ -166,19 +177,27 @@ Component.register('sw-customer-list', {
             });
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.defaultCriteria, Shopware.Context.api).then((items) => {
+            let criteria = this.defaultCriteria;
+            if (this.feature.isActive('FEATURE_NEXT_9831')) {
+                criteria = await Shopware.Service('filterService')
+                    .mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
+            }
+
+            this.activeFilterNumber = criteria.filters.length;
+
+            try {
+                const items = await this.customerRepository.search(this.defaultCriteria, Shopware.Context.api);
+
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;
                 this.selection = {};
-
-                return items;
-            }).catch(() => {
+            } catch {
                 this.isLoading = false;
-            });
+            }
         },
 
         onDelete(id) {
@@ -306,15 +325,6 @@ Component.register('sw-customer-list', {
         updateCriteria(criteria) {
             this.page = 1;
             this.filterCriteria = criteria;
-        }
-    },
-
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true
         }
     }
 });

@@ -44,19 +44,7 @@ Component.register('sw-range-filter', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            if (!this.value.to && !this.value.from) {
-                return;
-            }
-
-            this.updateFilter(this.value);
-        },
-
         updateFilter(range) {
             const params = {
                 ...(range.from ? { gte: range.from } : {}),

@@ -30,7 +30,7 @@ describe('Category: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.changeElementStyling(
-            '.sw-category-sales-channel-card__list',
+            '.sw-category-entry-point-card__navigation-list',
             'visibility: hidden'
         );
         cy.prepareAdminForScreenshot();

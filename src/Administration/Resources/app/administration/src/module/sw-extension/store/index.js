@@ -10,6 +10,12 @@ export default function initState(Shopware) {
         }
 
         if (type === 'setAdminLocale' && state.session.languageId !== '' && languageId !== state.session.languageId) {
+            // Always on page load setAdminLocale will be called once. Catch it to not load refresh extensions
+            if (languageId === '') {
+                languageId = state.session.languageId;
+                return;
+            }
+
             Shopware.Service('shopwareExtensionService').updateExtensionData();
             languageId = state.session.languageId;
         }

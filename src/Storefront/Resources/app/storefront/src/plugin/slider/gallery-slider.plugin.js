@@ -258,6 +258,28 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
           }
       }
 
+      this._navigateThumbnailSlider();
+
       this.$emitter.publish('afterInitSlider');
+  }
+
+    /**
+     * navigate thumbnail slider automatically if the selected slider image is hidden
+     *
+     * @private
+     * */
+  _navigateThumbnailSlider() {
+      if (!this._slider && !this._thumbnailSlider) {
+          return;
+      }
+
+      this._slider.events.on('indexChanged', () => {
+          const currentIndex = this.getCurrentSliderIndex();
+          const thumbnailSlideInfo = this._thumbnailSlider.getInfo();
+
+          if (thumbnailSlideInfo.slideItems[currentIndex].getAttribute('aria-hidden')) {
+              this._thumbnailSlider.goTo(currentIndex - 1);
+          }
+      });
   }
 }

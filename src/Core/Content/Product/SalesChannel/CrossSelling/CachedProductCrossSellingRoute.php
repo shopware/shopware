@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel\Detail;
+namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
 use OpenApi\Annotations as OA;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheKeyEvent;
-use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
+use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheKeyEvent;
+use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
+use Shopware\Core\Content\Product\SalesChannel\CachedProductRouteInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -24,9 +25,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class CachedProductDetailRoute extends AbstractProductDetailRoute
+class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
-    private AbstractProductDetailRoute $decorated;
+    private AbstractProductCrossSellingRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
 
@@ -41,7 +42,7 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     private LoggerInterface $logger;
 
     public function __construct(
-        AbstractProductDetailRoute $decorated,
+        AbstractProductCrossSellingRoute $decorated,
         TagAwareAdapterInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
@@ -58,29 +59,34 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         $this->logger = $logger;
     }
 
-    public function getDecorated(): AbstractProductDetailRoute
+    public function getDecorated(): AbstractProductCrossSellingRoute
     {
         return $this->decorated;
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'cross-selling-route-' . $id;
     }
 
     /**
      * @Since("6.3.2.0")
      * @Entity("product")
      * @OA\Post(
-     *      path="/product/{productId}",
-     *      summary="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
-     *      operationId="readProductDetail",
+     *      path="/product/{productId}/cross-selling",
+     *      summary="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+     *      operationId="readProductCrossSellings",
      *      tags={"Store API","Product"},
      *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
-     *          description="Found product",
-     *          @OA\JsonContent(ref="#/components/schemas/product_flat")
+     *          description="Found cross sellings",
+     *          @OA\JsonContent(ref="#/components/schemas/CrossSellingElementCollection")
      *     )
      * )
-     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"})
+     * @Route("/store-api/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
      */
-    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
+    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         if (!Feature::isActive('FEATURE_NEXT_10514')) {
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
@@ -109,7 +115,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         $this->logger->info('cache-miss: ' . self::buildName($productId));
 
         $name = self::buildName($productId);
-        /** @var ProductDetailRouteResponse $response */
         $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
         });
@@ -123,11 +128,6 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
         return $response;
     }
 
-    public static function buildName(string $parentId): string
-    {
-        return 'product-detail-route-' . $parentId;
-    }
-
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
@@ -136,24 +136,50 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
             $this->generator->getSalesChannelContextHash($context),
         ];
 
-        $event = new ProductDetailRouteCacheKeyEvent($parts, $request, $context, $criteria);
+        $event = new CrossSellingRouteCacheKeyEvent($productId, $parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
         return md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
-    private function generateTags(string $productId, Request $request, ProductDetailRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
+    private function generateTags(string $productId, Request $request, ProductCrossSellingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
-        $parentId = $response->getProduct()->getParentId() ?? $response->getProduct()->getId();
-
         $tags = array_merge(
             $this->tracer->get(self::buildName($productId)),
-            [self::buildName($parentId)]
+            $this->extractStreamTags($response),
+            $this->extractProductIds($response),
+            [self::buildName($productId)]
         );
 
-        $event = new ProductDetailRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);
+        $event = new CrossSellingRouteCacheTagsEvent($productId, $tags, $request, $response, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
         return array_unique(array_filter($event->getTags()));
+    }
+
+    private function extractStreamTags(ProductCrossSellingRouteResponse $response): array
+    {
+        $ids = [];
+
+        foreach ($response->getResult() as $element) {
+            $ids[] = $element->getStreamId();
+        }
+
+        $ids = array_unique(array_filter($ids));
+
+        return array_map([CachedProductRouteInvalidator::class, 'buildStreamTag'], $ids);
+    }
+
+    private function extractProductIds(ProductCrossSellingRouteResponse $response): array
+    {
+        $ids = [];
+
+        foreach ($response->getResult() as $element) {
+            $ids = array_merge($ids, $element->getProducts()->getIds());
+        }
+
+        $ids = array_unique(array_filter($ids));
+
+        return array_map([CachedProductRouteInvalidator::class, 'buildProductTag'], $ids);
     }
 }

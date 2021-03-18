@@ -126,7 +126,7 @@ class ProductPageLoader
 
             $page->setReviews($reviews);
 
-            $page->setCrossSellings($this->crossSellingRoute->load($productId, $context)->getResult());
+            $page->setCrossSellings($this->crossSellingRoute->load($productId, new Request(), $context, new Criteria())->getResult());
 
             /** @var string $cmsPageId */
             $cmsPageId = $product->getCmsPageId();

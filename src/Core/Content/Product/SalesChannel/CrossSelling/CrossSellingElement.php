@@ -8,20 +8,13 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class CrossSellingElement extends Struct
 {
-    /**
-     * @var ProductCrossSellingEntity
-     */
-    protected $crossSelling;
+    protected ProductCrossSellingEntity $crossSelling;
 
-    /**
-     * @var ProductCollection
-     */
-    protected $products;
+    protected ProductCollection $products;
 
-    /**
-     * @var int
-     */
-    protected $total;
+    protected int $total;
+
+    protected ?string $streamId = null;
 
     public function getCrossSelling(): ProductCrossSellingEntity
     {
@@ -56,5 +49,15 @@ class CrossSellingElement extends Struct
     public function getApiAlias(): string
     {
         return 'cross_selling_element';
+    }
+
+    public function getStreamId(): ?string
+    {
+        return $this->streamId;
+    }
+
+    public function setStreamId(?string $streamId): void
+    {
+        $this->streamId = $streamId;
     }
 }

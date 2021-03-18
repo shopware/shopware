@@ -75,6 +75,9 @@ parameters:
             message: '#Method Shopware\\Storefront\\Framework\\Cache\\CacheTracer::trace\(\) has no return typehint specified\.#'
             path: src/Storefront/Framework/Cache/CacheTracer.php
         -
+            message: '#Method Shopware\\Core\\Framework\\Adapter\\Cache\\CacheTagCollection::trace\(\) has no return typehint specified\.#'
+            path: src/Core/Framework/Adapter/Cache/CacheTagCollection.php
+        -
             message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\Translator::trace\(\) has no return typehint specified\.#'
             path: src/Core/Framework/Adapter/Translation/Translator.php
         -
@@ -110,7 +113,9 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\Adapter\\Translation\\AbstractTranslator::trace\(\) has no return typehint specified\.#'
             path: src/Core/Framework/Adapter/Translation/AbstractTranslator.php
-
+        -
+            message: '#Method Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductStreamUpdater::iterate\(\) has parameter \$offset with no typehint specified\.#'
+            path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
         - '#Method .*FieldSerializer::decode\(\) has no return typehint specified\.#'
         - '#Method .*FieldSerializer::decode\(\) has parameter \$value with no typehint specified\.#'
         - '#Method .*CustomFieldsSerializer::decode\(\) has no return typehint specified\.#'

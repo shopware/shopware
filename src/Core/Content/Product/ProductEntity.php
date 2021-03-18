@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -485,6 +486,11 @@ class ProductEntity extends Entity
      * @var CheapestPriceContainer|null
      */
     protected $cheapestPriceContainer;
+
+    /**
+     * @var ProductStreamCollection|null
+     */
+    protected $streams;
 
     public function __construct()
     {
@@ -1423,5 +1429,15 @@ class ProductEntity extends Entity
     public function getCheapestPriceContainer(): ?CheapestPriceContainer
     {
         return $this->cheapestPriceContainer;
+    }
+
+    public function getStreams(): ?ProductStreamCollection
+    {
+        return $this->streams;
+    }
+
+    public function setStreams(ProductStreamCollection $streams): void
+    {
+        $this->streams = $streams;
     }
 }

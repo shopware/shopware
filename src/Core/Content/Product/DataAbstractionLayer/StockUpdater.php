@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -25,39 +26,32 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class StockUpdater implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $definition;
+    private ProductDefinition $definition;
 
-    /**
-     * @var CacheClearer
-     */
-    private $cache;
+    private CacheClearer $cache;
 
-    /**
-     * @var EntityCacheKeyGenerator
-     */
-    private $cacheKeyGenerator;
+    private EntityCacheKeyGenerator $cacheKeyGenerator;
+
+    private EventDispatcherInterface $dispatcher;
 
     public function __construct(
         Connection $connection,
         ProductDefinition $definition,
         CacheClearer $cache,
-        EntityCacheKeyGenerator $cacheKeyGenerator
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->connection = $connection;
         $this->definition = $definition;
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -275,7 +269,7 @@ WHERE order_line_item.product_id IN (:ids)
 GROUP BY product_id;
         ';
 
-        $rows = $this->connection->fetchAll(
+        $rows = $this->connection->fetchAllAssociative(
             $sql,
             [
                 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
@@ -346,6 +340,16 @@ GROUP BY product_id;
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
         });
+
+        $updated = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE available = 0 AND id IN (:ids) AND product.version_id = :version',
+            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        if (!empty($updated)) {
+            $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($updated, $context));
+        }
     }
 
     private function updateStock(array $products, int $multiplier): void

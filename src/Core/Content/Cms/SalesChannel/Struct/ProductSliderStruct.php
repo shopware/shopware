@@ -12,6 +12,8 @@ class ProductSliderStruct extends Struct
      */
     protected $products;
 
+    private ?string $streamId;
+
     public function getProducts(): ?ProductCollection
     {
         return $this->products;
@@ -25,5 +27,15 @@ class ProductSliderStruct extends Struct
     public function getApiAlias(): string
     {
         return 'cms_product_slider';
+    }
+
+    public function getStreamId(): ?string
+    {
+        return $this->streamId;
+    }
+
+    public function setStreamId(?string $streamId): void
+    {
+        $this->streamId = $streamId;
     }
 }

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel\Detail;
+namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
-use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class CachedProductDetailRouteInvalidator implements EventSubscriberInterface
+class CachedCategoryRouteInvalidator implements EventSubscriberInterface
 {
     private CacheInvalidationLogger $logger;
 
@@ -27,24 +27,13 @@ class CachedProductDetailRouteInvalidator implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductIndexerEvent::class => 'invalidate',
+            CategoryIndexerEvent::class => [
+                ['invalidateIndexedCategories', 2000],
+            ],
             EntityWrittenContainerEvent::class => [
                 ['invalidateLayouts', 2000],
             ],
         ];
-    }
-
-    public function invalidate(ProductIndexerEvent $event): void
-    {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
-        $ids = array_filter(array_merge($event->getParentIds(), $event->getIds()));
-
-        $this->logger->log(
-            array_map([CachedProductDetailRoute::class, 'buildName'], $ids)
-        );
     }
 
     public function invalidateLayouts(EntityWrittenContainerEvent $event): void
@@ -60,7 +49,7 @@ class CachedProductDetailRouteInvalidator implements EventSubscriberInterface
 
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id
-             FROM product
+             FROM category
              WHERE cms_page_id IN (:ids)
              AND version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
@@ -68,7 +57,17 @@ class CachedProductDetailRouteInvalidator implements EventSubscriberInterface
         );
 
         $this->logger->log(
-            array_map([CachedProductDetailRoute::class, 'buildName'], $ids)
+            array_map([CachedCategoryRoute::class, 'buildName'], $ids)
+        );
+    }
+
+    public function invalidateIndexedCategories(CategoryIndexerEvent $event): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            return;
+        }
+        $this->logger->log(
+            array_map([CachedCategoryRoute::class, 'buildName'], $event->getIds())
         );
     }
 }

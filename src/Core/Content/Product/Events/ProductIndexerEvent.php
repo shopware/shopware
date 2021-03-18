@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Events;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
-class ProductIndexerEvent extends NestedEvent
+class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
     /**
      * @var Context

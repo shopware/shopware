@@ -13,6 +13,6 @@ class InvalidateCacheTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 30;
+        return 20;
     }
 }

@@ -765,4 +765,5 @@ EOD
 Landing Pages which are called via the given seo url
 EOD
     ,
+    Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition::class => '',
 ];

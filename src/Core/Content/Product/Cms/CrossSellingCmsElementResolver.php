@@ -8,6 +8,8 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\HttpFoundation\Request;
 
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
@@ -54,7 +56,7 @@ class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementReso
             return;
         }
 
-        $crossSellings = $this->crossSellingLoader->load($product->getId(), $context)->getResult();
+        $crossSellings = $this->crossSellingLoader->load($product->getId(), new Request(), $context, new Criteria())->getResult();
 
         if ($crossSellings->count()) {
             $struct->setCrossSellings($crossSellings);

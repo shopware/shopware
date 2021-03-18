@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\PruneableInterface;
@@ -85,6 +86,10 @@ class CacheClearer extends AbstractMessageHandler
      */
     public function invalidateIds(array $ids, string $entity): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return;
+        }
+
         $ids = array_filter($ids);
         if (empty($ids)) {
             return;

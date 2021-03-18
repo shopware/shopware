@@ -22,6 +22,12 @@ Shopware.Component.register('sw-settings-search-view-live-search', {
             default() {
                 return null;
             }
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     }
 });

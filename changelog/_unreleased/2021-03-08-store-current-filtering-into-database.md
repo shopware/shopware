@@ -1,7 +1,6 @@
 ---
 title: Store current filtering into database
 issue: NEXT-12997
-flag: FEATURE_NEXT_9831
 ---
 # Administration
 *  Added `FilterService` in `src/app/service/filter.service.js` to handle common logic to fetch and save filters

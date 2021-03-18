@@ -67,4 +67,9 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
     {
         $this->parameters[$key] = $value;
     }
+
+    public function setView(string $view): void
+    {
+        $this->view = $view;
+    }
 }

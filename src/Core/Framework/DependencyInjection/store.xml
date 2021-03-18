@@ -5,6 +5,20 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="instance_id">%env(INSTANCE_ID)%</parameter>
+        <parameter key="shopware.store_endpoints" type="collection">
+            <parameter key="ping">/ping</parameter>
+            <parameter key="my_extensions">/swplatform/licenseenvironment</parameter>
+            <parameter key="my_licenses">/swplatform/licenses</parameter>
+            <parameter key="my_plugin_licenses">/swplatform/pluginlicenses</parameter>
+            <parameter key="my_plugin_updates">/swplatform/pluginupdates</parameter>
+            <parameter key="environment_information">/swplatform/environmentinformation</parameter>
+            <parameter key="updater_extension_compatibility">/swplatform/autoupdate</parameter>
+            <parameter key="updater_permission">/swplatform/autoupdate/permission</parameter>
+            <parameter key="plugin_download">/swplatform/pluginfiles/{pluginName}</parameter>
+            <parameter key="app_generate_signature">/swplatform/generatesignature</parameter>
+            <parameter key="cancel_license">/swplatform/pluginlicenses/%s/cancel</parameter>
+            <parameter key="login">/swplatform/login</parameter>
+        </parameter>
     </parameters>
     <services>
         <service id="Shopware\Core\Framework\Store\Api\StoreController" public="true">
@@ -32,6 +46,7 @@
         <service id="shopware.store.mock_handler" class="GuzzleHttp\Handler\MockHandler"/>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClient">
+            <argument>%shopware.store_endpoints%</argument>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

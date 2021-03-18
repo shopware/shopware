@@ -35,61 +35,33 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  */
 class StoreClient
 {
-    public const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
-    public const SBP_API_LIST_MY_EXTENSIONS = '/swplatform/licenseenvironment';
+    private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
-
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
-    private const SBP_API_URL_PING = '/ping';
-    private const SBP_API_URL_LOGIN = '/swplatform/login';
-    private const SBP_API_URL_LICENSES = '/swplatform/licenses';
-    private const SBP_API_URL_PLUGIN_LICENSES = '/swplatform/pluginlicenses';
-    private const SBP_API_URL_PLUGIN_UPDATES = '/swplatform/pluginupdates';
-    private const SBP_API_URL_PLUGIN_VIOLATIONS = '/swplatform/environmentinformation';
-    private const SBP_API_URL_PLUGIN_COMPATIBILITY = '/swplatform/autoupdate';
-    private const SBP_API_URL_PLUGIN_DOWNLOAD_INFO = '/swplatform/pluginfiles/{pluginName}';
-    private const SBP_API_URL_UPDATE_PERMISSIONS = '/swplatform/autoupdate/permission';
-    private const SBP_API_URL_GENERATE_SIGNATURE = '/swplatform/generatesignature';
-    private const SBP_API_CANCEL_LICENSE = '/swplatform/pluginlicenses/%s/cancel';
+    private ?Client $client = null;
 
-    /**
-     * @var Client|null
-     */
-    private $client;
+    private EntityRepositoryInterface $pluginRepo;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private SystemConfigService $configService;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
+    private StoreService $storeService;
 
-    /**
-     * @var StoreService
-     */
-    private $storeService;
+    private ?AbstractAuthenticationProvider $authenticationProvider;
 
-    /**
-     * @var AbstractAuthenticationProvider|null
-     */
-    private $authenticationProvider;
+    private ?ExtensionLoader $extensionLoader;
 
-    /**
-     * @var ExtensionLoader|null
-     */
-    private $extensionLoader;
+    private array $endpoints;
 
     final public function __construct(
+        array $endpoints,
         StoreService $storeService,
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService,
         ?AbstractAuthenticationProvider $authenticationProvider,
         ?ExtensionLoader $extensionLoader
     ) {
+        $this->endpoints = $endpoints;
         $this->storeService = $storeService;
         $this->configService = $configService;
         $this->pluginRepo = $pluginRepo;
@@ -99,7 +71,7 @@ class StoreClient
 
     public function ping(): void
     {
-        $this->getClient()->get(self::SBP_API_URL_PING);
+        $this->getClient()->get($this->endpoints['ping']);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
@@ -109,7 +81,7 @@ class StoreClient
         }
 
         $response = $this->getClient()->post(
-            self::SBP_API_URL_LOGIN,
+            $this->endpoints['login'],
             [
                 'body' => json_encode([
                     'shopwareId' => $shopwareId,
@@ -138,7 +110,7 @@ class StoreClient
     public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
         $response = $this->getClient()->get(
-            self::SBP_API_URL_PLUGIN_LICENSES,
+            $this->endpoints['my_plugin_licenses'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language),
                 'headers' => $this->getHeaders($storeToken),
@@ -206,7 +178,7 @@ class StoreClient
         $query['hostName'] = $hostName;
 
         $response = $this->getClient()->post(
-            self::SBP_API_URL_PLUGIN_UPDATES,
+            $this->endpoints['my_plugin_updates'],
             [
                 'query' => $query,
                 'body' => json_encode(['plugins' => $pluginArray]),
@@ -272,7 +244,7 @@ class StoreClient
         $query['hostName'] = $hostName;
 
         $response = $this->getClient()->post(
-            self::SBP_API_URL_PLUGIN_VIOLATIONS,
+            $this->endpoints['environment_information'],
             [
                 'query' => $query,
                 'body' => json_encode(['plugins' => $pluginData]),
@@ -288,7 +260,7 @@ class StoreClient
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
     {
         $response = $this->getClient()->get(
-            str_replace('{pluginName}', $pluginName, self::SBP_API_URL_PLUGIN_DOWNLOAD_INFO),
+            str_replace('{pluginName}', $pluginName, $this->endpoints['plugin_download']),
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
                 'headers' => $this->getHeaders($storeToken),
@@ -314,7 +286,7 @@ class StoreClient
         }
 
         $response = $this->getClient()->post(
-            self::SBP_API_URL_PLUGIN_COMPATIBILITY,
+            $this->endpoints['updater_extension_compatibility'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
                 'headers' => $this->getHeaders(),
@@ -340,7 +312,7 @@ class StoreClient
         }
 
         $response = $this->getClient()->post(
-            self::SBP_API_URL_PLUGIN_COMPATIBILITY,
+            $this->endpoints['updater_extension_compatibility'],
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
                 'headers' => $this->getHeaders(),
@@ -356,7 +328,7 @@ class StoreClient
 
     public function isShopUpgradeable(): bool
     {
-        $response = $this->getClient()->get(self::SBP_API_URL_UPDATE_PERMISSIONS, [
+        $response = $this->getClient()->get($this->endpoints['updater_permission'], [
             'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
             'headers' => $this->getHeaders(),
         ]);
@@ -366,7 +338,7 @@ class StoreClient
 
     public function signPayloadWithAppSecret(string $payload, string $appName): string
     {
-        $response = $this->getClient()->post(self::SBP_API_URL_GENERATE_SIGNATURE, [
+        $response = $this->getClient()->post($this->endpoints['app_generate_signature'], [
             'headers' => $this->getHeaders(),
             'json' => [
                 'payload' => $payload,
@@ -387,7 +359,7 @@ class StoreClient
         $storeToken = $this->authenticationProvider->getUserStoreToken($context);
 
         try {
-            $response = $this->getClient()->post(self::SBP_API_LIST_MY_EXTENSIONS, [
+            $response = $this->getClient()->post($this->endpoints['my_extensions'], [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
                 'headers' => $this->getHeaders($storeToken),
                 'json' => ['plugins' => array_map(function (ExtensionStruct $e) {
@@ -431,7 +403,7 @@ class StoreClient
         }
 
         try {
-            $this->getClient()->post(sprintf(self::SBP_API_CANCEL_LICENSE, $licenseId), [
+            $this->getClient()->post(sprintf($this->endpoints['cancel_license'], $licenseId), [
                 'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
                 'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
             ]);
@@ -461,7 +433,7 @@ class StoreClient
 
         try {
             $response = $this->getClient()->get(
-                self::SBP_API_URL_LICENSES,
+                $this->endpoints['my_licenses'],
                 [
                     'query' => $this->storeService->getDefaultQueryParameters('en-GB'),
                     'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),

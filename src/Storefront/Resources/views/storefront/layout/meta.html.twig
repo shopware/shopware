@@ -19,11 +19,11 @@
 
             {% block layout_head_meta_tags_general %}
                 <meta name="author"
-                      content="{{ metaInformation.author|striptags }}"/>
+                      content="{% block layout_head_meta_tags_general_author %}{{ metaInformation.author|striptags }}{% endblock %}"/>
                 <meta name="robots"
                       content="{% block layout_head_meta_tags_robots %}{{ metaInformation.robots }}{% endblock %}"/>
                 <meta name="revisit-after"
-                      content="{{ metaInformation.revisit|striptags }}"/>
+                      content="{% block layout_head_meta_tags_general_revisit %}{{ metaInformation.revisit|striptags }}{% endblock %}"/>
                 <meta name="keywords"
                       content="{% block layout_head_meta_tags_keywords %}{{ metaKeywords }}{% endblock %}"/>
                 <meta name="description"
@@ -32,37 +32,37 @@
 
             {% block layout_head_meta_tags_opengraph %}
                 <meta property="og:type"
-                      content="website"/>
+                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}"/>
                 <meta property="og:site_name"
-                      content="{{ basicConfig.shopName }}"/>
+                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}"/>
                 <meta property="og:title"
-                      content="{{ metaTitle }}"/>
+                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}"/>
                 <meta property="og:description"
                       content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}"/>
                 <meta property="og:image"
-                      content="{{ theme_config('sw-logo-desktop') }}"/>
+                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
 
                 <meta name="twitter:card"
-                      content="summary"/>
+                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}"/>
                 <meta name="twitter:site"
-                      content="{{ basicConfig.shopName }}"/>
+                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}"/>
                 <meta name="twitter:title"
-                      content="{{ metaTitle }}"/>
+                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}"/>
                 <meta name="twitter:description"
                       content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}"/>
                 <meta name="twitter:image"
-                      content="{{ theme_config('sw-logo-desktop') }}"/>
+                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}
                 <meta itemprop="copyrightHolder"
-                      content="{{ basicConfig.shopName }}"/>
+                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}"/>
                 <meta itemprop="copyrightYear"
-                      content="{{ metaInformation.copyrightYear|striptags }}"/>
+                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}"/>
                 <meta itemprop="isFamilyFriendly"
-                      content="{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}"/>
+                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}"/>
                 <meta itemprop="image"
-                      content="{{ theme_config('sw-logo-desktop') }}"/>
+                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}"/>
             {% endblock %}
 
             {% block layout_head_meta_tags_hreflangs %}

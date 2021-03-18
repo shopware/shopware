@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -37,8 +36,6 @@ class LandingPageRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12032', $this);
-
         $this->repository = $this->getContainer()->get('landing_page.repository');
         $this->salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
         $this->cmsPageRepo = $this->getContainer()->get('cms_page.repository');
@@ -109,6 +106,7 @@ class LandingPageRepositoryTest extends TestCase
             'metaTitle' => 'My meta title',
             'metaDescription' => 'My meta description',
             'keywords' => 'landing, page, title',
+            'url' => 'coolUrl',
             'salesChannels' => $saleChannels,
             'cmsPageId' => $cmsPageId,
             'tags' => [

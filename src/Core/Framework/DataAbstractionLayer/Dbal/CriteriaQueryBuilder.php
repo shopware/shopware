@@ -127,6 +127,7 @@ class CriteriaQueryBuilder
 
     public function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
+        /** @var FieldSorting $sorting */
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
@@ -156,10 +157,12 @@ class CriteriaQueryBuilder
                 continue;
             }
 
-            if ($sorting->getDirection() === FieldSorting::ASCENDING) {
-                $accessor = 'MIN(' . $accessor . ')';
-            } else {
-                $accessor = 'MAX(' . $accessor . ')';
+            if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
+                if ($sorting->getDirection() === FieldSorting::ASCENDING) {
+                    $accessor = 'MIN(' . $accessor . ')';
+                } else {
+                    $accessor = 'MAX(' . $accessor . ')';
+                }
             }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }

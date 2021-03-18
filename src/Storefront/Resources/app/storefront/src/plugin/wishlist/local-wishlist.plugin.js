@@ -9,6 +9,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
         this.storage = Storage;
 
         super.init();
+        this._registerEvents();
     }
 
     load() {
@@ -78,5 +79,17 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      */
     _getStorageKey() {
         return 'wishlist-' + (window.salesChannelId || '');
+    }
+
+    _registerEvents() {
+        const guestLogoutPlugins = window.PluginManager.getPluginInstances('AccountGuestAbortButton');
+
+        if (guestLogoutPlugins) {
+            guestLogoutPlugins.forEach(guestLogoutButtonPlugin => {
+                guestLogoutButtonPlugin.$emitter.subscribe('guest-logout', () => {
+                    this.storage.removeItem(this._getStorageKey());
+                });
+            })
+        }
     }
 }

@@ -15,7 +15,7 @@
         <div class="offcanvas-cookie-description">
             <p>
                 {{ "cookie.message"|trans({
-                    '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.privacyPage })
+                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </p>
 
@@ -35,7 +35,7 @@
         </div>
 
 
-        {% if shopware.config.core.basicInformation.acceptAllCookies %}
+        {% if config('core.basicInformation.acceptAllCookies') %}
             {% block layout_cookie_configuration_allow_all_button %}
                 <button
                     type="submit"

@@ -62,7 +62,7 @@ describe('Review: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-review/*',
+            url: `${Cypress.env('apiPath')}/product-review/*`,
             method: 'patch'
         }).as('saveProperty');
 
@@ -100,7 +100,7 @@ describe('Review: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-review/*',
+            url: `${Cypress.env('apiPath')}/product-review/*`,
             method: 'delete'
         }).as('deleteData');
 

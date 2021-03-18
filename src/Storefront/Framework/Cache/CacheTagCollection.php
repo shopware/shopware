@@ -20,16 +20,18 @@ class CacheTagCollection
     public function add($tags): void
     {
         if (\is_string($tags)) {
-            $this->tags[] = $tags;
+            $this->tags[$tags] = true;
         }
 
         if (\is_array($tags)) {
-            $this->tags = array_unique(array_merge($this->tags, array_values($tags)));
+            foreach ($tags as $tag) {
+                $this->tags[$tag] = true;
+            }
         }
     }
 
     public function getTags(): array
     {
-        return $this->tags;
+        return array_keys($this->tags);
     }
 }

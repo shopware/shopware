@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class MediaFolderControllerTest extends TestCase
 {
@@ -42,8 +41,7 @@ class MediaFolderControllerTest extends TestCase
     public function testDissolveWithNonExistingFolder(): void
     {
         $url = sprintf(
-            '/api/v%s/_action/media-folder/%s/dissolve',
-            PlatformRequest::API_VERSION,
+            '/api/_action/media-folder/%s/dissolve',
             Uuid::randomHex()
         );
 
@@ -77,8 +75,7 @@ class MediaFolderControllerTest extends TestCase
         ], $this->context);
 
         $url = sprintf(
-            '/api/v%s/_action/media-folder/%s/dissolve',
-            PlatformRequest::API_VERSION,
+            '/api/_action/media-folder/%s/dissolve',
             $folderId
         );
 

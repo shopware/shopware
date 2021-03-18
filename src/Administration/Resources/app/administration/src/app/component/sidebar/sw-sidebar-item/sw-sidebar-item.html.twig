@@ -6,6 +6,8 @@
                     <h3 class="sw-sidebar-item__title">{{ title }}</h3>
                 {% endblock %}
 
+                <slot name="headline-content">{% block sw_sidebar_item_headline_slot%}{% endblock %}</slot>
+
                 {% block sw_sidebar_item_close_button %}
                     <button class="sw-sidebar-item__close-button" @click="closeContent" aria-label="closeContent">
                         <sw-icon name="small-default-x-line-small" size="20px">

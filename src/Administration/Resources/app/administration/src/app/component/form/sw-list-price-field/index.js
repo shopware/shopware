@@ -6,12 +6,21 @@ const { Component } = Shopware;
 Component.register('sw-list-price-field', {
     template,
 
+    inject: ['feature'],
+
     inheritAttrs: false,
 
     props: {
         price: {
             type: Array,
             required: true,
+            default() {
+                return [];
+            }
+        },
+
+        purchasePrices: {
+            type: Array,
             default() {
                 return [];
             }
@@ -83,6 +92,12 @@ Component.register('sw-list-price-field', {
         hideListPrices: {
             required: false,
             default: false
+        },
+
+        showSettingPrice: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -1,0 +1,12 @@
+@import "~scss/variables";
+
+.sw-extension-review-creation {
+    &__buttons {
+        display: flex;
+        align-items: center;
+
+        .sw-button:not(:last-child) {
+            margin-right: 16px;
+        }
+    }
+}

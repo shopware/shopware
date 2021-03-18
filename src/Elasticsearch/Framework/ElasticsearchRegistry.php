@@ -4,10 +4,7 @@ namespace Shopware\Elasticsearch\Framework;
 
 class ElasticsearchRegistry
 {
-    /**
-     * @var iterable
-     */
-    private $definitions;
+    private iterable $definitions;
 
     public function __construct(iterable $definitions)
     {

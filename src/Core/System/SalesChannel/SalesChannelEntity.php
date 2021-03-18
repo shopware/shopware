@@ -14,9 +14,9 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -84,6 +84,46 @@ class SalesChannelEntity extends Entity
      * @var int
      */
     protected $navigationCategoryDepth;
+
+    /**
+     * @var array|null
+     */
+    protected $homeSlotConfig;
+
+    /**
+     * @var string|null
+     */
+    protected $homeCmsPageId;
+
+    /**
+     * @var CmsPageEntity|null
+     */
+    protected $homeCmsPage;
+
+    /**
+     * @var bool
+     */
+    protected $homeEnabled;
+
+    /**
+     * @var string|null
+     */
+    protected $homeName;
+
+    /**
+     * @var string|null
+     */
+    protected $homeMetaTitle;
+
+    /**
+     * @var string|null
+     */
+    protected $homeMetaDescription;
+
+    /**
+     * @var string|null
+     */
+    protected $homeKeywords;
 
     /**
      * @var string|null
@@ -241,11 +281,6 @@ class SalesChannelEntity extends Entity
     protected $productVisibilities;
 
     /**
-     * @var MailTemplateSalesChannelCollection|null
-     */
-    protected $mailTemplates;
-
-    /**
      * @var string|null
      */
     protected $mailHeaderFooterId;
@@ -361,8 +396,6 @@ class SalesChannelEntity extends Entity
     protected $wishlists;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageCollection|null
      */
     protected $landingPages;
@@ -707,6 +740,86 @@ class SalesChannelEntity extends Entity
         $this->navigationCategory = $navigationCategory;
     }
 
+    public function getHomeSlotConfig(): ?array
+    {
+        return $this->homeSlotConfig;
+    }
+
+    public function setHomeSlotConfig(?array $homeSlotConfig): void
+    {
+        $this->homeSlotConfig = $homeSlotConfig;
+    }
+
+    public function getHomeCmsPageId(): ?string
+    {
+        return $this->homeCmsPageId;
+    }
+
+    public function setHomeCmsPageId(?string $homeCmsPageId): void
+    {
+        $this->homeCmsPageId = $homeCmsPageId;
+    }
+
+    public function getHomeCmsPage(): ?CmsPageEntity
+    {
+        return $this->homeCmsPage;
+    }
+
+    public function setHomeCmsPage(?CmsPageEntity $homeCmsPage): void
+    {
+        $this->homeCmsPage = $homeCmsPage;
+    }
+
+    public function getHomeEnabled(): bool
+    {
+        return $this->homeEnabled;
+    }
+
+    public function setHomeEnabled(bool $homeEnabled): void
+    {
+        $this->homeEnabled = $homeEnabled;
+    }
+
+    public function getHomeName(): ?string
+    {
+        return $this->homeName;
+    }
+
+    public function setHomeName(?string $homeName): void
+    {
+        $this->homeName = $homeName;
+    }
+
+    public function getHomeMetaTitle(): ?string
+    {
+        return $this->homeMetaTitle;
+    }
+
+    public function setHomeMetaTitle(?string $homeMetaTitle): void
+    {
+        $this->homeMetaTitle = $homeMetaTitle;
+    }
+
+    public function getHomeMetaDescription(): ?string
+    {
+        return $this->homeMetaDescription;
+    }
+
+    public function setHomeMetaDescription(?string $homeMetaDescription): void
+    {
+        $this->homeMetaDescription = $homeMetaDescription;
+    }
+
+    public function getHomeKeywords(): ?string
+    {
+        return $this->homeKeywords;
+    }
+
+    public function setHomeKeywords(?string $homeKeywords): void
+    {
+        $this->homeKeywords = $homeKeywords;
+    }
+
     public function getProductVisibilities(): ?ProductVisibilityCollection
     {
         return $this->productVisibilities;
@@ -715,16 +828,6 @@ class SalesChannelEntity extends Entity
     public function setProductVisibilities(ProductVisibilityCollection $productVisibilities): void
     {
         $this->productVisibilities = $productVisibilities;
-    }
-
-    public function getMailTemplates(): ?MailTemplateSalesChannelCollection
-    {
-        return $this->mailTemplates;
-    }
-
-    public function setMailTemplates(MailTemplateSalesChannelCollection $mailTemplates): void
-    {
-        $this->mailTemplates = $mailTemplates;
     }
 
     public function getCustomerGroupId(): string
@@ -1003,17 +1106,11 @@ class SalesChannelEntity extends Entity
         $this->wishlists = $wishlists;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPages(): ?LandingPageCollection
     {
         return $this->landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;

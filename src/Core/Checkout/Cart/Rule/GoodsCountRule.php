@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -12,22 +13,16 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class GoodsCountRule extends FilterRule
 {
-    /**
-     * @var int
-     */
-    protected $count;
+    protected int $count;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?int $count = null)
     {
         parent::__construct();
 
         $this->operator = $operator;
-        $this->count = $count;
+        $this->count = (int) $count;
     }
 
     /**
@@ -39,14 +34,15 @@ class GoodsCountRule extends FilterRule
             return false;
         }
 
-        $goods = $scope->getCart()->getLineItems()->filterGoods();
-        if ($this->filter) {
+        $goods = new LineItemCollection($scope->getCart()->getLineItems()->filterGoodsFlat());
+        $filter = $this->filter;
+        if ($filter !== null) {
             $context = $scope->getSalesChannelContext();
 
-            $goods = $goods->filter(function (LineItem $lineItem) use ($context) {
+            $goods = $goods->filter(static function (LineItem $lineItem) use ($filter, $context) {
                 $scope = new LineItemScope($lineItem, $context);
 
-                return $this->filter->match($scope);
+                return $filter->match($scope);
             });
         }
 

@@ -5,16 +5,17 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 class FakeConnection extends Connection
 {
-    /** @var array */
-    private $dbRows = [];
+    private array $dbRows;
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function __construct(array $dbRows)
     {
@@ -23,20 +24,19 @@ class FakeConnection extends Connection
                 'url' => 'sqlite:///:memory:',
             ],
             new Driver(),
-            new Configuration(),
-            null
+            new Configuration()
         );
 
         $this->dbRows = $dbRows;
     }
 
     /**
-     * @param string $query
+     * @param string $sql
      * @param array  $types
      *
-     * @return \Doctrine\DBAL\Driver\ResultStatement|void
+     * @return ResultStatement
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
         return new FakeResultStatement($this->dbRows);
     }

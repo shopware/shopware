@@ -118,7 +118,7 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-modal')
             .should('not.be.visible');
 
-        cy.awaitAndCheckNotification('User "Abraham Allison " has been deleted.');
+        cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
     it('@settings: update existing user', () => {

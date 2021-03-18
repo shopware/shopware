@@ -55,10 +55,6 @@ Component.register('sw-mail-template-list', {
 
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.getAssociation('salesChannels')
-                .setLimit(10)
-                .addAssociation('salesChannel');
-
             criteria.addAssociation('mailTemplateType');
 
             if (this.searchTerm) {
@@ -86,33 +82,7 @@ Component.register('sw-mail-template-list', {
                 dataIndex: 'description',
                 label: 'sw-mail-template.list.columnDescription',
                 allowResize: true
-            }, {
-                property: 'salesChannels.salesChannel.name',
-                dataIndex: 'salesChannels.salesChannel.name',
-                label: 'sw-mail-template.list.columnSalesChannels',
-                allowResize: true,
-                sortable: false
             }];
-        },
-
-        getSalesChannelsString(item) {
-            if (typeof item.salesChannels === 'undefined') {
-                return '';
-            }
-
-            let salesChannels = '';
-            item.salesChannels.forEach((mailTemplateSalesChannel) => {
-                if (salesChannels !== '') {
-                    salesChannels += ', ';
-                }
-                salesChannels += `${mailTemplateSalesChannel.salesChannel.translated.name}`;
-            });
-
-            if (item.salesChannels.length >= 5) {
-                salesChannels += '...';
-            }
-
-            return salesChannels;
         },
 
         onChangeLanguage(languageId) {

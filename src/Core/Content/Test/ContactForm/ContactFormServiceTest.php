@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -20,10 +21,7 @@ class ContactFormServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
 
-    /**
-     * @var ContactFormRoute
-     */
-    private $contactFormRoute;
+    private ContactFormRoute $contactFormRoute;
 
     protected function setUp(): void
     {
@@ -32,7 +30,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -52,7 +50,7 @@ class ContactFormServiceTest extends TestCase
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
 
         $validationEventDidRun = false;
-        $validationListenerClosure = function () use (&$validationEventDidRun, $phpunit): void {
+        $validationListenerClosure = static function () use (&$validationEventDidRun): void {
             $validationEventDidRun = true;
         };
 
@@ -64,6 +62,7 @@ class ContactFormServiceTest extends TestCase
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.lastNameFieldRequired', true);
         $systemConfig->set('core.basicInformation.phoneNumberFieldRequired', true);
+        $systemConfig->set('core.basicInformation.email', 'doNotReply@example.com');
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -87,7 +86,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormFirstNameRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -130,7 +129,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormLastNameRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -173,7 +172,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormPhoneNumberRequiredException(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -216,7 +215,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormOptionalFieldsSendMail(): void
     {
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

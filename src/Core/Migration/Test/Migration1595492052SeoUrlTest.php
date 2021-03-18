@@ -13,7 +13,6 @@ class Migration1595492052SeoUrlTest extends TestCase
 
     public function testNoChanges(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $expectedSchema = $conn->fetchAssoc('SHOW CREATE TABLE `seo_url`')['Create Table'];
 
@@ -30,7 +29,6 @@ class Migration1595492052SeoUrlTest extends TestCase
 
     public function testNoSeoUrlTable(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $conn->executeUpdate('DROP TABLE `seo_url`');
 

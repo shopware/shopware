@@ -8,25 +8,23 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
-use Symfony\Component\Translation\Exception\LogicException;
-use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
-use Symfony\Component\Translation\TranslatorInterface as LegacyTranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyTranslatorInterface
+class Translator extends AbstractTranslator
 {
     use TranslatorTrait;
 
     /**
-     * @var TranslatorInterface|TranslatorBagInterface|LegacyTranslatorInterface
+     * @var TranslatorInterface|TranslatorBagInterface
      */
     private $translator;
 
@@ -80,6 +78,16 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private $environment;
 
+    /**
+     * @var array
+     */
+    private $keys = ['all' => true];
+
+    /**
+     * @var array
+     */
+    private $traces = [];
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
@@ -98,10 +106,40 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $this->environment = $environment;
     }
 
+    public static function buildName(string $id): string
+    {
+        return 'translator.' . $id;
+    }
+
+    public function getDecorated(): AbstractTranslator
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function trace(string $key, \Closure $param)
+    {
+        $this->traces[$key] = [];
+        $this->keys[$key] = true;
+
+        $result = $param();
+
+        unset($this->keys[$key]);
+
+        return $result;
+    }
+
+    public function getTrace(string $key): array
+    {
+        $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
+        unset($this->traces[$key]);
+
+        return $trace;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue($locale = null): MessageCatalogueInterface
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         $catalog = $this->translator->getCatalogue($locale);
 
@@ -127,40 +165,17 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
+    public function trans($id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if ($domain === null) {
             $domain = 'messages';
         }
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale, $parameters);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
-    {
-        if (!$this->formatter instanceof ChoiceMessageFormatterInterface) {
-            throw new LogicException(sprintf('The formatter "%s" does not support plural translations.', \get_class($this->formatter)));
+        foreach (array_keys($this->keys) as $trace) {
+            $this->traces[$trace][self::buildName($id)] = true;
         }
 
-        if ($domain === null) {
-            $domain = 'messages';
-        }
-
-        $catalogue = $this->getCatalogue($locale);
-        $locale = $catalogue->getLocale();
-        while (!$catalogue->defines($id, $domain)) {
-            if ($cat = $catalogue->getFallbackCatalogue()) {
-                $catalogue = $cat;
-                $locale = $catalogue->getLocale();
-            } else {
-                break;
-            }
-        }
-
-        return $this->formatter->choiceFormat($catalogue->get($id, $domain), $number, $locale, $parameters);
+        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
     }
 
     /**

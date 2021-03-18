@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -61,11 +60,13 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     public function testRun(): void
     {
         $this->createProductStream();
-        $this->createTestEntity(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
+        // only get seconds, not microseconds, for better comparison to DB
+        $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
+        $exportId = $this->createTestEntity($previousGeneratedAt);
         $this->clearQueue();
         $this->getTaskHandler()->run();
 
-        $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
+        $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
@@ -83,16 +84,23 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
         static::assertCount(4, $csvRows);
+
+        /** @var ProductExportEntity|null $newExport */
+        $newExport = $this->repository->search(new Criteria([$exportId]), $this->context)->first();
+        static::assertNotNull($newExport);
+        static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
         $this->createProductStream();
-        $this->createTestEntity(new \DateTimeImmutable('now', new \DateTimeZone('UTC')), 0, 'Testexport.csv', false);
+        // only get seconds, not microseconds, for better comparison to DB
+        $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
+        $exportId = $this->createTestEntity($previousGeneratedAt, 0, 'Testexport.csv', false);
         $this->clearQueue();
         $this->getTaskHandler()->run();
 
-        $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
+        $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
@@ -104,6 +112,11 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         static::assertFalse($this->fileSystem->has($filePath));
+
+        /** @var ProductExportEntity|null $newExport */
+        $newExport = $this->repository->search(new Criteria([$exportId]), $this->context)->first();
+        static::assertNotNull($newExport);
+        static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
     public function testGeneratedAtAndIntervalsAreRespected(): void

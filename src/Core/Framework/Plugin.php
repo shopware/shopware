@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -13,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 abstract class Plugin extends Bundle
 {
@@ -72,7 +68,7 @@ abstract class Plugin extends Bundle
     {
     }
 
-    public function configureRoutes(RouteCollectionBuilder $routes, string $environment): void
+    public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
         if (!$this->isActive()) {
             return;
@@ -129,61 +125,6 @@ abstract class Plugin extends Bundle
     public function enrichPrivileges(): array
     {
         return [];
-    }
-
-    /**
-     * @deprecated tag:v6.4.0.0 use enrichPrivileges instead
-     */
-    final protected function addPrivileges(string $role, array $privileges): void
-    {
-        /** @var EntityRepositoryInterface $aclRepository */
-        $aclRepository = $this->container->get('acl_role.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new ContainsFilter('privileges', $role));
-        $roles = $aclRepository->search($criteria, Context::createDefaultContext());
-
-        foreach ($roles as $role) {
-            $role->setPrivileges(array_merge($role->getPrivileges(), $privileges));
-            $aclRepository->update(
-                [
-                    [
-                        'id' => $role->getId(),
-                        'privileges' => $role->getPrivileges(),
-                    ],
-                ],
-                Context::createDefaultContext()
-            );
-        }
-    }
-
-    /**
-     * @deprecated tag:v6.4.0.0 will be removed
-     */
-    final protected function removePrivileges(array $privileges): void
-    {
-        /** @var EntityRepositoryInterface $aclRepository */
-        $aclRepository = $this->container->get('acl_role.repository');
-
-        foreach ($privileges as $privilege) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new ContainsFilter('privileges', $privilege));
-            $roles = $aclRepository->search($criteria, Context::createDefaultContext());
-
-            /** @var AclRoleEntity $role */
-            foreach ($roles as $role) {
-                $role->setPrivileges(array_diff($role->getPrivileges(), [$privilege]));
-                $aclRepository->update(
-                    [
-                        [
-                            'id' => $role->getId(),
-                            'privileges' => $role->getPrivileges(),
-                        ],
-                    ],
-                    Context::createDefaultContext()
-                );
-            }
-        }
     }
 
     private function computePluginClassPath(): string

@@ -77,7 +77,7 @@ class OffcanvasCartPageLoader
     private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         $request = new Request();
-        $request->query->set('onlyAvailable', true);
+        $request->query->set('onlyAvailable', '1');
 
         return $this->shippingMethodRoute
             ->load($request, $salesChannelContext, new Criteria())

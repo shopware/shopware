@@ -45,7 +45,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: 'api/v*/customer',
+            url: 'api/customer',
             method: 'post'
         }).as('saveData');
 

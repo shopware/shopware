@@ -42,7 +42,6 @@ abstract class AbstractAppActivationCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
 
-        /** @var string $appName */
         $appName = $input->getArgument('name');
 
         $criteria = new Criteria();

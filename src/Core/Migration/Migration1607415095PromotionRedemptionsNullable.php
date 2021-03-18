@@ -2,31 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1607415095PromotionRedemptionsNullable extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1607415095PromotionRedemptionsNullable extends \Shopware\Core\Migration\V6_3\Migration1607415095PromotionRedemptionsNullable
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1607415095;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $sql = \str_replace(
-            ['#table#'],
-            [PromotionDefinition::ENTITY_NAME],
-            'ALTER TABLE `#table#`
-                MODIFY COLUMN `max_redemptions_global`       INT NULL,
-                MODIFY COLUMN `max_redemptions_per_customer` INT NULL;'
-        );
-
-        $connection->executeUpdate($sql);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

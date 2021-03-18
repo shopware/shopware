@@ -1,7 +1,6 @@
 ---
 title: Add layout config for layout tab of product detail
 issue: NEXT-12986
-flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added `slot_config` fields to `product_translation` table 

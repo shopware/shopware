@@ -51,6 +51,8 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class VersionManager
 {
+    public const DISABLE_AUDIT_LOG = 'disable-audit-log';
+
     /**
      * @var EntityWriterInterface
      */
@@ -419,7 +421,6 @@ class VersionManager
 
         $fields = $definition->getFields();
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
@@ -541,6 +542,9 @@ class VersionManager
 
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, ?string $versionId = null, bool $isClone = false): void
     {
+        if ($writeContext->getContext()->hasState(self::DISABLE_AUDIT_LOG)) {
+            return;
+        }
         $versionId = $versionId ?? $writeContext->getContext()->getVersionId();
         $commitId = Uuid::randomBytes();
 
@@ -800,7 +804,7 @@ class VersionManager
             return ['id' => $id];
         }, $primaryKeys);
 
-        $nested = $this->resolveParents($parent, $mapped) ?? [];
+        $nested = $this->resolveParents($parent, $mapped);
 
         $entity = $parent->getEntityName();
 
@@ -828,7 +832,7 @@ class VersionManager
                 return ['id' => $id];
             }, $primaryKeys);
 
-            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped) ?? [];
+            $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped);
 
             foreach ($nested as $entity => $primaryKeys) {
                 $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
@@ -847,15 +851,20 @@ class VersionManager
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
         foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
+            $property = $primaryKey->getPropertyName();
+
             if ($primaryKey instanceof VersionField || $primaryKey instanceof ReferenceVersionField) {
                 continue;
             }
 
-            /** @var Field|StorageAware $primaryKey */
-            if (!isset($rawData[$primaryKey->getPropertyName()])) {
+            /* @var Field|StorageAware $primaryKey */
+            if (!isset($rawData[$property])) {
                 throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
+                    sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())
                 );
+            }
+            if (!$primaryKey instanceof StorageAware) {
+                continue;
             }
             $key = 'primaryKey' . $index;
 
@@ -863,7 +872,7 @@ class VersionManager
                 EntityDefinitionQueryHelper::escape($primaryKey->getStorageName()) . ' = :' . $key
             );
 
-            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$primaryKey->getPropertyName()]));
+            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
         }
 
         $fk = $query->execute()->fetchColumn();

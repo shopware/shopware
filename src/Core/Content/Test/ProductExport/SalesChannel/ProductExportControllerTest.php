@@ -19,10 +19,14 @@ class ProductExportControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $repository;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     protected function setUp(): void

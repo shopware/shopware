@@ -72,7 +72,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/customer-address/*`,
+            url: `/api/customer-address/*`,
             method: 'delete'
         }).as('deleteAddress');
 
@@ -118,7 +118,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/customer-address/*`,
+            url: `/api/customer-address/*`,
             method: 'delete'
         }).as('deleteAddress');
 
@@ -210,11 +210,11 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/search/customer/**/addresses`,
+            url: '/api/search/customer/**/addresses',
             method: 'post'
         }).as('searchAddresses');
         cy.route({
-            url: '/api/v*/_action/clone/customer-address/**',
+            url: '/api/_action/clone/customer-address/**',
             method: 'post'
         }).as('cloneAddress');
 
@@ -257,7 +257,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/search/customer/**/addresses`,
+            url: `/api/search/customer/**/addresses`,
             method: 'post'
         }).as('searchAddresses');
 

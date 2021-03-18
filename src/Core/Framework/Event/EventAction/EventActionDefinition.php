@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\Event\EventAction;
 
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -60,11 +58,8 @@ class EventActionDefinition extends EntityDefinition
             new JsonField('config', 'config'),
             new BoolField('active', 'active'),
             (new StringField('title', 'title', 500))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-
-            (new ManyToManyAssociationField('rules', RuleDefinition::class, EventActionRuleDefinition::class, 'event_action_id', 'rule_id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, EventActionSalesChannelDefinition::class, 'event_action_id', 'sales_channel_id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToManyAssociationField('rules', RuleDefinition::class, EventActionRuleDefinition::class, 'event_action_id', 'rule_id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, EventActionSalesChannelDefinition::class, 'event_action_id', 'sales_channel_id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
 
         return $fields;

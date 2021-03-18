@@ -7,11 +7,9 @@ use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -94,20 +92,27 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     public function onOrderDeliveryStateChange(StateMachineStateChangeEvent $event): void
     {
         $orderDeliveryId = $event->getTransition()->getEntityId();
-        $context = $event->getContext();
+
+        $criteria = new Criteria([$orderDeliveryId]);
+        $criteria->addAssociation('order.orderCustomer');
+        $criteria->addAssociation('order.transactions');
 
         /** @var OrderDeliveryEntity|null $orderDelivery */
         $orderDelivery = $this->deliveryRepository
-            ->search(new Criteria([$orderDeliveryId]), $context)
+            ->search($criteria, $event->getContext())
             ->first();
 
         if ($orderDelivery === null) {
             throw new OrderDeliveryNotFoundException($orderDeliveryId);
         }
 
-        $order = $this->getOrder($orderDelivery->getOrderId(), $event->getContext());
+        if ($orderDelivery->getOrder() === null) {
+            throw new OrderNotFoundException($orderDeliveryId);
+        }
 
-        $context = $this->getContext($order, $event->getContext());
+        $context = $this->getContext($orderDelivery->getOrder(), $event->getContext());
+
+        $order = $this->getOrder($orderDelivery->getOrderId(), $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
@@ -122,21 +127,28 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('paymentMethod');
+        $criteria->addAssociation('order.orderCustomer');
+        $criteria->addAssociation('order.transactions');
 
         $orderTransaction = $this->transactionRepository
             ->search($criteria, $event->getContext())
             ->first();
 
-        if (!$orderTransaction instanceof OrderTransactionEntity) {
-            throw new OrderTransactionNotFoundException($orderTransactionId);
-        }
-        if (!$orderTransaction->getPaymentMethod() instanceof PaymentMethodEntity) {
+        if ($orderTransaction === null) {
             throw new OrderTransactionNotFoundException($orderTransactionId);
         }
 
-        $order = $this->getOrder($orderTransaction->getOrderId(), $event->getContext());
+        if ($orderTransaction->getPaymentMethod() === null) {
+            throw new OrderTransactionNotFoundException($orderTransactionId);
+        }
 
-        $context = $this->getContext($order, $event->getContext());
+        if ($orderTransaction->getOrder() === null) {
+            throw new OrderNotFoundException($orderTransactionId);
+        }
+
+        $context = $this->getContext($orderTransaction->getOrder(), $event->getContext());
+
+        $order = $this->getOrder($orderTransaction->getOrderId(), $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
@@ -148,9 +160,21 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $orderId = $event->getTransition()->getEntityId();
 
-        $order = $this->getOrder($orderId, $event->getContext());
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('orderCustomer');
+        $criteria->addAssociation('transactions');
+
+        $order = $this->orderRepository
+            ->search($criteria, $event->getContext())
+            ->first();
+
+        if ($order === null) {
+            throw new OrderNotFoundException($orderId);
+        }
 
         $context = $this->getContext($order, $event->getContext());
+
+        $order = $this->getOrder($orderId, $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
@@ -202,7 +226,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     private function dispatchEvent(string $stateEventName, OrderEntity $order, Context $context): void
     {
         $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent($stateEventName, $order, $order->getSalesChannelId(), $context),
+            new OrderStateMachineStateChangeEvent($stateEventName, $order, $context),
             $stateEventName
         );
     }
@@ -247,6 +271,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('deliveries.shippingMethod');
         $criteria->addAssociation('deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('salesChannel');
+        $criteria->addAssociation('language.locale');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems');
         $criteria->addAssociation('currency');

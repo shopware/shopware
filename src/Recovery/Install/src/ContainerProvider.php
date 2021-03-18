@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
@@ -22,6 +23,7 @@ use Shopware\Recovery\Install\Service\TranslationService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
 use Slim\App;
 use Slim\Views\PhpRenderer;
+use Symfony\Component\Dotenv\Dotenv;
 
 class ContainerProvider implements ServiceProviderInterface
 {
@@ -51,11 +53,52 @@ class ContainerProvider implements ServiceProviderInterface
                 $version = file_get_contents($versionFile) ?: null;
             }
 
-            return trim($version ?? '9999999-dev');
+            return trim($version ?? '6.4.9999999.9999999-dev');
+        };
+
+        $container['default.env.path'] = static function () {
+            return SW_PATH . '/.env.defaults';
+        };
+
+        $container['default.env'] = static function ($c) {
+            if (!is_readable($c['default.env.path'])) {
+                return [];
+            }
+
+            return (new DotEnv())
+                ->usePutenv(true)
+                ->parse(file_get_contents($c['default.env.path']), $c['default.env.path']);
         };
 
         $container['env.path'] = static function () {
             return SW_PATH . '/.env';
+        };
+
+        $container['env.load'] = static function ($c) {
+            $defaultPath = $c['default.env.path'];
+            $path = $c['env.path'];
+
+            return static function () use ($defaultPath, $path): void {
+                if (is_readable((string) $defaultPath)) {
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $defaultPath);
+                }
+                if (is_readable((string) $path)) {
+                    (new Dotenv())
+                        ->usePutenv(true)
+                        ->load((string) $path);
+                }
+            };
+        };
+
+        $container['feature.isActive'] = static function ($c) {
+            // load .env on first call
+            $c['env.load']();
+
+            return static function (string $featureName): bool {
+                return Feature::isActive($featureName);
+            };
         };
 
         $container['slim.app'] = static function ($c) {
@@ -129,7 +172,8 @@ class ContainerProvider implements ServiceProviderInterface
         $container['config.writer'] = static function ($c) {
             return new EnvConfigWriter(
                 SW_PATH . '/.env',
-                $c['uniqueid.generator']->getUniqueId()
+                $c['uniqueid.generator']->getUniqueId(),
+                $c['default.env']
             );
         };
 
@@ -176,21 +220,38 @@ class ContainerProvider implements ServiceProviderInterface
             return DriverManager::getConnection($options);
         };
 
-        //& removed migration.paths
-        $container['migration.source'] = static function () {
+        $container['migration.sources'] = static function ($c) {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $coreBundleMigrations = [
-                    SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
-                    SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',
-                ];
+                $coreBasePath = SW_PATH . '/platform/src/Core';
+                $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
             } else {
-                $coreBundleMigrations = [
-                    SW_PATH . '/vendor/shopware/core/Migration' => 'Shopware\\Core\\Migration',
-                    SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
-                ];
+                $coreBasePath = SW_PATH . '/vendor/shopware/core';
+                $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
             }
 
-            return new CoreMigrationSource('core', $coreBundleMigrations);
+            $v3 = new CoreMigrationSource('core.V6_3', [
+                $coreBasePath . '/Migration/V6_3' => 'Shopware\\Core\\Migration\\V6_3',
+                $storefrontBasePath . '/Migration/V6_3' => 'Shopware\\Storefront\\Migration\\V6_3',
+            ]);
+            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
+            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
+
+            $v4 = new CoreMigrationSource('core.V6_4', [
+                $coreBasePath . '/Migration/V6_4' => 'Shopware\\Core\\Migration\\V6_4',
+                $storefrontBasePath . '/Migration/V6_4' => 'Shopware\\Storefront\\Migration\\V6_4',
+            ]);
+            $v4->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+            $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
+
+            return [
+                new CoreMigrationSource('core', []),
+                $v3,
+                $v4,
+                new CoreMigrationSource('core.V6_5', [
+                    $coreBasePath . '/Migration/V6_5' => 'Shopware\\Core\\Migration\\V6_5',
+                    $storefrontBasePath . '/Migration/V6_5' => 'Shopware\\Storefront\\Migration\\V6_5',
+                ]),
+            ];
         };
 
         $container['migration.runtime'] = static function ($c) {
@@ -198,7 +259,9 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['migration.collection.loader'] = static function ($c) {
-            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], [$c['migration.source']]);
+            $sources = $c['migration.sources'];
+
+            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], $sources);
         };
 
         $container['blue.green.deployment.service'] = static function ($c) {

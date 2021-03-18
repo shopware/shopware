@@ -6,7 +6,11 @@ import './component/sw-settings-search-searchable-content';
 import './component/sw-settings-search-example-modal';
 import './component/sw-settings-search-searchable-content-general';
 import './component/sw-settings-search-searchable-content-customfields';
-
+import './component/sw-settings-search-excluded-search-terms';
+import './component/sw-settings-search-search-index';
+import './component/sw-settings-search-live-search';
+import './component/sw-settings-search-live-search-keyword';
+import './init/services.init';
 import './acl';
 
 const { Module } = Shopware;

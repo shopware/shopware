@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Lcobucci\JWT\Parser;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,7 +25,7 @@ class AuthControllerTest extends TestCase
     {
         $client = $this->getBrowser();
         $client->setServerParameter('HTTP_Authorization', '');
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -54,14 +53,17 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('POST', '/api/oauth/token', $authPayload);
 
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
         $response = json_decode($client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
-        static::assertEquals('The user credentials were incorrect.', $response['errors'][0]['title']);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
+
+        // invalid credentials should throw invalid_grant message, as by OAuth 2 specs
+        // see https://github.com/thephpleague/oauth2-server/pull/967
+        static::assertEquals(OAuthServerException::invalidGrant()->getMessage(), $response['errors'][0]['title']);
     }
 
     public function testAccessWithInvalidToken(): void
@@ -70,7 +72,7 @@ class AuthControllerTest extends TestCase
         $client->setServerParameters([
             'HTTP_Authorization' => 'Bearer invalid_token_provided',
         ]);
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
@@ -93,7 +95,7 @@ class AuthControllerTest extends TestCase
             'HTTP_Authorization',
             'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0In0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0IiwiaWF0IjoxNTI5NDM2MTkyLCJuYmYiOjE1Mjk0MzYxOTIsImV4cCI6MTUyOTQzOTc5Miwic3ViIjoiNzI2MWQyNmMzZTM2NDUxMDk1YWZhN2MwNWY4NzMyYjUiLCJzY29wZXMiOlsid3JpdGUiLCJ3cml0ZSJdfQ.DBYbAWNpwxGL6QngLidboGbr2nmlAwjYcJIqN02sRnZNNFexy9V6uyQQ-8cJ00anwxKhqBovTzHxtXBMhZ47Ix72hxNWLjauKxQlsHAbgIKBDRbJO7QxgOU8gUnSQiXzRzKoX6XBOSHXFSUJ239lF4wai7621aCNFyEvlwf1JZVILsLjVkyIBhvuuwyIPbpEETui19BBaJ0eQZtjXtpzjsWNq1ibUCQvurLACnNxmXIj8xkSNenoX5B4p3R1gbDFuxaNHkGgsrQTwkDtmZxqCb3_0AgFL3XX0mpO5xsIJAI_hLHDPvv5m0lTQgMRrlgNdfE7ecI4GLHMkDmjWoNx_A'
         );
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
 
@@ -106,7 +108,7 @@ class AuthControllerTest extends TestCase
 
     public function testAccessProtectedResourceWithToken(): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $this->getBrowser()->request('GET', '/api/tax');
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -258,7 +260,7 @@ class AuthControllerTest extends TestCase
          * Try access with new token
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -272,7 +274,8 @@ class AuthControllerTest extends TestCase
     public function testDefaultAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -286,7 +289,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+        $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
     }
@@ -294,7 +297,8 @@ class AuthControllerTest extends TestCase
     public function testUniqueAccessTokenScopes(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -308,7 +312,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+        $accessTokenScopes = $parsedAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
     }
@@ -316,7 +320,8 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesChangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -338,7 +343,7 @@ class AuthControllerTest extends TestCase
 
         $client->request('POST', '/api/oauth/token', $refreshPayload);
         $data = json_decode($client->getResponse()->getContent(), true);
-        $scopes = $jwtTokenParser->parse($data['access_token'])->getClaim('scopes');
+        $scopes = $jwtTokenParser->parse($data['access_token'])->claims()->get('scopes');
 
         static::assertEquals(['admin'], $scopes);
     }
@@ -346,7 +351,8 @@ class AuthControllerTest extends TestCase
     public function testSuperAdminScopeRemovedOnRefreshToken(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -360,7 +366,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+        $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
 
         static::assertContains(UserVerifiedScope::IDENTIFIER, $oldAccessTokenScopes);
 
@@ -374,7 +380,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+        $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
         static::assertContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
     }
@@ -382,7 +388,8 @@ class AuthControllerTest extends TestCase
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void
     {
         $client = $this->getBrowser(false);
-        $jwtTokenParser = new Parser();
+        $configuration = $this->getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
 
         $authPayload = [
             'grant_type' => 'password',
@@ -396,7 +403,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+        $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
 
         $refreshPayload = [
             'grant_type' => 'refresh_token',
@@ -408,7 +415,7 @@ class AuthControllerTest extends TestCase
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
-        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+        $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
         static::assertEqualsCanonicalizing($oldAccessTokenScopes, $newAccessTokenScopes);
     }
@@ -451,7 +458,7 @@ class AuthControllerTest extends TestCase
          * Access protected routes
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
@@ -460,7 +467,6 @@ class AuthControllerTest extends TestCase
     {
         $browser = $this->getBrowser();
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
         $admin = TestUser::createNewTestUser($connection, ['product:read']);
 
@@ -487,7 +493,7 @@ class AuthControllerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
-        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
+        $browser->request('GET', '/api/tax');
         static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
     }
 }

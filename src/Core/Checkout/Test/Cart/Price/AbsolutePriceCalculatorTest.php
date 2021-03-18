@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -18,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class AbsolutePriceCalculatorTest extends TestCase
@@ -28,20 +26,15 @@ class AbsolutePriceCalculatorTest extends TestCase
      */
     public function testCalculateAbsolutePriceOfGrossPrices(AbsoluteCalculation $calculation): void
     {
-        $rounding = new PriceRounding();
+        $rounding = new CashRounding();
 
-        $taxCalculator = new TaxCalculator(
-            new TaxRuleCalculator()
-        );
-
-        $referencePriceCalculator = new ReferencePriceCalculator($rounding);
+        $taxCalculator = new TaxCalculator();
 
         $calculator = new AbsolutePriceCalculator(
             new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
-                new NetPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
-                Generator::createGrossPriceDetector(),
-                $referencePriceCalculator
+                new GrossPriceCalculator($taxCalculator, $rounding),
+                new NetPriceCalculator($taxCalculator, $rounding),
+                Generator::createGrossPriceDetector()
             ),
             new PercentageTaxRuleBuilder()
         );
@@ -71,10 +64,10 @@ class AbsolutePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]), 2, 1, true);
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
         $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
-        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]), 2, 1, true);
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]));
         $price2 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
         return new AbsoluteCalculation(
@@ -100,7 +93,7 @@ class AbsolutePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 2, 10, true);
+        $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
 
@@ -120,15 +113,13 @@ class AbsolutePriceCalculatorTest extends TestCase
 
     private function createQuantityPriceCalculator(): QuantityPriceCalculator
     {
-        $rounding = new PriceRounding();
-        $taxCalculator = new TaxCalculator(new TaxRuleCalculator());
-        $referencePriceCalculator = new ReferencePriceCalculator($rounding);
+        $rounding = new CashRounding();
+        $taxCalculator = new TaxCalculator();
 
         return new QuantityPriceCalculator(
-            new GrossPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
-            new NetPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
-            Generator::createGrossPriceDetector(),
-            $referencePriceCalculator
+            new GrossPriceCalculator($taxCalculator, $rounding),
+            new NetPriceCalculator($taxCalculator, $rounding),
+            Generator::createGrossPriceDetector()
         );
     }
 }

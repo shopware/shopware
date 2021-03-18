@@ -47,8 +47,6 @@ class CmsPageEntity extends Entity
     protected $categories;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var ProductCollection|null
      */
     protected $products;
@@ -79,11 +77,14 @@ class CmsPageEntity extends Entity
     protected $locked;
 
     /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     *
      * @var LandingPageCollection|null
      */
     protected $landingPages;
+
+    /**
+     * @var CmsPageCollection|null
+     */
+    protected $homeSalesChannels;
 
     public function getName(): string
     {
@@ -155,17 +156,11 @@ class CmsPageEntity extends Entity
         $this->categories = $categories;
     }
 
-    /**
-     *@internal (flag:FEATURE_NEXT_10078)
-     */
     public function getProducts(): ?ProductCollection
     {
         return $this->products;
     }
 
-    /**
-     *@internal (flag:FEATURE_NEXT_10078)
-     */
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
@@ -218,20 +213,24 @@ class CmsPageEntity extends Entity
         return array_shift($elements);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function getLandingPages(): ?LandingPageCollection
     {
         return $this->landingPages;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_12032)
-     */
     public function setLandingPages(LandingPageCollection $landingPages): void
     {
         $this->landingPages = $landingPages;
+    }
+
+    public function getHomeSalesChannels(): ?CmsPageCollection
+    {
+        return $this->homeSalesChannels;
+    }
+
+    public function setHomeSalesChannels(CmsPageCollection $homeSalesChannels): void
+    {
+        $this->homeSalesChannels = $homeSalesChannels;
     }
 
     public function getElementsOfType(string $type): array

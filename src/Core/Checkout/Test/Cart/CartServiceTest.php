@@ -27,8 +27,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,7 +43,7 @@ class CartServiceTest extends TestCase
     use CountryAddToSalesChannelTestBehaviour;
 
     /**
-     * @var RepositoryInterface|null
+     * @var RepositoryInterface
      */
     private $customerRepository;
 
@@ -318,7 +320,7 @@ class CartServiceTest extends TestCase
 
         $newtoken = $this->accountService->login($mail, $context);
 
-        $context = $contextService->get(Defaults::SALES_CHANNEL, $newtoken);
+        $context = $contextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $newtoken));
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 
@@ -331,7 +333,6 @@ class CartServiceTest extends TestCase
         $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
         $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfigService->set('core.basicInformation.email', 'test@example.org');
@@ -348,7 +349,7 @@ class CartServiceTest extends TestCase
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
 
-        $cartService->order($cart, $context);
+        $cartService->order($cart, $context, new RequestDataBag());
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

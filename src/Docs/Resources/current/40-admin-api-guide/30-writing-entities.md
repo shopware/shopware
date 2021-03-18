@@ -11,9 +11,9 @@ For an entity, the system automatically generates the following routes where the
 
 | Name | Method | Route | Usage
 | ----- | ------ | ----------------------- | ------ |
-| api.customer_group.update | PATCH  | /api/v{version}/customer-group/{id} | Update the entity with the provided ID |
-| api.customer_group.delete | DELETE | /api/v{version}/customer-group/{id} | Delete the entity |
-| api.customer_group.create | POST   | /api/v{version}/customer-group      | Create a new entity |                 
+| api.customer_group.update | PATCH  | /api/customer-group/{id} | Update the entity with the provided ID |
+| api.customer_group.delete | DELETE | /api/customer-group/{id} | Delete the entity |
+| api.customer_group.create | POST   | /api/customer-group      | Create a new entity |                 
 
 A list of all routes and registered entities in the system can be read out via the `/api/v3/_info/*` routes:
 

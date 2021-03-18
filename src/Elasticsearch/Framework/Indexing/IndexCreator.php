@@ -8,23 +8,20 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 class IndexCreator
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    public function __construct(Client $client, array $config)
+    private array $mapping;
+
+    public function __construct(Client $client, array $config, array $mapping = [])
     {
         $this->client = $client;
         $this->config = $config;
+        $this->mapping = $mapping;
     }
 
-    public function createIndex(AbstractElasticsearchDefinition $definition, string $index, Context $context): void
+    public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
     {
         if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
@@ -39,35 +36,14 @@ class IndexCreator
 
         $mapping = $this->addFullText($mapping);
 
-        $mapping['dynamic_templates'][] = [
-            'keywords' => [
-                'match_mapping_type' => 'string',
-                'mapping' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                    'fields' => [
-                        'text' => [
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $mapping = array_merge_recursive($mapping, $this->mapping);
 
         $this->client->indices()->putMapping([
             'index' => $index,
-            'type' => $definition->getEntityDefinition()->getEntityName(),
             'body' => $mapping,
-            'include_type_name' => true,
         ]);
 
-        $this->client->indices()->putSettings([
-            'index' => $index,
-            'body' => [
-                'number_of_replicas' => 0,
-                'refresh_interval' => -1,
-            ],
-        ]);
+        $this->createAliasIfNotExisting($index, $alias);
     }
 
     private function indexExists(string $index): bool
@@ -98,5 +74,16 @@ class IndexCreator
         $mapping['_source']['includes'][] = 'fullTextBoosted';
 
         return $mapping;
+    }
+
+    private function createAliasIfNotExisting(string $index, string $alias): void
+    {
+        $exist = $this->client->indices()->existsAlias(['name' => $alias]);
+
+        if ($exist) {
+            return;
+        }
+
+        $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
     }
 }

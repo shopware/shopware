@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -18,12 +18,11 @@ use Symfony\Component\Validator\Constraints\Type;
  */
 class LineItemPromotedRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private const PAYLOAD_KEY = 'markAsTopseller';
 
-    /**
-     * @var LineItemPromotedRule
-     */
-    private $rule;
+    private LineItemPromotedRule $rule;
 
     protected function setUp(): void
     {
@@ -33,20 +32,16 @@ class LineItemPromotedRuleTest extends TestCase
     /**
      * This test verifies that our name is not
      * touched without recognizing it.
-     *
-     * @group rules
      */
     public function testName(): void
     {
-        static::assertEquals('cartLineItemPromoted', $this->rule->getName());
+        static::assertSame('cartLineItemPromoted', $this->rule->getName());
     }
 
     /**
      * This test verifies that we have the correct constraint
      * and that no NotBlank is existing - only 1 BOOL constraint.
      * Otherwise a FALSE value would not work when saving in the administration.
-     *
-     * @group rules
      */
     public function testConstraints(): void
     {
@@ -59,53 +54,74 @@ class LineItemPromotedRuleTest extends TestCase
         static::assertEquals($expectedType, $ruleConstraints['isPromoted'][0]);
     }
 
+    public function matchTestData(): array
+    {
+        return [
+            [true, true, true],
+            [true, false, false],
+            [false, true, false],
+            [false, false, true],
+        ];
+    }
+
     /**
      * This test verifies that our rule works correctly
      * when matching using a line item scope.
      *
-     * @testWith        [true, true, true]
-     *                  [true, false, false]
-     *                  [false, true, false]
-     *                  [false, false, true]
+     * @dataProvider matchTestData
      */
     public function testMatchScopeLineItem(bool $expected, bool $ruleValue, bool $itemValue): void
     {
+        $this->rule->assign(['isPromoted' => $ruleValue]);
+
         $scope = new LineItemScope(
-            $this->createLineItem($itemValue),
+            $this->createLineItemWithTopsellerMarker($itemValue),
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->rule->assign(['isPromoted' => $ruleValue]);
-
-        $isMatching = $this->rule->match($scope);
-
-        static::assertEquals($expected, $isMatching);
+        static::assertSame($expected, $this->rule->match($scope));
     }
 
     /**
      * This test verifies that our rule works correctly
      * when matching using a cart rule scope.
      *
-     * @testWith        [true, true, true]
-     *                  [true, false, false]
-     *                  [false, true, false]
-     *                  [false, false, true]
+     * @dataProvider matchTestData
      */
     public function testMatchScopeCart(bool $expected, bool $ruleValue, bool $itemValue): void
     {
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($itemValue));
-
-        $cart = new Cart('test', Uuid::randomHex());
-        $cart->setLineItems($lineItemCollection);
-
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
-
         $this->rule->assign(['isPromoted' => $ruleValue]);
 
-        $isMatching = $this->rule->match($scope);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithTopsellerMarker($itemValue),
+        ]);
 
-        static::assertEquals($expected, $isMatching);
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    public function testMatchScopeCartNested(): void
+    {
+        $this->rule->assign(['isPromoted' => true]);
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithTopsellerMarker(true),
+        ]);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
     }
 
     /**
@@ -114,21 +130,22 @@ class LineItemPromotedRuleTest extends TestCase
      */
     public function testSingleMatchRequiredInScopeCart(): void
     {
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem(false));
-        $lineItemCollection->add($this->createLineItem(true));
-        $lineItemCollection->add($this->createLineItem(false));
-
-        $cart = new Cart('test', Uuid::randomHex());
-        $cart->setLineItems($lineItemCollection);
-
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
-
         $this->rule->assign(['isPromoted' => true]);
 
-        $isMatching = $this->rule->match($scope);
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithTopsellerMarker(false),
+            $this->createLineItemWithTopsellerMarker(true),
+            $this->createLineItemWithTopsellerMarker(false),
+        ]);
 
-        static::assertTrue($isMatching);
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
     }
 
     /**
@@ -138,23 +155,18 @@ class LineItemPromotedRuleTest extends TestCase
      */
     public function testItemWithoutValidPayload(): void
     {
+        $this->rule->assign(['isPromoted' => true]);
+
         $scope = new LineItemScope(
-            new LineItem('dummy-article', 'product', null, 3),
+            $this->createLineItem(),
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->rule->assign(['isPromoted' => true]);
-
-        $isMatching = $this->rule->match($scope);
-
-        static::assertFalse($isMatching);
+        static::assertFalse($this->rule->match($scope));
     }
 
-    private function createLineItem(bool $markAsTopseller): LineItem
+    private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem
     {
-        $item = new LineItem(Uuid::randomHex(), 'product', null, 3);
-        $item->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
-
-        return $item;
+        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
     }
 }

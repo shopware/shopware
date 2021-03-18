@@ -46,7 +46,9 @@ class ThemeTest extends TestCase
      */
     private $themeRepository;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $createdStorefrontTheme = '';
 
     protected function setUp(): void
@@ -111,14 +113,6 @@ class ThemeTest extends TestCase
         foreach ($themeConfiguration['fields'] as $item) {
             static::assertStringNotContainsString('sw-theme', $item['label']);
         }
-    }
-
-    public function testDefaultThemeConfigFields(): void
-    {
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
-
-        $theme = $this->themeService->getThemeConfigurationFields($theme->getId(), false, $this->context);
-        static::assertEquals(ThemeFixtures::getThemeFields(), $theme);
     }
 
     public function testDefaultThemeConfigStructuredFields(): void
@@ -376,6 +370,11 @@ class ThemeTest extends TestCase
                         return $this->kernel->{__FUNCTION__}(...\func_get_args());
                     }
 
+                    public function getProjectDir()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...\func_get_args());
+                    }
+
                     public function getContainer()
                     {
                         return $this->kernel->{__FUNCTION__}(...\func_get_args());
@@ -412,7 +411,8 @@ class ThemeTest extends TestCase
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),
             $this->getContainer()->get('media.repository'),
-            $themeCompilerMock
+            $themeCompilerMock,
+            $this->getContainer()->get('event_dispatcher'),
         );
         $themeService->updateTheme(
             $childTheme->getId(),

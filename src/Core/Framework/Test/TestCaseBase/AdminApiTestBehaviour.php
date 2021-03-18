@@ -97,7 +97,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/' . implode('/', $params);
 
         $browser->request('GET', $url);
 
@@ -110,7 +110,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityNotExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/' . implode('/', $params);
 
         $browser->request('GET', $url);
 
@@ -131,7 +131,6 @@ trait AdminApiTestBehaviour
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
 
@@ -220,7 +219,6 @@ trait AdminApiTestBehaviour
             $id = Uuid::fromHexToBytes($id);
         }
 
-        /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
 
         $connection->insert('integration', [

@@ -14,6 +14,14 @@ import './component/sw-plugin-description';
 
 import swPluginState from './state/plugin.store';
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_12608) tag:v6.4.0
+ * Deprecation notice: The whole plugin manager will be removed with 6.4.0 and replaced
+ * by the extension module.
+ * When removing the feature flag for FEATURE_NEXT_12608, also merge the merge request
+ * for NEXT-13821 which removes the plugin manager.
+ */
+
 const { Module, State } = Shopware;
 State.registerModule('swPlugin', swPluginState);
 

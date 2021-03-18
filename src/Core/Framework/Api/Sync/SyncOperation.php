@@ -29,18 +29,12 @@ class SyncOperation extends Struct
      */
     protected $key;
 
-    /**
-     * @var int
-     */
-    protected $apiVersion;
-
-    public function __construct(string $key, string $entity, string $action, array $payload, int $apiVersion)
+    public function __construct(string $key, string $entity, string $action, array $payload)
     {
         $this->entity = $entity;
         $this->payload = $payload;
         $this->action = $action;
         $this->key = $key;
-        $this->apiVersion = $apiVersion;
     }
 
     public function getEntity(): string
@@ -61,11 +55,6 @@ class SyncOperation extends Struct
     public function getKey(): string
     {
         return $this->key;
-    }
-
-    public function getApiVersion(): int
-    {
-        return $this->apiVersion;
     }
 
     public function getApiAlias(): string

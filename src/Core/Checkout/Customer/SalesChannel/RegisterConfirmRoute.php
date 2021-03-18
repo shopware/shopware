@@ -81,7 +81,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
      *          description="Success"
      *     )
      * )
-     * @Route("/store-api/v{version}/account/register-confirm", name="store-api.account.register.confirm", methods={"POST"})
+     * @Route("/store-api/account/register-confirm", name="store-api.account.register.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {

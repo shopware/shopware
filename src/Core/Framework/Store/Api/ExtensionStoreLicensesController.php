@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Store\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
-use Shopware\Core\Framework\Store\Exception\InvalidVariantIdException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,13 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  * @RouteScope(scopes={"api"})
+ * @Acl({"system.plugin_maintain"})
  */
 class ExtensionStoreLicensesController extends AbstractController
 {
-    /**
-     * @var AbstractExtensionStoreLicensesService
-     */
-    private $extensionStoreLicensesService;
+    private AbstractExtensionStoreLicensesService $extensionStoreLicensesService;
 
     public function __construct(AbstractExtensionStoreLicensesService $extensionStoreLicensesService)
     {
@@ -33,29 +30,7 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/extension/purchase", name="api.extension.purchase", methods={"POST"})
-     */
-    public function purchaseExtension(Request $request, Context $context): JsonResponse
-    {
-        $extensionId = $request->request->get('extensionId');
-        $variantId = $request->request->get('variantId');
-
-        if (!is_numeric($extensionId)) {
-            throw new InvalidExtensionIdException();
-        }
-
-        if (!is_numeric($variantId)) {
-            throw new InvalidVariantIdException();
-        }
-
-        $this->extensionStoreLicensesService->purchaseExtension((int) $extensionId, (int) $variantId, $context);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/api/v{version}/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
+     * @Route("/api/license/cancel/{licenseId}", name="api.license.cancel", methods={"DELETE"})
      */
     public function cancelSubscription(int $licenseId, Context $context): JsonResponse
     {
@@ -66,7 +41,7 @@ class ExtensionStoreLicensesController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/license/rate/{extensionId}", name="api.license.rate", methods={"POST"})
+     * @Route("/api/license/rate/{extensionId}", name="api.license.rate", methods={"POST"})
      */
     public function rateLicensedExtension(int $extensionId, Request $request, Context $context): JsonResponse
     {

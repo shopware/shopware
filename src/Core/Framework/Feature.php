@@ -52,7 +52,7 @@ class Feature
             }
 
             // return true if it's registered and not a major feature
-            if ((self::$registeredFeatures[$feature]['major'] ?? false) === false) {
+            if (isset(self::$registeredFeatures[$feature]) && (self::$registeredFeatures[$feature]['major'] ?? false) === false) {
                 return true;
             }
         }
@@ -96,6 +96,19 @@ class Feature
         }
 
         $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+    }
+
+    /**
+     * Triggers a silenced deprecation notice.
+     *
+     * @param string $sinceVersion  The version of the package that introduced the deprecation
+     * @param string $removeVersion The version of the package when the deprectated code will be removed
+     * @param string $message       The message of the deprecation
+     * @param mixed  ...$args       Values to insert in the message using printf() formatting
+     */
+    public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
+    {
+        trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
     }
 
     public static function getAll(): array
@@ -146,17 +159,6 @@ class Feature
         if ($dumpPath !== null) {
             self::dumpFeatures($dumpPath);
         }
-    }
-
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.4.0.0 Use `Feature::resetRegisteredFeatures` and `Feature::registerFeatures`
-     */
-    public static function setRegisteredFeatures(iterable $registeredFeatures, ?string $dumpPath = null): void
-    {
-        self::resetRegisteredFeatures();
-        self::registerFeatures($registeredFeatures, $dumpPath);
     }
 
     /**

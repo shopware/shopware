@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -21,11 +21,11 @@ describe('Product: Search Keyword product', () => {
     it.skip('@catalogue: edit a product\'s search keyword', () => {
         cy.server();
         cy.route({
-            url: `/api/v*/product/*`,
+            url: '/api/product/*',
             method: 'patch'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/search/product',
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('searchData');
 
@@ -55,7 +55,7 @@ describe('Product: Search Keyword product', () => {
         cy.get('input.sw-search-bar__input').type('YTN');
         cy.wait('@searchData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-        })
+        });
 
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');

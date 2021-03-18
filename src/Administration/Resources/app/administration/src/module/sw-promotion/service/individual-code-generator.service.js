@@ -1,7 +1,10 @@
 import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
-import Criteria from '../../../core/data-new/criteria.data';
+import Criteria from '../../../core/data/criteria.data';
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ */
 export default class IndividualCodeGenerator extends EventEmitter {
     /**
      * Code saver service, which generates codes and saves them using the provided repository

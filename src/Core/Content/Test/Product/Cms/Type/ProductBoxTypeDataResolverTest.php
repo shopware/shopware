@@ -114,6 +114,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
+            'product',
             1,
             new ProductCollection([$product]),
             null,
@@ -143,6 +144,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
+            'product',
             0,
             new ProductCollection(),
             null,

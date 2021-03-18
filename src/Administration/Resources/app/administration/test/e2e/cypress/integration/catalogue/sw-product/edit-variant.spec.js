@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -142,13 +142,13 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@base @catalogue: test multidimensional variant with diversification', () => {
+    it.skip('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -182,6 +182,7 @@ describe('Product: Test variants', () => {
         cy.contains('.sw-field__label', 'Color').click();
         cy.contains('.sw-field__label', 'Size').click();
         cy.get('.sw-modal .sw-button--primary').click();
+        cy.get('.sw-modal').should('not.exist');
 
         // Verify in storefront
         cy.visit('/');
@@ -199,7 +200,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 

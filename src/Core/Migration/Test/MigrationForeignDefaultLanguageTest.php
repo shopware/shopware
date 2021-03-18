@@ -5,12 +5,11 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Migration1536233560BasicData;
 
 /**
  * @group slow
@@ -46,23 +45,20 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithoutEnGb(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
-        $migrationCollection = $this->getContainer()->get(MigrationCollectionLoader::class)->collect('core');
+        $migrationCollection = $this->collectMigrations();
 
-        /* @var MigrationStep $migration */
-        foreach ($migrationCollection->getMigrationSteps() as $_className => $migrationClass) {
-            $migration = new $migrationClass();
-
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
 
-            if ($_className === Migration1536233560BasicData::class) {
+            if ($this->isBasicDataMigration($_className)) {
                 $deLiLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
@@ -78,6 +74,13 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
+            }
+        }
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
             }
         }
 
@@ -107,6 +110,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEquals('Password Wiederherstellung', $templateDeDe['subject']);
+
+        $orgConnection->beginTransaction();
     }
 
     /**
@@ -117,25 +122,22 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithoutEnGbOrDe(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
-        $migrationCollection = $this->getContainer()->get(MigrationCollectionLoader::class)->collect('core');
+        $migrationCollection = $this->collectMigrations();
 
         $deLuLanguage = [];
 
-        /* @var MigrationStep $migration */
-        foreach ($migrationCollection->getMigrationSteps() as $_className => $migrationClass) {
-            $migration = new $migrationClass();
-
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
 
-            if ($_className === Migration1536233560BasicData::class) {
+            if ($this->isBasicDataMigration($_className)) {
                 $deLiLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
@@ -177,6 +179,14 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
+            }
+        }
+
         $templateDefault = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
@@ -196,6 +206,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEmpty($templateDeLu);
+
+        $orgConnection->beginTransaction();
     }
 
     /**
@@ -205,24 +217,21 @@ class MigrationForeignDefaultLanguageTest extends TestCase
     public function testMigrationWithEnGbAndDeButDifferentDefault(): void
     {
         $orgConnection = $this->getContainer()->get(Connection::class);
+        $orgConnection->rollBack();
 
         $connection = $this->setupDB($orgConnection);
 
-        $migrationCollection = $this->getContainer()->get(MigrationCollectionLoader::class)->collect('core');
+        $migrationCollection = $this->collectMigrations();
         $enGbId = Uuid::randomBytes();
 
-        /* @var MigrationStep $migration */
-        foreach ($migrationCollection->getMigrationSteps() as $_className => $migrationClass) {
-            $migration = new $migrationClass();
-
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
             try {
                 $migration->update($connection);
-                $migration->updateDestructive($connection);
             } catch (\Exception $e) {
                 static::fail($_className . PHP_EOL . $e->getMessage());
             }
 
-            if ($_className === Migration1536233560BasicData::class) {
+            if ($this->isBasicDataMigration($_className)) {
                 $deLiLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
@@ -258,6 +267,14 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
+        foreach ($migrationCollection->getMigrationSteps() as $_className => $migration) {
+            try {
+                $migration->updateDestructive($connection);
+            } catch (\Exception $e) {
+                static::fail($_className . PHP_EOL . $e->getMessage());
+            }
+        }
+
         $templateDefault = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
@@ -277,6 +294,24 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertEquals('Password recovery', $templateEnGb['subject']);
+
+        $orgConnection->beginTransaction();
+    }
+
+    private function isBasicDataMigration(string $className): bool
+    {
+        return $className === \Shopware\Core\Migration\Migration1536233560BasicData::class
+            || $className === \Shopware\Core\Migration\V6_3\Migration1536233560BasicData::class;
+    }
+
+    private function collectMigrations(): MigrationCollection
+    {
+        return $this->getContainer()
+            ->get(MigrationCollectionLoader::class)
+            ->collectAllForVersion(
+                $this->getContainer()->getParameter('kernel.shopware_version'),
+                MigrationCollectionLoader::VERSION_SELECTION_ALL
+            );
     }
 
     private function setupDB(Connection $orgConnection): Connection

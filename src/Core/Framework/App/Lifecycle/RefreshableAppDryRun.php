@@ -31,7 +31,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         throw new DecorationPatternException(self::class);
     }
 
-    public function install(Manifest $manifest, bool $activated, Context $context): void
+    public function install(Manifest $manifest, bool $activate, Context $context): void
     {
         $this->toBeInstalled[] = $manifest;
     }

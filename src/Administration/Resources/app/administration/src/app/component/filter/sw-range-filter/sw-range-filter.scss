@@ -1,0 +1,8 @@
+@import "~scss/variables";
+
+.sw-range-filter {
+    &__divider {
+        border-bottom: 1px solid $color-gray-400;
+        transform: translateY(-40%);
+    }
+}

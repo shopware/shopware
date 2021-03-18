@@ -80,4 +80,9 @@ class IdsCollection
     {
         return $this->context;
     }
+
+    public function has(string $key): bool
+    {
+        return isset($this->ids[$key]);
+    }
 }

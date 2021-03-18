@@ -55,7 +55,8 @@ Component.register('sw-product-detail', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'localMode'
+            'localMode',
+            'advancedModeSetting'
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -63,7 +64,8 @@ Component.register('sw-product-detail', {
             'isLoading',
             'isChild',
             'defaultCurrency',
-            'defaultFeatureSet'
+            'defaultFeatureSet',
+            'showModeSetting'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -116,6 +118,22 @@ Component.register('sw-product-detail', {
             return this.repositoryFactory.create('product_feature_set');
         },
 
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
+
+        userModeSettingsRepository() {
+            return this.repositoryFactory.create('user_config');
+        },
+
+        userModeSettingsCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
+            criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
+
+            return criteria;
+        },
+
         productCriteria() {
             const criteria = new Criteria();
 
@@ -154,11 +172,12 @@ Component.register('sw-product-detail', {
                 .addAssociation('mainCategories')
                 .addAssociation('options.group')
                 .addAssociation('customFieldSets')
+                .addAssociation('featureSet')
+                .addAssociation('cmsPage')
                 .addAssociation('featureSet');
 
-            if (this.feature.isActive('FEATURE_NEXT_10078')) {
-                criteria.addAssociation('cmsPage');
-            }
+            criteria.getAssociation('manufacturer')
+                .addAssociation('media');
 
             return criteria;
         },
@@ -205,6 +224,85 @@ Component.register('sw-product-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        getModeSettingGeneralTab() {
+            return [
+                {
+                    key: 'general_information',
+                    label: 'sw-product.detailBase.cardTitleProductInfo',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'prices',
+                    label: 'sw-product.detailBase.cardTitlePrices',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'deliverability',
+                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'visibility_structure',
+                    label: 'sw-product.detailBase.cardTitleAssignment',
+                    enabled: true,
+                    tabSetting: 'general'
+                },
+                {
+                    key: 'labelling',
+                    label: 'sw-product.detailBase.cardTitleSettings',
+                    enabled: true,
+                    tabSetting: 'general'
+                }
+            ];
+        },
+
+        getModeSettingSpecificationsTab() {
+            return [
+                {
+                    key: 'measures_packaging',
+                    label: 'sw-product.specifications.cardTitleMeasuresPackaging',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'properties',
+                    label: 'sw-product.specifications.cardTitleProperties',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'essential_characteristics',
+                    label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'custom_products',
+                    label: 'sw-product.specifications.cardTitleCustomProduct',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                },
+                {
+                    key: 'custom_fields',
+                    label: 'sw-product.specifications.cardTitleCustomFields',
+                    enabled: true,
+                    tabSetting: 'specifications'
+                }
+            ];
+        },
+
+        isAdvancedModeVisible() {
+            const detailRoute = [
+                'sw.product.detail.base',
+                'sw.product.detail.specifications'
+            ];
+
+            return detailRoute.includes(this.$route.name);
         }
     },
 
@@ -246,17 +344,29 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
+            /**
+             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
+             * the function that called it was deleted.
+             */
             this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
+
             this.$root.$on('media-remove', (mediaId) => {
                 this.removeMediaItem(mediaId);
             });
             this.$root.$on('product-reload', () => {
                 this.loadAll();
             });
+
+            this.initAdvancedModeSettings();
         },
 
         destroyedComponent() {
+            /**
+             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
+             * the function that called it was deleted.
+             */
             this.$root.$off('sidebar-toggle-open');
+
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
         },
@@ -277,6 +387,96 @@ Component.register('sw-product-detail', {
                     this.product.productNumber = response.number;
                 });
             });
+        },
+
+        initAdvancedModeSettings() {
+            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.getAdvancedModeDefaultSetting());
+
+            this.getAdvancedModeSetting();
+        },
+
+        createUserModeSetting() {
+            const newModeSettings = this.userModeSettingsRepository.create(Shopware.Context.api);
+            newModeSettings.key = 'mode.setting.advancedModeSettings';
+            newModeSettings.userId = this.currentUser && this.currentUser.id;
+            return newModeSettings;
+        },
+
+        getAdvancedModeDefaultSetting() {
+            const defaultSettings = this.createUserModeSetting();
+            defaultSettings.value = {
+                advancedMode: {
+                    label: 'sw-product.general.textAdvancedMode',
+                    enabled: true
+                },
+                settings: [
+                    ...this.getModeSettingGeneralTab,
+                    ...this.getModeSettingSpecificationsTab
+                ]
+            };
+            return defaultSettings;
+        },
+
+        getAdvancedModeSetting() {
+            return this.userModeSettingsRepository
+                .search(this.userModeSettingsCriteria, Shopware.Context.api)
+                .then((items) => {
+                    if (!items.total) {
+                        return;
+                    }
+
+                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', items.first());
+                    Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+                });
+        },
+
+        saveAdvancedMode() {
+            Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', true]);
+            this.userModeSettingsRepository.save(this.advancedModeSetting, Shopware.Context.api)
+                .then(() => {
+                    this.getAdvancedModeSetting();
+                    Shopware.State.commit('swProductDetail/setLoading', ['advancedMode', false]);
+                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                    });
+                });
+        },
+
+        changeDisplaySettings() {
+            return {
+                showSettingsInformation: this.getModeEnabledByKey('general_information') && this.showModeSetting,
+                showLabellingCard: this.getModeEnabledByKey('labelling') && this.showModeSetting,
+                showCharacteristicsCard: this.getModeEnabledByKey('essential_characteristics') && this.showModeSetting,
+                showCustomFieldCard: this.getModeEnabledByKey('custom_fields') && this.showModeSetting,
+                showPropertiesCard: this.getModeEnabledByKey('properties'),
+                showCustomProduct: this.getModeEnabledByKey('custom_products') && this.showModeSetting,
+                showSettingPackaging: this.getModeEnabledByKey('measures_packaging') && this.showModeSetting,
+                showSettingPrice: this.getModeEnabledByKey('prices') && this.showModeSetting,
+                showSettingDelivery: this.getModeEnabledByKey('deliverability') && this.showModeSetting,
+                showSettingStructure: this.getModeEnabledByKey('visibility_structure') && this.showModeSetting
+            };
+        },
+
+        getModeEnabledByKey(key) {
+            if (!key) {
+                return false;
+            }
+
+            const modeEnableItem = this.advancedModeSetting.value.settings.find(item => item.key === key);
+            if (!modeEnableItem) {
+                return false;
+            }
+
+            return modeEnableItem.enabled;
+        },
+
+        onChangeSettings() {
+            Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
+            Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+            this.saveAdvancedMode();
         },
 
         loadState() {
@@ -397,7 +597,10 @@ Component.register('sw-product-detail', {
         loadAttributeSet() {
             Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api).then((res) => {
+            return this.customFieldSetRepository.search(
+                this.customFieldSetCriteria,
+                Shopware.Context.api
+            ).then((res) => {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
@@ -427,6 +630,10 @@ Component.register('sw-product-detail', {
             this.initState();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "openMediaSidebar" will be removed because
+         * the function that called it was deleted.
+         */
         openMediaSidebar() {
             // Check if we have a reference to the component before calling a method
             if (!hasOwnProperty(this.$refs, 'mediaSidebarItem')
@@ -611,6 +818,10 @@ Component.register('sw-product-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "onAddItemToProduct" will be removed because
+         * its relevant view will be removed when feature flag "FEATURE_NEXT_12429" got active.
+         */
         onAddItemToProduct(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
@@ -633,6 +844,10 @@ Component.register('sw-product-detail', {
             return true;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "addMedia" will be removed because
+         * the function that called it was deleted.
+         */
         addMedia(mediaItem) {
             Shopware.State.commit('swProductDetail/setLoading', ['media', true]);
 
@@ -645,6 +860,10 @@ Component.register('sw-product-detail', {
 
             const newMedia = this.mediaRepository.create(Shopware.Context.api);
             newMedia.mediaId = mediaItem.id;
+            newMedia.media = {
+                url: mediaItem.url,
+                id: mediaItem.id
+            };
 
             return new Promise((resolve) => {
                 // if no other media exists
@@ -685,6 +904,10 @@ Component.register('sw-product-detail', {
             }
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - The method "_checkIfMediaIsAlreadyUsed" will be removed because
+         * the function that called it was deleted.
+         */
         _checkIfMediaIsAlreadyUsed(mediaId) {
             return this.product.media.some((productMedia) => {
                 return productMedia.mediaId === mediaId;

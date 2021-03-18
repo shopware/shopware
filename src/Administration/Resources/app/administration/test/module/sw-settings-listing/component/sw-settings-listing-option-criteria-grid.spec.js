@@ -57,7 +57,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     label: 'Price descending',
                     fields: [
                         {
-                            field: 'product.listingPrices',
+                            field: 'product.cheapestPrice',
                             order: 'desc',
                             priority: 0,
                             naturalSorting: 0
@@ -69,7 +69,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                             naturalSorting: 0
                         },
                         {
-                            field: 'product.listingPrices',
+                            field: 'product.cheapestPrice',
                             order: 'asc',
                             priority: 2,
                             naturalSorting: 1

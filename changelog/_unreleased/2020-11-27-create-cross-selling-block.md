@@ -1,7 +1,6 @@
 ---
 title: Create "Cross Selling" block
 issue: NEXT-12060
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added `sw-cms-block-cross-selling` component

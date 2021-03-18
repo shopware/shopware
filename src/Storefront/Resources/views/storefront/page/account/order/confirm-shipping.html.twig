@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+
+{% block page_checkout_confirm_shipping_form %}
+    {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' with {
+        'shipping': context.shippingMethod,
+        'defaultShippingMethodId': context.shippingMethod.id
+    } %}
+{% endblock %}
+

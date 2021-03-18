@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Shopware\Core\Content\MailTemplate\Service\MessageFactoryInterface;
 use Symfony\Component\Mime\Email;
 
-abstract class AbstractMailFactory implements MessageFactoryInterface
+abstract class AbstractMailFactory
 {
     /**
      * @param array $sender         e.g. ['shopware@example.com' => 'Shopware AG']

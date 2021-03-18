@@ -70,7 +70,7 @@ class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
 
     private function removeAllSeoUrls(Connection $connection): void
     {
-        $connection->executeUpdate('TRUNCATE TABLE `seo_url`;');
+        $connection->executeUpdate('DELETE FROM `seo_url`;');
     }
 
     private function insertSeoUrl(Connection $connection): void

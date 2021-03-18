@@ -30,6 +30,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
     {
         return [
             KernelEvents::REQUEST => 'requestEvent',
+            KernelEvents::EXCEPTION => 'requestEvent',
         ];
     }
 
@@ -55,7 +56,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
 
         if (!$theme) {
-            // get base name because name for inherited themes is null
+            // get theme name from base theme because for inherited themes the name is always null
             $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
         }
 

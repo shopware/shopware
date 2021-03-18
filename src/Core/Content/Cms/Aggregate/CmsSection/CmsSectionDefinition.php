@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -16,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class CmsSectionDefinition extends EntityDefinition
@@ -50,30 +53,28 @@ class CmsSectionDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-
-            (new IntField('position', 'position'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-
+        $collection = new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             new LockedField(),
-
-            new StringField('name', 'name'),
-            new StringField('sizing_mode', 'sizingMode'),
-            new StringField('mobile_behavior', 'mobileBehavior'),
-            new StringField('background_color', 'backgroundColor'),
-            new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class),
-            new StringField('background_media_mode', 'backgroundMediaMode'),
-            new StringField('css_class', 'cssClass'),
-
-            (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, 'id', false),
-
-            new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false),
-
-            (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_section_id'))->addFlags(new CascadeDelete()),
-
-            new CustomFields(),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new StringField('sizing_mode', 'sizingMode'))->addFlags(new ApiAware()),
+            (new StringField('mobile_behavior', 'mobileBehavior'))->addFlags(new ApiAware()),
+            (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
+            (new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
+            (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_section_id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new CustomFields())->addFlags(new ApiAware()),
         ]);
+
+        $collection->add(new VersionField());
+        $collection->add((new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()));
+
+        return $collection;
     }
 }

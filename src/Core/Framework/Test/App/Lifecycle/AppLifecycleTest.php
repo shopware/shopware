@@ -319,7 +319,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],
@@ -445,7 +444,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],
@@ -533,7 +531,6 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],
@@ -749,16 +746,29 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultModules(AppEntity $app): void
     {
-        static::assertCount(1, $app->getModules());
+        static::assertCount(2, $app->getModules());
 
         static::assertEquals([
-            'label' => [
-                'en-GB' => 'My first own module',
-                'de-DE' => 'Mein erstes eigenes Modul',
+            [
+                'label' => [
+                    'en-GB' => 'My first own module',
+                    'de-DE' => 'Mein erstes eigenes Modul',
+                ],
+                'source' => 'https://test.com',
+                'name' => 'first-module',
+                'parent' => 'sw-test-structure-module',
+                'position' => 10,
+            ], [
+                'label' => [
+                    'en-GB' => 'My menu entry for modules',
+                    'de-DE' => 'Mein Menüeintrag für Module',
+                ],
+                'source' => null,
+                'name' => 'structure-module',
+                'parent' => 'sw-catalogue',
+                'position' => 50,
             ],
-            'source' => 'https://test.com',
-            'name' => 'first-module',
-        ], $app->getModules()[0]);
+        ], $app->getModules());
     }
 
     private function assertDefaultPrivileges(string $roleId): void

@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class NewsletterSubscribeRouteTest extends TestCase
 {
@@ -50,7 +49,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                '/store-api/newsletter/subscribe',
                 [
                 ]
             );
@@ -72,7 +71,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                '/store-api/newsletter/subscribe',
                 [
                     'email' => 'test@test.de',
                     'option' => 'direct',
@@ -94,7 +93,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                '/store-api/newsletter/subscribe',
                 [
                     'email' => 'test@test.de',
                     'option' => 'direct',
@@ -134,7 +133,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                '/store-api/newsletter/subscribe',
                 [
                     'status' => 'optIn',
                     'email' => 'test@example.com',
@@ -163,7 +162,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $browser->request(
             'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+            '/store-api/newsletter/subscribe',
             [
                 'email' => 'test@test.de',
                 'option' => 'direct',

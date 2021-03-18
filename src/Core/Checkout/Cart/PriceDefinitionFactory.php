@@ -17,15 +17,13 @@ class PriceDefinitionFactory
             throw new InvalidPriceFieldTypeException('none');
         }
 
-        $priceDefinition['precision'] = $priceDefinition['precision'] ?? $context->getCurrencyPrecision();
-
         switch ($priceDefinition['type']) {
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($priceDefinition);
             case AbsolutePriceDefinition::TYPE:
-                return new AbsolutePriceDefinition($priceDefinition['price'], $priceDefinition['precision']);
+                return new AbsolutePriceDefinition((float) $priceDefinition['price']);
             case PercentagePriceDefinition::TYPE:
-                return new PercentagePriceDefinition($priceDefinition['percentage'], $priceDefinition['precision']);
+                return new PercentagePriceDefinition($priceDefinition['percentage']);
         }
 
         throw new InvalidPriceFieldTypeException($priceDefinition['type']);

@@ -31,13 +31,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductExportController extends AbstractController
 {
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $salesChannelDomainRepository;
 
-    /** @var ProductExportGeneratorInterface */
+    /**
+     * @var ProductExportGeneratorInterface
+     */
     private $productExportGenerator;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
     public function __construct(
@@ -52,7 +58,7 @@ class ProductExportController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/product-export/validate", name="api.action.product_export.validate",
+     * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate",
      *                                                           methods={"POST"})
      *
      * @throws RenderHeaderException
@@ -91,7 +97,7 @@ class ProductExportController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
+     * @Route("/api/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
      *
      * @throws RenderHeaderException
      * @throws RenderProductException

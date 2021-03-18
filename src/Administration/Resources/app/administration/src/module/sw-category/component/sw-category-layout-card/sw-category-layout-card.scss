@@ -17,12 +17,12 @@
         align-items: baseline;
 
         .sw-category-layout-card__desc-headline {
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-small;
         }
 
         .sw-category-layout-card__desc-subheadline {
-            font-size: 14px;
+            font-size: $font-size-small;
         }
 
         .sw-category-layout-card__desc-headline.is--empty,
@@ -45,9 +45,9 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
             text-decoration: none;
-            font-size: 14px;
+            font-size: $font-size-small;
             margin-top: 8px;
 
             .sw-icon {

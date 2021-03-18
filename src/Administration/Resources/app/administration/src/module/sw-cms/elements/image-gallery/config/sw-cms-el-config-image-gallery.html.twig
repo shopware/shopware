@@ -25,7 +25,6 @@
 
                             {% block sw_cms_element_image_gallery_config_media_selection %}
                                 <sw-cms-mapping-field
-                                    v-if="feature.isActive('FEATURE_NEXT_10078')"
                                     v-model="element.config.sliderItems"
                                     entity="product_media"
                                     valueTypes="entity"
@@ -70,17 +69,6 @@
                                         </template>
                                     {% endblock %}
                                 </sw-cms-mapping-field>
-
-                                <sw-media-list-selection-v2
-                                    v-else
-                                    :entityMediaItems="mediaItems"
-                                    :entity="enitiy"
-                                    :uploadTag="uploadTag"
-                                    :defaultFolder="defaultFolderName"
-                                    @upload-finish="onImageUpload"
-                                    @item-remove="onItemRemove"
-                                    @open-sidebar="onOpenMediaModal">
-                                </sw-media-list-selection-v2>
                             {% endblock %}
 
                             {% block sw_cms_element_image_gallery_config_media_modal %}

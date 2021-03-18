@@ -38,7 +38,6 @@ class CategoryTagDefinition extends MappingEntityDefinition
             (new ReferenceVersionField(CategoryDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('tag_id', 'tagId', TagDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('category', 'category_id', CategoryDefinition::class, 'id', false),
             new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);

@@ -4,13 +4,16 @@ namespace Shopware\Core\Test;
 
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 class HttpKernelTest extends TestCase
 {
-    private $oldUrl;
+    private string $oldUrl;
 
     protected function setUp(): void
     {
@@ -41,15 +44,21 @@ class HttpKernelTest extends TestCase
         $reflectedProperty->setAccessible(true);
         $reflectedProperty->setValue(TestKernel::class);
 
-        return new HttpKernel('dev', true, \Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager::getClassLoader());
+        return new HttpKernel('dev', true, KernelLifecycleManager::getClassLoader());
     }
 }
 
+/**
+ * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+ */
 class TestKernel extends Kernel
 {
     public function __construct()
     {
         $urlParams = parse_url($_ENV['DATABASE_URL']);
+        if ($urlParams === false || !\array_key_exists('user', $urlParams) || !\array_key_exists('pass', $urlParams)) {
+            throw new DBALException('Could not parse DATABASE_URL');
+        }
 
         throw new DBALException(vsprintf(
             'Could not connect to the server as %s with the password %s with connection string %s',
@@ -57,12 +66,12 @@ class TestKernel extends Kernel
         ));
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'test_kernel';
     }
 
-    public function getRootDir()
+    public function getRootDir(): string
     {
         return __DIR__;
     }

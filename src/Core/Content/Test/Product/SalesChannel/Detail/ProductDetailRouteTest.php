@@ -9,12 +9,10 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductDetailRouteTest extends TestCase
@@ -57,8 +55,6 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadProductWithCmsPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $expectedCmsPageId = Uuid::randomHex();
 
         $context = $this->createSalesChannelContext();
@@ -78,7 +74,6 @@ class ProductDetailRouteTest extends TestCase
             ],
         ]);
 
-        /** @var ProductDetailRoute $productDetailRoute */
         $productDetailRoute = $this->getContainer()->get(ProductDetailRoute::class);
 
         $result = $productDetailRoute->load($product['id'], new Request(), $context, new Criteria());
@@ -178,6 +173,6 @@ class ProductDetailRouteTest extends TestCase
 
     private function getUrl()
     {
-        return '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $this->ids->get('product');
+        return '/store-api/product/' . $this->ids->get('product');
     }
 }

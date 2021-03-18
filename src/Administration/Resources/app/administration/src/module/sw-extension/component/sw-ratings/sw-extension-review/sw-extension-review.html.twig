@@ -4,8 +4,8 @@
             <h4 class="sw-extension-review__headline">{{ review.headline }}</h4>
         {% endblock %}
 
-        {% block sw_extension_review_rating %}
-            <sw-extension-rating-stars :rating="review.rating"></sw-extension-rating-stars>
+        {% block sw_extension_review_stars %}
+            <sw-extension-rating-stars :rating="review.rating" />
         {% endblock %}
 
         {% block sw_extension_review_text %}
@@ -14,16 +14,16 @@
 
         {% block sw_extension_review_meta_data %}
             <p class="sw-extension-review__meta-data">
-                {% block sw_extension_review_creation_date %}
+                {% block sw_extension_review_meta_data_date %}
                     <span class="sw-extension-review__comma">
-                        {{ $t('sw-extension-store.component.sw-ratings.sw-extension-review.labelLastChangeDate',
-                        { lastChangeDate: lastChangeDate, author: review.authorName }) }}
+                        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate',
+                        0, { lastChangeDate: lastChangeDate, author: review.authorName }) }}
                     </span>
                 {% endblock %}
 
-                {% block sw_extension_review_extension_version %}
+                {% block sw_extension_review_meta_data_version %}
                     <span v-if="review.version">
-                        {{ $tc('sw-extension-store.component.sw-ratings.sw-extension-review.labelExtensionVersion',
+                        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion',
                         0, { extensionVersion: review.version }) }}
                     </span>
                 {% endblock %}
@@ -31,14 +31,13 @@
         {% endblock %}
 
         {% block sw_extension_review_replies %}
-            <template v-if="review.replies && review.replies.length > 0">
-                {% block sw_extension_review_reply %}
-                    <sw-review-reply
-                        v-for="(reply, index) in review.replies"
-                        :key="`sw-extension-review__reply-${index}`"
-                        :producerName="producerName"
-                        :reply="reply">
-                    </sw-review-reply>
+            <template v-if="reviewHasReplies">
+                {% block sw_extension_review_replies_loop %}
+                    <sw-extension-review-reply v-for="(reply, index) in review.replies"
+                                               :key="`sw-extension-review__reply-${index}`"
+                                               :producerName="producerName"
+                                               :reply="reply">
+                    </sw-extension-review-reply>
                 {% endblock %}
             </template>
         {% endblock %}

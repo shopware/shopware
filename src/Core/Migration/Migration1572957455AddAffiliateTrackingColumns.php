@@ -2,42 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1572957455AddAffiliateTrackingColumns extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1572957455AddAffiliateTrackingColumns extends \Shopware\Core\Migration\V6_3\Migration1572957455AddAffiliateTrackingColumns
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1572957455;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $this->addCustomerColumns($connection);
-
-        $this->addOrderColumns($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
-    private function addCustomerColumns(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `customer`
-            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`,
-            ADD COLUMN `campaign_code` varchar(255) NULL AFTER `affiliate_code`
-        ');
-    }
-
-    private function addOrderColumns(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `order`
-            ADD COLUMN `affiliate_code` varchar(255) NULL AFTER `custom_fields`,
-            ADD COLUMN `campaign_code` varchar(255) NULL AFTER `affiliate_code`
-        ');
-    }
 }

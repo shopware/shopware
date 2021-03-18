@@ -1,7 +1,6 @@
 ---
 title: Add a new tab in rule details to show rule assignments
 issue: NEXT-12289
-flag: FEATURE_NEXT_12289
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

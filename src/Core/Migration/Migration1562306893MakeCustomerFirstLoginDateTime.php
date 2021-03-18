@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1562306893MakeCustomerFirstLoginDateTime extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1562306893MakeCustomerFirstLoginDateTime extends \Shopware\Core\Migration\V6_3\Migration1562306893MakeCustomerFirstLoginDateTime
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1562306893;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `customer`
-            MODIFY COLUMN `first_login` DATETIME(3) NULL;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

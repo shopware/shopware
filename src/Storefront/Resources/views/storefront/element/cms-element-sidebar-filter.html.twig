@@ -1,6 +1,6 @@
 {% block element_sidebar_filter %}
     {% set config = element.fieldConfig.elements %}
-    {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
+    {% set slot = cmsPage.firstElementOfType('product-listing') %}
 
     {% if slot.data.listing.aggregations.elements|length > 0 %}
         <div class="cms-element-sidebar-filter">

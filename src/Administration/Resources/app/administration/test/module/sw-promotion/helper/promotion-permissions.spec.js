@@ -4,6 +4,10 @@ import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.h
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 describe('module/sw-promotion/helper/promotion-permissions.js', () => {
     it('should not be allowed to edit a promotion that does not exist', async () => {
         expect(PromotionPermissions.isEditingAllowed(null)).toBe(false);

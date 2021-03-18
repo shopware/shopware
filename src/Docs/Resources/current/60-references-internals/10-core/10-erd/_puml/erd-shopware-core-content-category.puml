@@ -43,12 +43,16 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    name translated
    customFields translated
    slotConfig translated
+   linkType translated
+   internalLink translated
    externalLink translated
+   linkNewTab translated
    description translated
    metaTitle translated
    metaDescription translated
    keywords translated
    cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
    productStreamId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -58,7 +62,10 @@ TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategory
    not_null(name) string
    breadcrumb list
    slotConfig json
+   linkType string
+   internalLink id
    externalLink string
+   linkNewTab bool
    description longText
    metaTitle longText
    metaDescription longText

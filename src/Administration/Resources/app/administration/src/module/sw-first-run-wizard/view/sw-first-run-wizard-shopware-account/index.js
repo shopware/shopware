@@ -45,7 +45,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.finish',
+                    action: 'sw.first.run.wizard.index.store',
                     disabled: false
                 },
                 {

@@ -146,7 +146,7 @@ class DiscountLineItem
      */
     public function getFilterSorterKey(): string
     {
-        return $this->filterSorterKey ?? '';
+        return $this->filterSorterKey;
     }
 
     /**
@@ -155,7 +155,7 @@ class DiscountLineItem
      */
     public function getFilterApplierKey(): string
     {
-        return $this->filterApplierKey ?? '';
+        return $this->filterApplierKey;
     }
 
     /**
@@ -164,7 +164,7 @@ class DiscountLineItem
      */
     public function getFilterUsageKey(): string
     {
-        return $this->filterUsageKey ?? '';
+        return $this->filterUsageKey;
     }
 
     public function getFilterPickerKey(): string

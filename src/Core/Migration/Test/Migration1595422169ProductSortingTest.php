@@ -48,6 +48,8 @@ class Migration1595422169ProductSortingTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
+        $connection->rollBack();
+
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting_translation`');
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting`');
 
@@ -56,6 +58,8 @@ class Migration1595422169ProductSortingTest extends TestCase
 
         $migration = new Migration1600338271AddTopsellerSorting();
         $migration->update($connection);
+
+        $connection->beginTransaction();
     }
 
     public function testMigration(): void
@@ -85,6 +89,7 @@ class Migration1595422169ProductSortingTest extends TestCase
     public function testMigrationWithFranceAsDefault(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
 
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting_translation`');
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting`');
@@ -123,6 +128,8 @@ class Migration1595422169ProductSortingTest extends TestCase
         sort($expected);
 
         static::assertEquals($expected, $translations);
+
+        $connection->beginTransaction();
     }
 
     private function migrationCases(): array

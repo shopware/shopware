@@ -2,23 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1600330846ChangeActiveColumn extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1600330846ChangeActiveColumn extends \Shopware\Core\Migration\V6_3\Migration1600330846ChangeActiveColumn
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1600330846;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `product` CHANGE `active` `active` tinyint unsigned NULL AFTER `product_number`;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

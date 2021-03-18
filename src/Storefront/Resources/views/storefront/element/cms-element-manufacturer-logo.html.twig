@@ -6,7 +6,7 @@
             'media': element.data.manufacturer.media,
             'name': element.data.manufacturer.translated.name,
             'alt': element.data.manufacturer.translated.name,
-            'link': element.data.manufacturer.link,
+            'link': config.url.value ? config.url.value : element.data.manufacturer.link,
         } %}
     {% else %}
         {% set manufacturer = {

@@ -5,6 +5,7 @@
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form
                         v-if="!isLoading"
+                        :showSettingsInformation="modeSettingsVisible.showSettingsInformation"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-basic-form>
                 {% endblock %}
@@ -87,8 +88,7 @@
                                     :key="isInherited"
                                     :isInherited="isInherited"
                                     :disabled="isInherited || !acl.can('product.editor')"
-                                    @media-drop="$emit('media-drop', $event)"
-                                    @cover-change="$emit('cover-change', $event)">
+                                    @media-open="onOpenMediaModal">
                                 </sw-product-media-form>
                             {% endblock %}
                         </sw-card>
@@ -98,17 +98,47 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
+        {% block sw_product_detail_base_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                :initialFolderId="mediaDefaultFolderId"
+                :entityContext="product.getEntityName()"
+                @media-modal-selection-change="onAddMedia"
+                @modal-close="onCloseMediaModal">
+            </sw-media-modal-v2>
+        {% endblock %}
+
         {% block sw_product_detail_base_settings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="loading.product">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showLabellingCard"
+                class="sw-product-detail-base__labelling-card"
+                :title="$tc('sw-product.detailBase.cardTitleSettings')"
+                :isLoading="loading.product">
                 {% block sw_product_detail_base_settings_form %}
                     <sw-product-settings-form :allowEdit="acl.can('product.editor')"></sw-product-settings-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-seo" component, like following:
+            {% block sw_product_detail_seo %}
+                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                    {% block sw_product_detail_seo_general %}
+                        <sw-card>...</sw-card>
+                    {% endblock %}
+
+                    {% block sw_product_detail_seo_urls %}
+                        <sw-seo-url>....</sw-seo-url>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        #}
         {% block sw_product_detail_base_settings_seo_settings %}
             {% block sw_product_detail_base_settings_seo_settings_general %}
-                <sw-card :title="$tc('sw-product.detailBase.cardTitleSeo')" :isLoading="loading.product">
+                <sw-card
+                    v-if="!feature.isActive('FEATURE_NEXT_12429')"
+                    :title="$tc('sw-product.detailBase.cardTitleSeo')"
+                    :isLoading="loading.product">
                     <sw-product-seo-form ref="seoForm"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-seo-form>
@@ -117,7 +147,7 @@
 
             {% block sw_product_detail_base_settings_seo_settings_url %}
                 <sw-seo-url
-                    v-if="product.seoUrls"
+                    v-if="!feature.isActive('FEATURE_NEXT_12429') && product.seoUrls"
                     :isLoading="loading.product"
                     :hasDefaultTemplate="false"
                     :disabled="!acl.can('product.editor')"
@@ -243,11 +273,23 @@
                 </sw-card>
         {% endblock %}
 
+        {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
+            {% block sw_product_detail_reviews %}
+                <sw-card
+                    v-if="feature.isActive('FEATURE_NEXT_12429')"
+                    class="sw-product-detail-reviews"
+                    :title="$tc('sw-product.reviews.cardTitleReviews')"
+                    :isLoading="isLoading">
+                    ...
+                </sw-card>
+            {% endblock %}
+        #}
         {% block sw_product_detail_base_ratings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')"
-                     v-if="reviewItemData"
-                     class="sw-product-detail-base__review-card"
-                     :isLoading="product.isLoading">
+            <sw-card
+                v-if="!feature.isActive('FEATURE_NEXT_12429') && reviewItemData"
+                class="sw-product-detail-base__review-card"
+                :title="$tc('sw-product.detailBase.cardTitleReviews')"
+                :isLoading="product.isLoading">
                 <template #grid>
                     <sw-data-grid
                         v-if="total"
@@ -270,14 +312,7 @@
                             {% block sw_product_detail_base_ratings_column_stars %}
                                 <template slot="column-points" slot-scope="{ item }">
                                     <div class="sw-review-detail-base__stars">
-                                        <sw-icon v-for="star, index in item.points" :key="`star-${index}`"
-                                                 name="default-review-star-full"
-                                                 size="14">
-                                        </sw-icon>
-                                        <sw-icon v-for="missingStar, index in (5-item.points)" :key="`missingStar-${index}`"
-                                                name="default-basic-shape-star"
-                                                size="14">
-                                        </sw-icon>
+                                        <sw-rating-stars v-model="item.points"></sw-rating-stars>
                                     </div>
                                 </template>
                             {% endblock %}

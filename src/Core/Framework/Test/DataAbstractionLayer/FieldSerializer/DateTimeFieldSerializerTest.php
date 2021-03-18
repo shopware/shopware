@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateTimeFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -47,7 +48,7 @@ class DateTimeFieldSerializerTest extends TestCase
     {
         $this->serializer = $this->getContainer()->get(DateTimeFieldSerializer::class);
         $this->field = new DateTimeField('date', 'date');
-        $this->field->addFlags(new Required());
+        $this->field->addFlags(new ApiAware(), new Required());
 
         $definition = $this->registerDefinition(DateTimeDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);

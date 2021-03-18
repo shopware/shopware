@@ -2,27 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1586158920AddImportExportProfileConfig extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1586158920AddImportExportProfileConfig extends \Shopware\Core\Migration\V6_3\Migration1586158920AddImportExportProfileConfig
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1586158920;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate(
-            'ALTER TABLE import_export_profile
-            ADD COLUMN config JSON,
-            ADD CONSTRAINT `json.import_export_profile.config` CHECK (JSON_VALID(`config`))'
-        );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

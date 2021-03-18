@@ -32,6 +32,12 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
                     false
                 ).then((response) => {
                     this.documentConfig.custom.deliveryNoteNumber = response.number;
+                    if (response.number !== this.documentConfig.documentNumber) {
+                        this.createNotificationInfo({
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                        });
+                    }
+                    this.documentConfig.documentNumber = response.number;
                     this.callDocumentCreate(additionalAction);
                 });
             } else {

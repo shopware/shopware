@@ -1,6 +1,18 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.5.2
+*  [NEXT-13710 - Added api aware flag for category tree](/changelog/release-6-3-5-2/2021-02-22-added-api-aware-flag-for-category-tree.md)
+*  [NEXT-13664 - Fix session handling on logouts](/changelog/release-6-3-5-2/2021-02-23-fix-session-handling-on-logouts.md)
+*  [NEXT-13896 - Adding acl privileges to plugin manager](/changelog/release-6-3-5-2/2021-02-24-adding-acl-privileges-to-plugin-manager.md)
+*  [NEXT-13861 - Validate replace configurations of plugins](/changelog/release-6-3-5-2/2021-02-24-validate-replace-configurations-of-plugins.md)
+
+## 6.3.5.1
+*  [NEXT-13252 - Fix pagination setting snippet listing](/changelog/release-6-3-5-1/2021-01-19-deprecated-get-preview-link.md)
+*  [NEXT-13371 - Added api aware flag](/changelog/release-6-3-5-1/2021-01-25-added-api-aware-flag.md)
+*  [NEXT-13530 - Lower min version of composer package-versions-deprecated to 1.8.0](/changelog/release-6-3-5-1/2021-02-02-lower-min-version-of-composer-package-versions-deprecated-to-1.8.0.md)
+*  [NEXT-13247 - Expire sales channel contexts](/changelog/release-6-3-5-1/2021-01-25-expire-sales-channel-contexts.md)
+
 ## 6.3.5.0
 *  [NEXT-13413 - Fix the Elasticsearch Query Parser for NotFilters](/changelog/release-6-3-5-0/2021-01-22-fix-elasticsearch-not-filter-parser.md)
 *  [NEXT-12417 - Change German translations for "valid"](/changelog/release-6-3-5-0/2020-09-16-change-german-translations-for-valid.md) ([Sebastian König](https://github.com/tinect))
@@ -227,7 +239,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-8050 - Fix content deleted after block moved](/changelog/release-6-3-4-0/2020-11-06-fix-content-deleted-after-block-moved.md)
 *  [NEXT-10803 - Fix error on product property deletion](/changelog/release-6-3-4-0/2020-11-06-fix-error-on-product-property-deletion.md)
 *  [NEXT-11926 - Introduce a new interface for events containing the SalesChannelContext](/changelog/release-6-3-4-0/2020-11-06-introduce-new-sales-channel-event.md)
-*  [NEXT-7453 - Use custom name prefix for nested routes](/changelog/release-6-3-4-0/2020-11-06-use-custom-name-prefix-for-nested-routes.md)
 *  [NEXT-11743 - create "Description and Reviews" block](/changelog/release-6-3-4-0/2020-11-09-create-description-and-reviews-block.md)
 *  [NEXT-12012 - Fix app installation if system default language is not english or german](/changelog/release-6-3-4-0/2020-11-09-fix-app-install-on-all-languages.md)
 *  [NEXT-11989 - Fix uninstall of apps with custom field sets](/changelog/release-6-3-4-0/2020-11-09-fix-deinstallation-of-apps-with-custom-fields.md)

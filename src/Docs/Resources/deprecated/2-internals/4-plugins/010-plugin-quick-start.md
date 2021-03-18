@@ -143,7 +143,7 @@ For this tutorial, a simple configuration containing a single text field is used
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
     
     <card>
         <title>Minimal configuration</title>
@@ -290,7 +290,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class MyController extends AbstractController
 {
     /**
-     * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
+     * @Route("/api/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
     public function myFirstApi(Request $request, Context $context): JsonResponse
     {
@@ -405,7 +405,7 @@ class MyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
+     * @Route("/api/_action/swag/my-api-action", name="api.action.swag.my-api-action", methods={"GET"})
      */
     public function myFirstApi(Request $request, Context $context): JsonResponse
     {

@@ -51,6 +51,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    customFields customFields
    createdById createdBy
    updatedById updatedBy
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -90,6 +92,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(lastName) string
    company string
    title string
+   vatIds list
    customerNumber string
    customFields customFields
    remoteAddress remoteAddress

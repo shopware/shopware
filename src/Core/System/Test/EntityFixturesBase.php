@@ -73,7 +73,6 @@ trait EntityFixturesBase
 
     private static function ensureATransactionIsActive(): void
     {
-        /** @var Connection $connection */
         $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
             ->get(Connection::class);

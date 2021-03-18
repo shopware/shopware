@@ -17,7 +17,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration',
+            url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
 
@@ -48,7 +48,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration',
+            url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
 
@@ -80,11 +80,11 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration',
+            url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
         cy.route({
-            url: '/api/v*/integration/*',
+            url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'patch'
         }).as('editIntegration');
 
@@ -130,11 +130,11 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/integration',
+            url: `${Cypress.env('apiPath')}/integration`,
             method: 'post'
         }).as('createIntegration');
         cy.route({
-            url: '/api/v*/integration/*',
+            url: `${Cypress.env('apiPath')}/integration/*`,
             method: 'delete'
         }).as('deleteIntegration');
 

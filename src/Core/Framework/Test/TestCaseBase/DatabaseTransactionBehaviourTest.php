@@ -38,7 +38,6 @@ class DatabaseTransactionBehaviourTest extends TestCase
 
     public function testInTransaction(): void
     {
-        /** @var Connection $connection */
         $connection = KernelLifecycleManager::getKernel()
             ->getContainer()
             ->get(Connection::class);

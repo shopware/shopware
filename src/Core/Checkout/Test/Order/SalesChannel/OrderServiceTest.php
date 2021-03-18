@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
@@ -222,11 +223,11 @@ class OrderServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
-            $phpunit->assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
+        $innerEvent = null;
+
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, &$innerEvent): void {
+            $innerEvent = $event;
             $eventDidRun = true;
         };
 
@@ -236,10 +237,14 @@ class OrderServiceTest extends TestCase
             $orderDeliveryId,
             'cancel',
             new RequestDataBag(),
-            $this->salesChannelContext->getContext()
+            Context::createDefaultContext() //DefaultContext is intended to test if the language of the order is used
         );
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertNotNull($innerEvent);
+        static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $innerEvent->getContents()['text/html']);
+        static::assertStringContainsString($url, $innerEvent->getContents()['text/html']);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
         $this->salesChannelContext = $previousContext;
@@ -375,6 +380,39 @@ class OrderServiceTest extends TestCase
 
         static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
         static::assertSame($orderId, $newlyCreatedOrder->getId());
+    }
+
+    public function testCreateOrderSavesVatIdsInOrderCustomer(): void
+    {
+        $vatIds = ['DE123456789'];
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => $vatIds,
+        ];
+        $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->salesChannelContext = $contextFactory->create(
+            '',
+            Defaults::SALES_CHANNEL,
+            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe', $additionalData)]
+        );
+
+        $data = new RequestDataBag(['tos' => true]);
+        $this->fillCart($this->salesChannelContext->getToken());
+
+        $orderId = $this->orderService->createOrder($data, $this->salesChannelContext);
+
+        $criteria = new Criteria([$orderId]);
+
+        /** @var OrderEntity $newlyCreatedOrder */
+        $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+
+        static::assertInstanceOf(OrderEntity::class, $newlyCreatedOrder);
+        static::assertSame($orderId, $newlyCreatedOrder->getId());
+        static::assertSame($vatIds, $newlyCreatedOrder->getOrderCustomer()->getVatIds());
     }
 
     public function testCreateOrderSendsMail(): void
@@ -538,39 +576,39 @@ class OrderServiceTest extends TestCase
         return $this->orderService->createOrder($data, $this->salesChannelContext);
     }
 
-    private function createCustomer(string $firstName, string $lastName): string
+    private function createCustomer(string $firstName, string $lastName, array $options = []): string
     {
         $customerId = Uuid::randomHex();
         $salutationId = $this->getValidSalutationId();
         $paymentMethodId = $this->getValidPaymentMethodId();
 
         $customer = [
-            [
+            'id' => $customerId,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $customerId,
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'city' => 'Schöppingen',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'salutationId' => $salutationId,
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $customerId,
-                'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not',
                 'firstName' => $firstName,
                 'lastName' => $lastName,
+                'city' => 'Schöppingen',
+                'street' => 'Ebbinghoff 10',
+                'zipcode' => '48624',
                 'salutationId' => $salutationId,
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'defaultBillingAddressId' => $customerId,
+            'defaultPaymentMethodId' => $paymentMethodId,
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'not',
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'salutationId' => $salutationId,
+            'customerNumber' => '12345',
         ];
 
-        $this->getContainer()->get('customer.repository')->create($customer, Context::createDefaultContext());
+        $customer = array_merge_recursive($customer, $options);
+
+        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

@@ -22,11 +22,6 @@ class VersionCommitEntity extends Entity
     protected $message;
 
     /**
-     * @var string
-     */
-    protected $versionId;
-
-    /**
      * @var string|null
      */
     protected $userId;
@@ -81,7 +76,7 @@ class VersionCommitEntity extends Entity
         $this->userId = $userId;
     }
 
-    public function getVersionId(): string
+    public function getVersionId(): ?string
     {
         return $this->versionId;
     }

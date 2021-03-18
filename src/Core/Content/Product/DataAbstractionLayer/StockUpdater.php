@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -267,7 +268,7 @@ FROM order_line_item
         ON state_machine_state.id = `order`.state_id
         AND state_machine_state.technical_name <> :cancelled_state
 
-WHERE LOWER(order_line_item.referenced_id) IN (:ids)
+WHERE order_line_item.product_id IN (:ids)
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
     AND order_line_item.product_id IS NOT NULL
@@ -281,7 +282,7 @@ GROUP BY product_id;
                 'version' => Uuid::fromHexToBytes($context->getVersionId()),
                 'completed_state' => OrderStates::STATE_COMPLETED,
                 'cancelled_state' => OrderStates::STATE_CANCELLED,
-                'ids' => $ids,
+                'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
                 'ids' => Connection::PARAM_STR_ARRAY,
@@ -315,7 +316,7 @@ GROUP BY product_id;
 
     private function updateAvailableFlag(array $ids, Context $context): void
     {
-        $ids = array_filter(array_keys(array_flip($ids)));
+        $ids = array_filter(array_unique($ids));
 
         if (empty($ids)) {
             return;
@@ -377,8 +378,13 @@ GROUP BY product_id;
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function clearCache(array $ids): void
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return;
+        }
+
         $tags = [];
         foreach ($ids as $id) {
             $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->definition->getEntityName());

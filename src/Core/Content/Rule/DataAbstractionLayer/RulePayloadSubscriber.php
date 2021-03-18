@@ -7,6 +7,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RulePayloadSubscriber implements EventSubscriberInterface
@@ -40,13 +41,12 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
         /** @var RuleEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            if (!$entity->getPayload() || !\is_string($entity->getPayload())) {
+            $payload = $entity->getPayload();
+            if ($payload === null || !\is_string($payload)) {
                 continue;
             }
 
-            $unserialized = unserialize($entity->getPayload());
-
-            $entity->setPayload($unserialized);
+            $entity->setPayload(unserialize($payload));
         }
     }
 
@@ -71,6 +71,9 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             $rules[$id]->assign($entity);
         }
 
-        $this->cacheClearer->invalidateIds(array_keys($updated), RuleDefinition::ENTITY_NAME);
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds(array_keys($updated), RuleDefinition::ENTITY_NAME);
+        }
     }
 }

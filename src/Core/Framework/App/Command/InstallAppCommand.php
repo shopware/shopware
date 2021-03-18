@@ -84,7 +84,7 @@ class InstallAppCommand extends Command
         }
 
         try {
-            $this->appLifecycle->install($manifest, (bool) $input->getOption('activate'), Context::createDefaultContext());
+            $this->appLifecycle->install($manifest, $input->getOption('activate'), Context::createDefaultContext());
         } catch (AppAlreadyInstalledException $e) {
             $io->error($e->getMessage());
 
@@ -124,7 +124,6 @@ class InstallAppCommand extends Command
 
     private function getManifest(InputInterface $input, ShopwareStyle $io): ?Manifest
     {
-        /** @var string $name */
         $name = $input->getArgument('name');
         $manifestPath = sprintf('%s/%s/manifest.xml', $this->appDir, $name);
         if (!is_file($manifestPath)) {

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -51,9 +51,9 @@ class ProductIndexer extends EntityIndexer
     private $categoryDenormalizer;
 
     /**
-     * @var ListingPriceUpdater
+     * @var CheapestPriceUpdater
      */
-    private $listingPriceUpdater;
+    private $cheapestPriceUpdater;
 
     /**
      * @var SearchKeywordUpdater
@@ -90,20 +90,6 @@ class ProductIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
-    /**
-     * @deprecated tag:v6.4.0 - property $productPurchasePriceDeprecationUpdater will be removed in 6.4.0
-     *
-     * @var ProductPurchasePriceDeprecationUpdater
-     */
-    private $productPurchasePriceDeprecationUpdater;
-
-    /**
-     * @deprecated tag:v6.4.0 - property $blueGreenEnabled will be removed in 6.4.0
-     *
-     * @var bool
-     */
-    private $blueGreenEnabled;
-
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -111,16 +97,14 @@ class ProductIndexer extends EntityIndexer
         CacheClearer $cacheClearer,
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,
-        ListingPriceUpdater $listingPriceUpdater,
         InheritanceUpdater $inheritanceUpdater,
         RatingAverageUpdater $ratingAverageUpdater,
         SearchKeywordUpdater $searchKeywordUpdater,
         ChildCountUpdater $childCountUpdater,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         StockUpdater $stockUpdater,
-        ProductPurchasePriceDeprecationUpdater $productPurchasePriceDeprecationUpdater,
         EventDispatcherInterface $eventDispatcher,
-        bool $blueGreenEnabled
+        CheapestPriceUpdater $cheapestPriceUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -128,7 +112,6 @@ class ProductIndexer extends EntityIndexer
         $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
         $this->categoryDenormalizer = $categoryDenormalizer;
-        $this->listingPriceUpdater = $listingPriceUpdater;
         $this->searchKeywordUpdater = $searchKeywordUpdater;
         $this->inheritanceUpdater = $inheritanceUpdater;
         $this->ratingAverageUpdater = $ratingAverageUpdater;
@@ -136,8 +119,7 @@ class ProductIndexer extends EntityIndexer
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->stockUpdater = $stockUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->productPurchasePriceDeprecationUpdater = $productPurchasePriceDeprecationUpdater;
-        $this->blueGreenEnabled = $blueGreenEnabled;
+        $this->cheapestPriceUpdater = $cheapestPriceUpdater;
     }
 
     public function getName(): string
@@ -166,11 +148,6 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
-        $productEvent = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
-        if (!$this->blueGreenEnabled && $productEvent) {
-            $this->productPurchasePriceDeprecationUpdater->updateByEvent($productEvent);
-        }
-
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
 
         $this->stockUpdater->update($updates, $event->getContext());
@@ -187,21 +164,15 @@ class ProductIndexer extends EntityIndexer
             return;
         }
 
-        if (!$this->blueGreenEnabled) {
-            $this->productPurchasePriceDeprecationUpdater->updateByProductId($ids);
-        }
-
         $parentIds = $this->getParentIds($ids);
 
         $childrenIds = $this->getChildrenIds($ids);
 
         $context = $message->getContext();
 
-        $this->inheritanceUpdater->update(
-            ProductDefinition::ENTITY_NAME,
-            array_merge($ids, $parentIds, $childrenIds),
-            $context
-        );
+        $this->connection->beginTransaction();
+
+        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, array_merge($ids, $parentIds, $childrenIds), $context);
 
         $this->stockUpdater->update($ids, $context);
 
@@ -213,18 +184,23 @@ class ProductIndexer extends EntityIndexer
 
         $this->categoryDenormalizer->update($ids, $context);
 
-        $this->listingPriceUpdater->update($parentIds, $context);
+        $this->cheapestPriceUpdater->update($parentIds, $context);
 
         $this->ratingAverageUpdater->update($parentIds, $context);
 
         $this->searchKeywordUpdater->update($ids, $context);
 
+        $this->connection->commit();
+
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
 
-        $this->cacheClearer->invalidateIds(
-            array_unique(array_merge($ids, $parentIds, $childrenIds)),
-            ProductDefinition::ENTITY_NAME
-        );
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds(
+                array_unique(array_merge($ids, $parentIds, $childrenIds)),
+                ProductDefinition::ENTITY_NAME
+            );
+        }
     }
 
     private function getChildrenIds(array $ids): array

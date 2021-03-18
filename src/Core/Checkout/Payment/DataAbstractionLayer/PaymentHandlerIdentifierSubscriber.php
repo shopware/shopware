@@ -24,7 +24,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
             $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
 
             $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
-            $entity->setShortName((new CamelCaseToSnakeCaseNameConverter())->normalize((string) $last));
+            $entity->setShortName((new CamelCaseToSnakeCaseNameConverter())->normalize($last));
 
             if (\count($explodedHandlerIdentifier) < 2) {
                 $entity->setFormattedHandlerIdentifier($entity->getHandlerIdentifier());

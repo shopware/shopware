@@ -171,7 +171,7 @@ final class FirstRunWizardClient
         }
         $failedAt = $this->configService->getString('core.frw.failedAt');
         if ($failedAt !== '') {
-            $failureCount = $this->configService->getInt('core.frw.failureCount') ?? 1;
+            $failureCount = $this->configService->getInt('core.frw.failureCount');
 
             return FrwState::failedState(new \DateTimeImmutable($failedAt), $failureCount);
         }
@@ -255,7 +255,7 @@ final class FirstRunWizardClient
         return $regions;
     }
 
-    public function getRecommendations(string $language, PluginCollection $pluginCollection, string $region, ?string $category): PluginRecommendationCollection
+    public function getRecommendations(string $language, PluginCollection $pluginCollection, ?string $region, ?string $category): PluginRecommendationCollection
     {
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['region'] = $query['market'] = $region;

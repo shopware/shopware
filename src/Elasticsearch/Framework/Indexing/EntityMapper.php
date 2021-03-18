@@ -2,8 +2,10 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
@@ -21,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -45,9 +46,9 @@ class EntityMapper
     public const PRICE_FIELD = [
         'type' => 'object',
         'properties' => [
-            'gross' => ['type' => 'double'],
-            'net' => ['type' => 'double'],
-            'linked' => ['type' => 'boolean'],
+            'gross' => self::FLOAT_FIELD,
+            'net' => self::FLOAT_FIELD,
+            'linked' => self::BOOLEAN_FIELD,
         ],
     ];
 
@@ -61,6 +62,9 @@ class EntityMapper
         'type' => 'keyword',
         'normalizer' => 'sw_lowercase_normalizer',
     ];
+    public const BOOLEAN_FIELD = ['type' => 'boolean'];
+    public const FLOAT_FIELD = ['type' => 'double'];
+    public const INT_FIELD = ['type' => 'long'];
 
     public function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
     {
@@ -85,8 +89,8 @@ class EntityMapper
                 return null;
 
             case $field instanceof ListField:
-            case $field instanceof BlacklistRuleField:
-            case $field instanceof WhitelistRuleField:
+            case $field instanceof BlacklistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof WhitelistRuleField://@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
                 return self::KEYWORD_FIELD;
 
             case $field instanceof ParentAssociationField:
@@ -94,33 +98,20 @@ class EntityMapper
                 return null;
 
             case $field instanceof BoolField:
-                return ['type' => 'boolean'];
+                return self::BOOLEAN_FIELD;
 
             case $field instanceof FloatField:
-                return ['type' => 'double'];
+                return self::FLOAT_FIELD;
 
             case $field instanceof ChildCountField:
             case $field instanceof IntField:
-                return ['type' => 'long'];
+                return self::INT_FIELD;
 
             case $field instanceof ObjectField:
                 return ['type' => 'object', 'dynamic' => true];
 
             case $field instanceof PriceField:
-                return self::PRICE_FIELD;
-
-            case $field instanceof ListingPriceField:
-                return [
-                    'type' => 'nested',
-                    'properties' => [
-                        'ruleId' => self::KEYWORD_FIELD,
-                        'from' => self::PRICE_FIELD,
-                        'to' => self::PRICE_FIELD,
-                        'listPrice' => self::PRICE_FIELD,
-                        'createdAt' => self::DATE_FIELD,
-                        'updatedAt' => self::DATE_FIELD,
-                    ],
-                ];
+                return $this->createPriceField($context);
 
             case $field instanceof CustomFields:
                 return ['type' => 'object', 'dynamic' => true];
@@ -168,9 +159,7 @@ class EntityMapper
         $properties = [];
         $translated = [];
 
-        $fields = $definition->getFields()->filter(static function (Field $field) {
-            return !$field instanceof AssociationField;
-        });
+        $fields = $definition->getFields()->filter(static fn (Field $field) => !$field instanceof AssociationField);
 
         foreach ($fields as $field) {
             $fieldMapping = $this->mapField($definition, $field, $context);
@@ -204,5 +193,29 @@ class EntityMapper
     protected function createLongTextField(): array
     {
         return ['type' => 'text'];
+    }
+
+    private function createPriceField(Context $context): array
+    {
+        $currencies = $context->getExtension('currencies');
+
+        if (!$currencies instanceof EntityCollection) {
+            return [
+                'type' => 'object',
+                'properties' => ['c_' . Defaults::CURRENCY => self::PRICE_FIELD],
+            ];
+        }
+        $fields = [];
+
+        foreach ($currencies as $currency) {
+            $field = 'c_' . $currency->getId();
+
+            $fields[$field] = self::PRICE_FIELD;
+        }
+
+        return [
+            'type' => 'object',
+            'properties' => $fields,
+        ];
     }
 }

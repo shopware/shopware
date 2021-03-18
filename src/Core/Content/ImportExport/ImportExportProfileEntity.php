@@ -11,7 +11,7 @@ class ImportExportProfileEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -65,17 +65,7 @@ class ImportExportProfileEntity extends Entity
      */
     protected $translations;
 
-    /**
-     * @var \DateTimeInterface
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    protected $updatedAt;
-
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed
+ */
 class ObjectCacheKeyFinder
 {
     /**

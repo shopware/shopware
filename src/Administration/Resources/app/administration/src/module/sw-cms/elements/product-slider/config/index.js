@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-cms-el-config-product-slider', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('cms-element')
@@ -75,12 +75,6 @@ Component.register('sw-cms-el-config-product-slider', {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
                 value: 'name:DESC'
             }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                value: 'listingPrices:ASC'
-            }, {
-                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                value: 'listingPrices:DESC'
-            }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
                 value: 'createdAt:ASC'
             }, {
@@ -89,6 +83,12 @@ Component.register('sw-cms-el-config-product-slider', {
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
                 value: 'random'
+            }, {
+                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
+                value: 'cheapestPrice:ASC'
+            }, {
+                label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
+                value: 'cheapestPrice:DESC'
             }];
         },
 

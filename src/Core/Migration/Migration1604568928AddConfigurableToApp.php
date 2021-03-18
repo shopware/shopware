@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1604568928AddConfigurableToApp extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1604568928AddConfigurableToApp extends \Shopware\Core\Migration\V6_3\Migration1604568928AddConfigurableToApp
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1604568928;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `app`
-            ADD `configurable` TINYINT(1) NOT NULL DEFAULT 0 AFTER `active`;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

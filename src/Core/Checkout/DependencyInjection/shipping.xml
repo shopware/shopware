@@ -27,21 +27,22 @@
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" public="true">
             <argument type="service" id="sales_channel.shipping_method.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater">
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cache.invalidation.shipping_method_route%</argument>
+            <argument type="service" id="logger" />
         </service>
 
-        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodIndexer">
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="shipping_method.repository" />
-            <argument>%shopware.deployment.blue_green%</argument>
-
-            <tag name="shopware.entity_indexer"/>
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRouteInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">

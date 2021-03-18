@@ -132,7 +132,7 @@ Component.register('sw-extension-card-base', {
         },
 
         isUpdateable() {
-            if (this.extension.latestVersion === null) {
+            if (!this.extension || this.extension.latestVersion === null) {
                 return false;
             }
 
@@ -236,7 +236,9 @@ Component.register('sw-extension-card-base', {
                 return;
             }
 
-            this.permissionModalActionLabel = this.$tc('sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall');
+            this.permissionModalActionLabel = this.$tc(
+                'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall'
+            );
             this.showPermissionsModal = true;
         },
 

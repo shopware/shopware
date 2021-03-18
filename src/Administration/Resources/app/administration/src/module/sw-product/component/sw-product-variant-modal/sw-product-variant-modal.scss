@@ -20,7 +20,7 @@
         height: 100%;
         padding: 0;
     }
-    
+
     .sw-data-grid {
         display: grid;
         grid-template-rows: 1fr auto;
@@ -41,11 +41,11 @@
         color: $color-gray-600;
         margin-left: 5px;
     }
-    
+
     &__price-inheritance-switch {
         margin-right: 10px;
     }
-    
+
     &__active-inheritance-switch {
         margin-left: 10px;
     }
@@ -57,11 +57,11 @@
 
     .sw-icon {
         &.is--inactive {
-            color: $color-crimson;
+            color: $color-crimson-500;
         }
 
         &.is--active {
-            color: $color-emerald;
+            color: $color-emerald-500;
         }
     }
 
@@ -74,15 +74,15 @@
         margin-top: 8px;
         font-size: $font-size-small;
     }
-    
+
     &__variant-name {
         margin-right: 5px;
     }
-    
+
     &__variant-options span {
         color: $color-darkgray-200 !important;
     }
-    
+
     &__variant-options:hover span {
         color: $color-shopware-brand-500 !important;
     }

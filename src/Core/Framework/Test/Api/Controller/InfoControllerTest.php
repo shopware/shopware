@@ -2,12 +2,19 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use Enqueue\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\Packages;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 class InfoControllerTest extends TestCase
 {
@@ -28,7 +35,7 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
+        $url = '/api/_info/config';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -75,7 +82,7 @@ class InfoControllerTest extends TestCase
 
     public function testBusinessEventRoute(): void
     {
-        $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
+        $url = '/api/_info/events.json';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -141,5 +148,51 @@ class InfoControllerTest extends TestCase
             static::assertCount(1, $actualEvents);
             static::assertEquals($event, $actualEvents[0]);
         }
+    }
+
+    public function testBundlePaths(): void
+    {
+        $kernelMock = $this->createMock(Kernel::class);
+        $packagesMock = $this->createMock(Packages::class);
+        $infoController = new InfoController(
+            $this->createMock(DefinitionService::class),
+            new ParameterBag([
+                'kernel.shopware_version' => 'shopware-version',
+                'kernel.shopware_version_revision' => 'shopware-version-revision',
+                'shopware.admin_worker.enable_admin_worker' => 'enable-admin-worker',
+                'shopware.admin_worker.transports' => 'transports',
+            ]),
+            $kernelMock,
+            $packagesMock,
+            $this->createMock(BusinessEventCollector::class),
+            true,
+            []
+        );
+
+        $infoController->setContainer($this->createMock(Container::class));
+
+        $assetPackage = $this->createMock(Package::class);
+        $packagesMock
+            ->expects(static::exactly(1))
+            ->method('getPackage')
+            ->willReturn($assetPackage);
+        $assetPackage
+            ->expects(static::exactly(1))
+            ->method('getUrl')
+            ->willReturnArgument(0);
+
+        $kernelMock
+            ->expects(static::exactly(1))
+            ->method('getBundles')
+            ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/fixtures/InfoController')]);
+
+        $config = json_decode($infoController->config()->getContent(), true);
+        static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
+
+        $jsFilePath = explode('?', $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
+        static::assertEquals(
+            'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
+            $jsFilePath
+        );
     }
 }

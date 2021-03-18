@@ -12,20 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
-    /**
-     * @var ProductSearchBuilderInterface
-     */
-    private $decorated;
+    private ProductSearchBuilderInterface $decorated;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    private ProductDefinition $productDefinition;
 
     public function __construct(
         ProductSearchBuilderInterface $decorated,

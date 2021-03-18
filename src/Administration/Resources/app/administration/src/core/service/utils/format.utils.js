@@ -17,18 +17,23 @@ export default {
  * @param {Number} val - Number which should be formatted as a currency.
  * @param {String} sign - Currency sign which should be displayed
  * @param {Number} [decimalPlaces] - Number of decimal places
+ * @param {Object} additionalOptions
  * @returns {string} Formatted string
  */
-export function currency(val, sign, decimalPlaces) {
+export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
     const decimalOpts = decimalPlaces !== undefined ? {
         minimumFractionDigits: decimalPlaces,
         maximumFractionDigits: decimalPlaces
-    } : {};
+    } : {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 20
+    };
 
     const opts = {
         style: 'currency',
         currency: sign,
-        ...decimalOpts
+        ...decimalOpts,
+        ...additionalOptions
     };
     let language = 'de-DE';
     if (opts.currency === 'USD') {

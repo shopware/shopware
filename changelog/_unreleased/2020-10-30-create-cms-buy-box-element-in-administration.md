@@ -1,7 +1,6 @@
 ---
 title: Create cms buy box element in administration
 issue: NEXT-11503
-flag: FEATURE_NEXT_10078
 ---
 # Administration
 * Added component `buy-box` in `src/module/sw-cms/elements`

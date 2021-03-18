@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -59,7 +58,7 @@ class LoginRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => 'foo',
                     'password' => 'foo',
@@ -77,7 +76,7 @@ class LoginRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                 ]
             );
@@ -97,7 +96,7 @@ class LoginRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -125,7 +124,6 @@ class LoginRouteTest extends TestCase
 
         $this->createCustomer($password, $email, $salesChannel['id']);
 
-        /** @var LoginRoute $loginRoute */
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
         $requestDataBag = new RequestDataBag(['email' => $email, 'password' => $password]);
@@ -147,7 +145,6 @@ class LoginRouteTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken, [], $customerId);
 
-        /** @var LoginRoute $loginRoute */
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
         $request = new RequestDataBag(['email' => $email, 'password' => $password]);
@@ -210,7 +207,6 @@ class LoginRouteTest extends TestCase
 
         $this->createCart($this->ids->get('context-2'), 'cart-2');
 
-        /** @var LoginRoute $loginRoute */
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
         $request = new RequestDataBag(['email' => $email, 'password' => $password]);
@@ -221,7 +217,6 @@ class LoginRouteTest extends TestCase
 
         static::assertNotEquals($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
 
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
 
         $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, 'cart-1', false);

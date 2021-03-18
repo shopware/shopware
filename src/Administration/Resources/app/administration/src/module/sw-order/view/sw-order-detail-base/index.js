@@ -11,7 +11,8 @@ Component.register('sw-order-detail-base', {
         'repositoryFactory',
         'orderService',
         'stateStyleDataProviderService',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     props: {
@@ -162,9 +163,7 @@ Component.register('sw-order-detail-base', {
                 .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
 
             criteria
-                .getAssociation('salesChannel')
-                .getAssociation('mailTemplates')
-                .addAssociation('mailTemplateType');
+                .addAssociation('salesChannel');
 
             criteria
                 .addAssociation('addresses.country')
@@ -197,6 +196,19 @@ Component.register('sw-order-detail-base', {
 
         taxStatus() {
             return this.order.price.taxStatus;
+        },
+
+        displayRounded() {
+            return this.order.totalRounding.interval !== 0.01
+                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
+        },
+
+        orderTotal() {
+            if (this.displayRounded) {
+                return this.order.price.rawTotal;
+            }
+
+            return this.order.price.totalPrice;
         }
     },
 

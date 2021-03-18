@@ -16,16 +16,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 class CachedEntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        //@internal (FEATURE_NEXT_10514) remove this test
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
+    }
 
     /**
      * @dataProvider searchCases
@@ -209,7 +218,7 @@ class CachedEntitySearcherTest extends TestCase
         ];
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(Defaults::SALES_CHANNEL, Uuid::randomHex());
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, Uuid::randomHex()));
         $context = $salesChannelContext->getContext();
 
         $productRepo->create([$product], $context);

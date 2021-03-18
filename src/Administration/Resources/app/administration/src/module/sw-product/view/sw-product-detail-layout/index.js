@@ -60,18 +60,38 @@ Component.register('sw-product-detail-layout', {
 
     watch: {
         cmsPageId() {
-            this.product.slotConfig = null;
-            State.commit('swProductDetail/setProduct', this.product);
             State.dispatch('cmsPageState/resetCmsPageState');
             this.handleGetCmsPage();
+        },
+
+        product: {
+            deep: true,
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.updateCmsPageDataMapping();
+            }
         }
     },
 
-    mounted() {
-        this.handleGetCmsPage();
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            // Keep current layout configuration if page sections exist
+            const sections = Utils.get(this.currentPage, 'sections', []);
+
+            if (sections.length) {
+                return;
+            }
+
+            this.handleGetCmsPage();
+        },
+
         onOpenLayoutModal() {
             if (!this.acl.can('product.editor')) {
                 return;
@@ -98,6 +118,8 @@ Component.register('sw-product-detail-layout', {
             }
 
             this.product.cmsPageId = cmsPageId;
+            this.product.slotConfig = null;
+            State.commit('swProductDetail/setProduct', this.product);
         },
 
         handleGetCmsPage() {

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -15,29 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-class TranslationFieldResolver extends AbstractFieldResolver implements FieldResolverInterface
+class TranslationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     *
-     * @var JoinBuilderInterface
-     */
-    private $joinBuilder;
-
-    // @deprecated tag:v6.4.0 - Will be removed
-    public function __construct(JoinBuilderInterface $joinBuilder)
-    {
-        $this->joinBuilder = $joinBuilder;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function getJoinBuilder(): JoinBuilderInterface
-    {
-        return $this->joinBuilder;
-    }
-
     public function join(FieldResolverContext $context): string
     {
         $field = $context->getField();
@@ -45,20 +23,43 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
             return $context->getAlias();
         }
 
-        $alias = $context->getAlias() . '.' . $context->getDefinition()->getEntityName() . '_translation';
+        $definition = $context->getDefinition();
+        $translationDefinition = $definition->getTranslationDefinition();
+        if (!$translationDefinition) {
+            throw new \RuntimeException(sprintf('Can not detect translation definition of entity %s', $definition->getEntityName()));
+        }
+
+        $alias = $context->getAlias() . '.' . $definition->getEntityName() . '_translation';
         if ($context->getQuery()->hasState($alias)) {
             return $alias;
         }
         $context->getQuery()->addState($alias);
 
-        $query = $this->getTranslationQuery($context->getDefinition(), $context->getPath(), $context->getQuery(), $context->getContext());
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#foreignKey#' => EntityDefinitionQueryHelper::escape($context->getDefinition()->getEntityName() . '_id'),
+            '#foreignKey#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
             '#on#' => EntityDefinitionQueryHelper::escape($context->getAlias()),
         ];
 
-        $inherited = $context->getDefinition()->isInheritanceAware() && $context->getContext()->considerInheritance();
+        $rootVersionFieldName = null;
+        $translatedVersionFieldName = null;
+        $versionJoin = '';
+
+        if ($definition->isVersionAware()) {
+            // field of the translated definition
+            $rootVersionFieldName = 'version_id';
+
+            // field of the translationDefinition
+            $translatedVersionFieldName = $definition->getEntityName() . '_version_id';
+        }
+
+        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath(), $context->getQuery(), $context->getContext(), $translatedVersionFieldName);
+
+        if ($rootVersionFieldName && $translatedVersionFieldName) {
+            $variables['#rootVersionField#'] = $rootVersionFieldName;
+            $variables['#translatedVersionField#'] = $translatedVersionFieldName;
+            $versionJoin = ' AND #alias#.#translatedVersionField# = #on#.#rootVersionField#';
+        }
 
         $context->getQuery()->leftJoin(
             EntityDefinitionQueryHelper::escape($context->getAlias()),
@@ -67,7 +68,7 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
             str_replace(
                 array_keys($variables),
                 array_values($variables),
-                '#alias#.#foreignKey# = #on#.`id`'
+                '#alias#.#foreignKey# = #on#.`id`' . $versionJoin
             )
         );
 
@@ -75,17 +76,24 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
             $context->getQuery()->setParameter($key, $value);
         }
 
+        $inherited = $definition->isInheritanceAware() && $context->getContext()->considerInheritance();
         if (!$inherited) {
             return $alias;
         }
 
-        $query = $this->getTranslationQuery($context->getDefinition(), $context->getPath() . '.parent', $context->getQuery(), $context->getContext());
+        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath() . '.parent', $context->getQuery(), $context->getContext(), $translatedVersionFieldName);
 
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($alias . '.parent'),
-            '#foreignKey#' => EntityDefinitionQueryHelper::escape($context->getDefinition()->getEntityName() . '_id'),
+            '#foreignKey#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
             '#on#' => EntityDefinitionQueryHelper::escape($context->getAlias() . '.parent'),
         ];
+
+        if ($rootVersionFieldName && $translatedVersionFieldName) {
+            $variables['#rootVersionField#'] = $rootVersionFieldName;
+            $variables['#translatedVersionField#'] = $translatedVersionFieldName;
+            $versionJoin = ' AND #alias#.#translatedVersionField# = #on#.#rootVersionField#';
+        }
 
         $context->getQuery()->leftJoin(
             EntityDefinitionQueryHelper::escape($context->getAlias()),
@@ -94,37 +102,11 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
             str_replace(
                 array_keys($variables),
                 array_values($variables),
-                '#alias#.#foreignKey# = #on#.`id`'
+                '#alias#.#foreignKey# = #on#.`id`' . $versionJoin
             )
         );
 
         return $alias;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed
-     */
-    public function resolve(
-        EntityDefinition $definition,
-        string $root,
-        Field $field,
-        QueryBuilder $query,
-        Context $context,
-        EntityDefinitionQueryHelper $queryHelper
-    ): bool {
-        if (!$field instanceof TranslatedField) {
-            return false;
-        }
-
-        $alias = $root . '.' . $definition->getEntityName() . '_translation';
-        if ($query->hasState($alias)) {
-            return false;
-        }
-        $query->addState($alias);
-
-        $this->getJoinBuilder()->join($definition, JoinBuilderInterface::LEFT_JOIN, $field, $root, $alias, $query, $context);
-
-        return true;
     }
 
     private function getSelectTemplate(EntityDefinition $definition): string
@@ -140,18 +122,13 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
         return implode(', ', $select);
     }
 
-    private function getTranslationQuery(EntityDefinition $definition, string $on, QueryBuilder $queryBuilder, Context $context): QueryBuilder
+    private function getTranslationQuery(EntityDefinition $definition, EntityDefinition $translationDefinition, string $on, QueryBuilder $queryBuilder, Context $context, ?string $versionFieldName = null): QueryBuilder
     {
         $table = $definition->getEntityName() . '_translation';
 
         $query = new QueryBuilder($queryBuilder->getConnection());
 
-        $translation = $definition->getTranslationDefinition();
-        if (!$translation) {
-            throw new \RuntimeException(sprintf('Can not detect translation definition of entity %s', $definition->getEntityName()));
-        }
-
-        $select = $this->getSelectTemplate($translation);
+        $select = $this->getSelectTemplate($translationDefinition);
 
         // first language has to be the from part, in this case we have to use the system language to enforce we have a record
         $chain = array_reverse($context->getLanguageIdChain());
@@ -163,6 +140,11 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
 
         // used as join condition
         $query->addSelect($foreignKey);
+
+        if ($versionFieldName !== null) {
+            $versionKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $versionFieldName;
+            $query->addSelect($versionKey);
+        }
 
         // set first language as from part
         $query->addSelect(str_replace('#alias#', $firstAlias, $select));
@@ -177,8 +159,9 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
          * LEFT JOIN (
          *      SELECT
          *          `currency.translation`.currency_id,
-         *          `currency.translation`.`name` as `currency.translation.name`
-         *          `currency.translation.fallback_1`.`name` as `currency.translation.fallback_1.name`
+         *          `currency.translation`.currency_version_id, (optional)
+         *          `currency.translation`.`name` as `currency.translation.name`,
+         *          `currency.translation.fallback_1`.`name` as `currency.translation.fallback_1.name`,
          *          `currency.translation.fallback_2`.`name` as `currency.translation.fallback_2.name`
          *
          *      FROM currency_translation as `currency.translation`
@@ -208,6 +191,11 @@ class TranslationFieldResolver extends AbstractFieldResolver implements FieldRes
                 '#alias#' => EntityDefinitionQueryHelper::escape($alias),
                 '#firstAlias#' => EntityDefinitionQueryHelper::escape($firstAlias),
             ];
+
+            if ($versionFieldName !== null) {
+                $variables['#versionFieldName#'] = $versionFieldName;
+                $condition .= ' AND #firstAlias#.#versionFieldName# = #alias#.#versionFieldName#';
+            }
 
             $query->leftJoin(
                 EntityDefinitionQueryHelper::escape($firstAlias),

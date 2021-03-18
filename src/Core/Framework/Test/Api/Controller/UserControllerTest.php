@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserControllerTest extends TestCase
@@ -27,7 +26,7 @@ class UserControllerTest extends TestCase
      */
     public function testMe(): void
     {
-        $url = sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);
+        $url = '/api/_info/me';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -53,7 +52,7 @@ class UserControllerTest extends TestCase
             'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
 
-        $client->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/user', $data);
+        $client->request('POST', '/api/user', $data);
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
@@ -67,7 +66,7 @@ class UserControllerTest extends TestCase
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
-        $client->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/user', $data);
+        $client->request('POST', '/api/user', $data);
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
@@ -95,7 +94,7 @@ class UserControllerTest extends TestCase
             ->create([$user], Context::createDefaultContext());
 
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
-        $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $ids->get('user') . '/acl-roles/' . $ids->get('role-1'));
+        $client->request('DELETE', '/api/user/' . $ids->get('user') . '/acl-roles/' . $ids->get('role-1'));
 
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -132,7 +131,7 @@ class UserControllerTest extends TestCase
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
         $client->request(
             'PATCH',
-            '/api/v' . PlatformRequest::API_VERSION . '/user/' . $ids->get('user'),
+            '/api/user/' . $ids->get('user'),
             [
                 'aclRoles' => [
                     ['id' => $ids->get('role-1'), 'name' => 'role-1'],
@@ -175,7 +174,7 @@ class UserControllerTest extends TestCase
             ->create([$data], Context::createDefaultContext());
 
         $client = $this->getBrowser();
-        $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $id);
+        $client->request('DELETE', '/api/user/' . $id);
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -188,7 +187,7 @@ class UserControllerTest extends TestCase
 
         $this->kernelBrowser = null;
         $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
-        $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $id);
+        $client->request('DELETE', '/api/user/' . $id);
 
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -198,12 +197,12 @@ class UserControllerTest extends TestCase
     public function testSetOwnProfileWithPermission(): void
     {
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName']);
+        $this->getBrowser()->request('PATCH', '/api/_info/me', ['firstName' => 'newName']);
         $responsePatch = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), $responsePatch->getContent());
 
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+        $this->getBrowser()->request('GET', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
@@ -213,7 +212,7 @@ class UserControllerTest extends TestCase
     public function testSetOwnProfileNoPermission(): void
     {
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+        $this->getBrowser()->request('PATCH', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
@@ -224,7 +223,7 @@ class UserControllerTest extends TestCase
     public function testSetOwnProfilePermissionButNotAllowedField(): void
     {
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['title' => 'newTitle']);
+        $this->getBrowser()->request('PATCH', '/api/_info/me', ['title' => 'newTitle']);
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
@@ -252,7 +251,7 @@ class UserControllerTest extends TestCase
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
 
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName', 'id' => $ids->get('user')]);
+        $this->getBrowser()->request('PATCH', '/api/_info/me', ['firstName' => 'newName', 'id' => $ids->get('user')]);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());

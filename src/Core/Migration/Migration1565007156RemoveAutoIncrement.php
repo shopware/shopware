@@ -2,24 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1565007156RemoveAutoIncrement extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1565007156RemoveAutoIncrement extends \Shopware\Core\Migration\V6_3\Migration1565007156RemoveAutoIncrement
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1565007156;
-    }
-
-    public function update(Connection $connection): void
-    {
-        // implement update
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE product DROP COLUMN auto_increment');
-        $connection->executeUpdate('ALTER TABLE category DROP COLUMN auto_increment');
-    }
 }

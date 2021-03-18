@@ -344,11 +344,9 @@ Component.register('sw-entity-single-select', {
         },
 
         onInputSearchTerm(event) {
-            if (this.feature.isActive('FEATURE_NEXT_12108')) {
-                const value = event.target.value;
+            const value = event.target.value;
 
-                this.$emit('search-term-change', value);
-            }
+            this.$emit('search-term-change', value);
             this.debouncedSearch();
         },
 

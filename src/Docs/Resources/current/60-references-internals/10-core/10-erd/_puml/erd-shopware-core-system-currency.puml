@@ -29,13 +29,23 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    not_null(isoCode) string
    shortName translated
    name translated
-   not_null(decimalPrecision) int
    position int
    isSystemDefault bool
    customFields translated
+   not_null(itemRounding) cashRoundingConfig
+   not_null(totalRounding) cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
+}
+Table(ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition, "currency_country_rounding\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(currencyId) foreignKey
+   not_null(countryId) foreignKey
+   not_null(itemRounding) cashRoundingConfig
+   not_null(totalRounding) cashRoundingConfig
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
@@ -58,6 +68,8 @@ ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromoti
 }
 ForeignTable(ShopwareCoreContentProductExportProductExportDefinition, "product_export") {
 }
+ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
+}
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
@@ -70,5 +82,7 @@ ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelA
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreContentProductExportProductExportDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

@@ -2,7 +2,15 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 describe('Promotion: Test ACL privileges', () => {
+    before(() => {
+        cy.onlyOnFeature('FEATURE_NEXT_13810');
+    });
+
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -83,6 +91,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         cy.get(page.elements.smartBarHeader)
             .contains('Thunder Tuesday');
+        cy.get('#sw-field--promotion-name').should('be.visible');
         cy.get('#sw-field--promotion-name').should('have.value', 'Thunder Tuesday');
         cy.get('#sw-field--promotion-name').should('not.be.disabled');
 
@@ -112,6 +121,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('New promotion name');
     });

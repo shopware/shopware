@@ -2,15 +2,18 @@
 
 namespace Shopware\Storefront\Page\Checkout\Register;
 
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,50 +26,32 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutRegisterPageLoader
 {
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var AddressService
-     */
-    private $addressService;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private CartService $cartService;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private AbstractSalutationRoute $salutationRoute;
 
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
+    private AbstractCountryRoute $countryRoute;
 
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
+    private AbstractListAddressRoute $listAddressRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
-        AddressService $addressService,
+        AbstractListAddressRoute $listAddressRoute,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
         AbstractSalutationRoute $salutationRoute,
         AbstractCountryRoute $countryRoute
     ) {
         $this->genericLoader = $genericLoader;
-        $this->addressService = $addressService;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
         $this->salutationRoute = $salutationRoute;
         $this->countryRoute = $countryRoute;
+        $this->listAddressRoute = $listAddressRoute;
     }
 
     /**
@@ -92,7 +77,7 @@ class CheckoutRegisterPageLoader
 
         $addressId = $request->attributes->get('addressId');
         if ($addressId) {
-            $address = $this->addressService->getById((string) $addressId, $salesChannelContext);
+            $address = $this->getById((string) $addressId, $salesChannelContext);
             $page->setAddress($address);
         }
 
@@ -101,6 +86,30 @@ class CheckoutRegisterPageLoader
         );
 
         return $page;
+    }
+
+    private function getById(string $addressId, SalesChannelContext $context): CustomerAddressEntity
+    {
+        if (!Uuid::isValid($addressId)) {
+            throw new InvalidUuidException($addressId);
+        }
+
+        if ($context->getCustomer() === null) {
+            throw new CustomerNotLoggedInException();
+        }
+        $customer = $context->getCustomer();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $addressId));
+        $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
+
+        $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
+
+        if (!$address) {
+            throw new AddressNotFoundException($addressId);
+        }
+
+        return $address;
     }
 
     /**

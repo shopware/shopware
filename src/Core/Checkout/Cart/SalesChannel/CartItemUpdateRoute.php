@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -68,11 +69,12 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.update-lineitem", methods={"PATCH"})
+     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.update-lineitem", methods={"PATCH"})
      */
     public function change(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
-        foreach ($request->request->get('items', []) as $item) {
+        $itemsToUpdate = $request->request->get('items', []);
+        foreach ($itemsToUpdate as $item) {
             $this->lineItemFactory->update($cart, $item, $context);
         }
 
@@ -81,7 +83,8 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
 
-        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $request->request->get('items', []), $context));
+        $this->eventDispatcher->dispatch(new AfterLineItemQuantityChangedEvent($cart, $itemsToUpdate, $context));
+        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return new CartResponse($cart);
     }

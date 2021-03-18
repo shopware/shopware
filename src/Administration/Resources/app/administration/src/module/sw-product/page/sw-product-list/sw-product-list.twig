@@ -174,9 +174,17 @@
                     {% endblock %}
 
                     {% block sw_product_list_empty_state %}
-                        <sw-empty-state v-if="!isLoading && !total"
-                            :title="$tc('sw-product.list.messageEmpty')">
-                        </sw-empty-state>
+                        <template v-if="!isLoading && !total">
+                            <sw-empty-state
+                                v-if="filterCriteria.length"
+                                :title="$tc('sw-product.filters.messageEmptyTitle')"
+                                :subline="$tc('sw-product.filters.messageEmptySubline')">
+                            </sw-empty-state>
+                            <sw-empty-state
+                                v-else
+                                :title="$tc('sw-product.list.messageEmpty')">
+                            </sw-empty-state>
+                        </template>
                     {% endblock %}
 
                     {% block sw_product_list_grid_loader %}
@@ -211,13 +219,14 @@
                         </sw-sidebar-item>
                     {% endblock %}
 
-                    <sw-filter-panel
-                        v-if="feature.isActive('FEATURE_NEXT_9831')"
+                    <sw-sidebar-filter-panel
                         entity="product"
+                        :storeKey="storeKey"
                         @criteria-changed="updateCriteria"
+                        :activeFilterNumber="activeFilterNumber"
                         :filters="listFilters"
-                        :defaults="['active-filter']">
-                    </sw-filter-panel>
+                        :defaults="defaultFilters">
+                    </sw-sidebar-filter-panel>
                 </sw-sidebar>
             </template>
         {% endblock %}

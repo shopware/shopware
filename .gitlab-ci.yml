@@ -20,17 +20,16 @@ include:
     -   local: .gitlab/ci/split.yml
 
 default:
-    image: shopware/development:latest
+    image: shopware/development:7.4-composer-2
     before_script:
         - apt-install jq
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
-        - if [[ -d "development/" ]]; then zip -rq cache.zip development/; rm -rf development; fi
         - zip -rq platform.zip .
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
-        - git -C platform checkout master
-        - git -C platform checkout $CI_COMMIT_SHA
+        - git -C platform checkout --quiet trunk
+        - git -C platform checkout --quiet $CI_COMMIT_SHA
         - >
             if [ "$(git ls-remote origin $CI_DEV_BRANCH | wc -l)" == 1 ]; then
               echo "Development Branch: $CI_DEV_BRANCH (explicit)";
@@ -44,7 +43,7 @@ default:
                 echo "Development Branch: $CI_TARGET_BRANCH_NAME (implicit by merge request target branch)";
                 git checkout $CI_TARGET_BRANCH_NAME;
               else
-                echo "Development Branch: master (fallback)";
+                echo "Development Branch: trunk (fallback)";
               fi
             fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
@@ -72,27 +71,14 @@ default:
         - ./psh.phar cache --APP_ENV=test
         - chown -R application:application .
         - curl http://docker.vm:8000/admin
-        - failed="0"
-        - echo -e
-            '<?xml version="1.0" encoding="UTF-8"?>
-            <testsuites>
-            ' > build/artifacts/phpunit.junit.xml
-        - >
-            for TEST_SUITE in $TEST_SUITES; do
-                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
-                set -x
-                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE" || exit_code=$?
-                if [ $exit_code -ne "0" ]; then failed="1"; fi;
-                set +x
-                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
-            done
-        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
-        - if [ $failed -ne "0" ]; then exit 1; fi;
+        - if [[ $FEATURE_ALL == 'major' && $DEV_IMAGE =~ 'shopware/development:7.4' ]]; then COVERAGE=true; else COVERAGE=""; fi
+        - echo "Coverage $COVERAGE, feature $FEATURE_ALL"
+        - ./psh.phar unit --APP_ENV=test --PHP_TEST_COVERAGE="$COVERAGE"
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
         paths:
-            - development/build/artifacts/
+            - development/build/artifacts/phpunit.junit.xml
             - development/var/log/*
             - $CI_PROJECT_DIR/stdout.log
         reports:
@@ -106,7 +92,7 @@ PHP Unit:
         -   name: $MYSQL_IMAGE
             alias: mysql
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: elastic/elasticsearch:7.1.1
+        -   name: elastic/elasticsearch:7.3.0
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     rules:
@@ -119,7 +105,7 @@ PHP Unit:
           - "Migration*.php"
           - "**/Migration*.php"
           - "src/Core/Framework/Resources/config/packages/shopware.yaml"
-      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(master|6\..+)$/) && $EACH_MR == "true"'
+      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/) && $EACH_MR == "true"'
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         when: manual
@@ -127,23 +113,17 @@ PHP Unit:
     parallel:
         matrix:
             -   EACH_MR: 'true'
-                MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "minor", "major"]
-            -   MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE:
-                    - shopware/development:7.3
-                    - shopware/development:7.4
+                MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
-                    - mariadb:10.4
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: ["false", "minor", "major"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: ["shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2"]
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -151,7 +131,7 @@ Javascript analysis:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
@@ -159,28 +139,19 @@ Javascript analysis:
     timeout: 1h 00m
     before_script: []
     script:
-        - cd src/Administration/Resources
+        - cd src/Administration/Resources/app/administration
         - npm clean-install
-        - npm run lerna -- bootstrap
-        - cd app/administration
-        - PROJECT_ROOT=$(pwd) npm run lint:junit
+        - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
     artifacts:
         reports:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml
 
 PHP analysis:
-    image: shopware/development:7.2
-    cache:
-        key: "${CI_JOB_NAME}_2"
-        paths:
-            # disabled due to possible cache issue NEXT-12933
-            #- development/var/cache/cs_fixer/
-            - development/var/cache/phpstan/
-            - development/var/cache/psalm/
+    image: shopware/development:7.4-composer-2
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
     stage: unit
     services:
@@ -193,14 +164,11 @@ PHP analysis:
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        - cd ..
-        - if [[ -f "cache.zip" ]]; then unzip -q cache.zip; fi
-        - cd development
         - php dev-ops/analyze/generate-composer.php
         - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.php
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --diff-methods --show-info=false
+        - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --show-info=false
         - php bin/console changelog:check
     artifacts:
         reports:
@@ -210,7 +178,7 @@ Check generated Docs:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
     stage: unit
     services:
@@ -244,7 +212,7 @@ Administration (Jest):
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - pipelines
     stage: unit
@@ -265,7 +233,7 @@ Storefront (Jest):
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - pipelines
     stage: unit
@@ -290,7 +258,7 @@ Validate snippets:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/**/snippet/**/*.json
@@ -309,6 +277,7 @@ E2E:
     timeout: 2h 00m
     stage: E2E
     needs: [Javascript analysis]
+    dependencies: []
     services:
         -   name: docker:18.09.7-dind
             alias: docker
@@ -333,7 +302,8 @@ E2E:
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.2 --prefix $E2E_BASE_PATH
+        - npm install -g npm@6.14.11
+        - npm i @shopware-ag/e2e-testsuite-platform@2.0.0-beta.4 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"
@@ -403,15 +373,27 @@ E2E:
                 cypress_usePercy: 'false'
             -   SECTION: 'Storefront'
                 TEST_DIRECTORY: "cypress/integration/**/**/*"
-                BROWSER: ['firefox', 'chrome']
+                BROWSER: ['chrome']
+                FEATURE_ALL: ["false", "minor", "major"]
+                cypress_usePercy: 'false'
+            -   SECTION: 'Storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+                cypress_usePercy: 'false'
+            -   SECTION: 'Administration'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY:
                     - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
                     - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
-                BROWSER: ['firefox', 'chrome']
-                FEATURE_ALL: ["false", "minor", "major"]
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
                 TEST_DIRECTORY: "cypress/integration/visual/**/*"
@@ -425,7 +407,7 @@ Component Library:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Administration/**/*
@@ -441,8 +423,7 @@ Component Library:
         name: Component Library
         url: https://component-library.shopware.com
     script:
-        - npm install --prefix src/Administration/Resources/
-        - npm run --prefix src/Administration/Resources lerna -- bootstrap
+        - npm install --prefix src/Administration/Resources/app/administration
         - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
         - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
         - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
@@ -456,7 +437,7 @@ Generating docs:
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Docs/**/*
@@ -475,35 +456,16 @@ Generating docs:
         - ./psh.phar init-composer
         - php dev-ops/docs/scripts/convertMarkdownToDocs.php convert -i platform/src/Docs/Resources/current/ -o build/docs -u /shopware-platform-dev -s
 
-# Stage: security
-
-RIPS security:
-    stage: Security
-    image: php:7.3-alpine
-    before_script: []
-    allow_failure: true
-    only:
-        - master
-        - schedules
-    script:
-        - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
-        - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
-        - chmod 755 /usr/bin/rips-cli
-        - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
-    interruptible: false
-
 Symfony security check:
     stage: unit
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
-    variables:
-        PLATFORM_PACKAGES: ". src/Core src/Administration src/Docs src/Elasticsearch src/Recovery src/Storefront"
+    image: shopware/development:7.4-composer-2
     script:
         - composer install --no-interaction --no-scripts
         - curl --location --output local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
@@ -513,24 +475,19 @@ Symfony security check:
         - ./local-php-security-checker
         - composer install --no-interaction --no-scripts -d vendor/shopware/platform/src/Recovery
         - ./local-php-security-checker --path=vendor/shopware/platform/src/Recovery
-        - >
-            for PLATFORM_PACKAGE in $PLATFORM_PACKAGES; do
-                echo "Testing vendor/shopware/platform/$PLATFORM_PACKAGE"
-                composer install --no-interaction --no-scripts -d vendor/shopware/platform/$PLATFORM_PACKAGE
-                ./local-php-security-checker --path=vendor/shopware/platform/$PLATFORM_PACKAGE
-            done
 
 NPM security check:
     stage: Security
     only:
         refs:
             - merge_requests
-            - master
+            - trunk
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
+    image: shopware/development:7.4-composer-2
     before_script: []
+    dependencies: []
     allow_failure: true
     script:
         - cd src/Administration/Resources/app/administration
@@ -546,11 +503,11 @@ NPM security check:
 
 .Scrutinizer:
     stage: Deploy
-    image: php:7.3-alpine
+    image: php:7.4-alpine
     allow_failure: true
     before_script: []
     only:
-        - master
+        - trunk
         - /^6\..*$/
     dependencies:
         - PHPUnit (MySQL)
@@ -569,11 +526,13 @@ Upload Component Library:
     before_script: []
     only:
         refs:
-            - master
+            - trunk
             - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*
+        variables:
+            - $CI_COMMIT_REF_PROTECTED == "true"
     dependencies:
         - Component Library
     script:
@@ -582,36 +541,3 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
-
-Create Major MR:
-    stage: Deploy
-    image: curlimages/curl:7.72.0
-    rules:
-    -   if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "master"'
-    allow_failure: true
-    variables:
-        GIT_STRATEGY: none
-    before_script: []
-    script:
-        - >
-            CI_NEW_MASTER_MAJOR_BRANCH=master-for-major-$(echo $CI_COMMIT_TIMESTAMP | grep -oE '(^[^:]*)');
-            X_TOTAL=$(curl -I --header "Private-Token: $CREATE_MR_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/?state=opened&labels=Update%20Major" | grep 'x-total:');
-            if [ "$X_TOTAL" == "x-total: 0" ]; then
-                echo "There is no open merge request to major branch. Will create one";
-                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
-                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
-                echo "Create MR with Data:";
-                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
-                echo $DATA;
-                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
-                echo "MR Created";
-            else
-                echo "There is already an open merge request for master to major:"$X_TOTAL;
-                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
-                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
-                echo "Create MR in development with Data:";
-                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "WIP: [CI] Update major - '$CI_COMMIT_TIMESTAMP'", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::development", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
-                echo $DATA;
-                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
-                echo "MR Created";
-            fi

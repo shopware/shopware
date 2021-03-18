@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_10078) tag:v6.4.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
+ * @deprecated tag:v6.5.0 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix instead
  */
 class RatingMatrix extends Struct
 {
@@ -21,13 +21,6 @@ class RatingMatrix extends Struct
      * @var int
      */
     protected $totalReviewCount = 0;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.4.0 use $pointSum instead
-     */
-    protected $totalPoints = 0;
 
     /**
      * @var float
@@ -47,7 +40,6 @@ class RatingMatrix extends Struct
                 $rawRatingKey = (float) $rating->getKey();
 
                 if ($points === (int) round($rawRatingKey)) {
-                    $this->totalPoints += ($points * $rating->getCount());
                     $this->pointSum += ($rawRatingKey * $rating->getCount());
 
                     $this->totalReviewCount += $rating->getCount();
@@ -79,14 +71,6 @@ class RatingMatrix extends Struct
     public function getTotalReviewCount(): int
     {
         return $this->totalReviewCount;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 use the getPointSum() method instead
-     */
-    public function getTotalPoints(): int
-    {
-        return $this->totalPoints;
     }
 
     public function getPointSum(): float

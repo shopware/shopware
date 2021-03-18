@@ -42,7 +42,7 @@ class Price extends Struct
 
     public function getNet(): float
     {
-        return (float) $this->net;
+        return $this->net;
     }
 
     public function setNet(float $net): void
@@ -52,7 +52,7 @@ class Price extends Struct
 
     public function getGross(): float
     {
-        return (float) $this->gross;
+        return $this->gross;
     }
 
     public function setGross(float $gross): void

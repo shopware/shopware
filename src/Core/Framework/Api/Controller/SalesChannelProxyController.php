@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
@@ -34,6 +35,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -151,8 +153,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/v{version}/_proxy/sales-channel-api/{salesChannelId}/{_path}", name="api.proxy.sales-channel", requirements={"_path" = ".*"})
-     * @Route("/api/v{version}/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
+     * @Route("/api/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
      *
      * @throws InvalidSalesChannelIdException
      * @throws InconsistentCriteriaIdsException
@@ -170,19 +171,20 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.3.4.0")
-     * @Route("/api/v{version}/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
+     * @Route("/api/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
      *
      * @throws InvalidSalesChannelIdException
      * @throws InconsistentCriteriaIdsException
      */
-    public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context): Response
+    public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
-        $order = $this->orderRoute->order($cart, $salesChannelContext)->getOrder();
+        $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
 
         $orderId = $order->getId();
         $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
@@ -200,7 +202,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/v{version}/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
+     * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
      *
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidSalesChannelIdException
@@ -226,17 +228,18 @@ class SalesChannelProxyController extends AbstractController
 
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
-        $response = new Response();
-        $response->setContent(json_encode([
+        $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
-        ]));
+        ]);
+        $response = new Response();
+        $response->setContent($content ? $content : null);
 
         return $response;
     }
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/v{version}/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
+     * @Route("/api/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
      *
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidSalesChannelIdException
@@ -263,7 +266,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/v{version}/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
+     * @Route("/api/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
      */
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
@@ -282,7 +285,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/v{version}/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
+     * @Route("/api/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
      */
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
@@ -318,13 +321,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $this->getContextToken($request);
 
-        $prefix = '/sales-channel-api/';
-
-        if ($request->attributes->get('_route') === 'api.proxy.store-api') {
-            $prefix = '/store-api/';
-        }
-
-        $server = array_merge($request->server->all(), ['REQUEST_URI' => $prefix . $path]);
+        $server = array_merge($request->server->all(), ['REQUEST_URI' => '/store-api/' . $path]);
         $subrequest = $request->duplicate(null, null, [], null, null, $server);
 
         $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
@@ -360,11 +357,11 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        if (!$contextToken) {
+        if ($contextToken === null) {
             $contextToken = Random::getAlphanumericString(32);
         }
 
-        return (string) $contextToken;
+        return $contextToken;
     }
 
     private function clearRequestStackWithBackup(RequestStack $requestStack): array
@@ -392,10 +389,12 @@ class SalesChannelProxyController extends AbstractController
         $contextToken = $this->getContextToken($request);
 
         $salesChannelContext = $this->contextService->get(
-            $salesChannelId,
-            $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+            new SalesChannelContextServiceParameters(
+                $salesChannelId,
+                $contextToken,
+                $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+            )
         );
 
         return $salesChannelContext;

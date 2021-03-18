@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @internal (flag:FEATURE_NEXT_12032)
- */
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_sales_channel';
@@ -31,8 +28,7 @@ class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 
     public function since(): ?string
     {
-        // May insert correct since-value
-        return '6.3.5.0';
+        return '6.4.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -42,7 +38,6 @@ class LandingPageSalesChannelDefinition extends MappingEntityDefinition
             (new ReferenceVersionField(LandingPageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('landingPage', 'landing_page_id', LandingPageDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);

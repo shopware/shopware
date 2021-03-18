@@ -30,7 +30,6 @@ class ThemeSalesChannelDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('theme_id', 'themeId', ThemeDefinition::class))->addFlags(new Required()),
-
             new ManyToOneAssociationField('theme', 'theme_id', ThemeDefinition::class),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
         ]);

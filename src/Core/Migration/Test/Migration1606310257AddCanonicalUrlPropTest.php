@@ -31,9 +31,10 @@ class Migration1606310257AddCanonicalUrlPropTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->connection->rollBack();
         $this->prepare();
-
         $this->migration->update($this->connection);
+        $this->connection->beginTransaction();
 
         // check if migration ran successfully
         $canonicalProductColumnExists = $this->hasColumn('product', 'canonicalProduct');

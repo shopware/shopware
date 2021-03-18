@@ -54,7 +54,7 @@ class StoreLoginCommand extends Command
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password')
             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'User')
             ->addOption('host', 'g', InputOption::VALUE_OPTIONAL, 'License host')
-            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language', '')
+            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language')
         ;
     }
 
@@ -70,7 +70,7 @@ class StoreLoginCommand extends Command
         $shopwareId = $input->getOption('shopwareId');
         $password = $input->getOption('password');
         $user = $input->getOption('user');
-        $language = $input->getOption('language');
+        $language = (string) $input->getOption('language');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $user));

@@ -142,7 +142,7 @@ class CheckoutController extends StorefrontController
      * @throws MissingRequestParameterException
      * @throws OrderNotFoundException
      */
-    public function finishPage(Request $request, SalesChannelContext $context): Response
+    public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
         if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.checkout.register.page');
@@ -151,20 +151,17 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
-            // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
-            $this->addFlash(
-                'danger',
-                $this->trans(
-                    'checkout.finishPaymentFailed',
-                    [
-                        '%editOrderUrl%' => $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $request->get('orderId')]),
-                    ]
-                )
+            return $this->redirectToRoute(
+                'frontend.account.edit-order.page',
+                [
+                    'orderId' => $request->get('orderId'),
+                    'error-code' => 'CHECKOUT__UNKNOWN_ERROR',
+                ]
             );
         }
 
         if ($context->getCustomer()->getGuest() && $this->config->get('core.cart.logoutGuestAfterCheckout', $context->getSalesChannelId())) {
-            $this->logoutRoute->logout($context);
+            $this->logoutRoute->logout($context, $dataBag);
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);

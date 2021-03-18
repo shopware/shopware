@@ -2,6 +2,7 @@
 
 .sw-first-run-wizard-finish {
     text-align: center;
+    align-self: center;
 
     &__bubble {
         width: 72px;
@@ -19,7 +20,7 @@
         color: $color-emerald-500;
     }
 
-    .headline-success {
+    .headline {
         font-size: 18px;
         font-weight: 600;
         text-align: center;
@@ -27,7 +28,7 @@
         line-height: 25px;
     }
 
-    .message-success {
+    .message {
         font-size: 14px;
         font-weight: normal;
         text-align: center;

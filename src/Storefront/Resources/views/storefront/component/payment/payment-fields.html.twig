@@ -1,60 +1,43 @@
+{% set collapseTriggerLabels = {
+    collapseTriggerMoreLabel: "checkout.collapseTriggerMore"|trans|sw_sanitize,
+    collapseTriggerLessLabel: "checkout.collapseTriggerLess"|trans|sw_sanitize
+} %}
+
 {% block component_payment_methods %}
     <div class="payment-methods">
-        {% for payment in page.paymentMethods %}
+        {% block component_payment_method %}
+            {% for payment in page.paymentMethods[:visiblePaymentMethodsLimit] %}
+                {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+            {% endfor %}
 
-            {# @deprecated tag:v6.4.0.0 moved to new component/payment/payment-method.html.twig #}
-            {% block component_payment_method %}
-                <div class="payment-method">
-                    {% block component_payment_method_field %}
-                        <div class="payment-form-group form-group">
-                            {% block component_payment_method_control %}
-                                <div class="custom-control custom-radio payment-control">
-                                    {% block component_payment_method_input %}
-                                        <input type="radio"
-                                               id="paymentMethod{{ loop.index }}"
-                                               name="paymentMethodId"
-                                               value="{{ payment.id }}"
-                                               {% if payment.id is same as(defaultPaymentMethodId) %}checked="checked"{% endif %}
-                                               class="custom-control-input payment-method-input">
-                                    {% endblock %}
+            {% block component_payment_method_collapse %}
+                {% if page.paymentMethods | length > visiblePaymentMethodsLimit and visiblePaymentMethodsLimit is not same as(null) %}
+                    <div class="collapse">
+                        {% for payment in page.paymentMethods[visiblePaymentMethodsLimit:] %}
+                            {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+                        {% endfor %}
+                    </div>
 
-                                    {% block component_payment_method_label %}
-                                        <label class="custom-control-label payment-method-label"
-                                               for="paymentMethod{{ loop.index }}">
-                                            {% block component_payment_method_image %}
-                                                {% if payment.media %}
-                                                    {% sw_thumbnails 'payment-method-image-thumbnails' with {
-                                                        media: payment.media,
-                                                        sizes: {
-                                                            'default': '100px'
-                                                        },
-                                                        attributes: {
-                                                            'class': 'payment-method-image',
-                                                            'alt': (payment.media.translated.alt ?: payment.translated.name),
-                                                            'title': (payment.media.translated.title ?: payment.translated.name)
-                                                        }
-                                                    } %}
-                                                {% endif %}
-                                            {% endblock %}
-
-                                            {% block component_payment_method_description %}
-                                                <div class="payment-method-description">
-                                                    <strong>{{ payment.translated.name }}</strong>
-                                                    {% if payment.translated.description %}
-                                                        <p>{{ payment.translated.description|raw }}</p>
-                                                    {% endif %}
-                                                </div>
-                                            {% endblock %}
-                                        </label>
-                                    {% endblock %}
-                                </div>
+                    {% block component_payment_method_collapse_trigger %}
+                        <div class="btn btn-link confirm-checkout-collapse-trigger"
+                             data-collapse-checkout-confirm-methods="true"
+                             data-collapse-checkout-confirm-methods-options='{{ collapseTriggerLabels|json_encode }}'>
+                            <span class="confirm-checkout-collapse-trigger-label">
+                                {% block component_payment_method_collapse_trigger_label %}
+                                    {{ collapseTriggerLabels.collapseTriggerMoreLabel }}
+                                {% endblock %}
+                            </span>
+                            {% block component_payment_method_collapse_trigger_icon %}
+                                {% sw_icon 'arrow-down' style {
+                                    'class': 'confirm-checkout-chevron',
+                                    'size': 'xs',
+                                    'pack' : 'solid'
+                                } %}
                             {% endblock %}
                         </div>
                     {% endblock %}
-
-                    {% block component_payment_fieldset_template %}{% endblock %}
-                </div>
+                {% endif %}
             {% endblock %}
-        {% endfor %}
+        {% endblock %}
     </div>
 {% endblock %}

@@ -7,6 +7,7 @@
                 {% block sw_product_detail_specifications_measures_packaging_content %}
                     <sw-product-packaging-form
                         v-if="!isLoading"
+                        :showSettingPackaging="modeSettingsVisible.showSettingPackaging"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-packaging-form>
                 {% endblock %}
@@ -14,12 +15,15 @@
         {% endblock %}
 
         {% block sw_product_detail_specifications_properties %}
-            <sw-product-detail-properties>
+            <sw-product-detail-properties
+                v-if="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showPropertiesCard">
             </sw-product-detail-properties>
         {% endblock %}
 
         {% block sw_product_detail_specifications_essential_characteristics %}
             <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showCharacteristicsCard"
+                class="sw-product-detail-specification__essential-characteristics"
                 :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_specifications_essential_characteristics_content %}
@@ -32,10 +36,19 @@
         {% endblock %}
 
         {% block sw_product_detail_specifications_custom_products %}
+            <div
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showCustomProduct"
+                class="sw-product-detail-specification__custom-product">
+                {% block sw_product_detail_specifications_custom_products_content %}
+                {% endblock %}
+            </div>
         {% endblock %}
+
 
         {% block sw_product_detail_specifications_custom_fields %}
             <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showCustomFieldCard"
+                class="sw-product-detail-specification__custom-fields"
                 :title="$tc('sw-product.specifications.cardTitleCustomFields')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_specifications_custom_fields_content %}

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
@@ -133,6 +134,6 @@ class IntFieldTest extends TestCase
     {
         $field = new IntField('count', 'count');
 
-        return $required ? $field->addFlags(new Required()) : $field;
+        return $required ? $field->addFlags(new ApiAware(), new Required()) : $field;
     }
 }

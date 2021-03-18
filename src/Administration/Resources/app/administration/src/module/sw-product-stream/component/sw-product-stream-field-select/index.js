@@ -38,7 +38,7 @@ Component.register('sw-product-stream-field-select', {
     computed: {
         options() {
             const entityFields = Object.keys(this.definition.properties).map((property) => {
-                if (this.conditionDataProviderService.isPropertyInBlacklist(this.definition.entity, property)) {
+                if (!this.conditionDataProviderService.isPropertyInAllowList(this.definition.entity, property)) {
                     return null;
                 }
 

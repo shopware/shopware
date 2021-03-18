@@ -10,39 +10,30 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;
-    private const SITEMAP_NAME_PATTERN = 'sitemap-%d.xml.gz';
+    private const SITEMAP_NAME_PATTERN = 'sitemap%s-%d.xml.gz';
 
-    private $tmpFiles = [];
+    private array $tmpFiles = [];
 
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
     /**
      * @var resource|false
      */
     private $handle;
 
-    /**
-     * @var int
-     */
-    private $index = 1;
+    private int $index = 1;
 
-    /**
-     * @var int
-     */
-    private $urlCount = 0;
+    private int $urlCount = 0;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    public function __construct(FilesystemInterface $filesystem, SalesChannelContext $context)
+    private ?string $domainName = null;
+
+    public function __construct(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null)
     {
-        $this->filesystem = $filesystem;
+        $this->setDomainName($domain);
 
+        $this->filesystem = $filesystem;
         $filePath = $this->getTmpFilePath($context);
         $this->handle = gzopen($filePath, 'ab');
         $this->printHeader();
@@ -76,9 +67,12 @@ class SitemapHandle implements SitemapHandleInterface
         }
     }
 
-    public function finish(): void
+    public function finish(?bool $cleanUp = true): void
     {
-        $this->cleanUp();
+        if ($cleanUp) {
+            $this->cleanUp();
+        }
+
         if (\is_resource($this->handle)) {
             $this->printFooter();
             gzclose($this->handle);
@@ -112,7 +106,11 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getFileName(SalesChannelContext $salesChannelContext, ?int $index = null): string
     {
-        return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
+        if ($this->domainName === null) {
+            return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, null, $index ?? $this->index);
+        }
+
+        return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, '-' . $this->domainName, $index ?? $this->index);
     }
 
     private function printHeader(): void
@@ -137,5 +135,24 @@ class SitemapHandle implements SitemapHandleInterface
         foreach ($files as $file) {
             $this->filesystem->delete($file['path']);
         }
+    }
+
+    private function setDomainName(?string $domain = null): void
+    {
+        if ($domain === null) {
+            return;
+        }
+
+        $host = parse_url($domain, PHP_URL_HOST);
+        if ($host) {
+            $host = str_replace('.', '-', $host);
+        }
+
+        $path = parse_url($domain, PHP_URL_PATH);
+        if ($path) {
+            $path = str_replace('/', '-', $path);
+        }
+
+        $this->domainName = $host . $path;
     }
 }

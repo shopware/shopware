@@ -2,22 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1587111506AddPausedScheduleToProductExport extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1587111506AddPausedScheduleToProductExport extends \Shopware\Core\Migration\V6_3\Migration1587111506AddPausedScheduleToProductExport
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1587111506;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE product_export ADD COLUMN paused_schedule TINYINT(1) NULL DEFAULT \'0\'');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

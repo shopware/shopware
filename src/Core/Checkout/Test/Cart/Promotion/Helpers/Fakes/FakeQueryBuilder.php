@@ -7,7 +7,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 
 class FakeQueryBuilder extends QueryBuilder
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $dbRows = [];
 
     public function __construct(Connection $connection, array $dbRows)

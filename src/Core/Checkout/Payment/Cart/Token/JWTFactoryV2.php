@@ -2,48 +2,41 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key;
-use League\OAuth2\Server\CryptKey;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\UnencryptedToken;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
-     * @var CryptKey
+     * @var Configuration
      */
-    protected $privateKey;
+    protected $configuration;
 
-    /**
-     * @param Key|CryptKey|string $privateKey
-     */
-    public function __construct($privateKey)
+    public function __construct(Configuration $configuration)
     {
-        if (!$privateKey instanceof CryptKey) {
-            $privateKey = new CryptKey($privateKey);
-        }
-
-        $this->privateKey = $privateKey;
+        $this->configuration = $configuration;
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
     {
-        $jwtToken = (new Builder())
-            ->setId(Uuid::randomHex(), true)
-            ->setIssuedAt(time())
-            ->setNotBefore(time())
-            ->setExpiration(time() + $tokenStruct->getExpires())
-            ->setSubject($tokenStruct->getTransactionId())
-            ->set('pmi', $tokenStruct->getPaymentMethodId())
-            ->set('ful', $tokenStruct->getFinishUrl())
-            ->set('eul', $tokenStruct->getErrorUrl())
-            ->sign(new Sha256(), new Key($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase()))
-            ->getToken();
+        $expires = (new \DateTimeImmutable('@' . time()))->modify(
+            \sprintf('+%d seconds', $tokenStruct->getExpires())
+        );
 
-        return (string) $jwtToken;
+        $jwtToken = $this->configuration->builder()
+            ->identifiedBy(Uuid::randomHex())
+            ->issuedAt(new \DateTimeImmutable('@' . time()))
+            ->canOnlyBeUsedAfter(new \DateTimeImmutable('@' . time()))
+            ->expiresAt($expires)
+            ->relatedTo($tokenStruct->getTransactionId() ?? '')
+            ->withClaim('pmi', $tokenStruct->getPaymentMethodId())
+            ->withClaim('ful', $tokenStruct->getFinishUrl())
+            ->withClaim('eul', $tokenStruct->getErrorUrl())
+            ->getToken($this->configuration->signer(), $this->configuration->signingKey());
+
+        return $jwtToken->toString();
     }
 
     /**
@@ -52,30 +45,30 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     public function parseToken(string $token): TokenStruct
     {
         try {
-            $jwtToken = (new Parser())->parse($token);
-        } catch (\InvalidArgumentException $e) {
+            /** @var UnencryptedToken $jwtToken */
+            $jwtToken = $this->configuration->parser()->parse($token);
+        } catch (\Throwable $e) {
             throw new InvalidTokenException($token);
         }
 
-        if (!$jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath())) {
+        if (!$this->configuration->validator()->validate($jwtToken, ...$this->configuration->validationConstraints())) {
             throw new InvalidTokenException($token);
         }
-        $errorUrl = null;
-        if ($jwtToken->hasClaim('eul')) {
-            $errorUrl = $jwtToken->getClaim('eul');
-        }
 
-        $tokenStruct = new TokenStruct(
-            $jwtToken->getClaim('jti'),
+        $errorUrl = $jwtToken->claims()->get('eul');
+
+        /** @var \DateTimeImmutable $expires */
+        $expires = $jwtToken->claims()->get('exp');
+
+        return new TokenStruct(
+            $jwtToken->claims()->get('jti'),
             $token,
-            $jwtToken->getClaim('pmi'),
-            $jwtToken->getClaim('sub'),
-            $jwtToken->getClaim('ful'),
-            $jwtToken->getClaim('exp'),
+            $jwtToken->claims()->get('pmi'),
+            $jwtToken->claims()->get('sub'),
+            $jwtToken->claims()->get('ful'),
+            $expires->getTimestamp(),
             $errorUrl
         );
-
-        return $tokenStruct;
     }
 
     public function invalidateToken(string $token): bool

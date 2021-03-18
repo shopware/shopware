@@ -18,13 +18,19 @@ class MediaEntityTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
-    /** @var EntityRepository */
+    /**
+     * @var EntityRepository
+     */
     private $repository;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
     protected function setUp(): void
@@ -61,6 +67,20 @@ class MediaEntityTest extends TestCase
         static::assertEquals(MediaThumbnailEntity::class, \get_class($persistedThumbnail));
         static::assertEquals(200, $persistedThumbnail->getWidth());
         static::assertEquals(200, $persistedThumbnail->getHeight());
+    }
+
+    public function testDeleteMediaWithTags(): void
+    {
+        $media = $this->getEmptyMedia();
+
+        $this->repository->update([
+            [
+                'id' => $media->getId(),
+                'tags' => [['name' => 'test tag']],
+            ],
+        ], $this->context);
+
+        $this->repository->delete([['id' => $media->getId()]], $this->context);
     }
 
     private function getIdCriteria(string $mediaId): Criteria

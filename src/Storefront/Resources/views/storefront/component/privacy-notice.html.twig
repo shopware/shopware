@@ -5,7 +5,7 @@
         {% endblock %}
 
         {% block component_privacy_dpi %}
-            {% if shopware.config.core.loginRegistration.requireDataProtectionCheckbox == 1 %}
+            {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
                 <div class="custom-control custom-checkbox data-protection-information">
                     {% block component_privacy_dpi_checkbox %}
                         <input type="checkbox"
@@ -21,7 +21,7 @@
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
                             {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
                             })|raw }}
 
                             {{ "general.required"|trans|sw_sanitize }}
@@ -33,7 +33,7 @@
                     {% block component_privacy_label %}
                         <label>
                             {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
                             })|raw }}
                         </label>
                     {% endblock %}

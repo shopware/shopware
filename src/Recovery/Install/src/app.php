@@ -25,7 +25,6 @@ use Shopware\Recovery\Install\Struct\AdminUser;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Install\Struct\Shop;
 use Slim\Container;
-use Symfony\Component\Dotenv\Dotenv;
 
 if (empty($_SESSION)) {
     $sessionPath = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
@@ -93,6 +92,9 @@ $localeForLanguage = static function (string $language): string {
 };
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $localeForLanguage) {
+    // load .env and .env.defaults
+    $container->offsetGet('env.load')();
+
     $selectLanguage = function (array $allowedLanguages): string {
         /**
          * Load language file
@@ -137,10 +139,6 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
                 $_SESSION['parameters'][$key] = $value;
             }
         }
-    }
-
-    if (is_readable($container->offsetGet('env.path'))) {
-        (new Dotenv())->load($container->offsetGet('env.path'));
     }
 
     $allowedLanguages = $container->offsetGet('config')['languages'];
@@ -572,7 +570,10 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
     $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
-    $coreMigrations = $migrationCollectionLoader->collect('core');
+    $coreMigrations = $migrationCollectionLoader->collectAllForVersion(
+        $container->offsetGet('shopware.version'),
+        MigrationCollectionLoader::VERSION_SELECTION_ALL
+    );
 
     $resultMapper = new ResultMapper();
 

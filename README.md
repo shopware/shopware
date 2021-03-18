@@ -22,8 +22,8 @@
 </p>
 
 Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org).
-It's the successor of the very successful e-commerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads.
-Shopware 6 is focused on an api-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
+It's the successor of the very successful ecommerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800,000 downloads.
+Shopware 6 is focused on an API-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
 
 If you like Shopware 6, give us a star on Github ★
 
@@ -140,7 +140,7 @@ Execute the installer:
 
 This may take a while since many caches need to be generated on first execution, but only on first execution.
 
-To be sure that the installation succeeded, just open the following url in your favorite browser: [localhost:8000](http://localhost:8000/)
+To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
 
 [Now you're all set to start developing your first plugin.](https://docs.shopware.com/en/shopware-platform-dev-en/internals/plugins/plugin-quick-start?category=shopware-platform-dev-en/internals/plugins)
 
@@ -217,7 +217,7 @@ Do you want to become a Shopware expert or get a sneak peek into the software? F
  
 ### Shopware Community Day
 
-Held annually, the Shopware Community Day informs eCommerce enthusiasts from across Europe about the current state - and future - of digital commerce.
+Held annually, the Shopware Community Day informs ecommerce enthusiasts from across Europe about the current state - and future - of digital commerce.
  
 [scd.shopware.com](https://scd.shopware.com)
 
@@ -225,7 +225,7 @@ Held annually, the Shopware Community Day informs eCommerce enthusiasts from acr
 
 First of all - Every contribution is meaningful, so thank you for participating.
 
-You want to participate in the development of shopware? There are many ways to contribute:
+You want to participate in the development of Shopware? There are many ways to contribute:
 
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)

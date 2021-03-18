@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
 import 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-search-searchable-content'), {
@@ -10,6 +10,30 @@ function createWrapper() {
 
         mocks: {
             $tc: key => key
+        },
+
+        propsData: {
+            searchConfigId: ''
+        },
+
+        provide: {
+            repositoryFactory: {
+                create() {
+                    return Promise.resolve();
+                }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
+            },
+            feature: {
+                isActive: () => true
+            }
         },
 
         stubs: {
@@ -21,7 +45,8 @@ function createWrapper() {
             'sw-icon': true,
             'sw-tabs': true,
             'sw-settings-search-example-modal': Shopware.Component.build('sw-settings-search-example-modal'),
-            'sw-modal': true
+            'sw-modal': true,
+            'router-link': true
         }
     });
 }
@@ -35,7 +60,9 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
     });
 
     it('Should be show example modal when the link was clicked ', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
         await wrapper.vm.$nextTick();
 
         const linkElement = wrapper.find('.sw-settings-search__searchable-content-show-example-link');
@@ -46,5 +73,30 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         await wrapper.vm.onShowExampleModal();
         const modalElement = wrapper.find('.sw-settings-search-example-modal');
         expect(modalElement.isVisible()).toBe(true);
+    });
+
+    it('Should not able to reset to default without editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');
+        expect(resetButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('Should able to reset to default if having editor privilege', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');
+
+        wrapper.vm.isEnabledReset = false;
+        await wrapper.vm.$nextTick();
+
+        expect(resetButton.isVisible()).toBe(true);
+        expect(resetButton.attributes().disabled).toBeFalsy();
     });
 });

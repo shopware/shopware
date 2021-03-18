@@ -16,7 +16,7 @@ class CustomerValueResolver implements ArgumentValueResolverInterface
         return $argument->getType() === CustomerEntity::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
 

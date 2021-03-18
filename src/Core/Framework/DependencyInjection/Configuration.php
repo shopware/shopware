@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createMediaSection())
                 ->append($this->createFeatureSection())
                 ->append($this->createLoggerSection())
+                ->append($this->createCacheSection())
             ->end();
 
         return $treeBuilder;
@@ -112,9 +113,10 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('api'))->getRootNode();
         $rootNode
             ->children()
-            ->arrayNode('allowed_limits')
-                /* @deprecated tag:v6.4.0 - The `shopware.api.allowed_limits` config will be fully removed */
-                ->setDeprecated('The "%node%" is deprecated and will be fully removed with v6.4.0')
+            ->arrayNode('store')
+                ->children()
+                ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                ->end()
             ->end()
             ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
@@ -149,7 +151,7 @@ class Configuration implements ConfigurationInterface
                     ->prototype('scalar')->end()
                 ->end()
                 ->integerNode('poll_interval')
-                    ->defaultValue(30)
+                    ->defaultValue(20)
                 ->end()
                 ->booleanNode('enable_admin_worker')
                     ->defaultValue(true)
@@ -287,6 +289,54 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->integerNode('file_rotation_count')
                     ->defaultValue(14)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createCacheSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('cache'))->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('invalidation')
+                    ->children()
+                        ->integerNode('delay')
+                            ->defaultValue(0)
+                        ->end()
+                        ->arrayNode('http_cache')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('product_listing_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('product_detail_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('product_search_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('product_suggest_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('payment_method_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('shipping_method_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('navigation_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('language_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('currency_route')
+                            ->prototype('scalar')->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

@@ -18,15 +18,11 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
     it('@rule: assign rule to shipping costs and verify assignment', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12289')) {
-                return;
-            }
-
             const page = new RulePageObject();
 
             cy.server();
             cy.route({
-                url: '/api/v*/shipping-method/*',
+                url: '*/shipping-method/*',
                 method: 'patch'
             }).as('saveShippingMethod');
 

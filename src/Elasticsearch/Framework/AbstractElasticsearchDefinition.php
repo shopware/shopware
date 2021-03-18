@@ -7,22 +7,13 @@ use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
 abstract class AbstractElasticsearchDefinition
 {
-    /**
-     * @var EntityMapper
-     */
-    protected $mapper;
+    protected EntityMapper $mapper;
 
     public function __construct(EntityMapper $mapper)
     {
@@ -30,6 +21,11 @@ abstract class AbstractElasticsearchDefinition
     }
 
     abstract public function getEntityDefinition(): EntityDefinition;
+
+    public function fetch(array $ids, Context $context): array
+    {
+        return [];
+    }
 
     public function getMapping(Context $context): array
     {
@@ -41,34 +37,24 @@ abstract class AbstractElasticsearchDefinition
         ];
     }
 
-    /**
-     * This function defines which data should be selected and provided to the elasticsearch server
-     */
-    public function extendCriteria(Criteria $criteria): void
+    public function extendDocuments(array $documents, Context $context): array
     {
-    }
-
-    /**
-     * Allows to add none database specific data to the entities.
-     * This function is typically used to build elasticsearch completion fields,
-     * n-grams or other calculated fields for the search engine
-     */
-    public function extendEntities(EntityCollection $collection): EntityCollection
-    {
-        return $collection;
+        return $documents;
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         $bool = new BoolQuery();
 
+        $term = (string) $criteria->getTerm();
+
         $queries = [
-            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 10]), // boosted word matches
-            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 5]), // whole word matches
-            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
-            new MatchPhrasePrefixQuery('fullText', $criteria->getTerm(), ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
-            new WildcardQuery('fullText', '*' . mb_strtolower($criteria->getTerm()) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
-            new MatchQuery('fullText.ngram', $criteria->getTerm()),
+            new MatchQuery('fullTextBoosted', $term, ['boost' => 10]), // boosted word matches
+            new MatchQuery('fullText', $term, ['boost' => 5]), // whole word matches
+            new MatchQuery('fullText', $term, ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
+            new MatchPhrasePrefixQuery('fullText', $term, ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
+            new WildcardQuery('fullText', '*' . mb_strtolower($term) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
+            new MatchQuery('fullText.ngram', $term),
         ];
 
         foreach ($queries as $query) {
@@ -80,44 +66,15 @@ abstract class AbstractElasticsearchDefinition
         return $bool;
     }
 
-    public function buildFullText(Entity $entity): FullText
+    protected function stripText(string $text): string
     {
-        $fullText = [];
-        $boosted = [];
+        // Remove all html elements to save up space
+        $text = strip_tags($text);
 
-        foreach ($this->getEntityDefinition()->getFields() as $field) {
-            $real = $field;
-
-            $isTranslated = $field instanceof TranslatedField;
-
-            if ($isTranslated) {
-                $real = EntityDefinitionQueryHelper::getTranslatedField($this->getEntityDefinition(), $field);
-            }
-
-            if (!$real instanceof StringField) {
-                continue;
-            }
-
-            try {
-                if ($isTranslated) {
-                    $value = $entity->getTranslation($real->getPropertyName());
-                } else {
-                    $value = $entity->get($real->getPropertyName());
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-
-            $fullText[] = $value;
-
-            if ($isTranslated || $field instanceof NumberRangeField) {
-                $boosted[] = $value;
-            }
+        if (mb_strlen($text) >= 32766) {
+            return mb_substr($text, 0, 32766);
         }
 
-        $fullText = array_filter($fullText);
-        $boosted = array_filter($boosted);
-
-        return new FullText(implode(' ', $fullText), implode(' ', $boosted));
+        return $text;
     }
 }

@@ -2,9 +2,8 @@
     {% parent %}
 
     {% block sw_bought_extension_card_deactivation_modal %}
-        <sw-extension-deactivation-modal
-            v-if="showDeactivationModal"
-            :extensionName="extension.label"
+        <sw-extension-deactivation-modal v-if="showDeactivationModal"
+            :extensionName="label"
             :isLicensed="license !== null"
             :isLoading="isLoading"
             @modal-close="closeDeactivationModal"
@@ -36,13 +35,13 @@
 {% block sw_extension_card_base_context_menu_actions %}
 
     {% block sw_bought_extension_card_context_menu_open_detail %}
-        <sw-context-menu-item v-if="detailLink" :routerLink="detailLink">
+        <sw-context-menu-item class="sw-extension-card-bought__detail-link" v-if="detailLink" :routerLink="detailLink">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
         </sw-context-menu-item>
     {% endblock %}
 
     {% block sw_bought_extension_card_context_menu_rate %}
-        <sw-context-menu-item v-if="isInstalled" @click="openRatingModal">
+        <sw-context-menu-item class="sw-extension-card-bought__rate-link" v-if="isInstalled && extension.storeLicense" @click="openRatingModal">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
         </sw-context-menu-item>
     {% endblock %}
@@ -54,10 +53,23 @@
     {% parent %}
 
     {% block sw_bought_extension_card_rating_modal %}
-        <sw-extension-rating-modal
-            v-if="showRatingModal"
+        <sw-extension-rating-modal v-if="showRatingModal"
             :extension="licensedExtension"
             @modal-close="closeRatingModal">
         </sw-extension-rating-modal>
+    {% endblock %}
+
+    {% block sw_bought_extension_card_installation_failed_modal %}
+        <sw-modal v-if="showExtensionInstallationFailedModal"
+                  :title="extension.label"
+                  variant="small"
+                  @modal-close="closeInstallationFailedNotification">
+            {% block sw_bought_extension_card_installation_failed_modal %}
+                <sw-extension-adding-failed
+                    :extensionName="extension.name"
+                    @close="closeInstallationFailedNotification">
+                </sw-extension-adding-failed>
+            {% endblock %}
+        </sw-modal>
     {% endblock %}
 {% endblock %}

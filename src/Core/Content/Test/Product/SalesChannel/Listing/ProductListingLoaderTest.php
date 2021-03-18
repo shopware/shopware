@@ -27,22 +27,34 @@ class ProductListingLoaderTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $repository;
 
-    /** @var ProductListingLoader */
+    /**
+     * @var ProductListingLoader
+     */
     private $productListingLoader;
 
-    /** @var SalesChannelContext */
+    /**
+     * @var SalesChannelContext
+     */
     private $salesChannelContext;
 
-    /** @var SystemConfigService */
+    /**
+     * @var SystemConfigService
+     */
     private $systemConfigService;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $productId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $mainVariantId;
 
     private $optionIds = [];
@@ -236,50 +248,6 @@ class ProductListingLoaderTest extends TestCase
         foreach ($listing as $variant) {
             static::assertTrue($variant->hasExtension('search'));
         }
-    }
-
-    /**
-     * @dataProvider groupedFlagProvider
-     * @group slow
-     */
-    public function testGroupedFlag(array $explode, bool $mainVariant, bool $grouped): void
-    {
-        $this->salesChannelContext = $this->createSalesChannelContext();
-
-        $this->createProduct($explode, $mainVariant);
-        $listing = $this->fetchListing();
-
-        static::assertGreaterThanOrEqual(1, $listing->count());
-
-        foreach ($listing as $product) {
-            static::assertEquals($grouped, $product->isGrouped());
-        }
-    }
-
-    public function groupedFlagProvider()
-    {
-        return [
-            'Test main variant is not grouped' => [
-                [],
-                true,
-                false,
-            ],
-            'Test grouped flag with random variant' => [
-                [],
-                false,
-                true,
-            ],
-            'Test grouped flag with one group' => [
-                ['color'],
-                false,
-                true,
-            ],
-            'Test grouped flag with all group' => [
-                ['color', 'size'],
-                false,
-                false,
-            ],
-        ];
     }
 
     private function fetchListing(): EntitySearchResult

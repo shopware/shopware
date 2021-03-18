@@ -25,13 +25,16 @@ import './component/sw-product-cross-selling-form';
 import './component/sw-product-variant-modal';
 import './component/sw-product-cross-selling-assignment';
 import './component/sw-product-layout-assignment';
+import './component/sw-product-settings-mode';
 import './view/sw-product-detail-base';
 import './view/sw-product-detail-specifications';
 import './view/sw-product-detail-context-prices';
 import './view/sw-product-detail-properties';
 import './view/sw-product-detail-variants';
 import './view/sw-product-detail-layout';
+import './view/sw-product-detail-seo';
 import './view/sw-product-detail-cross-selling';
+import './view/sw-product-detail-reviews';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './acl';
@@ -149,9 +152,25 @@ Module.register('sw-product', {
                         privilege: 'product.viewer'
                     }
                 },
+                seo: {
+                    component: 'sw-product-detail-seo',
+                    path: 'seo',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
+                    }
+                },
                 crossSelling: {
                     component: 'sw-product-detail-cross-selling',
                     path: 'cross-selling',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
+                    }
+                },
+                reviews: {
+                    component: 'sw-product-detail-reviews',
+                    path: 'reviews',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer'

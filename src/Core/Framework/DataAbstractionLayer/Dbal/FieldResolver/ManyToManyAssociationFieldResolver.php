@@ -4,45 +4,25 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 
 /**
  * @internal
  */
-class ManyToManyAssociationFieldResolver extends AbstractFieldResolver implements FieldResolverInterface
+class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @deprecated tag:v6.4.0 - will be removed
-     */
-    private $joinBuilder;
-
     /**
      * @var EntityDefinitionQueryHelper
      */
     private $queryHelper;
 
-    public function __construct(
-        JoinBuilderInterface $joinBuilder, // @deprecated tag:v6.4.0 - Will be removed
-        EntityDefinitionQueryHelper $queryHelper
-    ) {
-        $this->joinBuilder = $joinBuilder;
-        $this->queryHelper = $queryHelper;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - will be removed
-     */
-    public function getJoinBuilder(): JoinBuilderInterface
+    public function __construct(EntityDefinitionQueryHelper $queryHelper)
     {
-        return $this->joinBuilder;
+        $this->queryHelper = $queryHelper;
     }
 
     public function join(FieldResolverContext $context): string
@@ -105,56 +85,6 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver implement
         return $alias;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - will be removed
-     */
-    public function resolve(
-        EntityDefinition $definition,
-        string $root,
-        Field $field,
-        QueryBuilder $query,
-        Context $context,
-        EntityDefinitionQueryHelper $queryHelper
-    ): bool {
-        if (!$field instanceof ManyToManyAssociationField) {
-            return false;
-        }
-
-        $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
-
-        $alias = $root . '.' . $field->getPropertyName();
-        if ($query->hasState($alias)) {
-            return true;
-        }
-        $query->addState($alias);
-
-        $this->getJoinBuilder()->join(
-            $definition,
-            JoinBuilderInterface::LEFT_JOIN,
-            $field,
-            $root,
-            $alias,
-            $query,
-            $context
-        );
-
-        $reference = $field->getToManyReferenceDefinition();
-        if ($definition->getClass() === $reference->getClass()) {
-            return true;
-        }
-
-        if (!$reference->isInheritanceAware() || !$context->considerInheritance()) {
-            return true;
-        }
-
-        /** @var ManyToOneAssociationField $parent */
-        $parent = $reference->getFields()->get('parent');
-
-        $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
-
-        return true;
-    }
-
     private function buildMappingVersionWhere(ManyToManyAssociationField $association, EntityDefinition $definition): string
     {
         if (!$definition->isVersionAware()) {
@@ -177,6 +107,7 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver implement
         return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($association->getLocalField());
     }
 
+    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     private function buildRuleWhere(FieldResolverContext $context, EntityDefinition $definition, string $alias): string
     {
         $ruleCondition = $this->queryHelper->buildRuleCondition($definition, $context->getQuery(), $alias, $context->getContext());

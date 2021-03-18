@@ -6,7 +6,7 @@ import context from './context.store';
 import licenseViolation from './license-violation.store';
 import error from './error.store';
 import settingsItems from './settings-item.store';
-import shopwareApps from './shopware-apps.state';
+import shopwareApps from './shopware-apps.store';
 
 export default {
     notification,

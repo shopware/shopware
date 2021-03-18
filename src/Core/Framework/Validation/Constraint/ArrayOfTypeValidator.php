@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class ArrayOfTypeValidator extends ConstraintValidator
 {
-    public function validate($values, Constraint $constraint): void
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrayOfType) {
             throw new UnexpectedTypeException($constraint, Uuid::class);
@@ -18,43 +18,43 @@ class ArrayOfTypeValidator extends ConstraintValidator
 
         // custom constraints should ignore null and empty values to allow
         // other constraints (NotBlank, NotNull, etc.) take care of that
-        if ($values === null) {
+        if ($value === null) {
             return;
         }
 
-        if (!\is_array($values)) {
+        if (!\is_array($value)) {
             $this->context->buildViolation($constraint::INVALID_TYPE_MESSAGE)
                 ->addViolation();
 
             return;
         }
 
-        foreach ($values as $value) {
+        foreach ($value as $item) {
             $type = mb_strtolower($constraint->type);
             $type = $type === 'boolean' ? 'bool' : $constraint->type;
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;
 
-            if (\function_exists($isFunction) && $isFunction($value)) {
+            if (\function_exists($isFunction) && $isFunction($item)) {
                 continue;
             }
 
-            if (\function_exists($ctypeFunction) && $ctypeFunction($value)) {
+            if (\function_exists($ctypeFunction) && $ctypeFunction($item)) {
                 continue;
             }
 
-            if ($value instanceof $constraint->type) {
+            if ($item instanceof $constraint->type) {
                 continue;
             }
 
-            if (\is_array($value)) {
-                $value = print_r($value, true);
+            if (\is_array($item)) {
+                $item = print_r($item, true);
             }
 
             $this->context->buildViolation($constraint::INVALID_MESSAGE)
                 ->setCode(Type::INVALID_TYPE_ERROR)
                 ->setParameter('{{ type }}', $constraint->type)
-                ->setParameter('{{ value }}', $value)
+                ->setParameter('{{ value }}', (string) $item)
                 ->addViolation();
         }
     }

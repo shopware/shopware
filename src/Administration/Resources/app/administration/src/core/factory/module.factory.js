@@ -129,11 +129,8 @@ function registerModule(moduleId, module) {
 
             // Support for children routes
             if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
-                if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
-                    route = iterateChildRoutes(route);
-                } else {
-                    route = iterateChildRoutes(route, splitModuleId, routeKey);
-                }
+                route = iterateChildRoutes(route);
+
                 moduleRoutes = registerChildRoutes(route, moduleRoutes);
             }
 
@@ -183,21 +180,13 @@ function registerModule(moduleId, module) {
         module.navigation = module.navigation.filter((navigationEntry) => {
             navigationEntry.moduleType = module.type;
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
+            if (module.type === 'plugin' && !navigationEntry.parent) {
                 warn(
                     'ModuleFactory',
                     'Navigation entries from plugins are not allowed on the first level.',
                     'Set a property "parent" to register your navigation entry'
                 );
                 return false;
-            }
-
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
-                warn(
-                    'ModuleFactory',
-                    'Navigation entries from plugins are not allowed on the first level.',
-                    'The support for first level entries for plugins will be removed in 6.4.0'
-                );
             }
 
             if (!navigationEntry.id && !navigationEntry.path && !navigationEntry.parent && !navigationEntry.link) {
@@ -265,11 +254,9 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
  *
  * @param {Object} routeDefinition
- * @param {Array} moduleName @deprecated tag:v6.4.0.0
- * @param {String} parentKey @deprecated tag:v6.4.0.0
  * @returns {Object}
  */
-function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
+function iterateChildRoutes(routeDefinition) {
     routeDefinition.children = Object.keys(routeDefinition.children).map((key) => {
         let child = routeDefinition.children[key];
 
@@ -279,19 +266,11 @@ function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
             child.path = `${routeDefinition.path}/${child.path}`;
         }
 
-        if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
-            child.name = `${routeDefinition.name}.${key}`;
-        } else {
-            child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
-        }
+        child.name = `${routeDefinition.name}.${key}`;
         child.isChildren = true;
 
         if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
-            if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
-                child = iterateChildRoutes(child);
-            } else {
-                child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
-            }
+            child = iterateChildRoutes(child);
         }
 
         return child;

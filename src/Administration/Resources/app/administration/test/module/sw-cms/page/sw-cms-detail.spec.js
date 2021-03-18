@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';
@@ -64,7 +64,6 @@ function createWrapper(privileges = []) {
             entityFactory: {},
             entityHydrator: {},
             loginService: {},
-            cmsPageService: {},
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {
@@ -175,7 +174,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(warningMessages.length).toBe(1);
     });
 
-    it('should show layout assignment when saving after create wizard', async () => {
+    it('should not show layout assignment when saving after create wizard', async () => {
         const wrapper = createWrapper([
             'cms.editor'
         ]);
@@ -196,7 +195,19 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             page: {
                 name: 'My custom layout',
                 type: 'product_list',
-                categories: new EntityCollection(null, null, null, new Criteria())
+                categories: new EntityCollection(null, null, null, new Criteria()),
+                sections: [
+                    {
+                        name: 'Section 1',
+                        blocks: [
+                            {
+                                name: 'Test block',
+                                type: 'product-listing',
+                                slots: []
+                            }
+                        ]
+                    }
+                ]
             }
         });
 
@@ -208,9 +219,9 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.previousRoute).toBe('sw.cms.create');
-        expect(openLayoutAssignmentModalSpy).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.showLayoutAssignmentModal).toBe(true);
-        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeTruthy();
+        expect(openLayoutAssignmentModalSpy).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.showLayoutAssignmentModal).toBe(false);
+        expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeFalsy();
     });
 
     it('should not show layout assignment when saving and not coming from create wizard', async () => {

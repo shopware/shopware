@@ -29,7 +29,7 @@ class FakeTakeAllRuleMatcher implements LineItemGroupRuleMatcherInterface
         return $this->sequenceCount;
     }
 
-    public function getMatchingItems(LineItemGroupDefinition $group, LineItemFlatCollection $items, SalesChannelContext $context): LineItemFlatCollection
+    public function getMatchingItems(LineItemGroupDefinition $groupDefinition, LineItemFlatCollection $items, SalesChannelContext $context): LineItemFlatCollection
     {
         $this->sequenceCount = $this->sequenceSupervisor->getNextCount();
 

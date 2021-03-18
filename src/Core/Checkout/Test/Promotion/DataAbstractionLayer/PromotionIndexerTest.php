@@ -41,7 +41,6 @@ class PromotionIndexerTest extends TestCase
 
     public function testPromotionIndexerUpdateReturnNullIfGeneratingCode(): void
     {
-        /** @var PromotionIndexer $indexer */
         $indexer = $this->getContainer()->get(PromotionIndexer::class);
 
         $salesChannelContext = $this->createSalesChannelContext();
@@ -73,7 +72,6 @@ class PromotionIndexerTest extends TestCase
 
     public function testPromotionIndexerUpdateReturnPromotionIndexingMessage(): void
     {
-        /** @var PromotionIndexer $indexer */
         $indexer = $this->getContainer()->get(PromotionIndexer::class);
 
         $salesChannelContext = $this->createSalesChannelContext();

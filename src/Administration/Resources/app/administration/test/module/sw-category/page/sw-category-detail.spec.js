@@ -38,7 +38,6 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            cmsPageService: {},
             cmsService: {},
             repositoryFactory: {},
             seoUrlService: {},

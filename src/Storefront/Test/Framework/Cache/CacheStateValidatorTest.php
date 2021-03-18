@@ -15,7 +15,7 @@ class CacheStateValidatorTest extends TestCase
      */
     public function testValidation(bool $isValid, Request $request, Response $response): void
     {
-        $validator = new CacheStateValidator();
+        $validator = new CacheStateValidator([]);
         static::assertSame($isValid, $validator->isValid($request, $response));
     }
 

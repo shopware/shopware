@@ -44,7 +44,7 @@ describe('Product: Duplicate product', () => {
 
         cy.wait('@getProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            cy.get('.smart-bar__header').contains('Product name Copy');
+            cy.get('.smart-bar__header .sw-product-variant-info__product-name').contains('Product name Copy');
             cy.contains('.sw-button', 'Cancel').click();
             cy.get('.sw-page__smart-bar-amount').contains('2');
         });

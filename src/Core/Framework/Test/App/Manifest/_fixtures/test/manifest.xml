@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
     <meta>
         <name>test</name>
         <label>Swag App Test</label>
@@ -50,10 +50,15 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <label>Do Stuff</label>
             <label lang="de-DE">Mache Dinge</label>
         </action-button>
-        <module name="first-module" source="https://test.com">
+        <module name="first-module" source="https://test.com" parent="sw-test-structure-module" position="10">
             <label>My first own module</label>
             <label lang="de-DE">Mein erstes eigenes Modul</label>
         </module>
+        <module name="structure-module" parent="sw-catalogue" position="50">
+            <label>My menu entry for modules</label>
+            <label lang="de-DE">Mein Menüeintrag für Module</label>
+        </module>
+        <main-module source="https://main-module"/>
     </admin>
     <permissions>
         <create>product</create>

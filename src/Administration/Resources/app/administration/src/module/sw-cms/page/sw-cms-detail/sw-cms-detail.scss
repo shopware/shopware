@@ -30,17 +30,17 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: $color-steam-cloud;
+        color: $color-gray-300;
     }
 
     .sw-cms-detail__back-btn {
         height: 70px;
         line-height: 70px;
-        border-right: 1px solid $color-steam-cloud;
-        color: $color-gutenberg;
+        border-right: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
 
         &:hover {
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
     }
 
@@ -54,22 +54,22 @@
         justify-items: center;
 
         .sw-icon {
-            color: $color-steam-cloud;
+            color: $color-gray-300;
             cursor: pointer;
 
             &:hover {
-                color: $color-kashmir;
+                color: $color-darkgray-200;
             }
 
             &.is--active {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
 
             &.is--disabled {
                 cursor: not-allowed;
 
                 &:hover {
-                    color: $color-steam-cloud;
+                    color: $color-gray-300;
                 }
             }
         }
@@ -138,8 +138,8 @@
             cursor: auto;
 
             &.is--valid-drop {
-                background-color: $color-cadet-blue;
-                border-color: $color-shopware-blue;
+                background-color: $color-shopware-brand-50;
+                border-color: $color-shopware-brand-500;
             }
 
             .sw-cms-detail__empty-stage-content {

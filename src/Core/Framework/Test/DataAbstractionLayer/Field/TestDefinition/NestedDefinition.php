@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -29,14 +30,14 @@ class NestedDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
             new JsonField('data', 'data', [
-                (new FloatField('gross', 'gross'))->addFlags(new Required()),
-                new FloatField('net', 'net'),
+                (new FloatField('gross', 'gross'))->addFlags(new ApiAware(), new Required()),
+                (new FloatField('net', 'net'))->addFlags(new ApiAware()),
                 new JsonField('foo', 'foo', [
-                    new StringField('bar', 'bar'),
+                    (new StringField('bar', 'bar'))->addFlags(new ApiAware()),
                     new JsonField('baz', 'baz', [
-                        new BoolField('deep', 'deep'),
+                        (new BoolField('deep', 'deep'))->addFlags(new ApiAware()),
                     ]),
                 ]),
             ]),

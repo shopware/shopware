@@ -26,13 +26,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionItemBuilderPayloadTest extends TestCase
 {
-    /** @var PromotionEntity */
+    /**
+     * @var PromotionEntity
+     */
     private $promotion;
 
-    /** @var MockObject */
+    /**
+     * @var MockObject
+     */
     private $salesChannelContext;
 
-    /** @var MockObject */
+    /**
+     * @var MockObject
+     */
     private $context;
 
     public function setUp(): void
@@ -44,7 +50,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
         $this->context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-        $this->context->method('getCurrencyPrecision')->willReturn(3);
 
         $this->salesChannelContext->method('getContext')->willReturn($this->context);
     }
@@ -73,7 +78,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem('my-Code-123', $this->promotion, $discount, 1, 'C1', $currencyFactor);
+        $item = $builder->buildDiscountLineItem('my-Code-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
         $expected = [
             'promotionId' => 'PR-1',
@@ -121,7 +126,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         $expected = [
             'promotionId' => 'PR-1',
@@ -170,7 +175,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         $maxValue = FloatComparator::cast($maxValue * $currencyFactor);
 
@@ -221,7 +226,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertEquals($groupId, $item->getPayload()['groupId']);
     }
@@ -265,7 +270,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         $expected = [
             'promotionId' => 'PR-1',
@@ -332,7 +337,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, $currency->getId(), $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
 
         static::assertEquals(20, $item->getPayload()['maxValue']);
     }
@@ -361,7 +366,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertEquals('', $item->getPayload()['maxValue']);
     }
@@ -391,7 +396,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertEquals(2 * 30.0, $item->getPayload()['maxValue']);
     }
@@ -415,7 +420,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setConsiderAdvancedRules(false);
         $discount->setScope(PromotionDiscountEntity::SCOPE_DELIVERY);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertTrue($item->hasPayloadValue('promotionId'), 'We are expecting the promotionId as payload value');
         static::assertTrue($item->hasPayloadValue('discountId'), 'We are expecting the discountId as payload value');
@@ -449,7 +454,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertEquals('PRICE_ASC', $item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
         static::assertEquals('ALL', $item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
@@ -480,7 +485,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
         static::assertNull($item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
         static::assertNull($item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');

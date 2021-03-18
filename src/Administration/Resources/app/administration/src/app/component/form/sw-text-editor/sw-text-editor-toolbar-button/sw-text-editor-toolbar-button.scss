@@ -1,21 +1,16 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 0.5);
 $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
 
-
 .sw-text-editor-toolbar-button {
-    cursor: pointer;
     position: relative;
     height: 36px;
     width: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    &:hover {
-        color: $color-shopware-brand-500;
-    }
 
     &.is--active {
         color: $color-shopware-brand-500;
@@ -27,10 +22,19 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     }
 
     .sw-text-editor-toolbar-button__icon {
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
+        cursor: pointer;
+
+        .sw-icon {
+            margin-left: 5px;
+        }
     }
 
     .sw-text-editor-toolbar-button__children {
@@ -58,12 +62,35 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
             border-left: 1px solid $sw-text-editor-toolbar-button-arrow-shadow;
         }
 
+        &-inner-container {
+            padding: 4px;
+            max-height: 340px;
+            max-width: 300px;
+            overflow: auto;
+        }
+
+        &.is--left {
+            left: unset;
+            right: -10px;
+
+            &::before {
+                left: unset;
+                right: 23px;
+            }
+        }
+
         .sw-text-editor-toolbar-button__children-child {
             cursor: pointer;
             color: $color-darkgray-200;
             margin: 4px;
             padding: 8px;
             border-radius: $border-radius-default;
+
+            &-content {
+                @include truncate();
+
+                width: 100%;
+            }
 
             &:hover {
                 color: $color-shopware-brand-500;

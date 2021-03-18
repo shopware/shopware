@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-tree';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 function createInitialConditionsCollection() {
     return new EntityCollection(null, 'rule_condition', null, new Criteria(), [

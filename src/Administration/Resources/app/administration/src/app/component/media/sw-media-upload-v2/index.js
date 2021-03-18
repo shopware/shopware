@@ -2,7 +2,7 @@ import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { fileReader, debug } = Shopware.Utils;
+const { fileReader } = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
@@ -161,31 +161,6 @@ Component.register('sw-media-upload-v2', {
             return this.inputType === INPUT_TYPE_FILE_UPLOAD;
         },
 
-        // @deprecated tag:v6.4.0
-        showUrlInput: {
-            get() {
-                debug.warn(
-                    'sw-media-upload-v2',
-                    'showUrlInput is deprecated and will be removed in 6.4.0. Use isFileUpload or isUrlUpload instead'
-                );
-
-                return this.isUrlUpload;
-            },
-
-            set(value) {
-                debug.warn(
-                    'sw-media-upload-v2',
-                    'showUrlInput is deprecated and will be removed in 6.4.0. Use useFileUpload or useUrlUpload instead'
-                );
-
-                if (value) {
-                    return this.useUrlUpload;
-                }
-
-                return this.useFileUpload;
-            }
-        },
-
         uploadUrlFeatureEnabled() {
             return this.isUploadUrlFeatureEnabled;
         }
@@ -297,40 +272,6 @@ Component.register('sw-media-upload-v2', {
             this.$refs.fileInput.click();
         },
 
-        // @deprecated tag:v6.4.0
-        closeUrlModal() {
-            debug.warn(
-                'sw-media-upload-v2',
-                'closeUrlModal is deprecated and will be removed in 6.4.0. Use useUrlUpload instead'
-            );
-
-            return this.useFileUpload();
-        },
-
-        // @deprecated tag:v6.4.0
-        openUrlModal() {
-            debug.warn(
-                'sw-media-upload-v2',
-                'openUrlModal is deprecated and will be removed in 6.4.0. Use useFileUpload instead'
-            );
-
-            return this.useUrlUpload();
-        },
-
-        // @deprecated tag:v6.4.0
-        toggleShowUrlFields() {
-            debug.warn(
-                'sw-media-upload-v2',
-                'toggleShowUrlFields is deprecated and will be removed in 6.4.0. Use useUrlUpload or useFileUpload instead'
-            );
-
-            if (this.isUrlUpload()) {
-                return this.useFileUpload();
-            }
-
-            return this.useUrlUpload();
-        },
-
         useUrlUpload() {
             this.inputType = INPUT_TYPE_URL_UPLOAD;
         },
@@ -371,7 +312,7 @@ Component.register('sw-media-upload-v2', {
             await this.mediaRepository.save(targetEntity, Context.api);
             this.mediaService.addUpload(this.uploadTag, { src: url, targetId: targetEntity.id, ...fileInfo });
 
-            this.closeUrlModal();
+            this.useFileUpload();
         },
 
         onFileInputChange() {

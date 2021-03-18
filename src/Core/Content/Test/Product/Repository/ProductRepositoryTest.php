@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -133,8 +134,10 @@ class ProductRepositoryTest extends TestCase
                     'shortName' => 'test',
                     'name' => 'name',
                     'symbol' => 'A',
-                    'isoCode' => 'A',
+                    'isoCode' => 'XX',
                     'decimalPrecision' => 2,
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
                 ],
             ],
             $this->context
@@ -2118,8 +2121,6 @@ class ProductRepositoryTest extends TestCase
 
     public function testCreateAndAssignCMSPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $id = Uuid::randomHex();
 
         $cmsPageId = Uuid::randomHex();
@@ -2298,6 +2299,9 @@ class ProductRepositoryTest extends TestCase
 
     public function testPaginatedAssociationWithBlacklist(): void
     {
+        //@internal (FEATURE_NEXT_10514) remove this case
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
+
         $manufacturerId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -2834,7 +2838,7 @@ class ProductRepositoryTest extends TestCase
 
     private function createLanguageContext(array $languages, bool $inheritance)
     {
-        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, 2, $inheritance);
+        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
     }
 
     private function createContext(array $ruleIds = []): Context

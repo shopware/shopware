@@ -64,22 +64,6 @@ class MigrationCommandTest extends TestCase
         static::assertSame(2, $this->getMigrationCount());
     }
 
-    /**
-     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
-     */
-    public function testCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
-    {
-        static::assertSame(0, $this->getMigrationCount());
-
-        $tester = new CommandTester($this->getCommand());
-
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
-
-        // assert deprecation notice is shown
-        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
-        static::assertSame(2, $this->getMigrationCount());
-    }
-
     public function testCommandMigrateMultipleIdentifiers(): void
     {
         static::assertSame(0, $this->getMigrationCount(true));
@@ -169,22 +153,6 @@ class MigrationCommandTest extends TestCase
         static::assertSame(2, $this->getMigrationCount());
     }
 
-    /**
-     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
-     */
-    public function testDestructiveCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
-    {
-        static::assertSame(0, $this->getMigrationCount());
-
-        $tester = new CommandTester($this->getDestructiveCommand());
-
-        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
-
-        // assert deprecation notice is shown
-        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
-        static::assertSame(2, $this->getMigrationCount());
-    }
-
     public function testDestructiveCommandAddMigrations(): void
     {
         static::assertSame(0, $this->getMigrationCount());
@@ -250,7 +218,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::never())->method('clear');
 
-        $command = new MigrationCommand($loader, $cache);
+        $command = new MigrationCommand($loader, $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
@@ -264,7 +232,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::once())->method('clear');
 
-        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
@@ -278,7 +246,7 @@ class MigrationCommandTest extends TestCase
         $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
         $cache->expects(static::once())->method('clear');
 
-        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache, $this->getContainer()->getParameter('kernel.shopware_version'));
 
         $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 

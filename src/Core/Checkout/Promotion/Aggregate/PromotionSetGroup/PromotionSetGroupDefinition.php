@@ -54,7 +54,6 @@ class PromotionSetGroupDefinition extends EntityDefinition
             (new StringField('packager_key', 'packagerKey'))->addFlags(new Required()),
             (new StringField('sorter_key', 'sorterKey', 32))->addFlags(new Required()),
             (new FloatField('value', 'value'))->addFlags(new Required()),
-
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('setGroupRules', RuleDefinition::class, PromotionSetGroupRuleDefinition::class, 'setgroup_id', 'rule_id'))->addFlags(new CascadeDelete()),
         ]);

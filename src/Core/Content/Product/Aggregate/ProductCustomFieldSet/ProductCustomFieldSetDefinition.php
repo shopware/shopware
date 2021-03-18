@@ -32,7 +32,6 @@ class ProductCustomFieldSetDefinition extends MappingEntityDefinition
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('custom_field_set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             new ManyToOneAssociationField('customFieldSet', 'custom_field_set_id', CustomFieldSetDefinition::class, 'id', false),
         ]);

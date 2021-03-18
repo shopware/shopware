@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Install\Console\Application as InstallApplication;
+use Shopware\Recovery\Install\ContainerProvider;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Update\Console\Application as UpdateApplication;
 use Slim\App;
@@ -36,6 +37,44 @@ class MigrationTest extends TestCase
     public function tearDown(): void
     {
         $this->dropDatabase();
+    }
+
+    public function testUpdateContainerMigrationSourcesNew(): void
+    {
+        $config = require __DIR__ . '/../Update/config/config.php';
+        /** @var \Shopware\Recovery\Update\DependencyInjection\Container $container */
+        $container = new \Shopware\Recovery\Update\DependencyInjection\Container(new \Slim\Container(), $config);
+
+        /** @var MigrationSource[] $sources */
+        $sources = $container->get('migration.sources');
+
+        static::assertCount(3, $sources);
+        static::assertSame('core', $sources[0]->getName());
+        static::assertEmpty($sources[0]->getSourceDirectories());
+
+        static::assertSame('core.V6_3', $sources[1]->getName());
+        static::assertNotEmpty($sources[1]->getSourceDirectories());
+
+        static::assertSame('core.V6_4', $sources[2]->getName());
+    }
+
+    public function testInstallContainerMigrationSourcesNew(): void
+    {
+        $config = require __DIR__ . '/../Install/config/production.php';
+        $container = new \Slim\Container();
+        $container->register(new ContainerProvider($config));
+
+        /** @var MigrationSource[] $sources */
+        $sources = $container->get('migration.sources');
+
+        static::assertCount(3, $sources);
+        static::assertSame('core', $sources[0]->getName());
+        static::assertEmpty($sources[0]->getSourceDirectories());
+
+        static::assertSame('core.V6_3', $sources[1]->getName());
+        static::assertNotEmpty($sources[1]->getSourceDirectories());
+
+        static::assertSame('core.V6_4', $sources[2]->getName());
     }
 
     public function testMigrationsDuringInstall(): void

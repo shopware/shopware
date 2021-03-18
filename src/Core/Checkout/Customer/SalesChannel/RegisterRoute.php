@@ -142,7 +142,7 @@ class RegisterRoute extends AbstractRegisterRoute
      *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/account/register", name="store-api.account.register", methods={"POST"})
+     * @Route("/store-api/account/register", name="store-api.account.register", methods={"POST"})
      */
     public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
     {
@@ -211,6 +211,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if (!$customerEntity->getDoubleOptInRegistration()) {
             $newToken = $this->contextPersister->replace($context->getToken(), $context);
+
             $this->contextPersister->save(
                 $newToken,
                 [
@@ -467,7 +468,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'city',
             'company',
             'department',
-            'vatId',
             'countryStateId',
             'countryId',
             'additionalAddressLine1',

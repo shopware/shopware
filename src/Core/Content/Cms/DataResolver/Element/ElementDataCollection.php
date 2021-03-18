@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 class ElementDataCollection
 {
-    protected $searchResults = [];
+    protected array $searchResults = [];
 
     public function add(string $key, EntitySearchResult $entitySearchResult): void
     {

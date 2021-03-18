@@ -4,7 +4,9 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -12,13 +14,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
+use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -29,7 +34,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SalesChannelContextFactory
+class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     /**
      * @var EntityRepositoryInterface
@@ -101,6 +106,11 @@ class SalesChannelContextFactory
      */
     private $eventDispatcher;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $currencyCountryRepository;
+
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $currencyRepository,
@@ -115,7 +125,8 @@ class SalesChannelContextFactory
         EntityRepositoryInterface $countryStateRepository,
         TaxDetector $taxDetector,
         iterable $taxRuleTypeFilter,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        EntityRepositoryInterface $currencyCountryRepository
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->currencyRepository = $currencyRepository;
@@ -131,6 +142,12 @@ class SalesChannelContextFactory
         $this->taxDetector = $taxDetector;
         $this->taxRuleTypeFilter = $taxRuleTypeFilter;
         $this->eventDispatcher = $eventDispatcher;
+        $this->currencyCountryRepository = $currencyCountryRepository;
+    }
+
+    public function getDecorated(): AbstractSalesChannelContextFactory
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
@@ -141,11 +158,6 @@ class SalesChannelContextFactory
         $criteria->setTitle('context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
-
-        // @deprecated tag:v6.4.0 - Will be removed
-        if (!Feature::isActive('FEATURE_NEXT_12009')) {
-            $criteria->addAssociation('countries');
-        }
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)
@@ -179,10 +191,12 @@ class SalesChannelContextFactory
 
         $shippingLocation = null;
         if ($customer) {
-            $shippingLocation = ShippingLocation::createFromAddress($customer->getActiveShippingAddress());
+            /** @var CustomerAddressEntity $activeShippingAddress */
+            $activeShippingAddress = $customer->getActiveShippingAddress();
+            $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
         }
 
-        if (!$shippingLocation) {
+        if ($shippingLocation === null) {
             //load not logged in customer with default shop configuration or with provided checkout scopes
             $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
         }
@@ -214,6 +228,8 @@ class SalesChannelContextFactory
         //detect active delivery method, at first checkout scope, at least shop default method
         $shippingMethod = $this->getShippingMethod($options, $context, $salesChannel);
 
+        [$itemRounding, $totalRounding] = $this->getCashRounding($currency, $shippingLocation, $context);
+
         $context = new Context(
             $context->getSource(),
             [],
@@ -221,13 +237,15 @@ class SalesChannelContextFactory
             $context->getLanguageIdChain(),
             $context->getVersionId(),
             $currency->getFactor(),
-            $currency->getDecimalPrecision(),
-            true
+            true,
+            CartPrice::TAX_STATE_GROSS,
+            $itemRounding
         );
 
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
+            $options[SalesChannelContextService::DOMAIN_ID] ?? null,
             $salesChannel,
             $currency,
             $customerGroup,
@@ -237,6 +255,8 @@ class SalesChannelContextFactory
             $shippingMethod,
             $shippingLocation,
             $customer,
+            $itemRounding,
+            $totalRounding,
             []
         );
 
@@ -254,10 +274,7 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Will be private
-     */
-    public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
+    private function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
         $criteria->setTitle('context-factory::taxes');
@@ -268,7 +285,12 @@ class SalesChannelContextFactory
 
         /** @var TaxEntity $tax */
         foreach ($taxes as $tax) {
-            $taxRules = $tax->getRules()->filter(function (TaxRuleEntity $taxRule) use ($customer, $shippingLocation) {
+            $taxRules = $tax->getRules();
+            if ($taxRules === null) {
+                continue;
+            }
+
+            $taxRules = $taxRules->filter(function (TaxRuleEntity $taxRule) use ($customer, $shippingLocation) {
                 foreach ($this->taxRuleTypeFilter as $ruleTypeFilter) {
                     if ($ruleTypeFilter->match($taxRule, $customer, $shippingLocation)) {
                         return true;
@@ -318,10 +340,14 @@ class SalesChannelContextFactory
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
-        $criteria = (new Criteria([$id]))->addAssociation('media');
+        $criteria = (new Criteria(array_unique(array_filter([$id, $salesChannel->getShippingMethodId()]))))
+            ->addAssociation('media');
         $criteria->setTitle('context-factory::shipping-method');
 
-        return $this->shippingMethodRepository->search($criteria, $context)->get($id);
+        $shippingMethods = $this->shippingMethodRepository
+            ->search($criteria, $context);
+
+        return $shippingMethods->get($id) ?? $shippingMethods->get($salesChannel->getShippingMethodId());
     }
 
     private function getContext(string $salesChannelId, array $session): Context
@@ -334,7 +360,6 @@ class SalesChannelContextFactory
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
-          currency.decimal_precision as sales_channel_currency_decimal_precision,
           GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
             INNER JOIN currency
@@ -347,6 +372,9 @@ class SalesChannelContextFactory
         $data = $this->connection->fetchAssoc($sql, [
             'id' => Uuid::fromHexToBytes($salesChannelId),
         ]);
+        if ($data === false) {
+            throw new \RuntimeException(sprintf('No context data found for SalesChannel "%s"', $salesChannelId));
+        }
 
         $origin = new SalesChannelApiSource($salesChannelId);
 
@@ -371,16 +399,16 @@ class SalesChannelContextFactory
             $languageChain,
             $versionId,
             (float) $data['sales_channel_currency_factor'],
-            (int) $data['sales_channel_currency_decimal_precision'],
             true
         );
     }
 
     private function getParentLanguageId(string $languageId): ?string
     {
-        if (!$languageId || !Uuid::isValid($languageId)) {
+        if (!Uuid::isValid($languageId)) {
             throw new LanguageNotFoundException($languageId);
         }
+
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.parent_id))'])
             ->from('language')
@@ -492,5 +520,27 @@ class SalesChannelContextFactory
 
         //provided language can be a child language
         return [$current, $this->getParentLanguageId($current), Defaults::LANGUAGE_SYSTEM];
+    }
+
+    /**
+     * @return CashRoundingConfig[]
+     */
+    private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));
+        $criteria->addFilter(new EqualsFilter('countryId', $shippingLocation->getCountry()->getId()));
+
+        /** @var CurrencyCountryRoundingEntity|null $countryConfig */
+        $countryConfig = $this->currencyCountryRepository
+            ->search($criteria, $context)
+            ->first();
+
+        if ($countryConfig) {
+            return [$countryConfig->getItemRounding(), $countryConfig->getTotalRounding()];
+        }
+
+        return [$currency->getItemRounding(), $currency->getTotalRounding()];
     }
 }

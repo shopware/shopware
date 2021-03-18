@@ -1,12 +1,13 @@
 import template from './sw-category-view.html.twig';
+import './sw-category-view.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-category-view', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        'placeholder'
     ],
 
     inject: ['acl'],
@@ -35,6 +36,10 @@ Component.register('sw-category-view', {
             }
 
             return Shopware.State.get('cmsPageState').currentPage;
+        },
+
+        isPage() {
+            return this.type !== 'folder' && this.type !== 'link';
         }
     }
 });

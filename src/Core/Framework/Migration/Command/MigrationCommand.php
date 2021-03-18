@@ -30,16 +30,22 @@ class MigrationCommand extends Command
     protected $io;
 
     /**
+     * @var string
+     */
+    protected $shopwareVersion;
+
+    /**
      * @var TagAwareAdapterInterface
      */
     private $cache;
 
-    public function __construct(MigrationCollectionLoader $loader, TagAwareAdapterInterface $cache)
+    public function __construct(MigrationCollectionLoader $loader, TagAwareAdapterInterface $cache, string $shopwareVersion)
     {
         parent::__construct();
 
         $this->loader = $loader;
         $this->cache = $cache;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator
@@ -72,14 +78,6 @@ class MigrationCommand extends Command
 
         $this->io = new ShopwareStyle($input, $output);
 
-        /*
-         * @deprecated tag:v6.4.0 Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.
-         */
-        if (!$until && is_numeric(end($identifiers))) {
-            $until = (int) array_pop($identifiers);
-            $this->io->note('Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.');
-        }
-
         if (!$until && !$input->getOption('all')) {
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
         }
@@ -96,7 +94,7 @@ class MigrationCommand extends Command
 
         $total = 0;
         foreach ($identifiers as $identifier) {
-            $total += $this->runMigrationForIdentifier($identifier, $limit, $until);
+            $total += $this->runMigrationForIdentifier($input, $identifier, $limit, $until);
         }
 
         if ($total > 0) {
@@ -105,6 +103,18 @@ class MigrationCommand extends Command
         }
 
         return 0;
+    }
+
+    protected function collectMigrations(InputInterface $input, string $identifier): MigrationCollection
+    {
+        if ($identifier === 'core') {
+            return $this->loader->collectAllForVersion(
+                $this->shopwareVersion,
+                MigrationCollectionLoader::VERSION_SELECTION_ALL
+            );
+        }
+
+        return $this->loader->collect($identifier);
     }
 
     private function finishProgress(int $migrated, int $total): void
@@ -121,12 +131,12 @@ class MigrationCommand extends Command
         );
     }
 
-    private function runMigrationForIdentifier(string $identifier, int $limit, ?int $until): int
+    private function runMigrationForIdentifier(InputInterface $input, string $identifier, int $limit, ?int $until): int
     {
         $this->io->writeln(sprintf('Get collection for identifier: "%s"', $identifier));
 
         try {
-            $collection = $this->loader->collect($identifier);
+            $collection = $this->collectMigrations($input, $identifier);
         } catch (UnknownMigrationSourceException $e) {
             $this->io->note(sprintf('No collection found for identifier: "%s", continuing', $identifier));
 

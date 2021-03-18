@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -100,16 +101,10 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route("/store-api/v{version}/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
+     * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"})
      */
-    public function merge(RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
+    public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            /** @var CustomerEntity $customer */
-            $customer = $context->getCustomer();
-        }
-
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
             throw new CustomerWishlistNotActivatedException();
         }
@@ -189,6 +184,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         /** @var Statement $stmt */
         $stmt = $query->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return FetchModeHelper::keyPair($stmt->fetchAll());
     }
 }

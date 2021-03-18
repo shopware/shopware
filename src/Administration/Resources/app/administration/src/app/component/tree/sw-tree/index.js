@@ -124,6 +124,12 @@ Component.register('sw-tree', {
             type: Boolean,
             default: true,
             required: false
+        },
+
+        allowCreateCategories: {
+            type: Boolean,
+            default: true,
+            required: false
         }
     },
 
@@ -195,11 +201,16 @@ Component.register('sw-tree', {
         this.createdComponent();
     },
 
+    destroyed() {
+        this.$emit('checked-elements-count', 0);
+    },
+
     methods: {
         createdComponent() {
             if (this.activeTreeItemId && this.activeElementId) {
                 this.openTreeById();
             }
+            this.$emit('checked-elements-count', this.checkedElementsCount);
         },
 
         getItems(parentId = this.rootParentId, searchTerm = null) {
@@ -348,6 +359,11 @@ Component.register('sw-tree', {
 
         openTreeById(id = this.activeElementId) {
             const item = this.findById(id);
+
+            if (item === null) {
+                return;
+            }
+
             if (this.activeElementId === item.id) {
                 item.active = true;
             } else {
@@ -558,6 +574,7 @@ Component.register('sw-tree', {
             this.checkedElements = {};
             this.checkedElementsCount = 0;
             this.checkedElementsChildCount = 0;
+            this.$emit('checked-elements-count', this.checkedElementsCount);
         },
 
         checkItem(item) {
@@ -574,6 +591,8 @@ Component.register('sw-tree', {
                 delete this.checkedElements[item.id];
                 this.checkedElementsCount -= 1;
             }
+
+            this.$emit('checked-elements-count', this.checkedElementsCount);
         },
 
         saveItems() {

@@ -59,7 +59,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'patch'
         }).as('saveCurrency');
 
@@ -111,7 +111,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency',
+            url: `${Cypress.env('apiPath')}/currency`,
             method: 'post'
         }).as('saveCurrency');
 
@@ -126,7 +126,6 @@ describe('Currency: Test acl privileges', () => {
         cy.get('input[name=sw-field--currency-isoCode]').type('D');
         cy.get('input[name=sw-field--currency-shortName]').type('D');
         cy.get('input[name=sw-field--currency-symbol]').type('D¥');
-        cy.get('input[name=sw-field--currency-decimalPrecision]').type('2');
         cy.get('input[name=sw-field--currency-factor]').type('1.0076');
         cy.get(page.elements.currencySaveAction).click();
 
@@ -157,7 +156,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'delete'
         }).as('deleteCurrency');
 

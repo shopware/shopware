@@ -71,9 +71,10 @@
                         {% block base_main_container %}
                             <div class="container-main">
                                 {% block base_breadcrumb %}
-                                    {% if breadcrumbList %}
-                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                        context: context,
+                                        category: page.product.seoCategory
+                                    } only %}
                                 {% endblock %}
 
                                 {% block base_content %}{% endblock %}
@@ -87,9 +88,7 @@
         {% block base_footer %}
             <footer class="footer-main">
                 {% block base_footer_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                    </div>
+                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
                 {% endblock %}
             </footer>
         {% endblock %}
@@ -109,10 +108,6 @@
 
     {% block base_body_script %}
         {% block base_script_token %}
-            <script>
-                {# @deprecated tag:v6.4.0 apiAccessUrl will be removed #}
-                window.apiAccessUrl = "{{ url('frontend.api-access') }}";
-            </script>
         {% endblock %}
 
         {% block base_script_router %}
@@ -140,7 +135,14 @@
         {% block base_script_breakpoints %}
             {# Register the available viewport breakpoints the window.breakpoints object #}
             <script>
-                window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
+                {% set breakpoint = {
+                    'xs': theme_config('breakpoint.sm'),
+                    'sm': theme_config('breakpoint.md'),
+                    'md': theme_config('breakpoint.lg'),
+                    'lg': theme_config('breakpoint.xl')
+                } %}
+
+                window.breakpoints = {{ breakpoint|json_encode()|raw }};
             </script>
         {% endblock %}
 
@@ -153,28 +155,26 @@
             </script>
         {% endblock %}
 
-        {% if shopware.config.core.cart.wishlistEnabled %}
+        {% if config('core.cart.wishlistEnabled') %}
             {% block base_script_wishlist_state %}
                 <script>
                     window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
 
-                    window.wishlistEnabled = {{ shopware.config.core.cart.wishlistEnabled }};
+                    window.wishlistEnabled = {{ config('core.cart.wishlistEnabled') }};
                 </script>
             {% endblock %}
         {% endif %}
 
         {% block base_script_hmr_mode %}
             {% if isHMRMode %}
-                {% set baseUrl = app.request.getScheme() ~ '://' ~ app.request.getHost() %}
-                {% set port = app.request.headers.get('hot-reload-port') %}
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/vendor-node.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/vendor-shared.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/runtime.js"></script>
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/app.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js"></script>
                 {# The storefront entry is a combined entry point which contains all plugins & themes #}
-                <script type="text/javascript" src="{{ baseUrl }}:{{ port }}/js/storefront.js"></script>
+                <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js"></script>
             {% else %}
-                {% for file in shopware.theme.assets.js %}
+                {% for file in theme_config('assets.js') %}
                     <script type="text/javascript" src="{{ asset(file, 'theme') }}" async></script>
                 {% endfor %}
             {% endif %}

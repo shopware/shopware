@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 class ArrayOfUuidValidator extends ConstraintValidator
 {
-    public function validate($values, Constraint $constraint): void
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrayOfUuidConstraint) {
             throw new UnexpectedTypeException($constraint, Uuid::class);
@@ -19,11 +19,11 @@ class ArrayOfUuidValidator extends ConstraintValidator
 
         // custom constraints should ignore null and empty values to allow
         // other constraints (NotBlank, NotNull, etc.) take care of that
-        if ($values === null || empty($values)) {
+        if ($value === null || empty($value)) {
             return;
         }
 
-        if (!\is_array($values)) {
+        if (!\is_array($value)) {
             $this->context->buildViolation($constraint::INVALID_TYPE_MESSAGE)
                 ->setCode(Type::INVALID_TYPE_ERROR)
                 ->addViolation();
@@ -31,11 +31,11 @@ class ArrayOfUuidValidator extends ConstraintValidator
             return;
         }
 
-        foreach ($values as $value) {
-            if (!\is_string($value) || !Uuid::isValid($value)) {
+        foreach ($value as $uuid) {
+            if (!\is_string($uuid) || !Uuid::isValid($uuid)) {
                 $this->context->buildViolation($constraint::INVALID_MESSAGE)
                     ->setCode(ArrayOfUuid::INVALID_TYPE_CODE)
-                    ->setParameter('{{ string }}', $value)
+                    ->setParameter('{{ string }}', (string) $uuid)
                     ->addViolation();
             }
         }

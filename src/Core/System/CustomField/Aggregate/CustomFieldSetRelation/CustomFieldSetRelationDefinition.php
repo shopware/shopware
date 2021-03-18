@@ -41,9 +41,8 @@ class CustomFieldSetRelationDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->setFlags(new Required()),
+            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->addFlags(new Required()),
             (new StringField('entity_name', 'entityName', 63))->addFlags(new Required()),
-
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
         ]);
     }

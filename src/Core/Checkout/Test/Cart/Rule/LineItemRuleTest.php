@@ -4,12 +4,16 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,23 +24,15 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -75,7 +71,7 @@ class LineItemRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [],
-                        'operator' => LineItemRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -97,7 +93,7 @@ class LineItemRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => '0915d54fbf80423c917c61ad5a391b48',
-                        'operator' => LineItemRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -122,7 +118,7 @@ class LineItemRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'identifiers' => [true, 3, '1234abcd', '0915d54fbf80423c917c61ad5a391b48'],
-                        'operator' => LineItemRule::OPERATOR_EQ,
+                        'operator' => Rule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -157,7 +153,7 @@ class LineItemRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'identifiers' => ['0915d54fbf80423c917c61ad5a391b48', '6f7a6b89579149b5b687853271608949'],
-                    'operator' => LineItemRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);
@@ -167,45 +163,89 @@ class LineItemRuleTest extends TestCase
 
     public function testNotMatchesWithoutId(): void
     {
-        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
-
-        $lineItem = new LineItem('A', 'test');
-
-        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+        $matches = $this->getLineItemRule()->match(
+            new LineItemScope(
+                $this->createLineItem(),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
 
         static::assertFalse($matches);
     }
 
-    public function testMatchesWithreferencedId(): void
+    public function testMatchesWithReferencedId(): void
     {
-        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
-
-        $lineItem = new LineItem('A', 'test', 'A');
-
-        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+        $matches = $this->getLineItemRule()->match(
+            new LineItemScope(
+                $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
 
         static::assertTrue($matches);
     }
 
     public function testNotMatchesWithPayloadId(): void
     {
-        $rule = new LineItemRule(LineItemRule::OPERATOR_NEQ, ['A', 'B']);
-
-        $lineItem = (new LineItem('A', 'test'))->setPayloadValue('id', 'A');
-
-        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+        $matches = $this->getLineItemRule(Rule::OPERATOR_NEQ)->match(
+            new LineItemScope(
+                ($this->createLineItem())->setPayloadValue('id', 'A'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
 
         static::assertFalse($matches);
     }
 
     public function testNotMatchesDifferentPayloadId(): void
     {
-        $rule = new LineItemRule(LineItemRule::OPERATOR_EQ, ['A', 'B']);
-
-        $lineItem = (new LineItem('C', 'test'))->setPayloadValue('id', 'C');
-
-        $matches = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+        $matches = $this->getLineItemRule()->match(
+            new LineItemScope(
+                ($this->createLineItem())->setPayloadValue('id', 'C'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
 
         static::assertFalse($matches);
+    }
+
+    public function testLineItemsInCartRuleScope(): void
+    {
+        $rule = $this->getLineItemRule();
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+        ]);
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+    }
+
+    public function testLineItemsInCartRuleScopeNested(): void
+    {
+        $rule = $this->getLineItemRule();
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+        ]);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+    }
+
+    private function getLineItemRule(string $operator = Rule::OPERATOR_EQ): LineItemRule
+    {
+        return new LineItemRule($operator, ['A', 'B']);
     }
 }

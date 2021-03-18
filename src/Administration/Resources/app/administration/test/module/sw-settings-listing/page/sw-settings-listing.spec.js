@@ -174,7 +174,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 active: true,
                 fields: [
                     {
-                        field: 'product.listingPrices',
+                        field: 'product.cheapestPrice',
                         order: 'asc',
                         position: 1,
                         naturalSorting: 0

@@ -50,13 +50,6 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // Shows layout assignment modal the first time saving after the wizard
-        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
-
-        // Confirm without layout
-        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
-
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
@@ -97,6 +90,7 @@ describe('CMS: Test crud operations of layouts', () => {
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

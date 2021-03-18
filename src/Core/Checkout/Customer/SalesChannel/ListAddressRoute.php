@@ -59,15 +59,10 @@ class ListAddressRoute extends AbstractListAddressRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"})
+     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"})
      */
-    public function load(Criteria $criteria, SalesChannelContext $context, ?CustomerEntity $customer = null): ListAddressRouteResponse
+    public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $criteria
             ->addAssociation('country')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));

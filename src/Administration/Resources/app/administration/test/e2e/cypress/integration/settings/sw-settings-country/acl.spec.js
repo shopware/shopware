@@ -51,7 +51,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to update a country
         cy.server();
         cy.route({
-            url: '/api/v*/country/*',
+            url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveCountry');
 
@@ -117,7 +117,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to create a new country
         cy.server();
         cy.route({
-            url: '/api/v*/country',
+            url: `${Cypress.env('apiPath')}/country`,
             method: 'post'
         }).as('saveCountry');
 
@@ -176,7 +176,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to delete a country
         cy.server();
         cy.route({
-            url: '/api/v*/country/*',
+            url: `${Cypress.env('apiPath')}/country/*`,
             method: 'delete'
         }).as('deleteCountry');
 
@@ -252,7 +252,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to update a state
         cy.server();
         cy.route({
-            url: '/api/v*/country/*/states/*',
+            url: `${Cypress.env('apiPath')}/country/*/states/*`,
             method: 'patch'
         }).as('saveCountryState');
 
@@ -326,7 +326,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to create a state
         cy.server();
         cy.route({
-            url: '/api/v*/country/*/states',
+            url: `${Cypress.env('apiPath')}/country/*/states`,
             method: 'post'
         }).as('saveCountryState');
 

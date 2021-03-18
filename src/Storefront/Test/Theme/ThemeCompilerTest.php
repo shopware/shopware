@@ -9,7 +9,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
+use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
+use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
@@ -300,6 +303,36 @@ PHP_EOL;
         static::assertSame($expected, $actual);
     }
 
+    public function testConcanatedStylesEventPassThru(): void
+    {
+        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
+
+        $styles = 'body {}';
+
+        $event = new ThemeCompilerConcatenatedStylesEvent($styles, $this->mockSalesChannelId);
+        $subscriber->onGetConcatenatedStyles($event);
+        $actual = $event->getConcatenatedStyles();
+
+        $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
+
+        static::assertEquals($expected, $actual);
+    }
+
+    public function testConcanatedScriptsEventPassThrough(): void
+    {
+        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
+
+        $scripts = 'console.log(\'foo\');';
+
+        $event = new ThemeCompilerConcatenatedScriptsEvent($scripts, $this->mockSalesChannelId);
+        $subscriber->onGetConcatenatedScripts($event);
+        $actual = $event->getConcatenatedScripts();
+
+        $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
+
+        static::assertEquals($expected, $actual);
+    }
+
     public function testMediaIdsInThemeConfigGetResolvedToPaths(): void
     {
         $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
@@ -325,6 +358,6 @@ PHP_EOL;
         $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, $this->mockSalesChannelId);
 
         $re = '/\$sw-logo-desktop:\s*\'.*\/testImage\.png\'\s*;/m';
-        static::assertRegExp($re, $actual);
+        static::assertMatchesRegularExpression($re, $actual);
     }
 }

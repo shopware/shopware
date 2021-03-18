@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
@@ -28,14 +29,21 @@ class MigrationCollection
      */
     private $migrationRuntime;
 
+    /**
+     * @var LoggerInterface|null
+     */
+    private $logger;
+
     public function __construct(
         MigrationSource $migrationSource,
         MigrationRuntime $migrationRuntime,
-        Connection $connection
+        Connection $connection,
+        ?LoggerInterface $logger = null
     ) {
         $this->migrationSource = $migrationSource;
         $this->connection = $connection;
         $this->migrationRuntime = $migrationRuntime;
+        $this->logger = $logger;
     }
 
     public function getName(): string
@@ -48,10 +56,7 @@ class MigrationCollection
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, true);
 
         foreach ($this->getMigrationSteps() as $className => $migrationStep) {
-            $insertQuery->addInsert('migration', [
-                '`class`' => $className,
-                '`creation_timestamp`' => $migrationStep->getCreationTimestamp(),
-            ]);
+            $insertQuery->addInsert('migration', $this->getMigrationData($className, $migrationStep));
         }
 
         $insertQuery->execute();
@@ -111,6 +116,37 @@ class MigrationCollection
         return $activeMigrations;
     }
 
+    private function getMigrationData(string $className, MigrationStep $migrationStep): array
+    {
+        $default = [
+            '`class`' => $className,
+            '`creation_timestamp`' => $migrationStep->getCreationTimestamp(),
+        ];
+
+        $oldName = $this->migrationSource->mapToOldName($className);
+        if ($oldName === null) {
+            return $default;
+        }
+
+        $row = $this->connection->fetchAssoc(
+            'SELECT * FROM migration WHERE class = :class',
+            ['class' => $oldName]
+        );
+
+        if ($row === false) {
+            return $default;
+        }
+
+        foreach ($row as $key => $_) {
+            $row['`' . $key . '`'] = $row[$key];
+            unset($row[$key]);
+        }
+
+        $row['`class`'] = $className;
+
+        return $row;
+    }
+
     private function ensureStepsLoaded(): void
     {
         if ($this->migrationSteps !== null) {
@@ -133,6 +169,20 @@ class MigrationCollection
         $migrations = [];
 
         foreach ($this->migrationSource->getSourceDirectories() as $directory => $namespace) {
+            if (!is_readable($directory)) {
+                if ($this->logger !== null) {
+                    $this->logger->warning(
+                        'Migration directory "{directory}" for namespace "{namespace}" does not exist or is not readable.',
+                        [
+                            'directory' => $directory,
+                            'namespace' => $namespace,
+                        ]
+                    );
+                }
+
+                continue;
+            }
+
             foreach (scandir($directory, \SCANDIR_SORT_ASCENDING) as $classFileName) {
                 $path = $directory . '/' . $classFileName;
                 $className = $namespace . '\\' . pathinfo($classFileName, \PATHINFO_FILENAME);

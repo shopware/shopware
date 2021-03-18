@@ -11,13 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $salesChannelContextFactory;
 
@@ -38,7 +38,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
-        SalesChannelContextFactory $salesChannelContextFactory,
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $productExportRepository,
         MessageBusInterface $messageBus
@@ -67,6 +67,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
         $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
 
+        /** @var string $salesChannelId */
         foreach ($salesChannelIds->getIds() as $salesChannelId) {
             $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 

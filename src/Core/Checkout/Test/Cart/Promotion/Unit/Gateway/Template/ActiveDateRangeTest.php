@@ -48,8 +48,8 @@ class ActiveDateRangeTest extends TestCase
         $today = new \DateTime();
         $today = $today->setTimezone(new \DateTimeZone('UTC'));
 
-        $todayStart = $today->format('Y-m-d 0:0:0');
-        $todayEnd = $today->format('Y-m-d 23:59:59');
+        $todayStart = $today->format('Y-m-d H:i:s');
+        $todayEnd = $today->format('Y-m-d H:i:s');
 
         $filterNoDateRange = new MultiFilter(
             MultiFilter::CONNECTION_AND,
@@ -71,7 +71,7 @@ class ActiveDateRangeTest extends TestCase
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('validFrom', null),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validUntil', ['gt' => $todayEnd]),
             ]
         );
 
@@ -79,7 +79,7 @@ class ActiveDateRangeTest extends TestCase
             MultiFilter::CONNECTION_AND,
             [
                 new RangeFilter('validFrom', ['lte' => $todayStart]),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validUntil', ['gt' => $todayEnd]),
             ]
         );
 

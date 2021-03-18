@@ -5,7 +5,6 @@
 ## Overview
 
 The Admin API can be used to complete all administrative tasks, like creating products, updating prices and much more.
-For building a storefront or extending it, you can use the [SalesChannel-API](./060-sales-channel-api.md).
 
 The Admin API makes it really easy to integrate *Shopware* into your environment.
 

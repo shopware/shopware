@@ -1,11 +1,13 @@
 {% block component_product_box_action_inner %}
     {% set id = product.id %}
 
-    {% if shopware.config.core.listing.allowBuyInListing %}
+    {% if config('core.listing.allowBuyInListing') %}
         <div class="product-action">
             {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
+            {% set displayFrom = product.calculatedPrices.count > 1 %}
+            {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
 
-            {% if isAvailable and not product.isGrouped and product.childCount <= 0 and product.calculatedPrices.count <= 1 %}
+            {% if displayBuyButton %}
                 {% block component_product_box_action_buy %}
                     {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
                        <form action="{{ path('frontend.checkout.line-item.add') }}"

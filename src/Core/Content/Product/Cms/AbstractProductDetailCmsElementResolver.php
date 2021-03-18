@@ -16,9 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 
-/**
- * @internal (flag:FEATURE_NEXT_10078)
- */
 abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElementResolver
 {
     abstract public function getType(): string;

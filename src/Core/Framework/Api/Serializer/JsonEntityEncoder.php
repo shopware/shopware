@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -24,45 +23,39 @@ class JsonEntityEncoder
      */
     private $serializer;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    public function __construct(Serializer $serializer, ApiVersionConverter $apiVersionConverter)
+    public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;
-        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     /**
      * @param EntityCollection|Entity|null $data
      */
-    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, int $apiVersion): array
+    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl): array
     {
         if ((!$data instanceof EntityCollection) && (!$data instanceof Entity)) {
             throw new UnsupportedEncoderInputException();
         }
 
         if ($data instanceof EntityCollection) {
-            return $this->getDecodedCollection($criteria, $data, $definition, $baseUrl, $apiVersion);
+            return $this->getDecodedCollection($criteria, $data, $definition, $baseUrl);
         }
 
-        return $this->getDecodedEntity($criteria, $data, $definition, $baseUrl, $apiVersion);
+        return $this->getDecodedEntity($criteria, $data, $definition, $baseUrl);
     }
 
-    private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl): array
     {
         $decoded = [];
 
         foreach ($collection as $entity) {
-            $decoded[] = $this->getDecodedEntity($criteria, $entity, $definition, $baseUrl, $apiVersion);
+            $decoded[] = $this->getDecodedEntity($criteria, $entity, $definition, $baseUrl);
         }
 
         return $decoded;
     }
 
-    private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
         /** @var array $decoded */
         $decoded = $this->serializer->normalize($entity);
@@ -70,7 +63,7 @@ class JsonEntityEncoder
         $includes = $criteria->getIncludes() ?? [];
         $decoded = $this->filterIncludes($includes, $decoded, $entity);
 
-        return $this->removeNotAllowedFields($decoded, $definition, $baseUrl, $apiVersion);
+        return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 
     private function filterIncludes(array $includes, array $decoded, Struct $struct): array
@@ -119,7 +112,7 @@ class JsonEntityEncoder
         return \in_array($property, $includes[$alias], true);
     }
 
-    private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl, int $apiVersion): array
+    private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl): array
     {
         $fields = $definition->getFields();
 
@@ -130,15 +123,9 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), $key, $apiVersion)) {
-                unset($decoded[$key]);
-
-                continue;
-            }
-
-            /** @var ReadProtected|null $readProtected */
-            $readProtected = $field->getFlag(ReadProtected::class);
-            if ($readProtected && !$readProtected->isBaseUrlAllowed($baseUrl)) {
+            /** @var ApiAware|null $flag */
+            $flag = $field->getFlag(ApiAware::class);
+            if ($flag === null || !$flag->isBaseUrlAllowed($baseUrl)) {
                 unset($decoded[$key]);
 
                 continue;
@@ -149,12 +136,12 @@ class JsonEntityEncoder
             }
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl, $apiVersion);
+                $value = $this->removeNotAllowedFields($value, $field->getReferenceDefinition(), $baseUrl);
             }
 
             if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
                 foreach ($value as $id => $entity) {
-                    $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl, $apiVersion);
+                    $value[$id] = $this->removeNotAllowedFields($entity, $field->getReferenceDefinition(), $baseUrl);
                 }
             }
         }

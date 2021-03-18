@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class ApiRequestContextResolverAppTest extends TestCase
@@ -32,7 +31,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'test');
 
-        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
+        $browser->request('GET', '/api/product');
         $response = $browser->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -45,7 +44,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
-        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/media');
+        $browser->request('GET', '/api/media');
 
         static::assertEquals(403, $browser->getResponse()->getStatusCode());
     }
@@ -57,7 +56,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
 
-        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
+        $browser->request('GET', '/api/product');
 
         static::assertEquals(403, $browser->getResponse()->getStatusCode());
     }
@@ -74,7 +73,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/product',
+            '/api/product',
             [],
             [],
             [],
@@ -101,7 +100,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/product',
+            '/api/product',
             [],
             [],
             [],
@@ -132,7 +131,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request(
             'PATCH',
-            '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId,
+            '/api/product/' . $productId,
             [],
             [],
             [],

@@ -87,7 +87,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
+     * @Route("/store-api/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {

@@ -6,6 +6,7 @@ const server = createLiveReloadServer();
 
 server.then(() => {
     const fullUrl = process.env.APP_URL;
+    const proxyUrl = new URL(process.env.PROXY_URL || process.env.APP_URL);
     const proxyPort = process.env.STOREFRONT_PROXY_PORT;
 
     // first value of array is the http protocol
@@ -15,8 +16,8 @@ server.then(() => {
     const proxyServerOptions = {
         originalHost: domain,
         appPort: port || 80,
-        proxyHost: domain,
-        proxyPort: proxyPort || 9998,
+        proxyHost: proxyUrl.hostname,
+        proxyPort: parseInt(proxyPort || 9998),
     };
 
     // starting the proxy server

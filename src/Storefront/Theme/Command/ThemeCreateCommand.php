@@ -196,7 +196,7 @@ EOL;
 EOL;
     }
 
-    private function getVariableOverridesTemplate()
+    private function getVariableOverridesTemplate(): string
     {
         return <<<EOL
 /*

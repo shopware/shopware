@@ -2,8 +2,13 @@
 
 namespace Shopware\Core\Framework\Demodata\Faker;
 
-class Commerce extends \Bezhanov\Faker\Provider\Commerce
+use Bezhanov\Faker\Provider\Commerce as FakerCommerce;
+
+class Commerce extends FakerCommerce
 {
+    /**
+     * @var array<string, array<string>>
+     */
     protected static $productName = [
         'adjective' => ['Small', 'Ergonomic', 'Rustic', 'Intelligent', 'Gorgeous', 'Incredible', 'Fantastic', 'Practical', 'Sleek', 'Awesome', 'Enormous', 'Mediocre', 'Synergistic', 'Heavy Duty', 'Lightweight', 'Aerodynamic', 'Durable'],
         'material' => ['Steel', 'Wooden', 'Concrete', 'Plastic', 'Cotton', 'Granite', 'Rubber', 'Leather', 'Silk', 'Wool', 'Linen', 'Marble', 'Iron', 'Bronze', 'Copper', 'Aluminum', 'Paper'],

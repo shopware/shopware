@@ -21,8 +21,8 @@ const utils = Shopware.Utils;
  *         { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
  *     ]"
  *     :columns="[
- *          { property: 'name', label: 'Name', rawData: true },
- *          { property: 'company', label: 'Company', rawData: true }
+ *          { property: 'name', label: 'Name' },
+ *          { property: 'company', label: 'Company' }
  *     ]">
  * </sw-data-grid>
  */
@@ -329,18 +329,17 @@ Component.register('sw-data-grid', {
             });
         },
 
-        // @deprecated tag:v6.4.0 - Will be removed
-        initCompactModeAndShowPreviews() {
-            if (!this.identifier) {
-                return;
-            }
-
-            const storageItem = window.localStorage.getItem(this.localStorageItemKey);
-
-            if (storageItem !== null) {
-                this.compact = JSON.parse(storageItem).compact;
-                this.previews = JSON.parse(storageItem).previews;
-            }
+        findUserSettingById() {
+            return this.userConfigRepository.get(this.currentSetting.id, Shopware.Context.api).then((response) => {
+                if (!response) {
+                    return;
+                }
+                this.currentSetting = response;
+                const gridColumns = response.value;
+                this.currentColumns = utils.get(gridColumns, 'columns', gridColumns);
+                this.compact = utils.get(gridColumns, 'compact', this.compact);
+                this.previews = utils.get(gridColumns, 'previews', this.previews);
+            });
         },
 
         findResizeColumns() {
@@ -385,14 +384,6 @@ Component.register('sw-data-grid', {
             this.currentSetting = newUserGrid;
         },
 
-        // @deprecated tag:v6.4.0
-        saveGridColumns() {
-            if (!this.identifier) {
-                return;
-            }
-            window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
-        },
-
         saveUserSettings() {
             if (!this.identifier) {
                 return;
@@ -408,9 +399,7 @@ Component.register('sw-data-grid', {
                 previews: this.previews
             };
             this.userConfigRepository.save(this.currentSetting, Shopware.Context.api).then(() => {
-                if (this.currentSetting.isNew()) {
-                    this.findUserSetting();
-                }
+                this.findUserSettingById();
             });
         },
 
@@ -458,17 +447,11 @@ Component.register('sw-data-grid', {
         onChangeColumnVisibility(value, index) {
             this.currentColumns[index].visible = value;
 
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
-
             this.saveUserSettings();
         },
 
         onChangeColumnOrder(currentColumnIndex, newColumnIndex) {
             this.currentColumns = this.orderColumns(this.currentColumns, currentColumnIndex, newColumnIndex);
-
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
 
             this.saveUserSettings();
         },
@@ -501,9 +484,6 @@ Component.register('sw-data-grid', {
 
         hideColumn(columnIndex) {
             this.currentColumns[columnIndex].visible = false;
-
-            // @deprecated tag:v6.4.0 - use saveUserSettings instead
-            this.saveGridColumns();
 
             this.saveUserSettings();
         },

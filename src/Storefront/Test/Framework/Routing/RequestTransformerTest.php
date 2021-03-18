@@ -2,19 +2,18 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
@@ -41,11 +40,9 @@ class RequestTransformerTest extends TestCase
     {
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
-            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(SeoResolver::class),
-            $this->getContainer()->get('cache.object'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes')
+            $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
+            $this->getContainer()->get(DomainLoader::class)
         );
 
         $this->deLanguageId = $this->getDeDeLanguageId();

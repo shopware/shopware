@@ -33,8 +33,6 @@
       "password-placeholder": "Gib ein Passwort ein ...",
       "encryption": "Verschlüsselungsmethode",
       "encryption-placeholder": "Verschlüsselungsmethode auswählen ...",
-      "authentication": "Authentifizierungsmethode",
-      "authentication-placeholder": "Authentifizierungsmethode auswählen ...",
       "sender-address": "Absender-Adresse",
       "sender-address-placeholder": "Gib eine E-Mail-Adresse ein, auf die Du Zugriff hast ...",
       "delivery-address": "Empfänger-Adresse",
@@ -46,12 +44,6 @@
       "no-encryption": "Keine Verschlüsselung",
       "ssl": "SSL",
       "tls": "TLS"
-    },
-    "authentication": {
-      "no-authentication": "Keine Authentifizierung",
-      "plain": "Einfach",
-      "login": "Login",
-      "cram-md5": "Cram MD5"
     },
     "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
   }

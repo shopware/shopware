@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -22,11 +23,10 @@ class LongTextFieldTest extends TestCase
     /**
      * @dataProvider longTextFieldDataProvider
      *
-     * @param string|null $input
-     * @param string|null $expected
-     * @param Flag[]      $flags
+     * @param bool|string|null $input
+     * @param Flag[]           $flags
      */
-    public function testLongTextFieldSerializer(string $type, $input, $expected, array $flags = []): void
+    public function testLongTextFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
 
@@ -106,7 +106,7 @@ class LongTextFieldTest extends TestCase
         $field = new LongTextField('string', 'string');
 
         if ($flags) {
-            $field->addFlags(...$flags);
+            $field->addFlags(new ApiAware(), ...$flags);
         }
 
         return $field;

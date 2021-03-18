@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -37,26 +36,12 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     private $connection;
 
-    /**
-     * @var SalesChannelCategoryDefinition
-     */
-    private $categoryDefinition;
-
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
         Connection $connection,
-        SalesChannelRepositoryInterface $repository,
-        SalesChannelCategoryDefinition $categoryDefinition,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        SalesChannelRepositoryInterface $repository
     ) {
         $this->categoryRepository = $repository;
         $this->connection = $connection;
-        $this->categoryDefinition = $categoryDefinition;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -87,27 +72,27 @@ class NavigationRoute extends AbstractNavigationRoute
      *          @OA\JsonContent(ref="#/components/schemas/NavigationRouteResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
+     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"})
      */
     public function load(
-        string $requestActiveId,
-        string $requestRootId,
+        string $activeId,
+        string $rootId,
         Request $request,
         SalesChannelContext $context,
-        ?Criteria $criteria = null
+        Criteria $criteria
     ): NavigationRouteResponse {
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
-        $activeId = $this->resolveAliasId($requestActiveId, $context->getSalesChannel());
-        $rootId = $this->resolveAliasId($requestRootId, $context->getSalesChannel());
+        $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
+        $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
 
         if ($activeId === null) {
-            throw new CategoryNotFoundException($requestActiveId);
+            throw new CategoryNotFoundException($request->get('activeId'));
         }
 
         if ($rootId === null) {
-            throw new CategoryNotFoundException($requestRootId);
+            throw new CategoryNotFoundException($request->get('rootId'));
         }
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
@@ -128,13 +113,11 @@ class NavigationRoute extends AbstractNavigationRoute
             $activeId = $rootId;
         }
 
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->categoryDefinition, $context->getContext());
+        $categories = new CategoryCollection();
+        if ($depth > 0) {
+            // Load the first two levels without using the activeId in the query
+            $categories = $this->loadLevels($rootId, (int) $root['level'], $context, clone $criteria, $depth);
         }
-
-        // Load the first two levels without using the activeId in the query, so this can be cached
-        $categories = $this->loadLevels($rootId, (int) $root['level'], $context, clone $criteria, $depth);
 
         // If the active category is part of the provided root id, we have to load the children and the parents of the active id
         $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories, clone $criteria);
@@ -210,7 +193,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
     private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
-        $result = $this->connection->fetchAll('
+        $result = $this->connection->fetchAllAssociative('
             # navigation-route::meta-information
             SELECT LOWER(HEX(`id`)), `path`, `level`
             FROM `category`

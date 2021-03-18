@@ -34,8 +34,7 @@ Shopware.Module.register('sw-users-permissions', {
             }
         },
         'user.detail': {
-            // @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-detail' instead
-            component: 'sw-settings-user-detail',
+            component: 'sw-users-permissions-user-detail',
             path: 'user.detail/:id?',
             meta: {
                 parentPath: 'sw.users.permissions.index',
@@ -43,8 +42,7 @@ Shopware.Module.register('sw-users-permissions', {
             }
         },
         'user.create': {
-            // @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-create' instead
-            component: 'sw-settings-user-create',
+            component: 'sw-users-permissions-user-create',
             path: 'user.create',
             meta: {
                 parentPath: 'sw.users.permissions.index',

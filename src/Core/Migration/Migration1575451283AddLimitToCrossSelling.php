@@ -2,26 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1575451283AddLimitToCrossSelling extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1575451283AddLimitToCrossSelling extends \Shopware\Core\Migration\V6_3\Migration1575451283AddLimitToCrossSelling
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1575451283;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `product_cross_selling`
-            ADD COLUMN `limit` INT(11) NOT NULL DEFAULT 24 AFTER `active`;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

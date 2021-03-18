@@ -2,32 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1605103533AddCookiesToAppEntity extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1605103533AddCookiesToAppEntity extends \Shopware\Core\Migration\V6_3\Migration1605103533AddCookiesToAppEntity
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1605103533;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate(self::cookiesColumn());
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
-    private static function cookiesColumn(): string
-    {
-        return <<<'EOF'
-ALTER TABLE `app`
-    ADD COLUMN `cookies` JSON NULL AFTER `modules`,
-    ADD CONSTRAINT `json.app.cookies` CHECK (JSON_VALID(`cookies`));
-EOF;
-    }
 }

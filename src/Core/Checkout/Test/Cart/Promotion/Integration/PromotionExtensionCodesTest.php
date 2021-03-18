@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
@@ -257,7 +258,7 @@ class PromotionExtensionCodesTest extends TestCase
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
 
-        $this->cartService->order($cart, $context);
+        $this->cartService->order($cart, $context, new RequestDataBag());
 
         $this->cartService->remove($cart, $discountId, $context);
 
@@ -291,7 +292,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add promotion to cart
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $context);
 
-        $orderId = $this->cartService->order($cart, $context);
+        $orderId = $this->cartService->order($cart, $context, new RequestDataBag());
 
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')

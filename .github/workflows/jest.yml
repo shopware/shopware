@@ -3,15 +3,15 @@ name: Jest
 on:
     push:
       branches:
-          - master
+          - trunk
     pull_request:
 
 jobs:
   admin:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
+    container: shopware/development:7.4-composer-2
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: trunk
 
     services:
       mysql:
@@ -20,7 +20,7 @@ jobs:
             MYSQL_ROOT_PASSWORD: shopware
             MYSQL_DATABASE: shopware
       elasticsearch:
-        image: elastic/elasticsearch:7.1.1
+        image: elastic/elasticsearch:7.3.0
         env:
           discovery.type: single-node
 
@@ -37,7 +37,7 @@ jobs:
       run: |
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @
@@ -56,9 +56,9 @@ jobs:
 
   storefront:
     runs-on: ubuntu-latest
-    container: shopware/development:7.4
+    container: shopware/development:7.4-composer-2
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: trunk
 
     services:
       mysql:
@@ -67,7 +67,7 @@ jobs:
             MYSQL_ROOT_PASSWORD: shopware
             MYSQL_DATABASE: shopware
       elasticsearch:
-        image: elastic/elasticsearch:7.1.1
+        image: elastic/elasticsearch:7.3.0
         env:
           discovery.type: single-node
 
@@ -84,7 +84,7 @@ jobs:
       run: |
         cd development/platform
         git fetch --prune --unshallow
-        git checkout master
+        git checkout trunk
         git checkout -
         cd ..
         git reset --hard @

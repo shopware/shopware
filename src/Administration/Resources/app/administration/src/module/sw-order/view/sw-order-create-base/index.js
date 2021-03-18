@@ -217,6 +217,25 @@ Component.register('sw-order-create-base', {
 
         taxStatus() {
             return get(this.cart, 'price.taxStatus', '');
+        },
+
+        displayRounded() {
+            if (!this.cartPrice) {
+                return false;
+            }
+            return this.cartPrice.rawTotal !== this.cartPrice.totalPrice;
+        },
+
+        orderTotal() {
+            if (!this.cartPrice) {
+                return 0;
+            }
+
+            if (this.displayRounded) {
+                return this.cartPrice.rawTotal;
+            }
+
+            return this.cartPrice.totalPrice;
         }
     },
 

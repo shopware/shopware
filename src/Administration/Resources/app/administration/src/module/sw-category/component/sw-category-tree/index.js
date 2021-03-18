@@ -3,11 +3,14 @@ import './sw-category-tree.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-category-tree', {
     template,
 
     inject: ['repositoryFactory', 'syncService'],
+
+    mixins: ['notification'],
 
     props: {
         categoryId: {
@@ -55,6 +58,10 @@ Component.register('sw-category-tree', {
     },
 
     computed: {
+        ...mapState('swCategoryDetail', [
+            'categoriesToDelete'
+        ]),
+
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
@@ -81,10 +88,39 @@ Component.register('sw-category-tree', {
             }
 
             return null;
+        },
+
+        criteria() {
+            return new Criteria(1, 500)
+                .addAssociation('navigationSalesChannels')
+                .addAssociation('footerSalesChannels')
+                .addAssociation('serviceSalesChannels');
+        },
+
+        criteriaWithChildren() {
+            const parentCriteria = Criteria.fromCriteria(this.criteria).setLimit(1);
+            parentCriteria.associations.push({
+                association: 'children',
+                criteria: Criteria.fromCriteria(this.criteria)
+            });
+
+            return parentCriteria;
         }
     },
 
     watch: {
+        categoriesToDelete(value) {
+            if (value === undefined) {
+                return;
+            }
+
+            this.$refs.categoryTree.onDeleteElements(value);
+
+            Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
+                categoriesToDelete: undefined
+            });
+        },
+
         category(newVal, oldVal) {
             // load data when path is available
             if (!oldVal && this.isLoadingInitialData) {
@@ -99,9 +135,20 @@ Component.register('sw-category-tree', {
 
             // reload after save
             if (oldVal && newVal.id === oldVal.id) {
-                this.categoryRepository.get(newVal.id, Shopware.Context.api).then((newCategory) => {
-                    this.loadedCategories[newCategory.id] = newCategory;
-                    this.loadedCategories = { ...this.loadedCategories };
+                const affectedCategoryIds = [
+                    newVal.id,
+                    ...oldVal.navigationSalesChannels.map(salesChannel => salesChannel.navigationCategoryId),
+                    ...oldVal.footerSalesChannels.map(salesChannel => salesChannel.footerCategoryId),
+                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId)
+                ];
+
+                const criteria = Criteria.fromCriteria(this.criteria)
+                    .setIds(affectedCategoryIds.filter((value, index, self) => {
+                        return value !== null && self.indexOf(value) === index;
+                    }));
+
+                this.categoryRepository.search(criteria, Shopware.Context.api).then((categories) => {
+                    this.addCategories(categories);
                 });
             }
         },
@@ -113,8 +160,12 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
+            if (this.category !== null) {
+                this.openInitialTree();
+            }
+
             if (!this.categoryId) {
-                this.loadRootCategories().then(() => {
+                this.loadRootCategories().finally(() => {
                     this.isLoadingInitialData = false;
                 });
             }
@@ -136,13 +187,7 @@ Component.register('sw-category-tree', {
                     const parentPromises = [];
 
                     parentIds.forEach((id) => {
-                        const searchCriteria = (new Criteria(1, 1))
-                            .addAssociation('children');
-
-                        searchCriteria.getAssociation('children')
-                            .setLimit(500);
-
-                        const promise = this.categoryRepository.get(id, Shopware.Context.api, searchCriteria)
+                        const promise = this.categoryRepository.get(id, Shopware.Context.api, this.criteriaWithChildren)
                             .then((result) => {
                                 this.addCategories([result, ...result.children]);
                             });
@@ -170,16 +215,71 @@ Component.register('sw-category-tree', {
             });
         },
 
+        checkedElementsCount(count) {
+            this.$emit('category-checked-elements-count', count);
+        },
+
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
+
+            const hasNavigationCategories = ids.some((id) => {
+                return this.loadedCategories[id].navigationSalesChannels !== null
+                    && this.loadedCategories[id].navigationSalesChannels.length > 0;
+            });
+
+            if (hasNavigationCategories) {
+                this.createNotificationError({
+                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple')
+                });
+
+                const categories = ids.map((id) => {
+                    return this.loadedCategories[id];
+                });
+
+                // reload to remove selection
+                ids.forEach((deleted) => {
+                    this.$delete(this.loadedCategories, deleted);
+                });
+                this.$nextTick(() => {
+                    this.addCategories(categories);
+                });
+
+                return;
+            }
+
             this.categoryRepository.syncDeleted(ids, Shopware.Context.api).then(() => {
                 ids.forEach(id => this.removeFromStore(id));
             });
         },
 
-        onDeleteCategory({ data: category }) {
+        onDeleteCategory({ data: category, children }) {
             if (category.isNew()) {
                 this.$delete(this.loadedCategories, category.id);
+                return Promise.resolve();
+            }
+
+            if (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0) {
+                // remove delete flags
+                category.isDeleted = false;
+                if (children.length > 0) {
+                    children.forEach((child) => {
+                        child.data.isDeleted = false;
+                    });
+                }
+
+                // reinsert category in sorting because the tree
+                // already overwrites the afterCategoryId of the following category
+                const next = Object.values(this.loadedCategories).find((item) => {
+                    return item.parentId === category.parentId && item.afterCategoryId === category.afterCategoryId;
+                });
+                if (next !== null) {
+                    next.afterCategoryId = category.id;
+                }
+
+                // reload after changes
+                this.loadedCategories = { ...this.loadedCategories };
+
+                this.createNotificationError({ message: this.$tc('sw-category.general.errorNavigationEntryPoint') });
                 return Promise.resolve();
             }
 
@@ -213,10 +313,10 @@ Component.register('sw-category-tree', {
             }
 
             this.loadedParentIds.push(parentId);
-            const categoryCriteria = new Criteria(1, 500);
-            categoryCriteria.addFilter(Criteria.equals('parentId', parentId));
+            const criteria = Criteria.fromCriteria(this.criteria)
+                .addFilter(Criteria.equals('parentId', parentId));
 
-            return this.categoryRepository.search(categoryCriteria, Shopware.Context.api).then((children) => {
+            return this.categoryRepository.search(criteria, Shopware.Context.api).then((children) => {
                 this.addCategories(children);
             }).catch(() => {
                 this.loadedParentIds = this.loadedParentIds.filter((id) => {
@@ -230,9 +330,9 @@ Component.register('sw-category-tree', {
         },
 
         loadRootCategories() {
-            const criteria = new Criteria();
-            criteria.limit = 500;
-            criteria.addFilter(Criteria.equals('parentId', null));
+            const criteria = Criteria.fromCriteria(this.criteria)
+                .addFilter(Criteria.equals('parentId', null));
+
             return this.categoryRepository.search(criteria, Shopware.Context.api).then((result) => {
                 this.addCategories(result);
             });
@@ -258,8 +358,8 @@ Component.register('sw-category-tree', {
 
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory, Shopware.Context.api).then(() => {
-                    const criteria = new Criteria();
-                    criteria.setIds([newCategory.id, parentId].filter((id) => id !== null));
+                    const criteria = Criteria.fromCriteria(this.criteria)
+                        .setIds([newCategory.id, parentId].filter((id) => id !== null));
                     this.categoryRepository.search(criteria, Shopware.Context.api).then((categories) => {
                         this.addCategories(categories);
                     });
@@ -325,6 +425,12 @@ Component.register('sw-category-tree', {
                 name: this.linkContext,
                 params: { id: category.id }
             }).href;
+        },
+
+        isHighlighted({ data: category }) {
+            return (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0)
+                || (category.serviceSalesChannels !== null && category.serviceSalesChannels.length > 0)
+                || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
         }
     }
 });

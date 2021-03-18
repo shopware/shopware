@@ -55,21 +55,21 @@ describe('Test if breadcrumb works correctly', () => {
             cy.get('.navigation-flyout-content').should('be.visible');
             cy.get('.nav-link.navigation-flyout-link').contains('Sub 1').click();
 
-            cy.get('.cms-breadcrumb .breadcrumb-container').contains('Test category 1').should('have.prop', 'tagName' ).should('eq', 'DIV');
+            cy.get('.cms-breadcrumb .breadcrumb').contains('Test category 1').should('have.prop', 'tagName' ).should('eq', 'DIV');
         });
 
         cy.get('.nav-link.main-navigation-link').contains('Test category 2').trigger('mouseenter').then(() => {
             cy.get('.navigation-flyout-content').should('be.visible');
             cy.get('.nav-link.navigation-flyout-link').contains('Sub 2').click();
 
-            cy.get('.cms-breadcrumb .breadcrumb-container').contains('Test category 2').should('have.prop', 'tagName' ).should('eq', 'A');
+            cy.get('.cms-breadcrumb .breadcrumb').contains('Test category 2').should('have.prop', 'tagName' ).should('eq', 'A');
         });
 
         cy.get('.nav-link.main-navigation-link').contains('Test category 3').trigger('mouseenter').then(() => {
             cy.get('.navigation-flyout-content').should('be.visible');
             cy.get('.nav-link.navigation-flyout-link').contains('Sub 3').click();
 
-            cy.get('.cms-breadcrumb .breadcrumb-container').contains('Test category 3').should('have.prop', 'tagName' ).should('eq', 'A');
+            cy.get('.cms-breadcrumb .breadcrumb').contains('Test category 3').should('have.prop', 'tagName' ).should('eq', 'A');
         });
     });
 });

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-admin-menu-color-text-secondary: darken($color-steam-cloud, 20%);
+$sw-admin-menu-color-text-secondary: darken($color-gray-300, 20%);
 $sw-admin-menu-width-expanded: 300px;
 $sw-admin-menu-width-collapsed: 80px;
 $sw-admin-menu-width-flyout: 220px;
@@ -11,9 +11,9 @@ $sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-off-canvas-transition: 0.4s cubic-bezier(0.3, 0, 0.15, 1);
 $sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-flyout-transition: 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
-$sw-admin-menu-color-active: lighten($color-gradient-dark-gray-start, 3%);
-$sw-admin-menu-color-hover: lighten($color-gradient-dark-gray-start, 6%);
-$sw-admin-menu-shop-status-ok: $color-emerald;
+$sw-admin-menu-color-active: lighten($color-menu-start, 3%);
+$sw-admin-menu-color-hover: lighten($color-menu-start, 6%);
+$sw-admin-menu-shop-status-ok: $color-emerald-500;
 
 $sw-admin-menu-background: #243758;
 $sw-admin-menu-background-hover: #293f65;
@@ -343,7 +343,7 @@ $sw-admin-menu-active-text: $color-white;
     }
 
     .sw-admin-menu__user-type {
-        color: $color-pumpkin-spice;
+        color: $color-pumpkin-spice-500;
         font-size: 13px;
         font-weight: 600;
     }

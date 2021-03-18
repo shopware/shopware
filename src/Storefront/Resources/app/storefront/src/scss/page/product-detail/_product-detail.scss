@@ -31,9 +31,12 @@
     @include font-size(28);
 }
 
-.product-detail-price-unit,
-.product-detail-tax {
+.product-detail-price-unit {
     font-size: $font-size-sm;
+}
+
+.product-detail-tax {
+    font-size: $font-size-base;
 }
 
 .product-detail-delivery-information {
@@ -46,4 +49,38 @@
 
 .product-detail-ordernumber-container {
     margin-bottom: $spacer;
+}
+
+.product-block-prices-grid {
+    thead {
+        background-color: $gray-100;
+    }
+
+    th {
+        font-weight: $font-weight-base;
+    }
+
+    td {
+        font-weight: $font-weight-bold;
+    }
+
+    .product-block-prices-cell {
+        border: 0 none;
+        padding: 10px 0 10px 16px;
+        line-height: 20px;
+
+        &.product-block-prices-cell-thin {
+            font-weight: $font-weight-normal;
+            font-size: $font-size-sm;
+            line-height: 22px;
+        }
+    }
+
+    .product-block-prices-body .product-block-prices-row {
+        border-top: 1px solid $gray-200;
+
+        &:first-of-type {
+            border-top: 0 none;
+        }
+    }
 }

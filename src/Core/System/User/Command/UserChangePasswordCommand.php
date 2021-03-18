@@ -42,15 +42,6 @@ class UserChangePasswordCommand extends Command
         $context = Context::createDefaultContext();
 
         $username = $input->getArgument('username');
-        if ($username === null) {
-            $io->error('No user name given.');
-
-            return 1;
-        }
-        if (\is_array($username)) {
-            $username = implode(' ', $username);
-        }
-
         $password = $input->getOption('password');
 
         $userId = $this->getUserId($username, $context);

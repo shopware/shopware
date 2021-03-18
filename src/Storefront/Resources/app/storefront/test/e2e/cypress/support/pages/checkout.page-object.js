@@ -52,7 +52,21 @@ export default class CheckoutPageObject {
 
             // Offcanvas cart
             offCanvasCart: '.offcanvas',
-            cartActions: '.cart-actions'
+            cartActions: '.cart-actions',
+
+            // payment method
+            paymentMethodsContainer: '.payment-methods',
+            paymentMethods: '.payment-method',
+            paymentMethodsCollapseContainer: '.payment-methods > .collapse',
+            paymentMethodsCollapseTrigger: '.payment-methods > .confirm-checkout-collapse-trigger',
+            paymentFormConfirm: '#changeShippingForm',
+
+            // shipping method
+            shippingMethodsContainer: '.shipping-methods',
+            shippingMethods: '.shipping-method',
+            shippingMethodsCollapseContainer: '.shipping-methods > .collapse',
+            shippingMethodsCollapseTrigger: '.shipping-methods > .confirm-checkout-collapse-trigger',
+            shippingFormConfirm: '#changeShippingForm'
         };
     }
 }

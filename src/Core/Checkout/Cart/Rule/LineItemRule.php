@@ -13,14 +13,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class LineItemRule extends Rule
 {
     /**
-     * @var string[]
+     * @var string[]|null
      */
-    protected $identifiers;
+    protected ?array $identifiers;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
@@ -40,7 +37,7 @@ class LineItemRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -49,7 +46,10 @@ class LineItemRule extends Rule
         return false;
     }
 
-    public function getIdentifiers(): array
+    /**
+     * @return string[]|null
+     */
+    public function getIdentifiers(): ?array
     {
         return $this->identifiers;
     }
@@ -69,7 +69,11 @@ class LineItemRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if (!$lineItem->getReferencedId()) {
+        if ($lineItem->getReferencedId() === null) {
+            return false;
+        }
+
+        if ($this->identifiers === null) {
             return false;
         }
 

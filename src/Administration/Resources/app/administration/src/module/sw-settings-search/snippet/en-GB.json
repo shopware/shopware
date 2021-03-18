@@ -10,47 +10,105 @@
     },
     "generalTab": {
       "labelSearchBehaviour": "Search behaviour",
-      "textTitleSearchBehaviour": "Predefine your storefront search behaviour.",
+      "textTitleSearchBehaviour": "Predefine your Sales Channels' search behaviour.",
       "labelSearchAndCondition": "“AND” Search",
-      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find products that contain both keywords \"jeans\" and \"summer\".",
+      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain both search terms \"jeans\" and \"summer\".",
       "labelSearchOrCondition": "“OR” Search",
-      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find products that contain either the keyword \"jeans\" and \"summer\".",
+      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain either the search term \"jeans\" or the search term \"summer\".",
       "labelMinimalSearchTerm": "Minimal search term length",
+      "labelExcludedSearchTerms": "Excluded search terms",
+      "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
+      "buttonAddExcludedSearch": "Exclude search term",
+      "textPlaceholderTermsFilter": "Search excluded search terms...",
+      "buttonAddExcludedSearchTerms" : "Exclude search term",
+      "labelExcludedSearchTermsNoResults": "No results found.",
       "labelSearchableContent": "Searchable content",
-      "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Storefront go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
+      "textDescriptionSearchableContent": "All searchable content is listed in the table below. To customise search results in your Sales Channels go ahead and either exclude content from being searchable at all or tweak the ranking of each individual element to your liking. Higher ranking elements have an increased \"search value\" and will place higher in the search results.",
       "buttonResetDefault": "Reset to default",
       "linkExample": "Show example",
-      "buttonAddContent": "Add content",
+      "buttonAddContent": "Add searchable content",
       "labelGeneralTab": "General",
       "labelCustomFieldsTab": "Custom fields",
       "textEmptyStateSearchableContent": "No searchable content added yet.",
       "titleExampleModal": "Search ranking example",
+      "textColumnSearchTerm": "Excluded search terms",
       "modal": {
         "textExplain": "Below you'll find three fictional search results for the search term \"jeans\". Searchable are product titles (ranking score 100), product descriptions (ranking score 50) and product tags (ranking score 20).",
         "textTitle": "Title",
-        "textSuperJeans": "super jeans",
+        "textSuperJeans": "Super jeans",
         "textDescription": "Description",
-        "textFancyJeans": "fancy jeans",
+        "textFancyJeans": "Fancy jeans",
         "textTag": "Tag",
         "textJeans": "Jeans",
         "textTotal": "Total",
         "textProductRankedFirstScore": "The product ranked first has a search hit in every searchable entity, resulting in a total ranking score of 170.",
-        "textFancyPants": "fancy pants",
-        "textProductRankedSecondScore": "The product ranked second has search hits for product title and product tags, resulting in a total ranking score of 120.",
+        "textFancyPants": "Fancy pants",
+        "textProductRankedSecondScore": "The product ranked second has search hits for product name and product tags, resulting in a total ranking score of 120.",
         "textSuperPants": "Super pants",
         "textProductRankedThirdScore": "The product ranked third has only one hit in product tags, resulting in a total ranking score of 20."
+      },
+      "labelSearchIndex": "Search index",
+      "buttonRebuildSearchIndex": "Rebuild search index",
+      "textWarningOpenTab": "Please keep this window open.",
+      "textRebuildSearchIndexDescription": "Rebuilding the search index takes some time. During that time, it is mandatory to keep this window open in order to successfully rebuild the search index. You'll be notified as soon as the process has finished.",
+      "textRebuildingSearchIndex": "Rebuilding search index",
+      "textLastedBuild": "Latest build:",
+      "textSearchNotIndexedYet": "Search not indexed yet.",
+      "list": {
+        "columnSearchable": "Searchable",
+        "columnRankingPoints": "Ranking score",
+        "columnContent": "Content",
+        "columnSplitKeywords": "Split search terms",
+        "textResetRanking": "Reset ranking",
+        "textRemove": "Remove"
+      },
+      "configFields": {
+        "name": "Product name",
+        "description": "Product description",
+        "productNumber": "Product number",
+        "manufacturerNumber": "Manufacturer number",
+        "ean": "Product EAN",
+        "customSearchKeywords": "Custom search terms",
+        "manufacturerName": "Manufacturer name",
+        "manufacturerCustomFields": "Manufacturer custom fields",
+        "categoriesName": "Category name",
+        "categoriesCustomFields": "Category custom fields",
+        "tagsName": "Product tag",
+        "metaTitle": "Product meta title",
+        "metaDescription": "Product meta description",
+        "propertiesName": "Property name",
+        "variantValue": "Property value"
       }
     },
     "notification": {
-      "saveSuccess": "The configuration has been saved.",
-      "saveError": "An error occured while saving your configuration."
+      "saveSuccess": "Configuration saved.",
+      "excludedTermRequired": "Excluded search terms should not be empty.",
+      "excludedTermAlreadyExists": "Excluded search term already exists.",
+      "updateExcludedTermSuccess": "Excluded search term updated.",
+      "createExcludedTermSuccess": "Excluded search term created.",
+      "deleteExcludedTermSuccess": "Excluded search term deleted.",
+      "saveError": "An error occurred while saving your configuration.",
+      "index": {
+        "started": "Building product indexes.",
+        "success": "Product indexes built."
+      },
+      "loadError": "An error occurred while loading your configuration."
     },
-    "liveSearchTab": {}
+    "liveSearchTab": {
+      "titleCard": "Sales Channel live search",
+      "textDescription": "Test your custom search settings below.",
+      "labelSalesChannelSelect": "Sales Channel",
+      "textPlaceholderSalesChannel": "Select a Sales Channel...",
+      "linkRebuildSearchIndex": "Rebuild search index",
+      "labelName": "Search result",
+      "labelScore": "Ranking score",
+      "textNoResult": "No results found. Please try again with another search term."
+    }
   },
   "sw-privileges": {
     "permissions": {
       "product_search_config": {
-        "label": "Product Search"
+        "label": "Search"
       }
     }
   }

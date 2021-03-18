@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -95,7 +95,8 @@ class AccountEditOrderPageLoader
 
         $page->setOrder($order);
 
-        $page->setPaymentChangeable($orderRouteResponse->getPaymentChangeable($page->getOrder()->getId()));
+        $isChangeable = $orderRouteResponse->getPaymentsChangeable()[$page->getOrder()->getId()] ?? true;
+        $page->setPaymentChangeable($isChangeable);
 
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request));
 
@@ -108,21 +109,17 @@ class AccountEditOrderPageLoader
         return $page;
     }
 
-    private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponseStruct
+    private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponse
     {
         $criteria = $this->createCriteria($request, $context);
         $apiRequest = new Request();
-        $apiRequest->query->set('checkPromotion', true);
+        $apiRequest->query->set('checkPromotion', 'true');
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute
-            ->load($event->getStoreApiRequest(), $context, $criteria)
-            ->getObject();
-
-        return $responseStruct;
+        return $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria);
     }
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
@@ -156,14 +153,15 @@ class AccountEditOrderPageLoader
 
         $routeRequest = new Request();
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-        $routeRequest->query->set('onlyAvailable', 1);
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
         return $this->paymentMethodRoute->load(
             $event->getStoreApiRequest(),
-            $context
+            $context,
+            new Criteria()
         )->getPaymentMethods();
     }
 

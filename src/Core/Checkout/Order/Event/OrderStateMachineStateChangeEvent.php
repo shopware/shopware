@@ -21,13 +21,6 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     private $order;
 
     /**
-     * @deprecated tag:v6.4.0 - will be removed
-     *
-     * @var string|null
-     */
-    private $salesChannelId;
-
-    /**
      * @var Context
      */
     private $context;
@@ -42,13 +35,9 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
      */
     private $mailRecipientStruct;
 
-    /**
-     * @deprecated tag:v6.4.0 - parameter $salesChannelId will be removed
-     */
-    public function __construct(string $eventName, OrderEntity $order, ?string $salesChannelId, Context $context)
+    public function __construct(string $eventName, OrderEntity $order, Context $context)
     {
         $this->order = $order;
-        $this->salesChannelId = $salesChannelId;
         $this->context = $context;
         $this->name = $eventName;
     }
@@ -91,6 +80,6 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
 
     public function getName(): string
     {
-        return (string) $this->name;
+        return $this->name;
     }
 }

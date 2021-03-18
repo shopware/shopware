@@ -166,7 +166,7 @@ class ImportExportService
             return 'text/csv';
         }
 
-        return (string) $file->getClientMimeType();
+        return $file->getClientMimeType();
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity
@@ -288,6 +288,7 @@ class ImportExportService
         $parameters['enclosure'] = $profileEntity->getEnclosure();
         $parameters['sourceEntity'] = $profileEntity->getSourceEntity();
         $parameters['fileType'] = $profileEntity->getFileType();
+        $parameters['profileName'] = $profileEntity->getName();
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),

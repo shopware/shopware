@@ -2,45 +2,52 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
-use Shopware\Core\Content\Product\ProductCollection;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
-class ProductUrlProvider implements UrlProviderInterface
+class ProductUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'hourly';
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var ConfigHandler
-     */
-    private $configHandler;
+    private ConfigHandler $configHandler;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
+    private Connection $connection;
+
+    private ProductDefinition $definition;
+
+    private RouterInterface $router;
 
     public function __construct(
-        SalesChannelRepositoryInterface $productRepository,
         ConfigHandler $configHandler,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+        Connection $connection,
+        ProductDefinition $definition,
+        IteratorFactory $iteratorFactory,
+        RouterInterface $router
     ) {
-        $this->productRepository = $productRepository;
         $this->configHandler = $configHandler;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
+        $this->connection = $connection;
+        $this->definition = $definition;
+        $this->iteratorFactory = $iteratorFactory;
+        $this->router = $router;
+    }
+
+    public function getDecorated(): AbstractUrlProvider
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function getName(): string
@@ -50,56 +57,90 @@ class ProductUrlProvider implements UrlProviderInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Exception
      */
-    public function getUrls(SalesChannelContext $salesChannelContext, int $limit, ?int $offset = null): UrlResult
+    public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
-        $products = $this->getProducts($salesChannelContext, $limit, $offset);
+        $products = $this->getProducts($context, $limit, $offset);
+
+        if (empty($products)) {
+            return new UrlResult([], null);
+        }
+
+        $keys = FetchModeHelper::keyPair($products);
+
+        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
+
+        $seoUrls = FetchModeHelper::groupUnique($seoUrls);
 
         $urls = [];
         $url = new Url();
+
         foreach ($products as $product) {
-            /** @var \DateTimeInterface $lastmod */
-            $lastmod = $product->getUpdatedAt() ?: $product->getCreatedAt();
+            $lastMod = $product['updated_at'] ?: $product['created_at'];
+
+            $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
             $newUrl = clone $url;
-            $newUrl->setLoc($this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $product->getId()]));
-            $newUrl->setLastmod($lastmod);
+
+            if (isset($seoUrls[$product['id']])) {
+                $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
+            } else {
+                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']], UrlGeneratorInterface::ABSOLUTE_PATH));
+            }
+
+            $newUrl->setLastmod(new \DateTime($lastMod));
             $newUrl->setChangefreq(self::CHANGE_FREQ);
             $newUrl->setResource(ProductEntity::class);
-            $newUrl->setIdentifier($product->getId());
+            $newUrl->setIdentifier($product['id']);
 
             $urls[] = $newUrl;
         }
 
-        if (\count($urls) < $limit) { // last run
-            $nextOffset = null;
-        } elseif ($offset === null) { // first run
-            $nextOffset = $limit;
-        } else { // 1+n run
-            $nextOffset = $offset + $limit;
-        }
+        $keys = array_keys($keys);
+        /** @var int|null $nextOffset */
+        $nextOffset = array_pop($keys);
 
         return new UrlResult($urls, $nextOffset);
     }
 
-    private function getProducts(SalesChannelContext $salesChannelContext, int $limit, ?int $offset): ProductCollection
+    private function getProducts(SalesChannelContext $context, int $limit, ?int $offset): array
     {
-        $productsCriteria = new Criteria();
-        $productsCriteria->setLimit($limit);
-
-        if ($offset !== null) {
-            $productsCriteria->setOffset($offset);
+        $lastId = null;
+        if ($offset) {
+            $lastId = ['offset' => $offset];
         }
 
-        $excludedProductIds = $this->getExcludedProductIds($salesChannelContext);
+        $iterator = $this->iteratorFactory->createIterator($this->definition, $lastId);
+        $query = $iterator->getQuery();
+        $query->setMaxResults($limit);
+
+        $query->addSelect([
+            '`product`.created_at as created_at',
+            '`product`.updated_at as updated_at',
+        ]);
+
+        $query->leftJoin('`product`', '`product`', 'parent', '`product`.parent_id = parent.id');
+        $query->innerJoin('`product`', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
+
+        $query->andWhere('`product`.version_id = :versionId');
+        $query->andWhere('`product`.available = 1');
+        $query->andWhere('IFNULL(`product`.active, parent.active) = 1');
+        $query->andWhere('(`product`.child_count = 0 OR `product`.parent_id IS NOT NULL)');
+        $query->andWhere('visibilities.product_version_id = :versionId');
+        $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
+
+        $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
-            $productsCriteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('id', $excludedProductIds)]));
+            $query->andWhere('`product`.id NOT IN (:productIds)');
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), Connection::PARAM_STR_ARRAY);
         }
 
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($productsCriteria, $salesChannelContext)->getEntities();
+        $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $products;
+        return $query->execute()->fetchAll();
     }
 
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array

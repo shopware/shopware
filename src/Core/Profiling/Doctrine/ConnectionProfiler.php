@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
 class ConnectionProfiler implements DataCollectorInterface
 {
-    private $data = [];
+    private array $data = [];
 
     /**
      * @var DebugStack|null
@@ -37,7 +37,7 @@ class ConnectionProfiler implements DataCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(Request $request, Response $response, ?\Exception $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         if (!$this->logger || !$this->logger instanceof DebugStack) {
             $this->data['queries'] = [];

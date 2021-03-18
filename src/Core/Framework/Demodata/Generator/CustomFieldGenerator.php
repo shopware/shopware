@@ -15,22 +15,13 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 class CustomFieldGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $attributeSetRepository;
+    private EntityRepositoryInterface $attributeSetRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    private $attributeSets = [];
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private array $attributeSets = [];
 
     public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
     {

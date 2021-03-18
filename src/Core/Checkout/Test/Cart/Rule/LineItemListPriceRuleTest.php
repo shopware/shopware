@@ -13,17 +13,16 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,12 +32,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemListPriceRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
-    /**
-     * @var LineItemListPriceRule
-     */
-    private $rule;
+    private LineItemListPriceRule $rule;
 
     protected function setUp(): void
     {
@@ -47,7 +44,7 @@ class LineItemListPriceRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('cartLineItemListPrice', $this->rule->getName());
+        static::assertSame('cartLineItemListPrice', $this->rule->getName());
     }
 
     public function testGetConstraints(): void
@@ -61,19 +58,23 @@ class LineItemListPriceRuleTest extends TestCase
     /**
      * @dataProvider getMatchingRuleTestData
      */
-    public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithLineItem(
+        string $operator,
+        float $amount,
+        float $lineItemAmount,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
         ]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemAmount),
+            $this->createLineItemWithListPrice($lineItemAmount),
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
     }
 
     public function getMatchingRuleTestData(): array
@@ -107,27 +108,61 @@ class LineItemListPriceRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      */
-    public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
-    {
+    public function testIfMatchesCorrectWithCartRuleScope(
+        string $operator,
+        float $amount,
+        float $lineItemAmount1,
+        float $lineItemAmount2,
+        bool $expected
+    ): void {
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
         ]);
 
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithListPrice($lineItemAmount1),
+            $this->createLineItemWithListPrice($lineItemAmount2),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($lineItemAmount1));
-        $lineItemCollection->add($this->createLineItem($lineItemAmount2));
-
-        $cart->setLineItems($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopeNested(
+        string $operator,
+        float $amount,
+        float $lineItemAmount1,
+        float $lineItemAmount2,
+        bool $expected
+    ): void {
+        $this->rule->assign([
+            'amount' => $amount,
+            'operator' => $operator,
+        ]);
+
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithListPrice($lineItemAmount1),
+            $this->createLineItemWithListPrice($lineItemAmount2),
+        ]);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
     }
 
     public function getCartRuleScopeTestData(): array
@@ -167,7 +202,7 @@ class LineItemListPriceRuleTest extends TestCase
         $this->rule->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            new LineItem('dummy-article', 'product', null, 3),
+            $this->createLineItem(),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -183,12 +218,8 @@ class LineItemListPriceRuleTest extends TestCase
 
         $this->rule->assign(['amount' => $price, 'operator' => Rule::OPERATOR_EQ]);
 
-        $calculatedPrice = new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection(), 1, null, null);
-
-        $lineItem = (new LineItem(Uuid::randomHex(), 'product', null, 3))->setPrice($calculatedPrice);
-
         $match = $this->rule->match(new LineItemScope(
-            $lineItem,
+            $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -199,6 +230,11 @@ class LineItemListPriceRuleTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        static::assertNotFalse($itemRounding);
+        $totalRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        static::assertNotFalse($totalRounding);
+
         $currency = [
             'id' => $ids->create('currency'),
             'name' => 'dollar',
@@ -207,6 +243,8 @@ class LineItemListPriceRuleTest extends TestCase
             'isoCode' => 'US',
             'decimalPrecision' => 2,
             'shortName' => 'dollar',
+            'itemRounding' => json_decode($itemRounding, true),
+            'totalRounding' => json_decode($totalRounding, true),
         ];
 
         $this->getContainer()->get('currency.repository')
@@ -236,7 +274,10 @@ class LineItemListPriceRuleTest extends TestCase
             ],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
@@ -264,7 +305,7 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $lineItem->getPrice());
         static::assertInstanceOf(ListPrice::class, $lineItem->getPrice()->getListPrice());
         $listPrice = $lineItem->getPrice()->getListPrice();
-        static::assertEquals(20, $listPrice->getPrice());
+        static::assertSame(20.0, $listPrice->getPrice());
 
         $rules = [
             new LineItemListPriceRule(Rule::OPERATOR_GTE, 19),
@@ -310,15 +351,10 @@ class LineItemListPriceRuleTest extends TestCase
         }
     }
 
-    /**
-     * @throws InvalidQuantityException
-     */
-    private function createLineItem(float $listPriceAmount): LineItem
+    private function createLineItemWithListPrice(float $listPriceAmount): LineItem
     {
         $listPrice = ListPrice::createFromUnitPrice(400, $listPriceAmount);
 
-        $calculatedPrice = new CalculatedPrice($listPriceAmount, $listPriceAmount, new CalculatedTaxCollection(), new TaxRuleCollection(), 1, null, $listPrice);
-
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))->setPrice($calculatedPrice);
+        return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
     }
 }

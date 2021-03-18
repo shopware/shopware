@@ -4,7 +4,14 @@ Payment method
 Custom styling for payment form used e.g. on account and checkout pages.
 */
 
+.payment-method-description > p {
+    color: $border-color;
+}
+
 .payment-method-image {
-    max-height: 35px;
+    max-height: 24px;
+    max-width: 100%;
     margin-right: $spacer-xs;
+    margin-left: $spacer-xs;
+    float: right;
 }

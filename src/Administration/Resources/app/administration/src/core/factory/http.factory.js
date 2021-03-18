@@ -32,82 +32,13 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  */
 function createClient() {
     const client = Axios.create({
-        baseURL: getBasePath(Shopware.Context.api.apiVersion - 1)
+        baseURL: Shopware.Context.api.apiPath
     });
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
 
-    wrapMethod(client, 'request', (args) => changeVersion(args[0]));
-    wrapMethod(client, 'get', (args) => changeVersion(args[1]));
-    wrapMethod(client, 'delete', (args) => changeVersion(args[1]));
-    wrapMethod(client, 'head', (args) => changeVersion(args[1]));
-    wrapMethod(client, 'options', (args) => changeVersion(args[1]));
-    wrapMethod(client, 'post', (args) => changeVersion(args[2]));
-    wrapMethod(client, 'put', (args) => changeVersion(args[2]));
-    wrapMethod(client, 'patch', (args) => changeVersion(args[2]));
-
     return client;
-}
-
-/**
- * Creates a wrapper around a method
- *
- * @param original
- * @param functionName
- * @param cb {function}
- */
-function wrapMethod(original, functionName, cb) {
-    (function wrap() {
-        const _original = original[functionName];
-
-        original[functionName] = function wrappedFunction(...args) {
-            cb(args);
-
-            return _original.apply(this, args);
-        };
-    }());
-}
-
-/**
- * change the request url with the given version in the configuration
- * @param config
- */
-function changeVersion(config) {
-    if (!config || !config.version) {
-        checkVersionDeprecation(Shopware.Context.api.apiVersion - 1);
-        return;
-    }
-
-    config.baseURL = getBasePath(config.version);
-
-    checkVersionDeprecation(config.version);
-
-    delete config.version;
-}
-
-function checkVersionDeprecation(version) {
-    if (version >= Shopware.Context.api.apiVersion) {
-        return;
-    }
-
-    Shopware.Utils.debug.warn(
-        'httpClient',
-        `The request uses a deprecated api version: ${version}. You should upgrade the request to the latest api version.`
-    );
-}
-
-/**
- * Returns the base path of the version
- * @param {number} version
- * @returns {string}
- */
-function getBasePath(version = Shopware.Context.api.apiVersion) {
-    if (version <= 0) {
-        version = Shopware.Context.api.apiVersion;
-    }
-
-    return `${Shopware.Context.api.apiPath}/v${version}`;
 }
 
 /**
@@ -155,7 +86,6 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
     // Handle sync-api errors
     if (status === 400 &&
-        Shopware.Feature.isActive('FEATURE_NEXT_10539') &&
         Shopware.Utils.get(error, 'response.config.url', '').includes('_action/sync')) {
         if (!data) {
             return;
@@ -207,21 +137,14 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
             const entityName = parameters.entity;
             let blockingEntities = '';
-            if (Shopware.Feature.isActive('FEATURE_NEXT_10539')) {
-                blockingEntities = parameters.usages.reduce((message, usageObject) => {
-                    const times = usageObject.count;
-                    const timesSnippet = $tc('global.default.xTimesIn', times);
-                    const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
-                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                }, '');
-            } else {
-                blockingEntities = parameters.usages.reduce((message, entity) => {
-                    const times = entity.match(/ \(([0-9]*)?\)/, '');
-                    const timesSnippet = $tc('global.default.xTimesIn', times[1]);
-                    const blockingEntitiesSnippet = $tc(`global.entities.${entity.replace(/ \([0-9]*?\)/, '')}`, times[1]);
-                    return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
-                }, '');
-            }
+
+            blockingEntities = parameters.usages.reduce((message, usageObject) => {
+                const times = usageObject.count;
+                const timesSnippet = $tc('global.default.xTimesIn', times);
+                const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
+                return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
+            }, '');
+
             Shopware.State.dispatch('notification/createNotification', {
                 variant: 'error',
                 title: $tc('global.default.error'),

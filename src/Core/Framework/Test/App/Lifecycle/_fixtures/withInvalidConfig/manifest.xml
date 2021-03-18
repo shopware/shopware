@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
     <meta>
         <name>withInvalidConfig</name>
         <label>Swag App Test</label>
@@ -35,7 +35,7 @@
             url="https://swag-test.com/do-stuff">
             <label>Do Stuff</label>
         </action-button>
-        <module name="first-module" source="https://test.com">
+        <module name="first-module" source="https://test.com" parent="sw-catalogue" position="50">
             <label>My first own module</label>
             <label lang="de-DE">Mein erstes eigenes Modul</label>
         </module>

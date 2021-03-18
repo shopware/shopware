@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -47,7 +46,7 @@ class ImportExportActionControllerTest extends TestCase
             $client = $this->getBrowser();
             $client->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/_action/import-export/prepare',
+                '/api/_action/import-export/prepare',
                 ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile('text/html', 'test.xml')],
                 ['Content-Type' => 'multipart/formdata']
@@ -69,7 +68,7 @@ class ImportExportActionControllerTest extends TestCase
             $client = $this->getBrowser();
             $client->request(
                 'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/_action/import-export/prepare',
+                '/api/_action/import-export/prepare',
                 ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile($entry['fileType'])],
                 ['Content-Type' => 'multipart/formdata']

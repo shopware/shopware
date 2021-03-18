@@ -6,7 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -26,24 +26,10 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      */
     private $shippingMethodRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
-     * @var SalesChannelShippingMethodDefinition
-     */
-    private $shippingMethodDefinition;
-
     public function __construct(
-        SalesChannelRepositoryInterface $shippingMethodRepository,
-        RequestCriteriaBuilder $criteriaBuilder,
-        SalesChannelShippingMethodDefinition $shippingMethodDefinition
+        SalesChannelRepositoryInterface $shippingMethodRepository
     ) {
         $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->shippingMethodDefinition = $shippingMethodDefinition;
     }
 
     public function getDecorated(): AbstractShippingMethodRoute
@@ -68,30 +54,50 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available shipping methods",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/shipping_method_flat"))
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/shipping_method_flat")
+     *              )
+     *          )
      *     )
      * )
-     * @Route("/store-api/v{version}/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
+     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): ShippingMethodRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->shippingMethodDefinition, $context->getContext());
-        }
-
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
+        if (empty($criteria->getSorting())) {
+            $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        }
+
+        $result = $this->shippingMethodRepository->search($criteria, $context);
+
         /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context)->getEntities();
+        $shippingMethods = $result->getEntities();
+        $shippingMethods->sortShippingMethodsByPreference($context);
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 
-        return new ShippingMethodRouteResponse($shippingMethods);
+        $result->assign(['entities' => $shippingMethods]);
+
+        return new ShippingMethodRouteResponse($result);
     }
 }

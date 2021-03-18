@@ -2,7 +2,7 @@ const { Filter } = Shopware;
 const { types } = Shopware.Utils;
 const { currency } = Shopware.Utils.format;
 
-Filter.register('currency', (value, format, decimalPlaces) => {
+Filter.register('currency', (value, format, decimalPlaces, additionalOptions) => {
     if ((!value || value === true) && (!types.isNumber(value) || types.isEqual(value, NaN))) {
         return '-';
     }
@@ -11,5 +11,5 @@ Filter.register('currency', (value, format, decimalPlaces) => {
         return value;
     }
 
-    return currency(parseFloat(value), format, decimalPlaces);
+    return currency(parseFloat(value), format, decimalPlaces, additionalOptions);
 });

@@ -3,17 +3,20 @@
 namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
-use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ReferencePriceCalculatorTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
-     * @var ReferencePriceCalculator
+     * @var GrossPriceCalculator
      */
     private $calculator;
 
@@ -21,20 +24,16 @@ class ReferencePriceCalculatorTest extends TestCase
     {
         parent::setUp();
 
-        $this->calculator = new ReferencePriceCalculator(new PriceRounding());
+        $this->calculator = $this->getContainer()->get(GrossPriceCalculator::class);
     }
 
     public function testNoReferencePriceWithoutDefinition(): void
     {
-        $quantityPriceDefinition = new QuantityPriceDefinition(
-            123.3,
-            new TaxRuleCollection(),
-            2
-        );
+        $definition = new QuantityPriceDefinition(123.3, new TaxRuleCollection());
 
-        $referencePrice = $this->calculator->calculate(123.3, $quantityPriceDefinition);
+        $referencePrice = $this->calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
 
-        static::assertNull($referencePrice);
+        static::assertNull($referencePrice->getReferencePrice());
     }
 
     /**
@@ -48,16 +47,11 @@ class ReferencePriceCalculatorTest extends TestCase
             'Liter'
         );
 
-        $quantityPriceDefinition = new QuantityPriceDefinition(
-            $price,
-            new TaxRuleCollection(),
-            2,
-            1,
-            false,
-            $referencePriceDefinition
-        );
+        $quantityPriceDefinition = new QuantityPriceDefinition($price, new TaxRuleCollection());
+        $quantityPriceDefinition->setReferencePriceDefinition($referencePriceDefinition);
+        $quantityPriceDefinition->setIsCalculated(false);
 
-        $referencePrice = $this->calculator->calculate($price, $quantityPriceDefinition);
+        $referencePrice = $this->calculator->calculate($quantityPriceDefinition, new CashRoundingConfig(2, 0.01, true));
 
         $expectedReferencePrice = new ReferencePrice(
             $expectedPrice,
@@ -66,7 +60,7 @@ class ReferencePriceCalculatorTest extends TestCase
             $referencePriceDefinition->getUnitName()
         );
 
-        static::assertEquals($expectedReferencePrice, $referencePrice);
+        static::assertEquals($expectedReferencePrice, $referencePrice->getReferencePrice());
     }
 
     public function calculationProvider(): array

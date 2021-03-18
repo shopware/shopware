@@ -10,20 +10,21 @@
     },
     "config": {
         "platform": {
-            "php": "7.2.9"
+            "php": "7.4.0"
         },
         "sort-packages": true
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.3.x-dev"
+            "dev-master": "6.4.x-dev",
+            "dev-trunk": "6.4.x-dev"
         }
     },
     "require": {
         "shopware/core": "*",
-        "symfony/framework-bundle": "~4.4.13",
-        "symfony/http-foundation": "~4.4.13",
-        "symfony/routing": "~4.4.13",
-        "symfony/mime": "~4.4.13"
+        "symfony/framework-bundle": "~5.2.3",
+        "symfony/http-foundation": "~5.2.3",
+        "symfony/routing": "~5.2.3",
+        "symfony/mime": "~5.2.3"
     }
 }

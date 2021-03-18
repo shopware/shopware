@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Wishlist;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
@@ -25,20 +26,11 @@ class WishlistPageLoader
 
     private const DEFAULT_PAGE = 1;
 
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractLoadWishlistRoute
-     */
-    private $wishlistLoadRoute;
+    private AbstractLoadWishlistRoute $wishlistLoadRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
@@ -56,24 +48,22 @@ class WishlistPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $context): WishlistPage
+    public function load(Request $request, SalesChannelContext $context, CustomerEntity $customer): WishlistPage
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $criteria = $this->createCriteria($request);
+        $this->eventDispatcher->dispatch(new WishListPageProductCriteriaEvent($criteria, $context, $request));
 
         $page = $this->genericLoader->load($request, $context);
         $page = WishlistPage::createFrom($page);
 
         try {
-            $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria));
+            $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria, $customer));
         } catch (CustomerWishlistNotFoundException $exception) {
             $page->setWishlist(
                 new LoadWishlistRouteResponse(
                     new CustomerWishlistEntity(),
                     new EntitySearchResult(
+                        'wishlist',
                         0,
                         new ProductCollection(),
                         null,
@@ -93,8 +83,10 @@ class WishlistPageLoader
 
     private function createCriteria(Request $request): Criteria
     {
-        $limit = (int) $request->query->get('limit', self::LIMIT);
-        $page = (int) $request->query->get('p', self::DEFAULT_PAGE);
+        $limit = $request->query->get('limit');
+        $limit = $limit ? (int) $limit : self::LIMIT;
+        $page = $request->query->get('p');
+        $page = $page ? (int) $page : self::DEFAULT_PAGE;
         $offset = $limit * ($page - 1);
 
         return (new Criteria())

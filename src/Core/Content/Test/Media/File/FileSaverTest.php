@@ -45,7 +45,9 @@ class FileSaverTest extends TestCase
      */
     private $fileSaver;
 
-    /** @var UrlGeneratorInterface */
+    /**
+     * @var UrlGeneratorInterface
+     */
     private $urlGenerator;
 
     protected function setUp(): void
@@ -458,7 +460,7 @@ class FileSaverTest extends TestCase
         $png = $this->getPng();
 
         $collection = new MediaCollection([$png]);
-        $searchResult = new EntitySearchResult(1, $collection, null, new Criteria(), $context);
+        $searchResult = new EntitySearchResult('temp', 1, $collection, null, new Criteria(), $context);
 
         $repositoryMock = $this->createMock(EntityRepository::class);
         $repositoryMock->expects(static::exactly(2))

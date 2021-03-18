@@ -1,7 +1,6 @@
 ---
 title: Display Cross Selling Element on Storefront
 issue: NEXT-12063
-flag: FEATURE_NEXT_10078
 ---
 # Core
 * Added `Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver` to resolve `cross-selling` cms element.

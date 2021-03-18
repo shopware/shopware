@@ -146,7 +146,6 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
             'app_url' => 'https://test.com',
@@ -221,7 +220,6 @@ class AppRegistrationServiceTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
             'product' => ['update'],

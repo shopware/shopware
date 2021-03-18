@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\Exception\FeatureNotActiveException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
@@ -25,10 +23,6 @@ class MailSender extends AbstractMailSender
 
     public function __construct(Mailer $mailer, SystemConfigService $configService)
     {
-        if (!Feature::isActive('FEATURE_NEXT_12246')) {
-            throw new FeatureNotActiveException('FEATURE_NEXT_12246');
-        }
-
         $this->mailer = $mailer;
         $this->configService = $configService;
     }

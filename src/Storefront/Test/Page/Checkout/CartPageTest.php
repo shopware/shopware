@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
@@ -41,7 +44,16 @@ class CartPageTest extends TestCase
 
     public function testAddsCurrentSelectedShippingMethod(): void
     {
-        $response = new ShippingMethodRouteResponse(new ShippingMethodCollection());
+        $response = new ShippingMethodRouteResponse(
+            new EntitySearchResult(
+                'shipping_method',
+                0,
+                new ShippingMethodCollection(),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
 
         $route = $this->createMock(ShippingMethodRoute::class);
         $route->method('load')

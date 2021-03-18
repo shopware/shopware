@@ -66,7 +66,7 @@ class BusinessEventDispatcherTest extends TestCase
         $repository = static::createMock(EntityRepository::class);
         $repository->expects(static::once())
             ->method('search')
-            ->willReturn(new EntitySearchResult(0, new EventActionCollection(), null, new Criteria(), Context::createDefaultContext()));
+            ->willReturn(new EntitySearchResult('event_action', 0, new EventActionCollection(), null, new Criteria(), Context::createDefaultContext()));
 
         $container = static::createMock(DefinitionInstanceRegistry::class);
         $container->expects(static::once())

@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-category-view {
+    .swag-category-view__column-info {
+        max-width: 800px;
+        margin: 0 auto 40px auto;
+    }
+
+    .swag-category-view__column-info-header {
+        font-weight: $font-weight-semi-bold;
+        margin-bottom: 10px;
+    }
+}

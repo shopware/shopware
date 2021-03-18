@@ -50,19 +50,13 @@ class ScheduledTaskRunner extends Command
         $startTime = microtime(true);
         $endTime = null;
         $timeLimit = $input->getOption('time-limit');
-        if (\is_array($timeLimit)) {
-            $timeLimit = implode('', $timeLimit);
-        }
         if ($timeLimit) {
             $endTime = $startTime + (int) $timeLimit;
         }
 
         $memoryLimit = $input->getOption('memory-limit');
-        if (\is_array($memoryLimit)) {
-            $memoryLimit = implode('', $memoryLimit);
-        }
         if ($memoryLimit) {
-            $memoryLimit = $this->convertToBytes((string) $memoryLimit);
+            $memoryLimit = $this->convertToBytes($memoryLimit);
         }
 
         while (!$this->shouldStop) {

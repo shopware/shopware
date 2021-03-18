@@ -31,7 +31,6 @@ class DeprecatedConverter extends ApiConverter
                 'product',
                 'productId',
             ],
-            NewEntityDefinition::ENTITY_NAME => true,
         ];
     }
 

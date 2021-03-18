@@ -14,8 +14,5 @@ abstract class AbstractSeoUrlRoute
 {
     abstract public function getDecorated(): AbstractSeoUrlRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
-     */
-    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): SeoUrlRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse;
 }

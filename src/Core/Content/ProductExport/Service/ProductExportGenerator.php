@@ -20,39 +20,60 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
-    /** @var ProductStreamBuilderInterface */
+    /**
+     * @var ProductStreamBuilderInterface
+     */
     private $productStreamBuilder;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $readBufferSize;
 
-    /** @var SalesChannelRepositoryInterface */
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
     private $productRepository;
 
-    /** @var ProductExportRendererInterface */
+    /**
+     * @var ProductExportRendererInterface
+     */
     private $productExportRender;
 
-    /** @var EventDispatcherInterface */
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
 
-    /** @var ProductExportValidatorInterface */
+    /**
+     * @var ProductExportValidatorInterface
+     */
     private $productExportValidator;
 
-    /** @var SalesChannelContextServiceInterface */
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
     private $salesChannelContextService;
 
-    /** @var Translator */
+    /**
+     * @var Translator
+     */
     private $translator;
 
-    /** @var SalesChannelContextPersister */
+    /**
+     * @var SalesChannelContextPersister
+     */
     private $contextPersister;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
     public function __construct(
@@ -82,14 +103,21 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
     {
         $contextToken = Uuid::randomHex();
-        $this->contextPersister->save($contextToken, [
-            SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
-        ]);
+        $this->contextPersister->save(
+            $contextToken,
+            [
+                SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
+            ],
+            $productExport->getSalesChannelId()
+        );
 
         $context = $this->salesChannelContextService->get(
-            $productExport->getStorefrontSalesChannelId(),
-            $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId()
+            new SalesChannelContextServiceParameters(
+                $productExport->getStorefrontSalesChannelId(),
+                $contextToken,
+                $productExport->getSalesChannelDomain()->getLanguageId(),
+                $productExport->getSalesChannelDomain()->getCurrencyId() ?? $productExport->getCurrencyId()
+            )
         );
 
         $this->translator->injectSettings(

@@ -122,9 +122,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
             wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
         ).toBeTruthy();
         expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-cart-conditions').attributes().disabled
-        ).toBeTruthy();
-        expect(
             wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled
         ).toBeTruthy();
     });
@@ -142,9 +139,6 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () =
         ).toBeFalsy();
         expect(
             wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-cart-conditions').attributes().disabled
         ).toBeFalsy();
         expect(
             wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled

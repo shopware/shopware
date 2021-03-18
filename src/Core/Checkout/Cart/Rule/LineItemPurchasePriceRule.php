@@ -15,20 +15,11 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemPurchasePriceRule extends Rule
 {
-    /**
-     * @var float
-     */
-    protected $amount;
+    protected ?float $amount;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
-    /**
-     * @var bool
-     */
-    protected $isNet;
+    protected bool $isNet;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null, bool $isNet = true)
     {
@@ -54,7 +45,7 @@ class LineItemPurchasePriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchPurchasePriceCondition($lineItem)) {
                 return true;
             }
@@ -91,11 +82,6 @@ class LineItemPurchasePriceRule extends Rule
     private function matchPurchasePriceCondition(LineItem $lineItem): bool
     {
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
-
-        //@deprecated tag:v6.4.0 - Check for purchasePrice will be removed in 6.4.0 use purchasePrices instead
-        if (!$purchasePriceAmount) {
-            $purchasePriceAmount = $lineItem->getPayloadValue('purchasePrice');
-        }
 
         if (!$purchasePriceAmount) {
             return false;

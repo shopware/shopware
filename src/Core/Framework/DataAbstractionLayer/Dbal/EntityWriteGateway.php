@@ -450,7 +450,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $primaryKeys = [];
         $definitions = [];
 
-        /** @var WriteCommand|ChangeSetAware $command */
         foreach ($commands as $command) {
             if (!$command instanceof ChangeSetAware || !$command instanceof WriteCommand) {
                 continue;

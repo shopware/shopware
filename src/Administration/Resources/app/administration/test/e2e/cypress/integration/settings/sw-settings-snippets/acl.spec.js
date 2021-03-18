@@ -38,8 +38,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.get(':nth-child(2) > .sw-card__content > .sw-loader').should('not.exist');
 
         // check content and disabled state of input fields
+        cy.get('#sw-field--translationKey').should('be.visible');
         cy.get('#sw-field--translationKey')
-            .should('to.have.prop', 'disabled', true)
             .invoke('val')
             .then(content => cy.expect(content).to.contain('aWonderful.customSnip'));
 
@@ -64,7 +64,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet/*',
+            url: `${Cypress.env('apiPath')}/snippet/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -103,7 +103,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet',
+            url: `${Cypress.env('apiPath')}/snippet`,
             method: 'post'
         }).as('saveData');
 
@@ -121,6 +121,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.get(':nth-child(2) > .sw-card__content > .sw-loader').should('not.be.exist');
 
         // fill out input fields
+        cy.get('#sw-field--translationKey').should('be.visible');
         cy.get('#sw-field--translationKey').typeAndCheck('random.snippet');
 
         cy.get(':nth-child(1) > .sw-field > .sw-block-field__block > #sw-field--snippet-value').typeAndCheck('Zufällig');
@@ -147,7 +148,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet-set',
+            url: `${Cypress.env('apiPath')}/snippet-set`,
             method: 'post'
         }).as('saveData');
 

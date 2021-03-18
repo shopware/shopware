@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,31 +19,20 @@ class CompositeEntitySearcher
      */
     private $definitions;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        ApiVersionConverter $apiVersionConverter,
         iterable $definitions
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->definitions = $definitions;
-        $this->apiVersionConverter = $apiVersionConverter;
     }
 
-    public function search(string $term, int $limit, Context $context, int $apiVersion): array
+    public function search(string $term, int $limit, Context $context): array
     {
         $entities = [];
 
         foreach ($this->definitions as $definition) {
             if (!$context->isAllowed($definition->getEntityName() . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
-                continue;
-            }
-
-            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
                 continue;
             }
 

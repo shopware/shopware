@@ -23,7 +23,7 @@ class CreditCartProcessor implements CartProcessorInterface
     public function process(
         CartDataCollection $data,
         Cart $original,
-        Cart $calculated,
+        Cart $toCalculate,
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
@@ -39,12 +39,12 @@ class CreditCartProcessor implements CartProcessorInterface
             $lineItem->setPrice(
                 $this->calculator->calculate(
                     $definition->getPrice(),
-                    $calculated->getLineItems()->getPrices(),
+                    $toCalculate->getLineItems()->getPrices(),
                     $context
                 )
             );
 
-            $calculated->add($lineItem);
+            $toCalculate->add($lineItem);
         }
     }
 }

@@ -102,6 +102,8 @@ Component.register('sw-product-modal-variant-generation', {
                     this.isLoading = false;
                     this.actualProgress = 0;
                     this.maxProgress = 0;
+
+                    this.$root.$emit('product-reload');
                 });
             }, () => {
                 // When rejected

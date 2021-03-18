@@ -153,7 +153,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         await wrapper.vm.$nextTick();
 
         // get first quantity field
-        const firstQuantityField = wrapper.find('.sw-data-grid__row--0 input[name="sw-field--item-quantityStart"]');
+        const firstQuantityField = wrapper.find('.sw-data-grid__row--0 input[name="ruleId-1-quantityStart"]');
 
         // check if input field has a value of 1 and is disabled
         expect(firstQuantityField.element.value).toBe('1');
@@ -185,7 +185,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         await wrapper.vm.$nextTick();
 
         // get second quantity field
-        const secondQuantityField = wrapper.find('.sw-data-grid__row--1 input[name="sw-field--item-quantityStart"]');
+        const secondQuantityField = wrapper.find('.sw-data-grid__row--1 input[name="ruleId-5-quantityStart"]');
 
         // check if input field has a value of 5 and is not disabled
         expect(secondQuantityField.element.value).toBe('5');

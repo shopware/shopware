@@ -1,7 +1,6 @@
 ---
 title: Added wishlist cookie acceptance check before adding item into wishlist
 issue: NEXT-11785
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 *  Added a new Storefront route `wishlist/add-after-login/<product-id>` in `\Shopware\Storefront\Controller\WishlistController::addAfterLogin` that allow to add a product into wishlist after login.

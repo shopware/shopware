@@ -34,6 +34,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    coverId foreignKey
    productMediaVersionId referenceVersion
    deliveryTimeId foreignKey
+   featureSetId foreignKey
    not_null(price) price
    not_null(productNumber) numberRange
    not_null(stock) int
@@ -43,6 +44,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    availableStock int
    available bool
    isCloseout bool
+   variation list
    displayGroup string
    configuratorGroupConfig json
    mainVariantId foreignKey
@@ -55,7 +57,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    purchaseUnit float
    referenceUnit float
    shippingFree bool
-   purchasePrice float
+   purchasePrices price
    markAsTopseller bool
    weight float
    width float
@@ -67,12 +69,10 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    propertyIds manyToManyId
    optionIds manyToManyId
    tagIds manyToManyId
-   listingPrices priceRulesJson
    childCount childCount
-   blacklistIds blacklistRule
-   whitelistIds whitelistRule
    customFieldSetSelectionActive bool
    sales int
+   cheapestPrice cheapestPrice
    metaDescription translated
    name translated
    keywords translated
@@ -81,11 +81,13 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    packUnit translated
    packUnitPlural translated
    customFields translated
-   variation list
-   featureSetId foreignKey
-   purchasePrices price
    customSearchKeywords translated
    canonicalProductId foreignKey
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   slotConfig translated
+   blacklistIds blacklistRule
+   whitelistIds whitelistRule
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -168,8 +170,8 @@ Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "
    points float
    status bool
    comment longText
-   updatedAt updatedAt
    not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -213,6 +215,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    packUnit string
    packUnitPlural string
    customSearchKeywords list
+   slotConfig json
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -273,7 +276,7 @@ Table(ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefin
    translated json
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition, "product_feature_set_translation\n((Translations))") {
-   name string
+   not_null(name) string
    description string
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -322,6 +325,8 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinit
 }
 ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product") {
 }
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
 ForeignTable(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set") {
@@ -351,6 +356,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemTaxTaxDefiniti
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefinition
 ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition --> ShopwareCoreContentProductProductDefinition
@@ -368,8 +374,8 @@ ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinit
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition

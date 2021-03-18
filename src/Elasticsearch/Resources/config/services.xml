@@ -10,7 +10,7 @@
                 <parameter key="index" type="collection">
                     <parameter key="number_of_shards">3</parameter>
                     <parameter key="number_of_replicas">3</parameter>
-                    <parameter key="mapping.total_fields.limit">5000</parameter>
+                    <parameter key="mapping.total_fields.limit">50000</parameter>
                     <parameter key="mapping.nested_fields.limit">500</parameter>
                     <parameter key="mapping.nested_objects.limit">1000000</parameter>
                 </parameter>
@@ -46,6 +46,25 @@
                 </parameter>
             </parameter>
         </parameter>
+
+        <parameter key="elasticsearch.index.mapping" type="collection">
+            <parameter key="dynamic_templates" type="collection">
+                <parameter type="collection">
+                    <parameter key="keywords" type="collection">
+                        <parameter key="match_mapping_type">string</parameter>
+                        <parameter key="mapping" type="collection">
+                            <parameter key="type">keyword</parameter>
+                            <parameter key="normalizer">sw_lowercase_normalizer</parameter>
+                            <parameter key="fields" type="collection">
+                                <parameter key="text" type="collection">
+                                    <parameter key="type">text</parameter>
+                                </parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+                </parameter>
+            </parameter>
+        </parameter>
     </parameters>
 
     <services>
@@ -62,7 +81,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
-            <argument type="service" id="logger" />
+            <argument type="service" id="shopware.elasticsearch.logger" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
@@ -70,18 +89,20 @@
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
-            <argument type="service" id="logger" />
+            <argument type="service" id="shopware.elasticsearch.logger" />
+            <argument>%kernel.debug%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
+            <argument>%elasticsearch.index.mapping%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
-            <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
@@ -166,6 +187,9 @@
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer"/>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -191,19 +215,28 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer">
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="language.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
 
-            <tag name="shopware.entity_indexer" priority="1000"/>
+        <service id="Shopware\Elasticsearch\Profiler\DataCollector">
+            <argument type="service" id="Elasticsearch\Client"/>
+            <tag name="data_collector" template="@Elasticsearch/Collector/elasticsearch.html.twig" id="elasticsearch"></tag>
+        </service>
+
+        <service id="shopware.elasticsearch.logger" class="Psr\Log\LoggerInterface">
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
+            <argument type="string">elasticsearch</argument>
+            <argument>90</argument>
+            <argument>%elasticsearch.logger_level%</argument>
         </service>
 
         <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->

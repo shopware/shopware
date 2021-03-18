@@ -5,9 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PromotionFixtureBuilder
 {
@@ -19,17 +18,17 @@ class PromotionFixtureBuilder
     /**
      * @var EntityRepositoryInterface
      */
-    private $repoPromotions;
+    private $promotionRepository;
 
     /**
      * @var EntityRepositoryInterface
      */
-    private $repoSetGroups;
+    private $promotionSetgroupRepository;
 
     /**
      * @var EntityRepositoryInterface
      */
-    private $repoDiscounts;
+    private $promotionDiscountRepository;
 
     /**
      * @var string
@@ -51,24 +50,21 @@ class PromotionFixtureBuilder
      */
     private $dataDiscounts;
 
-    public function __construct(string $promotionId, ContainerInterface $container)
-    {
+    public function __construct(
+        string $promotionId,
+        AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        EntityRepositoryInterface $promotionRepository,
+        EntityRepositoryInterface $promotionSetgroupRepository,
+        EntityRepositoryInterface $promotionDiscountRepository
+    ) {
         $this->promotionId = $promotionId;
         $this->dataSetGroups = [];
         $this->dataDiscounts = [];
 
-        $this->context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
-        /** @var EntityRepositoryInterface $repoPromo */
-        $repoPromo = $container->get('promotion.repository');
-        /** @var EntityRepositoryInterface $repoDiscounts */
-        $repoDiscounts = $container->get('promotion_discount.repository');
-        /** @var EntityRepositoryInterface $repoSetGroups */
-        $repoSetGroups = $container->get('promotion_setgroup.repository');
-
-        $this->repoPromotions = $repoPromo;
-        $this->repoSetGroups = $repoSetGroups;
-        $this->repoDiscounts = $repoDiscounts;
+        $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->promotionRepository = $promotionRepository;
+        $this->promotionSetgroupRepository = $promotionSetgroupRepository;
+        $this->promotionDiscountRepository = $promotionDiscountRepository;
     }
 
     public function setCode(string $code): PromotionFixtureBuilder
@@ -143,16 +139,16 @@ class PromotionFixtureBuilder
         }
 
         // save the promotion
-        $this->repoPromotions->create([$data], $this->context->getContext());
+        $this->promotionRepository->create([$data], $this->context->getContext());
 
         // save our defined set groups
         if (\count($this->dataSetGroups) > 0) {
-            $this->repoSetGroups->create($this->dataSetGroups, $this->context->getContext());
+            $this->promotionSetgroupRepository->create($this->dataSetGroups, $this->context->getContext());
         }
 
         // save our added discounts
         if (\count($this->dataDiscounts) > 0) {
-            $this->repoDiscounts->create($this->dataDiscounts, $this->context->getContext());
+            $this->promotionDiscountRepository->create($this->dataDiscounts, $this->context->getContext());
         }
     }
 }

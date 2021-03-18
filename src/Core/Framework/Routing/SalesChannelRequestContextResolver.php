@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,23 +46,16 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $routeScopeRegistry;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
         RequestContextResolverInterface $decorated,
         SalesChannelContextServiceInterface $contextService,
         EventDispatcherInterface $eventDispatcher,
-        RouteScopeRegistry $routeScopeRegistry,
-        LoggerInterface $logger
+        RouteScopeRegistry $routeScopeRegistry
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
         $this->routeScopeRegistry = $routeScopeRegistry;
-        $this->logger = $logger;
     }
 
     public function resolve(SymfonyRequest $request): void
@@ -80,10 +74,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $this->contextTokenRequired($request) === true
             && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
         ) {
-            //@deprecated tag:v6.4.0 will throw exception if no context token is provided
-            $this->logger->critical('With 6.4.0 a context token is required to call this route.');
-            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
-            //throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
+            throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
         }
 
         if (
@@ -97,18 +88,17 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         $language = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
         $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
+        $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID);
 
-        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId;
+        $cacheKey = $salesChannelId . $contextToken . $language . $currencyId . $domainId;
 
         if (!empty($this->cache[$cacheKey])) {
             $context = $this->cache[$cacheKey];
         } else {
             $context = $this->contextService->get(
-                $salesChannelId,
-                $contextToken,
-                $language,
-                $currencyId
+                new SalesChannelContextServiceParameters((string) $salesChannelId, (string) $contextToken, $language, $currencyId, $domainId)
             );
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
         }
 
         $this->validateLogin($request, $context);
@@ -127,7 +117,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $currencyId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID);
 
         $context = $this->contextService
-            ->get($salesChannelId, $contextToken, $language, $currencyId);
+            ->get(new SalesChannelContextServiceParameters($salesChannelId, $contextToken, $language, $currencyId));
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);

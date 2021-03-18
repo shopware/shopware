@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -136,12 +136,6 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                     )
                 },
                 {
-                    value: 'product.listingPrices',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.listingPrices'
-                    )
-                },
-                {
                     value: 'product.sales',
                     label: this.$tc(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'
@@ -150,6 +144,16 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 {
                     value: 'customField',
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField')
+                },
+                {
+                    value: 'product.cheapestPrice',
+                    label: this.$tc(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.cheapestPrice'
+                    )
+                },
+                {
+                    value: 'product.price',
+                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price')
                 }
             ];
 
@@ -246,7 +250,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                 this.$emit('criteria-add', fieldName);
 
                 const record = this.productSortingEntity.fields.find(field => field.field === fieldName);
-                if (record) {
+                if (record && this.$refs.dataGrid) {
                     this.$refs.dataGrid.onDbClickCell(record);
                 }
 

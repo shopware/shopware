@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -29,24 +28,14 @@ class JsonApiEncoder
     private $serializeCache = [];
 
     /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    public function __construct(ApiVersionConverter $apiVersionConverter)
-    {
-        $this->apiVersionConverter = $apiVersionConverter;
-    }
-
-    /**
      * @param EntityCollection|Entity|null $data
      *
      * @throws UnsupportedEncoderInputException
      */
-    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, int $apiVersion, array $metaData = []): string
+    public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
     {
         $this->serializeCache = [];
-        $result = new JsonApiEncodingResult($baseUrl, $apiVersion);
+        $result = new JsonApiEncodingResult($baseUrl);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
             throw new UnsupportedEncoderInputException();
@@ -170,14 +159,10 @@ class JsonApiEncoder
                 continue;
             }
 
-            /** @var ReadProtected|null $readProtected */
-            $readProtected = $field->getFlag(ReadProtected::class);
+            /** @var ApiAware|null $flag */
+            $flag = $field->getFlag(ApiAware::class);
 
-            if ($readProtected && !$readProtected->isBaseUrlAllowed($result->getBaseUrl())) {
-                continue;
-            }
-
-            if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), $propertyName, $result->getApiVersion())) {
+            if ($flag === null || !$flag->isBaseUrlAllowed($result->getBaseUrl())) {
                 continue;
             }
 

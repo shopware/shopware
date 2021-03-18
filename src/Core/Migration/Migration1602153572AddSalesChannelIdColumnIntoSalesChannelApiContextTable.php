@@ -2,39 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1602153572AddSalesChannelIdColumnIntoSalesChannelApiContextTable extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1602153572AddSalesChannelIdColumnIntoSalesChannelApiContextTable extends \Shopware\Core\Migration\V6_3\Migration1602153572AddSalesChannelIdColumnIntoSalesChannelApiContextTable
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1602153572;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `sales_channel_api_context` DROP FOREIGN KEY `fk.sales_channel_api_context.customer_id`;');
-
-        $connection->executeUpdate('ALTER TABLE `sales_channel_api_context` DROP INDEX `customer_id`;');
-
-        $connection->executeUpdate('ALTER TABLE `sales_channel_api_context` ADD `sales_channel_id` BINARY(16) NULL DEFAULT NULL AFTER `payload`;');
-
-        $connection->executeUpdate('
-            ALTER TABLE `sales_channel_api_context`
-            ADD CONSTRAINT `fk.sales_channel_api_context.sales_channel_id`
-            FOREIGN KEY (`sales_channel_id`)
-            REFERENCES `sales_channel` (`id`) ON DELETE CASCADE,
-            ADD CONSTRAINT `fk.sales_channel_api_context.customer_id`
-            FOREIGN KEY (`customer_id`)
-            REFERENCES `customer` (`id`) ON DELETE CASCADE;
-        ');
-
-        $connection->executeUpdate('ALTER TABLE `sales_channel_api_context` ADD UNIQUE `uniq.sales_channel_api_context.sales_channel_id_customer_id`(`sales_channel_id`, `customer_id`);');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

@@ -26,7 +26,7 @@ class ScheduledTaskController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/scheduled-task/run", name="api.action.scheduled-task.run", methods={"POST"})
+     * @Route("/api/_action/scheduled-task/run", name="api.action.scheduled-task.run", methods={"POST"})
      */
     public function runScheduledTasks(): JsonResponse
     {
@@ -37,7 +37,7 @@ class ScheduledTaskController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/scheduled-task/min-run-interval", name="api.action.scheduled-task.min-run-interval", methods={"GET"})
+     * @Route("/api/_action/scheduled-task/min-run-interval", name="api.action.scheduled-task.min-run-interval", methods={"GET"})
      */
     public function getMinRunInterval(): JsonResponse
     {

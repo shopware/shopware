@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Csrf\CsrfModes;
 use Shopware\Storefront\Framework\Csrf\Exception\CsrfNotEnabledException;
 use Shopware\Storefront\Framework\Csrf\Exception\CsrfWrongModeException;
@@ -59,19 +58,5 @@ class CsrfController extends StorefrontController
         $token = $this->csrfTokenManager->getToken($intent);
 
         return new JsonResponse(['token' => $token->getValue()]);
-    }
-
-    /**
-     * @Since("6.2.0.0")
-     *
-     * @deprecated tag:v6.4.0 will be removed without replacement
-     * @Route("/api-access", name="frontend.api-access", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={"GET"})
-     */
-    public function getApiAccess(SalesChannelContext $context): JsonResponse
-    {
-        return new JsonResponse([
-            'accessKey' => $context->getSalesChannel()->getAccessKey(),
-            'token' => $context->getToken(),
-        ]);
     }
 }

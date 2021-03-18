@@ -236,4 +236,48 @@ describe('ListingPlugin tests', () => {
             "top": distanceToTop - listingPlugin.options.scrollOffset
         });
     });
+
+    test('do not push history state if pass false pushHitory parameter into changeListing', () => {
+        const mockElement = document.createElement('div');
+        const cmsElementProductListingWrapper = document.createElement('div');
+        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
+
+        document.body.append(cmsElementProductListingWrapper);
+
+        listingPlugin = new ListingPlugin(mockElement);
+
+        jest.spyOn(listingPlugin, '_updateHistory');
+        listingPlugin.changeListing(false);
+
+        expect(listingPlugin._updateHistory).not.toHaveBeenCalled();
+
+        listingPlugin.changeListing(true);
+
+        expect(listingPlugin._updateHistory).toHaveBeenCalled();
+    });
+
+    test('_onWindowPopstate get called when browser back', () => {
+        const url = new URL(window.location);
+        url.searchParams.set('foo', 'bar');
+        window.history.pushState({}, '', url);
+
+        const mockElement = document.createElement('div');
+        const cmsElementProductListingWrapper = document.createElement('div');
+        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
+
+        document.body.append(cmsElementProductListingWrapper);
+
+        const mockOnWindowPopstateCallback = jest.fn();
+
+        jest.spyOn(ListingPlugin.prototype, '_onWindowPopstate').mockImplementation(mockOnWindowPopstateCallback);
+
+        listingPlugin = new ListingPlugin(mockElement);
+
+        const popStateEvent = new PopStateEvent('popstate', { state: {} });
+        dispatchEvent(popStateEvent);
+
+        expect(mockOnWindowPopstateCallback).toHaveBeenCalled();
+
+        ListingPlugin.prototype._onWindowPopstate.mockRestore();
+    });
 });

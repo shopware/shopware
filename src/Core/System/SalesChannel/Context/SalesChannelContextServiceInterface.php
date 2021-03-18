@@ -9,8 +9,5 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 interface SalesChannelContextServiceInterface
 {
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $currencyId will be mandatory in future implementation
-     */
-    public function get(string $salesChannelId, string $token, ?string $languageId /*, ?string $currencyId */): SalesChannelContext;
+    public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext;
 }

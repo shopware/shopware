@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
@@ -68,7 +69,7 @@ class AccountServiceEventTest extends TestCase
         $this->changePaymentMethodRoute = $this->getContainer()->get(ChangePaymentMethodRoute::class);
         $this->loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -173,7 +174,7 @@ class AccountServiceEventTest extends TestCase
 
         static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
-        $this->logoutRoute->logout($this->salesChannelContext);
+        $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
         static::assertTrue($eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
 
@@ -204,7 +205,8 @@ class AccountServiceEventTest extends TestCase
         $this->changePaymentMethodRoute->change(
             $customer->getDefaultPaymentMethodId(),
             new RequestDataBag(),
-            $this->salesChannelContext
+            $this->salesChannelContext,
+            $customer
         );
         static::assertTrue($eventDidRun, 'Event "' . CustomerChangedPaymentMethodEvent::class . '" did not run');
 

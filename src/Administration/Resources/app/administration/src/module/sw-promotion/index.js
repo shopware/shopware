@@ -19,7 +19,12 @@ import './acl/index';
 
 const { Module } = Shopware;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_13810)
+ */
 Module.register('sw-promotion', {
+    flag: 'FEATURE_NEXT_13810',
     type: 'core',
     name: 'promotion',
     title: 'sw-promotion.general.mainMenuItemGeneral',

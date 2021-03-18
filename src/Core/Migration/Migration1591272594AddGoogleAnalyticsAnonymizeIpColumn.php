@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1591272594AddGoogleAnalyticsAnonymizeIpColumn extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1591272594AddGoogleAnalyticsAnonymizeIpColumn extends \Shopware\Core\Migration\V6_3\Migration1591272594AddGoogleAnalyticsAnonymizeIpColumn
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1591272594;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate(
-            'ALTER TABLE sales_channel_analytics
-            ADD COLUMN anonymize_ip TINYINT(1) NOT NULL DEFAULT 1'
-        );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1574258787ProductSearchLanguageKey extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1574258787ProductSearchLanguageKey extends \Shopware\Core\Migration\V6_3\Migration1574258787ProductSearchLanguageKey
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1574258787;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `product_search_keyword` DROP FOREIGN KEY `fk.product_search_keyword.language_id`');
-        $connection->executeUpdate('ALTER TABLE `product_search_keyword` ADD CONSTRAINT `fk.product_search_keyword.language_id` FOREIGN KEY (`language_id`)
-                  REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

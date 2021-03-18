@@ -107,12 +107,31 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         justify-content: center;
     }
 
+    &.is-underneath {
+        .tns-inner {
+            display: block;
+        }
+
+        .tns-outer {
+            margin: 0 30px;
+        }
+    }
+
     &.hide-thumbs {
         display: none;
     }
 }
 
 .gallery-slider-thumbnails-col {
+    .gallery-slider-thumbnails-controls-prev,
+    .gallery-slider-thumbnails-controls-next {
+        border: 0;
+        background: none;
+        height: 30px;
+        width: 65px;
+        line-height: normal;
+    }
+
     &.is-left {
         padding-right: 0;
 
@@ -129,11 +148,21 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-thumbnails-controls-next {
             left: 50%;
             transform: translateX(-50%);
-            border: 0;
-            background: none;
-            height: 30px;
-            width: 65px;
-            line-height: normal;
+        }
+    }
+
+    &.is-underneath {
+        .gallery-slider-thumbnails-controls-prev {
+            left: -25px;
+        }
+
+        .gallery-slider-thumbnails-controls-next {
+            right: -25px;
+        }
+
+        .gallery-slider-thumbnails-controls-prev,
+        .gallery-slider-thumbnails-controls-next {
+            transform: translateY(-30%);
         }
     }
 }

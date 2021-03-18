@@ -47,13 +47,13 @@
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_notice %}
-                            {% if shopware.config.confirm.revocationNotice %}
+                            {% if config('confirm.revocationNotice') %}
                                 <p class="revocation-notice">
                                     {% block page_checkout_confirm_revocation_notice_link %}
-                                        <a href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}"
+                                        <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
                                            data-toggle="modal"
                                            title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
-                                           data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}">
+                                           data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
                                             {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}
@@ -76,7 +76,7 @@
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
                                         {{ "checkout.confirmTerms"|trans({
-                                            '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
+                                            '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -142,7 +142,7 @@
 {% endblock %}
 
 {% block page_checkout_additional %}
-    {% if shopware.config.core.cart.showCustomerComment %}
+    {% if config('core.cart.showCustomerComment') %}
         <div class="checkout-additional">
             {% block page_checkout_finish_customer_comment %}
                 <div class="card checkout-card">

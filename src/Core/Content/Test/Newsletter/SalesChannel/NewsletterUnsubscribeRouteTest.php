@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
@@ -39,7 +38,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                '/store-api/newsletter/subscribe',
                 [
                     'email' => 'test@test.de',
                     'option' => 'direct',
@@ -53,7 +52,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/unsubscribe',
+                '/store-api/newsletter/unsubscribe',
                 [
                     'email' => 'test@test.de',
                 ]

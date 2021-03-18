@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
@@ -46,10 +45,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $this->createPluginConfig($appName, $absolutePath);
     }
 
-    /**
-     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
-     */
-    public function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
+    private function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $config = new StorefrontPluginConfiguration($name);
         $config->setIsTheme(false);
@@ -57,11 +53,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setBasePath($path);
 
         $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        if (Feature::isActive('FEATURE_NEXT_7365')) {
-            $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
-        } else {
-            $config->setStyleFiles(FileCollection::createFromArray($this->getFilesInDir($stylesPath)));
-        }
+        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
 
         $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
         $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
@@ -69,10 +61,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $config;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
-     */
-    public function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
+    private function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
@@ -115,7 +104,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                             continue;
                         }
 
-                        foreach ($additional['resolve'] as $resolve => &$resolvePath) {
+                        foreach ($additional['resolve'] as &$resolvePath) {
                             $resolvePath = $this->addBasePath($resolvePath, $basePath);
                         }
                         unset($resolvePath);

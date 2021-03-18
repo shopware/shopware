@@ -4,22 +4,34 @@ namespace Shopware\Core\Content\ProductExport\Struct;
 
 class ExportBehavior
 {
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $ignoreCache;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $includeInactive;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $batchMode;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $generateHeader;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $generateFooter;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private $offset;
 
     public function __construct(

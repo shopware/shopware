@@ -94,7 +94,7 @@ class SeoUrlUpdater
 
             $salesChannel = $salesChannels->get($salesChannelId);
 
-            // generate new seo urls
+            // generate new  seo urls
             $urls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
             // persist seo urls to storage

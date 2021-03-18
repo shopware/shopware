@@ -39,16 +39,16 @@ class CategoryRoute extends AbstractCategoryRoute
     /**
      * @var CategoryDefinition
      */
-    private $definition;
+    private $categoryDefinition;
 
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        CategoryDefinition $definition
+        CategoryDefinition $categoryDefinition
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->cmsPageLoader = $cmsPageLoader;
-        $this->definition = $definition;
+        $this->categoryDefinition = $categoryDefinition;
     }
 
     public function getDecorated(): AbstractCategoryRoute
@@ -82,7 +82,7 @@ class CategoryRoute extends AbstractCategoryRoute
      *     ),
      * )
      *
-     * @Route("/store-api/v{version}/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
+     * @Route("/store-api/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
@@ -96,19 +96,33 @@ class CategoryRoute extends AbstractCategoryRoute
 
         $category = $this->loadCategory($navigationId, $context);
 
+        if (($category->getType() === CategoryDefinition::TYPE_FOLDER
+                || $category->getType() === CategoryDefinition::TYPE_LINK)
+            && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId
+        ) {
+            throw new CategoryNotFoundException($navigationId);
+        }
+
         $pageId = $category->getCmsPageId();
+        $slotConfig = $category->getTranslation('slotConfig');
+
+        $salesChannel = $context->getSalesChannel();
+        if ($category->getId() === $salesChannel->getNavigationCategoryId() && $salesChannel->getHomeCmsPageId()) {
+            $pageId = $salesChannel->getHomeCmsPageId();
+            $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
+        }
 
         if (!$pageId) {
             return new CategoryRouteResponse($category);
         }
 
-        $resolverContext = new EntityResolverContext($context, $request, $this->definition, $category);
+        $resolverContext = new EntityResolverContext($context, $request, $this->categoryDefinition, $category);
 
         $pages = $this->cmsPageLoader->load(
             $request,
             $this->createCriteria($pageId, $request),
             $context,
-            $category->getTranslation('slotConfig'),
+            $slotConfig,
             $resolverContext
         );
 
@@ -117,6 +131,7 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         $category->setCmsPage($pages->get($pageId));
+        $category->setCmsPageId($pageId);
 
         return new CategoryRouteResponse($category);
     }

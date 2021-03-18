@@ -1,6 +1,6 @@
 const RepositoryFactory = Shopware.Classes._private.RepositoryFactory;
 const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
-const ErrorResolverError = Shopware.DataDeprecated.ErrorResolver;
+const ErrorResolverError = Shopware.Data.ErrorResolver;
 
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;

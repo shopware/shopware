@@ -16,6 +16,9 @@ class EntityNotExists extends Constraint
 {
     public const ENTITY_EXISTS = 'fr456trg-r43w-ko87-z54e-de4r5tghzt65';
 
+    /**
+     * @var string
+     */
     public $message = 'The {{ entity }} entity already exists.';
 
     /**
@@ -38,6 +41,9 @@ class EntityNotExists extends Constraint
      */
     public $primaryProperty = 'id';
 
+    /**
+     * @var array
+     */
     protected static $errorNames = [
         self::ENTITY_EXISTS => 'ENTITY_EXISTS',
     ];

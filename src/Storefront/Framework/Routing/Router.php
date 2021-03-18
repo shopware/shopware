@@ -14,7 +14,9 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
-    /** @var int Used to indicate the router that we only need the path info without the sales channel prefix */
+    /**
+     * @var int Used to indicate the router that we only need the path info without the sales channel prefix
+     */
     public const PATH_INFO = 10;
 
     /**
@@ -38,7 +40,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return SymfonyRouter::getSubscribedServices();
     }
 
-    public function warmUp($cacheDir)
+    public function warmUp(string $cacheDir)
     {
         return $this->decorated->warmUp($cacheDir);
     }
@@ -74,7 +76,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->getRouteCollection();
     }
 
-    public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
+    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH)
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {

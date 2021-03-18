@@ -1,3 +1,15 @@
 {% block sw_settings_search_view_live_search %}
-    {#TODO: NEXT-11967 - Implement Live Search in new Search settings module #}
+    <div class="sw-settings-search__view-live-search">
+        {% block sw_settings_search_view_live_search_search_index_card %}
+            <sw-settings-search-search-index :isLoading="isLoading">
+            </sw-settings-search-search-index>
+        {% endblock %}
+
+        {% block sw_settings_search_view_live_search_content_card %}
+              <sw-settings-search-live-search
+                  v-bind="$props"
+                  v-on="$listeners">
+              </sw-settings-search-live-search>
+        {% endblock %}
+    </div>
 {% endblock %}

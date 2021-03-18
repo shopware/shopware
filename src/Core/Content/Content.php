@@ -3,13 +3,15 @@
 namespace Shopware\Core\Content;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Content extends Bundle
 {
+    /**
+     * @var string
+     */
     protected $name = 'Content';
 
     /**
@@ -34,9 +36,6 @@ class Content extends Bundle
         $loader->load('import_export.xml');
         $loader->load('contact_form.xml');
         $loader->load('sitemap.xml');
-
-        if (Feature::isActive('FEATURE_NEXT_12032')) {
-            $loader->load('landing_page.xml');
-        }
+        $loader->load('landing_page.xml');
     }
 }

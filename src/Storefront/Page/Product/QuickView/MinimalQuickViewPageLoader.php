@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Page\Product\QuickView;
 
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Product\ProductLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,14 +18,14 @@ class MinimalQuickViewPageLoader
     private $eventDispatcher;
 
     /**
-     * @var ProductLoader
+     * @var AbstractProductDetailRoute
      */
-    private $productLoader;
+    private $productRoute;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, ProductLoader $productLoader)
+    public function __construct(EventDispatcherInterface $eventDispatcher, AbstractProductDetailRoute $productRoute)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->productLoader = $productLoader;
+        $this->productRoute = $productRoute;
     }
 
     /**
@@ -36,7 +38,18 @@ class MinimalQuickViewPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $product = $this->productLoader->load($productId, $salesChannelContext, MinimalQuickViewPageCriteriaEvent::class);
+        $criteria = (new Criteria())
+            ->addAssociation('manufacturer.media')
+            ->addAssociation('options.group')
+            ->addAssociation('properties.group')
+            ->addAssociation('mainCategories.category');
+
+        $criteria
+            ->getAssociation('media')
+            ->addSorting(new FieldSorting('position'));
+
+        $result = $this->productRoute->load($productId, new Request(), $salesChannelContext, $criteria);
+        $product = $result->getProduct();
 
         $page = new MinimalQuickViewPage($product);
 

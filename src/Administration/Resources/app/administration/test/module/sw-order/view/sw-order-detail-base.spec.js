@@ -41,13 +41,21 @@ const orderMock = {
     price: {
         calculatedTaxes: [],
         taxStatus: 'gross'
+    },
+    totalRounding: {
+        interval: 0.01,
+        decimals: 2
+    },
+    itemRounding: {
+        interval: 0.01,
+        decimals: 2
     }
 };
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    localVue.filter('currency', v => v);
+    localVue.filter('currency', Shopware.Filter.getByName('currency'));
 
     orderMock.transactions.last = () => ({
         stateMachineState: {
@@ -96,6 +104,9 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {
@@ -190,6 +201,31 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
         const orderSummary = wrapper.find('.sw-order-detail__summary');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountTotal');
-        expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountGrandTotal');
+        expect(orderSummary.text()).toContain('sw-order.detailBase.summaryLabelAmount');
+    });
+
+    it('should only show 2 decimals number in total orders', async () => {
+        orderMock.positionPrice = -0.010000000000218;
+        orderMock.amountNet = -0.010000000000218;
+        orderMock.currency.translated.shortName = 'EUR';
+        orderMock.totalRounding.decimals = 2;
+
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-detail__summary-data');
+        expect(orderSummary.find('dd').text()).toContain('0.01');
+    });
+
+    it('should only show 10 decimals number in total orders', async () => {
+        orderMock.positionPrice = -0.010000000218;
+        orderMock.amountNet = -0.010000000218;
+        orderMock.currency.translated.shortName = 'BTC';
+        orderMock.totalRounding.decimals = 10;
+
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-detail__summary-data');
+
+        expect(orderSummary.find('dd').text()).toContain('0.0100000002');
     });
 });

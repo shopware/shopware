@@ -3,24 +3,26 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 
 abstract class StorefrontController extends AbstractController
 {
+    public const SUCCESS = 'success';
+    public const DANGER = 'danger';
+    public const INFO = 'info';
+    public const WARNING = 'warning';
+
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $request = $this->get('request_stack')->getCurrentRequest();
@@ -40,11 +42,13 @@ abstract class StorefrontController extends AbstractController
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
 
-        /** @var SeoUrlPlaceholderHandlerInterface $seoUrlReplacer */
-        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
-        $response->setContent(
-            $seoUrlReplacer->replace($response->getContent(), $host, $salesChannelContext)
-        );
+        $seoUrlReplacer = $this->get(SeoUrlPlaceholderHandlerInterface::class);
+        $content = $response->getContent();
+        if ($content !== false) {
+            $response->setContent(
+                $seoUrlReplacer->replace($content, $host, $salesChannelContext)
+            );
+        }
 
         /* @var StorefrontResponse $response */
         $response->setData($parameters);
@@ -81,7 +85,7 @@ abstract class StorefrontController extends AbstractController
 
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
-        $router = $this->container->get('router');
+        $router = $this->get('router');
 
         $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
 
@@ -94,7 +98,7 @@ abstract class StorefrontController extends AbstractController
         $route = $router->match($url);
         $router->getContext()->setMethod($method);
 
-        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $request = $this->get('request_stack')->getCurrentRequest();
 
         $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
@@ -104,38 +108,6 @@ abstract class StorefrontController extends AbstractController
         );
 
         return $this->forward($route['_controller'], $attributes, $routeParameters);
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - use annotation `LoginRequired` instead
-     *
-     * @throws CustomerNotLoggedInException
-     */
-    protected function denyAccessUnlessLoggedIn(bool $allowGuest = false): void
-    {
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->get('request_stack');
-        $request = $requestStack->getCurrentRequest();
-
-        if (!$request) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        /** @var SalesChannelContext|null $context */
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        if (
-            $context
-            && $context->getCustomer()
-            && (
-                $allowGuest === true
-                || $context->getCustomer()->getGuest() === false
-            )
-        ) {
-            return;
-        }
-
-        throw new CustomerNotLoggedInException();
     }
 
     protected function decodeParam(Request $request, string $param): array

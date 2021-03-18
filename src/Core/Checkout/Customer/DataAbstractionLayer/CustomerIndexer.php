@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CustomerIndexer extends EntityIndexer
@@ -40,27 +41,18 @@ class CustomerIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
-    /**
-     * @deprecated tag:v6.4.0 - property $customerVatIdsDeprecationUpdater will be removed in 6.4.0
-     *
-     * @var CustomerVatIdsDeprecationUpdater
-     */
-    private $customerVatIdsDeprecationUpdater;
-
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         CacheClearer $cacheClearer,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        EventDispatcherInterface $eventDispatcher,
-        CustomerVatIdsDeprecationUpdater $customerVatIdsDeprecationUpdater
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->cacheClearer = $cacheClearer;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->customerVatIdsDeprecationUpdater = $customerVatIdsDeprecationUpdater;
     }
 
     public function getName(): string
@@ -68,6 +60,9 @@ class CustomerIndexer extends EntityIndexer
         return 'customer.indexer';
     }
 
+    /**
+     * @param array|null $offset
+     */
     public function iterate($offset): ?EntityIndexingMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
@@ -89,12 +84,6 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        $customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME);
-
-        if ($customerEvent) {
-            $this->customerVatIdsDeprecationUpdater->updateByEvent($customerEvent);
-        }
-
         return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
@@ -113,9 +102,12 @@ class CustomerIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context));
 
-        $this->cacheClearer->invalidateIds(
-            array_unique(array_merge($ids)),
-            CustomerDefinition::ENTITY_NAME
-        );
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds(
+                array_unique(array_merge($ids)),
+                CustomerDefinition::ENTITY_NAME
+            );
+        }
     }
 }

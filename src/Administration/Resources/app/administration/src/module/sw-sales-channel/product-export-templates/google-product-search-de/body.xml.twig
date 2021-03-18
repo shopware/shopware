@@ -16,7 +16,12 @@
             out_of_stock
         {%- endif -%}
     </g:availability>
-    <g:price>{{ product.calculatedListingPrice.from.unitPrice|number_format(context.currency.decimalPrecision, '.', '') }} {{ context.currency.isoCode }}</g:price>
+    {% set price = product.calculatedPrice %}
+    {% if product.calculatedPrices.count > 0 %}
+        {% set price = product.calculatedPrices.last %}
+    {% endif %}
+
+    <g:price>{{ price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '') }} {{ context.currency.isoCode }}</g:price>
     <g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
     <g:gtin>{{ product.ean }}</g:gtin>
     <g:mpn>{{ product.manufacturerNumber }}</g:mpn>

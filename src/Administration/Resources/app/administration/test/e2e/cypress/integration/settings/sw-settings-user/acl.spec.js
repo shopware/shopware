@@ -65,7 +65,7 @@ describe('User: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/oauth/token',
+            url: `${Cypress.env('apiPath')}/oauth/token`,
             method: 'post'
         }).as('oauthCall');
 
@@ -396,6 +396,6 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-modal')
             .should('not.be.visible');
 
-        cy.awaitAndCheckNotification('User "Abraham Allison " has been deleted.');
+        cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 });

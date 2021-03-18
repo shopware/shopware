@@ -87,15 +87,10 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/change-email", name="store-api.account.change-email", methods={"POST"})
+     * @Route(path="/store-api/account/change-email", name="store-api.account.change-email", methods={"POST"})
      */
-    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): SuccessResponse
+    public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $this->validateEmail($requestDataBag, $context);
 
         $customerData = [

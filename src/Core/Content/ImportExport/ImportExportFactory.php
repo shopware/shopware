@@ -20,45 +20,30 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportFactory
 {
-    /**
-     * @var AbstractReaderFactory[]
-     */
-    private $readerFactories;
+    private ImportExportService $importExportService;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    private FilesystemInterface $filesystem;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private EntityRepositoryInterface $logRepository;
 
     /**
-     * @var AbstractWriterFactory[]
+     * @var \IteratorAggregate<AbstractReaderFactory>
      */
-    private $writerFactories;
+    private \IteratorAggregate $readerFactories;
 
     /**
-     * @var AbstractPipeFactory[]
+     * @var \IteratorAggregate<AbstractWriterFactory>
      */
-    private $pipeFactories;
+    private \IteratorAggregate $writerFactories;
 
     /**
-     * @var DefinitionInstanceRegistry
+     * @var \IteratorAggregate<AbstractPipeFactory>
      */
-    private $definitionInstanceRegistry;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
-     * @var ImportExportService
-     */
-    private $importExportService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $logRepository;
+    private \IteratorAggregate $pipeFactories;
 
     public function __construct(
         ImportExportService $importExportService,
@@ -66,18 +51,18 @@ class ImportExportFactory
         FilesystemInterface $filesystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $logRepository,
-        $readerFactories,
-        $writerFactories,
-        $pipeFactories
+        \IteratorAggregate $readerFactories,
+        \IteratorAggregate $writerFactories,
+        \IteratorAggregate $pipeFactories
     ) {
+        $this->importExportService = $importExportService;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->filesystem = $filesystem;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logRepository = $logRepository;
         $this->readerFactories = $readerFactories;
         $this->writerFactories = $writerFactories;
         $this->pipeFactories = $pipeFactories;
-        $this->filesystem = $filesystem;
-        $this->importExportService = $importExportService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logRepository = $logRepository;
     }
 
     public function create(string $logId, int $importBatchSize = 250, int $exportBatchSize = 250): ImportExport

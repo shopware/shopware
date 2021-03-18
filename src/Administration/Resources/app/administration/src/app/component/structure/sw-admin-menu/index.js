@@ -1,8 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-// @deprecated tag:v6.4.0.0 for StateDeprecated
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -29,9 +28,7 @@ Component.register('sw-admin-menu', {
     },
 
     mixins: [
-        Mixin.getByName('notification'),
-        // @deprecated tag:v6.4.0.0
-        Mixin.getByName('salutation')
+        Mixin.getByName('notification')
     ],
 
     inject: [
@@ -70,11 +67,6 @@ Component.register('sw-admin-menu', {
             return Shopware.State.get('adminMenu').isExpanded;
         },
 
-        // @deprecated tag:v6.4.0.0
-        userStore() {
-            return StateDeprecated.getStore('user');
-        },
-
         userTitle() {
             if (this.currentUser && this.currentUser.admin) {
                 return this.$tc('global.sw-admin-menu.administrator');
@@ -99,25 +91,28 @@ Component.register('sw-admin-menu', {
             return Shopware.State.get('session').currentLocale;
         },
 
-        appEntries() {
-            return Shopware.State.getters['shopwareApps/navigation'];
-        },
-
         currentExpandedMenuEntries() {
             return Shopware.State.get('adminMenu').expandedEntries;
         },
 
+        adminModuleNavigation() {
+            return Shopware.State.get('adminMenu').adminModuleNavigation;
+        },
+
+        appModuleNavigation() {
+            return Shopware.State.getters['adminMenu/appModuleNavigation'];
+        },
+
+        navigationEntries() {
+            return [...this.adminModuleNavigation, ...this.appModuleNavigation];
+        },
+
         mainMenuEntries() {
-            const mainMenu = this.menuService.getMainMenu();
+            const tree = new Shopware.Helper.FlatTreeHelper((first, second) => first.position - second.position);
 
-            // save menu entry for reactivity purposes
-            const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
+            this.navigationEntries.forEach((module) => tree.add(module));
 
-            if (myAppsEntry && this.appEntries.length > 0) {
-                myAppsEntry.children = [...myAppsEntry.children, ...this.appEntries];
-            }
-
-            return mainMenu;
+            return tree.convertToTree();
         },
 
         sidebarCollapseIcon() {
@@ -197,6 +192,12 @@ Component.register('sw-admin-menu', {
             this.$root.$on('toggle-offcanvas', (state) => {
                 this.isOffCanvasShown = state;
             });
+
+            this.initNavigation();
+        },
+
+        initNavigation() {
+            Shopware.State.commit('adminMenu/setAdminModuleNavigation', this.menuService.getNavigationFromAdminModules());
 
             this.refreshApps();
         },
@@ -392,7 +393,7 @@ Component.register('sw-admin-menu', {
                 Shopware.State.commit('adminMenu/collapseMenuEntry', entry);
 
                 firstChild.classList.remove('router-link-active');
-                firstChild.remove('is--entry-expanded');
+                firstChild.classList.remove('is--entry-expanded');
             } else {
                 Shopware.State.commit('adminMenu/expandMenuEntry', entry);
 

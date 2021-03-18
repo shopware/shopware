@@ -4,9 +4,6 @@ namespace Shopware\Core;
 
 final class PlatformRequest
 {
-    // should be increased with every major version
-    public const API_VERSION = 3;
-
     /**
      * Response Headers
      */
@@ -34,6 +31,11 @@ final class PlatformRequest
      * This header is used in the administration to get all fields
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
+
+    /**
+     * API Expectation headers to check requirements are fulfilled
+     */
+    public const HEADER_EXPECT_PACKAGES = 'sw-expect-packages';
 
     /**
      * Context attributes

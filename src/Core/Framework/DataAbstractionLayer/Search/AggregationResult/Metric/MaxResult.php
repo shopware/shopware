@@ -6,14 +6,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 
 class MaxResult extends AggregationResult
 {
+    /**
+     * @var string|float|int|null
+     */
     protected $max;
 
+    /**
+     * @param string|float|int|null $max
+     */
     public function __construct(string $name, $max)
     {
         parent::__construct($name);
         $this->max = $max;
     }
 
+    /**
+     * @return float|int|string|null
+     */
     public function getMax()
     {
         return $this->max;

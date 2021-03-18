@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
-use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
+use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MailActionController extends AbstractController
 {
     /**
-     * @var MailServiceInterface
+     * @var AbstractMailService
      */
     private $mailService;
 
@@ -30,7 +30,7 @@ class MailActionController extends AbstractController
     private $templateRenderer;
 
     public function __construct(
-        MailServiceInterface $mailService,
+        AbstractMailService $mailService,
         StringTemplateRenderer $templateRenderer
     ) {
         $this->mailService = $mailService;
@@ -39,7 +39,7 @@ class MailActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
+     * @Route("/api/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      */
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -52,7 +52,7 @@ class MailActionController extends AbstractController
      * @Since("6.0.0.0")
      * Validates if an email template can be rendered without sending an email
      *
-     * @Route("/api/v{version}/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
+     * @Route("/api/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
      *
      * @throws StringTemplateRenderingException
      */

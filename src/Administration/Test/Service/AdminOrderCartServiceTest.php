@@ -51,17 +51,17 @@ class AdminOrderCartServiceTest extends TestCase
 
     public function testAddPermission(): void
     {
-        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
-        $payload = $this->contextPersister->load($this->salesChannelContext->getToken());
+        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
+        $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
         static::assertArrayHasKey(PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS]);
     }
 
     public function testAddMultiplePermissions(): void
     {
-        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
-        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_PROMOTION);
-        $payload = $this->contextPersister->load($this->salesChannelContext->getToken());
+        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
+        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_PROMOTION, $this->salesChannelContext->getSalesChannelId());
+        $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
 
         static::assertArrayHasKey(SalesChannelContextService::PERMISSIONS, $payload);
         static::assertCount(2, $payload[SalesChannelContextService::PERMISSIONS]);
@@ -74,13 +74,13 @@ class AdminOrderCartServiceTest extends TestCase
 
     public function testDeletePermission(): void
     {
-        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
-        $payload = $this->contextPersister->load($this->salesChannelContext->getToken());
+        $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
+        $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
         static::assertArrayHasKey(PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS]);
 
-        $this->adminOrderCartService->deletePermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS);
-        $payload = $this->contextPersister->load($this->salesChannelContext->getToken());
+        $this->adminOrderCartService->deletePermission($this->salesChannelContext->getToken(), PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
+        $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
         static::assertArrayHasKey(PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
         static::assertFalse($payload[SalesChannelContextService::PERMISSIONS][PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS]);
     }

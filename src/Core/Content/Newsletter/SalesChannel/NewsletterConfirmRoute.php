@@ -73,7 +73,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})
+     * @Route("/store-api/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -123,7 +124,6 @@ abstract class EntityDefinition
 
             $extension->extendFields($new);
 
-            /** @var Field $field */
             foreach ($new as $field) {
                 $field->addFlags(new Extension());
 
@@ -165,7 +165,7 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Runtime())
+                    (new JsonField('translated', 'translated'))->addFlags(new ApiAware(), new Computed(), new Runtime())
                 );
 
                 break;
@@ -278,12 +278,12 @@ abstract class EntityDefinition
         return $this->getFields()->has('versionId');
     }
 
-    public function isBlacklistAware(): bool
+    public function isBlacklistAware(): bool    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     {
         return $this->getFields()->has('blacklistIds');
     }
 
-    public function isWhitelistAware(): bool
+    public function isWhitelistAware(): bool    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
     {
         return $this->getFields()->has('whitelistIds');
     }
@@ -318,8 +318,8 @@ abstract class EntityDefinition
     protected function defaultFields(): array
     {
         return [
-            new CreatedAtField(),
-            new UpdatedAtField(),
+            (new CreatedAtField())->addFlags(new ApiAware()),
+            (new UpdatedAtField())->addFlags(new ApiAware()),
         ];
     }
 

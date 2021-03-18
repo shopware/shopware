@@ -47,7 +47,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/frw/start", name="api.custom.store.frw.start", methods={"POST"})
+     * @Route("/api/_action/store/frw/start", name="api.custom.store.frw.start", methods={"POST"})
      */
     public function frwStart(Context $context): JsonResponse
     {
@@ -62,7 +62,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/language-plugins", name="api.custom.store.language-plugins", methods={"GET"})
+     * @Route("/api/_action/store/language-plugins", name="api.custom.store.language-plugins", methods={"GET"})
      */
     public function getLanguagePluginList(Request $request, Context $context): JsonResponse
     {
@@ -85,7 +85,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/demo-data-plugins", name="api.custom.store.demo-data-plugins", methods={"GET"})
+     * @Route("/api/_action/store/demo-data-plugins", name="api.custom.store.demo-data-plugins", methods={"GET"})
      */
     public function getDemoDataPluginList(Request $request, Context $context): JsonResponse
     {
@@ -108,7 +108,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/recommendation-regions", name="api.custom.store.recommendation-regions", methods={"GET"})
+     * @Route("/api/_action/store/recommendation-regions", name="api.custom.store.recommendation-regions", methods={"GET"})
      */
     public function getRecommendationRegions(Request $request): JsonResponse
     {
@@ -128,7 +128,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/recommendations", name="api.custom.store.recommendations", methods={"GET"})
+     * @Route("/api/_action/store/recommendations", name="api.custom.store.recommendations", methods={"GET"})
      */
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
@@ -153,7 +153,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/frw/login", name="api.custom.store.frw.login", methods={"POST"})
+     * @Route("/api/_action/store/frw/login", name="api.custom.store.frw.login", methods={"POST"})
      */
     public function frwLogin(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
@@ -184,7 +184,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/license-domains", name="api.custom.store.license-domains", methods={"GET"})
+     * @Route("/api/_action/store/license-domains", name="api.custom.store.license-domains", methods={"GET"})
      */
     public function getDomainList(QueryDataBag $params, Context $context): JsonResponse
     {
@@ -205,7 +205,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/verify-license-domain", name="api.custom.store.verify-license-domain", methods={"POST"})
+     * @Route("/api/_action/store/verify-license-domain", name="api.custom.store.verify-license-domain", methods={"POST"})
      */
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
     {
@@ -225,7 +225,7 @@ class FirstRunWizardController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/frw/finish", name="api.custom.store.frw.finish", methods={"POST"})
+     * @Route("/api/_action/store/frw/finish", name="api.custom.store.frw.finish", methods={"POST"})
      */
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {

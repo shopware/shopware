@@ -4,6 +4,7 @@ import './sw-order-line-items-grid.scss';
 const { Component, Service, Utils } = Shopware;
 const { get, format } = Utils;
 
+// merge 16.11.2020
 Component.register('sw-order-line-items-grid', {
     template,
 
@@ -245,11 +246,6 @@ Component.register('sw-order-line-items-grid', {
             this.searchTerm = searchTerm.toLowerCase();
         },
 
-        /** @deprecated tag:v6.4.0 use isCreditItem instead */
-        itemIsCredit(id) {
-            return this.isCreditItem(id);
-        },
-
         isCreditItem(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
             return item.type === this.lineItemTypes.CREDIT;
@@ -265,13 +261,6 @@ Component.register('sw-order-line-items-grid', {
 
         getMinItemPrice(id) {
             if (this.isCreditItem(id)) {
-                return null;
-            }
-            return 0;
-        },
-        /** @deprecated tag:v6.4.0 */
-        getMaxItemPrice(id) {
-            if (!this.isCreditItem(id)) {
                 return null;
             }
             return 0;

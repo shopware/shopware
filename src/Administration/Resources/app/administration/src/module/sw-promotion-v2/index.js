@@ -1,12 +1,14 @@
+import './component/discount/sw-promotion-v2-settings-trigger';
 import './component/discount/sw-promotion-v2-settings-discount-type';
 import './component/discount/sw-promotion-v2-settings-rule-selection';
 import './component/discount/sw-promotion-v2-wizard-discount-selection';
 import './component/discount/sw-promotion-v2-wizard-description';
-import './component/discount/sw-promotion-v2-wizard-shipping-discount-trigger';
 
 import './component/promotion-codes/sw-promotion-v2-generate-codes-modal';
 import './component/promotion-codes/sw-promotion-v2-individual-codes-behavior';
 
+import './component/sw-promotion-v2-cart-condition-form';
+import './component/sw-promotion-v2-empty-state-hero';
 import './component/sw-promotion-v2-rule-select';
 import './component/sw-promotion-v2-sales-channel-select';
 
@@ -16,13 +18,16 @@ import './page/sw-promotion-v2-detail';
 import './page/sw-promotion-v2-list';
 
 import './view/sw-promotion-v2-detail-base';
-import './view/sw-promotion-v2-discounts';
 import './view/sw-promotion-v2-conditions';
 
-const { Module } = Shopware;
+import './acl';
+
+import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
+
+const { Module, State } = Shopware;
+State.registerModule('swPromotionDetail', swPromotionState);
 
 Module.register('sw-promotion-v2', {
-    flag: 'FEATURE_NEXT_12016',
     type: 'core',
     name: 'promotion-v2',
     title: 'sw-promotion-v2.general.mainMenuItemGeneral',
@@ -46,7 +51,6 @@ Module.register('sw-promotion-v2', {
                     view: 'list'
                 }
             }
-
         },
 
         create: {
@@ -100,7 +104,7 @@ Module.register('sw-promotion-v2', {
                     }
                 },
                 discounts: {
-                    component: 'sw-promotion-v2-discounts',
+                    component: 'sw-promotion-detail-discounts',
                     path: 'discounts',
                     meta: {
                         parentPath: 'sw.promotion.v2.index',

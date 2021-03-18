@@ -1,3 +1,12 @@
+{#
+
+Notice for plugins and theme developer:
+
+This template can be extended over sw_extends.
+The blocks from the templates in the /includes folder can be overwritten directly in this template
+
+#}
+
 {% sw_extends '@Framework/documents/base.html.twig' %}
 
 {% block document_title_tag %}
@@ -5,7 +14,10 @@
 {% endblock %}
 
 {% block document_headline %}
-    <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
+    <h1 class="headline">
+        {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
+        ({{ counter.page }}/{{ pages }})
+    </h1>
 {% endblock %}
 
     {% set firstDelivery = order.deliveries|first %}

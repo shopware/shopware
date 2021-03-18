@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -59,18 +58,8 @@ class AccountOverviewPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext, ?CustomerEntity $customer = null): AccountOverviewPage
+    public function load(Request $request, SalesChannelContext $salesChannelContext, CustomerEntity $customer): AccountOverviewPage
     {
-        /* @deprecated tag:v6.4.0 - remove validate customer block*/
-        if (!$salesChannelContext->getCustomer() instanceof CustomerEntity) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory*/
-        if (!$customer) {
-            $customer = $salesChannelContext->getCustomer();
-        }
-
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountOverviewPage::createFrom($page);
@@ -112,10 +101,8 @@ class AccountOverviewPageLoader
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
-        /** @var OrderRouteResponseStruct $responseStruct */
         $responseStruct = $this->orderRoute
-            ->load($event->getStoreApiRequest(), $context, $criteria)
-            ->getObject();
+            ->load($event->getStoreApiRequest(), $context, $criteria);
 
         return $responseStruct->getOrders()->first();
     }

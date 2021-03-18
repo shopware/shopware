@@ -3,13 +3,16 @@
 
         {% block sw_landing_page_detail_cms_layout %}
             <sw-category-layout-card
+                v-bind="{ cmsPage, isLoading }"
                 :category="landingPage"
-                v-bind="{ cmsPage, isLoading }">
+                :pageTypes="['landingpage']"
+                :headline="$tc('sw-landing-page.base.cms.cmsLayoutModalHeadline')">
             </sw-category-layout-card>
         {% endblock %}
 
         {% block sw_landing_page_detail_cms_form %}
             <sw-cms-page-form v-if="cmsPage" :page="cmsPage"></sw-cms-page-form>
         {% endblock %}
+
     </div>
 {% endblock %}

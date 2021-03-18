@@ -54,7 +54,7 @@ describe('Product: Test variants', () => {
     it('@catalogue: should edit variants in modal', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveChanges');
 
@@ -87,7 +87,7 @@ describe('Product: Test variants', () => {
     it('@catalogue @base: delete variants in modal', () => {
         cy.server();
         cy.route({
-            url: 'api/v*/_action/sync',
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('deleteData');
 

@@ -50,12 +50,18 @@ class MigrationLoaderTest extends TestCase
         $this->loader->collect('FOOBAR');
     }
 
-    public function testTheInterface(): void
+    public function testTheInterfaceNew(): void
     {
         $collection = $this->loader->collect('core');
 
         static::assertInstanceOf(MigrationCollection::class, $collection);
         static::assertSame('core', $collection->getName());
+        static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
+        static::assertCount(0, $collection->getMigrationSteps());
+
+        $collection = $this->loader->collect('core.V6_3');
+        static::assertInstanceOf(MigrationCollection::class, $collection);
+        static::assertSame('core.V6_3', $collection->getName());
         static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
         static::assertGreaterThan(1, \count($collection->getMigrationSteps()));
     }

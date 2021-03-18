@@ -12,9 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @internal (flag:FEATURE_NEXT_12032)
- */
 class LandingPageTagDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = 'landing_page_tag';
@@ -31,8 +28,7 @@ class LandingPageTagDefinition extends MappingEntityDefinition
 
     public function since(): ?string
     {
-        // May insert correct since-value
-        return '6.3.5.0';
+        return '6.4.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -42,7 +38,6 @@ class LandingPageTagDefinition extends MappingEntityDefinition
             (new ReferenceVersionField(LandingPageDefinition::class))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('tag_id', 'tagId', TagDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
             new ManyToOneAssociationField('landingPage', 'landing_page_id', LandingPageDefinition::class, 'id', false),
             new ManyToOneAssociationField('tag', 'tag_id', TagDefinition::class, 'id', false),
         ]);

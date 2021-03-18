@@ -46,10 +46,52 @@ describe('Category: Test ACL privileges', () => {
 
         cy.get('#categoryName').should('have.value', 'Home');
 
-        cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
-            const classList = Array.from($el[0].classList);
-            return classList.includes('sw-tabs-item--is-disabled');
-        });
+        // 'home' category should be have 'main navigation' as entry point, so there are more things that should be visible not disabled
+        cy.get('.sw-category-entry-point-card__entry-point-selection')
+            .should('be.visible')
+            .should('have.class', 'is--disabled');
+        cy.get('.sw-category-entry-point-card__sales-channel-selection')
+            .should('be.visible')
+            .should('have.class', 'is--disabled');
+
+        // open configure home modal
+        cy.get('.sw-category-entry-point-card__button-configure-home').click();
+        // sales channel switch should still work (to view different configurations)
+        cy.get('.sw-category-entry-point-modal__sales-channel-selection')
+            .should('be.visible')
+            .should('not.be.disabled');
+        cy.get('.sw-category-entry-point-modal__show-in-main-navigation input')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+        cy.get('#sw-field--selectedSalesChannel-homeName')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+        cy.get('.sw-category-detail-layout__change-layout-action')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+        cy.get('#sw-field--selectedSalesChannel-homeMetaTitle')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+        cy.get('#sw-field--selectedSalesChannel-homeMetaDescription')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+        cy.get('#sw-field--selectedSalesChannel-homeKeywords')
+            .scrollIntoView()
+            .should('be.visible')
+            .should('be.disabled');
+
+        // close modal
+        cy.get('.sw-category-entry-point-modal__cancel-button').click();
+
+        // check cms tab page
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible').click();
+        cy.get('.sw-category-detail-layout__change-layout-action').should('be.disabled');
+        cy.get('.sw-cms-page-form').should('not.exist');
     });
 
     it('@catalogue: can edit category', () => {
@@ -74,7 +116,7 @@ describe('Category: Test ACL privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -88,6 +130,7 @@ describe('Category: Test ACL privileges', () => {
 
         // Check if content tab works
         cy.get('.sw-category-detail__tab-cms').click();
+        cy.get('.sw-category-detail-layout__change-layout-action').should('not.be.disabled');
         cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
 
         // Save the category

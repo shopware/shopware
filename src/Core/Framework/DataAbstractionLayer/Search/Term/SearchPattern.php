@@ -27,7 +27,7 @@ class SearchPattern
     /**
      * @internal (flag:FEATURE_NEXT_10552)
      *
-     * @var string
+     * @var string|null
      */
     protected $booleanClause;
 

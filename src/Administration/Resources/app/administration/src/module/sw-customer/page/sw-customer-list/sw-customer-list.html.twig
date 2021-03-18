@@ -217,7 +217,17 @@
                     {% endblock %}
 
                     {% block sw_customer_list_empty_state %}
-                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-customer.list.messageEmpty')"></sw-empty-state>
+                        <template v-if="!isLoading && !total">
+                            <sw-empty-state
+                                v-if="filterCriteria.length"
+                                :title="$tc('sw-customer.filter.messageEmptyTitle')"
+                                :subline="$tc('sw-customer.filter.messageEmptySubline')">
+                            </sw-empty-state>
+                            <sw-empty-state
+                                v-else
+                                :title="$tc('sw-customer.list.messageEmpty')">
+                            </sw-empty-state>
+                        </template>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -235,45 +245,14 @@
                     {% endblock %}
 
                     {% block sw_customer_list_sidebar_filter %}
-                        <sw-sidebar-item icon="default-action-filter"
-                                         :title="$tc('sw-customer.list.titleSidebarItemFilter')">
-
-                            {% block sw_customer_list_sidebar_filter_items %}
-
-                                {% block sw_customer_list_sidebar_filter_affiliate_code %}
-                                    <sw-multi-select
-                                        :label="$tc('sw-customer.list.titleSidebarItemFilterAffiliateCode')"
-                                        :options="availableAffiliateCodes"
-                                        :isLoading="filterLoading"
-                                        valueProperty="key"
-                                        labelProperty="key"
-                                        :value="affiliateCodeFilter"
-                                        @change="onChangeAffiliateCodeFilter">
-                                    </sw-multi-select>
-                                {% endblock %}
-
-                                {% block sw_customer_list_sidebar_filter_campaign_code %}
-                                    <sw-multi-select
-                                        :label="$tc('sw-customer.list.titleSidebarItemFilterCampaignCode')"
-                                        :options="availableCampaignCodes"
-                                        :isLoading="filterLoading"
-                                        valueProperty="key"
-                                        labelProperty="key"
-                                        @change="onChangeCampaignCodeFilter"
-                                        :value="campaignCodeFilter">
-                                    </sw-multi-select>
-                                {% endblock %}
-
-                                {% block sw_customer_list_sidebar_filter_requested_group %}
-                                    <sw-switch-field
-                                        :label="$tc('sw-customer.list.titleSidebarItemFilterRequestedGroup')"
-                                        @change="onChangeRequestedGroupFilter"
-                                        :value="showOnlyCustomerGroupRequests">
-                                    </sw-switch-field>
-                                {% endblock %}
-
-                            {% endblock %}
-                        </sw-sidebar-item>
+                        <sw-sidebar-filter-panel
+                            entity="customer"
+                            :storeKey="storeKey"
+                            :filters="listFilters"
+                            :defaults="defaultFilters"
+                            :activeFilterNumber="activeFilterNumber"
+                            @criteria-changed="updateCriteria">
+                        </sw-sidebar-filter-panel>
                     {% endblock %}
                 </sw-sidebar>
             </template>

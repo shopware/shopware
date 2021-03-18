@@ -2,24 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1559050903PromotionExclusion extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1559050903PromotionExclusion extends \Shopware\Core\Migration\V6_3\Migration1559050903PromotionExclusion
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1559050903;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `promotion` ADD `exclusion_ids` JSON  NULL;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

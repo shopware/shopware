@@ -35,11 +35,42 @@ Component.register('sw-first-run-wizard-finish', {
             const { edition } = this;
 
             return this.$tc('sw-first-run-wizard.finish.message', {}, { edition });
+        },
+
+        buttonConfig() {
+            return [
+                {
+                    key: 'back',
+                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    position: 'left',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.store',
+                    disabled: false
+                },
+                {
+                    key: 'finish',
+                    label: this.$tc('sw-first-run-wizard.general.buttonFinish'),
+                    position: 'right',
+                    variant: 'primary',
+                    action: this.onFinish.bind(this),
+                    disabled: false
+                }
+            ];
+        }
+    },
+
+    watch: {
+        buttonConfig: {
+            handler() {
+                this.updateButtons();
+            },
+            deep: true
         }
     },
 
     created() {
         this.createdComponent();
+        this.setTitle();
     },
 
     methods: {
@@ -63,27 +94,12 @@ Component.register('sw-first-run-wizard-finish', {
             });
         },
 
-        updateButtons() {
-            const buttonConfig = [
-                {
-                    key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
-                    position: 'left',
-                    variant: null,
-                    action: 'sw.first.run.wizard.index.shopware.account',
-                    disabled: false
-                },
-                {
-                    key: 'finish',
-                    label: this.$tc('sw-first-run-wizard.general.buttonFinish'),
-                    position: 'right',
-                    variant: 'primary',
-                    action: this.onFinish.bind(this),
-                    disabled: false
-                }
-            ];
+        setTitle() {
+            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.finish.modalTitle'));
+        },
 
-            this.$emit('buttons-update', buttonConfig);
+        updateButtons() {
+            this.$emit('buttons-update', this.buttonConfig);
         },
 
         onFinish() {

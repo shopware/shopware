@@ -181,7 +181,6 @@ class CheckoutControllerTest extends TestCase
         static::markTestSkipped('snippet not working');
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        /** @var CartService $cartService */
         $cartService = $this->getContainer()->get(CartService::class);
         $this->createProductOnDatabase($productId, 'test.123');
 

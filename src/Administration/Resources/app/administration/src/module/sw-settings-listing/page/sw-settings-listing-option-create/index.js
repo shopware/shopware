@@ -13,7 +13,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
         },
 
         isNewProductSorting() {
-            return this.productSortingEntity._isNew;
+            return !this.productSortingEntity || this.productSortingEntity._isNew;
         }
     },
 
@@ -23,8 +23,10 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
 
     methods: {
         createdComponent() {
-            this.productSortingEntity = this.createProductSortingEntity();
-            Shopware.State.commit('context/resetLanguageToDefault');
+            this.fetchCustomFields().then(() => {
+                this.productSortingEntity = this.createProductSortingEntity();
+                Shopware.State.commit('context/resetLanguageToDefault');
+            });
         },
 
         createProductSortingEntity() {
@@ -37,6 +39,12 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
         },
 
         onSave() {
+            this.transformCustomFieldCriterias();
+
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+                return field.field !== 'customField';
+            });
+
             this.productSortingEntity.key = kebabCase(this.productSortingEntity.label);
 
             return this.productSortingRepository.save(this.productSortingEntity, Shopware.Context.api)

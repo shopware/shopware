@@ -29,7 +29,6 @@ class ProductSerializerTest extends TestCase
 
         static::assertTrue($serializer->supports('product'), 'should support product');
 
-        /** @var DefinitionInstanceRegistry $definitionRegistry */
         $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $entity = $definition->getEntityName();

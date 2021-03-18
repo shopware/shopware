@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class ScheduledTaskControllerTest extends TestCase
 {
@@ -39,7 +38,7 @@ class ScheduledTaskControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $url = sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
+        $url = '/api/_action/scheduled-task/run';
         $client = $this->getBrowser();
         $client->request('POST', $url);
 
@@ -82,7 +81,7 @@ class ScheduledTaskControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $url = sprintf('/api/v%s/_action/scheduled-task/min-run-interval', PlatformRequest::API_VERSION);
+        $url = '/api/_action/scheduled-task/min-run-interval';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 

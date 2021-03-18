@@ -32,7 +32,7 @@ class PromotionCodeServiceTest extends TestCase
         $code = $this->codesService->getFixedCode();
 
         static::assertEquals(8, \strlen($code));
-        static::assertRegExp('/([A-Z][0-9]){4}/', $code);
+        static::assertMatchesRegularExpression('/([A-Z][0-9]){4}/', $code);
     }
 
     /**
@@ -42,7 +42,7 @@ class PromotionCodeServiceTest extends TestCase
     {
         $actualCode = $this->codesService->getPreview($codePattern);
 
-        static::assertRegExp($expectedRegex, $actualCode);
+        static::assertMatchesRegularExpression($expectedRegex, $actualCode);
     }
 
     public function codePreviewDataProvider(): array

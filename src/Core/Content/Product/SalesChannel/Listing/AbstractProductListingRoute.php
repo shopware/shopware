@@ -13,8 +13,5 @@ abstract class AbstractProductListingRoute
 {
     abstract public function getDecorated(): AbstractProductListingRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
-     */
-    abstract public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext/*, Criteria $criteria*/): ProductListingRouteResponse;
+    abstract public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse;
 }

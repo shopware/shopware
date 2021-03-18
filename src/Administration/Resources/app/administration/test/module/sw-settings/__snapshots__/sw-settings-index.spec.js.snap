@@ -57,72 +57,6 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
         >
           <div
             class="sw-settings__content-grid"
-            id="sw-settings__content-grid-shop"
-          >
-            <a
-              class="sw-settings-item"
-              id="sw-settings-shipping"
-              to="[object Object]"
-            >
-              <div
-                class="sw-settings-item__icon background--enabled"
-              >
-                <span
-                  name="default-package-open"
-                />
-              </div>
-               
-              <div
-                class="sw-settings-item__label"
-              >
-                a
-              </div>
-            </a>
-            <a
-              class="sw-settings-item"
-              id="sw-settings-snippet"
-              to="[object Object]"
-            >
-              <div
-                class="sw-settings-item__icon background--enabled"
-              >
-                <span
-                  name="default-object-globe"
-                />
-              </div>
-               
-              <div
-                class="sw-settings-item__label"
-              >
-                h
-              </div>
-            </a>
-            <a
-              class="sw-settings-item"
-              id="sw-settings-listing"
-              to="[object Object]"
-            >
-              <div
-                class="sw-settings-item__icon background--enabled"
-              >
-                <span
-                  name="default-symbol-products"
-                />
-              </div>
-               
-              <div
-                class="sw-settings-item__label"
-              >
-                s
-              </div>
-            </a>
-             
-            <div />
-             
-            <!---->
-          </div>
-          <div
-            class="sw-settings__content-grid"
             id="sw-settings__content-grid-system"
             style="display: none;"
           >
@@ -183,16 +117,69 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
                 c
               </div>
             </a>
-             
-            <!---->
-             
-            <div />
           </div>
-           
           <div
             class="sw-settings__content-grid"
-            style="display: none;"
-          />
+            id="sw-settings__content-grid-shop"
+          >
+            <a
+              class="sw-settings-item"
+              id="sw-settings-shipping"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-package-open"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                a
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-snippet"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-globe"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                h
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-settings-listing"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-symbol-products"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                s
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </div>

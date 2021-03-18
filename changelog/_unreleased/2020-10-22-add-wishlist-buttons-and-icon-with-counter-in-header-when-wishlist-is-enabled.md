@@ -1,7 +1,6 @@
 ---
 title: Add wishlist buttons and icon with counter in the header when wishlist is enabled
 issue: NEXT-11308
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 *  Added `Shopware\Storefront\Controller\WishlistController`.

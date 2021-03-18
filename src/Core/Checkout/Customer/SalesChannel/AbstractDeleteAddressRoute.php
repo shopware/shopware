@@ -13,8 +13,5 @@ abstract class AbstractDeleteAddressRoute
 {
     abstract public function getDecorated(): AbstractDeleteAddressRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
-     */
-    abstract public function delete(string $addressId, SalesChannelContext $context/*, CustomerEntity $customer*/): NoContentResponse;
+    abstract public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse;
 }

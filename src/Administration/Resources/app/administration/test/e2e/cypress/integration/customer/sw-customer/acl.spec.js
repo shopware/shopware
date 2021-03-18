@@ -80,7 +80,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer/*',
+            url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'patch'
         }).as('saveCustomer');
 
@@ -181,7 +181,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer/*',
+            url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'delete'
         }).as('deleteData');
 

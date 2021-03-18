@@ -73,7 +73,7 @@ class NewsletterController extends StorefrontController
         try {
             $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
         } catch (\Throwable $throwable) {
-            $this->addFlash('danger', $this->trans('newsletter.subscriptionConfirmationFailed'));
+            $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 
             throw new \Exception($throwable->getMessage(), $throwable->getCode(), $throwable);
         }
@@ -89,13 +89,8 @@ class NewsletterController extends StorefrontController
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
-    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {
@@ -105,7 +100,6 @@ class NewsletterController extends StorefrontController
         $dataBag->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
         $messages = [];
-        $success = null;
 
         if ($subscribed) {
             try {

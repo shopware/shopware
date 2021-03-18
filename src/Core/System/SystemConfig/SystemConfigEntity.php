@@ -15,6 +15,9 @@ class SystemConfigEntity extends Entity
      */
     protected $configurationKey;
 
+    /**
+     * @var array|bool|float|int|string|null
+     */
     protected $configurationValue;
 
     /**
@@ -37,11 +40,17 @@ class SystemConfigEntity extends Entity
         $this->configurationKey = $configurationKey;
     }
 
+    /**
+     * @return array|bool|float|int|string|null
+     */
     public function getConfigurationValue()
     {
         return $this->configurationValue;
     }
 
+    /**
+     * @param array|bool|float|int|string|null $configurationValue
+     */
     public function setConfigurationValue($configurationValue): void
     {
         $this->configurationValue = $configurationValue;

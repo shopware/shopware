@@ -16,7 +16,6 @@ class MultiInsertQueryQueueTest extends TestCase
 
     public function testNullableDatetime(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $query = new MultiInsertQueryQueue($connection);
 

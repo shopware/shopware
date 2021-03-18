@@ -14,11 +14,9 @@ Component.register('sw-cms-detail', {
         'entityFactory',
         'entityHydrator',
         'loginService',
-        'cmsPageService',
         'cmsService',
         'cmsDataResolverService',
-        'acl',
-        'feature'
+        'acl'
     ],
 
     mixins: [
@@ -102,6 +100,8 @@ Component.register('sw-cms-detail', {
             showLayoutAssignmentModal: false,
             showMissingElementModal: false,
             missingElements: [],
+
+            /** @deprecated tag:v6.5.0 data prop can be removed completely */
             previousRoute: ''
         };
     },
@@ -112,6 +112,7 @@ Component.register('sw-cms-detail', {
         };
     },
 
+    /** @deprecated tag:v6.5.0 navigation guard can be removed completely */
     beforeRouteEnter(to, from, next) {
         next((vm) => {
             vm.previousRoute = from.name;
@@ -236,6 +237,8 @@ Component.register('sw-cms-detail', {
 
             criteria
                 .addAssociation('categories')
+                .addAssociation('landingPages')
+                .addAssociation('products.manufacturer')
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -243,11 +246,6 @@ Component.register('sw-cms-detail', {
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
-
-            if (Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
-                criteria
-                    .addAssociation('products.manufacturer');
-            }
 
             return criteria;
         },
@@ -637,12 +635,6 @@ Component.register('sw-cms-detail', {
             }
             const sections = this.page.sections;
 
-            if (!this.page.categories.length && this.previousRoute === 'sw.cms.create') {
-                this.openLayoutAssignmentModal();
-
-                return Promise.reject();
-            }
-
             if (this.page.type === 'product_list') {
                 let foundListingBlock = false;
 
@@ -941,6 +933,7 @@ Component.register('sw-cms-detail', {
             this.showLayoutAssignmentModal = false;
         },
 
+        /** @deprecated tag:v6.5.0 method can be removed completely */
         onConfirmLayoutAssignment() {
             this.previousRoute = '';
         },

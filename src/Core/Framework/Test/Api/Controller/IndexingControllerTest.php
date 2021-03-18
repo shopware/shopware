@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class IndexingControllerTest extends TestCase
@@ -26,7 +25,7 @@ class IndexingControllerTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            '/api/v' . PlatformRequest::API_VERSION . '/_action/indexing/test.indexer',
+            '/api/_action/indexing/test.indexer',
             ['offset' => 0]
         );
         $response = $this->getBrowser()->getResponse();

@@ -6,13 +6,14 @@
                 <sw-select-field
                     v-model="discount.type"
                     class="sw-promotion-v2-settings-discount-type__field-select-discount-type"
-                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.form.labelDiscountType')"
+                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelDiscountType')"
                     :disabled="!acl.can('promotion.editor')">
 
                     {% block sw_promotion_v2_settings_discount_type_type_options %}
                         <option
                             v-for="selection in getDiscountTypeSelection()"
                             :key="selection.value"
+                            :disabled="selection.disabled"
                             :value="selection.value">
                             {{ selection.display }}
                         </option>
@@ -31,10 +32,13 @@
                     :label="labelValue"
                     :disabled="discount.type === 'free' || !acl.can('promotion.editor')">
 
-                    <template #suffix>
-                        <sw-icon v-if="discount.type !== 'percentage'" name="default-symbol-euro"></sw-icon>
-                        <span v-else>%</span>
-                    </template>
+                    {% block sw_promotion_v2_settings_discount_type_price_suffix %}
+                        <template #suffix>
+                            <span v-if="isPercentageType">%</span>
+                            <span v-else>{{ currencySymbol }}</span>
+                        </template>
+                    {% endblock %}
+
                 </sw-number-field>
             {% endblock %}
 
@@ -46,13 +50,14 @@
                 <sw-select-field
                     v-model="discount.applierKey"
                     class="sw-promotion-v2-settings-discount-type__field-apply-discount-to"
-                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.form.labelApplyDiscountTo')"
+                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelApplyDiscountTo')"
                     :disabled="discount.type === 'free' || !acl.can('promotion.editor')">
 
                     {% block sw_promotion_v2_settings_discount_type_apply_discount_to_options %}
                         <option
                             v-for="selection in getApplyDiscountToSelection()"
                             :key="selection.value"
+                            :disabled="selection.disabled"
                             :value="selection.value">
                             {{ selection.display }}
                         </option>
@@ -66,16 +71,91 @@
                     v-model="discount.maxValue"
                     class="sw-promotion-v2-settings-discount-type__field-max-discount"
                     :idSuffix="discount.id"
-                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.form.labelMaxDiscountValue')"
+                    :label="$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelMaxDiscountValue')"
                     :disabled="discount.type !== 'percentage' || !acl.can('promotion.editor')"
+                    @change="onMaxValueChanged"
                     allowEmpty>
 
-                    <template #suffix>
-                        <sw-icon name="default-symbol-euro"></sw-icon>
-                    </template>
+                    {% block sw_promotion_v2_settings_discount_type_max_discount_value_suffix %}
+                        <template #suffix>
+                            <span>{{ currencySymbol }}</span>
+                        </template>
+                    {% endblock %}
+
                 </sw-number-field>
             {% endblock %}
 
         </sw-container>
+
+        {% block sw_promotion_v2_settings_discount_type_advanced_prices_link %}
+            <a v-if="showAdvancedPricesLink"
+               class="sw-promotion-v2-settings-discount-type__advanced-prices"
+               @click="onClickAdvancedPrices">
+                {{ $tc('sw-promotion-v2.detail.discounts.pricesModal.linkAdvancedPrices') }}
+                <sw-icon name="default-arrow-simple-right" small></sw-icon>
+            </a>
+        {% endblock %}
+
+        {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal %}
+            <sw-modal
+                v-if="displayAdvancedPricesModal"
+                @modal-close="onCloseAdvancedPricesModal"
+                :title="$tc('sw-promotion-v2.detail.discounts.pricesModal.advancedPricesHeader')"
+                class="sw-promotion-v2-settings-discounts-type__advanced-prices-modal">
+
+                {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid %}
+                    <sw-one-to-many-grid
+                        :collection="discount.promotionDiscountPrices"
+                        :localMode="true"
+                        :columns="currencyPriceColumns"
+                        :showSelection="false"
+                        :showActions="!acl.can('promotion.editor')">
+
+                        {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_name %}
+                            <template #column-currency.translated.name="{ item }">
+                                <p class="sw-promotion-v2-settings-discounts-type__advances-prices-column-name">{{ item.currency.translated.name }}</p>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price %}
+                            <template #column-price="{ item }">
+                                <sw-number-field
+                                    v-model="item.price"
+                                    class="sw-promotion-v2-settings-discounts-type__advanced-prices-column-price"
+                                    type="text"
+                                    size="small"
+                                    :disabled="!acl.can('promotion.editor')">
+
+                                    {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price_suffix %}
+                                        <template #suffix>
+                                            {{ item.currency.symbol }}
+                                        </template>
+                                    {% endblock %}
+
+                                </sw-number-field>
+                            </template>
+                        {% endblock %}
+
+                    </sw-one-to-many-grid>
+                {% endblock %}
+
+                {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer %}
+                    <template #modal-footer>
+
+                        {% block sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer_button_close %}
+                            <sw-button
+                                @click="onCloseAdvancedPricesModal"
+                                variant="primary"
+                                size="small">
+                                {{ $tc('sw-promotion-v2.detail.discounts.pricesModal.closeModal') }}
+                            </sw-button>
+                        {% endblock %}
+
+                    </template>
+                {% endblock %}
+
+            </sw-modal>
+        {% endblock %}
+
     </div>
 {% endblock %}

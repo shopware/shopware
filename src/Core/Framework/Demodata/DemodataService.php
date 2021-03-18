@@ -80,7 +80,7 @@ class DemodataService
 
             $end = microtime(true) - $start;
 
-            $console->note(sprintf('Took %f seconds', (float) $end));
+            $console->note(sprintf('Took %f seconds', $end));
 
             $demodataContext->setTiming($definition, $numberOfItems, $end);
         }

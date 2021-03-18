@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -61,6 +62,8 @@ class GroupByTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->writer = $this->getContainer()->get(EntityWriter::class);
 
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate('
             DROP TABLE IF EXISTS group_by_test;
 
@@ -74,6 +77,8 @@ class GroupByTest extends TestCase
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
+
+        $this->connection->beginTransaction();
 
         $this->definition = new GroupByDefinition();
         $this->definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -205,10 +210,10 @@ class TestDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new IdField('id', 'id'),
-            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true),
-            new OneToManyAssociationField('one_to_many', self::class, 'test_id'),
-            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('one_to_many', self::class, 'test_id'))->addFlags(new ApiAware()),
+            (new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'))->addFlags(new ApiAware()),
         ]);
     }
 }

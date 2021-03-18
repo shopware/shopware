@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,7 +41,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
     private $cartService;
 
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $contextFactory;
 
@@ -203,7 +205,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         static::assertSame($quantity, $cart->get($id)->getQuantity());
 
-        return $this->cartService->order($cart, $context);
+        return $this->cartService->order($cart, $context, new RequestDataBag());
     }
 
     private function createCustomer(): string

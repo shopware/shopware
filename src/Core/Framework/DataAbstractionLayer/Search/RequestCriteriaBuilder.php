@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
-use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
@@ -36,16 +35,10 @@ class RequestCriteriaBuilder
      */
     private $aggregationParser;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
-
-    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit)
+    public function __construct(AggregationParser $aggregationParser, int $maxLimit)
     {
         $this->maxLimit = $maxLimit;
         $this->aggregationParser = $aggregationParser;
-        $this->apiVersionConverter = $apiVersionConverter;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -229,8 +222,6 @@ class RequestCriteriaBuilder
                 $this->fromArray($association, $nested, $ref, $context, $apiVersion);
             }
         }
-
-        $this->apiVersionConverter->convertCriteria($definition, $criteria, $apiVersion, $searchException);
 
         $searchException->tryToThrow();
 

@@ -127,7 +127,7 @@ class FeatureTest extends TestCase
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
-        $template = $twig->loadTemplate('featuretest.html.twig');
+        $template = $twig->loadTemplate($twig->getTemplateClass('featuretest.html.twig'), 'featuretest.html.twig');
         $_SERVER['FEATURE_NEXT_101'] = '1';
         static::assertSame('FeatureIsActive', $template->render([]));
         $_SERVER['FEATURE_NEXT_101'] = '0';
@@ -144,7 +144,7 @@ class FeatureTest extends TestCase
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
-        $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
+        $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
         $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
 
@@ -161,7 +161,7 @@ class FeatureTest extends TestCase
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
-        $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
+        $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
         static::assertTrue(true, 'No Notice in prod mode');
 

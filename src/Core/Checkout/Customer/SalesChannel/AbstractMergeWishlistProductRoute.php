@@ -14,8 +14,5 @@ abstract class AbstractMergeWishlistProductRoute
 {
     abstract public function getDecorated(): AbstractMergeWishlistProductRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
-     */
-    abstract public function merge(RequestDataBag $data, SalesChannelContext $context/*, CustomerEntity $customer*/): SuccessResponse;
+    abstract public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse;
 }

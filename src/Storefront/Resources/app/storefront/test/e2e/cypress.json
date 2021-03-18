@@ -17,12 +17,11 @@
     "configFile": "reporter-config.json"
   },
   "env": {
-    "apiVersion": "v2",
     "user": "admin",
     "pass": "shopware",
     "salesChannelName": "Storefront",
     "admin": "/admin",
-    "apiPath": "/api/v2",
+    "apiPath": "/api",
     "locale": "en-GB",
     "checkoutAllowed": false,
     "projectRoot": "/app",

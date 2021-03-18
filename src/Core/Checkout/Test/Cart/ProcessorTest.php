@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -35,7 +36,7 @@ class ProcessorTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $factory;
 
@@ -175,7 +176,7 @@ class ProcessorTest extends TestCase
 
         $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, $creditId, 1))
             ->setLabel('credit')
-            ->setPriceDefinition(new AbsolutePriceDefinition(-100, 2));
+            ->setPriceDefinition(new AbsolutePriceDefinition(-100));
 
         $cart->addLineItems(new LineItemCollection([$productLineItem, $customLineItem, $creditLineItem]));
 

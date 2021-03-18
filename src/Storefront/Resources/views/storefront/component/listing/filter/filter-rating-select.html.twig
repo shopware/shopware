@@ -1,0 +1,53 @@
+{% sw_extends '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' %}
+
+{% if maxPoints is not defined %}
+    {% set maxPoints = 5 %}
+{% endif %}
+
+{% if filterRatingActiveLabelStart is not defined %}
+    {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRatingActiveLabelEndSingular is not defined %}
+    {% set filterRatingActiveLabelEndSingular = 'listing.filterRatingActiveLabelEndSingular'|trans|sw_sanitize %}
+{% endif %}
+
+{% if filterRatingActiveLabelEnd is not defined %}
+    {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans|sw_sanitize %}
+{% endif %}
+
+{% if listItemSelector is not defined %}
+    {% set listItemSelector = '.filter-rating-select-list-item' %}
+{% endif %}
+
+{% if checkboxSelector is not defined %}
+    {% set checkboxSelector = '.filter-rating-select-radio' %}
+{% endif %}
+
+{% if dataPluginSelectorOptions is not defined %}
+    {% set dataPluginSelectorOptions = {
+        name: name,
+        maxPoints: maxPoints,
+        listItemSelector: listItemSelector,
+        checkboxSelector: checkboxSelector,
+        snippets: {
+            filterRatingActiveLabelStart: filterRatingActiveLabelStart,
+            filterRatingActiveLabelEndSingular: filterRatingActiveLabelEndSingular,
+            filterRatingActiveLabelEnd: filterRatingActiveLabelEnd,
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+        }
+    } %}
+{% endif %}
+
+{% block component_filter_multi_select_list %}
+    <ul class="filter-multi-select-list">
+        {% for point in maxPoints-1..1 %}
+            <li class="filter-rating-select-list-item">
+                {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select-item.html.twig' with {
+                    points: point,
+                    maxPoints: maxPoints
+                } %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

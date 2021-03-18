@@ -25,13 +25,16 @@ class Migration1605103533AddCookiesToAppEntityTest extends TestCase
 
     public function tearDown(): void
     {
+        $this->connection->rollBack();
         $this->connection->executeUpdate('DELETE FROM `app`');
         $this->connection->executeUpdate('DELETE FROM `integration`');
         $this->connection->executeUpdate('DELETE FROM `acl_role`');
+        $this->connection->beginTransaction();
     }
 
     public function testMigrationWorksOnNonEmptyTable(): void
     {
+        $this->connection->rollBack();
         $this->connection->executeUpdate('ALTER TABLE `app` DROP COLUMN `cookies`');
 
         $this->connection->insert('app', [
@@ -46,6 +49,8 @@ class Migration1605103533AddCookiesToAppEntityTest extends TestCase
 
         $migration = new Migration1605103533AddCookiesToAppEntity();
         $migration->update($this->connection);
+
+        $this->connection->beginTransaction();
 
         static::assertNull($this->connection->fetchColumn('SELECT `cookies` FROM `app`'));
     }

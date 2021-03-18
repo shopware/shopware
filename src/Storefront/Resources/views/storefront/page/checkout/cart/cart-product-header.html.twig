@@ -8,9 +8,7 @@
             {% endblock %}
 
             {% block page_checkout_cart_header_quantity %}
-                {# @deprecated tag:v6.4.0 - Variable 'layout' will be removed #}
-                {% set layout = 'col-2' %}
-                <div class="{{ layout }} cart-header-quantity">
+                <div class="col-2 cart-header-quantity">
                     {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
                 </div>
             {% endblock %}

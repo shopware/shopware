@@ -35,4 +35,9 @@ class ApiClient implements ClientEntityInterface
     {
         return $this->identifier;
     }
+
+    public function isConfidential(): bool
+    {
+        return true;
+    }
 }

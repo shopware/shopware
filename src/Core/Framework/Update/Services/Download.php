@@ -84,7 +84,8 @@ class Download
 
         $me = $this;
 
-        curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($ch, $dltotal, $dlnow) use ($size): void {
+        // Do not remove $_ch, although it is marked as unused. It somehow important
+        curl_setopt($ch, \CURLOPT_PROGRESSFUNCTION, function ($_ch, $dltotal, $dlnow) use ($size): void {
             if ($dlnow > 0) {
                 $this->progress($dltotal, $dlnow, $size + $dlnow);
             }

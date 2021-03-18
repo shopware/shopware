@@ -103,7 +103,7 @@ class SnippetService
         $snippets = $this->sortSnippets($sort, $snippets);
 
         $total = 0;
-        foreach ($snippets as $setId => &$set) {
+        foreach ($snippets as &$set) {
             $total = $total > 0 ? $total : \count($set['snippets']);
             $set['snippets'] = array_chunk($set['snippets'], $limit, true)[$page] ?? [];
         }
@@ -444,7 +444,7 @@ class SnippetService
         }
 
         if ($sort['sortBy'] === 'translationKey' || $sort['sortBy'] === 'id') {
-            foreach ($snippets as $setId => &$set) {
+            foreach ($snippets as &$set) {
                 if ($sort['sortDirection'] === 'ASC') {
                     ksort($set['snippets']);
                 } elseif ($sort['sortDirection'] === 'DESC') {

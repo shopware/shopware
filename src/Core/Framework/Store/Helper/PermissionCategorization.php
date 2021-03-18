@@ -53,7 +53,6 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation\MailHeaderFooterTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition;
@@ -250,7 +249,6 @@ class PermissionCategorization
             MailTemplateDefinition::ENTITY_NAME,
             MailTemplateTranslationDefinition::ENTITY_NAME,
             MailTemplateMediaDefinition::ENTITY_NAME,
-            MailTemplateSalesChannelDefinition::ENTITY_NAME,
             MailTemplateTypeDefinition::ENTITY_NAME,
             MailTemplateTypeTranslationDefinition::ENTITY_NAME,
         ],

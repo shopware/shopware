@@ -23,16 +23,24 @@ class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $repository;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
-    /** @var SalesChannelContext */
+    /**
+     * @var SalesChannelContext
+     */
     private $salesChannelContext;
 
-    /** @var ProductExportGeneratorInterface */
+    /**
+     * @var ProductExportGeneratorInterface
+     */
     private $service;
 
     protected function setUp(): void

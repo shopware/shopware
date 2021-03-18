@@ -22,7 +22,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it.skip('@settings @base: Create and read profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/import-export-profile',
+            url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'post'
         }).as('saveData');
 
@@ -88,7 +88,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it.skip('@settings: Update and read profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/import-export-profile/*',
+            url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -131,7 +131,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it.skip('@settings: Delete profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/import-export-profile/*',
+            url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'delete'
         }).as('deleteData');
 

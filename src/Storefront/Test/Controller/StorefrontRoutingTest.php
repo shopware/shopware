@@ -39,7 +39,6 @@ class StorefrontRoutingTest extends TestCase
             '/checkout/promotion/add',
             $this->tokenize('frontend.checkout.promotion.add', [
                 'forwardTo' => 'api.action.user.user-recovery.hash',
-                'forwardParameters' => json_encode(['version' => 1]),
             ])
         );
 

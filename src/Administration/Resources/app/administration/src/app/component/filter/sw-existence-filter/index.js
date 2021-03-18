@@ -3,6 +3,9 @@ import template from './sw-existence-filter.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
 Component.register('sw-existence-filter', {
     template,
 
@@ -10,13 +13,17 @@ Component.register('sw-existence-filter', {
         filter: {
             type: Object,
             required: true
+        },
+        active: {
+            type: Boolean,
+            required: true
         }
     },
 
-    data() {
-        return {
-            value: null
-        };
+    computed: {
+        value() {
+            return this.filter.value;
+        }
     },
 
     methods: {
@@ -26,20 +33,17 @@ Component.register('sw-existence-filter', {
                 return;
             }
 
-            this.value = newValue;
-
             let filterCriteria = [Criteria.equals(`${this.filter.property}.${this.filter.schema.localField}`, null)];
 
-            if (this.value === 'true') {
+            if (newValue === 'true') {
                 filterCriteria = [Criteria.not('AND', filterCriteria)];
             }
 
-            this.$emit('updateFilter', this.filter.name, filterCriteria);
+            this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },
 
         resetFilter() {
-            this.value = null;
-            this.$emit('resetFilter', this.filter.name);
+            this.$emit('filter-reset', this.filter.name);
         }
     }
 });

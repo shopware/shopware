@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -33,15 +34,12 @@ class DeleteCascadeParentDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-
-            new VersionField(),
-
-            new FkField('delete_cascade_many_to_one_id', 'deleteCascadeManyToOneId', DeleteCascadeManyToOneDefinition::class),
-            new ManyToOneAssociationField('manyToOne', 'delete_cascade_many_to_one_id', DeleteCascadeManyToOneDefinition::class, 'id', false),
-
-            new StringField('name', 'name'),
-            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id'))->addFlags(new CascadeDelete()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            (new VersionField())->addFlags(new ApiAware()),
+            (new FkField('delete_cascade_many_to_one_id', 'deleteCascadeManyToOneId', DeleteCascadeManyToOneDefinition::class))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('manyToOne', 'delete_cascade_many_to_one_id', DeleteCascadeManyToOneDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('cascades', DeleteCascadeChildDefinition::class, 'delete_cascade_parent_id'))->addFlags(new ApiAware(), new CascadeDelete()),
         ]);
     }
 }
@@ -63,13 +61,12 @@ class DeleteCascadeChildDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
 
-            (new FkField('delete_cascade_parent_id', 'deleteCascadeParentId', DeleteCascadeParentDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(DeleteCascadeParentDefinition::class))->addFlags(new Required()),
-
-            new StringField('name', 'name'),
-            new ManyToOneAssociationField('deleteCascadeParent', 'delete_cascade_parent_id', DeleteCascadeParentDefinition::class, 'id', false),
+            (new FkField('delete_cascade_parent_id', 'deleteCascadeParentId', DeleteCascadeParentDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(DeleteCascadeParentDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('deleteCascadeParent', 'delete_cascade_parent_id', DeleteCascadeParentDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
     }
 }
@@ -91,10 +88,9 @@ class DeleteCascadeManyToOneDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
-
-            new StringField('name', 'name'),
-            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id'))->addFlags(new CascadeDelete()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('parents', DeleteCascadeParentDefinition::class, 'delete_cascade_many_to_one_id'))->addFlags(new ApiAware(), new CascadeDelete()),
         ]);
     }
 }

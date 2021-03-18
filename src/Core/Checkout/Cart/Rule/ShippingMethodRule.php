@@ -14,12 +14,9 @@ class ShippingMethodRule extends Rule
     /**
      * @var string[]
      */
-    protected $shippingMethodIds;
+    protected array $shippingMethodIds;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function match(RuleScope $scope): bool
     {

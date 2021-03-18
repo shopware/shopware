@@ -57,8 +57,8 @@
                                     <sw-select-field
                                         v-model="user.localeId"
                                         class="sw-profile__language"
-                                        :label="$tc('sw-settings-user.user-detail.labelLanguage')"
-                                        :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')"
+                                        :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                                        :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                                         :disabled="!acl.can('user.update_profile')">
                                         <option v-for="language in languages"
                                                 :value="language.locale.id"
@@ -117,9 +117,6 @@
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titlePasswordCard')"
                                  :isLoading="isUserLoading || !languageId">
-
-                            {# @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic #}
-                            {% block sw_profile_index_password_card_old_password_field %}{% endblock %}
 
                             {% block sw_profile_index_password_card_new_password_field %}
                                 <sw-password-field v-model="newPassword"
@@ -189,9 +186,7 @@
         {% block sw_profile_index_sidebar %}
             <template #sidebar>
                 <sw-sidebar v-if="acl.can('media.editor')" :propagateWidth="true" >
-                    <sw-sidebar-media-item ref="mediaSidebarItem"
-                                           :isParentLoading="isUserLoading"
-                                           :additionalSearchCriteria="userMediaCriteria">
+                    <sw-sidebar-media-item ref="mediaSidebarItem" :isParentLoading="isUserLoading">
                         <template #context-menu-items="media">
                             <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                                 {{ $tc('sw-profile.index.labelUseAsAvatar') }}

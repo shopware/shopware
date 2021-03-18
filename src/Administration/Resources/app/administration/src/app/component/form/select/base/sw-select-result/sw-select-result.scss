@@ -1,20 +1,20 @@
 @import "~scss/variables";
 
-$sw-select-result-active-color-background: lighten($color-shopware-blue, 40%);
-$sw-select-result-active-color-text: $color-shopware-blue;
-$sw-select-result-color-border: $color-steam-cloud;
-$sw-select-result-color-icon: darken($color-light-gray, 20%);
+$sw-select-result-active-color-background: lighten($color-shopware-brand-500, 40%);
+$sw-select-result-active-color-text: $color-shopware-brand-500;
+$sw-select-result-color-border: $color-gray-300;
+$sw-select-result-color-icon: darken($color-gray-100, 20%);
 $sw-select-result-transition-item-icon: all ease-in-out 0.15s;
-$sw-select-result-disabled-color-background: $color-light-gray;
-$sw-select-result-disabled-color-text: darken($color-steam-cloud, 15%);
+$sw-select-result-disabled-color-background: $color-gray-100;
+$sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
 .sw-select-result {
     padding: 12px 15px;
-    border-bottom: 1px solid $sw-select-result-color-border;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-radius: 4px;
 
     .sw-select-result__result-item-text {
         max-width: 100%;

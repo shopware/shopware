@@ -3,7 +3,7 @@
  */
 
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
-import NativeEventEmitter from '../../../src/helper/emitter.helper';
+import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('VariantSwitchPlugin tests', () => {
     let variantSwitchPlugin = undefined;

@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-gtc-checkbox {
+    &__icon {
+        margin-left: -5px;
+        height: 10px;
+    }
+
+    &__link,
+    &__icon {
+        color: $color-shopware-brand-500;
+    }
+}

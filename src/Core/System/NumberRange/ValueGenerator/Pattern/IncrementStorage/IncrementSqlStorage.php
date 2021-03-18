@@ -9,12 +9,9 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 class IncrementSqlStorage implements IncrementStorageInterface
 {
-    protected $connectorId = 'standard_pattern_connector';
+    protected string $connectorId = 'standard_pattern_connector';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -26,7 +23,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
         $this->connection->executeUpdate(
-            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt) 
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := `last_value`+1',
             [

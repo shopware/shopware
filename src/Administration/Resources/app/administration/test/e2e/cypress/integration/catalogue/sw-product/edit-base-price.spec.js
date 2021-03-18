@@ -40,7 +40,7 @@ describe('Product: Base price', () => {
 
         // Set base price data
         cy.get('.sw-loader').should('not.exist');
-        cy.contains('.sw-card__title', 'Measures & Packaging').scrollIntoView();
+        cy.contains('.sw-card__title', 'Measures & packaging').scrollIntoView();
         cy.get('.sw-select-product__select_unit').typeSingleSelectAndCheck('Gramm','.sw-select-product__select_unit');
         cy.get('.sw-product-packaging-form__purchase-unit-field').type('50');
         cy.get('.sw-product-packaging-form__pack-unit-field').type('Package');
@@ -92,7 +92,7 @@ describe('Product: Base price', () => {
         // Set base price data
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-detail__tab-specifications').scrollIntoView().click();
-        cy.contains('.sw-card__title', 'Measures & Packaging').scrollIntoView();
+        cy.contains('.sw-card__title', 'Measures & packaging').scrollIntoView();
         cy.get('.sw-select-product__select_unit').typeSingleSelectAndCheck('Gramm', '.sw-select-product__select_unit');
         cy.get('.sw-product-packaging-form__purchase-unit-field').type('50');
         cy.get('.sw-product-packaging-form__pack-unit-field').type('Package');

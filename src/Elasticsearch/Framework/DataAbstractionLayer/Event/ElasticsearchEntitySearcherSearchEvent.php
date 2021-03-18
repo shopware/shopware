@@ -11,25 +11,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class ElasticsearchEntitySearcherSearchEvent extends Event implements ShopwareEvent
 {
-    /**
-     * @var Search
-     */
-    private $search;
+    private Search $search;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
+    private EntityDefinition $definition;
 
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private Criteria $criteria;
 
     public function __construct(
         Search $search,

@@ -105,4 +105,26 @@ describe('directives/tooltip', () => {
 
         wrapper.destroy();
     });
+
+    it('should not be created when target element gets deleted before creation of tooltip', async () => {
+        // register component globally,
+        // so that new vue instances created from the tooltip can access it
+        Vue.component('sw-test', {
+            template: '<div class="sw-test"/>'
+        });
+
+        const wrapper = createWrapper('a tooltip');
+        wrapper.vm.updateMessage('This is a <sw-test></sw-test>');
+        await wrapper.vm.$nextTick();
+
+        wrapper.trigger('mouseenter');
+
+        // delete wrapper
+        wrapper.destroy();
+
+        jest.runAllTimers();
+
+        const tooltips = document.body.getElementsByClassName('sw-tooltip');
+        expect(tooltips.length).toBe(0);
+    });
 });

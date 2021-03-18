@@ -19,12 +19,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -168,13 +169,6 @@ class ProductEntity extends Entity
     protected $shippingFree;
 
     /**
-     * @deprecated tag:v6.4.0 use $purchasePrices instead
-     *
-     * @var float|null
-     */
-    protected $purchasePrice;
-
-    /**
      * @var PriceCollection|null
      */
     protected $purchasePrices;
@@ -270,11 +264,6 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
-     * @var bool
-     */
-    protected $grouped = false;
-
-    /**
      * @var string|null
      */
     protected $mainVariantId;
@@ -305,9 +294,12 @@ class ProductEntity extends Entity
     protected $prices;
 
     /**
-     * @var ListingPriceCollection|null
+     * The container will be resolved on product.loaded event and
+     * the detected cheapest price will be set for the current context rules
+     *
+     * @var CheapestPrice|CheapestPriceContainer|null
      */
-    protected $listingPrices;
+    protected $cheapestPrice;
 
     /**
      * @var ProductMediaEntity|null
@@ -330,8 +322,6 @@ class ProductEntity extends Entity
     protected $media;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var string|null
      */
     protected $cmsPageId;
@@ -342,8 +332,6 @@ class ProductEntity extends Entity
     protected $cmsPage;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     *
      * @var array|null
      */
     protected $slotConfig;
@@ -492,6 +480,11 @@ class ProductEntity extends Entity
      * @var ProductEntity|null
      */
     protected $canonicalProduct;
+
+    /**
+     * @var CheapestPriceContainer|null
+     */
+    protected $cheapestPriceContainer;
 
     public function __construct()
     {
@@ -692,22 +685,6 @@ class ProductEntity extends Entity
         $this->shippingFree = $shippingFree;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 use getPurchasePrices() instead
-     */
-    public function getPurchasePrice(): ?float
-    {
-        return $this->purchasePrice;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 use setPurchasePrices() instead
-     */
-    public function setPurchasePrice(?float $purchasePrice): void
-    {
-        $this->purchasePrice = $purchasePrice;
-    }
-
     public function getPurchasePrices(): ?PriceCollection
     {
         return $this->purchasePrices;
@@ -888,16 +865,6 @@ class ProductEntity extends Entity
         $this->prices = $prices;
     }
 
-    public function getListingPrices(): ?ListingPriceCollection
-    {
-        return $this->listingPrices;
-    }
-
-    public function setListingPrices(ListingPriceCollection $listingPrices): void
-    {
-        $this->listingPrices = $listingPrices;
-    }
-
     public function getRestockTime(): ?int
     {
         return $this->restockTime;
@@ -965,49 +932,31 @@ class ProductEntity extends Entity
         $this->cover = $cover;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getCmsPage(): ?CmsPageEntity
     {
         return $this->cmsPage;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getCmsPageId(): ?string
     {
         return $this->cmsPageId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setCmsPageId(string $cmsPageId): void
     {
         $this->cmsPageId = $cmsPageId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     */
     public function setSlotConfig(array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;
@@ -1121,16 +1070,6 @@ class ProductEntity extends Entity
     public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
         $this->configuratorSettings = $configuratorSettings;
-    }
-
-    public function setGrouped(bool $grouped): void
-    {
-        $this->grouped = $grouped;
-    }
-
-    public function isGrouped(): bool
-    {
-        return $this->grouped;
     }
 
     public function getCategoriesRo(): ?CategoryCollection
@@ -1461,5 +1400,28 @@ class ProductEntity extends Entity
     public function setCanonicalProduct(ProductEntity $product): void
     {
         $this->canonicalProduct = $product;
+    }
+
+    /**
+     * @return CheapestPrice|CheapestPriceContainer|null
+     */
+    public function getCheapestPrice()
+    {
+        return $this->cheapestPrice;
+    }
+
+    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
+    {
+        $this->cheapestPrice = $cheapestPrice;
+    }
+
+    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
+    {
+        $this->cheapestPriceContainer = $container;
+    }
+
+    public function getCheapestPriceContainer(): ?CheapestPriceContainer
+    {
+        return $this->cheapestPriceContainer;
     }
 }

@@ -41,12 +41,10 @@
                                                 <option value="product_list">
                                                     {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
                                                 </option>
-                                                <template v-if="feature.isActive('FEATURE_NEXT_10078')">
-                                                    <option value="product_detail"
-                                                            :disabled="page.type !== 'product_detail'">
-                                                        {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
-                                                    </option>
-                                                </template>
+                                                <option value="product_detail"
+                                                        :disabled="page.type !== 'product_detail'">
+                                                    {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
+                                                </option>
                                             {% endblock %}
                                     </sw-select-field>
                                 {% endblock %}

@@ -125,11 +125,11 @@ Mass imports and exports through files
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-importexport.md)
 
-#### LandingPage <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### LandingPage <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/LandingPage)
 
-Landing pages
+__EMPTY__
 
 #### Mail <span class="tip is--primary">Custom Extendable</span>
 
@@ -137,7 +137,7 @@ Landing pages
 
 __EMPTY__
 
-#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate)
 
@@ -366,6 +366,24 @@ Webhooks
 
 Traits for different migration operations
 
+#### V6_3 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_3)
+
+__EMPTY__
+
+#### V6_4 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_4)
+
+__EMPTY__
+
+#### V6_5 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/V6_5)
+
+__EMPTY__
+
 ### System Bundle
 
 #### Annotation 
@@ -471,7 +489,7 @@ Order state management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-statemachine.md)
 
-#### SystemConfig <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### SystemConfig <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/SystemConfig)
 

@@ -23,6 +23,7 @@
       "titleCard": "General information",
       "titleCardValues": "Values",
       "messageSaveSuccess": "Characteristic template \"{name}\" has been saved.",
+      "messageSaveError": "An error occurred while saving your product essential characteristic template.",
       "labelName": "Name",
       "labelDescription": "Description",
       "labelValues": "Values",

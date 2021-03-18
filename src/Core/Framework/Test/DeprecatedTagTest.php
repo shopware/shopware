@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
@@ -29,13 +30,22 @@ class DeprecatedTagTest extends TestCase
         'storefront/vendor',
     ];
 
-    public function testFilesInPlatformForDeprecatedTag(): void
-    {
-        $dir = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile(Kernel::class)) . '/../');
+    private string $rootDir;
 
-        $return = [];
+    private string $manifestRoot;
+
+    private ?DeprecationTagTester $deprecationTagTester = null;
+
+    public function setUp(): void
+    {
+        $this->rootDir = $this->getPathForClass(Kernel::class);
+        $this->manifestRoot = $this->getPathForClass(Manifest::class);
+    }
+
+    public function testSourceFilesForWrongDeprecatedAnnotations(): void
+    {
         $finder = new Finder();
-        $finder->in($dir)
+        $finder->in($this->rootDir)
             ->files()
             ->name('*.php')
             ->name('*.js')
@@ -48,15 +58,28 @@ class DeprecatedTagTest extends TestCase
             $finder->notPath($path);
         }
 
+        $invalidFiles = [];
+
         foreach ($finder->getIterator() as $file) {
             $filePath = $file->getRealPath();
-            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $filePath)) {
-                $return[] = $filePath;
+            $content = file_get_contents($filePath);
+
+            try {
+                $this->getDeprecationTagTester()->validateAnnotations($content);
+            } catch (\Throwable $error) {
+                if (!$error instanceof NoDeprecationFoundException) {
+                    $invalidFiles[$filePath] = $error->getMessage();
+                }
             }
         }
 
+        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+    }
+
+    public function testConfigFilesForWrongDeprecatedTags(): void
+    {
         $finder = new Finder();
-        $finder->in($dir)
+        $finder->in($this->rootDir)
             ->files()
             ->name('*.xml')
             ->contains('<deprecated>');
@@ -65,54 +88,52 @@ class DeprecatedTagTest extends TestCase
             $finder->notPath($path);
         }
 
-        foreach ($finder->getIterator() as $xmlFile) {
-            if (
-                $this->hasDeprecationFalseOrNoTag('\<deprecated\>', $xmlFile->getPathname())
-                && $this->hasDeprecationFalseOrNoTag('\<tag name="deprecated" .* version="', $xmlFile->getPathname())
-            ) {
-                $return[] = $xmlFile->getPathname();
+        $invalidFiles = [];
+
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            $content = file_get_contents($filePath);
+
+            try {
+                $this->getDeprecationTagTester()->validateTagElement($content);
+                $this->getDeprecationTagTester()->validateDeprecationElements($content);
+            } catch (\Throwable $error) {
+                if (!$error instanceof NoDeprecationFoundException) {
+                    $invalidFiles[$filePath] = $error->getMessage();
+                }
             }
         }
 
-        static::assertEquals([], $return, print_r($return, true));
+        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
     }
 
-    private function hasDeprecationFalseOrNoTag(string $deprecatedPrefix, string $file): bool
+    private function getPathForClass(string $className): string
     {
-        $content = file_get_contents($file);
-        $matches = [];
-        $pattern = '/' . $deprecatedPrefix . '(?!\s?tag\:)/';
+        $path = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile($className)) . '/../');
 
-        preg_match($pattern, $content, $matches);
-
-        if (!empty(array_filter($matches))) {
-            return true;
+        if ($path === false) {
+            throw new \LogicException("could not locate filepath for class {$className}");
         }
 
-        $pattern = '/' . $deprecatedPrefix . '\s?tag\:v{1}([0-9,\.]{2,5})/';
-        preg_match_all($pattern, $content, $matches);
+        return $path;
+    }
 
-        $matches = $matches[1];
-
-        if (empty(array_filter($matches))) {
-            return true;
+    private function getDeprecationTagTester(): DeprecationTagTester
+    {
+        if ($this->deprecationTagTester === null) {
+            $this->deprecationTagTester = new DeprecationTagTester(
+                $this->getShopwareVersion(),
+                $this->getManifestVersion()
+            );
         }
 
-        $taggedVersion = $this->getTaggedVersion();
-
-        foreach ($matches as $match) {
-            if (version_compare($taggedVersion, $match) !== -1) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->deprecationTagTester;
     }
 
     /**
      * can be overwritten with env variable VERSION
      */
-    private function getTaggedVersion(): string
+    private function getShopwareVersion(): string
     {
         $envVersion = $_SERVER['VERSION'] ?? '';
         if (\is_string($envVersion) && $envVersion !== '') {
@@ -120,19 +141,29 @@ class DeprecatedTagTest extends TestCase
         }
         $tags = $this->exec('git tag');
 
-        $highest = str_replace('v', '', $tags[0]);
-        foreach ($tags as $tag) {
+        $tags = array_filter(array_map(static function ($tag): ?string {
             if (\strlen($tag) > 8) {
-                continue;
+                return null;
             }
-            $tag = str_replace('v', '', $tag);
 
-            if (version_compare($highest, $tag) === -1) {
-                $highest = $tag;
-            }
+            return str_replace('v', '', $tag);
+        }, $tags));
+
+        return $this->getHighestVersion($tags);
+    }
+
+    private function getManifestVersion(): string
+    {
+        $finder = new Finder();
+        $finder->in($this->manifestRoot)
+            ->path('/Schema');
+
+        $manifestVersions = [];
+        foreach ($finder->getIterator() as $file) {
+            $manifestVersions[] = DeprecationTagTester::getVersionFromManifestFileName($file->getFilename());
         }
 
-        return $tag;
+        return $this->getHighestVersion($manifestVersions);
     }
 
     private function exec(string $command): array
@@ -147,5 +178,21 @@ class DeprecatedTagTest extends TestCase
         }
 
         return $result;
+    }
+
+    private function getHighestVersion(array $versions): string
+    {
+        if (empty($versions)) {
+            throw new \LogicException('no version applied');
+        }
+
+        $highest = null;
+        foreach ($versions as $version) {
+            if ($highest === null || version_compare($highest, $version) === -1) {
+                $highest = $version;
+            }
+        }
+
+        return $highest;
     }
 }

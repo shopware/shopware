@@ -14,7 +14,8 @@ Component.register('sw-my-apps-page', {
 
         moduleName: {
             type: String,
-            required: true
+            required: false,
+            default: null
         }
     },
 
@@ -46,6 +47,10 @@ Component.register('sw-my-apps-page', {
                 return null;
             }
 
+            if (!this.moduleName) {
+                return this.appDefinition.mainModule;
+            }
+
             return this.appDefinition.modules.find((module) => {
                 return module.name === this.moduleName;
             });
@@ -56,16 +61,12 @@ Component.register('sw-my-apps-page', {
         },
 
         heading() {
-            if (this.suspend) {
-                return this.$tc('sw-my-apps.general.mainMenuItemGeneral');
-            }
-
             const appLabel = this.translate(this.appDefinition.label);
             const moduleLabel = this.translate(this.moduleDefinition.label);
 
-            const spacer = !appLabel || !moduleLabel ? '' : ' - ';
-
-            return `${appLabel}${spacer}${moduleLabel}`;
+            return [appLabel, moduleLabel]
+                .filter((part) => !!part)
+                .join(' - ');
         },
 
         entryPoint() {
@@ -91,11 +92,6 @@ Component.register('sw-my-apps-page', {
 
         innerFrame() {
             return this.$refs.innerFrame;
-        },
-
-        /* @deprecated tag:v6.4.0.0 */
-        legacyLoadedMessage() {
-            return 'connect-app-loaded';
         },
 
         loadedMessage() {
@@ -136,6 +132,10 @@ Component.register('sw-my-apps-page', {
 
     methods: {
         translate(labels) {
+            if (!labels) {
+                return null;
+            }
+
             return labels[this.currentLocale] || labels[this.fallbackLocale];
         },
 
@@ -144,8 +144,7 @@ Component.register('sw-my-apps-page', {
                 return;
             }
 
-            if (event.data === this.legacyLoadedMessage ||
-                event.data === this.loadedMessage) {
+            if (event.data === this.loadedMessage) {
                 this.appLoaded = true;
             }
         }

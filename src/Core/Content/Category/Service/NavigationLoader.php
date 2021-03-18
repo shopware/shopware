@@ -10,10 +10,7 @@ use Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -23,11 +20,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class NavigationLoader implements NavigationLoaderInterface
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $categoryRepository;
-
     /**
      * @var TreeItem
      */
@@ -44,11 +36,9 @@ class NavigationLoader implements NavigationLoaderInterface
     private $navigationRoute;
 
     public function __construct(
-        SalesChannelRepositoryInterface $repository,
         EventDispatcherInterface $eventDispatcher,
         AbstractNavigationRoute $navigationRoute
     ) {
-        $this->categoryRepository = $repository;
         $this->treeItem = new TreeItem(null, []);
         $this->eventDispatcher = $eventDispatcher;
         $this->navigationRoute = $navigationRoute;
@@ -62,8 +52,8 @@ class NavigationLoader implements NavigationLoaderInterface
     public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree
     {
         $request = new Request();
-        $request->query->set('buildTree', false);
-        $request->query->set('depth', $depth);
+        $request->query->set('buildTree', 'false');
+        $request->query->set('depth', (string) $depth);
 
         $criteria = new Criteria();
         $criteria->setTitle('header::navigation');
@@ -73,38 +63,6 @@ class NavigationLoader implements NavigationLoaderInterface
             ->getCategories();
 
         $navigation = $this->getTree($rootId, $categories, $categories->get($activeId));
-
-        $event = new NavigationLoadedEvent($navigation, $context);
-
-        $this->eventDispatcher->dispatch($event);
-
-        return $event->getNavigation();
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - use load with $depth 1 instead
-     * {@inheritdoc}
-     *
-     * @throws CategoryNotFoundException
-     */
-    public function loadLevel(string $categoryId, SalesChannelContext $context): Tree
-    {
-        $active = $this->loadCategories([$categoryId], $context)
-            ->get($categoryId);
-
-        if (!$active) {
-            throw new CategoryNotFoundException($categoryId);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('category.parentId', $categoryId));
-        $criteria->addAssociation('media');
-
-        /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
-        $categories->add($active);
-
-        $navigation = $this->getTree($active->getId(), $categories, $active);
 
         $event = new NavigationLoadedEvent($navigation, $context);
 
@@ -157,17 +115,5 @@ class NavigationLoader implements NavigationLoaderInterface
         }
 
         return $items;
-    }
-
-    private function loadCategories(array $ids, SalesChannelContext $context): CategoryCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
-        $criteria->addAssociation('media');
-
-        /** @var CategoryCollection $missing */
-        $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        return $missing;
     }
 }

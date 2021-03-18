@@ -53,12 +53,10 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
         optionCriteria() {
             const criteria = new Criteria();
             criteria.setIds(this.identifiers);
-            if (this.feature.isActive('FEATURE_NEXT_12108')) {
-                criteria.addAssociation('group');
+            criteria.addAssociation('group');
 
-                if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
-                    criteria.addQuery(Criteria.contains('group.name', this.searchTerm), 500);
-                }
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('group.name', this.searchTerm), 500);
             }
 
             return criteria;

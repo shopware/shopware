@@ -18,7 +18,7 @@
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
             <div class="row cart-item-row">
                 {% block page_checkout_item_info %}
-                    <div class="col-10 col-md cart-item-info">
+                    <div class="col-10 col-md-5 cart-item-info">
                         {% block page_checkout_item_info_inner %}
                             <div class="row cart-item-row">
                                 {% block page_checkout_item_info_image %}
@@ -120,9 +120,6 @@
                                                     {% endif %}
                                                 {% endblock %}
 
-                                                {# @deprecated tag:v6.4.0.0 #}
-                                                {% block page_checkout_item_info_variants %}{% endblock %}
-
                                                 {% block page_checkout_item_info_ordernumber %}
                                                     {% if lineItem.payload.productNumber %}
                                                         <div class="cart-item-ordernumber">
@@ -132,7 +129,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_delivery_date %}
-                                                    {% if deliveryPosition and deliveryPosition.deliveryDate and shopware.config.core.cart.showDeliveryTime %}
+                                                    {% if deliveryPosition and deliveryPosition.deliveryDate and config('core.cart.showDeliveryTime') %}
                                                         <div class="cart-item-delivery-date">
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
                                                                 '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),
@@ -142,15 +139,16 @@
                                                     {% endif %}
                                                 {% endblock %}
 
-                                                {% if shopware.config.core.cart.wishlistEnabled and lineItem.type == 'product' %}
-                                                    {% block page_checkout_item_wishlist %}
+                                                {% block page_checkout_item_wishlist %}
+                                                    {% if config('core.cart.wishlistEnabled') and lineItem.type == 'product' %}
+
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
                                                             size: 'sm',
                                                             productId: lineItem.referencedId
                                                         } %}
-                                                    {% endblock %}
-                                                {% endif %}
+                                                    {% endif %}
+                                                {% endblock %}
                                             </div>
                                         {% endblock %}
 
@@ -162,7 +160,7 @@
                 {% endblock %}
 
                 {% block page_checkout_item_quantity %}
-                    <div class="col-12 col-sm-4 col-md-auto cart-item-quantity">
+                    <div class="col-12 col-sm-4 col-md-2 cart-item-quantity">
                         <div class="row cart-item-quantity-row">
                             {% block page_checkout_item_quantity_label %}
                                 <div class="col-8 col-sm-12 cart-item-quantity-label">
@@ -194,7 +192,7 @@
                                                 {% if quantityInformation.maxPurchase %}
                                                     {% set maxQuantity = quantityInformation.maxPurchase %}
                                                 {% else %}
-                                                    {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
+                                                    {% set maxQuantity = config('core.cart.maxQuantity') %}
                                                 {% endif %}
 
                                                 {% block page_product_detail_buy_quantity %}

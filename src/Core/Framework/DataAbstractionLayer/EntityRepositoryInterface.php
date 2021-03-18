@@ -18,10 +18,7 @@ interface EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult;
 
-    /**
-     * @param CloneBehavior|null $behavior - @deprecated tag:v6.4.0 - Will be implemented in 6.4.0
-     */
-    public function clone(string $id, Context $context, ?string $newId = null/*, CloneBehavior $behavior = null*/): EntityWrittenContainerEvent;
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent;
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult;
 
@@ -31,7 +28,7 @@ interface EntityRepositoryInterface
 
     public function create(array $data, Context $context): EntityWrittenContainerEvent;
 
-    public function delete(array $data, Context $context): EntityWrittenContainerEvent;
+    public function delete(array $ids, Context $context): EntityWrittenContainerEvent;
 
     public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string;
 

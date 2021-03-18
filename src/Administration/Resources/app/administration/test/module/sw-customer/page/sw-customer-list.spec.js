@@ -23,25 +23,25 @@ function createWrapper(privileges = []) {
         },
         provide: {
             repositoryFactory: {
-                create: () => ({
+                create: (entity) => ({
                     create: () => {
-                        return Promise.resolve([{
+                        return Promise.resolve(entity === 'customer' ? [{
                             id: '1a2b3c',
                             entity: 'customer',
                             customerId: 'd4c3b2a1',
                             productId: 'd4c3b2a1',
                             salesChannelId: 'd4c3b2a1'
-                        }]);
+                        }] : []);
                     },
                     search: () => {
-                        return Promise.resolve([{
+                        return Promise.resolve(entity === 'customer' ? [{
                             id: '1a2b3c',
                             entity: 'customer',
                             customerId: 'd4c3b2a1',
                             productId: 'd4c3b2a1',
                             salesChannelId: 'd4c3b2a1',
                             sourceEntitiy: 'customer'
-                        }]);
+                        }] : []);
                     }
                 })
             },
@@ -56,7 +56,8 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
-            }
+            },
+            filterFactory: {}
         },
         stubs: {
             'sw-page': {
@@ -85,6 +86,12 @@ function createWrapper(privileges = []) {
         }
     });
 }
+
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria
+    };
+});
 
 describe('module/sw-customer/page/sw-customer-list', () => {
     it('should be a Vue.JS component', async () => {
@@ -117,6 +124,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     it('should not be able to inline edit', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-customer-list-grid');
 
@@ -129,6 +137,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
             'customer.editor'
         ]);
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-customer-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -137,6 +146,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not be able to delete', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-customer-list__delete-action');
@@ -148,6 +158,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
             'customer.deleter'
         ]);
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-customer-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -155,6 +166,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-customer-list__edit-action');
@@ -165,6 +177,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = createWrapper([
             'customer.editor'
         ]);
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-customer-list__edit-action');

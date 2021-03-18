@@ -32,12 +32,12 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
         $this->cacheTag = $cacheTag;
     }
 
-    public function getVersion($path)
+    public function getVersion(string $path)
     {
         return $this->applyVersion($path);
     }
 
-    public function applyVersion($path)
+    public function applyVersion(string $path)
     {
         try {
             $metaData = $this->getMetaData($path);

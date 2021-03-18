@@ -76,7 +76,41 @@ class StoreApiService extends ApiService {
             });
     }
 
-    downloadPlugin(pluginName, unauthenticated = false) {
+    /**
+     * @deprecated tag:v6.5.0 for updating and installing plugins use downloadAndUpdatePlugin
+     * TODO: remove param onlyDownload with removing deprecation and remove the source code after the if statement "onlyDownload". It should now only download the plugin and do not trigger a update.
+     */
+    downloadPlugin(pluginName, unauthenticated = false, onlyDownload = false) {
+        const headers = this.getBasicHeaders();
+        const params = this.getBasicParams({
+            pluginName: pluginName
+        });
+        if (unauthenticated) {
+            params.unauthenticated = true;
+        }
+
+        // TODO: remove if condition but keep content of the block
+        if (onlyDownload) {
+            return this.httpClient
+                .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
+                .then((response) => {
+                    return ApiService.handleResponse(response);
+                });
+        }
+
+        // TODO: remove this when removing deprecation
+        return this.httpClient
+            .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
+            .then(() => {
+                return this.httpClient
+                    .post('/_action/plugin/update', null, { params, headers });
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    downloadAndUpdatePlugin(pluginName, unauthenticated = false) {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams({
             pluginName: pluginName
@@ -87,18 +121,7 @@ class StoreApiService extends ApiService {
 
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
-            .then((response) => {
-                /**
-                 * @feature-deprecated flag:FEATURE_NEXT_12957
-                 *
-                 * This early return should be removed with the feature flag, so executing the separate update
-                 * request will become the default behaviour. Currently the update is triggered on the server
-                 * side with every /_action/store/download request.
-                 */
-                if (!Shopware.Feature.isActive('FEATURE_NEXT_12957')) {
-                    return response;
-                }
-
+            .then(() => {
                 return this.httpClient
                     .post('/_action/plugin/update', null, { params, headers });
             })

@@ -7,6 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CacheStateValidator implements CacheStateValidatorInterface
 {
+    private array $states;
+
+    public function __construct(array $states)
+    {
+        $this->states = $states;
+    }
+
     public function isValid(Request $request, Response $response): bool
     {
         $states = $request->cookies->get(CacheResponseSubscriber::SYSTEM_STATE_COOKIE);
@@ -15,6 +22,7 @@ class CacheStateValidator implements CacheStateValidatorInterface
         $states = array_flip($states);
 
         $invalidationStates = explode(',', (string) $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
+        $invalidationStates = array_merge($invalidationStates, $this->states);
         $invalidationStates = array_filter($invalidationStates);
 
         foreach ($invalidationStates as $state) {

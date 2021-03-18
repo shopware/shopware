@@ -13,20 +13,11 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemWithQuantityRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected ?string $id;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
+    protected ?int $quantity;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $id = null, ?int $quantity = null)
     {
@@ -50,7 +41,7 @@ class LineItemWithQuantityRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }

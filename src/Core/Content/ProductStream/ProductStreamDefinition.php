@@ -9,7 +9,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -48,17 +48,17 @@ class ProductStreamDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
-            (new JsonField('api_filter', 'apiFilter'))->setFlags(new WriteProtected()),
-            (new BoolField('invalid', 'invalid'))->setFlags(new WriteProtected()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new JsonField('api_filter', 'apiFilter'))->addFlags(new WriteProtected()),
+            (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected()),
 
-            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            new TranslatedField('description'),
-            new TranslatedField('customFields'),
+            (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('description'))->addFlags(new ApiAware()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware()),
 
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id'))->setFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'))->setFlags(new CascadeDelete()),
+            new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id'),
+            new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'),
             new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'),
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id'),
         ]);

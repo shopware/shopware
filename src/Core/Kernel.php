@@ -13,9 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
 {
@@ -26,7 +25,7 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '6.3.9999999.9999999-dev';
+    public const SHOPWARE_FALLBACK_VERSION = '6.4.9999999.9999999-dev';
 
     /**
      * @var string Regex pattern for validating Shopware versions
@@ -221,36 +220,6 @@ class Kernel extends HttpKernel
         }
     }
 
-    /**
-     * @deprecated tag:v6.4.0.0 - API Routes does not contain versions anymore
-     */
-    public function loadRoutes(LoaderInterface $loader): RouteCollection
-    {
-        $routes = new RouteCollectionBuilder($loader);
-        $this->configureRoutes($routes);
-
-        return $this->addApiFallbackRoutes($routes->build());
-    }
-
-    /**
-     * @deprecated tag:v6.4.0.0 - API Routes does not contain versions anymore
-     */
-    public function addApiFallbackRoutes(RouteCollection $routes): RouteCollection
-    {
-        foreach ($routes->all() as $name => $route) {
-            if (strpos($route->getPath(), '{version}') === false) {
-                continue;
-            }
-
-            $fallbackRoute = clone $route;
-            $fallbackRoute->setPath(str_replace(['v{version}/', '{version}/'], '', $fallbackRoute->getPath()));
-            $fallbackRoute->setDefault('version', PlatformRequest::API_VERSION);
-            $routes->add($name . '.major_fallback', $fallbackRoute);
-        }
-
-        return $routes;
-    }
-
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('container.dumper.inline_class_loader', true);
@@ -264,13 +233,13 @@ class Kernel extends HttpKernel
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
 
-        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, 'glob');
+        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
+        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, 'glob');
 
         $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
@@ -308,7 +277,7 @@ class Kernel extends HttpKernel
                 'kernel.app_dir' => rtrim($this->getProjectDir(), '/') . '/custom/apps',
                 'kernel.active_plugins' => $activePluginMeta,
                 'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
-                'kernel.supported_api_versions' => [2, 3],
+                'kernel.supported_api_versions' => [2, 3, 4],
                 'defaults_bool_true' => true,
                 'defaults_bool_false' => false,
                 'default_whitespace' => ' ',
@@ -362,37 +331,37 @@ class Kernel extends HttpKernel
         $connection->executeQuery(implode(';', $connectionVariables));
     }
 
-    private function addApiRoutes(RouteCollectionBuilder $routes): void
+    private function addApiRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import('.', null, 'api');
+        $routes->import('.', 'api');
     }
 
-    private function addBundleRoutes(RouteCollectionBuilder $routes): void
+    private function addBundleRoutes(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
-                $bundle->configureRoutes($routes, (string) $this->environment);
+                $bundle->configureRoutes($routes, $this->environment);
             }
         }
     }
 
-    private function addBundleOverwrites(RouteCollectionBuilder $routes): void
+    private function addBundleOverwrites(RoutingConfigurator $routes): void
     {
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
-                $bundle->configureRouteOverwrites($routes, (string) $this->environment);
+                $bundle->configureRouteOverwrites($routes, $this->environment);
             }
         }
     }
 
-    private function addFallbackRoute(RouteCollectionBuilder $routes): void
+    private function addFallbackRoute(RoutingConfigurator $routes): void
     {
         // detail routes
         $route = new Route('/');
         $route->setMethods(['GET']);
         $route->setDefault('_controller', FallbackController::class . '::rootFallback');
 
-        $routes->addRoute($route, 'root.fallback');
+        $routes->add('root.fallback', $route->getPath());
     }
 
     private function parseShopwareVersion(?string $version): void
@@ -407,7 +376,7 @@ class Kernel extends HttpKernel
 
         [$version, $hash] = explode('@', $version);
         $version = ltrim($version, 'v');
-        $version = (string) str_replace('+', '-', $version);
+        $version = str_replace('+', '-', $version);
 
         /*
          * checks if the version is a valid version pattern

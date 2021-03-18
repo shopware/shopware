@@ -16,6 +16,9 @@ function createWrapper() {
             shortcutService: {
                 startEventListener: () => {},
                 stopEventListener: () => {}
+            },
+            acl: {
+                can: () => true
             }
         },
 

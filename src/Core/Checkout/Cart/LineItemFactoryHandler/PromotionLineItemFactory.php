@@ -25,7 +25,7 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing
-        $item->setPriceDefinition(new PercentagePriceDefinition(0, $context->getCurrency()->getDecimalPrecision()));
+        $item->setPriceDefinition(new PercentagePriceDefinition(0));
 
         return $item;
     }

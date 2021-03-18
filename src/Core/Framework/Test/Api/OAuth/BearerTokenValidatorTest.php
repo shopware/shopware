@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Test\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\BearerTokenValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,15 +18,11 @@ use Shopware\Core\PlatformRequest;
 class BearerTokenValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use AdminApiTestBehaviour;
 
     public function testValidationFailWhenTokenExpired(): void
     {
-        static::expectException(OAuthServerException::class);
-        $browser = $this->getBrowser();
-
-        /** @var Connection $connection */
-        $connection = $browser->getContainer()->get(Connection::class);
+        $this->expectException(OAuthServerException::class);
+        $connection = $this->getContainer()->get(Connection::class);
         $admin = TestUser::createNewTestUser($connection, ['product:read']);
 
         $request = new ServerRequest('GET', $_SERVER['APP_URL']);
@@ -44,7 +40,7 @@ class BearerTokenValidatorTest extends TestCase
         ];
 
         $expiredToken = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjBkZmFhOTJkMWNkYTJiZmUyNGMwOGU4MmNhZmExMDY4N2I2ZWEzZTI0MjE4NjcxMmM0YjI3NTA4Y2NjNWQ0MzI3MWQxODYzODA1NDYwYzQ0In0.'
-            . \base64_encode(\json_encode($fakeClaims))
+            . (new JoseEncoder())->base64UrlEncode(\json_encode($fakeClaims))
             . '.DBYbAWNpwxGL6QngLidboGbr2nmlAwjYcJIqN02sRnZNNFexy9V6uyQQ-8cJ00anwxKhqBovTzHxtXBMhZ47Ix72hxNWLjauKxQlsHAbgIKBDRbJO7QxgOU8gUnSQiXzRzKoX6XBOSHXFSUJ239lF4wai7621aCNFyEvlwf1JZVILsLjVkyIBhvuuwyIPbpEETui19BBaJ0eQZtjXtpzjsWNq1ibUCQvurLACnNxmXIj8xkSNenoX5B4p3R1gbDFuxaNHkGgsrQTwkDtmZxqCb3_0AgFL3XX0mpO5xsIJAI_hLHDPvv5m0lTQgMRrlgNdfE7ecI4GLHMkDmjWoNx_A';
 
         $request = $request->withHeader('authorization', $expiredToken);
@@ -62,7 +58,11 @@ class BearerTokenValidatorTest extends TestCase
         $mockDecoratedValidator = $this->getMockBuilder(AuthorizationValidatorInterface::class)->disableOriginalConstructor()->getMock();
         $mockDecoratedValidator->method('validateAuthorization')->willReturn($request);
 
-        $bearerTokenValidator = new BearerTokenValidator($mockDecoratedValidator, $connection);
+        $bearerTokenValidator = new BearerTokenValidator(
+            $mockDecoratedValidator,
+            $connection,
+            $this->getContainer()->get('shopware.jwt_config')
+        );
 
         $bearerTokenValidator->validateAuthorization($request);
     }

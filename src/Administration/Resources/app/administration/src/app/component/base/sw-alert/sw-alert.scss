@@ -228,7 +228,7 @@ $sw-alert-size-close: 40px;
 
     &.sw-alert--system {
         color: $color-white;
-        background: $color-deep-cove;
+        background: $color-menu-start;
         border: 1px solid $color-darkgray-200;
         box-shadow: none;
 
@@ -240,11 +240,11 @@ $sw-alert-size-close: 40px;
                 border-color: $color-darkgray-50;
 
                 &:hover {
-                    background-color: lighten($color-deep-cove, 6%);
+                    background-color: lighten($color-menu-start, 6%);
                 }
 
                 &:active {
-                    background-color: lighten($color-deep-cove, 8%);
+                    background-color: lighten($color-menu-start, 8%);
                 }
             }
         }

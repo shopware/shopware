@@ -15,7 +15,7 @@ Module.register('sw-my-apps', {
     routes: {
         index: {
             component: 'sw-my-apps-page',
-            path: ':appName/:moduleName',
+            path: ':appName/:moduleName?',
             props: {
                 default(route) {
                     const { appName, moduleName } = route.params;

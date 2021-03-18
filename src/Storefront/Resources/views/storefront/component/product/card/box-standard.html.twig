@@ -59,7 +59,7 @@
                                 {% endif %}
                             </a>
 
-                            {% if shopware.config.core.cart.wishlistEnabled %}
+                            {% if config('core.cart.wishlistEnabled') %}
                                 {% block component_product_box_wishlist_action %}
                                     {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                         appearance: 'circle',
@@ -73,9 +73,8 @@
 
                     {% block component_product_box_info %}
                         <div class="product-info">
-
                             {% block component_product_box_rating %}
-                                {% if shopware.config.core.listing.showReview %}
+                                {% if config('core.listing.showReview') %}
                                     <div class="product-rating">
                                         {% if product.ratingAverage %}
                                             {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
@@ -98,18 +97,16 @@
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
                                     <div class="product-variant-characteristics-text">
-                                        {% if not product.isGrouped %}
-                                            {% for variation in product.variation %}
-                                                {{ variation.group }}:
-                                                <span class="product-variant-characteristics-option">
-                                                    {{ variation.option }}
-                                                </span>
+                                        {% for variation in product.variation %}
+                                            {{ variation.group }}:
+                                            <span class="product-variant-characteristics-option">
+                                                {{ variation.option }}
+                                            </span>
 
-                                                {% if product.variation|last != variation %}
-                                                    {{ " | " }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
+                                            {% if product.variation|last != variation %}
+                                                {{ " | " }}
+                                            {% endif %}
+                                        {% endfor %}
                                     </div>
                                 </div>
                             {% endblock %}

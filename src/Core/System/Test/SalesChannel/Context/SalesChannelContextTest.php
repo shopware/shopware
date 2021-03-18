@@ -606,6 +606,16 @@ class SalesChannelContextTest extends TestCase
         static::assertSame(100.0, $taxRuleCollection->first()->getPercentage());
     }
 
+    public function testGetShippingMethodNoFound(): void
+    {
+        $shippingMethodIdNoExits = '25c5b40b1cb643288ae8e703c2997666';
+
+        $salesChannelContext = $this->createSalesChannelContext([], [SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodIdNoExits]);
+
+        static::assertSame($this->getValidShippingMethodId(), $salesChannelContext->getSalesChannel()->getShippingMethodId());
+        static::assertNotSame($shippingMethodIdNoExits, $salesChannelContext->getSalesChannel()->getShippingMethodId());
+    }
+
     protected function getValidCountryIds(int $limit): array
     {
         /** @var EntityRepositoryInterface $repository */

@@ -57,10 +57,10 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
         $this->swapDefaultLanguageId($connection, $languageId);
         $connection->executeUpdate('SET FOREIGN_KEY_CHECKS = 0;');
         $connection->executeUpdate('DELETE FROM language WHERE id != UNHEX(?)', [Defaults::LANGUAGE_SYSTEM]);
-        $connection->executeUpdate('DELETE FROM mail_template_type', [Defaults::LANGUAGE_SYSTEM]);
-        $connection->executeUpdate('DELETE FROM mail_template_type_translation', [Defaults::LANGUAGE_SYSTEM]);
-        $connection->executeUpdate('DELETE FROM mail_template', [Defaults::LANGUAGE_SYSTEM]);
-        $connection->executeUpdate('DELETE FROM mail_template_translation', [Defaults::LANGUAGE_SYSTEM]);
+        $connection->executeUpdate('DELETE FROM mail_template_type');
+        $connection->executeUpdate('DELETE FROM mail_template_type_translation');
+        $connection->executeUpdate('DELETE FROM mail_template');
+        $connection->executeUpdate('DELETE FROM mail_template_translation');
         $connection->executeUpdate('SET FOREIGN_KEY_CHECKS = 1;');
     }
 

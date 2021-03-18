@@ -7,52 +7,52 @@ $padding-star: 10%;
     direction: rtl;
     width: fit-content;
 
-    .sw-extension-rating-stars__wrapper {
+    &__wrapper {
         display: grid;
         grid-auto-flow: column;
+    }
 
-        .sw-extension-rating-stars__star {
-            transition: color 0.2s ease-in;
-            background: none;
-            border: none;
-            outline: none;
-            color: $color-gray-200;
-            display: inline-block;
-            position: relative;
+    &__star {
+        transition: color 0.2s ease-in;
+        background: none;
+        border: none;
+        outline: none;
+        color: $color-gray-200;
+        display: inline-block;
+        position: relative;
 
-            .sw-icon {
-                height: auto;
-            }
+        .sw-icon {
+            height: auto;
+        }
 
-            > .sw-icon {
-                padding: 0 $padding-star;
-            }
+        > .sw-icon {
+            padding: 0 $padding-star;
+        }
 
-            &.is--rated {
-                color: $color-module-yellow-600;
-            }
-
-            .sw-extension-rating-stars__partial-star {
-                position: absolute;
-                left: $padding-star;
-                top: 0;
-                color: $color-module-yellow-600;
-                transform: scaleX(-1);
-
-                .sw-extension-rating-stars__partial-star-wrapper {
-                    overflow: hidden;
-                    display: block;
-                }
-            }
+        &--is-rated {
+            color: $color-module-yellow-600;
         }
     }
 
-    &.is--editable {
+    &__partial-star {
+        position: absolute;
+        left: $padding-star;
+        top: 0;
+        color: $color-module-yellow-600;
+        transform: scaleX(-1);
+
+        &-wrapper {
+            overflow: hidden;
+            display: block;
+        }
+    }
+
+    &--is-editable {
         .sw-extension-rating-stars__wrapper {
             .sw-extension-rating-stars__star {
                 cursor: pointer;
 
-                &.is--rated:hover {
+                &--is-rated:hover {
                     color: #e9e1a8;
                 }
             }

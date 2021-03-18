@@ -11,13 +11,13 @@ class PromotionNotFoundError extends Error
     /**
      * @var string
      */
-    protected $code;
+    protected $promotionCode;
 
-    public function __construct(string $code)
+    public function __construct(string $promotionCode)
     {
-        $this->code = $code;
+        $this->promotionCode = $promotionCode;
 
-        $this->message = sprintf('Promotion with code %s not found!', $this->code);
+        $this->message = sprintf('Promotion with code %s not found!', $this->promotionCode);
 
         parent::__construct($this->message);
     }
@@ -45,7 +45,7 @@ class PromotionNotFoundError extends Error
     public function getParameters(): array
     {
         return [
-            'code' => $this->code,
+            'code' => $this->promotionCode,
         ];
     }
 }

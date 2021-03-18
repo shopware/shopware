@@ -1,5 +1,7 @@
 {% sw_extends 'storefront/component/account/register.html.twig' %}
 
+{% set hasSelectedBusiness = page.group.translated.registrationOnlyCompanyRegistration %}
+
 {% block component_account_register_header %}
     {% if page.group.translated.registrationTitle is not empty %}
         <div class="card-title">
@@ -31,6 +33,6 @@
 
 {% block component_account_register_personal_address_fields %}
     {% sw_include '@Storefront/storefront/component/account/customer-group-register-address-form.twig' with {
-        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
+        'showBirthdayField': config('core.loginRegistration.showBirthdayField')
     } %}
 {% endblock %}

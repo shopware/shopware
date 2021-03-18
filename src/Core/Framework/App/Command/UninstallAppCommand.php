@@ -42,7 +42,6 @@ class UninstallAppCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        /** @var string $name */
         $name = $input->getArgument('name');
 
         $context = Context::createDefaultContext();

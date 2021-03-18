@@ -2,24 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1564475053RemoveSaveDocumentsConfig extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1564475053RemoveSaveDocumentsConfig extends \Shopware\Core\Migration\V6_3\Migration1564475053RemoveSaveDocumentsConfig
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1564475053;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->delete('system_config', [
-            'configuration_key' => 'core.saveDocuments',
-        ]);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

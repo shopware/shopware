@@ -110,21 +110,16 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      *     )
      * )
      * @LoginRequired()
-     * @Route(path="/store-api/v{version}/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId": null})
-     * @Route(path="/store-api/v{version}/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"})
+     * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId": null})
+     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"})
      */
-    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, ?CustomerEntity $customer = null): UpsertAddressRouteResponse
+    public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
     {
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         if (!$addressId) {
             $isCreate = true;
             $addressId = Uuid::randomHex();
         } else {
-            $this->validateAddress($addressId, $context);
+            $this->validateAddress($addressId, $context, $customer);
             $isCreate = false;
         }
 
@@ -144,7 +139,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'company' => $data->get('company'),
             'department' => $data->get('department'),
             'title' => $data->get('title'),
-            'vatId' => $data->get('vatId'),
             'phoneNumber' => $data->get('phoneNumber'),
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),

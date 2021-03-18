@@ -35,14 +35,19 @@
                                 {% block sw_cms_layout_modal_content_listing_item %}
 
                                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                                        <sw-checkbox-field @change="onSelection(cmsPage.id)" :value="cmsPage.id === selected" type="checkbox"></sw-checkbox-field>
+                                        <sw-checkbox-field
+                                            {# @deprecated tag:v6.5.0 cmsPage.id is redundant and should be removed as an argument #}
+                                            @change="onSelection(cmsPage.id, cmsPage)"
+                                            :value="cmsPage.id === selected"
+                                            type="checkbox"></sw-checkbox-field>
                                     {% endblock %}
 
                                     {% block sw_cms_layout_modal_content_listing_item_inner %}
                                         <sw-cms-list-item
                                             :page="cmsPage"
                                             :key="cmsPage.id"
-                                            @item-click="selectItem(cmsPage.id)">
+                                            {# @deprecated tag:v6.5.0 cmsPage.id is redundant and should be removed as an argument #}
+                                            @item-click="selectItem(cmsPage.id, cmsPage)">
                                         </sw-cms-list-item>
                                     {% endblock %}
 

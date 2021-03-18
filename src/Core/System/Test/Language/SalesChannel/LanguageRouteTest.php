@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 class LanguageRouteTest extends TestCase
@@ -62,23 +61,23 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
+                '/store-api/language',
                 [
                 ]
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        $ids = array_column($response, 'id');
-        $names = array_column($response, 'name');
+        $ids = array_column($response['elements'], 'id');
+        $names = array_column($response['elements'], 'name');
 
-        static::assertCount(2, $response);
+        static::assertSame(2, $response['total']);
         static::assertContains($this->ids->get('language'), $ids);
         static::assertContains($this->ids->get('language2'), $ids);
         static::assertContains($this->ids->get('language2'), $ids);
         static::assertContains('match', $names);
         static::assertContains('match2', $names);
-        static::assertEmpty($response[0]['locale']);
+        static::assertEmpty($response['elements'][0]['locale']);
     }
 
     public function testIncludes(): void
@@ -86,7 +85,7 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
+                '/store-api/language',
                 [
                     'includes' => [
                         'language' => ['name'],
@@ -96,9 +95,9 @@ class LanguageRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(2, $response);
-        static::assertArrayHasKey('name', $response[0]);
-        static::assertArrayNotHasKey('id', $response[0]);
+        static::assertSame(2, $response['total']);
+        static::assertArrayHasKey('name', $response['elements'][0]);
+        static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
 
     public function testAssociation(): void
@@ -106,7 +105,7 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
+                '/store-api/language',
                 [
                     'associations' => [
                         'locale' => [],
@@ -116,10 +115,10 @@ class LanguageRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(2, $response);
-        static::assertArrayHasKey('locale', $response[0]);
-        static::assertNotEmpty($response[0]['locale']);
-        static::assertArrayHasKey('id', $response[0]['locale']);
+        static::assertSame(2, $response['total']);
+        static::assertArrayHasKey('locale', $response['elements'][0]);
+        static::assertNotEmpty($response['elements'][0]['locale']);
+        static::assertArrayHasKey('id', $response['elements'][0]['locale']);
     }
 
     private function createData(): void

@@ -1,17 +1,26 @@
 import './component/sw-category-tree';
 import './component/sw-landing-page-tree';
 import './component/sw-landing-page-view';
-import './view/sw-landing-page-detail-base';
-import './view/sw-landing-page-detail-cms';
 import './component/sw-category-view';
 import './component/sw-category-sales-channel-card';
 import './component/sw-category-link-settings';
 import './component/sw-category-layout-card';
 import './component/sw-category-detail-menu';
 import './component/sw-category-seo-form';
+import './component/sw-category-entry-point-card';
+import './component/sw-category-entry-point-modal';
+import './component/sw-category-entry-point-overwrite-modal';
+import './component/sw-category-sales-channel-multi-select';
+
 import './page/sw-category-detail';
+
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
+import './view/sw-landing-page-detail-base';
+import './view/sw-landing-page-detail-cms';
+import './view/sw-category-detail-products';
+import './view/sw-category-detail-seo';
+
 import './acl';
 
 const { Module } = Shopware;
@@ -63,6 +72,22 @@ Module.register('sw-category', {
                     meta: {
                         parentPath: 'sw.category.index',
                         privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
+                    }
+                },
+                products: {
+                    component: 'sw-category-detail-products',
+                    path: 'products',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer'
+                    }
+                },
+                seo: {
+                    component: 'sw-category-detail-seo',
+                    path: 'seo',
+                    meta: {
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer'
                     }
                 }
             },

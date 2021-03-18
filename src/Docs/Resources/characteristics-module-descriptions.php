@@ -337,11 +337,39 @@ EOD
 Traits for different migration operations
 EOD
     ,
+    'Migration/6.4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/6.5' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/unreleased' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/v6_4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
     'Content/LandingPage' => <<<'EOD'
-Landing pages
+__EMPTY__
 EOD
     ,
     'Content/Mail' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/V6_4' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/V6_3' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Migration/V6_5' => <<<'EOD'
 __EMPTY__
 EOD
     ,

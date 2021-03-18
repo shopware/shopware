@@ -2,26 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1600156989AddProductSalesField extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1600156989AddProductSalesField extends \Shopware\Core\Migration\V6_3\Migration1600156989AddProductSalesField
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1600156989;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `product`
-            ADD COLUMN `sales` INT(11) NOT NULL DEFAULT 0 AFTER `ean`;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

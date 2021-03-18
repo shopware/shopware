@@ -22,35 +22,17 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     public const MAX_LIMIT = 10000;
 
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $decorated;
+    private EntitySearcherInterface $decorated;
 
-    /**
-     * @var ElasticsearchHelper
-     */
-    private $helper;
+    private ElasticsearchHelper $helper;
 
-    /**
-     * @var CriteriaParser
-     */
-    private $criteriaParser;
+    private CriteriaParser $criteriaParser;
 
-    /**
-     * @var AbstractElasticsearchSearchHydrator
-     */
-    private $hydrator;
+    private AbstractElasticsearchSearchHydrator $hydrator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Client $client,
@@ -90,7 +72,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
-                'type' => $definition->getEntityName(),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);
@@ -114,11 +95,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $this->helper->addSortings($definition, $criteria, $search, $context);
         $this->helper->addTerm($criteria, $search, $context, $definition);
 
-        $search->setSize($criteria->getLimit());
-        if ($criteria->getLimit() === null) {
-            $search->setSize(self::MAX_LIMIT);
+        $search->setSize(self::MAX_LIMIT);
+        $limit = $criteria->getLimit();
+        if ($limit !== null) {
+            $search->setSize($limit);
         }
-        $search->setFrom($criteria->getOffset());
+        $search->setFrom((int) $criteria->getOffset());
 
         return $search;
     }
@@ -166,7 +148,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $groupings = $criteria->getGroupFields();
 
         if (\count($groupings) === 1) {
-            /** @var FieldGrouping $first */
             $first = array_shift($groupings);
 
             $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);

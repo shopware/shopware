@@ -34,15 +34,9 @@ class JsonApiEncodingResult implements \JsonSerializable
      */
     protected $baseUrl;
 
-    /**
-     * @var int
-     */
-    private $apiVersion;
-
-    public function __construct(string $baseUrl, int $apiVersion)
+    public function __construct(string $baseUrl)
     {
         $this->baseUrl = $baseUrl;
-        $this->apiVersion = $apiVersion;
     }
 
     public function getBaseUrl(): string
@@ -78,6 +72,8 @@ class JsonApiEncodingResult implements \JsonSerializable
         $key = $entity->getId() . '-' . $entity->getType();
 
         if ($this->contains($entity->getId(), $entity->getType())) {
+            $this->mergeRecords($this->included[$key], $entity);
+
             return;
         }
 
@@ -141,8 +137,32 @@ class JsonApiEncodingResult implements \JsonSerializable
         return $this->metaData;
     }
 
-    public function getApiVersion(): int
+    protected function mergeRecords(Record $recordA, Record $recordB): void
     {
-        return $this->apiVersion;
+        foreach ($recordB->getAttributes() as $key => $value) {
+            if (!empty($value)) {
+                $recordA->setAttribute($key, $value);
+            }
+        }
+
+        foreach ($recordB->getRelationships() as $key => $value) {
+            if ($value['data'] === null) {
+                continue;
+            }
+            $recordA->addRelationship($key, $value);
+        }
+
+        foreach ($recordB->getExtensions() as $key => $value) {
+            if ($value['data'] === null) {
+                continue;
+            }
+            $recordA->addExtension($key, $value);
+        }
+
+        foreach ($recordB->getLinks() as $key => $value) {
+            if (!empty($value)) {
+                $recordA->addLink($key, $value);
+            }
+        }
     }
 }

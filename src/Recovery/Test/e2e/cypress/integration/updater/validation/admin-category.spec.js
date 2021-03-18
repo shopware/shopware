@@ -12,7 +12,7 @@ describe('Minimal auto update', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/search/category',
+            url: '/api/search/category',
             method: 'POST'
         }).as('dataRequest');
 

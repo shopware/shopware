@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,26 +33,28 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
     public function testVariantCmsPageShouldInheritedFromContainerProduct(): void
     {
-        /** @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
 
         $database = $connection->fetchColumn('select database();');
 
         $cmsPageColumnExist = $connection->fetchColumn('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME = \'product\' AND COLUMN_NAME = \'cmsPage\' AND TABLE_SCHEMA = "' . $database . '";');
+
+        $connection->rollBack();
+
         if ($cmsPageColumnExist) {
             $connection->executeUpdate('ALTER TABLE product DROP COLUMN cmsPage');
         }
 
         $migration = new Migration1610523204AddInheritanceForProductCmsPage();
         $migration->update($connection);
+
+        $connection->beginTransaction();
 
         $expectedCmsPageId = Uuid::randomHex();
 

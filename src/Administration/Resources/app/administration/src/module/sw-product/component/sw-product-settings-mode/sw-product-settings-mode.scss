@@ -1,0 +1,23 @@
+.sw-product-settings-mode {
+    &.sw-context-button {
+        position: absolute;
+        top: 16px;
+        right: 32px;
+    }
+
+    &__trigger.sw-button.sw-button--x-small.sw-button--square {
+        width: 32px;
+    }
+
+    &__container {
+        padding: 0 20px;
+    }
+
+    &__list {
+        margin-top: 20px;
+    }
+
+    &__advanced-mode.sw-field--switch {
+        margin: 0;
+    }
+}

@@ -12,13 +12,13 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             active: true,
             fields: [
                 {
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
                     naturalSorting: 0
                 },
                 {
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
                     naturalSorting: 0
@@ -87,13 +87,13 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             createdAt: '2020-08-06T13:06:03.799+00:00',
             fields: [
                 {
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
                     position: 0
                 },
                 {
-                    field: 'product.listingPrices',
+                    field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
                     position: 0
@@ -140,5 +140,21 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
     it('should display the fallback snippet for the smart bar heading', async () => {
         expect(wrapper.vm.smartBarHeading).toBe('sw-settings-listing.create.smartBarTitle');
+    });
+
+    it('should transform customField fields onSave', async () => {
+        wrapper.vm.$router.push = jest.fn();
+
+        wrapper.vm.productSortingRepository.save = jest.fn().mockResolvedValue({
+            config: {
+                data: JSON.stringify([])
+            }
+        });
+        wrapper.vm.transformCustomFieldCriterias = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.productSortingRepository.save).toHaveBeenCalled();
+        expect(wrapper.vm.transformCustomFieldCriterias).toHaveBeenCalled();
     });
 });

@@ -42,17 +42,15 @@ describe('Validate checkout after auto update', () => {
         cy.get('.col-5.checkout-aside-summary-total').contains('64');
 
         // Set payment and shipping
-        cy.contains('Zahlungsart auswählen').click();
-        cy.get('#confirmPaymentModal').should('be.visible');
-        cy.contains('Vorkasse').click();
-        cy.get('#confirmPaymentForm .btn-primary').click();
-        cy.get('#confirmPaymentModal').should('not.visible');
+        cy.get(`#changePaymentForm .payment-method-label`)
+            .should('exist')
+            .contains('Rechnung')
+            .click();
 
-        cy.contains('Versandart auswählen').click();
-        cy.get('#confirmShippingModal').should('be.visible');
-        cy.contains('Standard').click();
-        cy.get('#confirmShippingForm .btn-primary').click();
-        cy.get('#confirmShippingModal').should('not.visible');
+        cy.get(`#changeShippingForm .shipping-method-label`)
+            .should('exist')
+            .contains('Standard')
+            .click();
 
         // Finish checkout
         cy.get('.confirm-tos .card-title').contains('AGB und Widerrufsbelehrung');

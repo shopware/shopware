@@ -14,6 +14,9 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
      */
     private $prefix;
 
+    /**
+     * @psalm-suppress ContainerDependency
+     */
     public function __construct(
         string $prefix,
         ContainerInterface $container,

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Seo;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
@@ -47,7 +48,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
             $this->getContainer()->get('request_stack'),
             $router,
-            $this->getContainer()->get('sales_channel.seo_url.repository')
+            $this->getContainer()->get(Connection::class)
         );
     }
 

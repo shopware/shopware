@@ -9,7 +9,7 @@
 
             {% block sw_extension_privacy_policy_extensions_modal_text %}
                 <div class="sw-extension-privacy-policy-extensions-modal__text">
-                    <p>{{ privacyPolicyExtensions }}</p>
+                    <p>{{ privacyPolicyExtension }}</p>
                 </div>
             {% endblock %}
         {% endblock %}
@@ -18,7 +18,7 @@
             <template #modal-footer>
                 {% block sw_extension_permissions_modal_footer_inner %}
                     {% block sw_extension_permissions_modal_footer_close %}
-                        <sw-button variant="primary" size="small" @click="close">
+                        <sw-button class="sw-extension-privacy-policy-extensions-modal__close-button" variant="primary" size="small" @click="close">
                             {{ $tc('global.default.confirm') }}
                         </sw-button>
                     {% endblock %}

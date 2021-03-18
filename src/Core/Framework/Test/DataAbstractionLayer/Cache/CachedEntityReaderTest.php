@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -32,6 +33,7 @@ class CachedEntityReaderTest extends TestCase
     {
         parent::setUp();
         $this->cache = $this->getContainer()->get('cache.object');
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
     }
 
     public function testCacheHit(): void

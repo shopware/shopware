@@ -19,7 +19,8 @@ Shopware.Service('cmsService').registerCmsBlock({
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
+                    minHeight: { source: 'static', value: '300px' }
                 },
                 data: {
                     media: {
@@ -32,7 +33,8 @@ Shopware.Service('cmsService').registerCmsBlock({
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
+                    minHeight: { source: 'static', value: '300px' }
                 },
                 data: {
                     media: {
@@ -45,7 +47,8 @@ Shopware.Service('cmsService').registerCmsBlock({
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
+                    minHeight: { source: 'static', value: '300px' }
                 },
                 data: {
                     media: {

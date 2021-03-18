@@ -2,23 +2,27 @@
 
 namespace Shopware\Core\System\Language\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 class LanguageRouteResponse extends StoreApiResponse
 {
     /**
-     * @var LanguageCollection
+     * @var EntitySearchResult
      */
     protected $object;
 
-    public function __construct(LanguageCollection $languages)
+    public function __construct(EntitySearchResult $languages)
     {
         parent::__construct($languages);
     }
 
     public function getLanguages(): LanguageCollection
     {
-        return $this->object;
+        /** @var LanguageCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

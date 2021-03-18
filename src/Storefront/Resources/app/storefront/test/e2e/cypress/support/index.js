@@ -28,6 +28,6 @@ beforeEach(() => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();
     }).then(() => {
-        return cy.clearCacheAdminApi('DELETE', `api/${Cypress.env('apiVersion')}/_action/cache`);
+        return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
     })
 });

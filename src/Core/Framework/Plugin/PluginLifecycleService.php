@@ -107,6 +107,9 @@ class PluginLifecycleService
      */
     private $systemConfigService;
 
+    /**
+     * @psalm-suppress ContainerDependency
+     */
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,
@@ -238,8 +241,6 @@ class PluginLifecycleService
             $this->shopwareVersion,
             $plugin->getVersion(),
             $this->createMigrationCollection($pluginBaseClass),
-            $keepUserData,
-            /* @deprecated tag:v6.4.0 */
             $keepUserData
         );
         $uninstallContext->setAutoMigrate(false);
@@ -249,7 +250,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
-        if (!$uninstallContext->keepMigrations()) {
+        if (!$uninstallContext->keepUserData()) {
             $pluginBaseClass->removeMigrations();
         }
 
@@ -559,7 +560,6 @@ class PluginLifecycleService
             throw new \RuntimeException('Container parameter "kernel.plugin_dir" needs to be a string');
         }
 
-        /** @var KernelPluginLoader $pluginLoader */
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
         $plugins = $pluginLoader->getPluginInfos();

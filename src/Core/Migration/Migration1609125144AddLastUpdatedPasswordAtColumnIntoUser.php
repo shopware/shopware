@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1609125144AddLastUpdatedPasswordAtColumnIntoUser extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1609125144AddLastUpdatedPasswordAtColumnIntoUser extends \Shopware\Core\Migration\V6_3\Migration1609125144AddLastUpdatedPasswordAtColumnIntoUser
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1609125144;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `user` ADD COLUMN `last_updated_password_at` DATETIME(3) NULL AFTER `store_token`;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

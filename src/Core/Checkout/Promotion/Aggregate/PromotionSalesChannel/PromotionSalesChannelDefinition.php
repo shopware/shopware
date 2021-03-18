@@ -45,14 +45,10 @@ class PromotionSalesChannelDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            // PK
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            // FKs
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            // FIELDS
             (new IntField('priority', 'priority'))->addFlags(new Required()),
-            // ASSOCIATIONS
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);

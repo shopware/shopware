@@ -362,10 +362,6 @@ Different mail template types.
 EOD
     ,
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTypeTranslation\MailTemplateTypeTranslationDefinition::class => '',
-    Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition::class => <<<'EOD'
-__EMPTY__
-EOD
-    ,
     Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition::class => '',
     Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition::class => <<<'EOD'
 A log of rendered and sent header or footer content.
@@ -708,30 +704,34 @@ EOD
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => '',
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => '',
     Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => '',
+    Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
     Shopware\Core\Framework\App\AppDefinition::class => <<<'EOD'
-Represents an installed app in the system.
+__EMPTY__
 EOD
     ,
     Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition::class => '',
     Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition::class => <<<'EOD'
-A single action button that an app has registered.
+__EMPTY__
 EOD
     ,
     Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition::class => '',
     Shopware\Core\Framework\App\Template\TemplateDefinition::class => <<<'EOD'
-A template change provided by an app.
+__EMPTY__
 EOD
     ,
     Shopware\Core\Framework\Webhook\WebhookDefinition::class => <<<'EOD'
-The configuration for a webhook that should be dispatched to an external system.
+__EMPTY__
 EOD
     ,
     'Shopware\\Core\\Framework\\App' => <<<'EOD'
-Provides the technical basis and extension points for the app system.
+__EMPTY__
 EOD
     ,
     'Shopware\\Core\\Framework\\Webhook' => <<<'EOD'
-Functionality to dispatch events via webhooks to external systems.
+__EMPTY__
 EOD
     ,
     Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition::class => <<<'EOD'
@@ -744,6 +744,25 @@ EOD
     ,
     Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition::class => <<<'EOD'
 Saving config of user.
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Content\LandingPage\LandingPageDefinition::class => <<<'EOD'
+Landing Pages which are called via the given seo url
+EOD
+    ,
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition::class => '',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition::class => '',
+    Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition::class => '',
+    'Shopware\\Core\\Content\\LandingPage' => <<<'EOD'
+Landing Pages which are called via the given seo url
 EOD
     ,
 ];

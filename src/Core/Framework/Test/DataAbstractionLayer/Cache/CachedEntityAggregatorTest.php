@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -36,6 +37,7 @@ class CachedEntityAggregatorTest extends TestCase
     {
         parent::setUp();
         $this->cache = $this->getContainer()->get('cache.object');
+        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
     }
 
     public function testCacheHit(): void
@@ -53,7 +55,7 @@ class CachedEntityAggregatorTest extends TestCase
         $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('price', 'product.listingPrices');
+        $priceAggregation = new StatsAggregation('price', 'product.cheapestPrice');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();
@@ -105,7 +107,7 @@ class CachedEntityAggregatorTest extends TestCase
             new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class)
         );
         $criteria->addAggregation(
-            new StatsAggregation('price', 'product.listingPrices')
+            new StatsAggregation('price', 'product.cheapestPrice')
         );
 
         $criteria2 = clone $criteria;
@@ -117,7 +119,8 @@ class CachedEntityAggregatorTest extends TestCase
         $dbalReader->expects(static::exactly(2))
             ->method('aggregate')
             ->willReturnCallback(
-                function ($definition, $criteria, $context) {
+                // Do not remove $_definition, although it is marked as unused. It somehow important
+                static function ($_definition, $criteria) {
                     $configGroupEntity = new PropertyGroupOptionEntity();
                     $configGroupEntity->setUniqueIdentifier('test');
 
@@ -170,7 +173,7 @@ class CachedEntityAggregatorTest extends TestCase
         $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('product.listingPrices', 'price');
+        $priceAggregation = new StatsAggregation('product.cheapestPrice', 'price');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();

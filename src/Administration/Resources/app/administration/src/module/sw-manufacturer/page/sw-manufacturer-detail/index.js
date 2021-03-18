@@ -3,8 +3,6 @@ import './sw-manufacturer-detail.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
-/* @deprecated tag:v6.4.0 */
-const { StateDeprecated } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
@@ -60,18 +58,8 @@ Component.register('sw-manufacturer-detail', {
             return this.repositoryFactory.create('product_manufacturer');
         },
 
-        /* @deprecated tag:v6.4.0 */
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        /* @deprecated tag:v6.4.0 */
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
         },
 
         customFieldSetRepository() {

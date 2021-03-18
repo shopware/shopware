@@ -1,4 +1,4 @@
-{% block component_filter_panel %}
+{% block component_filter_panel %} {# merge 16.11.20 #}
     {% block component_filter_panel_header %}
         <div class="filter-panel-offcanvas-header">
             <h3 class="filter-panel-offcanvas-only">{{ "listing.filterTitleText"|trans }}</h3>
@@ -19,7 +19,7 @@
                         {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
                         {% set manufacturers = listing.aggregations.get('manufacturer') %}
                         {% if not manufacturers.entities is empty %}
-                            {% set manufacturersSorted = manufacturers.entities|sort((a, b) => a.translated.name|lower > b.translated.name|lower) %}
+                            {% set manufacturersSorted = manufacturers.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
 
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' with {
                                 elements: manufacturersSorted,
@@ -64,13 +64,14 @@
                         {% endif %}
                     {% endblock %}
 
-                    {# @deprecated tag:v6.4.0.0 this block will be removed/replaced with a new rating plugin #}
-                    {% block component_filter_panel_item_rating %}
+                    {% block component_filter_panel_item_rating_select %}
                         {% set rating = listing.aggregations.get('rating') %}
 
                         {% if rating.max > 0 %}
-                            {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating.html.twig' with {
+                            {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' with {
+                                sidebar: sidebar,
                                 name: 'rating',
+                                pluginSelector: 'filter-rating-select',
                                 displayName: 'listing.filterRatingDisplayName'|trans|sw_sanitize
                             } %}
                         {% endif %}

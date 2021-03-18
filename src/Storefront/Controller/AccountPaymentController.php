@@ -59,15 +59,12 @@ class AccountPaymentController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
      */
-    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, ?CustomerEntity $customer = null): Response
+    public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
 
-            /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
             $this->changePaymentMethodRoute->change(
                 $paymentMethodId,
                 $requestDataBag,
@@ -75,12 +72,12 @@ class AccountPaymentController extends StorefrontController
                 $customer
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {
-            $this->addFlash('danger', $this->trans('error.' . $exception->getErrorCode()));
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
 
             return $this->forwardToRoute('frontend.account.payment.page', ['success' => false]);
         }
 
-        $this->addFlash('success', $this->trans('account.paymentSuccess'));
+        $this->addFlash(self::SUCCESS, $this->trans('account.paymentSuccess'));
 
         return new RedirectResponse($this->generateUrl('frontend.account.payment.page'));
     }

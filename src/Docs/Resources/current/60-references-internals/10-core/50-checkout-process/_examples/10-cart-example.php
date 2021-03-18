@@ -6,7 +6,9 @@ namespace ExampleCreateNew {
 
     class NewCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -28,7 +30,9 @@ namespace ExampleCurrentCart {
 
     class GetCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -53,7 +57,9 @@ namespace ExampleAddToCart {
 
     class AddToCartController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -82,7 +88,9 @@ namespace ExampleChangeQuantity {
 
     class ChangeQuantityController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -104,7 +112,9 @@ namespace ExampleRemoveItem {
 
     class RemoveController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -126,7 +136,9 @@ namespace ExampleGetDeliveries {
 
     class GetDeliveriesController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -143,12 +155,15 @@ namespace ExampleGetDeliveries {
 
 namespace ExampleOrder {
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+    use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
     use Symfony\Component\Routing\Annotation\Route;
 
     class PlaceOrderController
     {
-        /** @var CartService */
+        /**
+         * @var CartService
+         */
         private $cartService;
 
         /**
@@ -158,7 +173,7 @@ namespace ExampleOrder {
         {
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $this->cartService->order($cart, $context);
+            $this->cartService->order($cart, $context, new RequestDataBag());
         }
     }
 } // code-example-end
@@ -182,6 +197,7 @@ namespace DocsTest {
     use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
     use Shopware\Core\Framework\Uuid\Uuid;
     use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+    use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
     class DocsLineItemTest extends TestCase
@@ -319,7 +335,7 @@ namespace DocsTest {
         {
             return $this->getContainer()
                 ->get(SalesChannelContextService::class)
-                ->get(Defaults::SALES_CHANNEL, $this->salesChannelToken);
+                ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $this->salesChannelToken));
         }
 
         private function ensureProductInCart(): void

@@ -230,6 +230,7 @@ class HookableEventFactoryTest extends TestCase
         static::assertCount(1, $hookables);
         $event = $hookables[0];
         static::assertEquals('product.written', $event->getName());
+
         static::assertEquals([[
             'entity' => 'product',
             'operation' => 'update',
@@ -237,6 +238,7 @@ class HookableEventFactoryTest extends TestCase
             'updatedFields' => [
                 'parentVersionId',
                 'productManufacturerVersionId',
+                'cmsPageVersionId',
                 'updatedAt',
                 'id',
                 'versionId',
@@ -285,6 +287,7 @@ class HookableEventFactoryTest extends TestCase
         static::assertCount(2, $hookables);
         $event = $hookables[0];
         static::assertEquals('product.written', $event->getName());
+
         static::assertEquals([[
             'entity' => 'product',
             'operation' => 'update',
@@ -292,6 +295,7 @@ class HookableEventFactoryTest extends TestCase
             'updatedFields' => [
                 'parentVersionId',
                 'productManufacturerVersionId',
+                'cmsPageVersionId',
                 'updatedAt',
                 'id',
                 'versionId',

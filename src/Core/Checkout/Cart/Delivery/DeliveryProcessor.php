@@ -89,9 +89,9 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         }
     }
 
-    public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
+        $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
 
         $delivery = $deliveries->first();
 
@@ -107,12 +107,12 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 $delivery->setShippingCosts($originalDelivery->getShippingCosts());
 
                 //Recalculate tax
-                $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
+                $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
                 $originalDelivery->setShippingCosts($delivery->getShippingCosts());
             }
 
             // New shipping method (if changed) but with old prices
-            $calculated->setDeliveries($originalDeliveries);
+            $toCalculate->setDeliveries($originalDeliveries);
 
             return;
         }
@@ -122,8 +122,8 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             $delivery->setShippingCosts($manualShippingCosts);
         }
 
-        $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
 
-        $calculated->setDeliveries($deliveries);
+        $toCalculate->setDeliveries($deliveries);
     }
 }

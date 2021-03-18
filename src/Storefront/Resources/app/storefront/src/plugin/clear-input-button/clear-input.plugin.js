@@ -17,7 +17,7 @@ export default class ClearInputPlugin extends Plugin {
     }
 
     init() {
-        this.clearButton = DomAccess.querySelector(
+        this.clearButtons = DomAccess.querySelectorAll(
             document,
             this.options.clearButtonSelector
         );
@@ -32,7 +32,9 @@ export default class ClearInputPlugin extends Plugin {
      * @returns {void}
      */
     _registerEventListener() {
-        this.clearButton.addEventListener('click', this.clearInput.bind(this));
+        this.clearButtons.forEach((clearButton) => {
+            clearButton.addEventListener('click', this.clearInput.bind(this));
+        });
         this.el.addEventListener('input', this.onInputChange.bind(this));
     }
 
@@ -43,6 +45,11 @@ export default class ClearInputPlugin extends Plugin {
      */
     clearInput() {
         this.el.value = '';
+
+        const event = document.createEvent('HTMLEvents');
+        event.initEvent('change', true, false);
+
+        this.el.dispatchEvent(event);
         this.onInputChange();
     }
 
@@ -52,6 +59,12 @@ export default class ClearInputPlugin extends Plugin {
      * @returns {void}
      */
     onInputChange() {
-        this.clearButton.disabled = this.el.value.length <= 0;
+        this.clearButtons.forEach((clearButton) => {
+            if (this.el.value.length <= 0) {
+                clearButton.setAttribute('disabled', 'disabled');
+                return;
+            }
+            clearButton.removeAttribute('disabled');
+        });
     }
 }

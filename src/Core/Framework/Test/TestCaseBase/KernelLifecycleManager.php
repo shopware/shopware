@@ -21,7 +21,7 @@ class KernelLifecycleManager
     protected static $class;
 
     /**
-     * @var KernelInterface|null
+     * @var Kernel|null
      */
     protected static $kernel;
 
@@ -48,7 +48,7 @@ class KernelLifecycleManager
     /**
      * Get the currently active kernel
      */
-    public static function getKernel(): KernelInterface
+    public static function getKernel(): Kernel
     {
         if (static::$kernel) {
             static::$kernel->boot();
@@ -86,7 +86,7 @@ class KernelLifecycleManager
     /**
      * Boots the Kernel for this test.
      */
-    public static function bootKernel(bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
+    public static function bootKernel(bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): Kernel
     {
         self::ensureKernelShutdown();
 

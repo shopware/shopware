@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Store\Service;
+namespace Shopware\Core\Framework\Test\Store\Service;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;

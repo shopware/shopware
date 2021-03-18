@@ -38,6 +38,15 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('reverse_proxy')
+                    ->children()
+                        ->booleanNode('enabled')->end()
+                        ->arrayNode('hosts')->scalarPrototype()->end()->end()
+                        ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
+                        ->scalarNode('redis_url')->end()
+                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                    ->end()
+                ->end()
         ->end();
 
         return $treeBuilder;

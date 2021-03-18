@@ -16,6 +16,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="cms_slot.repository" />
             <argument type="service" id="salutation.repository" />
+            <argument type="service" id="category.repository" />
         </service>
     </services>
 </container>

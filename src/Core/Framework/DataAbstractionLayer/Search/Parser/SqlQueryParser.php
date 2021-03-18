@@ -9,16 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-//@deprecated tag:v6.4.0 - Will be removed
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AntiJoinFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -105,12 +105,14 @@ class SqlQueryParser
                 return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
             case $query instanceof ContainsFilter:
                 return $this->parseContainsFilter($query, $definition, $root, $context);
+            case $query instanceof PrefixFilter:
+                return $this->parsePrefixFilter($query, $definition, $root, $context);
+            case $query instanceof SuffixFilter:
+                return $this->parseSuffixFilter($query, $definition, $root, $context);
             case $query instanceof RangeFilter:
                 return $this->parseRangeFilter($query, $definition, $root, $context);
             case $query instanceof NotFilter:
                 return $this->parseNotFilter($query, $definition, $root, $context);
-            case $query instanceof AntiJoinFilter:
-                return $this->parseAntiJoin($query, $definition, $root, $context);
             case $query instanceof MultiFilter:
                 return $this->parseMultiFilter($query, $definition, $root, $context);
             default:
@@ -167,6 +169,36 @@ class SqlQueryParser
 
         $escaped = addcslashes($query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped . '%');
+
+        return $result;
+    }
+
+    private function parsePrefixFilter(PrefixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    {
+        $key = $this->getKey();
+
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+
+        $result = new ParseResult();
+        $result->addWhere($field . ' LIKE :' . $key);
+
+        $escaped = addcslashes($query->getValue(), '\\_%');
+        $result->addParameter($key, $escaped . '%');
+
+        return $result;
+    }
+
+    private function parseSuffixFilter(SuffixFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    {
+        $key = $this->getKey();
+
+        $field = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
+
+        $result = new ParseResult();
+        $result->addWhere($field . ' LIKE :' . $key);
+
+        $escaped = addcslashes($query->getValue(), '\\_%');
+        $result->addParameter($key, '%' . $escaped);
 
         return $result;
     }
@@ -292,29 +324,5 @@ class SqlQueryParser
     private function getKey(): string
     {
         return 'param_' . Uuid::randomHex();
-    }
-
-    /**
-     * Replace with IS NULL checks on the joined table. The real condition is added to the left join, to get anti-join semantics.
-     */
-    private function parseAntiJoin(AntiJoinFilter $antiJoin, EntityDefinition $definition, string $root, Context $context)
-    {
-        $result = new ParseResult();
-        $wheres = [];
-
-        /** @var Filter $child */
-        foreach ($antiJoin->getQueries() as $child) {
-            $field = @current($child->getFields());
-            $field = str_replace('extensions.', '', $field);
-
-            $select = $this->queryHelper->getFieldAccessor($field, $definition, $root, $context);
-            $accessor = str_replace('`.`', '_' . $antiJoin->getIdentifier() . '`.`', $select);
-
-            $wheres[$accessor] = $accessor . ' IS NULL';
-        }
-
-        $result->addWhere(implode(' AND ', $wheres));
-
-        return $result;
     }
 }

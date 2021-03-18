@@ -8,32 +8,17 @@ use Shopware\Core\Framework\Plugin;
 
 class InstallContext
 {
-    /**
-     * @var Plugin
-     */
-    private $plugin;
+    private Plugin $plugin;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $currentShopwareVersion;
+    private string $currentShopwareVersion;
 
-    /**
-     * @var string
-     */
-    private $currentPluginVersion;
+    private string $currentPluginVersion;
 
-    /**
-     * @var MigrationCollection
-     */
-    private $migrationCollection;
+    private MigrationCollection $migrationCollection;
 
-    private $autoMigrate = true;
+    private bool $autoMigrate = true;
 
     public function __construct(
         Plugin $plugin,

@@ -1,7 +1,7 @@
 @import "~scss/variables";
-$sw-product-variants-configurator-prices-active-color-background: $color-cadet-blue;
+$sw-product-variants-configurator-prices-active-color-background: $color-shopware-brand-50;
 $sw-product-variants-configurator-prices-search-background: #f8f9fa;
-$sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
+$sw-product-variants-configurator-prices-search-border: $color-gray-300;
 
 .sw-product-variants-configurator-prices {
     height: 100%;
@@ -25,7 +25,7 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
         flex-basis: 270px;
         height: 100%;
         overflow: auto;
-        border-right: 1px solid $color-steam-cloud;
+        border-right: 1px solid $color-gray-300;
         padding: 20px 0;
         .sw-icon {
             margin-right: 8px;

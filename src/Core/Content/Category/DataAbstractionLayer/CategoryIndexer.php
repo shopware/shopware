@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -166,7 +167,10 @@ class CategoryIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context));
 
-        $this->cacheClearer->invalidateIds($ids, CategoryDefinition::ENTITY_NAME);
+        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateIds($ids, CategoryDefinition::ENTITY_NAME);
+        }
     }
 
     private function fetchChildren(array $categoryIds, string $versionId): array

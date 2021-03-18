@@ -15,6 +15,7 @@ use PhpCsFixer\Fixer\Operator\ConcatSpaceFixer;
 use PhpCsFixer\Fixer\Operator\OperatorLinebreakFixer;
 use PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer;
 use PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocLineSpanFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
@@ -65,6 +66,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('configure', [['annotations' => ['copyright', 'category']]]);
     $services->set(NoSuperfluousPhpdocTagsFixer::class)
         ->call('configure', [['allow_unused_params' => true]]);
+    $services->set(PhpdocLineSpanFixer::class);
     $services->set(PhpdocOrderFixer::class);
     $services->set(PhpUnitConstructFixer::class);
     $services->set(PhpUnitDedicateAssertFixer::class)
@@ -111,5 +113,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         NoUselessCommentFixer::class => ['src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'],
         // Would otherwise fix the blocking whitespace in the currency formatter tests
         NonPrintableCharacterFixer::class => ['src/Core/System/Test/Currency/CurrencyFormatterTest.php'],
+        // skip php files in node modules (stylelint ships both js and php)
+        '**/node_modules'
     ]);
 };

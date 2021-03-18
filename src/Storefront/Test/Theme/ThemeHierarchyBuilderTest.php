@@ -8,8 +8,10 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class ThemeHierarchyBuilderTest extends TestCase
 {
@@ -23,6 +25,16 @@ class ThemeHierarchyBuilderTest extends TestCase
     public function setUp(): void
     {
         $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder());
+    }
+
+    public function testThemeNamespaceHierarchyBuilderSubscribesToRequestAndExceptionEvents(): void
+    {
+        $events = $this->builder->getSubscribedEvents();
+
+        static::assertEquals([
+            KernelEvents::REQUEST,
+            KernelEvents::EXCEPTION,
+        ], array_keys($events));
     }
 
     public function testThemesAreEmptyIfRequestHasNoValidAttributes(): void
@@ -40,6 +52,19 @@ class ThemeHierarchyBuilderTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
 
         $this->builder->requestEvent(new RequestEvent($this->getKernel(), $request, HttpKernelInterface::MASTER_REQUEST));
+
+        $this->assertThemes([
+            'Storefront' => true,
+            'TestTheme' => true,
+        ], $this->builder);
+    }
+
+    public function testRequestEventWithExceptionEvent(): void
+    {
+        $request = Request::createFromGlobals();
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
+
+        $this->builder->requestEvent(new ExceptionEvent($this->getKernel(), $request, HttpKernelInterface::MASTER_REQUEST, new \RuntimeException()));
 
         $this->assertThemes([
             'Storefront' => true,

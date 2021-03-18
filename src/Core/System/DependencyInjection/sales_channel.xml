@@ -52,6 +52,7 @@
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="string">%shopware.api.store.context_lifetime%</argument>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
@@ -69,6 +70,19 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="tagged" tag="tax.rule_type_filter"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="currency_country_rounding.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" decoration-priority="-1000">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactoryInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService">
@@ -84,20 +98,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextController" public="true">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelApiSchemaController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController" public="true">
@@ -170,7 +170,6 @@
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="serializer"/>
         </service>
 

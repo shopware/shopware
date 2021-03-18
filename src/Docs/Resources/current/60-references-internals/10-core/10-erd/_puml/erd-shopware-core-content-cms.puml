@@ -24,6 +24,7 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    primary_key(id) id
+   primary_key(versionId) version
    name translated
    not_null(type) string
    entity string
@@ -42,6 +43,7 @@ TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTransla
    updatedAt updatedAt
    primary_key(cmsPageId) foreignKey
    primary_key(languageId) foreignKey
+   primary_key(cmsPageVersionId) referenceVersion
 }
 Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(Content Section)") {
    primary_key(id) id
@@ -57,6 +59,8 @@ Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_sectio
    cssClass string
    not_null(pageId) foreignKey
    customFields customFields
+   primary_key(versionId) version
+   not_null(cmsPageVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -77,6 +81,8 @@ Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Co
    cssClass string
    not_null(sectionId) foreignKey
    customFields customFields
+   primary_key(versionId) version
+   not_null(cmsSectionVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -90,6 +96,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    customFields translated
    data json
    not_null(blockId) foreignKey
+   not_null(cmsBlockVersionId) referenceVersion
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -107,6 +114,12 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
+ForeignTable(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
@@ -116,6 +129,9 @@ ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreCo
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition

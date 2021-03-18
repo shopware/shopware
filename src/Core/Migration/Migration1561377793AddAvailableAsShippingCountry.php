@@ -2,22 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1561377793AddAvailableAsShippingCountry extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1561377793AddAvailableAsShippingCountry extends \Shopware\Core\Migration\V6_3\Migration1561377793AddAvailableAsShippingCountry
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1561377793;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `country` ADD `shipping_available` TinyInt(1) NOT NULL DEFAULT 1;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

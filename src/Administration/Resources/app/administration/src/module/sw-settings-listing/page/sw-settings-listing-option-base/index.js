@@ -51,7 +51,9 @@ Component.register('sw-settings-listing-option-base', {
         },
 
         isSaveButtonDisabled() {
-            return !this.productSortingEntity || this.productSortingEntity.fields.length <= 0;
+            return !this.productSortingEntity
+                || this.productSortingEntity.fields.length <= 0
+                || this.productSortingEntity.fields.some(field => !field.field || field.field === 'customField');
         },
 
         isDefaultSorting() {
@@ -80,12 +82,16 @@ Component.register('sw-settings-listing-option-base', {
                 Shopware.Context.api,
                 this.productSortingEntityCriteria
             ).then(response => {
+                if (!Array.isArray(response.fields)) {
+                    response.fields = [];
+                }
+
                 this.productSortingEntity = response;
             });
         },
 
         fetchCustomFields() {
-            this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
+            return this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
                 this.customFields = response;
             });
         },

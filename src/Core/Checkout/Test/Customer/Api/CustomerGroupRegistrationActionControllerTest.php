@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
@@ -44,7 +43,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     {
         $browser = $this->createClient();
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/accept/' . Defaults::CURRENCY);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . Defaults::CURRENCY);
         $json = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('Cannot find Customer', $json['errors'][0]['detail']);
@@ -55,7 +54,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer();
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/accept/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
         $json = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('User dont have approval', $json['errors'][0]['detail']);
@@ -66,7 +65,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/accept/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
 
         $criteria = new Criteria([$customer]);
         $criteria->addAssociation('group');
@@ -85,7 +84,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/decline/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/decline/' . $customer);
 
         $criteria = new Criteria([$customer]);
         $criteria->addAssociation('group');

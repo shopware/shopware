@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -123,7 +123,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $this->email,
                     'password' => $this->password,
@@ -132,7 +132,7 @@ class OrderRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
 
@@ -158,7 +158,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
@@ -180,7 +180,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
@@ -201,7 +201,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
@@ -222,7 +222,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
@@ -241,7 +241,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     ['checkPromotion' => true]
@@ -266,7 +266,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order/payment',
+                '/store-api/order/payment',
                 [
                     'orderId' => $this->orderId,
                     'paymentMethodId' => $paymentMethodId,
@@ -292,7 +292,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order/payment',
+                '/store-api/order/payment',
                 [
                     'orderId' => $this->orderId,
                     'paymentMethodId' => Uuid::randomHex(),
@@ -309,7 +309,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order/state/cancel',
+                '/store-api/order/state/cancel',
                 [
                     'orderId' => $this->orderId,
                 ]
@@ -345,7 +345,7 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                '/store-api/order',
                 $this->requestCriteriaBuilder->toArray(new Criteria())
             );
 
@@ -436,7 +436,7 @@ class OrderRouteTest extends TestCase
                         'type' => 'test',
                         'label' => 'test',
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
                         'good' => true,
                     ],
                 ],

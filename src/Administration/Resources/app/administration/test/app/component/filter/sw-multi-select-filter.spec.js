@@ -29,12 +29,12 @@ function getCollection() {
         null
     );
 }
-function createWrapper() {
+function createWrapper(customOptions) {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-multi-select-filter'), {
+    const options = {
         localVue,
         stubs: {
             'sw-base-filter': Shopware.Component.build('sw-base-filter'),
@@ -76,9 +76,17 @@ function createWrapper() {
                 schema: {
                     entity: 'entity',
                     referenceField: 'id'
-                }
-            }
+                },
+                value: null,
+                filterCriteria: null
+            },
+            active: true
         }
+    };
+
+    return shallowMount(Shopware.Component.build('sw-multi-select-filter'), {
+        ...options,
+        ...customOptions
     });
 }
 
@@ -96,7 +104,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         expect(wrapper.find('.sw-select-selection-list__input').attributes().placeholder).toBe('placeholder');
     });
 
-    it('should emit `updateFilter` event when user choose entity', async () => {
+    it('should emit `filter-update` event when user choose entity', async () => {
         const wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
@@ -111,15 +119,16 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         list.at(0).trigger('click');
 
-        expect(wrapper.emitted().updateFilter[0]).toEqual([
-            'category-filter',
-            [Criteria.equalsAny('category.id', ['id1'])]
-        ]);
+        const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
 
-        expect(wrapper.emitted().resetFilter).toBeFalsy();
+        expect(name).toEqual('category-filter');
+        expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
+        expect(value.first()).toEqual({ id: 'id1', name: 'first' });
+
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
     });
 
-    it('should emit `resetFilter` event when click Reset button', async () => {
+    it('should emit `filter-reset` event when click Reset button', async () => {
         const wrapper = createWrapper();
 
         const entityCollection = new EntityCollection(null, null, null, new Criteria(), [
@@ -127,13 +136,90 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             { id: 'id2', name: 'item2' }
         ]);
 
-        await wrapper.setData({
-            values: entityCollection
-        });
+        await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: entityCollection } });
 
         // Trigger click Reset button
         wrapper.find('.sw-base-filter__reset').trigger('click');
-        expect(wrapper.emitted().updateFilter).toBeFalsy();
-        expect(wrapper.emitted().resetFilter).toBeTruthy();
+        expect(wrapper.emitted()['filter-update']).toBeFalsy();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should reset the filter value when `active` is false', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        await wrapper.setProps({ active: false });
+
+        expect(wrapper.vm.values.length).toEqual(0);
+        expect(wrapper.vm.filter.value).toBeNull();
+        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+    });
+
+    it('should not reset the filter value when `active` is true', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+
+        await wrapper.vm.$nextTick();
+
+        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+
+        list.at(0).trigger('click');
+
+        await wrapper.setProps({ active: true });
+
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+    });
+
+    it('should display slot "selection-label-property" correct', async () => {
+        const wrapper = createWrapper({
+            slots: {
+                'selection-label-property': '<div class="selected-label">Selected label</div>'
+            }
+        });
+
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                label: 'Test',
+                schema: {
+                    entity: 'entity',
+                    referenceField: 'id'
+                },
+                value: [{ id: 'id1', name: 'first' }],
+                filterCriteria: null
+            }
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.selected-label').exists()).toBeTruthy();
+    });
+
+    it('should display slot "result-item" correct', async () => {
+        const wrapper = createWrapper({
+            slots: {
+                'result-item': 'List item'
+            }
+        });
+
+        wrapper.find('.sw-select__selection').trigger('click');
+
+        await wrapper.find('input').trigger('change');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-select-result-list__item-list').text()).toBe('List item');
     });
 });

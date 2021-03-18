@@ -23,6 +23,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function setUp(): void
     {
+        static::markTestSkipped('vatId was removed');
         parent::setUp();
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());
@@ -30,8 +31,8 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function testNoChanges(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
+        $conn->rollBack();
         $expectedProductSchema = $conn->fetchAssoc('SHOW CREATE TABLE `customer`')['Create Table'];
 
         $migration = new Migration1604056363CustomerWishlist();
@@ -39,13 +40,13 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $migration->update($conn);
         $actualProductSchema = $conn->fetchAssoc('SHOW CREATE TABLE `customer`')['Create Table'];
         static::assertSame($expectedProductSchema, $actualProductSchema, 'Schema changed!. Run init again to have clean state');
+        $conn->beginTransaction();
     }
 
     public function testTriggersSet(): void
     {
         $databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1);
 
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $updateTrigger = $conn->fetchAll('SHOW TRIGGERS IN ' . $databaseName . ' WHERE `Trigger` = \'customer_address_vat_id_update\'');
 

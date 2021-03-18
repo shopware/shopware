@@ -169,7 +169,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
             static::assertEquals($expect['name'], $importExportProfile->getName());
             static::assertEquals($expect['label'], $importExportProfile->getLabel());
-            static::assertEquals($expect['systemDefault'], (bool) $importExportProfile->getSystemDefault());
+            static::assertEquals($expect['systemDefault'], $importExportProfile->getSystemDefault());
             static::assertEquals($expect['sourceEntity'], $importExportProfile->getSourceEntity());
             static::assertEquals($expect['fileType'], $importExportProfile->getFileType());
             static::assertEquals($expect['delimiter'], $importExportProfile->getDelimiter());

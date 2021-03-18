@@ -1,11 +1,12 @@
 @import "~scss/variables";
 
 .sw-settings-search {
-    &__searchable-content-show-example-text {
+    &__searchable-content-link-text {
         text-align: right;
     }
 
-    &__searchable-content-show-example-link {
+    &__searchable-content-show-example-link,
+    &__searchable-content-rebuild-link {
         color: $color-shopware-brand-500;
         font-size: $font-size-small;
         cursor: pointer;
@@ -14,6 +15,11 @@
         &:hover {
             color: $color-shopware-brand-600;
         }
+    }
+
+    &__searchable-content-rebuild-link {
+        display: block;
+        margin-top: 20px;
     }
 
     &__searchable-content-title {
@@ -42,5 +48,52 @@
 
     &__searchable-content-add-button.sw-button {
         margin-right: 15px;
+    }
+
+    &__searchable-content-list {
+        &.sw-data-grid.sw-data-grid--actions .sw-data-grid__cell {
+            border-right: 0;
+        }
+
+        .sw-data-grid__cell--selection {
+            display: none;
+        }
+
+        .sw-data-grid__cell--header.sw-data-grid__cell--actions.sw-data-grid__cell-settings {
+            box-shadow: inset 0 -1px 0 $color-gray-300;
+        }
+
+        .sw-data-grid__cell.sw-data-grid__cell--actions {
+            box-shadow: none;
+        }
+
+        .is--active {
+            color: $color-emerald-500;
+        }
+
+        .is--inactive {
+            color: $color-crimson-500;
+        }
+    }
+
+    &__searchable-content-list-action {
+        display: block;
+        cursor: pointer;
+        padding: 4px 14px;
+
+        &:last-child {
+            margin-top: 8px;
+            color: $color-crimson-500;
+
+            &:hover {
+                color: $color-crimson-500;
+                background: lighten($color-crimson-500, 42%);
+            }
+        }
+
+        &:hover {
+            background: lighten($color-shopware-brand-500, 40%);
+            color: $color-shopware-brand-500;
+        }
     }
 }

@@ -21,13 +21,19 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class PromotionValidatorTest extends TestCase
 {
-    /** @var WriteContext */
+    /**
+     * @var WriteContext
+     */
     private $context;
 
-    /** @var PromotionDefinition */
+    /**
+     * @var PromotionDefinition
+     */
     private $promotionDefinition;
 
-    /** @var PromotionDiscountDefinition */
+    /**
+     * @var PromotionDiscountDefinition
+     */
     private $discountDefinition;
 
     public function setUp(): void

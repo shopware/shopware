@@ -48,8 +48,7 @@ class CleanPersonalDataCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName(static::$defaultName)
-            ->addArgument('type', InputArgument::OPTIONAL)
+        $this->addArgument('type', InputArgument::OPTIONAL)
             ->addOption(
                 'days',
                 'd',

@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -32,33 +31,26 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"})
+     * @Route("/api/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"})
      * @Acl({"promotion.editor"})
      *
      * @throws NotFoundHttpException
      */
     public function generateFixedCode(): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         return new JsonResponse($this->codeService->getFixedCode());
     }
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/promotion/codes/generate-individual", name="api.action.promotion.codes.generate-individual", methods={"GET"})
+     * @Route("/api/_action/promotion/codes/generate-individual", name="api.action.promotion.codes.generate-individual", methods={"GET"})
      * @Acl({"promotion.editor"})
      *
      * @throws NotFoundHttpException
      */
     public function generateIndividualCodes(Request $request): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
+        /** @var string $codePattern */
         $codePattern = $request->query->get('codePattern');
         $amount = (int) $request->query->get('amount');
 
@@ -67,17 +59,13 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/promotion/codes/replace-individual", name="api.action.promotion.codes.replace-individual", methods={"PATCH"})
+     * @Route("/api/_action/promotion/codes/replace-individual", name="api.action.promotion.codes.replace-individual", methods={"PATCH"})
      * @Acl({"promotion.editor"})
      *
      * @throws NotFoundHttpException
      */
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         $promotionId = $request->request->get('promotionId');
         $codePattern = $request->request->get('codePattern');
         $amount = $request->request->get('amount');
@@ -89,17 +77,13 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"})
+     * @Route("/api/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"})
      * @Acl({"promotion.editor"})
      *
      * @throws NotFoundHttpException
      */
     public function addIndividualCodes(Request $request, Context $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
-
         $promotionId = $request->request->get('promotionId');
         $amount = $request->request->getInt('amount');
 
@@ -110,17 +94,16 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/v{version}/_action/promotion/codes/preview", name="api.action.promotion.codes.preview", methods={"GET"})
+     * @Route("/api/_action/promotion/codes/preview", name="api.action.promotion.codes.preview", methods={"GET"})
      * @Acl({"promotion.editor"})
      *
      * @throws NotFoundHttpException
      */
     public function getCodePreview(Request $request): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_12016')) {
-            throw new NotFoundHttpException('Route not found, due to inactive flag FEATURE_NEXT_12016');
-        }
+        /** @var string $codePattern */
+        $codePattern = $request->query->get('codePattern');
 
-        return new JsonResponse($this->codeService->getPreview($request->query->get('codePattern')));
+        return new JsonResponse($this->codeService->getPreview($codePattern));
     }
 }

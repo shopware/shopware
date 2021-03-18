@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ClientRepositoryTest extends TestCase
@@ -45,7 +44,7 @@ class ClientRepositoryTest extends TestCase
 
     public function testDoesntAffectLoggedInUser(): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
+        $this->getBrowser()->request('GET', '/api/product');
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -54,7 +53,7 @@ class ClientRepositoryTest extends TestCase
     {
         static::markTestSkipped('NEXT-6026');
         $browser = $this->getBrowserAuthenticatedWithIntegration();
-        $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product');
+        $browser->request('GET', '/api/product');
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
     }

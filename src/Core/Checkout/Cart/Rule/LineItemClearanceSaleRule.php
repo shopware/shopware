@@ -11,10 +11,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemClearanceSaleRule extends Rule
 {
-    /**
-     * @var bool
-     */
-    protected $clearanceSale;
+    protected bool $clearanceSale;
 
     public function __construct(bool $clearanceSale = false)
     {
@@ -41,7 +38,7 @@ class LineItemClearanceSaleRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesClearanceSaleCondition($lineItem)) {
                 return true;
             }

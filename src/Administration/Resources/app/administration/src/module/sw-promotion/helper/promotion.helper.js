@@ -1,3 +1,6 @@
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 export const DiscountTypes = {

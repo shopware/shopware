@@ -135,6 +135,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 return next({ name: 'sw.privilege.error.index' });
             }
 
+            // User tries to access store page when store is not installed. Then redirect to landing page.
+            if (to.name.includes('sw.extension.store') && to.matched.length <= 0) {
+                return next({ name: 'sw.extension.store.landing-page' });
+            }
+
             return resolveRoute(to, from, next);
         });
 

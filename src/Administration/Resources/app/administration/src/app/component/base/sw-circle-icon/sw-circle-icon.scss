@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-circle-icon {
+    &.sw-label.sw-label--appearance-circle {
+        display: grid;
+        align-items: center;
+        justify-content: center;
+        width: unset;
+        height: unset;
+    }
+}

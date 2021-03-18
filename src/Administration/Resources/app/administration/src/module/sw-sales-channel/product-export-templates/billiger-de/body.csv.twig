@@ -6,8 +6,11 @@
 "{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ '...' : product.translated.description|raw }}{#- -#}
 ",{#- -#}
 "{{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}",{#- -#}
-"{{ product.calculatedListingPrice.from.unitPrice }}",{#- -#}
-{% set price = product.calculatedListingPrice.from %}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices.count > 0 %}
+    {% set price = product.calculatedPrices.last %}
+{% endif %}
+"{{ price.unitPrice }}",{#- -#}
 "{%- if price.referencePrice is not null -%}
     {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {%- endif -%}",{#- -#}

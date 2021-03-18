@@ -96,7 +96,6 @@ class CreditNoteGeneratorTest extends TestCase
 
     public function testGenerateWithDifferentTaxes(): void
     {
-        /** @var CreditNoteGenerator $creditNoteService */
         $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
@@ -218,7 +217,7 @@ class CreditNoteGeneratorTest extends TestCase
             $creditId = Uuid::randomHex();
             $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, $creditId, 1))
                 ->setLabel('credit' . $price)
-                ->setPriceDefinition(new AbsolutePriceDefinition($price, 2));
+                ->setPriceDefinition(new AbsolutePriceDefinition($price));
             $cart->addLineItems(new LineItemCollection([$creditLineItem]));
         }
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -58,7 +59,6 @@ class CustomFieldSubscriberTest extends TestCase
      */
     public function testCustomFieldWrittenWithProvider($snippetSets, $customFieldSets, $expectedSnippets, $expectedCount): void
     {
-        $createdSnippetSets = [];
         foreach ($snippetSets as $set) {
             $createdSet = [
                 'id' => Uuid::randomHex(),
@@ -67,20 +67,19 @@ class CustomFieldSubscriberTest extends TestCase
                 'iso' => $set,
             ];
             $this->snippetSetRepository->create([$createdSet], $this->context);
-            $createdSnippetSets[] = $createdSet;
         }
 
-        $createdCustomFieldSets = [];
         foreach ($customFieldSets as $customFieldSet) {
             $this->customFieldSetRepository->upsert([$customFieldSet], $this->context);
-            $createdCustomFieldSets[] = $customFieldSet;
         }
 
-        $snippets = $this->connection->executeQuery('
-            SELECT snippet_set.iso, snippet.*
-            FROM snippet
-            LEFT JOIN snippet_set ON snippet_set.id = snippet.snippet_set_id
-        ')->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC);
+        $snippets = FetchModeHelper::group(
+            $this->connection->executeQuery('
+                SELECT snippet_set.iso, snippet.*
+                FROM snippet
+                LEFT JOIN snippet_set ON snippet_set.id = snippet.snippet_set_id
+            ')->fetchAll(FetchMode::ASSOCIATIVE)
+        );
 
         $snippetCount = $this->connection->executeQuery('SELECT count(*) FROM snippet')->fetchAll(\PDO::FETCH_COLUMN);
 

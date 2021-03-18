@@ -42,10 +42,14 @@ class ProductExporterTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var ProductExporterInterface */
+    /**
+     * @var ProductExporterInterface
+     */
     private $service;
 
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
     protected function setUp(): void

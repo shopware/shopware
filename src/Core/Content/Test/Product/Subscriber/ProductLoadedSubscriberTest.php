@@ -304,7 +304,7 @@ class ProductLoadedSubscriberTest extends TestCase
         ];
 
         return [
-            [
+            0 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -330,7 +330,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 false,
                 $language,
             ],
-            [
+            1 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -360,7 +360,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 true,
                 $language,
             ],
-            [
+            2 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -417,7 +417,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 true,
                 $language,
             ],
-            [
+            3 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -468,7 +468,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 true,
                 $language,
             ],
-            [
+            4 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -519,7 +519,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 true,
                 $language,
             ],
-            [
+            5 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -576,7 +576,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 true,
                 $language,
             ],
-            [
+            6 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -615,15 +615,15 @@ class ProductLoadedSubscriberTest extends TestCase
                 ]),
                 [
                     ['group' => 'color', 'option' => 'red'],
-                    ['group' => 'size', 'option' => 'xl'],
                     ['group' => 'fit', 'option' => 'slim fit'],
+                    ['group' => 'size', 'option' => 'xl'],
                 ],
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
-            [
+            7 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -697,7 +697,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 false,
                 $language,
             ],
-            [
+            8 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -757,15 +757,15 @@ class ProductLoadedSubscriberTest extends TestCase
                 ]),
                 [
                     ['group' => 'color', 'option' => 'red'],
-                    ['group' => 'size', 'option' => 'xl'],
                     ['group' => 'fit', 'option' => 'slim fit'],
+                    ['group' => 'size', 'option' => 'xl'],
                 ],
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
-            [
+            9 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -825,15 +825,15 @@ class ProductLoadedSubscriberTest extends TestCase
                 ]),
                 [
                     ['group' => 'color', 'option' => 'red'],
-                    ['group' => 'size', 'option' => 'xl'],
                     ['group' => 'fit', 'option' => 'slim fit'],
+                    ['group' => 'size', 'option' => 'xl'],
                 ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
-            [
+            10 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -898,16 +898,16 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 [
-                    ['group' => 'foo', 'option' => 'der'],
                     ['group' => 'bar', 'option' => 'lx'],
                     ['group' => 'baz', 'option' => 'tif mils'],
+                    ['group' => 'foo', 'option' => 'der'],
                 ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
-            [
+            11 => [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -945,8 +945,8 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 [
-                    ['group' => 'fit', 'option' => 'slim fit'],
                     ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
                     ['group' => 'size', 'option' => 'xl'],
                 ],
                 [Defaults::LANGUAGE_SYSTEM],

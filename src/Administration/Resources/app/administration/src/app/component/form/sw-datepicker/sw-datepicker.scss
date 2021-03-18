@@ -1,16 +1,16 @@
 @import "~scss/variables";
 
-$sw-datepicker-color-border: $color-steam-cloud;
-$sw-datepicker-color-font: $color-gutenberg;
+$sw-datepicker-color-border: $color-gray-300;
+$sw-datepicker-color-font: $color-darkgray-200;
 $sw-datepicker-color-disabled-font: #b3bfcc;
-$sw-datepicker-color-hover: $color-shopware-blue;
+$sw-datepicker-color-hover: $color-shopware-brand-500;
 $sw-datepicker-color-selected: #e6e6e6;
 $sw-datepicker-color-text-selected: $color-white;
 
 @mixin flatpickr-day-hovered {
     color: $sw-datepicker-color-text-selected;
     background-color: $sw-datepicker-color-hover;
-    border-color: $color-shopware-blue;
+    border-color: $color-shopware-brand-500;
 }
 
 .sw-field--datepicker {

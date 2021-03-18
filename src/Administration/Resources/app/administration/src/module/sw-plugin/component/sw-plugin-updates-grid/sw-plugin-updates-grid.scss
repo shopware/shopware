@@ -20,7 +20,7 @@
             flex-direction: column;
 
             .sw-plugin-updates-grid__upgraded-date {
-                color: $color-gray;
+                color: $color-gray-700;
                 font-size: $font-size-small;
             }
         }
@@ -57,7 +57,7 @@
         .sw-plugin-updates-grid__version {
             margin-top: 6px;
             font-size: $font-size-small;
-            color: $color-gray;
+            color: $color-gray-700;
         }
     }
 }

@@ -70,24 +70,22 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
     {
         $criteria = clone $criteria;
 
+        $this->processCriteria($criteria, $salesChannelContext);
+
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $salesChannelContext);
-        } else {
-            $this->processCriteria($criteria, $salesChannelContext);
         }
-        $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
             return new EntitySearchResult(
+                $this->definition->getEntityName(),
                 $entities->count(),
                 $entities,
                 $aggregations,
                 $criteria,
-                $salesChannelContext->getContext(),
-                $page,
-                $criteria->getLimit()
+                $salesChannelContext->getContext()
             );
         }
 
@@ -116,13 +114,12 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         }
 
         $result = new EntitySearchResult(
+            $this->definition->getEntityName(),
             $ids->getTotal(),
             $entities,
             $aggregations,
             $criteria,
-            $salesChannelContext->getContext(),
-            $page,
-            $criteria->getLimit()
+            $salesChannelContext->getContext()
         );
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
@@ -198,9 +195,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         // process all associations breadth-first
         while (!empty($queue) && --$maxCount > 0) {
-            /** @var array{'definition': EntityDefinition, 'criteria': Criteria} $cur */
             $cur = array_shift($queue);
 
+            /** @var EntityDefinition $definition */
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 

@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1595160327AddPositionToCustomFieldSet extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1595160327AddPositionToCustomFieldSet extends \Shopware\Core\Migration\V6_3\Migration1595160327AddPositionToCustomFieldSet
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1595160327;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('
-            ALTER TABLE `custom_field_set`
-            ADD COLUMN `position` INT(11) NOT NULL DEFAULT 1 AFTER `active`;
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

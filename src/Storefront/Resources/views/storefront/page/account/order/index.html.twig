@@ -26,7 +26,7 @@
 
 {% block page_checkout_confirm_tos_control %}
     {{ "checkout.confirmTermsReminder"|trans({
-        '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.tosPage })
+        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
     })|raw }}
 {% endblock %}
 
@@ -38,13 +38,13 @@
 
 {% block page_checkout_confirm_payment %}
     <div class="col-sm-6 confirm-payment">
-        {% sw_include '@Storefront/storefront/page/account/order/payment.html.twig' %}
+        {% sw_include '@Storefront/storefront/page/account/order/confirm-payment.html.twig' %}
     </div>
 {% endblock %}
 
 {% block page_checkout_confirm_shipping %}
     <div class="col-sm-6 confirm-shipping">
-        {% sw_include '@Storefront/storefront/page/account/order/shipping.html.twig' %}
+        {% sw_include '@Storefront/storefront/page/account/order/confirm-shipping.html.twig' %}
     </div>
 {% endblock %}
 
@@ -97,7 +97,7 @@
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
-            {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+            {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
                         class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
                         data-toggle="modal"

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
@@ -60,10 +58,10 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
     private function getAppTemplateNamespaces(): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(
-            MultiFilter::CONNECTION_AND,
-            [new EqualsFilter('app.templates.id', null)]
-        ));
+        $criteria->addFilter(
+            new EqualsFilter('app.active', true),
+            new EqualsFilter('app.templates.active', true)
+        );
         $criteria->addAggregation(new TermsAggregation('appNames', 'app.name'));
 
         /** @var TermsResult $appNames */

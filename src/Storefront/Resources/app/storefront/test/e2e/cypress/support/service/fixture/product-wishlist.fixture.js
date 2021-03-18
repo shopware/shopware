@@ -7,7 +7,7 @@ class productWishlistFixture extends StoreFixtureService{
                 this.apiClient.setAccessKey(result);
             })
             .then(() => {
-                return this.apiClient.post(`/${Cypress.env('apiVersion')}/account/login`, JSON.stringify({
+                return this.apiClient.post(`/account/login`, JSON.stringify({
                     username: customer.username,
                     password: customer.password
                 }));
@@ -16,7 +16,7 @@ class productWishlistFixture extends StoreFixtureService{
                 return this.apiClient.setContextToken(response.data.contextToken);
             })
             .then(() => {
-                return this.apiClient.post(`/${Cypress.env('apiVersion')}/customer/wishlist/add/${productId}`);
+                return this.apiClient.post(`/customer/wishlist/add/${productId}`);
             })
             .catch((err) => {
                 console.log('err :', err);

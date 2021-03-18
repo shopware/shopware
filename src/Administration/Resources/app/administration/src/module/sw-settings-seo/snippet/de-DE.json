@@ -28,7 +28,8 @@
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",
-      "frontend-navigation-page": "Kategorieseite"
+      "frontend-navigation-page": "Kategorieseite",
+      "frontend-landing-page": "Landing Page"
     }
   },
   "sw-seo-url": {

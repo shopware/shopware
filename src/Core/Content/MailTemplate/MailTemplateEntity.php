@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
-use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -57,13 +56,6 @@ class MailTemplateEntity extends Entity
      * @var array|null
      */
     protected $customFields;
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
-     *
-     * @var MailTemplateSalesChannelCollection|null
-     */
-    protected $salesChannels;
 
     /**
      * @var MailTemplateTranslationCollection|null
@@ -143,22 +135,6 @@ class MailTemplateEntity extends Entity
     public function setContentPlain(?string $contentPlain): void
     {
         $this->contentPlain = $contentPlain;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
-     */
-    public function getSalesChannels(): ?MailTemplateSalesChannelCollection
-    {
-        return $this->salesChannels;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
-     */
-    public function setSalesChannels(MailTemplateSalesChannelCollection $salesChannels): void
-    {
-        $this->salesChannels = $salesChannels;
     }
 
     public function getTranslations(): ?MailTemplateTranslationCollection

@@ -1,0 +1,38 @@
+{% block component_filter_rating_select_list_item %}
+    {% if maxPoints is not defined %}
+        {% set maxPoints = 5 %}
+    {% endif %}
+
+    {% block component_filter_rating_select_list_item_input %}
+        <input type="radio"
+               name="rating-radio"
+               class="filter-rating-select-radio"
+               value="{{ points }}"
+               id="rating-{{ points }}">
+    {% endblock %}
+
+    {% block component_filter_rating_select_list_item_label %}
+        <label class="filter-rating-select-item-label" for="rating-{{ points }}">
+            {% block component_filter_rating_select_list_item_label_rating %}
+                {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                    points: points,
+                    style: 'text-primary'
+                } %}
+            {% endblock %}
+
+            {% block component_filter_rating_select_list_item_label_text %}
+                <span class="filter-rating-select-item-label-text">
+                    {{ 'listing.filterRatingAndMore'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize }}
+                </span>
+            {% endblock %}
+        </label>
+    {% endblock %}
+
+    {% block component_filter_rating_select_list_item_checkmark %}
+        <span class="filter-rating-select-item-checkmark">
+            {% block component_filter_rating_select_list_item_checkmark_icon %}
+                {% sw_icon 'checkmark' style {'pack': 'solid', 'size': 'xs'} %}
+            {% endblock %}
+        </span>
+    {% endblock %}
+{% endblock %}

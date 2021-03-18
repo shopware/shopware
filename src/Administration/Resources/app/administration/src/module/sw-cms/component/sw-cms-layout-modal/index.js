@@ -32,6 +32,7 @@ Component.register('sw-cms-layout-modal', {
     data() {
         return {
             selected: null,
+            selectedPageObject: null,
             isLoading: false,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
@@ -82,12 +83,14 @@ Component.register('sw-cms-layout-modal', {
         },
 
         selectLayout() {
-            this.$emit('modal-layout-select', this.selected);
+            this.$emit('modal-layout-select', this.selected, this.selectedPageObject);
             this.closeModal();
         },
 
-        selectItem(layoutId) {
-            this.selected = layoutId;
+        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
+        selectItem(layoutId, page) {
+            this.selected = layoutId; // replace with page.id
+            this.selectedPageObject = page;
         },
 
         onSearch(value) {
@@ -101,13 +104,16 @@ Component.register('sw-cms-layout-modal', {
             this.getList();
         },
 
-        onSelection(layoutId) {
-            this.selected = layoutId;
+        /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
+        onSelection(layoutId, page) {
+            this.selected = layoutId; // replace with page.id
+            this.selectedPageObject = page;
         },
 
         closeModal() {
             this.$emit('modal-close');
             this.selected = null;
+            this.selectedPageObject = null;
             this.term = null;
         }
     }

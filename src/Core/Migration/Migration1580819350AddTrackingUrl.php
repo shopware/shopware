@@ -2,22 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1580819350AddTrackingUrl extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1580819350AddTrackingUrl extends \Shopware\Core\Migration\V6_3\Migration1580819350AddTrackingUrl
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1580819350;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->executeUpdate('ALTER TABLE `shipping_method_translation` ADD `tracking_url` MEDIUMTEXT NULL DEFAULT NULL AFTER `description`;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

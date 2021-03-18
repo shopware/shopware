@@ -72,13 +72,6 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // Shows layout assignment modal the first time saving after the wizard
-        cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
-
-        // Confirm without layout
-        cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
-
         cy.wait('@reloadPage').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -92,13 +85,6 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-
-            // Shows layout assignment modal the first time saving after the wizard
-            cy.get('.sw-modal').should('be.visible');
-
-            // Confirm without layout
-            cy.get('#sw-language-switch-save-changes-button').click();
-            cy.get('.sw-modal').should('not.exist');
         });
 
         cy.get('.sw-cms-block').should('be.visible');
@@ -190,6 +176,7 @@ describe('CMS: Test crud operations of layouts', () => {
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

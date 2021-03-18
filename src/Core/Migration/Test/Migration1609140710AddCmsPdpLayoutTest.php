@@ -36,6 +36,10 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
 
     public function testMigrationFields(): void
     {
+        $this->connection->rollBack();
+        $this->removeForeignKeyConstraintIfExists();
+        $this->connection->beginTransaction();
+
         $this->rollbackMigrationChanges();
 
         $page = $this->fetchCmsPage();
@@ -64,7 +68,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
             'type' => 'product_detail',
             'locked' => 1,
         ];
-        static::assertContains($expectedPage, $page);
+        static::assertContainsEquals($expectedPage, $page);
 
         $expectedPageTranslation = [
             [
@@ -75,14 +79,14 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
             ],
         ];
         foreach ($pageTranslations as $pageTranslation) {
-            static::assertContains($pageTranslation, $expectedPageTranslation);
+            static::assertContainsEquals($pageTranslation, $expectedPageTranslation);
         }
 
         $expectedSection = [
             'position' => 0,
             'type' => 'default',
         ];
-        static::assertContains($expectedSection, $section);
+        static::assertContainsEquals($expectedSection, $section);
 
         $expectedBlocks = [
             [
@@ -131,7 +135,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
             ],
         ];
         foreach ($blocks as $block) {
-            static::assertContains($block, $expectedBlocks);
+            static::assertContainsEquals($block, $expectedBlocks);
         }
 
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
@@ -174,7 +178,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
             ],
         ];
         foreach ($slots as $slot) {
-            static::assertContains($slot, $expectedSlots);
+            static::assertContainsEquals($slot, $expectedSlots);
         }
 
         $expectedSlotTranslations = [
@@ -218,7 +222,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContains(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation['config'], true), $expectedSlotTranslations);
         }
     }
 
@@ -284,7 +288,6 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
 
     private function rollbackMigrationChanges(): void
     {
-        $this->removeForeignKeyConstraintIfExists();
         $this->connection->executeUpdate('DELETE FROM `cms_page_translation`');
         $this->connection->executeUpdate('DELETE FROM `cms_page`');
         $this->connection->executeUpdate('DELETE FROM `cms_section`');

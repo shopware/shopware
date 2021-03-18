@@ -85,15 +85,20 @@ class CookieProvider implements CookieProviderInterface
      */
     public function getCookieGroups(): array
     {
-        $cookieGroups = [
-            self::REQUIRED_COOKIES,
-            self::STATISTICAL_COOKIES,
-        ];
+        $requiredCookies = self::REQUIRED_COOKIES;
 
-        if (Feature::isActive('FEATURE_NEXT_10549')) {
-            $cookieGroups[] = self::COMFORT_FEATURES_COOKIES;
+        if (Feature::isActive('FEATURE_NEXT_12455')) {
+            $requiredCookies['entries'][] = [
+                'snippet_name' => 'cookie.groupRequiredGoogleReCaptcha',
+                'cookie' => '_GRECAPTCHA',
+                'value' => '1',
+            ];
         }
 
-        return $cookieGroups;
+        return [
+            $requiredCookies,
+            self::STATISTICAL_COOKIES,
+            self::COMFORT_FEATURES_COOKIES,
+        ];
     }
 }

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,12 +29,10 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
-
         $productReviewRouteMock = $this->createMock(AbstractProductReviewRoute::class);
         $productReviewRouteMock->method('load')->willReturn(
             new ProductReviewRouteResponse(
-                new EntitySearchResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+                new EntitySearchResult('product', 0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
             )
         );
 

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class MailHeaderFooterApiTest extends TestCase
@@ -266,7 +265,7 @@ class MailHeaderFooterApiTest extends TestCase
             $addPath = '/search';
         }
 
-        return '/api/v' . PlatformRequest::API_VERSION . $addPath . '/mail-header-footer/';
+        return '/api' . $addPath . '/mail-header-footer/';
     }
 
     /**

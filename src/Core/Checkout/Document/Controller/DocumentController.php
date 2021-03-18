@@ -42,7 +42,7 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"})
+     * @Route("/api/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"})
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
@@ -75,7 +75,7 @@ class DocumentController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route(
-     *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
+     *     "/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
      *     name="api.action.document.preview",
      *     methods={"GET"}
      * )
@@ -87,7 +87,8 @@ class DocumentController extends AbstractController
         string $documentTypeName,
         Context $context
     ): Response {
-        $config = $request->query->has('config') ? json_decode($request->query->get('config'), true) : [];
+        $config = $request->query->get('config');
+        $config = $config !== null ? json_decode($config, true) : [];
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);

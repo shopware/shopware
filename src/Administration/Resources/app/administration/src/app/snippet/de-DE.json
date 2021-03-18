@@ -6,6 +6,7 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
+      "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein."
     },
@@ -27,7 +28,10 @@
       "view": "Anzeigen",
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "xTimesIn": "{n} mal in"
+      "xTimesIn": "{n} mal in",
+      "close": "Schließen",
+      "from": "Von",
+      "to": "Bis"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -158,6 +162,11 @@
         }
       },
       "caption": "Datei zum Hochladen hierhin ziehen"
+    },
+    "sw-gtc-checkbox": {
+      "label": "Ich akzeptiere die",
+      "link": "AGB.",
+      "url": "https://www.shopware.com/de/gtc"
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
@@ -453,6 +462,10 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "valuePlaceholder": "Bitte auswählen ..."
     },
+    "sw-meteor-single-select": {
+      "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
+      "valuePlaceholder": "Bitte auswählen ..."
+    },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -678,7 +691,7 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
-      "landing_page": "Landing Page",
+      "landing_page": "Landingpage | Landingpages",
       "delivery_time": "Lieferzeit | Lieferzeiten",
       "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
       "feature_set": "Template | Templates",
@@ -870,16 +883,17 @@
     "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
   },
   "sw-license-violation": {
-    "title": "Plugin-Warnungen",
+    "title": "Erweiterung-Warnungen",
     "reload": "Neu laden",
-    "alertText": "Für mindestens eines Deiner installierten Plugins in dieser Installation liegt eine Lizenzverletzung vor. Buche die Plugin-Subscription nach oder kaufe/miete das Plugin (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du das Plugin nicht mehr? Dann lösche es vollständig aus dem Plugin-Manager. Falls keiner dieser Schritte von Dir vollzogen wird, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
-    "deletePlugin": "Plugin vollständig entfernen",
-    "messageDeleteConfirm": "Möchtest Du das Plugin \"{pluginName}\" vollständig löschen?",
+    "alertText": "Für mindestens eines Deiner installierten Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche die Erweiterung-Subscription nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du die Erweiterung nicht mehr? Dann lösche es vollständig. Falls keiner dieser Schritte von Dir vollzogen wird, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
+    "deletePlugin": "Erweiterung vollständig entfernen",
+    "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
     "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
     "closeModal": "Warnung schließen",
     "ignorePlugin": "Dauerhaft ignorieren",
+    "successfullyDeleted": "Erweiterung wurde gelöscht",
     "table": {
-      "plugin": "Plugin",
+      "plugin": "Erweiterung",
       "warning": "Warnung"
     }
   },
@@ -980,7 +994,7 @@
     "keyboardShortcutGoToShipping": "G S S",
     "functionGoToRuleBuilder": "Gehe zu Rule Builder",
     "keyboardShortcutGoToRuleBuilder": "G S R",
-    "functionGoToPlugins": "Gehe zu Plugins",
+    "functionGoToPlugins": "Gehe zu \"Meine Erweiterungen\"",
     "keyboardShortcutGoToPlugins": "G A",
     "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
@@ -1026,7 +1040,7 @@
     "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
     "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
     "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
-    "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
+    "messagePluginSets": "Plugin-Zusatzfeld-Sets (Können nicht entfernt werden)"
   },
   "sw-rating-stars": {
     "ratingTooltipText": "{actual} von {max} Sternen"
@@ -1034,7 +1048,7 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden Deiner Appactions aufgetreten."
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten."
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

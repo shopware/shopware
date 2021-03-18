@@ -103,10 +103,6 @@ class ThemeLifecycleService
 
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
     {
-        if ($configuration->getTechnicalName() === null) {
-            throw new \LogicException('Bundle can not exist without technical name');
-        }
-
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();
@@ -140,7 +136,7 @@ class ThemeLifecycleService
         return $this->themeRepository->search($criteria, $context)->first();
     }
 
-    private function createMediaStruct(string $path, string $mediaId, string $themeFolderId): ?array
+    private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
     {
         if (!$this->fileExists($path)) {
             return null;

@@ -92,6 +92,7 @@ class OrderPersisterTest extends TestCase
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
             new EntitySearchResult(
+                'order',
                 1,
                 new EntityCollection([$order]),
                 null,
@@ -110,7 +111,7 @@ class OrderPersisterTest extends TestCase
         $cart = new Cart('A', 'a-b-c');
         $cart->add(
             (new LineItem('test', LineItem::CREDIT_LINE_ITEM_TYPE))
-                ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
+                ->setPriceDefinition(new AbsolutePriceDefinition(1))
         );
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)

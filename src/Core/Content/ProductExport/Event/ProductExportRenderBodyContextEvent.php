@@ -8,7 +8,9 @@ class ProductExportRenderBodyContextEvent extends Event
 {
     public const NAME = 'product_export.render.body_context';
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $context;
 
     public function __construct(array $context)

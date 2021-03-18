@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-extension-review-creation-inputs {
+    &__grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        column-gap: 40px;
+
+        @media screen and (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+
+        .sw-extension-rating-stars {
+            height: 46px;
+            display: flex;
+        }
+    }
+
+    .sw-textarea-field {
+        margin-bottom: 24px;
+    }
+}

@@ -1,18 +1,18 @@
 @import "~scss/variables";
 
-$sw-grid-item-color-border:               $color-steam-cloud;
-$sw-grid-item-color-background:           $color-light-gray;
+$sw-grid-item-color-border:               $color-gray-300;
+$sw-grid-item-color-background:           $color-gray-100;
 $sw-grid-item-even-color-background:      $color-white;
-$sw-grid-item-color-background-deleted:   $color-crimson;
-$sw-grid-item-color-background-new:       $color-emerald;
-$sw-grid-item-active-color-border:        $color-shopware-blue;
-$sw-grid-item-active-color-background:    $color-cadet-blue;
+$sw-grid-item-color-background-deleted:   $color-crimson-500;
+$sw-grid-item-color-background-new:       $color-emerald-500;
+$sw-grid-item-active-color-border:        $color-shopware-brand-500;
+$sw-grid-item-active-color-background:    $color-shopware-brand-50;
 $sw-grid-item-active-color-text:          $color-black;
 $sw-grid-header-color-background:         $color-white;
-$sw-grid-header-color-border:             $color-steam-cloud;
-$sw-grid-header-color-text:               $color-kashmir;
-$sw-grid-actions-icon-color:              $color-gutenberg;
-$sw-grid-actions-icon-hover-color:        $color-shopware-blue;
+$sw-grid-header-color-border:             $color-gray-300;
+$sw-grid-header-color-text:               $color-darkgray-200;
+$sw-grid-actions-icon-color:              $color-darkgray-200;
+$sw-grid-actions-icon-hover-color:        $color-shopware-brand-500;
 $sw-grid-table-row-color-background:      $color-white;
 
 .sw-grid {

@@ -8,11 +8,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -21,6 +18,7 @@ use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -52,42 +50,35 @@ class StoreController extends AbstractStoreController
     private $pluginManagementService;
 
     /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
-
-    /**
      * @var SystemConfigService
      */
     private $configService;
 
     /**
-     * @var RequestCriteriaBuilder
+     * @var AbstractExtensionDataProvider|null
      */
-    private $searchCriteriaBuilder;
+    private $extensionDataProvider;
 
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
-        PluginLifecycleService $pluginLifecycleService,
         EntityRepositoryInterface $userRepository,
         SystemConfigService $configService,
-        RequestCriteriaBuilder $searchCriteriaBuilder
+        ?AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
-        $this->pluginLifecycleService = $pluginLifecycleService;
         $this->userRepository = $userRepository;
         $this->configService = $configService;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         parent::__construct($userRepository);
+        $this->extensionDataProvider = $extensionDataProvider;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
+     * @Route("/api/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
      */
     public function pingStoreAPI(): Response
     {
@@ -102,7 +93,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/login", name="api.custom.store.login", methods={"POST"})
+     * @Route("/api/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
     public function login(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
@@ -135,7 +126,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/checklogin", name="api.custom.store.checklogin", methods={"POST"})
+     * @Route("/api/_action/store/checklogin", name="api.custom.store.checklogin", methods={"POST"})
      */
     public function checkLogin(Context $context): Response
     {
@@ -154,7 +145,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
+     * @Route("/api/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
      */
     public function logout(Context $context): Response
     {
@@ -169,7 +160,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
+     * @Route("/api/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
     public function getLicenseList(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
@@ -190,7 +181,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
+     * @Route("/api/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
     public function getUpdateList(Request $request, Context $context): JsonResponse
     {
@@ -219,7 +210,7 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/download", name="api.custom.store.download", methods={"GET"})
+     * @Route("/api/_action/store/download", name="api.custom.store.download", methods={"GET"})
      */
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
@@ -254,31 +245,29 @@ class StoreController extends AbstractStoreController
             return new JsonResponse(null, $statusCode);
         }
 
-        /*
-         * @deprecated tag:v6.4.0 - (flag:FEATURE_NEXT_12957) Plugin download and update will be handled separately
-         */
-        if (!Feature::isActive('FEATURE_NEXT_12957')) {
-            /** @var PluginEntity|null $plugin */
-            $plugin = $this->pluginRepo->search($criteria, $context)->first();
-
-            if ($plugin && $plugin->getUpgradeVersion()) {
-                $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            }
-        }
-
         return new JsonResponse();
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/license-violations", name="api.custom.store.license-violations", methods={"POST"})
+     * @Route("/api/_action/store/license-violations", name="api.custom.store.license-violations", methods={"POST"})
      */
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
         $language = $request->query->get('language', '');
 
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        if ($this->extensionDataProvider) {
+            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
+        } else {
+            /** @var PluginCollection $extensions */
+            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        }
+
+        $indexedExtensions = [];
+
+        foreach ($extensions as $extension) {
+            $indexedExtensions[$extension->getName()] = $extension->getVersion();
+        }
 
         try {
             $storeToken = $this->getUserStoreToken($context);
@@ -287,7 +276,7 @@ class StoreController extends AbstractStoreController
         }
 
         try {
-            $violations = $this->storeClient->getLicenseViolations($storeToken, $plugins, $language, $request->getHost(), $context);
+            $violations = $this->storeClient->getLicenseViolations($storeToken, $indexedExtensions, $language, $request->getHost());
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -300,16 +289,16 @@ class StoreController extends AbstractStoreController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/store/plugin/search", name="api.action.store.plugin.search", methods={"POST"})
+     * @Route("/api/_action/store/plugin/search", name="api.action.store.plugin.search", methods={"POST"})
      */
     public function searchPlugins(Request $request, Context $context): Response
     {
-        $definition = $this->pluginRepo->getDefinition();
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, new Criteria(), $definition, $context);
-        $searchResult = $this->pluginRepo->search($criteria, $context);
-
-        /** @var PluginCollection $plugins */
-        $plugins = $searchResult->getEntities();
+        if ($this->extensionDataProvider) {
+            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
+        } else {
+            /** @var PluginCollection $extensions */
+            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
+        }
 
         try {
             $language = $request->query->get('language', 'en-GB');
@@ -320,19 +309,14 @@ class StoreController extends AbstractStoreController
                 $storeToken = null;
             }
 
-            $this->storeClient->checkForViolations($storeToken, $plugins, $language, $request->getHost(), $context);
+            $this->storeClient->checkForViolations($storeToken, $extensions, $language, $request->getHost());
         } catch (\Exception $e) {
-            // plugin list should always work
+            // extension list should always work
         }
 
         return new JsonResponse([
-            'total' => $searchResult->count(),
-            'items' => $plugins,
+            'total' => $extensions->count(),
+            'items' => $extensions,
         ]);
-    }
-
-    public function categoriesAction(Context $context): Response
-    {
-        return new JsonResponse($this->storeClient->getCategories($context));
     }
 }

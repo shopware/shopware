@@ -129,11 +129,11 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case AbsolutePriceDefinition::TYPE:
                 $rules = (\array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
 
-                return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
+                return new AbsolutePriceDefinition($value['price'], $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = \array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
-                return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
+                return new PercentagePriceDefinition($value['percentage'], $rules);
         }
 
         throw new InvalidPriceFieldTypeException($value['type']);
@@ -154,7 +154,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $this->buildViolation(
                     'This "_name" value (%value%) is invalid.',
                     ['%value%' => $type ?? 'NULL'],
-                    null,
                     $basePath . '/_name'
                 )
             );
@@ -213,18 +212,15 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
-        $root = null,
-        ?string $propertyPath = null,
-        $invalidValue = null,
-        $code = null
+        ?string $propertyPath = null
     ): ConstraintViolation {
         return new ConstraintViolation(
             str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
-            $root,
+            null,
             $propertyPath,
-            $invalidValue
+            null
         );
     }
 
@@ -249,7 +245,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',
                         ['{{ fieldName }}' => $fieldName],
-                        null,
                         $currentPath
                     )
                 );

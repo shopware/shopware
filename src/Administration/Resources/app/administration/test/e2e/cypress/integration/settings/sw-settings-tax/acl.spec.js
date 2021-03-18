@@ -37,7 +37,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax',
+            url: `${Cypress.env('apiPath')}/tax`,
             method: 'post'
         }).as('saveData');
 
@@ -82,7 +82,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax/*',
+            url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -128,7 +128,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/tax/*',
+            url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'delete'
         }).as('deleteData');
 

@@ -13,15 +13,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemTotalPriceRule extends Rule
 {
-    /**
-     * @var float
-     */
-    protected $amount;
+    protected ?float $amount;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
@@ -44,7 +38,7 @@ class LineItemTotalPriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }

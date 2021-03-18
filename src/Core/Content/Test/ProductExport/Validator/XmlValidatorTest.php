@@ -11,6 +11,10 @@ class XmlValidatorTest extends TestCase
 {
     public function testEntityLoaderIsFalseAsBefore(): void
     {
+        if (\PHP_VERSION_ID >= 80000) {
+            static::markTestSkipped();
+        }
+
         $previous = libxml_disable_entity_loader(false);
 
         $xmlValidator = new XmlValidator();
@@ -25,6 +29,10 @@ class XmlValidatorTest extends TestCase
 
     public function testEntityLoaderIsTrueAsBefore(): void
     {
+        if (\PHP_VERSION_ID >= 80000) {
+            static::markTestSkipped();
+        }
+
         $previous = libxml_disable_entity_loader(true);
 
         $xmlValidator = new XmlValidator();

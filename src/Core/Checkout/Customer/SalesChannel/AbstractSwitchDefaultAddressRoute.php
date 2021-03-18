@@ -16,8 +16,5 @@ abstract class AbstractSwitchDefaultAddressRoute
 
     abstract public function getDecorated(): AbstractSwitchDefaultAddressRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $customer will be mandatory in future implementation
-     */
-    abstract public function swap(string $addressId, string $type, SalesChannelContext $context/*, CustomerEntity $customer*/): NoContentResponse;
+    abstract public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse;
 }

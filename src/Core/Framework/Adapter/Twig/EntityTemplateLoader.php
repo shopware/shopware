@@ -42,7 +42,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         $this->databaseTemplateCache = [];
     }
 
-    public function getSourceContext($name)
+    public function getSourceContext(string $name): Source
     {
         $template = $this->findDatabaseTemplate($name);
 
@@ -53,12 +53,12 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return new Source($template['template'], $name);
     }
 
-    public function getCacheKey($name)
+    public function getCacheKey(string $name): string
     {
         return $name;
     }
 
-    public function isFresh($name, $time)
+    public function isFresh(string $name, int $time): bool
     {
         $template = $this->findDatabaseTemplate($name);
         if (!$template) {
@@ -68,7 +68,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return $template['updatedAt'] === null || $template['updatedAt']->getTimestamp() < $time;
     }
 
-    public function exists($name)
+    public function exists(string $name)
     {
         $template = $this->findDatabaseTemplate($name);
         if (!$template) {

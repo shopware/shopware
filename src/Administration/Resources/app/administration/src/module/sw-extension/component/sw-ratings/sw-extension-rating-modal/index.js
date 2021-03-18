@@ -3,9 +3,11 @@ import './sw-extension-rating-modal.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-extension-rating-modal', {
+/**
+ * @private
+ */
+Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', {
     template,
-    extendsFrom: 'sw-review-creation',
 
     methods: {
         emitClose() {

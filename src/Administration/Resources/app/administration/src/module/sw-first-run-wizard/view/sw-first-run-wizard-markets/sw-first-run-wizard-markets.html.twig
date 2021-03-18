@@ -1,0 +1,13 @@
+{% block sw_first_run_wizard_markets %}
+    <div class="sw-first-run-wizard-markets">
+        <img :src="'/administration/static/img/sw-markets/markets_illustration.svg' | asset"
+            class="sw-first-run-wizard-markets__illustration">
+
+        <h2 class="sw-first-run-wizard-markets__heading">{{ $tc('sw-first-run-wizard.markets.heading') }}</h2>
+
+        <p class="sw-first-run-wizard-markets__description"
+            v-html="$tc('sw-first-run-wizard.markets.description')"></p>
+
+        <small class="sw-first-run-wizard-markets__footnote">{{ $tc('sw-first-run-wizard.markets.footnote') }}</small>
+    </div>
+{% endblock %}

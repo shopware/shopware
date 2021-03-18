@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogEntryDefinition;
 use Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
@@ -18,6 +19,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeState
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed. Caching is implemented for store api routes
+ */
 class CachedEntitySearcher implements EntitySearcherInterface
 {
     public const BLACKLIST = [
@@ -58,6 +62,10 @@ class CachedEntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
+        if (Feature::isActive('FEATURE_NEXT_10514')) {
+            return $this->decorated->search($definition, $criteria, $context);
+        }
+
         if (!$context->getUseCache()) {
             return $this->decorated->search($definition, $criteria, $context);
         }

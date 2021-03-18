@@ -3,9 +3,17 @@
 namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 
@@ -27,7 +35,7 @@ class StructEncoderTest extends TestCase
     {
         $foo = new MyTestStruct('foo', 'bar');
 
-        $encoded = $this->encoder->encode($foo, 1, new ResponseFields([]));
+        $encoded = $this->encoder->encode($foo, new ResponseFields([]));
 
         static::assertEquals(
             ['foo' => 'foo', 'bar' => 'bar', 'apiAlias' => 'test-struct'],
@@ -39,7 +47,7 @@ class StructEncoderTest extends TestCase
     {
         $foo = new MyTestStruct('foo', 'bar');
 
-        $encoded = $this->encoder->encode($foo, 1, new ResponseFields([
+        $encoded = $this->encoder->encode($foo, new ResponseFields([
             'test-struct' => ['foo'],
         ]));
 
@@ -58,7 +66,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'myExtension'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -84,7 +92,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'myExtension'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -111,7 +119,7 @@ class StructEncoderTest extends TestCase
             'test-struct' => ['foo', 'bar'],
         ]);
 
-        $encoded = $this->encoder->encode($foo, 1, $fields);
+        $encoded = $this->encoder->encode($foo, $fields);
 
         static::assertEquals(
             [
@@ -147,7 +155,7 @@ class StructEncoderTest extends TestCase
             'another-struct' => ['bar'],
         ]);
 
-        $encoded = $this->encoder->encode($root, 1, $fields);
+        $encoded = $this->encoder->encode($root, $fields);
 
         static::assertEquals(
             [
@@ -176,6 +184,44 @@ class StructEncoderTest extends TestCase
             $encoded
         );
     }
+
+    public function testApiAwareForTranslatedFields(): void
+    {
+        $entity = new MyEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setName('test');
+        $entity->setDescription('test');
+        $entity->setTranslated([
+            'name' => 'test',
+            'description' => 'test',
+        ]);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')
+            ->willReturn(true);
+
+        $definition = new MyEntityDefinition();
+        $definition->compile(
+            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+        );
+
+        $registry->method('getByEntityName')
+            ->willReturn($definition);
+
+        $encoder = new StructEncoder(
+            $registry,
+            $this->getContainer()->get('serializer')
+        );
+
+        $encoded = $encoder->encode($entity, new ResponseFields(null));
+
+        static::assertArrayHasKey('name', $encoded);
+        static::assertArrayNotHasKey('description', $encoded);
+        static::assertArrayHasKey('translated', $encoded);
+
+        static::assertArrayHasKey('name', $encoded['translated']);
+        static::assertArrayNotHasKey('description', $encoded['translated']);
+    }
 }
 
 class MyTestStruct extends Struct
@@ -201,5 +247,75 @@ class AnotherStruct extends MyTestStruct
     public function getApiAlias(): string
     {
         return 'another-struct';
+    }
+}
+
+class MyEntity extends Entity
+{
+    /**
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $description;
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+}
+
+class MyEntityDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'my_entity';
+    }
+
+    public function getEntityClass(): string
+    {
+        return MyEntity::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+            new TranslatedField('description'),
+        ]);
     }
 }

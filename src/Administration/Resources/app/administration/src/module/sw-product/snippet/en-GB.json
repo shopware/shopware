@@ -8,7 +8,8 @@
       "columnLinkOnly": "Hidden",
       "linkAdvancedVisibility": "Advanced assignment options",
       "labelVisibility": "Sales Channels",
-      "closeModal": "Apply"
+      "closeModal": "Apply",
+      "bodyVisibility": "Add Sales channels where is product should be displayed. You're also able to further define the visibility of the product for each Storefront Sales Channel via de link below."
     },
     "general": {
       "mainMenuItemGeneral": "Products",
@@ -21,7 +22,9 @@
       "copy": "Copy",
       "cloneSuffix": "variants",
       "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
-      "cloneTitle": "Duplicate variants"
+      "cloneTitle": "Duplicate variants",
+      "tooltipModeSettings": "Mode settings",
+      "textAdvancedMode": "Advanced mode"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -46,12 +49,15 @@
       "labelCategory": "Categories",
       "placeholderCategory": "Select category...",
       "placeholderTags": "Enter a tag...",
-      "labelSearchKeyword": "Search Keywords",
+      "labelSearchKeyword": "Search keywords",
       "placeholderSearchKeywords": "Enter keywords that find this product...",
       "textAddSearchKeyword": "Click here to add search keyword",
       "textEnterValidSearchKeyword": "Searchable keywords",
       "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords.",
-      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms."
+      "helpTextTags": "Tags are meant for internal use only. They can help you manage groups of products, apply rules or serve as custom search terms.",
+      "categoriesTitle": "Categories and tags",
+      "descriptionCategories": "Add categories so that the product can be found via the Storefront main menu or by API connections. Make sure you select  categories that are available and active in the selected Sales Channel.",
+      "descriptionTags": "Tags help you find products faster. They make it easier to group products and can be  utilised to automate task with the Rule Builder."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -69,7 +75,7 @@
       "placeholderPurchaseUnit": "Enter selling unit...",
       "placeholderReferenceUnit": "Enter basic unit...",
       "placeholderPackUnit": "Enter packaging unit...",
-      "placeholderPackUnitPlural": "Enter packaging unit in plural...",
+      "placeholderPackUnitPlural": "Enter packaging unit plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre",
@@ -101,7 +107,7 @@
       "labelEan": "EAN",
       "labelManufacturerNumber": "Manufacturer product number",
       "labelStock": "Stock",
-      "labelActive": "Active",
+      "labelActive": "Active for all selected Sales Channels",
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Product promotion",
       "labelIsCloseout": "Clearance sale",
@@ -136,21 +142,30 @@
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
       "cardTitleProductInfo": "General information",
-      "cardTitleAssignment": "Assignment",
+      "cardTitleAssignment": "Visibility & structure",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Labelling",
-      "cardTitlePackaging": "Measures & Packaging",
+      "cardTitlePackaging": "Measures & packaging",
       "linkAdvancedPrices": "Advanced pricing",
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleVisibilityStructure": "Visibility Structure"
     },
     "specifications": {
-      "cardTitleMeasuresPackaging": "Measures & Packaging",
+      "cardTitleMeasuresPackaging": "Measures & packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
-      "cardTitleCustomFields": "Custom fields"
+      "cardTitleCustomFields": "Custom fields",
+      "cardTitleProperties": "Properties",
+      "cardTitleCustomProduct": "Custom Products"
+    },
+    "seo": {
+      "cardTitleSeo": "SEO"
+    },
+    "reviews": {
+      "cardTitleReviews": "Reviews"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -236,7 +251,9 @@
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",
       "tabLayout": "Layout",
+      "tabSeo": "SEO",
       "tabCrossSelling": "Cross Selling",
+      "tabReviews": "Reviews",
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
@@ -246,7 +263,7 @@
     "mediaForm": {
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
-      "errorMediaItemDuplicated": "Media item already assigned.",
+      "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
       "coverSubline": "Cover"
     },
     "advancedPrices": {
@@ -405,7 +422,7 @@
       "templateSelectFieldPlaceholder": "Select a template..."
     },
     "layoutAssignment": {
-      "title": "Default fallback",
+      "title": "Default value",
       "subtitle": "Product page",
       "textAssignLayout": "Assign layout",
       "textChangeLayout": "Change layout",
@@ -413,6 +430,8 @@
       "textEditInDesigner": "Edit in designer"
     },
     "filters": {
+      "fromPlaceholder": "Enter start value...",
+      "toPlaceholder": "Enter end value...",
       "activeFilter": {
         "label": "Active",
         "placeholder": "Select a status..."
@@ -420,7 +439,34 @@
       "imagesFilter": {
         "label": "Images",
         "placeholder": "Select an image status..."
-      }
+      },
+      "releaseDateFilter": {
+        "label": "Release date"
+      },
+      "stockFilter": {
+        "label": "Stock"
+      },
+      "priceFilter": {
+        "label": "Price"
+      },
+      "manufacturerFilter": {
+        "label": "Manufacturer",
+        "placeholder": "Select manufacturer..."
+      },
+      "salesChannelsFilter": {
+        "label": "Sales Channels",
+        "placeholder": "Select Sales Channels..."
+      },
+      "categoriesFilter": {
+        "label": "Categories",
+        "placeholder": "Select categories..."
+      },
+      "tagsFilter": {
+        "label": "Tags",
+        "placeholder": "Select tags..."
+      },
+      "messageEmptyTitle": "Nothing found",
+      "messageEmptySubline": "Edit your filters to see results."
     },
     "notification": {
       "notificationSaveErrorProductNoAlreadyExists": "Product No. \"{productNo}\" is already assigned."

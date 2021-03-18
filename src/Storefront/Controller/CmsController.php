@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -22,7 +21,7 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -118,7 +117,7 @@ class CmsController extends StorefrontController
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
-        if (!$category->getCmsPageId()) {
+        if (!$category->getCmsPage()) {
             throw new PageNotFoundException('');
         }
 
@@ -157,12 +156,14 @@ class CmsController extends StorefrontController
             $mapped[$aggregation->getName()] = $aggregation;
         }
 
-        return new JsonResponse($mapped);
+        $response = new JsonResponse($mapped);
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+
+        return $response;
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_10078)
-     * @Since("6.3.5.0")
+     * @Since("6.4.0.0")
      * @HttpCache()
      *
      * Route to load the cms element buy box product config which assigned to the provided product id.
@@ -176,10 +177,6 @@ class CmsController extends StorefrontController
      */
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10078')) {
-            throw new NotFoundHttpException();
-        }
-
         if (!$productId) {
             throw new MissingRequestParameterException('Parameter productId missing');
         }
@@ -190,8 +187,9 @@ class CmsController extends StorefrontController
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
+        $options = $request->query->get('options');
         /** @var array $newOptions */
-        $newOptions = json_decode($request->query->get('options'), true);
+        $newOptions = $options !== null ? json_decode($options, true) : [];
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 

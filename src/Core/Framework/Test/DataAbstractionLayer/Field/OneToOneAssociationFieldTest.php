@@ -73,6 +73,8 @@ class OneToOneAssociationFieldTest extends TestCase
 
         $this->registerDefinition(SubCascadeDefinition::class);
 
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;
@@ -130,11 +132,15 @@ ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version
 ALTER TABLE `root_sub_many`
 ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
         ');
+
+        $this->connection->beginTransaction();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
+
+        $this->connection->rollBack();
 
         $this->connection->executeUpdate('
 SET FOREIGN_KEY_CHECKS = 0;
@@ -144,6 +150,8 @@ DROP TABLE IF EXISTS `root_sub_cascade`;
 DROP TABLE IF EXISTS `root_sub_many`;
 SET FOREIGN_KEY_CHECKS = 1;
         ');
+
+        $this->connection->beginTransaction();
     }
 
     public function testWriteRootOverSub(): void

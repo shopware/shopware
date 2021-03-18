@@ -13,15 +13,17 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemReleaseDateRule extends Rule
 {
-    /**
-     * @var string|null
-     */
-    protected $lineItemReleaseDate;
+    protected ?string $lineItemReleaseDate;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
+
+    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemReleaseDate = null)
+    {
+        parent::__construct();
+
+        $this->lineItemReleaseDate = $lineItemReleaseDate;
+        $this->operator = $operator;
+    }
 
     public function getName(): string
     {
@@ -68,7 +70,7 @@ class LineItemReleaseDateRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -129,7 +131,7 @@ class LineItemReleaseDateRule extends Rule
     private function buildDate(string $dateString): \DateTime
     {
         $dateTime = new \DateTime($dateString);
-        $dateTime->setTime(0, 0, 0);
+        $dateTime->setTime(0, 0);
 
         return $dateTime;
     }

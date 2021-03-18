@@ -8,6 +8,7 @@
 
         {% block sw_sidebar_navigation_item_content %}
             <sw-icon :name="sidebarItem.icon" size="20px"></sw-icon>
+            <i class="notification-badge" v-if="sidebarItem.badge">{{ sidebarItem.badge }}</i>
         {% endblock %}
     </button>
 {% endblock %}

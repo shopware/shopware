@@ -2,22 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1536233460NumberRangeTranslationAndConfiguration extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1536233460NumberRangeTranslationAndConfiguration extends \Shopware\Core\Migration\V6_3\Migration1536233460NumberRangeTranslationAndConfiguration
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1536233460;
-    }
-
-    public function update(Connection $connection): void
-    {
-        // implement update
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

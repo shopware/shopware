@@ -13,7 +13,6 @@ class Migration1605861407RuleAssociationsToRestrictTest extends TestCase
 
     public function testUpdateRuleAssociationsToRestrict(): void
     {
-        /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
 
         $database = $conn->fetchColumn('select database();');

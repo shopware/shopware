@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedPro
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -34,6 +33,11 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
         return ProductCrossSellingAssignedProductsCollection::class;
     }
 
+    public function getParentDefinitionClass(): ?string
+    {
+        return ProductCrossSellingDefinition::class;
+    }
+
     public function since(): ?string
     {
         return '6.2.0.0';
@@ -49,7 +53,6 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('crossSelling', 'cross_selling_id', ProductCrossSellingDefinition::class),
             new IntField('position', 'position'),
-            new CreatedAtField(),
         ]);
     }
 }

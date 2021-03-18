@@ -32,19 +32,12 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 class EntityHydrator
 {
     /**
-     * @var Entity[] internal object cache to prevent duplicate hydration for exact same objects
-     */
-    private $objects = [];
-
-    /**
      * @var Entity[] internal constructor cache
      */
     private $instances = [];
 
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
-        $this->objects = [];
-
         foreach ($rows as $row) {
             $collection->add($this->hydrateEntity($this->createClass($entityClass), $definition, $row, $root, $context));
         }
@@ -57,7 +50,6 @@ class EntityHydrator
         $primaryKeyFields = $definition->getPrimaryKeys();
         $primaryKey = [];
 
-        /** @var Field $field */
         foreach ($primaryKeyFields as $field) {
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 continue;
@@ -80,7 +72,6 @@ class EntityHydrator
 
         $params = new WriteParameterBag($definition, WriteContext::createFromContext($context), '', new WriteCommandQueue());
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 $value = $context->getVersionId();
@@ -119,11 +110,6 @@ class EntityHydrator
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityName($definition->getEntityName());
 
-        $cacheKey = $definition->getEntityName() . '::' . $identifier;
-        if (isset($this->objects[$cacheKey])) {
-            return $this->objects[$cacheKey];
-        }
-
         /** @var ArrayStruct $mappingStorage */
         $mappingStorage = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
@@ -132,7 +118,6 @@ class EntityHydrator
         $foreignKeys = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             $propertyName = $field->getPropertyName();
 
@@ -217,11 +202,6 @@ class EntityHydrator
             } else {
                 $entity->assign([$propertyName => $decoded]);
             }
-        }
-
-        //write object cache key to prevent multiple hydration for the same entity
-        if ($cacheKey) {
-            $this->objects[$cacheKey] = $entity;
         }
 
         return $entity;
@@ -342,13 +322,17 @@ class EntityHydrator
     }
 
     /**
-     * @param string[] $jsonStrings
+     * @param array<string|null> $jsonStrings
      */
     private function mergeJson(array $jsonStrings): string
     {
         $merged = [];
         foreach ($jsonStrings as $string) {
-            $decoded = json_decode((string) $string, true);
+            if ($string === null) {
+                continue;
+            }
+
+            $decoded = json_decode($string, true);
 
             if (!$decoded) {
                 continue;

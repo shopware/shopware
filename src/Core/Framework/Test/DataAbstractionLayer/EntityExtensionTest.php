@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -98,10 +99,10 @@ class EntityExtensionTest extends TestCase
         $this->connection->beginTransaction();
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
-            (new ManyToOneAssociationField('myTax', 'my_tax_id', TaxDefinition::class, 'id'))->addFlags(new Extension())
+            (new ManyToOneAssociationField('myTax', 'my_tax_id', TaxDefinition::class, 'id'))->addFlags(new ApiAware(), new Extension())
         );
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField(
-            (new FkField('my_tax_id', 'myTaxId', TaxDefinition::class))->addFlags(new Extension())
+            (new FkField('my_tax_id', 'myTaxId', TaxDefinition::class))->addFlags(new ApiAware(), new Extension())
         );
 
         $id = Uuid::randomHex();
@@ -149,8 +150,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -186,8 +186,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -212,8 +211,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadOneToManyAssociationsExtensionsNotInBasic(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -257,8 +255,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanSearchOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -293,8 +290,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICanReadPaginatedOneToManyAssociationsExtensions(): void
     {
-        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))
-            ->addFlags(new Extension());
+        $field = (new OneToManyAssociationField('myPrices', ProductPriceDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -332,7 +328,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class,
             'product_id',
             'category_id'
-        ))->addFlags(new Extension());
+        ))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -374,7 +370,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class,
             'product_id',
             'category_id'
-        ))->addFlags(new Extension());
+        ))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -405,7 +401,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class,
             'product_id',
             'category_id'
-        ))->addFlags(new Extension());
+        ))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -455,7 +451,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class,
             'product_id',
             'category_id'
-        ))->addFlags(new Extension());
+        ))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 
@@ -496,7 +492,7 @@ class EntityExtensionTest extends TestCase
             ProductCategoryDefinition::class,
             'product_id',
             'category_id'
-        ))->addFlags(new Extension());
+        ))->addFlags(new ApiAware(), new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
 

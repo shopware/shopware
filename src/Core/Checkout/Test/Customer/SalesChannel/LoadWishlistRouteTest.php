@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class LoadWishlistRouteTest extends TestCase
@@ -69,7 +68,7 @@ class LoadWishlistRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -89,7 +88,7 @@ class LoadWishlistRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist'
+                '/store-api/customer/wishlist'
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $wishlist = $response['wishlist'];
@@ -108,7 +107,7 @@ class LoadWishlistRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist'
+                '/store-api/customer/wishlist'
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
@@ -125,7 +124,7 @@ class LoadWishlistRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist'
+                '/store-api/customer/wishlist'
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
@@ -140,7 +139,7 @@ class LoadWishlistRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist'
+                '/store-api/customer/wishlist'
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];

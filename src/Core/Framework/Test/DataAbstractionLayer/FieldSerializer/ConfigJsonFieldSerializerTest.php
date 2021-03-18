@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -47,7 +48,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
     {
         $this->serializer = $this->getContainer()->get(ConfigJsonFieldSerializer::class);
         $this->field = new ConfigJsonField('data', 'data');
-        $this->field->addFlags(new Required());
+        $this->field->addFlags(new ApiAware(), new Required());
 
         $definition = $this->registerDefinition(JsonDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);

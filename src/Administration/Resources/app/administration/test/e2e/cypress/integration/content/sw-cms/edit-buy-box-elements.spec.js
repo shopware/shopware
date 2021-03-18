@@ -40,8 +40,6 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple buy box element', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_10078');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -92,6 +90,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -126,8 +125,6 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple gallery buy box block', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_10078');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -190,6 +187,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-category-tree__inner .sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

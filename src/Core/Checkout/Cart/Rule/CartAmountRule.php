@@ -12,22 +12,16 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class CartAmountRule extends Rule
 {
-    /**
-     * @var float
-     */
-    protected $amount;
+    protected float $amount;
 
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
     public function __construct(string $operator = self:: OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
 
         $this->operator = $operator;
-        $this->amount = $amount;
+        $this->amount = (float) $amount;
     }
 
     /**
@@ -40,8 +34,6 @@ class CartAmountRule extends Rule
         }
 
         $cartAmount = $scope->getCart()->getPrice()->getTotalPrice();
-
-        $this->amount = (float) $this->amount;
 
         switch ($this->operator) {
             case self::OPERATOR_GTE:

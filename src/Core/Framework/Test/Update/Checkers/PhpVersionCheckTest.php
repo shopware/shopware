@@ -7,22 +7,26 @@ use Shopware\Core\Framework\Update\Checkers\PhpVersionCheck;
 
 class PhpVersionCheckTest extends TestCase
 {
-    public function testPhp72(): void
+    public function testPhp74Min(): void
     {
         $validationResult = (new PhpVersionCheck())
-            ->check('7.2')
+            ->check('7.4')
             ->jsonSerialize();
 
         static::assertTrue($validationResult['result']);
     }
 
-    public function testPhp8Fails(): void
+    public function testPhp8Support(): void
     {
         $validationResult = (new PhpVersionCheck())
             ->check('8.0.0')
             ->jsonSerialize();
 
-        static::assertFalse($validationResult['result']);
+        if (\PHP_VERSION_ID >= 80000) {
+            static::assertTrue($validationResult['result']);
+        } else {
+            static::assertFalse($validationResult['result']);
+        }
     }
 
     public function testSupports(): void

@@ -17,13 +17,13 @@ $sw-field-transition: border-color 0.3s ease-out;
         justify-content: center;
         align-items: center;
         min-width: 50px;
-        background: $color-iron;
-        border-left: 1px solid $color-steam-cloud;
+        background: $color-gray-50;
+        border-left: 1px solid $color-gray-300;
         border-right: none;
         line-height: 22px;
         padding: 12px 15px;
         font-size: $font-size-small;
-        color: $color-gutenberg;
+        color: $color-darkgray-200;
         transition: $sw-field-transition;
 
         .sw-icon {
@@ -32,14 +32,14 @@ $sw-field-transition: border-color 0.3s ease-out;
         }
 
         &.is--prefix {
-            border-right: 1px solid $color-steam-cloud;
+            border-right: 1px solid $color-gray-300;
             border-left: none;
         }
     }
 
     &.is--disabled {
         .sw-field__addition {
-            background: $color-light-gray;
+            background: $color-gray-100;
         }
     }
 

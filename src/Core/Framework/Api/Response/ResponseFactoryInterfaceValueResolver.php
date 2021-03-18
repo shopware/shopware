@@ -23,7 +23,7 @@ class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInte
         return $argument->getType() === ResponseFactoryInterface::class;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         yield $this->responseTypeRegistry->getType($request);
     }

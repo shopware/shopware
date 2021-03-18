@@ -6,8 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestActionEventCompilerPass;
+use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -34,19 +36,10 @@ class ActionEventCompilerPassTest extends TestCase
         $registry = $container->get(BusinessEventRegistry::class);
 
         $expected = [
-            'shopware.global_business_event' => [],
-            'test.event' => [
-                'customer' => [
-                    'type' => 'entity',
-                    'entity' => 'customer',
-                ],
-                'order' => [
-                    'type' => 'entity',
-                    'entity' => 'order',
-                ],
-            ],
+            BusinessEvent::class,
+            TestEvent::class,
         ];
 
-        static::assertEquals($expected, $registry->getEvents());
+        static::assertEquals($expected, $registry->getClasses());
     }
 }

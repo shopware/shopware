@@ -1,0 +1,103 @@
+/*
+Filter rating select
+==============================================
+Styling for rating select filter item.
+This filter item should only be used inside a filter panel.
+*/
+
+.filter-rating-select-radio {
+    appearance: none;
+    opacity: 0;
+
+    &:checked ~ .filter-rating-select-item-checkmark {
+        transform: translateY(2px);
+        opacity: 1;
+    }
+}
+
+.filter-rating-select-item-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    .product-review-rating {
+        margin-right: 8px;
+        display: inline-block;
+        margin-top: 3px;
+    }
+
+    &:hover {
+        .icon-review {
+            color: darken($icon-review-color, 10);
+        }
+
+        .filter-rating-select-item-label-text {
+            color: $sw-color-brand-primary;
+            font-weight: $font-weight-bold;
+        }
+    }
+}
+
+.filter-rating-select-list-item {
+    display: flex;
+    position: relative;
+    margin-left: 16px;
+
+    .filter-rating-select-item-label {
+        margin-bottom: 5px;
+    }
+
+    &:last-child.filter-rating-select-item-label {
+        margin-bottom: 0;
+    }
+}
+
+.filter-rating-select-list-item.disabled {
+    opacity: 0.3;
+
+    .icon-review {
+        color: $gray-300;
+    }
+
+    .filter-rating-select-item-label {
+        cursor: default;
+    }
+
+    &:hover {
+        .filter-rating-select-item-label-text {
+            color: $sw-text-color;
+            font-weight: $font-weight-normal;
+        }
+    }
+}
+
+.filter-rating-select-item-checkmark {
+    width: 20px;
+    height: 20px;
+    background-color: $gray-600;
+    position: absolute;
+    border: 1px solid $white;
+    border-radius: 50%;
+    top: -8px;
+    left: -8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease-in-out;
+    opacity: 0;
+    transform: translateY(-7px);
+
+    .icon {
+        width: 10px;
+        height: 10px;
+        color: $white;
+
+        svg {
+            top: 0;
+        }
+    }
+}
+
+.filter-multi-select-rating .filter-panel-item-dropdown {
+    padding-bottom: 6px;
+}

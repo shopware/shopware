@@ -48,7 +48,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/salutation',
+            url: `${Cypress.env('apiPath')}/salutation`,
             method: 'post'
         }).as('createSalutation');
 
@@ -107,7 +107,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/salutation/*',
+            url: `${Cypress.env('apiPath')}/salutation/*`,
             method: 'patch'
         }).as('editSalutation');
 
@@ -156,7 +156,7 @@ describe('Salutation: Test acl privileges', () => {
         // repare api to delete salutation
         cy.server();
         cy.route({
-            url: '/api/v*/salutation/*',
+            url: `${Cypress.env('apiPath')}/salutation/*`,
             method: 'delete'
         }).as('deleteSalutation');
 

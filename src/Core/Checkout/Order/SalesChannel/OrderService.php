@@ -90,16 +90,13 @@ class OrderService
     }
 
     /**
-     * @deprecated tag:v6.4.0 Parameter $customerId will be removed
-     *
      * @internal Should not be called from outside the core
      */
     public function orderStateTransition(
         string $orderId,
         string $transition,
         ParameterBag $data,
-        Context $context,
-        ?string $customerId = null
+        Context $context
     ): StateMachineStateEntity {
         $stateFieldName = $data->get('stateFieldName', 'stateId');
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -28,8 +29,8 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            new StringField('protected', 'protected'),
-            new StringField('system_protected', 'systemProtected'),
+            (new StringField('protected', 'protected'))->addFlags(new ApiAware()),
+            (new StringField('system_protected', 'systemProtected'))->addFlags(new ApiAware()),
         ]);
     }
 

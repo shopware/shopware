@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class ProductCartProcessorTest extends TestCase
 {
@@ -81,14 +82,13 @@ class ProductCartProcessorTest extends TestCase
         $service = $this->getContainer()->get(CartService::class);
         $token = $this->ids->create('token');
         $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(Defaults::SALES_CHANNEL, $token);
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -113,7 +113,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -138,7 +137,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel(null);
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -154,16 +152,13 @@ class ProductCartProcessorTest extends TestCase
         $this->createProduct();
 
         $token = $this->ids->create('token');
-        /** @var SalesChannelContextService $salesChannelContextService */
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token);
-        /** @var CartService $cartService */
+        $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
         $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
         $cartService->add($cart, $product, $context);
 
-        /** @var ProductCartProcessor $productCartProcessor */
         $productCartProcessor = $this->getContainer()->get(ProductCartProcessor::class);
         $productCartProcessor->collect(
             new CartDataCollection(),
@@ -173,7 +168,6 @@ class ProductCartProcessorTest extends TestCase
         );
 
         $payload = $cart->get($product->getId())->getPayload();
-        static::assertEquals(7.5, $payload['purchasePrice']);
         $purchasePrices = json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
@@ -446,7 +440,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -485,7 +478,6 @@ class ProductCartProcessorTest extends TestCase
 
         $product->setLabel('My special product');
 
-        /** @var Cart $cart */
         $cart = $service->getCart($token, $context);
         $service->add($cart, $product, $context);
 
@@ -586,7 +578,7 @@ class ProductCartProcessorTest extends TestCase
 
         $token = $this->ids->create('token');
         $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(Defaults::SALES_CHANNEL, $token);
+            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
 
         $cart = $this->cartService->getCart($token, $context);
         $this->cartService->add($cart, $product, $context);
@@ -604,7 +596,6 @@ class ProductCartProcessorTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
-            'purchasePrice' => 7.5,
             'purchasePrices' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
                 ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],

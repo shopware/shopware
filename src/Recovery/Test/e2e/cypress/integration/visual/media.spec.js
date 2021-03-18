@@ -18,7 +18,7 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `api/v*/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            url: `api/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'post'
         }).as('saveDataFileUpload');
 

@@ -7,7 +7,10 @@ use Twig\TwigFilter;
 
 class SwSanitizeTwigFilter extends AbstractExtension
 {
-    private $allowedElements = [
+    /**
+     * @var string[]
+     */
+    private array $allowedElements = [
         'a',
         'abbr',
         'acronym',
@@ -69,7 +72,10 @@ class SwSanitizeTwigFilter extends AbstractExtension
         'var',
     ];
 
-    private $allowedAttributes = [
+    /**
+     * @var string[]
+     */
+    private array $allowedAttributes = [
         'align',
         'bgcolor',
         'border',
@@ -109,21 +115,20 @@ class SwSanitizeTwigFilter extends AbstractExtension
     /**
      * @var \HTMLPurifier[]
      */
-    private $purifiers = [];
+    private array $purifiers = [];
+
+    private string $cacheDir;
+
+    private bool $cacheEnabled;
 
     /**
-     * @var string
+     * @var array
      */
-    private $cacheDir;
-
-    /**
-     * @var bool
-     */
-    private $cacheEnabled;
+    private $cache = [];
 
     public function __construct(?string $cacheDir = null, bool $cacheEnabled = true)
     {
-        $this->cacheDir = $cacheDir;
+        $this->cacheDir = (string) $cacheDir;
         $this->cacheEnabled = $cacheEnabled;
     }
 
@@ -144,12 +149,19 @@ class SwSanitizeTwigFilter extends AbstractExtension
             $hash .= '-override';
         }
 
+        $textKey = $hash . md5($text);
+        if (isset($this->cache[$textKey])) {
+            return $this->cache[$textKey];
+        }
+
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        return $this->purifiers[$hash]->purify($text);
+        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
+
+        return $this->cache[$textKey];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config

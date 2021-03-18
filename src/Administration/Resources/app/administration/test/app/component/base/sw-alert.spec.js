@@ -2,8 +2,12 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-alert';
 
 describe('components/base/sw-alert', () => {
+    let wrapper;
+
+    afterEach(() => { if (wrapper) wrapper.destroy(); });
+
     it('should be a Vue.js component', async () => {
-        const wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon']
         });
         expect(wrapper.vm).toBeTruthy();
@@ -13,15 +17,16 @@ describe('components/base/sw-alert', () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
 
-        const wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
+        wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
-            props: {
+            propsData: {
                 title
             },
             slots: {
                 default: message
             }
         });
+
         expect(wrapper.element).toMatchSnapshot();
     });
 });

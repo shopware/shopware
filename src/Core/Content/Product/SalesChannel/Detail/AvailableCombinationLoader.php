@@ -19,12 +19,7 @@ class AvailableCombinationLoader
         $this->connection = $connection;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Return type hint will be added with v6.4.0
-     *
-     * @return AvailableCombinationResult
-     */
-    public function load(string $productId, Context $context)/*: AvailableCombinationResult*/
+    public function load(string $productId, Context $context): AvailableCombinationResult
     {
         $query = $this->connection->createQueryBuilder();
         $query->from('product');

@@ -69,17 +69,8 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
+    public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
-        if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context, $customer);
     }
 
@@ -88,17 +79,8 @@ class AccountService
      * @throws InvalidUuidException
      * @throws AddressNotFoundException
      */
-    public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context, ?CustomerEntity $customer = null): void
+    public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        /* @deprecated tag:v6.4.0 - Remove this block, parameter $customer will be mandatory */
-        if ($context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
-        /* @deprecated tag:v6.4.0 - Parameter $customer will be mandatory when using with @LoginRequired() */
-        if (!$customer) {
-            $customer = $context->getCustomer();
-        }
-
         $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
     }
 

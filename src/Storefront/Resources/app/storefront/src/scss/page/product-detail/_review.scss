@@ -5,6 +5,8 @@
 }
 
 .product-detail-reviews {
+    margin-bottom: $spacer;
+
     .icon {
         svg {
             top: 2px;
@@ -66,6 +68,12 @@
     display: block;
     top: 0;
     left: 0;
+
+    &.point-blank {
+        .icon {
+            color: $gray-200;
+        }
+    }
 }
 
 .point-partial {

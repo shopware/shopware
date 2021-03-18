@@ -7,13 +7,18 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Context extends Struct
 {
+    use StateAwareTrait;
+
     public const SYSTEM_SCOPE = 'system';
     public const USER_SCOPE = 'user';
     public const CRUD_API_SCOPE = 'crud';
+    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * @var string[]
@@ -34,11 +39,6 @@ class Context extends Struct
      * @var float
      */
     protected $currencyFactor;
-
-    /**
-     * @var int
-     */
-    protected $currencyPrecision;
 
     /**
      * @var string
@@ -68,9 +68,16 @@ class Context extends Struct
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     *
      * @var bool
      */
-    private $useCache = true;
+    protected $useCache = true;
+
+    /**
+     * @var CashRoundingConfig
+     */
+    protected $rounding;
 
     public function __construct(
         ContextSource $source,
@@ -79,9 +86,9 @@ class Context extends Struct
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0,
-        int $currencyPrecision = 2,
         bool $considerInheritance = false,
-        string $taxState = CartPrice::TAX_STATE_GROSS
+        string $taxState = CartPrice::TAX_STATE_GROSS,
+        ?CashRoundingConfig $rounding = null
     ) {
         $this->source = $source;
 
@@ -99,9 +106,9 @@ class Context extends Struct
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
-        $this->currencyPrecision = $currencyPrecision;
         $this->considerInheritance = $considerInheritance;
         $this->taxState = $taxState;
+        $this->rounding = $rounding ?? new CashRoundingConfig(2, 0.01, true);
     }
 
     /**
@@ -158,9 +165,9 @@ class Context extends Struct
             $this->languageIdChain,
             $versionId,
             $this->currencyFactor,
-            $this->currencyPrecision,
             $this->considerInheritance,
-            $this->taxState
+            $this->taxState,
+            $this->rounding
         );
         $context->scope = $this->scope;
 
@@ -193,11 +200,6 @@ class Context extends Struct
         return $this->scope;
     }
 
-    public function getCurrencyPrecision(): int
-    {
-        return $this->currencyPrecision;
-    }
-
     public function considerInheritance(): bool
     {
         return $this->considerInheritance;
@@ -218,6 +220,9 @@ class Context extends Struct
         $this->taxState = $taxState;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function disableCache(callable $function)
     {
         $previous = $this->useCache;
@@ -228,22 +233,16 @@ class Context extends Struct
         return $result;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function getUseCache(): bool
     {
         return $this->useCache;
     }
 
-    /**
-     * @param string $resource - @deprecated tag:v6.4.0 - Resources and privileges are merged in 6.3.0, new pattern: `product:create`
-     */
-    public function isAllowed(string $privilege, ?string $resource = null): bool
+    public function isAllowed(string $privilege): bool
     {
-        // @deprecated tag:v6.4.0 - Fallback will be removed
-        if ($resource !== null) {
-            // old pattern provided ->isAllowed('product', 'write');
-            $privilege = implode(':', [$privilege, $resource]);
-        }
-
         if ($this->source instanceof AdminApiSource) {
             return $this->source->isAllowed($privilege);
         }
@@ -256,6 +255,9 @@ class Context extends Struct
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Will be removed, the DAL has no more cache layer which can be disabled
+     */
     public function enableCache(callable $function)
     {
         $previous = $this->useCache;
@@ -289,5 +291,15 @@ class Context extends Struct
     public function getApiAlias(): string
     {
         return 'context';
+    }
+
+    public function getRounding(): CashRoundingConfig
+    {
+        return $this->rounding;
+    }
+
+    public function setRounding(CashRoundingConfig $rounding): void
+    {
+        $this->rounding = $rounding;
     }
 }

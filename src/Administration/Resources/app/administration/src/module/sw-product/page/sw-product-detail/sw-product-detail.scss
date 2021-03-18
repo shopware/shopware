@@ -1,12 +1,36 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-page.sw-product-detail {
     .sw-product-detail__save-action {
         margin-right: 0;
     }
+
     .sw-product-category-form__search-keyword-field {
         .sw-select-selection-list__input {
             min-width: 250px;
+        }
+    }
+
+    .sw-tabs__content {
+        &::before {
+            @include hidden;
+        }
+    }
+
+    .sw-tabs-item {
+        position: relative;
+        border: 0;
+
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background-color: $color-gray-300;
         }
     }
 }

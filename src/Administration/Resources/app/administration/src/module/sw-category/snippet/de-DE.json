@@ -14,6 +14,8 @@
       "treeHeadline": "Kategoriestruktur",
       "treeHeadSelected": "{count} ausgewählt",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
+      "errorNavigationEntryPoint": "Diese Kategorie ist als Hauptnavigation in mind. einem Verkaufskanal definiert und kann deshalb nicht gelöscht werden.",
+      "errorNavigationEntryPointMultiple": "Eine oder mehrere Kategorien sind als Hauptnavigation in mind. einem Verkaufskanal definiert und können deshalb nicht gelöscht werden.",
       "actions": {
         "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",
         "createSub": "Neue Subkategorie",
@@ -23,7 +25,11 @@
     },
     "view": {
       "general": "Allgemein",
-      "cms": "Inhalte"
+      "cms": "Layout",
+      "products": "Produkte",
+      "seo": "SEO",
+      "columnInfoHeader": "Fußzeilen-Element",
+      "columnInfo": "Diese Kategorie wird in der Fußzeile verwendet und bildet eine eigene Spalte. Der Kategoriename wird als Spaltenüberschrift angezeigt. Alle Kategorien der direkt untergeordneten Ebene werden als Zeilen unterhalb der Spaltenüberschrift dargestellt."
     },
     "base": {
       "general": {
@@ -35,23 +41,49 @@
         "labelCategoryTagsPlaceholder": "Gib einzelne Tags ein ...",
         "types": {
           "title": "Kategorietyp",
-          "page": "Kategorie",
-          "folder": "Strukturkategorie",
-          "link": "Benutzerdefinierter Link",
-          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung."
+          "page": "Seite / Liste",
+          "folder": "Strukturelement / Einstiegspunkt",
+          "link": "Link",
+          "linkUnavailable": "Link (nicht wählbar, wenn Kategorie als Einstiegspunkt zugewiesen ist)",
+          "help": "Eine Strukturkategorie ist selbst nicht aufrufbar, sie dient lediglich der Gliederung.",
+          "helpText": {
+            "page": "Eine Seite / Liste hat zugehörige Produkte und kann direkt mit dem zugeordneten Layout aufgerufen werden.",
+            "folder": "Ein Strukturelement / Einstiegspunkt wird nur in der Struktur angezeigt und ist nicht direkt zugänglich, es sei denn, es ist als Einstiegspunkt eines Verkaufskanals zugeordnet.",
+            "link": "Ein Link ermöglicht den Verweis auf ein Produkt, eine andere Kategorie, eine Landingpage oder eine externe Seite."
+          }
         }
       },
-      "entry-point": {
-        "title": "Einstiegspunkt",
-        "navigation": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
-        },
-        "serviceSales": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
-        },
-        "footerSales": {
-          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
+      "entry-point-card": {
+        "cardTitle": "Einstiegspunkt",
+        "labelEntryPoint": "Einstiegspunkt",
+        "placeholderEntryPoint": "Einstiegspunkt auswählen...",
+        "existingNavigationDescription": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
+        "labelSalesChannelsAdd": "Verkaufskanäle hinzufügen",
+        "placeholderSalesChannels": "Verkaufskanal auswählen...",
+        "buttonConfigureHome": "Startseite konfigurieren",
+        "types": {
+          "labelMainNavigation": "Hauptnavigation",
+          "helpTextMainNavigation": "Der Einstiegspunkt für die Hauptnavigation ist ein Pflichtfeld für Verkaufskanäle. Wenn Sie diese Kategorie als Einstiegspunkt für die Hauptnavigation einem oder mehreren Verkaufskanälen zuordnen, können Sie diese Zuordnung nur am Verkaufskanal selbst ändern.",
+          "labelFooterNavigation": "Footernavigation",
+          "helpTextFooterNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Footernavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien auf der nächsten Ebene zu Spalten. So können Sie Ihre Footernavigation in mehrere Bereiche unterteilen.",
+          "labelServiceNavigation": "Servicenavigation",
+          "helpTextServiceNavigation": "Wenn Sie diese Kategorie als Einstiegspunkt für die Servicenavigation zu einem oder mehreren Verkaufskanälen zuweisen, werden die Kategorien der nächsten Ebene als zweite Navigation im Fußbereich angezeigt."
         }
+      },
+      "entry-point-modal": {
+        "modalTitle": "Startseite konfigurieren",
+        "salesChannelSelection": "Einstiegspunkt Hauptnavigation",
+        "showInMainNavigation": "Als Home in der Hauptnavigation anzeigen",
+        "mainNavigationName": "Name in der Hauptnavigation",
+        "mainNavigationNamePlaceholder": "Name in der Hauptnavigation...",
+        "layoutHeadline": "Layout",
+        "seoSettingsHeadline": "SEO-Einstellungen",
+        "metaTitleLabel": "Meta-Titel",
+        "metaTitlePlaceholder": "Meta-Titel eingeben...",
+        "metaDescriptionLabel": "Meta-Beschreibung",
+        "metaDescriptionPlaceholder": "Meta-Beschreibung eingeben...",
+        "seoKeywordsLabel": "SEO-Schlüsselwörter",
+        "seoKeywordsPlaceholder": "Gib ein oder mehrere Schlüsselwörter ein..."
       },
       "seo": {
         "title": "SEO",
@@ -81,11 +113,23 @@
       },
       "link": {
         "title": "Benutzerdefinierter Link",
+        "mainTypeLabel": "Linktyp",
+        "mainTypePlaceholder": "Linktyp wählen ...",
+        "internalTypeLabel": "Entität",
+        "internalTypePlaceholder": "Entität wählen ...",
+        "categoryPlaceholder": "Kategorie wählen ...",
+        "productPlaceholder": "Produkt wählen ...",
+        "landingPagePlaceholder": "Landingpage wählen ...",
         "example": "Beispiel:",
         "internalExampleText": "/meine-kategorie",
         "externalDesc": "Um externe Links zu setzen, füge die komplette Webadresse ein:",
         "internalDesc": "Wenn Du einen internen Link setzen möchtest, füge nur den Pfad ein, der auf die Domain folgt:",
-        "linkLabel": "Linkziel"
+        "linkLabel": "Linkziel",
+        "linkNewTabLabel": "In neuem Tab öffnen",
+        "type": {
+          "internal": "Intern",
+          "external": "Extern"
+        }
       },
       "products": {
         "productAssignmentHeadline": "Produkt-Zuweisung",
@@ -114,26 +158,31 @@
       "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
+    },
+    "entry-point-overwrite-modal": {
+      "textBefore": "Du hast dem folgenden Verkaufskanal bereits einen Einstiegspunkt zugewiesen: | Du hast den folgenden Verkaufskanälen bereits Einstiegspunkte zugewiesen:",
+      "textAfter": "Soll diese Zuweisung überschrieben werden? | Sollen diese Zuweisungen überschrieben werden?"
     }
   },
   "sw-landing-page": {
     "view": {
       "general": "Allgemein",
-      "cms": "Inhalte"
+      "cms": "Layout"
     },
     "general": {
+      "placeholderSearchBar": "Durchsuche alle Landingpages ...",
       "treeHeadSelected": "{count} ausgewählt",
-      "buttonCreate": "Landing Page erstellen",
-      "treeHeadline": "Landing Pages",
+      "buttonCreate": "Landingpage hinzufügen",
+      "treeHeadline": "Landingpages",
       "actions": {
-        "withoutPosition": "Neue Landing Page erstellen"
+        "actionsDisabledInLanguage": "Landingpages können nur in der Standardsprache erstellt werden."
       }
     },
     "base": {
       "general": {
         "labelName": "Name",
         "headlineInformationCard": "Allgemein",
-        "isActiveLabel": "Landing Page ist aktiv",
+        "isActiveLabel": "Landingpage ist aktiv",
         "labelTags": "Tags",
         "labelTagsPlaceholder": "Gib einzelne Tags ein ..."
       },
@@ -158,12 +207,13 @@
         "editInPagebuilderEmpty": "Neues Layout erstellen",
         "editContent": "Inhalte bearbeiten",
         "defaultTitle": "Standard-Layout",
-        "defaultDesc": "Kategorieseite"
+        "defaultDesc": "Kategorieseite",
+        "cmsLayoutModalHeadline": "Landingpage"
       }
     },
     "modal": {
-      "textDeleteConfirm": "Möchtest Du die Landing Page \"{name}\" wirklich löschen?",
-      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landing Pages wirklich löschen?"
+      "textDeleteConfirm": "Möchtest Du die Landingpage \"{name}\" wirklich löschen?",
+      "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Landingpages wirklich löschen?"
     }
   },
   "sw-privileges": {
@@ -171,8 +221,8 @@
       "category": {
         "label": "Kategorien"
       },
-      "landingPage": {
-        "label": "Landing Pages"
+      "landing_page": {
+        "label": "Landingpages"
       }
     }
   }

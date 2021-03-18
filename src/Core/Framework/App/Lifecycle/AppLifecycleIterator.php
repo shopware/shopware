@@ -32,18 +32,6 @@ class AppLifecycleIterator
     }
 
     /**
-     * @return Manifest[]
-     *
-     * @deprecated tag:v6.4.0 use iterateOverApps() instead
-     */
-    public function iterate(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context): array
-    {
-        return array_map(function (array $fail): Manifest {
-            return $fail['manifest'];
-        }, $this->iterateOverApps($appLifecycle, $activate, $context));
-    }
-
-    /**
      * @psalm-return  list<array{manifest: Manifest, exception: \Exception}>
      */
     public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context): array

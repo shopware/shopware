@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class ProductReviewSaveRouteTest extends TestCase
 {
@@ -135,7 +134,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -240,6 +239,6 @@ class ProductReviewSaveRouteTest extends TestCase
 
     private function getUrl()
     {
-        return '/store-api/v' . PlatformRequest::API_VERSION . '/product/' . $this->ids->get('product') . '/review';
+        return '/store-api/product/' . $this->ids->get('product') . '/review';
     }
 }

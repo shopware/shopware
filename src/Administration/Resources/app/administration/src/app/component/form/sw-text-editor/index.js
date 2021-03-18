@@ -77,6 +77,12 @@ Component.register('sw-text-editor', {
             default: false
         },
 
+        allowInlineDataMapping: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -388,18 +394,25 @@ Component.register('sw-text-editor', {
                     });
                 }
 
-                if (this.feature.isActive('FEATURE_NEXT_10550') && this.availableDataMappings.length > 0) {
+                if (
+                    this.allowInlineDataMapping &&
+                    this.availableDataMappings.length > 0
+                ) {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'default-text-editor-variables',
-                        position: 'left'
+                        position: 'left',
+                        dropdownPosition: 'left',
+                        tooltipShowDelay: 500,
+                        tooltipHideDelay: 100
                     };
 
                     const buttonConfigs = this.availableDataMappings.map(mapping => (
                         {
                             type: mapping,
                             name: mapping,
+                            title: mapping,
                             handler: this.handleInsertDataMapping
                         }
                     ));
@@ -501,7 +514,7 @@ Component.register('sw-text-editor', {
         onTextStyleChange(type, value) {
             const selectedText = document.getSelection().toString();
 
-            if (this.feature.isActive('FEATURE_NEXT_10550') && selectedText.length > 0) {
+            if (selectedText.length > 0) {
                 const selectionContainsStartBracket = this.containsStartBracket(selectedText);
                 const selectionContainsEndBracket = this.containsEndBracket(selectedText);
                 const isInsideInlineMapping = this.isInsideInlineMapping();

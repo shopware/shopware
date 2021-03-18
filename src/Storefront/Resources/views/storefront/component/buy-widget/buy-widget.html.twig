@@ -110,10 +110,10 @@
                             <p class="product-detail-tax">
                                 {% block buy_widget_tax_link %}
                                     <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage }) }}"
+                                       href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
                                        data-toggle="modal"
-                                       data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage }) }}">
+                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
                                 {% endblock %}
@@ -129,7 +129,7 @@
                     {% set reviewTabHref = "#review-tab-pane-" ~ product.id %}
 
                     {% block buy_widget_reviews %}
-                        {% if product.ratingAverage > 0 and totalReviews > 0 and shopware.config.core.listing.showReview %}
+                        {% if product.ratingAverage > 0 and totalReviews > 0 and config('core.listing.showReview') %}
                             <div class="product-detail-reviews">
 
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
@@ -175,7 +175,7 @@
             </div>
         {% endblock %}
 
-        {% if shopware.config.core.cart.wishlistEnabled %}
+        {% if config('core.cart.wishlistEnabled') %}
             {% block buy_widget_wishlist %}
                 {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                     showText: true,

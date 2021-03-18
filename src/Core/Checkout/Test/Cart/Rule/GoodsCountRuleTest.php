@@ -4,14 +4,11 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,25 +24,20 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @group rules
+ */
 class GoodsCountRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -246,7 +238,7 @@ class GoodsCountRuleTest extends TestCase
                                     'type' => (new LineItemOfTypeRule())->getName(),
                                     'value' => [
                                         'lineItemType' => 'test',
-                                        'operator' => LineItemOfTypeRule::OPERATOR_EQ,
+                                        'operator' => Rule::OPERATOR_EQ,
                                     ],
                                 ],
                             ],
@@ -269,47 +261,58 @@ class GoodsCountRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(GoodsCountRule::class, $andRule->getRules()[0]);
-        $filterProperty = ReflectionHelper::getProperty(GoodsCountRule::class, 'filter');
-        $filterRule = $filterProperty->getValue($andRule->getRules()[0]);
+        $filterRule = ReflectionHelper::getProperty(GoodsCountRule::class, 'filter')->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }
 
     public function testFilter(): void
     {
-        $rule = (new GoodsCountRule())
-            ->assign([
-                'count' => 2,
-                'filter' => new AndRule([
-                    (new LineItemOfTypeRule())
-                        ->assign(['lineItemType' => 'test']),
-                ]),
-                'operator' => GoodsCountRule::OPERATOR_LTE,
-            ]);
-
-        $item = new LineItem('1', 'test');
+        $item = $this->createLineItemWithPrice('test', 40);
         $item->setGood(true);
-        $item->setPrice(new CalculatedPrice(40, 40, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $item2 = new LineItem('2', 'test');
+        $item2 = $this->createLineItemWithPrice('test', 100);
         $item2->setGood(true);
-        $item2->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $item3 = new LineItem('3', 'test-not-matching');
+        $item3 = $this->createLineItemWithPrice('test-not-matching', 30);
         $item3->setGood(true);
-        $item3->setPrice(new CalculatedPrice(30, 30, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $cart = new Cart('test', 'test');
-        $cart->addLineItems(
-            new LineItemCollection([$item, $item2, $item3])
-        );
+        $cart = $this->createCart(new LineItemCollection([$item, $item2, $item3]));
+
+        $this->assertRuleMatches($cart);
+    }
+
+    public function testFilterNested(): void
+    {
+        $item = $this->createLineItemWithPrice('test', 40);
+        $item->setGood(true);
+
+        $item2 = $this->createLineItemWithPrice('test', 100);
+        $item2->setGood(true);
+
+        $item3 = $this->createLineItemWithPrice('test-not-matching', 30);
+        $item3->setGood(true);
+
+        $containerLineItem = $this->createContainerLineItem(new LineItemCollection([$item, $item2, $item3]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $this->assertRuleMatches($cart);
+    }
+
+    private function assertRuleMatches(Cart $cart): void
+    {
+        $rule = (new GoodsCountRule())->assign([
+            'count' => 2,
+            'filter' => new AndRule([
+                (new LineItemOfTypeRule())
+                    ->assign(['lineItemType' => 'test']),
+            ]),
+            'operator' => Rule::OPERATOR_EQ,
+        ]);
 
         $mock = $this->createMock(SalesChannelContext::class);
-
         $scope = new CartRuleScope($cart, $mock);
 
-        for ($i = 0; $i <= 100; ++$i) {
-            static::assertTrue($rule->match($scope));
-        }
+        static::assertTrue($rule->match($scope));
     }
 }

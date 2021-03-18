@@ -2,10 +2,14 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -15,6 +19,8 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 class IndexOffsetTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testItConvertsDefinitionsToSerilizeableNamesAndCanDoAnDefinitionRoudTrip(): void
     {
         $languageOne = new LanguageEntity();
@@ -29,7 +35,7 @@ class IndexOffsetTest extends TestCase
         ]);
 
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper()),
+            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), $this->createMock(Connection::class), new CashRounding(), $this->createMock(PriceFieldSerializer::class)),
             new MockElasticsearchDefinition(new EntityMapper()),
         ];
 

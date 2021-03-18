@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -61,14 +61,14 @@ describe('Product: Test crud operations', () => {
 
         // Check net price calculation
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
-        cy.get('.sw-list-price-field .sw-price-field-gross').eq(0).type('10');
+        cy.get('.sw-list-price-field .sw-price-field__gross').eq(0).type('10').type('{enter}');
         cy.wait('@calculatePrice').then(() => {
-            cy.get('.sw-list-price-field .sw-price-field-net input').eq(0).should('have.value', '8.4');
+            cy.get('.sw-list-price-field .sw-price-field__net input').eq(0).should('have.value', '8.4033613445378');
         });
         cy.window().then((win) => {
-            cy.get('.sw-purchase-price-field .sw-price-field-gross').type('1');
+            cy.get('.sw-purchase-price-field .sw-price-field__gross').eq(0).type('1').type('{enter}');
             cy.wait('@calculatePrice').then(() => {
-                cy.get('.sw-purchase-price-field .sw-price-field-net input').should('have.value', '0.84');
+                cy.get('.sw-purchase-price-field .sw-price-field__net input').should('have.value', '0.84033613445378');
             });
         });
 
@@ -158,14 +158,14 @@ describe('Product: Test crud operations', () => {
 
         // Check net price calculation
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
-        cy.get('.sw-list-price-field .sw-price-field-gross').eq(0).type('10');
+        cy.get('.sw-list-price-field .sw-price-field__gross input').eq(0).type('10').type('{enter}');
         cy.wait('@calculatePrice').then(() => {
-            cy.get('.sw-list-price-field .sw-price-field-net input').eq(0).should('have.value', '8.4');
+            cy.get('.sw-list-price-field .sw-price-field__net input').eq(0).should('have.value', '8.4033613445378');
         });
-        cy.window().then((win) => {
-            cy.get('.sw-purchase-price-field .sw-price-field-gross').type('1');
+        cy.window().then(() => {
+            cy.get('.sw-purchase-price-field .sw-price-field__gross input').type('1').type('{enter}');
             cy.wait('@calculatePrice').then(() => {
-                cy.get('.sw-purchase-price-field .sw-price-field-net input').should('have.value', '0.84');
+                cy.get('.sw-purchase-price-field .sw-price-field__net input').should('have.value', '0.84033613445378');
             });
         });
 
@@ -217,7 +217,12 @@ describe('Product: Test crud operations', () => {
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
-        cy.get('.sw-field--product-active input').click();
+
+        // @deprecated tag:v6.5.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active because this class is moved
+        cy.skipOnFeature('FEATURE_NEXT_12429', () => {
+            cy.get('.sw-field--product-active input').click();
+        });
+
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
@@ -255,5 +260,18 @@ describe('Product: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get(page.elements.emptyState).should('be.visible');
+    });
+
+    it('@base @catalogue: should be visible advanced mode setting', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12429');
+
+        const page = new ProductPageObject();
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-settings-mode').should('be.visible');
     });
 });

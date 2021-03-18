@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionExclusionUpdater
@@ -112,7 +113,9 @@ class PromotionExclusionUpdater
             $this->addToJSON($id, $onlyAddThisExistingIds);
         }
 
-        $this->cacheClearer->invalidateTags($tags);
+        if (!Feature::isActive('FEATURE_NEXT_10514')) {
+            $this->cacheClearer->invalidateTags($tags);
+        }
     }
 
     /**

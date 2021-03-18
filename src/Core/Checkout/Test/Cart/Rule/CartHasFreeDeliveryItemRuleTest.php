@@ -3,14 +3,11 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,22 +20,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class CartHasFreeDeliveryItemRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -47,172 +36,92 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testIfShippingFreeLineArticlesAreCaught(): void
+    public function testIfShippingFreeLineItemsAreCaught(): void
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
-            new DeliveryInformation(
-                9999,
-                50.0,
-                false,
-                null,
-                (new DeliveryTime())->assign([
-                    'min' => 1,
-                    'max' => 3,
-                    'unit' => 'weeks',
-                    'name' => '1-3 weeks',
-                ])
-            )
-        ));
-        $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    true,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'weeks',
-                        'name' => '1-3 weeks',
-                    ])
-                )
-            )
-        );
+        $cart = $this->createCart($lineItemCollection);
 
-        $cart->addLineItems($lineItemCollection);
+        $match = (new CartHasDeliveryFreeItemRule())
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
-        $rule = new CartHasDeliveryFreeItemRule();
+        static::assertTrue($match);
+    }
 
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+    public function testIfShippingFreeNestedLineItemsAreCaught(): void
+    {
+        $childLineItemCollection = new LineItemCollection([
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
+        ]);
+
+        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
+
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+
+        $match = (new CartHasDeliveryFreeItemRule())
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
 
     public function testNotContainsFreeDeliveryItems(): void
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithDeliveryInfo(false),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    false,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'weeks',
-                        'name' => '1-3 weeks',
-                    ])
-                )
-            )
-        );
+        $cart = $this->createCart($lineItemCollection);
 
-        $cart->addLineItems($lineItemCollection);
-
-        $rule = new CartHasDeliveryFreeItemRule();
-
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+        $match = (new CartHasDeliveryFreeItemRule())
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
 
     public function testEmptyDeliveryItems(): void
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $cart = $this->createCart(new LineItemCollection());
 
-        $lineItemCollection = new LineItemCollection();
-        $cart->addLineItems($lineItemCollection);
-
-        $rule = new CartHasDeliveryFreeItemRule();
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+        $match = (new CartHasDeliveryFreeItemRule())
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertFalse($match);
 
-        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+        $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
 
     public function testNotContainsFreeDeliveryItemsMatchesNotAllowed(): void
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithDeliveryInfo(false),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    false,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'weeks',
-                        'name' => '1-3 weeks',
-                    ])
-                )
-            )
-        );
+        $cart = $this->createCart($lineItemCollection);
 
-        $cart->addLineItems($lineItemCollection);
-
-        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
-
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+        $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
 
     public function testNotContainsFreeDeliveryItemsWithDeliveryFreeItem(): void
     {
-        $cart = new Cart('test', Uuid::randomHex());
+        $lineItemCollection = new LineItemCollection([
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
+        ]);
 
-        $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
-            new DeliveryInformation(
-                9999,
-                50.0,
-                false,
-                null,
-                (new DeliveryTime())->assign([
-                    'min' => 1,
-                    'max' => 3,
-                    'unit' => 'weeks',
-                    'name' => '1-3 weeks',
-                ])
-            )
-        ));
-        $lineItemCollection->add(
-            (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    true,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'weeks',
-                        'name' => '1-3 weeks',
-                    ])
-                )
-            )
-        );
+        $cart = $this->createCart($lineItemCollection);
 
-        $cart->addLineItems($lineItemCollection);
-
-        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false]);
-
-        $match = $rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+        $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
+            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
@@ -243,26 +152,12 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
      */
     public function testLineItemIsFreeDelivery(bool $ruleActive, bool $isFreeDelivery, bool $expected): void
     {
-        $lineItem = (new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
-            new DeliveryInformation(
-                9999,
-                50.0,
-                $isFreeDelivery,
-                null,
-                (new DeliveryTime())->assign([
-                    'min' => 1,
-                    'max' => 3,
-                    'unit' => 'weeks',
-                    'name' => '1-3 weeks',
-                ])
-            )
-        );
+        $lineItem = $this->createLineItemWithDeliveryInfo($isFreeDelivery);
 
-        $rule = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => $ruleActive]);
+        $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => $ruleActive])
+            ->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
 
-        $match = $rule->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
-
-        static::assertEquals($expected, $match);
+        static::assertSame($expected, $match);
     }
 
     public function getLineItemFreeDeliveryTestData(): array

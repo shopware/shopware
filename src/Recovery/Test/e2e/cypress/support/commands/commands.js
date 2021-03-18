@@ -98,7 +98,7 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
  * @param {Object} data - Necessary data for the API request
  */
 Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
-    return cy.requestAdminApi('PATCH', `api/v2/${endpoint}/${id}`, data).then((responseData) => {
+    return cy.requestAdminApi('PATCH', `api/${endpoint}/${id}`, data).then((responseData) => {
         return responseData;
     });
 });

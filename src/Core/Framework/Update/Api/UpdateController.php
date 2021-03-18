@@ -8,11 +8,13 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserExcept
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
@@ -21,6 +23,7 @@ use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
+use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
 use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\DownloadStep;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
@@ -30,7 +33,6 @@ use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -100,6 +102,8 @@ class UpdateController extends AbstractController
      */
     private $userRepository;
 
+    private ?ExtensionLifecycleService $extensionLifecycleService;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
@@ -110,7 +114,8 @@ class UpdateController extends AbstractController
         PluginLifecycleService $pluginLifecycleService,
         EntityRepositoryInterface $userRepository,
         string $shopwareVersion,
-        bool $isUpdateTest = false
+        bool $isUpdateTest = false,
+        ?ExtensionLifecycleService $extensionLifecycleService = null
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
@@ -122,11 +127,12 @@ class UpdateController extends AbstractController
         $this->shopwareVersion = $shopwareVersion;
         $this->isUpdateTest = $isUpdateTest;
         $this->userRepository = $userRepository;
+        $this->extensionLifecycleService = $extensionLifecycleService;
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/check", name="api.custom.updateapi.check", methods={"GET"})
+     * @Route("/api/_action/update/check", name="api.custom.updateapi.check", methods={"GET"})
      * @Acl({"system:core:update"})
      */
     public function updateApiCheck(): JsonResponse
@@ -155,7 +161,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"})
+     * @Route("/api/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"})
      * @Acl({"system:core:update"})
      */
     public function checkRequirements(): JsonResponse
@@ -167,25 +173,28 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"})
+     * @Route("/api/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"})
      * @Acl({"system:core:update", "system_config:read"})
      */
     public function pluginCompatibility(Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
+        if (Feature::isActive('FEATURE_NEXT_12608')) {
+            return new JsonResponse($this->pluginCompatibility->getExtensionCompatibilities($update, $context));
+        }
+
         return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update, $context));
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"})
+     * @Route("/api/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"})
      * @Acl({"system:core:update", "system_config:read"})
      */
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-
         $offset = $request->query->getInt('offset');
 
         $destination = $this->createDestinationFromVersion($update);
@@ -205,7 +214,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
+     * @Route("/api/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
      * @Acl({"system:core:update", "system_config:read"})
      */
     public function unpack(Request $request, Context $context): JsonResponse
@@ -234,7 +243,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $updateToken,
+                'redirectTo' => $request->getBaseUrl() . '/api/_action/update/finish/' . $updateToken,
             ]);
         }
 
@@ -266,7 +275,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/v{version}/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"})
+     * @Route("/api/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"})
      * @Acl({"system:core:update", "system_config:read"})
      */
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
@@ -288,14 +297,25 @@ class UpdateController extends AbstractController
             PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );
 
-        $deactivatePluginStep = new DeactivatePluginsStep(
-            $update,
-            $deactivationFilter,
-            $this->pluginCompatibility,
-            $this->pluginLifecycleService,
-            $this->systemConfig,
-            $context
-        );
+        if (Feature::isActive('FEATURE_NEXT_12608') && $this->extensionLifecycleService) {
+            $deactivatePluginStep = new DeactivateExtensionsStep(
+                $update,
+                $deactivationFilter,
+                $this->pluginCompatibility,
+                $this->extensionLifecycleService,
+                $this->systemConfig,
+                $context
+            );
+        } else {
+            $deactivatePluginStep = new DeactivatePluginsStep(
+                $update,
+                $deactivationFilter,
+                $this->pluginCompatibility,
+                $this->pluginLifecycleService,
+                $this->systemConfig,
+                $context
+            );
+        }
 
         $result = $deactivatePluginStep->run($offset);
 
@@ -313,7 +333,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
+     * @Route("/api/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
      * @Acl({"system:core:update", "system_config:read"})
      */
     public function finish(string $token, Request $request, Context $context): Response

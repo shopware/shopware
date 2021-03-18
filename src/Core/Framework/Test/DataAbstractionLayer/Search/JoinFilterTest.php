@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -54,7 +55,7 @@ class JoinFilterTest extends TestCase
 
         $products = [
             (new ProductBuilder($ids, 'product-1', 10, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->manufacturer('manufacturer-1')
                 ->property('red', 'color')
                 ->property('yellow', 'color')
@@ -62,8 +63,8 @@ class JoinFilterTest extends TestCase
                 ->property('L', 'size')
                 ->category('category-1')
                 ->category('category-2')
-                ->prices(Defaults::CURRENCY, 'rule-1', 100)
-                ->prices(Defaults::CURRENCY, 'rule-2', 150)
+                ->prices('rule-1', 100)
+                ->prices('rule-2', 150)
                 ->build(),
 
             (new ProductBuilder($ids, 'product-1-variant', 10, 'tax'))
@@ -71,16 +72,16 @@ class JoinFilterTest extends TestCase
                 ->build(),
 
             (new ProductBuilder($ids, 'product-2', 3, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->manufacturer('manufacturer-2')
                 ->property('red', 'color')
                 ->category('category-1')
                 ->category('category-3')
-                ->prices(Defaults::CURRENCY, 'rule-1', 150)
+                ->prices('rule-1', 150)
                 ->build(),
 
             (new ProductBuilder($ids, 'product-3', 3, 'tax'))
-                ->price(Defaults::CURRENCY, 15, 10)
+                ->price(15, 10)
                 ->build(),
         ];
 
@@ -150,6 +151,52 @@ class JoinFilterTest extends TestCase
         );
         $criteria->addFilter(
             new ContainsFilter('product.properties.name', 'yell')
+        );
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has($ids->get('product-2')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPrefixFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        // "re" refers to the property "red" of "product-1" and "product-2"
+        $criteria->addFilter(
+            new PrefixFilter('product.properties.name', 're')
+        );
+        // "yell" refers to the property "yellow" of only "product-1"
+        $criteria->addFilter(
+            new PrefixFilter('product.properties.name', 'yell')
+        );
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $ids->getContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertTrue($result->has($ids->get('product-1')));
+        static::assertFalse($result->has($ids->get('product-2')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSuffixFilter(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('product-'));
+        // "ed" refers to the property "red" of "product-1" and "product-2"
+        $criteria->addFilter(
+            new SuffixFilter('product.properties.name', 'ed')
+        );
+        // "low" refers to the property "yellow" of only "product-1"
+        $criteria->addFilter(
+            new SuffixFilter('product.properties.name', 'low')
         );
 
         $result = $this->getContainer()->get('product.repository')

@@ -19,15 +19,17 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
+import ExtensionHelperService from 'src/app/service/extension-helper.service';
 import LanguageAutoFetchingService from 'src/app/service/language-auto-fetching.service';
 import SearchTypeService from 'src/app/service/search-type.service';
-import ShortcutService from 'src/app/service/shortcut.service';
 import LicenseViolationsService from 'src/app/service/license-violations.service';
+import ShortcutService from 'src/app/service/shortcut.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
+import FilterService from 'src/app/service/filter.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -98,6 +100,13 @@ Application
     .addServiceProvider('customFieldDataProviderService', () => {
         return CustomFieldService();
     })
+    .addServiceProvider('extensionHelperService', () => {
+        return new ExtensionHelperService({
+            storeService: Shopware.Service('storeService'),
+            pluginService: Shopware.Service('pluginService'),
+            extensionApiService: Shopware.Service('extensionApiService')
+        });
+    })
     .addServiceProvider('languageAutoFetchingService', () => {
         return LanguageAutoFetchingService();
     })
@@ -125,5 +134,10 @@ Application
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
             snippetService: Shopware.Service('snippetService'),
             localeFactory: Application.getContainer('factory').locale
+        });
+    })
+    .addServiceProvider('filterService', () => {
+        return new FilterService({
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config')
         });
     });

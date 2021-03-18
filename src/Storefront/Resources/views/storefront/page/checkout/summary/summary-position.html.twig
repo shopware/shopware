@@ -1,0 +1,13 @@
+{% block page_checkout_summary_position %}
+    {% block page_checkout_summary_position_label %}
+        <dt class="col-7 checkout-aside-summary-label">
+            {{ "checkout.summaryPositionPrice"|trans|sw_sanitize }}
+        </dt>
+    {% endblock %}
+
+    {% block page_checkout_summary_position_value %}
+        <dd class="col-5 checkout-aside-summary-value">
+            {{ summary.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+        </dd>
+    {% endblock %}
+{% endblock %}

@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -55,17 +54,17 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'entity-schema';
 
-    public function supports(string $format, int $version, string $api): bool
+    public function supports(string $format, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, int $version, string $api): array
+    public function generate(array $definitions, string $api): array
     {
-        return $this->getSchema($definitions, $version);
+        return $this->getSchema($definitions);
     }
 
-    public function getSchema(array $definitions, int $version): array
+    public function getSchema(array $definitions): array
     {
         $schema = [];
 
@@ -124,13 +123,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             // json fields
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
-            case $field instanceof WhitelistRuleField:
-            case $field instanceof BlacklistRuleField:
+            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CalculatedPriceField:
             case $field instanceof CartPriceField:
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
-            case $field instanceof ListingPriceField:
             case $field instanceof ObjectField:
                 return $this->createJsonObjectType($definition, $field, $flags);
 

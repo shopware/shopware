@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -47,14 +46,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 
 class SchemaGenerator
 {
-    private $tableTemplate = <<<EOL
+    private string $tableTemplate = <<<EOL
 CREATE TABLE `#name#` (
     #columns#,
     #keys#
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 EOL;
 
-    private $columnTemplate = <<<EOL
+    private string $columnTemplate = <<<EOL
     `#name#` #type# #nullable# #default#
 EOL;
 
@@ -131,13 +130,12 @@ EOL;
             case $field instanceof TranslatedField:
                 return null;
 
-            case $field instanceof WhitelistRuleField:
-            case $field instanceof BlacklistRuleField:
+            case $field instanceof WhitelistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
+            case $field instanceof BlacklistRuleField:  //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
             case $field instanceof CartPriceField:
             case $field instanceof CalculatedPriceField:
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
-            case $field instanceof ListingPriceField:
             case $field instanceof ListField:
             case $field instanceof JsonField:
                 $type = 'JSON';

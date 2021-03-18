@@ -3,9 +3,10 @@
         <sw-popover class="sw-select-result-list-popover"
                     :popoverClass="popoverClass"
                     :zIndex="1100"
-                    :resizeWidth="true">
+                    :resizeWidth="popoverResizeWidth">
             <div class="sw-select-result-list__content"
                  :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }"
+                 ref="popoverContent"
                  @scroll="onScroll">
                 <slot name="before-item-list"></slot>
 

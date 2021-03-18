@@ -11,6 +11,7 @@ use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class CaptchaRouteListenerTest extends TestCase
@@ -61,16 +62,13 @@ class CaptchaRouteListenerTest extends TestCase
 
     private function getControllerEventMock()
     {
-        $controllerEvent = $this->getMockBuilder(ControllerEvent::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $controllerEvent->method('getRequest')
-            ->willReturn(
-                self::getRequest($this->getRequestAttributes(true))
-            );
-
-        return $controllerEvent;
+        return new ControllerEvent(
+            $this->createMock(HttpKernelInterface::class),
+            function (): void {
+            },
+            self::getRequest($this->getRequestAttributes(true)),
+            HttpKernelInterface::MASTER_REQUEST
+        );
     }
 
     private static function getRequest(ParameterBag $attributes): Request

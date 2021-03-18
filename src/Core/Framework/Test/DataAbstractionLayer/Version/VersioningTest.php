@@ -48,6 +48,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -89,7 +90,7 @@ class VersioningTest extends TestCase
     private $orderRepository;
 
     /**
-     * @var SalesChannelContextFactory
+     * @var AbstractSalesChannelContextFactory
      */
     private $salesChannelContextFactory;
 
@@ -333,7 +334,11 @@ class VersioningTest extends TestCase
     {
         $id = Uuid::randomHex();
 
+        $this->connection->rollBack();
+
         $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+
+        $this->connection->beginTransaction();
 
         $price = new CalculatedPrice(
             100.20,
@@ -433,9 +438,13 @@ class VersioningTest extends TestCase
         static::assertEquals(500.30, $versionPrice->getTotalPrice());
         static::assertEquals(7.00, $versionPrice->getCalculatedTaxes()->getAmount());
 
+        $this->connection->rollBack();
+
         $this->connection->exec(CalculatedPriceFieldTestDefinition::dropTable());
         // We have created a table so the transaction rollback don't work -> we have to do it manually
         $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
+
+        $this->connection->beginTransaction();
     }
 
     public function testICanVersionCalculatedFields(): void

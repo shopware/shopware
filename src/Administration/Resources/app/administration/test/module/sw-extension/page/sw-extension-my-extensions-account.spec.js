@@ -1,6 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
+import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
+
+let isLoggedIn = false;
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -31,6 +34,7 @@ function createWrapper() {
             }
         },
         provide: {
+            shopwareExtensionService: new ShopwareExtensionService(),
             systemConfigApiService: {
                 getValues: () => {
                     return Promise.resolve({
@@ -48,8 +52,6 @@ function createWrapper() {
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     /** @type Wrapper */
     let wrapper;
-
-    let isLoggedIn = false;
 
     beforeAll(async () => {
         Shopware.Application.view = {

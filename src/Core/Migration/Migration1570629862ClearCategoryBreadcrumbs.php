@@ -2,22 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1570629862ClearCategoryBreadcrumbs extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1570629862ClearCategoryBreadcrumbs extends \Shopware\Core\Migration\V6_3\Migration1570629862ClearCategoryBreadcrumbs
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1570629862;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->exec('UPDATE `category_translation` SET `breadcrumb` = NULL');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

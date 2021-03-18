@@ -43,13 +43,19 @@ class CartPrice extends Struct
      */
     protected $taxStatus;
 
+    /**
+     * @var float
+     */
+    protected $rawTotal;
+
     public function __construct(
         float $netPrice,
         float $totalPrice,
         float $positionPrice,
         CalculatedTaxCollection $calculatedTaxes,
         TaxRuleCollection $taxRules,
-        string $taxStatus
+        string $taxStatus,
+        ?float $rawTotal = null
     ) {
         $this->netPrice = FloatComparator::cast($netPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
@@ -57,6 +63,8 @@ class CartPrice extends Struct
         $this->taxRules = $taxRules;
         $this->positionPrice = $positionPrice;
         $this->taxStatus = $taxStatus;
+        $rawTotal = $rawTotal ?? $totalPrice;
+        $this->rawTotal = $rawTotal;
     }
 
     public function getNetPrice(): float
@@ -107,5 +115,10 @@ class CartPrice extends Struct
     public function getApiAlias(): string
     {
         return 'cart_price';
+    }
+
+    public function getRawTotal(): float
+    {
+        return $this->rawTotal;
     }
 }

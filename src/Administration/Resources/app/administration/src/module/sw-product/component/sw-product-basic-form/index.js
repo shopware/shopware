@@ -2,13 +2,13 @@ import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Context, Mixin, StateDeprecated } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-basic-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('placeholder')
@@ -16,6 +16,12 @@ Component.register('sw-product-basic-form', {
 
     props: {
         allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        showSettingsInformation: {
             type: Boolean,
             required: false,
             default: true
@@ -43,11 +49,6 @@ Component.register('sw-product-basic-form', {
             'active',
             'markAsTopseller'
         ]),
-
-        // @deprecated tag:v6.4.0.0
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
 
         numberRangeRepository() {
             return this.repositoryFactory.create('number_range');
@@ -125,7 +126,7 @@ Component.register('sw-product-basic-form', {
 
         updateIsTitleRequired() {
             // TODO: Refactor when there is a possibility to check if the title field is inherited
-            this.isTitleRequired = this.languageStore.getCurrentLanguage().id === Shopware.Context.api.systemLanguageId;
+            this.isTitleRequired = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
         },
 
         getInheritValue(firstKey, secondKey) {

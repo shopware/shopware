@@ -50,7 +50,10 @@ class ModuleLoader
         $criteria = new Criteria();
         $containsModulesFilter = new NotFilter(
             MultiFilter::CONNECTION_AND,
-            [new EqualsFilter('modules', '[]')]
+            [
+                new EqualsFilter('modules', '[]'),
+                new EqualsFilter('mainModule', null),
+            ]
         );
         $appActiveFilter = new EqualsFilter('active', true);
         $criteria->addFilter($containsModulesFilter, $appActiveFilter)
@@ -64,12 +67,19 @@ class ModuleLoader
 
     private function formatPayload(AppCollection $apps): array
     {
+        try {
+            $shopId = $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return [];
+        }
+
         $appModules = [];
 
         foreach ($apps as $app) {
-            $modules = $this->formatModules($app);
+            $modules = $this->formatModules($shopId, $app);
+            $mainModule = $this->formatMainModule($shopId, $app);
 
-            if (empty($modules)) {
+            if (empty($modules) && !$mainModule) {
                 continue;
             }
 
@@ -77,37 +87,34 @@ class ModuleLoader
                 'name' => $app->getName(),
                 'label' => $this->mapTranslatedLabels($app),
                 'modules' => $modules,
+                'mainModule' => $mainModule,
             ];
         }
 
         return $appModules;
     }
 
-    private function formatModules(AppEntity $app): array
+    private function formatModules(string $shopId, AppEntity $app): array
     {
         $modules = [];
 
         foreach ($app->getModules() as $module) {
-            $uri = $this->generateQueryString($module['source']);
-
-            if ($uri === null) {
-                continue;
-            }
-
-            /** @var string $secret */
-            $secret = $app->getAppSecret();
-            $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
-
-            $module['source'] = Uri::withQueryValue(
-                $uri,
-                'shopware-shop-signature',
-                $signature
-            )->__toString();
-
+            $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module);
             $modules[] = $module;
         }
 
         return $modules;
+    }
+
+    private function formatMainModule(string $shopId, AppEntity $app): ?array
+    {
+        if ($app->getMainModule() === null) {
+            return null;
+        }
+
+        return [
+            'source' => $this->getUrlWithQuery($app, $shopId, $app->getMainModule()['source']),
+        ];
     }
 
     private function mapTranslatedLabels(AppEntity $app): array
@@ -121,16 +128,36 @@ class ModuleLoader
         return $labels;
     }
 
-    private function generateQueryString(string $uri): ?UriInterface
+    private function getModuleUrlWithQuery(AppEntity $app, string $shopId, array $module): ?string
+    {
+        $registeredSource = $module['source'] ?? null;
+
+        if ($registeredSource === null) {
+            return null;
+        }
+
+        return $this->getUrlWithQuery($app, $shopId, $registeredSource);
+    }
+
+    private function getUrlWithQuery(AppEntity $app, string $shopId, string $source): string
+    {
+        $uri = $this->generateQueryString($source, $shopId);
+
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
+        $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
+
+        return Uri::withQueryValue(
+            $uri,
+            'shopware-shop-signature',
+            $signature
+        )->__toString();
+    }
+
+    private function generateQueryString(string $uri, string $shopId): UriInterface
     {
         $date = new \DateTime();
         $uri = new Uri($uri);
-
-        try {
-            $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return null;
-        }
 
         return Uri::withQueryValues($uri, [
             'shop-id' => $shopId,

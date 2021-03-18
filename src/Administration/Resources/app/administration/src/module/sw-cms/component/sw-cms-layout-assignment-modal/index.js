@@ -2,9 +2,8 @@ import { difference } from 'lodash/array';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 
-const { EntityCollection } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 
 Shopware.Component.register('sw-cms-layout-assignment-modal', {
     template,
@@ -29,6 +28,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         return {
             shopPageSalesChannelId: null,
             previousCategories: null,
+            previousLandingPages: null,
             showConfirmChangesModal: false,
             isLoading: false,
             systemConfig: null,
@@ -37,11 +37,14 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             confirmedCategories: false,
             confirmedShopPages: false,
             confirmedProducts: false,
+            confirmedLandingPages: false,
             hasDeletedCategories: false,
             hasDeletedShopPages: false,
             hasDeletedProducts: false,
+            hasDeletedLandingPages: false,
             hasCategoriesWithAssignedLayouts: false,
             hasProductsWithAssignedLayouts: false,
+            hasLandingPagesWithAssignedLayouts: false,
             previousProducts: null
         };
     },
@@ -132,10 +135,11 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.previousCategories = [...this.page.categories];
             this.previousCategoryIds = this.page.categories.getIds();
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
-                this.previousProducts = [...this.page.products];
-                this.previousProductIds = this.page.products.getIds();
-            }
+            this.previousLandingPages = [...this.page.landingPages];
+            this.previousLandingPageIds = this.page.landingPages.getIds();
+
+            this.previousProducts = [...this.page.products];
+            this.previousProductIds = this.page.products.getIds();
 
             this.loadSystemConfig();
         },
@@ -267,11 +271,39 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             return Promise.resolve();
         },
 
-        validateProducts() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
+        validateLandingPages() {
+            // Skip validation when user has confirmed changes
+            if (this.confirmedLandingPages) {
                 return Promise.resolve();
             }
 
+            const currentLandingPageIds = this.page.landingPages.getIds();
+            const landingPageDiff = difference(currentLandingPageIds, this.previousLandingPageIds);
+
+            if ((this.previousLandingPageIds.length > currentLandingPageIds.length) ||
+                (this.previousLandingPageIds.length === currentLandingPageIds.length && landingPageDiff.length)) {
+                this.hasDeletedLandingPages = true;
+                this.openConfirmChangesModal();
+                return Promise.reject();
+            }
+
+            // Search for categories which already have a different layout
+            const foundLandingPagesWithAssignedLayouts = this.page.landingPages.find((landingPage) => {
+                return landingPage.hasOwnProperty('cmsPageId') &&
+                    landingPage.cmsPageId !== null &&
+                    landingPage.cmsPageId !== this.page.id;
+            });
+
+            if (foundLandingPagesWithAssignedLayouts) {
+                this.hasLandingPagesWithAssignedLayouts = true;
+                this.openConfirmChangesModal();
+                return Promise.reject();
+            }
+
+            return Promise.resolve();
+        },
+
+        validateProducts() {
             // Skip validation when user has confirmed changes
             if (this.confirmedProducts) {
                 return Promise.resolve();
@@ -306,8 +338,9 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.isLoading = true;
 
             Promise
-                .all([this.validateCategories(), this.saveShopPages(), this.validateProducts()])
+                .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
                 .then(() => {
+                    /** @deprecated tag:v6.5.0 event can be removed completely */
                     this.$emit('confirm');
 
                     this.onModalClose();
@@ -324,12 +357,18 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.showConfirmChangesModal = false;
         },
 
-        onDiscardChanges() {
+        async onDiscardChanges() {
             this.discardCategoryChanges();
             this.discardShopPageChanges();
             this.discardProductChanges();
+            this.discardLandingPageChanges();
 
             this.closeConfirmChangesModal();
+
+            // Wait until "confirm changes" modal is closed
+            await this.$nextTick();
+
+            this.onModalClose();
         },
 
         discardCategoryChanges() {
@@ -342,6 +381,16 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             );
         },
 
+        discardLandingPageChanges() {
+            this.page.landingPages = new EntityCollection(
+                this.page.landingPages.source,
+                this.page.landingPages.entity,
+                Shopware.Context.api,
+                null,
+                this.previousLandingPages
+            );
+        },
+
         discardShopPageChanges() {
             if (this.page.type !== 'page') {
                 return;
@@ -351,10 +400,6 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
         },
 
         discardProductChanges() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_10078')) {
-                return;
-            }
-
             this.page.products = new EntityCollection(
                 this.page.products.source,
                 this.page.products.entity,
@@ -368,6 +413,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.discardCategoryChanges();
             this.discardShopPageChanges();
             this.discardProductChanges();
+            this.discardLandingPageChanges();
 
             this.onModalClose();
         },
@@ -380,6 +426,7 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.closeConfirmChangesModal();
 
             this.confirmedCategories = true;
+            this.confirmedLandingPages = true;
             this.confirmedShopPages = true;
             this.confirmedProducts = true;
 

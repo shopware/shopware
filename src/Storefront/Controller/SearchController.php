@@ -39,11 +39,11 @@ class SearchController extends StorefrontController
     public function __construct(
         SearchPageLoader $searchPageLoader,
         SuggestPageLoader $suggestPageLoader,
-        AbstractProductSearchRoute $productSearchRout
+        AbstractProductSearchRoute $productSearchRoute
     ) {
         $this->searchPageLoader = $searchPageLoader;
         $this->suggestPageLoader = $suggestPageLoader;
-        $this->productSearchRoute = $productSearchRout;
+        $this->productSearchRoute = $productSearchRoute;
     }
 
     /**

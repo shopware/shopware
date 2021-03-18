@@ -9,7 +9,7 @@ use Doctrine\DBAL\Logging\DebugStack as DoctrineDebugStack;
  */
 class DebugStack extends DoctrineDebugStack
 {
-    public static $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/';
+    public static string $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/';
 
     public function startQuery($sql, ?array $params = null, ?array $types = null): void
     {
@@ -55,14 +55,9 @@ class DebugStack extends DoctrineDebugStack
         $matches = preg_match_all(self::$writeSqlRegex, $query);
 
         if ($matches) {
-            if (getenv('APP_ENV') === 'test') {
-                throw new \RuntimeException(
-                    sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
-                );
-            }
-
-            /* @deprecated tag:v6.4.0 - Will throw an exception  */
-            @trigger_error('Write operations are not supported when using executeQuery.', E_USER_DEPRECATED);
+            throw new \RuntimeException(
+                sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
+            );
         }
     }
 }

@@ -49,7 +49,7 @@ class UserProvisioner
     {
         $builder = $this->connection->createQueryBuilder();
 
-        return $builder->select(1)
+        return $builder->select('1')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)

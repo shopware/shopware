@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
@@ -46,7 +46,7 @@ describe('Rule builder: Test crud operations', () => {
                         },
                         {
                             name: 'Green'
-                        },
+                        }
                     ]
                 });
             })
@@ -59,7 +59,7 @@ describe('Rule builder: Test crud operations', () => {
                         },
                         {
                             name: 'Test 2'
-                        },
+                        }
                     ]
                 });
             })
@@ -201,11 +201,7 @@ describe('Rule builder: Test crud operations', () => {
     resultCases.forEach(resultCase => {
         context(`Search property with term ${resultCase.value}`, () => {
             it('@rule: search property', () => {
-                cy.window().then((win) => {
-                    if (!win.Shopware.Feature.isActive('FEATURE_NEXT_12108')) {
-                        return;
-                    }
-
+                cy.window().then(() => {
                     const page = new RulePageObject();
 
                     cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');

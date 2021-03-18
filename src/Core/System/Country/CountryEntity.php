@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
@@ -114,6 +115,18 @@ class CountryEntity extends Entity
      * @var TaxRuleCollection|null
      */
     protected $taxRules;
+
+    /**
+     * @var CurrencyCountryRoundingCollection|null
+     */
+    protected $currencyCountryRoundings;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     *
+     * @var float|null
+     */
+    protected $taxFreeFrom;
 
     public function getName(): ?string
     {
@@ -313,5 +326,31 @@ class CountryEntity extends Entity
     public function setTaxRules(TaxRuleCollection $taxRules): void
     {
         $this->taxRules = $taxRules;
+    }
+
+    public function getCurrencyCountryRoundings(): ?CurrencyCountryRoundingCollection
+    {
+        return $this->currencyCountryRoundings;
+    }
+
+    public function setCurrencyCountryRoundings(CurrencyCountryRoundingCollection $currencyCountryRoundings): void
+    {
+        $this->currencyCountryRoundings = $currencyCountryRoundings;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function getTaxFreeFrom(): ?float
+    {
+        return $this->taxFreeFrom;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function setTaxFreeFrom(?float $taxFreeFrom): void
+    {
+        $this->taxFreeFrom = $taxFreeFrom;
     }
 }

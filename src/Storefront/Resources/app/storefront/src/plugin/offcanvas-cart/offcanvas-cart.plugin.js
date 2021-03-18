@@ -178,7 +178,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('beforeFireRequest');
 
-        this.client.post(requestUrl.toLowerCase(), data, cb);
+        this.client.post(requestUrl, data, cb);
     }
 
     /**

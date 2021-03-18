@@ -4,13 +4,12 @@ namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.4.0 - this event will be removed in the future and is replaced with `BeforeLineItemRemovedEvent`
- */
-class LineItemRemovedEvent extends Event /*implements ShopwareSalesChannelEvent*/
+class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
      * @var LineItem
@@ -44,12 +43,9 @@ class LineItemRemovedEvent extends Event /*implements ShopwareSalesChannelEvent*
         return $this->cart;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Will return Shopware\Core\Framework\Context instead
-     */
-    public function getContext(): SalesChannelContext
+    public function getContext(): Context
     {
-        return $this->context;
+        return $this->context->getContext();
     }
 
     public function getSalesChannelContext(): SalesChannelContext

@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
@@ -52,26 +51,23 @@ class ThemeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('technical_name', 'technicalName'),
-            (new StringField('name', 'name'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new StringField('author', 'author'))->addFlags(new Required()),
-            new TranslatedField('description'),
-            new TranslatedField('labels'),
-            new TranslatedField('helpTexts'),
-            new TranslatedField('customFields'),
-            new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class),
-            new FkField('parent_theme_id', 'parentThemeId', self::class),
-            new JsonField('base_config', 'baseConfig'),
-            new JsonField('config_values', 'configValues'),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
-            new CreatedAtField(),
-            new UpdatedAtField(),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('author', 'author'))->addFlags(new ApiAware(), new Required()),
+            (new TranslatedField('description'))->addFlags(new ApiAware()),
+            (new TranslatedField('labels'))->addFlags(new ApiAware()),
+            (new TranslatedField('helpTexts'))->addFlags(new ApiAware()),
+            (new TranslatedField('customFields'))->addFlags(new ApiAware()),
+            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('parent_theme_id', 'parentThemeId', self::class))->addFlags(new ApiAware()),
+            (new JsonField('base_config', 'baseConfig'))->addFlags(new ApiAware()),
+            (new JsonField('config_values', 'configValues'))->addFlags(new ApiAware()),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),
 
             (new TranslationsAssociationField(ThemeTranslationDefinition::class, 'theme_id'))->addFlags(new Required()),
-
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, ThemeSalesChannelDefinition::class, 'theme_id', 'sales_channel_id'),
-            new ManyToManyAssociationField('media', MediaDefinition::class, ThemeMediaDefinition::class, 'theme_id', 'media_id'),
+            (new ManyToManyAssociationField('media', MediaDefinition::class, ThemeMediaDefinition::class, 'theme_id', 'media_id'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class),
             new OneToManyAssociationField('childThemes', ThemeDefinition::class, 'parent_theme_id'),
         ]);

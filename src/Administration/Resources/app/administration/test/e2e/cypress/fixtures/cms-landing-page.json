@@ -1,0 +1,28 @@
+{
+  "name": "Baumhaus",
+  "type": "landingpage",
+  "sections": [
+    {
+      "type": "default",
+      "position": 0,
+      "blocks": [
+        {
+          "type": "text",
+          "position": 0,
+          "slots": [
+            {
+              "type": "text",
+              "slot": "content",
+              "config": {
+                "content": {
+                  "source": "static",
+                  "value": "Baumhaus landing page"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

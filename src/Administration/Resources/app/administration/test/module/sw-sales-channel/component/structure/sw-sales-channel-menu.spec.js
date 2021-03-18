@@ -1,7 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import flushPromises from 'flush-promises';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/structure/sw-admin-menu-item';

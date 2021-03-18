@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetC
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ProductFeatureSetEntityTest extends TestCase
@@ -79,11 +80,12 @@ class ProductFeatureSetEntityTest extends TestCase
 
     public function testTranslationReferenceFieldIsCorrect(): void
     {
-        $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
+        $translationsField = $this->getContainer()->get(ProductFeatureSetDefinition::class)->getField('translations');
 
+        static::assertInstanceOf(TranslationsAssociationField::class, $translationsField);
         static::assertEquals(
             sprintf('%s_id', ProductFeatureSetDefinition::ENTITY_NAME),
-            $definition->getField('translations')->getReferenceField()
+            $translationsField->getReferenceField()
         );
     }
 

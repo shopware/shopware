@@ -1,8 +1,7 @@
 export default class ShopwareExtensionService {
-    constructor(appModulesService, extensionStoreActionService, extensionStoreLicensesService, discountCampaignService) {
+    constructor(appModulesService, extensionStoreActionService, discountCampaignService) {
         this.appModuleService = appModulesService;
         this.extensionStoreActionService = extensionStoreActionService;
-        this.extensionStoreLicensesService = extensionStoreLicensesService;
         this.discountCampaignService = discountCampaignService;
 
         this.EXTENSION_VARIANT_TYPES = Object.freeze({
@@ -15,12 +14,6 @@ export default class ShopwareExtensionService {
             APP: 'app',
             PLUGIN: 'plugin'
         });
-    }
-
-    async purchaseExtension(extensionId, variantId, tocAccepted, permissionsAccepted) {
-        await this.extensionStoreLicensesService.purchaseExtension(extensionId, variantId, tocAccepted, permissionsAccepted);
-
-        await this.updateExtensionData();
     }
 
     async installExtension(extensionName, type) {
@@ -63,9 +56,38 @@ export default class ShopwareExtensionService {
         await this.updateModules();
     }
 
-    async updateExtensionData() {
-        await Shopware.State.dispatch('shopwareExtensions/updateMyExtensions');
-        await this.updateModules();
+    updateExtensionData() {
+        Shopware.State.commit('shopwareExtensions/loadMyExtensions');
+
+        const extensionDataService = Shopware.Service('extensionApiService');
+
+        return extensionDataService.refresh()
+            .then(() => {
+                return extensionDataService.getMyExtensions(
+                    { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId }
+                );
+            }).then((myExtensions) => {
+                Shopware.State.commit('shopwareExtensions/myExtensions', myExtensions);
+
+                return this.updateModules();
+            }).catch(e => {
+                return Promise.reject(e);
+            })
+            .finally(() => {
+                Shopware.State.commit('shopwareExtensions/setLoading', false);
+            });
+    }
+
+    checkLogin() {
+        if (!Shopware.State.get('shopwareExtensions').shopwareId) {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+        }
+
+        return Shopware.Service('storeService').checkLogin().then((response) => {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', response.storeTokenExists);
+        }).catch(() => {
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+        });
     }
 
     orderVariantsByRecommendation(variants) {
@@ -112,16 +134,7 @@ export default class ShopwareExtensionService {
     }
 
     canBeOpened(extension) {
-        if (extension.isTheme) {
-            return true;
-        }
-
-        if (extension.type === this.EXTENSION_TYPES.APP) {
-            return !!this._getFirstAppModule(extension.name);
-        }
-
-        // TODO check for plugins
-        return false;
+        return !!this.getOpenLink(extension);
     }
 
     getOpenLink(extension) {
@@ -130,7 +143,7 @@ export default class ShopwareExtensionService {
         }
 
         if (extension.type === this.EXTENSION_TYPES.APP) {
-            return this._getLinkToFirstModuleOfExtension(extension);
+            return this._getLinkToApp(extension);
         }
 
         // TODO get link for plugins
@@ -140,7 +153,7 @@ export default class ShopwareExtensionService {
     async updateModules() {
         const modules = await this.appModuleService.fetchAppModules();
 
-        await Shopware.State.dispatch('shopwareApps/setAppModules', modules);
+        Shopware.State.commit('shopwareApps/setApps', modules);
     }
 
     async _getLinkToTheme(extension) {
@@ -160,32 +173,37 @@ export default class ShopwareExtensionService {
         };
     }
 
-    _getLinkToFirstModuleOfExtension(extension) {
-        const appModule = this._getFirstAppModule(extension.name);
+    _getLinkToApp(extension) {
+        const app = this._getAppFromStore(extension.name);
 
-        if (!appModule) {
+        if (!app) {
             return null;
         }
 
+        if (this._appHasMainModule(app)) {
+            return this._createLinkToModule(app.name);
+        }
+
+        return null;
+    }
+
+    _getAppFromStore(extensionName) {
+        return Shopware.State.get('shopwareApps').apps.find((innerApp) => {
+            return innerApp.name === extensionName;
+        });
+    }
+
+    _appHasMainModule(app) {
+        return !!app.mainModule && !!app.mainModule.source;
+    }
+
+    _createLinkToModule(appName) {
         return {
             name: 'sw.my.apps.index',
             params: {
-                appName: extension.name,
-                moduleName: appModule.name
+                appName
             }
         };
-    }
-
-    _getFirstAppModule(extensionName) {
-        const app = Shopware.State.get('shopwareApps').apps.find((innerApp) => {
-            return innerApp.name === extensionName;
-        });
-
-        if (!app || app.modules.length <= 0) {
-            return null;
-        }
-
-        return app.modules[0];
     }
 
     _orderByType(variants) {

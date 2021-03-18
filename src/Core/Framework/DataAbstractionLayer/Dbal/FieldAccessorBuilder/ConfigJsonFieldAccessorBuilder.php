@@ -8,20 +8,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
 {
-    public function buildAccessor(string $root, Field $jsonField, Context $context, string $accessor): ?string
+    public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
-        if (!$jsonField instanceof ConfigJsonField) {
+        if (!$field instanceof ConfigJsonField) {
             return null;
         }
 
         $jsonPath = preg_replace(
-            '#^' . preg_quote($jsonField->getPropertyName(), '#') . '#',
+            '#^' . preg_quote($field->getPropertyName(), '#') . '#',
             '',
             $accessor
         );
 
-        $accessor = $jsonField->getPropertyName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
+        $accessor = $field->getPropertyName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
 
-        return parent::buildAccessor($root, $jsonField, $context, $accessor);
+        return parent::buildAccessor($root, $field, $context, $accessor);
     }
 }

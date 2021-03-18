@@ -7,7 +7,7 @@
     user-focus: none;
     user-select: none;
     z-index: $z-index-dragdrop;
-    box-shadow: 0 0 4px 0 $color-shopware-blue;
+    box-shadow: 0 0 4px 0 $color-shopware-brand-500;
     overflow: hidden;
     cursor: grab;
 
@@ -22,11 +22,11 @@
     }
 
     &.is--valid-drag {
-        box-shadow: 0 0 4px 0 $color-emerald;
+        box-shadow: 0 0 4px 0 $color-emerald-500;
     }
 
     &.is--invalid-drag {
-        box-shadow: 0 0 4px 0 $color-crimson;
+        box-shadow: 0 0 4px 0 $color-crimson-500;
     }
 }
 
@@ -47,10 +47,10 @@
 }
 
 .is--dragging {
-    background: $color-light-gray;
-    border: 1px dashed $color-steam-cloud;
+    background: $color-gray-100;
+    border: 1px dashed $color-gray-300;
     box-shadow: none;
-    color: $color-light-gray;
+    color: $color-gray-100;
     cursor: grab;
 
     & > * {

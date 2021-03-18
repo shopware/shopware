@@ -6,7 +6,7 @@
     {% block component_address_form_company_vatId_label %}
         <label class="form-label"
                for="vatIds">
-            {{ "address.companyVatLabel"|trans|sw_sanitize }}{% if editMode == false and shopware.config.core.loginRegistration.vatIdFieldRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+            {{ "address.companyVatLabel"|trans|sw_sanitize }}{% if editMode == false and config('core.loginRegistration.vatIdFieldRequired') %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
         </label>
     {% endblock %}
 
@@ -16,7 +16,7 @@
                id="vatIds"
                placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                name="vatIds[]"
-               {% if editMode == false and shopware.config.core.loginRegistration.vatIdFieldRequired %}
+               {% if editMode == false and config('core.loginRegistration.vatIdFieldRequired') %}
                required="required"
                data-form-validation-equal="vatIds"
                {% endif %}

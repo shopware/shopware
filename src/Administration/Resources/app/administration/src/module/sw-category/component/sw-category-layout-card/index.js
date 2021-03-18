@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-category-layout-card', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     props: {
         category: {
@@ -24,6 +24,20 @@ Component.register('sw-category-layout-card', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        pageTypes: {
+            type: Array,
+            required: false,
+            default() {
+                return ['page', 'landingpage', 'product_list'];
+            }
+        },
+
+        headline: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 

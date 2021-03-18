@@ -13,8 +13,9 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,11 +38,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     private $productGateway;
 
     /**
-     * @var ProductPriceDefinitionBuilderInterface
-     */
-    private $priceDefinitionBuilder;
-
-    /**
      * @var QuantityPriceCalculator
      */
     private $calculator;
@@ -54,11 +50,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
         ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
-        $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
         $this->featureBuilder = $featureBuilder;
     }
@@ -88,7 +82,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             // enrich all products in original cart
-            $this->enrich($original, $lineItem, $data, $context, $behavior);
+            $this->enrich($original, $lineItem, $data, $behavior);
         }
 
         $this->featureBuilder->prepare($lineItems, $data, $context);
@@ -141,7 +135,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($minPurchase);
             }
 
-            $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
+            $available = $product->getCalculatedMaxPurchase();
 
             if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());
@@ -184,7 +178,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         Cart $cart,
         LineItem $lineItem,
         CartDataCollection $data,
-        SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
         $id = $lineItem->getReferencedId();
@@ -235,10 +228,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         //Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
-            //In Case keep original Price of Product
-            $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
-
-            $lineItem->setPriceDefinition($prices->getQuantityPrice());
+            $lineItem->setPriceDefinition(
+                $this->getPriceDefinition($product, $lineItem->getQuantity())
+            );
         }
 
         $quantityInformation = new QuantityInformation();
@@ -270,8 +262,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            // @deprecated tag:v6.4.0 - purchasePrice Will be removed in 6.4.0
-            'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
             'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
@@ -286,6 +276,43 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $payload['options'] = $product->getVariation();
 
         $lineItem->replacePayload($payload);
+    }
+
+    private function getPriceDefinition(SalesChannelProductEntity $product, int $quantity): QuantityPriceDefinition
+    {
+        if ($product->getCalculatedPrices()->count() === 0) {
+            return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
+        }
+
+        // keep loop reference to $price variable to get last quantity price in case of "null"
+        $price = $product->getCalculatedPrice();
+        foreach ($product->getCalculatedPrices() as $price) {
+            if ($quantity <= $price->getQuantity()) {
+                break;
+            }
+        }
+
+        return $this->buildPriceDefinition($price, $quantity);
+    }
+
+    private function buildPriceDefinition(CalculatedPrice $price, int $quantity): QuantityPriceDefinition
+    {
+        $definition = new QuantityPriceDefinition($price->getUnitPrice(), $price->getTaxRules(), $quantity);
+        if ($price->getListPrice() !== null) {
+            $definition->setListPrice($price->getListPrice()->getPrice());
+        }
+
+        if ($price->getReferencePrice() !== null) {
+            $definition->setReferencePriceDefinition(
+                new ReferencePriceDefinition(
+                    $price->getReferencePrice()->getPurchaseUnit(),
+                    $price->getReferencePrice()->getReferenceUnit(),
+                    $price->getReferencePrice()->getUnitName()
+                )
+            );
+        }
+
+        return $definition;
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array

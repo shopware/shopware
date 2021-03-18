@@ -7,7 +7,7 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -32,7 +32,19 @@ function createWrapper() {
         },
 
         provide: {
-            validationService: {}
+            validationService: {},
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
+            },
+            feature: {
+                isActive: () => true
+            }
         },
 
         stubs: {
@@ -56,8 +68,30 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should not be able to change the behaviour search which includes and, or', async () => {
+        const wrapper = createWrapper([
+            'product_search_config.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
+        expect(andBehaviourElement.attributes().disabled).toBeTruthy();
+
+        const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
+        expect(orBehaviourElement.attributes().disabled).toBeTruthy();
+
+        const minSearchLengthElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
+        expect(minSearchLengthElement.attributes().disabled).toBeTruthy();
+
+        await orBehaviourElement.trigger('click');
+        expect(orBehaviourElement.element.checked).toBeFalsy();
+        expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
+    });
+
     it('should be able to change the behaviour search which includes and, or', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
@@ -74,7 +108,9 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
     });
 
     it('should be able to change minimal search term length between limit value', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([
+            'product_search_config.editor'
+        ]);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(2);

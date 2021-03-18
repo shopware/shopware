@@ -22,21 +22,18 @@ class DocsDumpErd extends Command
 {
     protected static $defaultName = 'docs:dump-erd';
 
-    private $ignoredDefinitions = [
+    /**
+     * @var array<class-string>
+     */
+    private array $ignoredDefinitions = [
         VersionCommitDataDefinition::class,
         VersionCommitDefinition::class,
         VersionDefinition::class,
     ];
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
-    /**
-     * @var ErdGenerator
-     */
-    private $erdGenerator;
+    private ErdGenerator $erdGenerator;
 
     public function __construct(
         DefinitionInstanceRegistry $registry,

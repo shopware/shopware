@@ -269,7 +269,6 @@ class WriteCommandExtractor
 
         $filtered = [];
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             if ($field->is(Computed::class)) {
                 continue;

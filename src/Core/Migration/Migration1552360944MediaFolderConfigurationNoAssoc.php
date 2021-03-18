@@ -2,25 +2,9 @@
 
 namespace Shopware\Core\Migration;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Migration\MigrationStep;
-
-class Migration1552360944MediaFolderConfigurationNoAssoc extends MigrationStep
+/**
+ * @deprecated tag:v6.5.0 Will be deleted. Migrations are now namespaced by major version
+ */
+class Migration1552360944MediaFolderConfigurationNoAssoc extends \Shopware\Core\Migration\V6_3\Migration1552360944MediaFolderConfigurationNoAssoc
 {
-    public function getCreationTimestamp(): int
-    {
-        return 1552360944;
-    }
-
-    public function update(Connection $connection): void
-    {
-        $connection->exec('
-            ALTER TABLE `media_folder_configuration` 
-                ADD COLUMN `no_association` BOOL NULL AFTER `private`
-        ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

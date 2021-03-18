@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
-use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -74,7 +74,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
-     * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
+     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.add", methods={"POST"})
      */
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
@@ -90,8 +90,6 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             $alreadyExists = $cart->has($item->getId());
             $cart->add($item);
 
-            /* @deprecated tag:v6.4.0 - The LineItemAddedEvent will be removed in the future, please use the BeforeLineItemAddedEvent and AfterLineItemAddedEvent variants of this event going forward */
-            $this->eventDispatcher->dispatch(new LineItemAddedEvent($item, $cart, $context, $alreadyExists));
             $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
         }
 
@@ -101,6 +99,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         $this->cartPersister->save($cart, $context);
 
         $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
+        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return new CartResponse($cart);
     }

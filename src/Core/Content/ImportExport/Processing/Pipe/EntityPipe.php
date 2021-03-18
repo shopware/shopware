@@ -7,6 +7,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Struct\Struct;
 
 class EntityPipe extends AbstractPipe
 {
@@ -42,18 +43,21 @@ class EntityPipe extends AbstractPipe
         $this->entitySerializer = $entitySerializer;
     }
 
-    public function in(Config $config, $entity): iterable
+    /**
+     * @param iterable|Struct $record
+     */
+    public function in(Config $config, $record): iterable
     {
         $this->loadConfig($config);
 
-        return $this->entitySerializer->serialize($config, $this->definition, $entity);
+        return $this->entitySerializer->serialize($config, $this->definition, $record);
     }
 
-    public function out(Config $config, iterable $encoded): iterable
+    public function out(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);
 
-        return $this->entitySerializer->deserialize($config, $this->definition, $encoded);
+        return $this->entitySerializer->deserialize($config, $this->definition, $record);
     }
 
     private function loadConfig(Config $config): void

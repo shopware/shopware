@@ -155,31 +155,19 @@
 
                                 {% block sw_order_list_grid_columns_actions %}
                                     <template #actions="{ item }">
-
                                         {% block sw_order_list_grid_columns_actions_view %}
-                                            {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` instead #}
-                                            {% block sw_customer_list_grid_columns_actions_view %}
-                                                <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                                    {{ $tc('sw-order.list.contextMenuView') }}
-                                                </sw-context-menu-item>
-                                            {% endblock %}
+                                            <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                                {{ $tc('sw-order.list.contextMenuView') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
 
-                                            {% block sw_order_list_grid_columns_actions_delete %}
+                                        {% block sw_order_list_grid_columns_actions_delete %}
                                             <sw-context-menu-item
                                                 variant="danger"
                                                 :disabled="disableDeletion(item)"
                                                 @click="onDelete(item.id)">
                                                 {{ $tc('sw-order.list.contextMenuDelete') }}
                                             </sw-context-menu-item>
-                                            {% endblock %}
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` with parent instead #}
-                                        {% block sw_customer_list_grid_columns_actions_confirm_payment %}
-                                        {% endblock %}
-
-                                        {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` with parent instead #}
-                                        {% block sw_customer_list_grid_columns_actions_delete %}
                                         {% endblock %}
                                     </template>
                                 {% endblock %}
@@ -231,7 +219,17 @@
                         {% endblock %}
 
                         {% block sw_order_list_empty_state %}
-                            <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-order.list.messageEmpty')"></sw-empty-state>
+                            <template v-if="!isLoading && !total">
+                                <sw-empty-state
+                                    v-if="filterCriteria.length"
+                                    :title="$tc('sw-order.filters.messageEmptyTitle')"
+                                    :subline="$tc('sw-order.filters.messageEmptySubline')">
+                                </sw-empty-state>
+                                <sw-empty-state
+                                    v-else
+                                    :title="$tc('sw-order.list.messageEmpty')">
+                                </sw-empty-state>
+                            </template>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -249,37 +247,14 @@
                         {% endblock %}
 
                         {% block sw_order_list_sidebar_filter %}
-                            <sw-sidebar-item icon="default-action-filter"
-                                             :title="$tc('sw-order.list.titleSidebarItemFilter')">
-
-                                {% block sw_order_list_sidebar_filter_items %}
-
-                                    {% block sw_order_list_sidebar_filter_affiliate_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
-                                            :options="availableAffiliateCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            :value="affiliateCodeFilter"
-                                            @change="onChangeAffiliateCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_sidebar_filter_campaign_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-order.list.titleSidebarItemFilterCampaignCode')"
-                                            :options="availableCampaignCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            @change="onChangeCampaignCodeFilter"
-                                            :value="campaignCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                {% endblock %}
-                            </sw-sidebar-item>
+                            <sw-sidebar-filter-panel
+                                entity="customer"
+                                :storeKey="storeKey"
+                                :filters="listFilters"
+                                :defaults="defaultFilters"
+                                :activeFilterNumber="activeFilterNumber"
+                                @criteria-changed="updateCriteria">
+                            </sw-sidebar-filter-panel>
                         {% endblock %}
                     </sw-sidebar>
                 </template>

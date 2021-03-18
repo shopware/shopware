@@ -6,9 +6,23 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-search', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature'
+    ],
 
     mixins: [Mixin.getByName('notification')],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSaveSearchSettings'
+        },
+        ESCAPE: 'onCancel'
+    },
 
     data: () => {
         return {
@@ -16,7 +30,10 @@ Component.register('sw-settings-search', {
                 andLogic: true,
                 minSearchLength: 2
             },
-            isLoading: false
+            isLoading: false,
+            currentSalesChannelId: null,
+            searchTerms: '',
+            searchResults: null
         };
     },
 
@@ -31,11 +48,30 @@ Component.register('sw-settings-search', {
 
         productSearchConfigsCriteria() {
             const criteria = new Criteria();
-
             criteria.addAssociation('configFields');
             criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
-
             return criteria;
+        },
+
+        allowSave() {
+            return this.acl.can('product_search_config.editor') || this.acl.can('product_search_config.creator');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 
@@ -64,6 +100,10 @@ Component.register('sw-settings-search', {
             this.getProductSearchConfigs();
         },
 
+        onTabChange() {
+            this.getProductSearchConfigs();
+        },
+
         onSaveSearchSettings() {
             this.isLoading = true;
             this.productSearchRepository.save(this.productSearchConfigs, Shopware.Context.api)
@@ -81,6 +121,21 @@ Component.register('sw-settings-search', {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        fetchSalesChannels() {
+            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+                this.salesChannels = response;
+            });
+        },
+
+        onSalesChannelChanged(salesChannelId) {
+            this.currentSalesChannelId = salesChannelId;
+        },
+
+        onLiveSearchResultsChanged({ searchTerms, searchResults }) {
+            this.searchTerms = searchTerms;
+            this.searchResults = searchResults;
         }
     }
 });

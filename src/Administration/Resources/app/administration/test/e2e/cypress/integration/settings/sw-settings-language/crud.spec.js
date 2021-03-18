@@ -27,7 +27,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/language',
+            url: `${Cypress.env('apiPath')}/language`,
             method: 'post'
         }).as('saveData');
 
@@ -74,7 +74,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/language/*',
+            url: `${Cypress.env('apiPath')}/language/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -103,7 +103,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/language/*',
+            url: `${Cypress.env('apiPath')}/language/*`,
             method: 'delete'
         }).as('deleteData');
 

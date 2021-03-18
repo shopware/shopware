@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -58,7 +57,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
+                '/store-api/account/logout',
                 [
                 ]
             );
@@ -78,7 +77,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -93,7 +92,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
+                '/store-api/account/logout',
                 [
                     'replace-token' => true,
                 ],
@@ -107,7 +106,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                '/store-api/account/customer',
                 [],
                 [],
                 [
@@ -131,7 +130,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -149,7 +148,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
+                '/store-api/account/logout',
                 [
                     'replace-token' => true,
                 ],
@@ -180,7 +179,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -198,7 +197,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
+                '/store-api/account/logout',
                 [],
                 [],
                 [
@@ -237,7 +236,7 @@ class LogoutRouteTest extends TestCase
             'customer' => $customer,
         ]);
 
-        $logoutResponse = $this->getContainer()->get(LogoutRoute::class)->logout($salesChannelContext);
+        $logoutResponse = $this->getContainer()->get(LogoutRoute::class)->logout($salesChannelContext, new RequestDataBag());
 
         static::assertInstanceOf(ContextTokenResponse::class, $logoutResponse);
         static::assertNotEquals($loginResponse->getToken(), $logoutResponse->getToken());
@@ -270,7 +269,7 @@ class LogoutRouteTest extends TestCase
 
         $logout = $this->getContainer()
             ->get(LogoutRoute::class)
-            ->logout($context);
+            ->logout($context, $request);
 
         static::assertInstanceOf(ContextTokenResponse::class, $logout);
         static::assertEquals($login->getToken(), $logout->getToken());

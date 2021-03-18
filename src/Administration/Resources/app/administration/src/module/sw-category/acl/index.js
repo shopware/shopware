@@ -63,7 +63,7 @@ Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
         parent: 'catalogues',
-        key: 'landingPage',
+        key: 'landing_page',
         roles: {
             viewer: {
                 privileges: [
@@ -101,19 +101,19 @@ Shopware.Service('privileges')
             },
             creator: {
                 privileges: [
-                    'landingPage:create'
+                    'landing_page:create'
                 ],
                 dependencies: [
-                    'landingPage.viewer',
-                    'landingPage.editor'
+                    'landing_page.viewer',
+                    'landing_page.editor'
                 ]
             },
             deleter: {
                 privileges: [
-                    'landingPage:delete'
+                    'landing_page:delete'
                 ],
                 dependencies: [
-                    'landingPage.viewer'
+                    'landing_page.viewer'
                 ]
             }
         }

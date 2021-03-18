@@ -161,7 +161,7 @@ class ApiRequestContextResolverTest extends TestCase
             ->get(Connection::class)
             ->executeUpdate('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/currency', [
+        $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
         $response = json_decode($browser->getResponse()->getContent(), true);
@@ -179,7 +179,7 @@ class ApiRequestContextResolverTest extends TestCase
             ->get(Connection::class)
             ->executeUpdate('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/currency', [
+        $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
 
@@ -203,7 +203,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->addRoleToIntegration($ids->get('integration'), ['currency:read']);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/currency', [
+        $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
         $response = json_decode($browser->getResponse()->getContent(), true);

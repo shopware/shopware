@@ -1,7 +1,6 @@
 ---
 title: Implement wishlist page for guest
 issue: NEXT-12808
-flag: FEATURE_NEXT_10549
 ---
 # Storefront
 * Added `\Shopware\Storefront\Page\Wishlist\GuestWishlistPage`.

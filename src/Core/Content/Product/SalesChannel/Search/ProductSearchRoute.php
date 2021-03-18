@@ -4,18 +4,15 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -29,43 +26,20 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ProductSearchBuilderInterface
-     */
-    private $searchBuilder;
+    private ProductSearchBuilderInterface $searchBuilder;
 
-    /**
-     * @var ProductListingLoader
-     */
-    private $productListingLoader;
-
-    /**
-     * @var ProductDefinition
-     */
-    private $definition;
-
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
+    private ProductListingLoader $productListingLoader;
 
     public function __construct(
         ProductSearchBuilderInterface $searchBuilder,
         EventDispatcherInterface $eventDispatcher,
-        ProductListingLoader $productListingLoader,
-        ProductDefinition $definition,
-        RequestCriteriaBuilder $criteriaBuilder
+        ProductListingLoader $productListingLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
         $this->productListingLoader = $productListingLoader;
-        $this->definition = $definition;
-        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -75,7 +49,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     /**
      * @Since("6.2.0.0")
-     * @Entity("product")
      * @OA\Get(
      *      path="/search",
      *      summary="Search",
@@ -93,29 +66,21 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/search", name="store-api.search", methods={"POST"})
+     * @Route("/store-api/search", name="store-api.search", methods={"POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): ProductSearchRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         if (!$request->get('search')) {
             throw new MissingRequestParameterException('search');
         }
 
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->definition, $context->getContext());
-        }
+        $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
 
         $this->searchBuilder->build($request, $criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            new ProductSearchCriteriaEvent($request, $criteria, $context),
-            ProductEvents::PRODUCT_SEARCH_CRITERIA
-        );
 
         $result = $this->productListingLoader->load($criteria, $context);
 

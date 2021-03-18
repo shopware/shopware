@@ -103,8 +103,15 @@ Component.register('sw-extension-my-extensions-listing', {
         this.mountedComponent();
     },
 
+    watch: {
+        '$route.name'() {
+            this.updateList();
+        }
+    },
+
     methods: {
         mountedComponent() {
+            this.updateList();
             this.updateRouteQuery();
         },
 

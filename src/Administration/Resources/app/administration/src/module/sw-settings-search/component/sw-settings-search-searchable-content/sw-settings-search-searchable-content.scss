@@ -1,11 +1,12 @@
 @import "~scss/variables";
 
 .sw-settings-search {
-    &__searchable-content-show-example-text {
+    &__searchable-content-link-text {
         text-align: right;
     }
 
-    &__searchable-content-show-example-link {
+    &__searchable-content-show-example-link,
+    &__searchable-content-rebuild-link {
         color: $color-shopware-brand-500;
         font-size: $font-size-small;
         cursor: pointer;
@@ -14,6 +15,11 @@
         &:hover {
             color: $color-shopware-brand-600;
         }
+    }
+
+    &__searchable-content-rebuild-link {
+        display: block;
+        margin-top: 20px;
     }
 
     &__searchable-content-title {

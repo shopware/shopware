@@ -45,7 +45,8 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-tabs': true,
             'sw-settings-search-example-modal': Shopware.Component.build('sw-settings-search-example-modal'),
-            'sw-modal': true
+            'sw-modal': true,
+            'router-link': true
         }
     });
 }
@@ -72,28 +73,6 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         await wrapper.vm.onShowExampleModal();
         const modalElement = wrapper.find('.sw-settings-search-example-modal');
         expect(modalElement.isVisible()).toBe(true);
-    });
-
-    it('Should not able to create new config without creator privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.viewer'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-settings-search__searchable-content-add-button');
-        expect(createButton.attributes().disabled).toBeTruthy();
-    });
-
-    it('Should able to create new config if having creator privilege', async () => {
-        const wrapper = createWrapper([
-            'product_search_config.creator'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-settings-search__searchable-content-add-button');
-
-        expect(createButton.isVisible()).toBe(true);
-        expect(createButton.attributes().disabled).toBeFalsy();
     });
 
     it('Should not able to reset to default without editor privilege', async () => {

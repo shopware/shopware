@@ -40,8 +40,8 @@ describe('Search: Test ACL privileges', () => {
 
         // assert that there is an available settings for search module
         cy.get('.sw-settings-search__view-general').should('be.visible');
+        cy.get('.sw-settings-search__view-general').scrollIntoView();
         cy.get('.sw-settings-search__searchable-content-general').should('be.visible');
-        cy.get('.sw-settings-search__searchable-content-general').scrollIntoView();
 
         cy.get('.sw-settings-search-excluded-search-terms').scrollIntoView();
         cy.get('.sw-settings-search-excluded-search-terms').should('be.visible');
@@ -102,74 +102,6 @@ describe('Search: Test ACL privileges', () => {
     });
 
     // Searchable content section - General tab
-    it('@settings: should able to create a new config field', () => {
-        cy.loginAsUserWithPermissions([
-            {
-                key: 'product_search_config',
-                role: 'creator'
-            },
-            {
-                key: 'product_search_config',
-                role: 'deleter'
-            }
-        ]);
-
-        // go to search module
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
-
-        const page = new SettingsPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
-            method: 'delete'
-        }).as('deleteSearchConfig');
-
-        cy.route({
-            url: '/api/product-search-config-field',
-            method: 'post'
-        }).as('createSearchConfig');
-
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
-
-        cy.clickContextMenuItem(
-            '.sw-settings-search__searchable-content-list-remove',
-            page.elements.contextMenuButton,
-            `.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`
-        );
-
-        cy.wait('@deleteSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        cy.get('.sw-settings-search__searchable-content-add-button').click();
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
-        //
-        cy.get(`.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`).dblclick();
-        cy.get('.sw-settings-search-field-select')
-            .typeSingleSelectAndCheck('Category custom fields', '.sw-settings-search-field-select');
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            `${page.elements.dataGridRow}--0 #sw-field--item-ranking`).clear().type('2000');
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--searchable input`).click();
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            `${page.elements.dataGridRowInlineEdit}`).click();
-
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        // Check field already created
-        cy.get('.sw-settings-search__searchable-content-general .sw-data-grid__row--0 .sw-data-grid__cell-content:first')
-            .invoke('text').then((text) => {
-                expect(text.trim()).equal('Category custom fields');
-            });
-    });
-
     it('@settings: should able to update config field', () => {
         cy.loginAsUserWithPermissions([
             {
@@ -268,58 +200,6 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__searchable-content-general .sw-data-grid__row--0 .sw-data-grid__cell-value')
             .invoke('text').then((text) => {
                 expect(text.trim()).equal('0');
-            });
-    });
-
-    it('@settings: should be able to delete searchable content config field', () => {
-        cy.loginAsUserWithPermissions([
-            {
-                key: 'product_search_config',
-                role: 'viewer'
-            },
-            {
-                key: 'product_search_config',
-                role: 'deleter'
-            }
-        ]);
-        const page = new SettingsPageObject();
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('#sw-settings-search').click();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
-            method: 'delete'
-        }).as('deleteSearchConfig');
-
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
-
-        // Get field Name on first row
-        let fieldName = '';
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            '.sw-data-grid__row--0 .sw-data-grid__cell-content:first')
-            .invoke('text')
-            .then((text) => {
-                fieldName = text;
-            });
-        cy.clickContextMenuItem(
-            '.sw-settings-search__searchable-content-list-remove',
-            page.elements.contextMenuButton,
-            `.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`
-        );
-
-        cy.wait('@deleteSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-        cy.awaitAndCheckNotification('Configuration saved.');
-
-        // Make sure that the field was deleted
-        cy.get('.sw-settings-search__searchable-content-general ' +
-            '.sw-data-grid__row--0 .sw-data-grid__cell-content:first')
-            .invoke('text')
-            .then((text) => {
-                expect(text).to.not.equal(fieldName);
             });
     });
 

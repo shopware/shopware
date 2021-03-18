@@ -39,6 +39,9 @@
                 :showSelection="false"
                 :isLoading="isLoading"
                 :items="searchConfigs"
+                :allowInlineEdit="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.editor')"
+                :allowEdit="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.editor')"
+                :allowDelete="feature.isActive('FEATURE_NEXT_10552') && acl.can('product_search_config.deleter')"
                 @inline-edit-save="onInlineEditSave"
                 @inline-edit-cancel="onInlineEditCancel">
                 {% block sw_settings_search_searchable_content_customfields_field %}

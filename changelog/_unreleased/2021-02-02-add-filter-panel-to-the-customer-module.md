@@ -1,7 +1,6 @@
 ---
 title: Add filter panel to the customer module
 issue: NEXT-13309
-flag: FEATURE_NEXT_9831
 ---
 # Administration
 * Added data `filterCriteria`, `defaultFilters` in `src/module/sw-customer/page/sw-customer-list/index.js`

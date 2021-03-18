@@ -77,10 +77,6 @@ shopware:
               major: true
               description: "App System Store"
             # issue: NEXT-13469
-            - name: FEATURE_NEXT_9831
-              default: false
-              major: false
-              description: "Filters & Search for Admin Grids"
             - name: FEATURE_NEXT_10514
               default: false
               major: false

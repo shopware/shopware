@@ -132,8 +132,6 @@ describe('Product: Testing filter and reset filter', () => {
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-        cy.onlyOnFeature('FEATURE_NEXT_9831');
-
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -186,8 +184,6 @@ describe('Product: Testing filter and reset filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-
-        cy.onlyOnFeature('FEATURE_NEXT_9831');
 
         // Request we want to wait for later
         cy.server();

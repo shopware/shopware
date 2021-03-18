@@ -220,7 +220,6 @@
                     {% endblock %}
 
                     <sw-sidebar-filter-panel
-                        v-if="feature.isActive('FEATURE_NEXT_9831')"
                         entity="product"
                         @criteria-changed="updateCriteria"
                         :filters="listFilters"

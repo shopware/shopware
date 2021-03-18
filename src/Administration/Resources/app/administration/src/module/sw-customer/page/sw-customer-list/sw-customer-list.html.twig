@@ -246,54 +246,11 @@
 
                     {% block sw_customer_list_sidebar_filter %}
                         <sw-sidebar-filter-panel
-                            v-if="feature.isActive('FEATURE_NEXT_9831')"
                             entity="customer"
                             :filters="listFilters"
                             :defaults="defaultFilters"
                             @criteria-changed="updateCriteria">
                         </sw-sidebar-filter-panel>
-
-                        <template v-else>
-                            <sw-sidebar-item icon="default-action-filter"
-                                             :title="$tc('sw-customer.list.titleSidebarItemFilter')">
-
-                                {% block sw_customer_list_sidebar_filter_items %}
-
-                                    {% block sw_customer_list_sidebar_filter_affiliate_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-customer.list.titleSidebarItemFilterAffiliateCode')"
-                                            :options="availableAffiliateCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            :value="affiliateCodeFilter"
-                                            @change="onChangeAffiliateCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                    {% block sw_customer_list_sidebar_filter_campaign_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-customer.list.titleSidebarItemFilterCampaignCode')"
-                                            :options="availableCampaignCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            @change="onChangeCampaignCodeFilter"
-                                            :value="campaignCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                    {% block sw_customer_list_sidebar_filter_requested_group %}
-                                        <sw-switch-field
-                                            :label="$tc('sw-customer.list.titleSidebarItemFilterRequestedGroup')"
-                                            @change="onChangeRequestedGroupFilter"
-                                            :value="showOnlyCustomerGroupRequests">
-                                        </sw-switch-field>
-                                    {% endblock %}
-
-                                {% endblock %}
-                            </sw-sidebar-item>
-                        </template>
                     {% endblock %}
                 </sw-sidebar>
             </template>

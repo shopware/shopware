@@ -11,8 +11,7 @@ Component.register('sw-product-list', {
         'repositoryFactory',
         'numberRangeService',
         'acl',
-        'filterFactory',
-        'feature'
+        'filterFactory'
     ],
 
     mixins: [

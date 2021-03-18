@@ -248,46 +248,11 @@
 
                         {% block sw_order_list_sidebar_filter %}
                             <sw-sidebar-filter-panel
-                                v-if="feature.isActive('FEATURE_NEXT_9831')"
                                 entity="customer"
                                 :filters="listFilters"
                                 :defaults="defaultFilters"
                                 @criteria-changed="updateCriteria">
                             </sw-sidebar-filter-panel>
-
-                            <sw-sidebar-item
-                                v-else
-                                icon="default-action-filter"
-                                :title="$tc('sw-order.list.titleSidebarItemFilter')">
-
-                                {% block sw_order_list_sidebar_filter_items %}
-
-                                    {% block sw_order_list_sidebar_filter_affiliate_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
-                                            :options="availableAffiliateCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            :value="affiliateCodeFilter"
-                                            @change="onChangeAffiliateCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                    {% block sw_order_list_sidebar_filter_campaign_code %}
-                                        <sw-multi-select
-                                            :label="$tc('sw-order.list.titleSidebarItemFilterCampaignCode')"
-                                            :options="availableCampaignCodes"
-                                            :isLoading="filterLoading"
-                                            valueProperty="key"
-                                            labelProperty="key"
-                                            @change="onChangeCampaignCodeFilter"
-                                            :value="campaignCodeFilter">
-                                        </sw-multi-select>
-                                    {% endblock %}
-
-                                {% endblock %}
-                            </sw-sidebar-item>
                         {% endblock %}
                     </sw-sidebar>
                 </template>

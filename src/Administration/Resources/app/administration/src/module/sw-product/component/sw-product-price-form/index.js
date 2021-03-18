@@ -32,15 +32,15 @@ Component.register('sw-product-price-form', {
             'isLoading',
             'defaultPrice',
             'defaultCurrency',
-            'productTaxRate'
+            'productTaxRate',
+            'showModeSetting'
         ]),
 
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
             'taxes',
-            'currencies',
-            'modeSettingsVisible'
+            'currencies'
         ]),
 
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),

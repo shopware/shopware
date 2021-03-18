@@ -91,14 +91,13 @@ Component.register('sw-product-detail-base', {
             'product',
             'parentProduct',
             'customFieldSets',
-            'loading',
-            'advancedModeSetting',
-            'modeSettingsVisible'
+            'loading'
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
-            'showModeSetting'
+            'showModeSetting',
+            'showProductCard'
         ]),
 
         /**

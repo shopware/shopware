@@ -1,7 +1,7 @@
 import template from './sw-product-deliverability-form.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-deliverability-form', {
     template,
@@ -24,8 +24,11 @@ Component.register('sw-product-deliverability-form', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'loading',
-            'modeSettingsVisible'
+            'loading'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'showModeSetting'
         ]),
 
         ...mapPropertyErrors('product', [

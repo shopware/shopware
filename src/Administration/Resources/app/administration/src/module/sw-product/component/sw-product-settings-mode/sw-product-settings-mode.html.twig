@@ -30,7 +30,7 @@
                             class="sw-product-settings-mode__advanced-mode"
                             size="medium"
                             :label="$tc(advancedMode.label)"
-                            @change="onChangeModeSettings">
+                            @change="onChangeSetting">
                         </sw-switch-field>
                     {% endblock %}
                 </div>
@@ -55,7 +55,7 @@
                                     v-model="item.enabled"
                                     :disabled="!advancedMode.enabled"
                                     :label="$tc(item.label)"
-                                    @change="onChangeModeSettings">
+                                    @change="onChangeSettingItem">
                                 </sw-checkbox-field>
                             {% endblock %}
                         </div>

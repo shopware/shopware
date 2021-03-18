@@ -12,12 +12,13 @@ Component.register('sw-product-detail-specifications', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'customFieldSets',
-            'modeSettingsVisible'
+            'customFieldSets'
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
+            'showModeSetting',
+            'showProductCard'
         ])
     }
 });

@@ -56,7 +56,8 @@ Component.register('sw-product-detail', {
             'product',
             'parentProduct',
             'localMode',
-            'advancedModeSetting'
+            'advancedModeSetting',
+            'modeSettings'
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -65,7 +66,8 @@ Component.register('sw-product-detail', {
             'isChild',
             'defaultCurrency',
             'defaultFeatureSet',
-            'showModeSetting'
+            'showModeSetting',
+            'advanceModeEnabled'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -232,31 +234,37 @@ Component.register('sw-product-detail', {
                     key: 'general_information',
                     label: 'sw-product.detailBase.cardTitleProductInfo',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'prices',
                     label: 'sw-product.detailBase.cardTitlePrices',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'deliverability',
                     label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 },
                 {
                     key: 'visibility_structure',
                     label: 'sw-product.detailBase.cardTitleAssignment',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
+                },
+                {
+                    key: 'media',
+                    label: 'sw-product.detailBase.cardTitleMedia',
+                    enabled: true,
+                    name: 'general'
                 },
                 {
                     key: 'labelling',
                     label: 'sw-product.detailBase.cardTitleSettings',
                     enabled: true,
-                    tabSetting: 'general'
+                    name: 'general'
                 }
             ];
         },
@@ -267,42 +275,40 @@ Component.register('sw-product-detail', {
                     key: 'measures_packaging',
                     label: 'sw-product.specifications.cardTitleMeasuresPackaging',
                     enabled: true,
-                    tabSetting: 'specifications'
+                    name: 'specifications'
                 },
                 {
                     key: 'properties',
                     label: 'sw-product.specifications.cardTitleProperties',
                     enabled: true,
-                    tabSetting: 'specifications'
+                    name: 'specifications'
                 },
                 {
                     key: 'essential_characteristics',
                     label: 'sw-product.specifications.cardTitleEssentialCharacteristics',
                     enabled: true,
-                    tabSetting: 'specifications'
-                },
-                {
-                    key: 'custom_products',
-                    label: 'sw-product.specifications.cardTitleCustomProduct',
-                    enabled: true,
-                    tabSetting: 'specifications'
+                    name: 'specifications'
                 },
                 {
                     key: 'custom_fields',
                     label: 'sw-product.specifications.cardTitleCustomFields',
                     enabled: true,
-                    tabSetting: 'specifications'
+                    name: 'specifications'
                 }
             ];
         },
 
-        isAdvancedModeVisible() {
-            const detailRoute = [
+        showAdvanceModeSetting() {
+            if (this.isChild) {
+                return false;
+            }
+
+            const routes = [
                 'sw.product.detail.base',
                 'sw.product.detail.specifications'
             ];
 
-            return detailRoute.includes(this.$route.name);
+            return routes.includes(this.$route.name);
         }
     },
 
@@ -426,7 +432,7 @@ Component.register('sw-product-detail', {
                     }
 
                     Shopware.State.commit('swProductDetail/setAdvancedModeSetting', items.first());
-                    Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+                    Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
                 });
         },
 
@@ -445,37 +451,22 @@ Component.register('sw-product-detail', {
                 });
         },
 
-        changeDisplaySettings() {
-            return {
-                showSettingsInformation: this.getModeEnabledByKey('general_information') && this.showModeSetting,
-                showLabellingCard: this.getModeEnabledByKey('labelling') && this.showModeSetting,
-                showCharacteristicsCard: this.getModeEnabledByKey('essential_characteristics') && this.showModeSetting,
-                showCustomFieldCard: this.getModeEnabledByKey('custom_fields') && this.showModeSetting,
-                showPropertiesCard: this.getModeEnabledByKey('properties'),
-                showCustomProduct: this.getModeEnabledByKey('custom_products') && this.showModeSetting,
-                showSettingPackaging: this.getModeEnabledByKey('measures_packaging') && this.showModeSetting,
-                showSettingPrice: this.getModeEnabledByKey('prices') && this.showModeSetting,
-                showSettingDelivery: this.getModeEnabledByKey('deliverability') && this.showModeSetting,
-                showSettingStructure: this.getModeEnabledByKey('visibility_structure') && this.showModeSetting
-            };
-        },
-
-        getModeEnabledByKey(key) {
-            if (!key) {
-                return false;
-            }
-
-            const modeEnableItem = this.advancedModeSetting.value.settings.find(item => item.key === key);
-            if (!modeEnableItem) {
-                return false;
-            }
-
-            return modeEnableItem.enabled;
-        },
-
-        onChangeSettings() {
+        onChangeSetting() {
             Shopware.State.commit('swProductDetail/setAdvancedModeSetting', this.advancedModeSetting);
-            Shopware.State.commit('swProductDetail/setModeSettingVisible', this.changeDisplaySettings());
+            this.saveAdvancedMode();
+        },
+
+        changeModeSettings() {
+            const enabledModeItems = this.advancedModeSetting.value.settings.filter((item) => item.enabled);
+            if (!enabledModeItems.length) {
+                return [];
+            }
+
+            return enabledModeItems.map(item => item.key);
+        },
+
+        onChangeSettingItem() {
+            Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
             this.saveAdvancedMode();
         },
 

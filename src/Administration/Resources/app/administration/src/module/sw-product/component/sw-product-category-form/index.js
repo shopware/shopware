@@ -31,12 +31,12 @@ Component.register('sw-product-category-form', {
             'product',
             'parentProduct',
             'localMode',
-            'loading',
-            'modeSettingsVisible'
+            'loading'
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isChild'
+            'isChild',
+            'showModeSetting'
         ]),
 
         ...mapPropertyErrors('product', [

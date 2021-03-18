@@ -1,11 +1,14 @@
 {% block sw_product_detail_base %}
     <div class="sw-product-detail-base">
         {% block sw_product_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleProductInfo')" :isLoading="isLoading">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('general_information')"
+                :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
+                :isLoading="isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
                     <sw-product-basic-form
                         v-if="!isLoading"
-                        :showSettingsInformation="modeSettingsVisible.showSettingsInformation"
+                        :showSettingsInformation="showModeSetting"
                         :allowEdit="acl.can('product.editor')">
                     </sw-product-basic-form>
                 {% endblock %}
@@ -13,7 +16,10 @@
         {% endblock %}
 
         {% block sw_product_detail_base_price_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="loading.product">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('prices')"
+                :title="$tc('sw-product.detailBase.cardTitlePrices')"
+                :isLoading="loading.product">
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form :allowEdit="acl.can('product.editor')">
                     </sw-product-price-form>
@@ -35,7 +41,10 @@
         {% endblock %}
 
         {% block sw_product_detail_deliverability_info_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')" :isLoading="isLoading">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('deliverability')"
+                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+                :isLoading="isLoading">
                 {% block sw_product_detail_deliverability_info_form %}
                     <sw-product-deliverability-form
                         v-if="!isLoading"
@@ -46,7 +55,10 @@
         {% endblock %}
 
         {% block sw_product_detail_base_category_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleAssignment')" :isLoading="loading.product">
+            <sw-card
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('visibility_structure')"
+                :title="$tc('sw-product.detailBase.cardTitleAssignment')"
+                :isLoading="loading.product">
                 {% block sw_product_detail_base_category_form %}
                     <sw-product-category-form :allowEdit="acl.can('product.editor')"></sw-product-category-form>
                 {% endblock %}
@@ -55,7 +67,9 @@
 
         {% block sw_product_detail_base_media %}
             <sw-inherit-wrapper
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('media')"
                 v-model="product.media"
+                class="sw-product-detail-base__media"
                 :inheritedValue="parentProduct.media"
                 :customRestoreInheritanceFunction="mediaRestoreInheritanceFunction"
                 :customRemoveInheritanceFunction="mediaRemoveInheritanceFunction"
@@ -110,7 +124,7 @@
 
         {% block sw_product_detail_base_settings_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || modeSettingsVisible.showLabellingCard"
+                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('labelling')"
                 class="sw-product-detail-base__labelling-card"
                 :title="$tc('sw-product.detailBase.cardTitleSettings')"
                 :isLoading="loading.product">

@@ -234,11 +234,8 @@ Component.register('sw-order-list', {
         async getList() {
             this.isLoading = true;
 
-            let criteria = this.orderCriteria;
-            if (this.feature.isActive('FEATURE_NEXT_9831')) {
-                criteria = await Shopware.Service('filterService')
-                    .mergeWithStoredFilters(this.storeKey, this.orderCriteria);
-            }
+            const criteria = await Shopware.Service('filterService')
+                .mergeWithStoredFilters(this.storeKey, this.orderCriteria);
 
             this.activeFilterNumber = criteria.filters.length;
 

@@ -169,9 +169,9 @@
                     <sw-card :title="$tc('sw-settings-number-range.detail.assignmentCard')" class="sw-settings-number-range-detail-assignment">
                         {% block sw_settings_number_range_detail_assignment_card_global_warning %}
                             <sw-alert
-                                v-if="numberRange !== null && numberRange.global && !numberRange.type.global"
+                                v-if="numberRange !== null && numberRange.global"
                                 class="sw-number_range-quickinfo__alert-global-type"
-                                variant="warning"
+                                variant="info"
                                 :title="$tc('sw-settings-number-range.general.infoGlobalTitle', 0, {name: numberRange.name})"
                             >
                                 {{ $tc('sw-settings-number-range.general.infoGlobal', 0, {name: numberRange.name}) }}

@@ -34,7 +34,7 @@ export default class ProductPageObject {
 
     generateVariants(propertyName, optionPosition, totalCount) {
         const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
-        const optionString = totalCount === 1 ? 'option' : 'options';
+        const optionString = totalCount === 1 ? 'value' : 'values';
 
         // Request we want to wait for later
         cy.server();

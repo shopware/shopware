@@ -3,11 +3,11 @@
     "general": {
       "mainMenuItemGeneral": "Nummernkreise",
       "placeholderSearchBar": "Nummernkreise durchsuchen ...",
-      "infoGlobalType": "Für den Typ \"{typeName}\" kann es nur einen Nummernkreis geben. Soll der Nummernkreis für den Typ \"{typeName}\" geändert werden, muss die Anpassung hier erfolgen.",
+      "infoGlobalType": "Es kann nur einen Nummernkreis des Typs \"{typeName}\" geben. Anpassungen des Nummernkreises vom Typ \"{typeName}\" müssen hier erfolgen und haben damit immer globale Wirkung in allen Verkaufskanälen.",
       "infoGlobalTypeTitle": "Globaler Nummernkreistyp \"{typeName}\"",
-      "infoGlobal": "Der Typ eines globalen Nummernkreises kann nicht geändert werden. Soll der Nummernkreis für \"{name}\" geändert werden, muss ein neuer erstellt werden.",
-      "infoGlobalTitle": "Dies ist ein globaler Nummernkreis für \"{name}\"",
-      "infoSalesChannelBound": "Um den Typ zu ändern entferne bitte zuerst die Verkaufskanal Zuordnung."
+      "infoGlobal": "Der Typ eines globalen Nummernkreises kann nicht geändert werden. In der Übersicht kannst Du für die meisten Typen neue Nummernkreise anlegen, die für einzelne Verkaufskanäle gelten.",
+      "infoGlobalTitle": "Globaler Nummernkreis \"{name}\"",
+      "infoSalesChannelBound": "Um den Nummernkreis-Typ ändern zu können, müssen alle vorhandenen Verkaufskanal-Zuordnungen entfernt werden."
     },
     "list": {
       "textHeadline": "Nummernkreise",

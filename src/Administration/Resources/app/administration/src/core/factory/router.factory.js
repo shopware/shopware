@@ -136,7 +136,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // User tries to access store page when store is not installed. Then redirect to landing page.
-            if (to.name.includes('sw.extension.store') && to.matched.length <= 0) {
+            if (to.name && to.name.includes('sw.extension.store') && to.matched.length <= 0) {
                 return next({ name: 'sw.extension.store.landing-page' });
             }
 

@@ -108,18 +108,22 @@ class AnyRuleMatcherTest extends TestCase
         // create our test product line items
         $productHighQuantityHighPrice = $this->createProductItem($minPrice, 0);
         $productHighQuantityHighPrice->setId($productHighQuantity1Id);
+        $productHighQuantityHighPrice->setReferencedId($productHighQuantity1Id);
         $productHighQuantityHighPrice->setQuantity($minQuantity);
 
         $productHighQuantityLowPrice = $this->createProductItem($minPrice - 0.1, 0);
         $productHighQuantityLowPrice->setId($productHighQuantity2Id);
+        $productHighQuantityLowPrice->setReferencedId($productHighQuantity2Id);
         $productHighQuantityLowPrice->setQuantity($minQuantity);
 
         $productLowQuantityHighPrice = $this->createProductItem($minPrice, 0);
         $productLowQuantityHighPrice->setId($productLowQuantity1Id);
+        $productLowQuantityHighPrice->setReferencedId($productLowQuantity1Id);
         $productLowQuantityHighPrice->setQuantity($minQuantity - 1);
 
         $productLowQuantityLowPrice = $this->createProductItem($minPrice - 0.1, 0);
         $productLowQuantityLowPrice->setId($productLowQuantity2Id);
+        $productLowQuantityLowPrice->setReferencedId($productLowQuantity2Id);
         $productLowQuantityLowPrice->setQuantity($minQuantity - 1);
 
         $rulesMinPrice = new RuleEntity();

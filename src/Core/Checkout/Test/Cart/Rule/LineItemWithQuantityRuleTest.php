@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -248,21 +250,61 @@ class LineItemWithQuantityRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    public function testIfMatchesCorrectWithCartRuleScopeNested(): void
+    /**
+     * @dataProvider matchProvider
+     */
+    public function testMatch(LineItem $lineItem, LineItemWithQuantityRule $rule, bool $shouldMatch): void
     {
-        $lineItem = $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 11);
+        $cart = new Cart('test', 'test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
 
-        $lineItemCollection = new LineItemCollection([
-            $lineItem,
-            $this->createLineItem(),
-        ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $context = $this->createMock(SalesChannelContext::class);
 
-        $match = (new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $lineItem->getId(), 11))->match(
-            new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))
+        static::assertSame(
+            $shouldMatch,
+            $rule->match(new CartRuleScope($cart, $context))
         );
+    }
 
-        static::assertTrue($match);
+    public function matchProvider(): \Generator
+    {
+        $ids = new IdsCollection();
+
+        yield 'Id should not be used' => [
+            new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, null),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('line-item-id'), 1),
+            false,
+        ];
+
+        yield 'Reference id should match' => [
+            new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id')),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 1),
+            true,
+        ];
+
+        yield 'Reference id should match with quantity' => [
+            new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 4),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 4),
+            true,
+        ];
+
+        yield 'Reference id should not match with quantity' => [
+            new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 3),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 4),
+            false,
+        ];
+
+        yield 'Reference id with gte operator' => [
+            new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 4),
+            new LineItemWithQuantityRule(Rule::OPERATOR_GTE, $ids->get('reference-id'), 3),
+            true,
+        ];
+
+        yield 'Nested line item should be considered' => [
+            (new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('container-id'), 1))
+                ->addChild(new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 1)),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 1),
+            true,
+        ];
     }
 }

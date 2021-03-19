@@ -47,6 +47,8 @@ Shopware.Service('privileges')
                     'user_config:read',
                     'user_config:create',
                     'user_config:update',
+                    'number_range:read',
+                    'number_range_type:read',
                     Shopware.Service('privileges').getPrivileges('cms.viewer')
                 ],
                 dependencies: []

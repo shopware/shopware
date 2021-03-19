@@ -23,7 +23,7 @@
 
         {% block sw_product_price_form_purchase_price_field %}
             <div
-                v-if="feature.isActive('FEATURE_NEXT_12429') && purchasePrices && purchasePrices.length && showSettingPrice"
+                v-if="purchasePrices && purchasePrices.length && showSettingPrice"
                 class="sw-list-price-field__price">
                 {% block sw_product_price_form_purchase_price_field_content %}
                     <sw-price-field
@@ -42,7 +42,7 @@
 
         <div class="sw-list-price-field__list-price">
             {% block sw_list_price_field_list_price %}
-                <sw-price-field v-if="!hideListPrices && (!feature.isActive('FEATURE_NEXT_12429') || showSettingPrice)"
+                <sw-price-field v-if="!hideListPrices && showSettingPrice"
                                 :price="listPrice"
                                 :defaultPrice="defaultListPrice"
                                 :taxRate="taxRate"

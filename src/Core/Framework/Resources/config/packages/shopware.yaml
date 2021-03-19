@@ -74,10 +74,6 @@ shopware:
               major: true
               description: "App System Store"
             # issue: NEXT-13469
-            - name: FEATURE_NEXT_12429
-              default: false
-              major: true
-              description: "Improve product UX"
               # issue: NEXT-13759
             - name: FEATURE_NEXT_13810
               default: false

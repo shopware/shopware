@@ -113,7 +113,7 @@
 
             {% block sw_product_price_form_purchase_unit_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingPackaging"
+                    v-show="showSettingPackaging"
                     v-model="product.purchaseUnit"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.purchaseUnit">
@@ -142,7 +142,7 @@
 
             {% block sw_product_price_form_unit_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingPackaging"
+                    v-show="showSettingPackaging"
                     v-model="product.unitId"
                     :hasParent="!!parentProduct.id"
                     :label="$tc('sw-product.packagingForm.labelUnit')"
@@ -167,7 +167,7 @@
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_price_form_pack_unit_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingPackaging"
+                    v-show="showSettingPackaging"
                     v-model="product.packUnit"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.packUnit">
@@ -192,7 +192,7 @@
 
             {% block sw_product_price_form_pack_unit_plural_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingPackaging"
+                    v-show="showSettingPackaging"
                     v-model="product.packUnitPlural"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.packUnitPlural">
@@ -217,7 +217,7 @@
 
             {% block sw_product_price_form_reference_unit_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingPackaging"
+                    v-show="showSettingPackaging"
                     v-model="product.referenceUnit"
                     :hasParent="!!parentProduct.id"
                     :inheritedValue="parentProduct.referenceUnit">

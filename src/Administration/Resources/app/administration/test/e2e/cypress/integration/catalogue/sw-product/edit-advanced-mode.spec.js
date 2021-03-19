@@ -20,8 +20,6 @@ describe('Product: Mode advanced settings at product detail on General tab', () 
     });
 
     it('@catalogue: should be not show the promotion switch when General settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -36,8 +34,6 @@ describe('Product: Mode advanced settings at product detail on General tab', () 
     });
 
     it('@catalogue: should be not show the labelling card when Labelling settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -52,8 +48,6 @@ describe('Product: Mode advanced settings at product detail on General tab', () 
     });
 
     it('@catalogue: should be not show fields in Price card when Price settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -75,8 +69,6 @@ describe('Product: Mode advanced settings at product detail on General tab', () 
     });
 
     it('@catalogue: should be not show fields in Deliverability card when Deliverability settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -103,8 +95,6 @@ describe('Product: Mode advanced settings at product detail on General tab', () 
     });
 
     it('@catalogue: should be not show fields in Structure card when Structure settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -144,8 +134,6 @@ describe('Product: Mode advanced settings at product detail on Specifications ta
     });
 
     it('@catalogue: should be not show the Properties card when Properties settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -164,8 +152,6 @@ describe('Product: Mode advanced settings at product detail on Specifications ta
     });
 
     it('@catalogue: should be not show the Characteristics card when Characteristics settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -184,8 +170,6 @@ describe('Product: Mode advanced settings at product detail on Specifications ta
     });
 
     it('@catalogue: should be not show the Custom Fields card when Custom Fields settings was unchecked', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         const page = new ProductPageObject();
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

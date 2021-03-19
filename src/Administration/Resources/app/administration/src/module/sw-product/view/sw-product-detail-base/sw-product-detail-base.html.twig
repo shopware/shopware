@@ -2,7 +2,7 @@
     <div class="sw-product-detail-base">
         {% block sw_product_detail_base_basic_info_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('general_information')"
+                v-show="showProductCard('general_information')"
                 :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_base_basic_info_form %}
@@ -17,7 +17,7 @@
 
         {% block sw_product_detail_base_price_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('prices')"
+                v-show="showProductCard('prices')"
                 :title="$tc('sw-product.detailBase.cardTitlePrices')"
                 :isLoading="loading.product">
                 {% block sw_product_detail_base_price_form %}
@@ -42,7 +42,7 @@
 
         {% block sw_product_detail_deliverability_info_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('deliverability')"
+                v-show="showProductCard('deliverability')"
                 :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
                 :isLoading="isLoading">
                 {% block sw_product_detail_deliverability_info_form %}
@@ -56,7 +56,7 @@
 
         {% block sw_product_detail_base_category_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('visibility_structure')"
+                v-show="showProductCard('visibility_structure')"
                 :title="$tc('sw-product.detailBase.cardTitleAssignment')"
                 :isLoading="loading.product">
                 {% block sw_product_detail_base_category_form %}
@@ -67,7 +67,7 @@
 
         {% block sw_product_detail_base_media %}
             <sw-inherit-wrapper
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('media')"
+                v-show="showProductCard('media')"
                 v-model="product.media"
                 class="sw-product-detail-base__media"
                 :inheritedValue="parentProduct.media"
@@ -124,7 +124,7 @@
 
         {% block sw_product_detail_base_settings_card %}
             <sw-card
-                v-show="!feature.isActive('FEATURE_NEXT_12429') || showProductCard('labelling')"
+                v-show="showProductCard('labelling')"
                 class="sw-product-detail-base__labelling-card"
                 :title="$tc('sw-product.detailBase.cardTitleSettings')"
                 :isLoading="loading.product">
@@ -136,7 +136,7 @@
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-seo" component, like following:
             {% block sw_product_detail_seo %}
-                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                <div>
                     {% block sw_product_detail_seo_general %}
                         <sw-card>...</sw-card>
                     {% endblock %}
@@ -148,46 +148,11 @@
             {% endblock %}
         #}
         {% block sw_product_detail_base_settings_seo_settings %}
-            {% block sw_product_detail_base_settings_seo_settings_general %}
-                <sw-card
-                    v-if="!feature.isActive('FEATURE_NEXT_12429')"
-                    :title="$tc('sw-product.detailBase.cardTitleSeo')"
-                    :isLoading="loading.product">
-                    <sw-product-seo-form ref="seoForm"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-seo-form>
-                </sw-card>
-            {% endblock %}
-
-            {% block sw_product_detail_base_settings_seo_settings_url %}
-                <sw-seo-url
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') && product.seoUrls"
-                    :isLoading="loading.product"
-                    :hasDefaultTemplate="false"
-                    :disabled="!acl.can('product.editor')"
-                    :urls="product.seoUrls">
-
-                    <template #seo-additional="props">
-                        {% block sw_product_detail_base_settings_seo_card_additions %}
-                        <sw-seo-main-category
-                            v-if="product.mainCategories"
-                            :currentSalesChannelId="props.currentSalesChannelId"
-                            :categories="product.categories"
-                            :mainCategories="product.mainCategories"
-                            :isLoading="loading.product"
-                            :allowEdit="acl.can('product.editor')"
-                            @main-category-add="onMainCategoryAdded">
-                        </sw-seo-main-category>
-                        {% endblock %}
-
-                    </template>
-                </sw-seo-url>
-            {% endblock %}
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
             {% block sw_product_detail_specifications %}
-                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                <div>
                     ...
                     {% block sw_product_detail_specifications_measures_packaging %}
                         <sw-card
@@ -206,22 +171,11 @@
             {% endblock %}
         #}
         {% block sw_product_detail_base_packaging_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_12429')"
-                :title="$tc('sw-product.detailBase.cardTitlePackaging')"
-                :isLoading="isLoading">
-                {% block sw_product_detail_base_packaging_form %}
-                    <sw-product-packaging-form
-                        v-if="!isLoading"
-                        :allowEdit="acl.can('product.editor')">
-                    </sw-product-packaging-form>
-                {% endblock %}
-            </sw-card>
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
             {% block sw_product_detail_specifications %}
-                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                <div>
                     ...
                     {% block sw_product_detail_specifications_essential_characteristics %}
                         <sw-card
@@ -239,19 +193,11 @@
             {% endblock %}
         #}
         {% block sw_product_detail_base_feature_set_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_12429')"
-                :title="$tc('sw-product.featureSets.cardTitle')"
-                :isLoading="loading.product">
-                {% block sw_product_detail_base_feature_set_form %}
-                    <sw-product-feature-set-form :allowEdit="acl.can('product.editor')"></sw-product-feature-set-form>
-                {% endblock %}
-            </sw-card>
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-specifications" component, like following:
             {% block sw_product_detail_specifications %}
-                <div v-if="feature.isActive('FEATURE_NEXT_12429')">
+                <div>
                     ...
                     {% block sw_product_detail_specifications_custom_fields %}
                         <sw-card
@@ -269,28 +215,12 @@
             {% endblock %}
         #}
         {% block sw_product_detail_attribute_sets %}
-            <sw-card
-                v-if="
-                    !feature.isActive('FEATURE_NEXT_12429') &&
-                    customFieldSetsArray.length > 0 &&
-                    !isLoading
-                "
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :isLoading="loading.product || loading.customFieldSets">
-                    <sw-custom-field-set-renderer
-                        :entity="product"
-                        :disabled="!acl.can('product.editor')"
-                        showCustomFieldSetSelection
-                        :parentEntity="parentProduct"
-                        :sets="customFieldSetsArray">
-                    </sw-custom-field-set-renderer>
-                </sw-card>
         {% endblock %}
 
         {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
             {% block sw_product_detail_reviews %}
                 <sw-card
-                    v-if="feature.isActive('FEATURE_NEXT_12429')"
+
                     class="sw-product-detail-reviews"
                     :title="$tc('sw-product.reviews.cardTitleReviews')"
                     :isLoading="isLoading">
@@ -299,110 +229,6 @@
             {% endblock %}
         #}
         {% block sw_product_detail_base_ratings_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_12429') && reviewItemData"
-                class="sw-product-detail-base__review-card"
-                :title="$tc('sw-product.detailBase.cardTitleReviews')"
-                :isLoading="product.isLoading">
-                <template #grid>
-                    <sw-data-grid
-                        v-if="total"
-                        ref="gridReview"
-                        :dataSource="reviewItemData"
-                        :columns="reviewColumns"
-                        :showSelection="false"
-                        :isLoading="loading.product"
-                        :showActions="true">
-                            {% block sw_product_detail_base_ratings_column_status %}
-                                <template slot="column-status" slot-scope="{ item }">
-                                    <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
-                                </template>
-                            {% endblock %}
-                            {% block sw_product_detail_base_ratings_column_created_at %}
-                                <template slot="column-createdAt" slot-scope="{ item }">
-                                    {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
-                                </template>
-                            {% endblock %}
-                            {% block sw_product_detail_base_ratings_column_stars %}
-                                <template slot="column-points" slot-scope="{ item }">
-                                    <div class="sw-review-detail-base__stars">
-                                        <sw-rating-stars v-model="item.points"></sw-rating-stars>
-                                    </div>
-                                </template>
-                            {% endblock %}
-                        {% block sw_product_detail_base_ratings_actions %}
-                        <template #actions="{ item }">
-                            {% block sw_product_detail_base_ratings_actions_edit %}
-                            <sw-context-menu-item
-                                class="sw-product-detail-base__review-edit"
-                                :disabled="!acl.can('product.editor')"
-                                :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }">
-                                {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-
-                            {% block sw_product_detail_base_ratings_actions_delete %}
-                            <sw-context-menu-item
-                                class="sw-product-detail-base__review-delete"
-                                variant="danger"
-                                @click="onStartReviewDelete(item)"
-                                :disabled="!acl.can('product.editor')">
-                                {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-                        </template>
-                        {% endblock %}
-
-                        {% block sw_product_detail_base_ratings_grid_pagination %}
-                        <template slot="pagination">
-                            <sw-pagination :total="total"
-                                           :limit="limit"
-                                           :page="page"
-                                           :total-visible="7"
-                                           :steps="[10]"
-                                           @page-change="onChangePage">
-                            </sw-pagination>
-                        </template>
-                        {% endblock %}
-
-                    </sw-data-grid>
-                </template>
-                {% block sw_product_detail_base_ratings_modal_delete %}
-                <sw-modal v-if="showReviewDeleteModal"
-                          @modal-close="onCancelReviewDelete"
-                          variant="small"
-                          :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
-                          class="sw-promotion-detail-discounts-modal">
-                    {% block sw_product_detail_base_ratings_modal_delete_text %}
-                    <p>
-                        {{ $tc('sw-product.reviewForm.modal.confirmText') }}
-                    </p>
-                    {% endblock %}
-
-                    {% block sw_product_detail_base_ratings_modal_delete_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
-                        <sw-button @click="onCancelReviewDelete" size="small">
-                            {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
-                        </sw-button>
-                        {% endblock %}
-
-                        {% block sw_product_detail_base_ratings_modal_delete_action_delete %}
-                        <sw-button @click="onConfirmReviewDelete" size="small" variant="danger"
-                                   class="sw-promotion-discount-delete-button">
-                            {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
-                        </sw-button>
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-                </sw-modal>
-                {% endblock %}
-                <sw-empty-state v-if="!total"
-                                :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
-                                icon="default-documentation-file"
-                                :subline="$tc('sw-product.reviewForm.messageEmptySubline')">
-                </sw-empty-state>
-            </sw-card>
         {% endblock %}
 
     </div>

@@ -1,7 +1,6 @@
 ---
 title: Create product specifications tab
 issue: NEXT-13287
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added `sw-product-detail-specifications` component in `view` folder of `sw-product` module.

@@ -1,7 +1,6 @@
 ---
 title: Create product specifications content
 issue: NEXT-13304
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added the main following blocks in `sw-product-detail-specifications` component template:

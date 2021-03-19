@@ -349,7 +349,7 @@ Component.register('sw-product-detail-base', {
          * its relevant view was moved from this component to `sw-product-detail-reviews` component.
          */
         reloadReviews() {
-            if (this.feature.isActive('FEATURE_NEXT_12429') || !this.product || !this.product.id) {
+            if (!this.product || !this.product.id) {
                 return;
             }
             const criteria = new Criteria();

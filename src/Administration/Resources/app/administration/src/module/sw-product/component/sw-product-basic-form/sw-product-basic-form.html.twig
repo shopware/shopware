@@ -81,30 +81,11 @@
         <div class="product-basic-form__switches">
             {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-category-form" component #}
             {% block sw_product_settings_form_active_field %}
-                <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429')"
-                    v-model="product.active"
-                    :hasParent="!!parentProduct.id"
-                    :inheritedValue="parentProduct.active">
-                    <template #content="props">
-
-                        <sw-field
-                            type="switch"
-                            class="sw-field--product-active"
-                            :error="productActiveError"
-                            :mapInheritance="props"
-                            :label="$tc('sw-product.settingsForm.labelActive')"
-                            :disabled="props.isInherited || !allowEdit"
-                            :value="props.currentValue"
-                            @change="props.updateCurrentValue">
-                        </sw-field>
-                    </template>
-                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_settings_form_mark_as_topseller_field %}
                 <sw-inherit-wrapper
-                    v-show="!feature.isActive('FEATURE_NEXT_12429') || showSettingsInformation"
+                    v-show="showSettingsInformation"
                     v-model="product.markAsTopseller"
                     class="sw-product-basic-form__promotion-switch"
                     :hasParent="!!parentProduct.id"

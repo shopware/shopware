@@ -1,7 +1,6 @@
 ---
 title: Switch advanced mode on the specifications tab
 issue: NEXT-13308
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Added `showSettingPrice` prop in `/app/component/form/sw-list-price-field/index.js`.

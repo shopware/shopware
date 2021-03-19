@@ -78,8 +78,8 @@ describe('Product: Visual tests', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-product-detail__tab-properties').should('be.visible');
-        cy.get('.sw-product-detail__tab-properties').click();
+        cy.get('.sw-product-detail__tab-specifications').should('be.visible');
+        cy.get('.sw-product-detail__tab-specifications').click();
 
         cy.get('#sw-field--searchTerm').should('be.visible');
         cy.get('#sw-field--searchTerm').click();

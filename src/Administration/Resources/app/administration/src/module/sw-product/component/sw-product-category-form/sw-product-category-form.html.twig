@@ -40,7 +40,6 @@
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" align="center">
                 {% block sw_product_category_form_active_field %}
                     <sw-inherit-wrapper
-                        v-if="feature.isActive('FEATURE_NEXT_12429')"
                         v-model="product.active"
                         :hasParent="!!parentProduct.id"
                         :inheritedValue="parentProduct.active">
@@ -57,7 +56,7 @@
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}
-                <a v-if="hasSelectedVisibilities && (!feature.isActive('FEATURE_NEXT_12429') || showModeSetting)"
+                <a v-if="hasSelectedVisibilities && showModeSetting"
                    class="sw-card__quick-link advanced-visibility"
                    style="text-align: right; display: block"
                    @click="displayAdvancedVisibility">
@@ -112,7 +111,7 @@
 
         {% block sw_product_category_form_tags_field %}
             <sw-inherit-wrapper
-                v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                v-if="showModeSetting"
                 class="sw-product-category-form__tag-field-wrapper"
                 v-model="product.tags"
                 :inheritedValue="parentProduct.tags"
@@ -136,7 +135,7 @@
         {% endblock %}
 
         {% block sw_product_category_form_search_keyword_field %}
-            <sw-inherit-wrapper v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+            <sw-inherit-wrapper v-if="showModeSetting"
                                 v-model="product.customSearchKeywords"
                                 :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
                                 :inheritedValue="parentProduct.customSearchKeywords"

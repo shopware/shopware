@@ -1,7 +1,6 @@
 ---
 title: Reordering content on General tab of the product module
 issue: NEXT-13290
-flag: FEATURE_NEXT_12429
 ---
 # Administration
 * Deprecated `sw_product_settings_form_active_field` block in `sw-product-basic-form` component.

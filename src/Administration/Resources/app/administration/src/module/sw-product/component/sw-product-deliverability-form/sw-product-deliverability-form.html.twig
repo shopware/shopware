@@ -65,7 +65,7 @@
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_deliverability_form_delivery_time_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.deliveryTimeId"
                     :inheritedValue="parentProduct.deliveryTimeId"
                     :label="$tc('sw-product.settingsForm.labelDeliveryTime')">
@@ -88,7 +88,7 @@
 
             {% block sw_product_deliverability_form_restock_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.restockTime"
                     class="sw-product-deliverability__restock-field"
                     :hasParent="!!parentProduct.id"
@@ -116,7 +116,7 @@
 
             {% block sw_product_deliverability_form_shipping_free_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.shippingFree"
                     class="sw-product-deliverability__shipping-free"
                     :hasParent="!!parentProduct.id"
@@ -141,7 +141,7 @@
         <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
             {% block sw_product_deliverability_form_min_purchase_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.minPurchase"
                     class="sw-product-deliverability__min-purchase"
                     :hasParent="!!parentProduct.id"
@@ -167,7 +167,7 @@
 
             {% block sw_product_deliverability_form_purchase_steps_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.purchaseSteps"
                     class="sw-product-deliverability__purchase-step"
                     :hasParent="!!parentProduct.id"
@@ -192,7 +192,7 @@
 
             {% block sw_product_deliverability_form_max_purchase_field %}
                 <sw-inherit-wrapper
-                    v-if="!feature.isActive('FEATURE_NEXT_12429') || showModeSetting"
+                    v-if="showModeSetting"
                     v-model="product.maxPurchase"
                     class="sw-product-deliverability__max-purchase"
                     :hasParent="!!parentProduct.id"

@@ -21,70 +21,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    // @deprecated tag:v6.5.0 - Will be removed when "FEATURE_NEXT_12429" feature flag is active
     it('@catalogue: set list price', () => {
-        cy.skipOnFeature('FEATURE_NEXT_12429');
-
-        cy.server();
-        cy.route({
-            url: '/api/search/product',
-            method: 'post'
-        }).as('saveProduct');
-
-        const page = new ProductPageObject();
-
-        // go to product detail page
-        cy.get('.sw-data-grid__cell-content :nth-child(2) a').click();
-
-        // go to variant tab
-        cy.get('.sw-product-detail__tab-variants').click();
-
-        // open variant generation modal
-        cy.get('.sw-product-detail-variants__generated-variants__empty-state .sw-button').click();
-
-        // generate variants
-        page.generateVariants('Color', [0, 1], 2);
-
-        cy.wait('@saveProduct').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        // go back to detail tab
-        cy.get('.sw-product-detail__tab-general').click();
-
-        // scroll to switch and click it
-        cy.get('.sw-product-seo-form .sw-field--switch input')
-            .scrollIntoView()
-            .check();
-
-        cy.get('.sw-product-seo-form .sw-select')
-            .typeSingleSelectAndCheck('Green', '.sw-product-seo-form .sw-select');
-
-        cy.wait('@searchCall').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get('.sw-button-process').click();
-
-        // checking if product got saved. 'product call' alias comes from the product.generateVariants method
-        cy.wait('@productCall').then(xhr => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.2`);
-
-        cy.get('link[rel="canonical"]')
-            .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
-
-        cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
-
-        cy.get('link[rel="canonical"]')
-            .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
-    });
-
-    it('@catalogue: set list price', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12429');
-
         cy.server();
         cy.route({
             url: '/api/search/product',

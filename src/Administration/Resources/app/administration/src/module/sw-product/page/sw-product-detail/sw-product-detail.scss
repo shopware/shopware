@@ -1,5 +1,4 @@
 @import "~scss/variables";
-@import "~scss/mixins";
 
 .sw-page.sw-product-detail {
     .sw-product-detail__save-action {
@@ -12,25 +11,21 @@
         }
     }
 
-    .sw-tabs__content {
-        &::before {
-            @include hidden;
-        }
-    }
+    .sw-product-detail-page__tabs {
+        .sw-tabs-item {
+            position: relative;
+            border: 0;
 
-    .sw-tabs-item {
-        position: relative;
-        border: 0;
-
-        &::before {
-            content: "";
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 2px;
-            background-color: $color-gray-300;
+            &::before {
+                content: "";
+                display: block;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 2px;
+                background-color: $color-gray-300;
+            }
         }
     }
 }

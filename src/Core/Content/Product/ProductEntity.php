@@ -70,7 +70,7 @@ class ProductEntity extends Entity
     protected $unitId;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $active;
 
@@ -552,12 +552,12 @@ class ProductEntity extends Entity
         $this->unitId = $unitId;
     }
 
-    public function getActive(): bool
+    public function getActive(): ?bool
     {
         return $this->active;
     }
 
-    public function setActive(bool $active): void
+    public function setActive(?bool $active): void
     {
         $this->active = $active;
     }

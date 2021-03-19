@@ -1,5 +1,7 @@
 {% block sw_product_detail_prices %}
-    <sw-container rows="auto" columns="1fr" class="sw-product-detail-context-prices">
+    <sw-container rows="auto"
+                  columns="100%"
+                  class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
             <sw-card v-if="isLoading"
@@ -10,7 +12,8 @@
         {% endblock %}
 
         {% block sw_product_detail_prices_price_card %}
-            <sw-container v-else-if="priceRuleGroupsExists">
+            <sw-container v-else-if="priceRuleGroupsExists"
+              columns="100%">
                 <sw-card
                     v-for="(priceGroup, key, index) in priceRuleGroups"
                     class="context-price"

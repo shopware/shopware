@@ -545,7 +545,7 @@ class RegisterRouteTest extends TestCase
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
+            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
 
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
@@ -675,7 +675,7 @@ class RegisterRouteTest extends TestCase
             'birthdayDay' => 22,
             'storefrontUrl' => $storefrontUrl,
             'billingAddress' => [
-                'countryId' => $this->getValidCountryId(),
+                'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -684,7 +684,7 @@ class RegisterRouteTest extends TestCase
                 'additionalAddressLine2' => 'Additional address line 2',
             ],
             'shippingAddress' => [
-                'countryId' => $this->getValidCountryId(),
+                'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',

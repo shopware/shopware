@@ -48,6 +48,11 @@ class CountryDefinition extends EntityDefinition
         return CountryEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return Feature::isActive('FEATURE_NEXT_14114') ? ['vatIdRequired' => false] : [];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';
@@ -98,6 +103,8 @@ class CountryDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_14114')) {
             $collection->add((new FloatField('tax_free_from', 'taxFreeFrom'))->addFlags(new ApiAware()));
+
+            $collection->add((new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()));
         }
 
         return $collection;

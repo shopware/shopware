@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -35,7 +35,8 @@ Component.register('sw-settings-country-detail', {
             countryStateRepository: null,
             countryStateLoading: false,
             isSaveSuccessful: false,
-            deleteButtonDisabled: true
+            deleteButtonDisabled: true,
+            systemCurrency: {}
         };
     },
 
@@ -48,6 +49,10 @@ Component.register('sw-settings-country-detail', {
     computed: {
         countryRepository() {
             return this.repositoryFactory.create('country');
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
         },
 
         identifier() {
@@ -113,6 +118,10 @@ Component.register('sw-settings-country-detail', {
                     this.country.states.entity,
                     this.country.states.source
                 );
+            });
+
+            this.currencyRepository.get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api).then(currency => {
+                this.systemCurrency = currency;
             });
         },
 

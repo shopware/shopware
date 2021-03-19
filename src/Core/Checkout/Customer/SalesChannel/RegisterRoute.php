@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -33,9 +34,12 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -92,6 +96,11 @@ class RegisterRoute extends AbstractRegisterRoute
      */
     private $contextPersister;
 
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $countryRepository;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
@@ -100,7 +109,8 @@ class RegisterRoute extends AbstractRegisterRoute
         DataValidationFactoryInterface $addressValidationFactory,
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $customerRepository,
-        SalesChannelContextPersister $contextPersister
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelRepositoryInterface $countryRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -110,6 +120,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->systemConfigService = $systemConfigService;
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
+        $this->countryRepository = $countryRepository;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -309,7 +320,12 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            if ($this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
+            //@internal (flag:FEATURE_NEXT_14114) Remove with feature flag
+            if (!Feature::isActive('FEATURE_NEXT_14114') && $this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
+                $definition->add('vatIds', new NotBlank());
+            }
+
+            if (Feature::isActive('FEATURE_NEXT_14114') && $this->requiredVatIdField($billingAddress['countryId'], $context)) {
                 $definition->add('vatIds', new NotBlank());
             }
 
@@ -509,5 +525,17 @@ class RegisterRoute extends AbstractRegisterRoute
         $criteria->setLimit(1);
 
         return $this->customerRepository->search($criteria, $context->getContext())->count() > 0;
+    }
+
+    private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool
+    {
+        /** @var CountryEntity|null $country */
+        $country = $this->countryRepository->search(new Criteria([$countryId]), $context)->get($countryId);
+
+        if (!$country) {
+            throw new CountryNotFoundException($countryId);
+        }
+
+        return $country->getVatIdRequired();
     }
 }

@@ -128,6 +128,13 @@ class CountryEntity extends Entity
      */
     protected $taxFreeFrom;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     *
+     * @var bool
+     */
+    protected $vatIdRequired;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -352,5 +359,21 @@ class CountryEntity extends Entity
     public function setTaxFreeFrom(?float $taxFreeFrom): void
     {
         $this->taxFreeFrom = $taxFreeFrom;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function getVatIdRequired(): bool
+    {
+        return $this->vatIdRequired;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_14114)
+     */
+    public function setVatIdRequired(bool $vatIdRequired): void
+    {
+        $this->vatIdRequired = $vatIdRequired;
     }
 }

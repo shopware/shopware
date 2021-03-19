@@ -44,7 +44,10 @@
       "buttonAddCountryState": "Bundesland hinzufügen",
       "editAction": "Editieren",
       "columnStateNameLabel": "Name",
-      "columnStateShortCodeLabel": "Kürzel"
+      "columnStateShortCodeLabel": "Kürzel",
+      "taxFreeFrom": "Steuerfrei ab",
+      "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei.",
+      "labelVatIdRequired": "Umsatzsteuer-ID als Pflichtfeld behandeln"
     }
   },
   "sw-country-state-detail": {

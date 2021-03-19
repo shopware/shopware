@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -26,6 +27,12 @@ class AccountOrderControllerTest extends TestCase
     use KernelTestBehaviour;
     use OrderFixture;
     use StorefrontControllerTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
+
+    protected function setUp(): void
+    {
+        $this->addCountriesToSalesChannel();
+    }
 
     public function testAjaxOrderDetail(): void
     {

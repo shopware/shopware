@@ -74,9 +74,6 @@ shopware:
               major: true
               description: "App System Store"
             # issue: NEXT-13469
-            - name: FEATURE_NEXT_10514
-              default: false
-              major: false
             - name: FEATURE_NEXT_12429
               default: false
               major: true

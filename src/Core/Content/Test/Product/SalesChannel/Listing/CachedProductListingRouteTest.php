@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,12 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 class CachedProductListingRouteTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Feature::skipTestIfInActive('FEATURE_NEXT_10514', $this);
-    }
 
     /**
      * @dataProvider criteriaProvider

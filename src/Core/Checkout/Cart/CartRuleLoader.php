@@ -11,10 +11,6 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CartRuleLoader
 {
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10514) tag:v6.4.0 - Use \Shopware\Core\Checkout\Cart\CachedRuleLoader::CACHE_KEY instead
-     */
-    public const CHECKOUT_RULE_LOADER_CACHE_KEY = CachedRuleLoader::CACHE_KEY;
     private const MAX_ITERATION = 7;
 
     /**

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEvents;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -42,11 +40,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
     private $repository;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var RulePayloadUpdater
      */
     private $payloadUpdater;
@@ -65,7 +58,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        CacheClearer $cacheClearer,
         RulePayloadUpdater $payloadUpdater,
         CartRuleLoader $cartRuleLoader,
         EventDispatcherInterface $eventDispatcher
@@ -73,7 +65,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
-        $this->cacheClearer = $cacheClearer;
         $this->payloadUpdater = $payloadUpdater;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartRuleLoader = $cartRuleLoader;
@@ -103,12 +94,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             $this->connection->prepare('UPDATE `rule` SET `payload` = null, `invalid` = 0')
         );
         $update->execute();
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            // invalidates all cached queries to the `rule` table
-            $this->cacheClearer->invalidateTags(['entity_' . RuleDefinition::ENTITY_NAME]);
-        }
     }
 
     public function iterate($offset): ?EntityIndexingMessage
@@ -149,11 +134,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->payloadUpdater->update($ids);
 
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext()));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($ids, RuleDefinition::ENTITY_NAME);
-        }
     }
 
     public function onRuleWritten(EntityWrittenEvent $event): void

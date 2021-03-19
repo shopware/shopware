@@ -58,12 +58,9 @@ class ElasticsearchOutdatedIndexDetector
 
     private function getLanguages(): EntityCollection
     {
-        return (Context::createDefaultContext())->disableCache(
-            fn (Context $uncached) => $this
-                ->languageRepository
-                ->search(new Criteria(), $uncached)
-                ->getEntities()
-        );
+        return $this->languageRepository
+            ->search(new Criteria(), Context::createDefaultContext())
+            ->getEntities();
     }
 
     /**

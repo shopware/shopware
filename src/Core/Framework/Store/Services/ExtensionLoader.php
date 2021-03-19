@@ -202,9 +202,7 @@ class ExtensionLoader
             $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
 
             /** @var TermsResult $themeNameAggregation */
-            $themeNameAggregation = $context->disableCache(function (Context $context) use ($criteria, $themeNameAggregationName) {
-                return $this->themeRepository->aggregate($criteria, $context)->get($themeNameAggregationName);
-            });
+            $themeNameAggregation = $this->themeRepository->aggregate($criteria, $context)->get($themeNameAggregationName);
 
             return $this->installedThemeNames = $themeNameAggregation->getKeys();
         }

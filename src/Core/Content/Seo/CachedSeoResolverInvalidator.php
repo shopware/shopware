@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CachedSeoResolverInvalidator implements EventSubscriberInterface
@@ -23,9 +22,6 @@ class CachedSeoResolverInvalidator implements EventSubscriberInterface
 
     public function invalidate(SeoUrlUpdateEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
         $urls = $event->getSeoUrls();
 
         $pathInfo = array_column($urls, 'pathInfo');

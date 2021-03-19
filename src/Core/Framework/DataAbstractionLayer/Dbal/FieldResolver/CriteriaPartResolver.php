@@ -29,11 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 class CriteriaPartResolver
 {
     /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $helper;
-
-    /**
      * @var Connection
      */
     private $connection;
@@ -43,9 +38,8 @@ class CriteriaPartResolver
      */
     private $parser;
 
-    public function __construct(EntityDefinitionQueryHelper $helper, Connection $connection, SqlQueryParser $parser)
+    public function __construct(Connection $connection, SqlQueryParser $parser)
     {
-        $this->helper = $helper;
         $this->connection = $connection;
         $this->parser = $parser;
     }
@@ -209,7 +203,6 @@ class CriteriaPartResolver
                 array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# '
                 . $this->buildMappingVersionWhere($field->getToManyReferenceDefinition(), $field)
-                . $this->buildRuleWhere($query, $context, $field->getToManyReferenceDefinition(), $alias)
             )
         );
 
@@ -285,18 +278,6 @@ class CriteriaPartResolver
         }
 
         return $resolver->join($context);
-    }
-
-    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    private function buildRuleWhere(QueryBuilder $query, Context $context, EntityDefinition $definition, string $alias): string
-    {
-        $ruleCondition = $this->helper->buildRuleCondition($definition, $query, $alias, $context);
-
-        if ($ruleCondition === null) {
-            return '';
-        }
-
-        return ' AND ' . $ruleCondition;
     }
 
     private function getReferenceColumn(Context $context, ManyToManyAssociationField $field): string

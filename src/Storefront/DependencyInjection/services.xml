@@ -54,8 +54,6 @@
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
 
@@ -408,12 +406,6 @@
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Seo;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedSeoResolver extends AbstractSeoResolver
@@ -29,9 +28,6 @@ class CachedSeoResolver extends AbstractSeoResolver
 
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->resolve($languageId, $salesChannelId, $pathInfo);
-        }
         $name = 'seo-resolver';
         $key = md5(implode('-', [
             $name,

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -84,10 +83,6 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load($request, $context, $criteria);
-        }
-
         if ($context->hasState(...$this->states)) {
             $this->logger->info('cache-miss: ' . self::NAME);
 

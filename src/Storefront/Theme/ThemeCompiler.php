@@ -9,7 +9,7 @@ use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -67,10 +67,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $packages;
 
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
+    private CacheInvalidationLogger $logger;
 
     public function __construct(
         FilesystemInterface $filesystem,
@@ -81,7 +78,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         ThemeFileImporterInterface $themeFileImporter,
         EntityRepositoryInterface $mediaRepository,
         iterable $packages,
-        CacheClearer $cacheClearer
+        CacheInvalidationLogger $logger
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -95,7 +92,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->mediaRepository = $mediaRepository;
         $this->packages = $packages;
-        $this->cacheClearer = $cacheClearer;
+        $this->logger = $logger;
     }
 
     public function compileTheme(
@@ -144,7 +141,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // Reset cache buster state for improving performance in getMetadata
-        $this->cacheClearer->invalidateTags(['theme-metaData']);
+        $this->logger->log(['theme-metaData'], true);
     }
 
     public static function getThemePrefix(string $salesChannelId, string $themeId): string

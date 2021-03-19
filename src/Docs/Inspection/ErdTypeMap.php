@@ -4,7 +4,6 @@ namespace Shopware\Docs\Inspection;
 
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
@@ -51,14 +50,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 class ErdTypeMap
 {
     private static array $fieldTypeMap = [
         CustomFields::class => 'customFields',
-        BlacklistRuleField::class => 'blacklistRule',   //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
         BlobField::class => 'blob',
         BoolField::class => 'bool',
         CalculatedPriceField::class => 'calculatedPrice',
@@ -94,7 +91,6 @@ class ErdTypeMap
         UpdatedAtField::class => 'updatedAt',
         VersionDataPayloadField::class => 'versionDataPayload',
         VersionField::class => 'version',
-        WhitelistRuleField::class => 'whitelistRule',
         TranslationsAssociationField::class => 'translationAssociation',
         OneToOneAssociationField::class => 'oneToOneAssociation',
         NumberRangeField::class => 'numberRange',

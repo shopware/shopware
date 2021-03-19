@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -100,10 +99,6 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->load($navigationId, $request, $context);
-        }
-
         if ($context->hasState(...$this->states)) {
             $this->logger->info('cache-miss: ' . self::buildName($navigationId));
 

@@ -410,7 +410,6 @@ class ThemeTest extends TestCase
             ),
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),
-            $this->getContainer()->get('media.repository'),
             $themeCompilerMock,
             $this->getContainer()->get('event_dispatcher'),
         );

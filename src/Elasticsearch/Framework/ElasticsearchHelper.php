@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -113,12 +112,6 @@ class ElasticsearchHelper
 
         if (!$this->isSupported($definition)) {
             return false;
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            if (!$context->getUseCache()) {
-                return false;
-            }
         }
 
         if (!$context->hasState(Context::STATE_ELASTICSEARCH_AWARE)) {

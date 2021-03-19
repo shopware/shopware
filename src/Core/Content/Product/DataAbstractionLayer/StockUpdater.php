@@ -9,11 +9,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -22,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -32,25 +28,13 @@ class StockUpdater implements EventSubscriberInterface
 {
     private Connection $connection;
 
-    private ProductDefinition $definition;
-
-    private CacheClearer $cache;
-
-    private EntityCacheKeyGenerator $cacheKeyGenerator;
-
     private EventDispatcherInterface $dispatcher;
 
     public function __construct(
         Connection $connection,
-        ProductDefinition $definition,
-        CacheClearer $cache,
-        EntityCacheKeyGenerator $cacheKeyGenerator,
         EventDispatcherInterface $dispatcher
     ) {
         $this->connection = $connection;
-        $this->definition = $definition;
-        $this->cache = $cache;
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->dispatcher = $dispatcher;
     }
 
@@ -137,8 +121,6 @@ class StockUpdater implements EventSubscriberInterface
         }
 
         $this->update($ids, $event->getContext());
-
-        $this->clearCache($ids);
     }
 
     public function stateChanged(StateMachineTransitionEvent $event): void
@@ -172,8 +154,6 @@ class StockUpdater implements EventSubscriberInterface
 
             $this->updateAvailableFlag($ids, $event->getContext());
 
-            $this->clearCache($ids);
-
             return;
         }
     }
@@ -200,8 +180,6 @@ class StockUpdater implements EventSubscriberInterface
         }
 
         $this->update($ids, $event->getContext());
-
-        $this->clearCache($ids);
     }
 
     private function increaseStock(StateMachineTransitionEvent $event): void
@@ -215,8 +193,6 @@ class StockUpdater implements EventSubscriberInterface
         $this->updateAvailableStockAndSales($ids, $event->getContext());
 
         $this->updateAvailableFlag($ids, $event->getContext());
-
-        $this->clearCache($ids);
     }
 
     private function decreaseStock(StateMachineTransitionEvent $event): void
@@ -230,8 +206,6 @@ class StockUpdater implements EventSubscriberInterface
         $this->updateAvailableStockAndSales($ids, $event->getContext());
 
         $this->updateAvailableFlag($ids, $event->getContext());
-
-        $this->clearCache($ids);
     }
 
     private function updateAvailableStockAndSales(array $ids, Context $context): void
@@ -380,25 +354,5 @@ GROUP BY product_id;
         $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    private function clearCache(array $ids): void
-    {
-        if (Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
-        $tags = [];
-        foreach ($ids as $id) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->definition->getEntityName());
-        }
-
-        $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'id');
-        $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'available');
-        $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'availableStock');
-        $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'stock');
-
-        $this->cache->invalidateTags($tags);
     }
 }

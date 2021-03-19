@@ -5,7 +5,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
@@ -40,10 +39,6 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return $this->getDecorated()->create($token, $salesChannelId, $options);
-        }
-
         $name = self::buildName($salesChannelId);
 
         if (!$this->isCacheable($options)) {

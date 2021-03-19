@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -156,7 +155,6 @@ class PluginManagementServiceTest extends TestCase
             $this->filesystem,
             $this->cacheDir,
             'test',
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get('messenger.bus.shopware')
         );
     }

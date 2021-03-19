@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -223,10 +222,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             )
         );
 
-        /** @var AggregationResultCollection $aggregates */
-        $aggregates = $context->disableCache(function (Context $context) use ($criteria) {
-            return $this->salesChannelRepository->aggregate($criteria, $context);
-        });
+        $aggregates = $this->salesChannelRepository->aggregate($criteria, $context);
 
         /** @var TermsResult $directlyAssigned */
         $directlyAssigned = $aggregates->get('assigned_theme');

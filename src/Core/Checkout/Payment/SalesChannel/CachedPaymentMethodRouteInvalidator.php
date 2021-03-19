@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -36,10 +35,6 @@ class CachedPaymentMethodRouteInvalidator implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $logs = array_merge(
             $this->getChangedPaymentMethods($event),
             $this->getChangedAssignments($event)

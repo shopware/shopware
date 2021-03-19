@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderConfigurationIndexerEvent;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -36,11 +34,6 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
     private $connection;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -49,13 +42,11 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
-        CacheClearer $cacheClearer,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
-        $this->cacheClearer = $cacheClearer;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -117,10 +108,5 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
         }
 
         $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($ids, MediaFolderConfigurationDefinition::ENTITY_NAME);
-        }
     }
 }

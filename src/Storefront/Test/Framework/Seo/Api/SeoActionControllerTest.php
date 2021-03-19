@@ -319,13 +319,4 @@ class SeoActionControllerTest extends TestCase
 
         return $id;
     }
-
-    private function getApiVersion()
-    {
-        $supportedApiVersions = $this->getContainer()->getParameter('kernel.supported_api_versions');
-        $sortedSupportedApiVersions = array_values($supportedApiVersions);
-        usort($sortedSupportedApiVersions, 'version_compare');
-
-        return 'v' . array_pop($sortedSupportedApiVersions);
-    }
 }

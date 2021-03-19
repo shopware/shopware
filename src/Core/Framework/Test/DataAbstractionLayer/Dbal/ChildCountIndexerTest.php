@@ -182,9 +182,7 @@ class ChildCountIndexerTest extends TestCase
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $categories = $this->context->disableCache(function () use ($categoryA, $categoryB, $categoryC, $categoryD) {
-            return $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
-        });
+        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 
         foreach ($categories as $category) {
             static::assertEquals(0, $category->getChildCount());

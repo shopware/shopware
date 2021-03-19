@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -33,24 +32,6 @@ class ContextTest extends TestCase
         });
 
         static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
-    }
-
-    public function testNestedDisableCache(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_10514', $this);
-        $context = Context::createDefaultContext();
-
-        $context->disableCache(function (Context $level1): void {
-            static::assertFalse($level1->getUseCache());
-
-            $level1->disableCache(function (Context $level2): void {
-                static::assertFalse($level2->getUseCache());
-            });
-
-            static::assertFalse($level1->getUseCache());
-        });
-
-        static::assertTrue($context->getUseCache());
     }
 
     public function testVersionChange(): void

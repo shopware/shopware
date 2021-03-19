@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -28,10 +27,6 @@ class CachedDomainLoaderInvalidator implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         if ($event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME)) {
             $this->logger->log([CachedDomainLoader::CACHE_KEY]);
         }

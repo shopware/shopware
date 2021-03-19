@@ -71,9 +71,8 @@ class SeoUrlUpdater
         }
 
         $context = Context::createDefaultContext();
-        $languages = $context->disableCache(function (Context $context) {
-            return $this->languageRepository->search(new Criteria(), $context);
-        });
+        $languages = $this->languageRepository->search(new Criteria(), $context);
+
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
 
         $salesChannels = $this->fetchSalesChannels();
@@ -166,9 +165,7 @@ class SeoUrlUpdater
     {
         $context = Context::createDefaultContext();
 
-        return $context->disableCache(function (Context $context) {
-            return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
-        });
+        return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
     }
 
     private function fetchLanguageChains(array $languages): array

@@ -15,16 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
  */
 class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
 {
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(EntityDefinitionQueryHelper $queryHelper)
-    {
-        $this->queryHelper = $queryHelper;
-    }
-
     public function join(FieldResolverContext $context): string
     {
         $field = $context->getField();
@@ -78,7 +68,6 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
                 array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# '
                 . $this->buildVersionWhere($field->getToManyReferenceDefinition(), $field)
-                . $this->buildRuleWhere($context, $field->getToManyReferenceDefinition(), $alias)
             )
         );
 
@@ -105,18 +94,6 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
         }
 
         return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($association->getLocalField());
-    }
-
-    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    private function buildRuleWhere(FieldResolverContext $context, EntityDefinition $definition, string $alias): string
-    {
-        $ruleCondition = $this->queryHelper->buildRuleCondition($definition, $context->getQuery(), $alias, $context->getContext());
-
-        if ($ruleCondition === null) {
-            return '';
-        }
-
-        return ' AND ' . $ruleCondition;
     }
 
     private function getReferenceColumn(FieldResolverContext $context, ManyToManyAssociationField $field): string

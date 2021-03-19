@@ -5,12 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -21,15 +18,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
      */
     private $connection;
 
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    public function __construct(Connection $connection, CacheClearer $cacheClearer)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->cacheClearer = $cacheClearer;
     }
 
     public static function getSubscribedEvents()
@@ -102,11 +93,6 @@ SQL;
 
         // update redemption counts immediately
         $this->update($promotionIds, $event->getContext());
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($promotionIds, PromotionDefinition::ENTITY_NAME);
-        }
     }
 
     private function groupByPromotion(array $promotions): array

@@ -86,8 +86,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    cmsPageId foreignKey
    not_null(cmsPageVersionId) referenceVersion
    slotConfig translated
-   blacklistIds blacklistRule
-   whitelistIds whitelistRule
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

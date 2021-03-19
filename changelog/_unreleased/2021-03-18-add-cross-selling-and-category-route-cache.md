@@ -1,7 +1,6 @@
 ---
 title: Add cross selling and category route cache
 issue: NEXT-14084
-flag: FEATURE_NEXT_10514
 author: OliverSkroblin
 author_email: o.skroblin@shopware.com 
 author_github: OliverSkroblin

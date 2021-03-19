@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -29,10 +28,6 @@ class CachedNavigationRouteInvalidator implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $logs = array_merge(
             $this->getChangedCategories($event),
             $this->getChangedEntryPoints($event)

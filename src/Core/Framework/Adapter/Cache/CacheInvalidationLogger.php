@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -51,10 +50,6 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
 
     public function run(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         try {
             if ($this->delay <= 0) {
                 $this->invalidate(null);
@@ -69,18 +64,15 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
         }
     }
 
-    public function log(array $logs): void
+    public function log(array $logs, bool $force = false): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
         $keys = array_filter(array_unique($logs));
 
         if (empty($keys)) {
             return;
         }
 
-        if ($this->delay > 0) {
+        if ($this->delay > 0 && !$force) {
             $this->logToStorage($logs);
 
             return;
@@ -91,10 +83,6 @@ class CacheInvalidationLogger extends ScheduledTaskHandler
 
     public function invalidate(?\DateTime $time): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            return;
-        }
-
         $item = $this->cache->getItem(self::CACHE_KEY);
 
         $values = CacheCompressor::uncompress($item) ?? [];

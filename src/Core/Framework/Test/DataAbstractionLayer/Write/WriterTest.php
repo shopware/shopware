@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -775,10 +774,5 @@ class WriterTest extends TestCase
     private function getMediaRepository(): EntityRepositoryInterface
     {
         return $this->getContainer()->get('media.repository');
-    }
-
-    private function getTaxRepository(): EntityRepository
-    {
-        return $this->getContainer()->get('tax.repository');
     }
 }

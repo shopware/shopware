@@ -278,16 +278,6 @@ abstract class EntityDefinition
         return $this->getFields()->has('versionId');
     }
 
-    public function isBlacklistAware(): bool    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    {
-        return $this->getFields()->has('blacklistIds');
-    }
-
-    public function isWhitelistAware(): bool    //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-    {
-        return $this->getFields()->has('whitelistIds');
-    }
-
     public function isLockAware(): bool
     {
         $field = $this->getFields()->get('locked');

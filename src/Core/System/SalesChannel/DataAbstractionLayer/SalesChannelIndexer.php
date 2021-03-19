@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -27,11 +25,6 @@ class SalesChannelIndexer extends EntityIndexer
     private $repository;
 
     /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -44,13 +37,11 @@ class SalesChannelIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        CacheClearer $cacheClearer,
         EventDispatcherInterface $eventDispatcher,
         ManyToManyIdFieldUpdater $manyToManyUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->cacheClearer = $cacheClearer;
         $this->eventDispatcher = $eventDispatcher;
         $this->manyToManyUpdater = $manyToManyUpdater;
     }
@@ -96,10 +87,5 @@ class SalesChannelIndexer extends EntityIndexer
         $this->manyToManyUpdater->update(SalesChannelDefinition::ENTITY_NAME, $ids, $message->getContext());
 
         $this->eventDispatcher->dispatch(new SalesChannelIndexerEvent($ids, $message->getContext()));
-
-        //@internal (flag:FEATURE_NEXT_10514) Remove with feature flag
-        if (!Feature::isActive('FEATURE_NEXT_10514')) {
-            $this->cacheClearer->invalidateIds($ids, SalesChannelDefinition::ENTITY_NAME);
-        }
     }
 }

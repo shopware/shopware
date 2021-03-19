@@ -158,13 +158,22 @@
                     :style="flyoutStyle"
                     @mouseenter="onFlyoutEnter"
                     @mouseleave="onFlyoutLeave">
-                    <sw-admin-menu-item
-                        v-for="entry in flyoutEntries"
-                        :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        :entry="entry"
-                        :borderColor="flyoutColor"
-                        :displayIcon="false">
-                    </sw-admin-menu-item>
+                    <template v-for="entry in flyoutEntries">
+
+                        <li v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                            :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                            :style="{ 'border-color': flyoutColor }"
+                            class="sw-admin-menu__separator">
+                            <span class="sw-admin-menu__separator-line"></span>
+                        </li>
+
+                        <sw-admin-menu-item
+                            :key="`${entry.id || entry.path}-${entry.children.length}`"
+                            :entry="entry"
+                            :borderColor="flyoutColor"
+                            :displayIcon="false">
+                        </sw-admin-menu-item>
+                    </template>
                 </ul>
             </transition>
         {% endblock %}

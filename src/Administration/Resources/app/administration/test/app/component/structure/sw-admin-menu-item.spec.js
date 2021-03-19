@@ -120,7 +120,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         const children = wrapper.findAll('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
-        expect(children.length).toBe(6);
+        expect(children.length).toBe(8);
 
         expect(wrapper.classes()).toContain('navigation-list-item__sw-catalogue');
         expect(children.at(0).classes()).toContain('navigation-list-item__sw-product');
@@ -553,5 +553,73 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         expect(wrapper.html()).not.toBe('');
+    });
+
+    test('get the first plugin menu entry', () => {
+        const wrapper = createWrapper({
+            privileges: [],
+            propsData: {
+                entry: {
+                    path: 'sw.foo.index',
+                    label: 'sw-foo.general.mainMenuItemList',
+                    id: 'sw-foo',
+                    moduleType: 'plugin',
+                    parent: 'sw-catalogue',
+                    position: 1010,
+                    children: [],
+                    level: 2
+                }
+            }
+        });
+
+        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
+
+        wrapper.setProps({
+            entry: {
+                path: 'sw.bar.index',
+                label: 'sw-bar.general.mainMenuItemList',
+                id: 'sw-bar',
+                moduleType: 'plugin',
+                parent: 'sw-catalogue',
+                position: 1010,
+                children: [],
+                level: 2
+            }
+        });
+
+        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
+    });
+
+    test('should match route', () => {
+        const entries = catalogues.children;
+        entries.unshift({
+            id: 'sw-catalogue',
+            moduleType: 'core',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+            color: '#57D9A3',
+            icon: 'default-symbol-products',
+            position: 20,
+            level: 1
+        });
+
+        Shopware.State.commit('adminMenu/setAdminModuleNavigation', entries);
+
+        const wrapper = createWrapper({
+            privileges: [],
+            propsData: {
+                entry: {
+                    path: 'sw.foo.index',
+                    label: 'sw-foo.general.mainMenuItemList',
+                    id: 'sw-foo',
+                    moduleType: 'plugin',
+                    parent: 'sw-catalogue',
+                    position: 1010,
+                    children: [],
+                    level: 2
+                }
+            }
+        });
+
+        expect(wrapper.vm.subIsActive('sw.foo.index'));
     });
 });

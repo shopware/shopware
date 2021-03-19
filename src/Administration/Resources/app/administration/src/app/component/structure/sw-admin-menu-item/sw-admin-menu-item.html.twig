@@ -25,12 +25,15 @@
                     <span class="sw-admin-menu__navigation-link-label"
                           :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ getEntryLabel }}
-
-                        <sw-icon v-if="entry.level > 1 && entry.children.length"
-                                 name="default-arrow-head-right"
-                                 size="8"
-                                 class="sw-admin-menu__navigation-link-icon"></sw-icon>
                     </span>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_arrow_indicato %}
+                    <sw-icon v-if="entry.level > 1 && entry.children.length"
+                             name="default-arrow-head-right"
+                             size="8"
+                             class="sw-admin-menu__navigation-link-icon-arrow">
+                    </sw-icon>
                 {% endblock %}
 
                 <slot name="additional-text"></slot>
@@ -58,6 +61,14 @@
                           :class="collapsibleText ? 'collapsible-text' : ''">
                         {{ $tc(entry.label) }}
                     </span>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_arrow_indicato %}
+                    <sw-icon v-if="entry.level > 1 && entry.children.length"
+                             name="default-arrow-head-right"
+                             size="8"
+                             class="sw-admin-menu__navigation-link-icon-arrow">
+                    </sw-icon>
                 {% endblock %}
 
                 <slot name="additional-text"></slot>
@@ -88,20 +99,33 @@
                 <slot name="additional-text"></slot>
 
                 {% block sw_admin_menu_item_arrow_indicator %}
-                    <sw-icon v-if="entry.level > 1" name="default-arrow-head-right"></sw-icon>
+                    <sw-icon v-if="entry.level > 1 && entry.children.length"
+                             name="default-arrow-head-right"
+                             size="8"
+                             class="sw-admin-menu__navigation-link-icon-arrow">
+                    </sw-icon>
                 {% endblock %}
             </span>
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
             <ul v-if="children.length > 0" class="sw-admin-menu__sub-navigation-list">
-                <sw-admin-menu-item v-for="entry in children"
-                                    :entry="entry"
-                                    :borderColor="borderColor"
-                                    :key="entry.id || entryPath"
-                                    @menu-item-enter="onSubMenuItemEnter"
-                                    :displayIcon="false">
-                </sw-admin-menu-item>
+                <template v-for="entry in children">
+                    <li v-if="isFirstPluginInMenuEntries(entry, children)"
+                        :key="getCustomKey(entry.id || entryPath + '-separator')"
+                        :style="{ 'border-color': borderColor }"
+                        class="sw-admin-menu__separator">
+                        <span class="sw-admin-menu__separator-line"></span>
+                    </li>
+
+                    <sw-admin-menu-item
+                            :entry="entry"
+                            :borderColor="borderColor"
+                            :key="getCustomKey(entry.id || entryPath)"
+                            @menu-item-enter="onSubMenuItemEnter"
+                            :displayIcon="false">
+                    </sw-admin-menu-item>
+                </template>
             </ul>
         {% endblock %}
     </li>

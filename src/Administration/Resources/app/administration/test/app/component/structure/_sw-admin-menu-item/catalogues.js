@@ -66,5 +66,23 @@ export default {
         position: 50,
         children: [],
         level: 2
+    }, {
+        path: 'sw.foo.index',
+        label: 'sw-foo.general.mainMenuItemList',
+        id: 'sw-foo',
+        moduleType: 'plugin',
+        parent: 'sw-catalogue',
+        position: 1010,
+        children: [],
+        level: 2
+    }, {
+        path: 'sw.bar.index',
+        label: 'sw-bar.general.mainMenuItemList',
+        id: 'sw-bar',
+        moduleType: 'plugin',
+        parent: 'sw-catalogue',
+        position: 1010,
+        children: [],
+        level: 2
     }]
 };

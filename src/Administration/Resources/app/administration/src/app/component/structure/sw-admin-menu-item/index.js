@@ -1,6 +1,7 @@
 import template from './sw-admin-menu-item.html.twig';
 
 const { Component } = Shopware;
+const { createId, types } = Shopware.Utils;
 
 /**
  * @private
@@ -121,11 +122,28 @@ Component.register('sw-admin-menu-item', {
 
         subIsActive(path) {
             const meta = this.$route.meta;
+            const adminMenuEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
             let compareTo;
 
-            if (meta.$current) {
-                compareTo = meta.$current.parent;
+            function findRootEntry(currentPath, foundPaths = []) {
+                const foundEntry = adminMenuEntries.find((entry) => {
+                    return entry.path === currentPath || entry.id === currentPath;
+                });
+
+                foundPaths.push(foundEntry.path || foundEntry.id);
+
+                if (foundEntry.parent && foundEntry.parent.length) {
+                    return findRootEntry(foundEntry.parent, foundPaths);
+                }
+
+                return foundPaths;
             }
+
+            if (meta.$current) {
+                const matchingPaths = findRootEntry(meta.$current.path);
+                return matchingPaths.includes(path);
+            }
+
             if (meta.parentPath) {
                 compareTo = meta.parentPath;
             }
@@ -161,6 +179,21 @@ Component.register('sw-admin-menu-item', {
 
         onSubMenuItemEnter(entry, $event, parentEntries) {
             this.$emit('sub-menu-item-enter', entry, $event, parentEntries);
+        },
+
+        isFirstPluginInMenuEntries(entry, menuEntries) {
+            const firstPluginEntry = menuEntries.find((menuEntry) => {
+                return menuEntry.moduleType === 'plugin';
+            });
+
+            if (!firstPluginEntry) {
+                return false;
+            }
+            return types.isEqual(entry, firstPluginEntry);
+        },
+
+        getCustomKey(path) {
+            return `${path}-${createId()}`;
         }
     }
 });

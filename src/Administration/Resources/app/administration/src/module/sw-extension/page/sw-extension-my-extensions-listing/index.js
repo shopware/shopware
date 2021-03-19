@@ -30,7 +30,7 @@ Component.register('sw-extension-my-extensions-listing', {
         },
 
         extensionList() {
-            const byTypeFilteredExtensions = this.filterExtensionsByType(this.myExtensions, this.$route.name);
+            const byTypeFilteredExtensions = this.filterExtensionsByType(this.myExtensions);
             const sortedExtensions = this.sortExtensions(byTypeFilteredExtensions, this.sortingOption);
 
             if (this.filterByActiveState) {
@@ -61,6 +61,14 @@ Component.register('sw-extension-my-extensions-listing', {
                     return label.toLowerCase().includes(searchTerm) ||
                         name.toLowerCase().includes(searchTerm);
                 });
+        },
+
+        isAppRoute() {
+            return this.$route.name === 'sw.extension.my-extensions.listing.app';
+        },
+
+        isThemeRoute() {
+            return this.$route.name === 'sw.extension.my-extensions.listing.theme';
         },
 
         total() {
@@ -154,18 +162,15 @@ Component.register('sw-extension-my-extensions-listing', {
             this.updateRouteQuery({ page, limit });
         },
 
-        filterExtensionsByType(extensions, routeType) {
-            const isAppRoute = routeType === 'sw.extension.my-extensions.listing.app';
-            const isThemeRoute = routeType === 'sw.extension.my-extensions.listing.theme';
-
+        filterExtensionsByType(extensions) {
             return extensions.filter(extension => {
                 // app route and no theme
-                if (isAppRoute && !extension.isTheme) {
+                if (this.isAppRoute && !extension.isTheme) {
                     return true;
                 }
 
                 // theme route and theme
-                if (isThemeRoute && extension.isTheme) {
+                if (this.isThemeRoute && extension.isTheme) {
                     return true;
                 }
 

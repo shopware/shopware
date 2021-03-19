@@ -49,8 +49,8 @@
         "shopwareAccount": "Shopware Account"
       },
       "fileUpload": {
-        "buttonFileUpload": "Extension hochladen",
-        "messageUploadSuccess": "Die Extension wurde hochgeladen."
+        "buttonFileUpload": "Erweiterung hochladen",
+        "messageUploadSuccess": "Die Erweiterung wurde hochgeladen."
       }
     },
     "errors": {
@@ -266,9 +266,16 @@
         "operationDelete": "Löschen"
       },
       "sw-extension-my-extensions-listing": {
-        "noActivePlugins": "Es wurden keine aktiven Erweiterungen gefunden",
-        "titleEmptyState": "Noch keine Apps installiert",
-        "textEmptyState": "Wenn Du Apps installierst, werden sie hier aufgelistet.",
+        "apps": {
+          "noActivePlugins": "Es wurden keine aktiven Erweiterungen gefunden",
+          "titleEmptyState": "Noch keine Apps installiert",
+          "textEmptyState": "Wenn Du Apps installierst, werden sie hier aufgelistet."
+        },
+        "themes": {
+          "noActivePlugins": "Es wurden keine aktiven Themes gefunden",
+          "titleEmptyState": "Noch keine Themes installiert",
+          "textEmptyState": "Wenn Du Themes installierst, werden sie hier aufgelistet."
+        },
         "btnOpenStore": "Store öffnen"
       },
       "sw-extension-removal-modal": {

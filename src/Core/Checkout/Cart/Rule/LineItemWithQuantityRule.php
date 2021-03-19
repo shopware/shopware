@@ -78,7 +78,7 @@ class LineItemWithQuantityRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if ($lineItem->getId() !== $this->id) {
+        if ($lineItem->getReferencedId() !== $this->id) {
             return false;
         }
 

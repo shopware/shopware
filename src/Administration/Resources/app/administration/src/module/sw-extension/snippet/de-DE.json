@@ -212,6 +212,7 @@
           "labelNoReviews": "Diese Erweiterung hat bisher noch keine Bewertungen oder Rezensionen erhalten."
         },
         "sw-extension-review-creation-inputs": {
+          "title": "Erweiterung bewerten",
           "labelHeadline": "Überschrift",
           "placeholderHeadline": "Gib eine Überschrift ein ...",
           "labelRating": "Bewertung",

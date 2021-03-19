@@ -1,6 +1,6 @@
-{% block sw_extension_rating_modal %}
+{% block sw_extension_review_creation %}
     <sw-modal class="sw-extension-rating-modal"
-        :title="$tc('sw-extension-store.component.sw-ratings.sw-extension-rating-modal.title')"
+        :title="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.title')"
         variant="small"
         @modal-close="emitClose">
         {% block sw_extension_rating_modal_slot_default %}
@@ -37,7 +37,7 @@
                                 :disabled="disabled"
                                 @process-finish="emitClose"
                                 @click="handleCreateReview">
-                                    {{ $tc('sw-extension-store.component.sw-ratings.sw-extension-review-creation.submitBtn') }}
+                                    {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}
                             </sw-button-process>
                         {% endblock %}
                     </div>

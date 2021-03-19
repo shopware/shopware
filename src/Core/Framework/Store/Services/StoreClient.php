@@ -423,13 +423,17 @@ class StoreClient
 
     public function createRating(ReviewStruct $rating, Context $context): void
     {
+        if ($this->authenticationProvider === null) {
+            throw new \RuntimeException('App Store is not active');
+        }
+
         try {
             $this->getClient()->post(
                 sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
                 [
                     'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
                     'headers' => $this->getHeaders($this->authenticationProvider->getUserStoreToken($context)),
-                    'json' => $rating
+                    'json' => $rating,
                 ]
             );
         } catch (ClientException $e) {

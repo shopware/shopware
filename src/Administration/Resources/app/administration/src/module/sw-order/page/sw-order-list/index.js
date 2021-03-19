@@ -164,7 +164,7 @@ Component.register('sw-order-list', {
                     placeholder: this.$tc('sw-order.filters.billingCountryFilter.placeholder')
                 },
                 'shipping-country-filter': {
-                    property: 'addresses.country',
+                    property: 'deliveries.shippingOrderAddress.country',
                     label: this.$tc('sw-order.filters.shippingCountryFilter.label'),
                     placeholder: this.$tc('sw-order.filters.shippingCountryFilter.placeholder')
                 },

@@ -7,6 +7,10 @@ export default {
     },
 
     mutations: {
+        clearExpandedMenuEntries(state) {
+            state.expandedEntries = [];
+        },
+
         expandMenuEntry(state, payload) {
             state.expandedEntries.push(payload);
         },

@@ -328,6 +328,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
+            Shopware.State.commit('adminMenu/clearExpandedMenuEntries');
             Shopware.State.commit('removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');

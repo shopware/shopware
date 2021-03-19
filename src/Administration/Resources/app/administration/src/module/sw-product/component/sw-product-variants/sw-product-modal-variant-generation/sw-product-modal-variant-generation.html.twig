@@ -44,10 +44,25 @@
                 {% endblock %}
 
                 {% block sw_product_modal_variant_generation_sidebar_descriptions %}
-                    <p v-if="activeTab == 'options'">
-                        {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
-                    </p>
+                    {% block sw_product_modal_variant_generation_sidebar_descriptions_options %}
+                        <p v-if="activeTab == 'options'">
+                            {{ $tc('sw-product.variations.configuratorModal.selectOptionsExplanation') }}
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_product_modal_variant_generation_sidebar_descriptions_restrictions %}
+                        <p v-else-if="activeTab == 'restrictions'">
+                            {{ $tc('sw-product.variations.configuratorModal.selectRestrictionsExplanation') }}
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_product_modal_variant_generation_sidebar_descriptions_prices %}
+                        <p v-else-if="activeTab == 'prices'">
+                            {{ $tc('sw-product.variations.configuratorModal.selectPricesExplanation') }}
+                        </p>
+                    {% endblock %}
                 {% endblock %}
+
             </div>
         {% endblock %}
 

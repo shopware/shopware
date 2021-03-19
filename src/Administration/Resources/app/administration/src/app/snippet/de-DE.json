@@ -497,7 +497,7 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
-      "placeholderTypeSearchField": "Durchsuche alle {entity} ...",
+      "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen."
     },
     "sw-search-bar-item": {
@@ -858,9 +858,9 @@
     }
   },
   "sw-property-search": {
-    "placeholderSearch": "Suche nach Eigenschaften ...",
-    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt",
-    "noPropertiesFound": "Keine Optionen gefunden",
+    "placeholderSearch": "Ausprägungen durchsuchen ...",
+    "selected": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
+    "noPropertiesFound": "Keine Ausprägungen gefunden",
     "noPropertiesFoundDescription": "Versuche es mit einem anderen Suchbegriff."
   },
   "sw-property-assignment": {

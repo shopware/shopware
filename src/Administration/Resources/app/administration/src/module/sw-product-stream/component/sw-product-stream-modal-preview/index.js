@@ -46,7 +46,7 @@ Component.register('sw-product-stream-modal-preview', {
                     routerLink: 'sw.product.detail'
                 }, {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturer')
+                    label: this.$tc('sw-product-stream.filter.values.manufacturerId')
                 }, {
                     property: 'active',
                     label: this.$tc('sw-product-stream.filter.values.active'),

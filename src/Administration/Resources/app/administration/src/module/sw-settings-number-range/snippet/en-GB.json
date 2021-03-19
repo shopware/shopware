@@ -3,11 +3,11 @@
     "general": {
       "mainMenuItemGeneral": "Number ranges",
       "placeholderSearchBar": "Search number ranges...",
-      "infoGlobalType": "There can be only one number range for \"{typeName}\". If you want to change your number ranges for \"{typeName}\", please change this one",
+      "infoGlobalType": "There can be only be one \"{typeName}\" number range. Changes to the number range of type \"{typeName}\" have to be made here and will globally affect all Sales Channels.",
       "infoGlobalTypeTitle": "Global number range type \"{typeName}\"",
-      "infoGlobal": "The Type of a global number range can not be changed. If you want to change the number range for this type, add a new one",
-      "infoGlobalTitle": "This is a global number range for \"{name}\"",
-      "infoSalesChannelBound": "To change the type, please remove the Sales Channel assignment first."
+      "infoGlobal": "You cannot change a global number range's type. But you can create additional number ranges for most types and particular Sales Channels back in the overview.",
+      "infoGlobalTitle": "Global number range \"{name}\"",
+      "infoSalesChannelBound": "To change a number range's type, remove all Sales Channel assignments first."
     },
     "list": {
       "textHeadline": "Number ranges",

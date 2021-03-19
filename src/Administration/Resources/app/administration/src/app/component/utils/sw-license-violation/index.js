@@ -127,9 +127,9 @@ Shopware.Component.register('sw-license-violation', {
             this.addLoading('fetchPlugins');
 
             if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-                const extensionDataService = Shopware.Service('extensionStoreDataService');
+                const extensionApiService = Shopware.Service('extensionApiService');
 
-                extensionDataService.getInstalledExtensions(Shopware.Context.api)
+                extensionApiService.getMyExtensions()
                     .then((response) => {
                         this.plugins = response;
                     })

@@ -885,7 +885,7 @@
   "sw-license-violation": {
     "title": "Erweiterung-Warnungen",
     "reload": "Neu laden",
-    "alertText": "Für mindestens eines Deiner installierten Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche die Erweiterung-Subscription nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du die Erweiterung nicht mehr? Dann lösche es vollständig. Falls keiner dieser Schritte von Dir vollzogen wird, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
+    "alertText": "Für mindestens eine der Erweiterungen in dieser Installation liegt eine Lizenzverletzung vor. Buche ein Abonnement für die Erweiterung nach oder kaufe/miete die Erweiterung (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden.\nNutzt Du die Erweiterung nicht mehr? Dann lösche sie vollständig. Falls Du keinen dieser Schritte vollziehst, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
     "deletePlugin": "Erweiterung vollständig entfernen",
     "messageDeleteConfirm": "Möchtest Du die Erweiterung \"{pluginName}\" vollständig löschen?",
     "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",

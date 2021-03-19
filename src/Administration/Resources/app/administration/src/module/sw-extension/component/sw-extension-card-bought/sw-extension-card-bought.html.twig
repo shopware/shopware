@@ -54,7 +54,7 @@
 
     {% block sw_bought_extension_card_rating_modal %}
         <sw-extension-rating-modal v-if="showRatingModal"
-            :extension="licensedExtension"
+            :extension="extension"
             @modal-close="closeRatingModal">
         </sw-extension-rating-modal>
     {% endblock %}

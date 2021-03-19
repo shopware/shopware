@@ -114,6 +114,7 @@ Component.register('sw-extension-my-extensions-listing', {
     watch: {
         '$route.name'() {
             this.updateList();
+            this.filterByActiveState = false;
         }
     },
 

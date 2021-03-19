@@ -22,10 +22,12 @@
                     @update:sorting-option="changeSortingOption">
                 </sw-extension-my-extensions-listing-controls>
 
-                <p v-if="!extensionListPaginated.length && filterByActiveState"
-                   class="sw-extension-my-extensions-listing-empty-state">
-                    {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.noActivePlugins') }}
-                </p>
+                <sw-meteor-card v-if="!extensionListPaginated.length && filterByActiveState" class="sw-extension-my-extensions-listing__empty-state">
+                    <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
+
+                    <h3 v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}</h3>
+                    <h3 v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}</h3>
+                </sw-meteor-card>
 
                 <template v-else>
                     <template v-for="entry in extensionListPaginated">

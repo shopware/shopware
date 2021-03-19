@@ -1,5 +1,6 @@
 ---
 title: Add twig blocks to metatag template
+issue: NEXT-14372
 author: Rune Laenen
 author_email: rune@laenen.me
 author_github: @runelaenen

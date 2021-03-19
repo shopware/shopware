@@ -329,7 +329,9 @@
     "filters": {
       "documentFilter": {
         "label": "Documents",
-        "placeholder": "Select document status..."
+        "placeholder": "Select document status...",
+        "textHasCriteria": "At least one document assigned",
+        "textNoCriteria": "No documents assigned"
       },
       "orderDateFilter": {
         "label": "Order date"

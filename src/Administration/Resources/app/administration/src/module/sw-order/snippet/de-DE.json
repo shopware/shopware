@@ -329,7 +329,9 @@
     "filters": {
       "documentFilter": {
         "label": "Dokumente",
-        "placeholder": "Dokumentstatus auswählen ..."
+        "placeholder": "Dokumentstatus auswählen ...",
+        "textHasCriteria": "Verfügt über mind. ein Dokument",
+        "textNoCriteria": "Keine Dokumente zugewiesen"
       },
       "orderDateFilter": {
         "label": "Bestelldatum"

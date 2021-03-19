@@ -439,7 +439,9 @@
       },
       "imagesFilter": {
         "label": "Bild",
-        "placeholder": "Wähle einen Bildstatus ..."
+        "placeholder": "Wähle einen Bildstatus ...",
+        "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
+        "textNoCriteria": "Keine Produktbilder zugeordnet"
       },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"

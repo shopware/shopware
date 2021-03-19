@@ -130,7 +130,9 @@ Component.register('sw-product-list', {
                 'product-without-images-filter': {
                     property: 'media',
                     label: this.$tc('sw-product.filters.imagesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder'),
+                    optionHasCriteria: this.$tc('sw-product.filters.imagesFilter.textHasCriteria'),
+                    optionNoCriteria: this.$tc('sw-product.filters.imagesFilter.textNoCriteria')
                 },
                 'manufacturer-filter': {
                     property: 'manufacturer',

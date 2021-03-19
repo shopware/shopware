@@ -116,7 +116,9 @@ Component.register('sw-order-list', {
                 'document-filter': {
                     property: 'documents',
                     label: this.$tc('sw-order.filters.documentFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.documentFilter.placeholder')
+                    placeholder: this.$tc('sw-order.filters.documentFilter.placeholder'),
+                    optionHasCriteria: this.$tc('sw-order.filters.documentFilter.textHasCriteria'),
+                    optionNoCriteria: this.$tc('sw-order.filters.documentFilter.textNoCriteria')
                 },
                 'order-date-filter': {
                     property: 'orderDateTime',

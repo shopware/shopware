@@ -266,9 +266,16 @@
         "operationDelete": "Delete"
       },
       "sw-extension-my-extensions-listing": {
-        "noActivePlugins": "There are no active extensions.",
-        "titleEmptyState": "No apps installed yet",
-        "textEmptyState": "If you install apps, they will be listed here.",
+        "apps": {
+          "noActivePlugins": "There are no active extensions.",
+          "titleEmptyState": "No apps installed yet",
+          "textEmptyState": "If you install apps, they will be listed here."
+        },
+        "themes": {
+          "noActivePlugins": "There are no active themes.",
+          "titleEmptyState": "No themes installed yet",
+          "textEmptyState": "If you install themes, they will be listed here."
+        },
         "btnOpenStore": "Open store"
       },
       "sw-extension-removal-modal": {

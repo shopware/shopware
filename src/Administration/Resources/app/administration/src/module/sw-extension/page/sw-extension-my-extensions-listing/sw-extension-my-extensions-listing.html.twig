@@ -5,9 +5,11 @@
         <sw-meteor-card v-if="!extensionListPaginated.length && !filterByActiveState" class="sw-extension-my-extensions-listing__empty-state">
             <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset" />
 
-            <h3>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.titleEmptyState') }}</h3>
+            <h3 v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}</h3>
+            <h3 v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}</h3>
 
-            <p>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.textEmptyState') }}</p>
+            <p v-if="isThemeRoute">{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}</p>
+            <p v-else>{{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}</p>
 
             <sw-button @click="openStore" variant="ghost">
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}

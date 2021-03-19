@@ -1398,10 +1398,6 @@ class EntityReaderTest extends TestCase
         $id2 = Uuid::randomHex();
         $id3 = Uuid::randomHex();
 
-        $id1 = '3b77ba379a0e443d959e1601e3cd6841';
-        $id2 = '3b77ba379a0e443d959e1601e3cd6842';
-        $id3 = '3b77ba379a0e443d959e1601e3cd6843';
-
         $product1 = [
             'id' => $id1,
             'productNumber' => Uuid::randomHex(),

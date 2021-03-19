@@ -72,7 +72,6 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             $data[$fkField->getPropertyName()] = $id;
         }
         if ($fkField) {
-
         }
 
         $data[$key] = $value;
@@ -93,8 +92,6 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (!\is_array($data->getValue())) {
             throw new ExpectedArrayException($parameters->getPath());
         }
-
-
 
         $this->writeExtractor->extract(
             $data->getValue(),

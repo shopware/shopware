@@ -60,7 +60,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
     private ?PrimaryKeyBag $primaryKeyBag = null;
 
+    private int $batchSize;
+
     public function __construct(
+        int $batchSize,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         ExceptionHandlerRegistry $exceptionHandlerRegistry,
@@ -70,21 +73,22 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->exceptionHandlerRegistry = $exceptionHandlerRegistry;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->batchSize = $batchSize;
     }
 
     public function prefetchExistences(WriteParameterBag $parameters): void
     {
-        $this->primaryKeyBag = $parameters->getPrimaryKeyBag();
+        $primaryKeyBag = $this->primaryKeyBag = $parameters->getPrimaryKeyBag();
 
-        if ($this->primaryKeyBag->isPrefetchingCompleted()) {
+        if ($primaryKeyBag->isPrefetchingCompleted()) {
             return;
         }
 
-        foreach ($this->primaryKeyBag->getPrimaryKeys() as $entity => $pks) {
+        foreach ($primaryKeyBag->getPrimaryKeys() as $entity => $pks) {
             $this->prefetch($this->definitionInstanceRegistry->getByEntityName($entity), $pks, $parameters);
         }
 
-        $this->primaryKeyBag->setPrefetchingCompleted(true);
+        $primaryKeyBag->setPrefetchingCompleted(true);
     }
 
     /**
@@ -119,15 +123,74 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $context->getExceptions()->tryToThrow();
 
+            $previous = null;
+            $queue = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
+            $insert = new MultiInsertQueryQueue($this->connection, $this->batchSize);
+
             foreach ($commands as $command) {
                 if (!$command->isValid()) {
                     continue;
                 }
+                $current = $command->getDefinition()->getEntityName();
+
+                if ($current !== $previous) {
+                    $queue->execute();
+                    $insert->execute();
+                }
+                $previous = $current;
 
                 try {
-                    RetryableQuery::retryable(function () use ($command): void {
-                        $this->executeCommand($command);
-                    });
+                    $definition = $command->getDefinition();
+                    $table = $definition->getEntityName();
+
+                    if ($command instanceof DeleteCommand) {
+                        $queue->execute();
+                        $insert->execute();
+
+                        RetryableQuery::retryable(function () use ($command, $table): void {
+                            $this->connection->delete(
+                                EntityDefinitionQueryHelper::escape($table),
+                                $command->getPrimaryKey()
+                            );
+                        });
+
+                        continue;
+                    }
+
+                    if ($command instanceof JsonUpdateCommand) {
+                        $this->executeJsonUpdate($command);
+
+                        continue;
+                    }
+
+                    if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
+                        $queue->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        continue;
+                    }
+
+                    if ($command instanceof UpdateCommand) {
+                        $queue->execute();
+                        $insert->execute();
+
+                        RetryableQuery::retryable(function () use ($command, $table): void {
+                            $this->connection->update(
+                                EntityDefinitionQueryHelper::escape($table),
+                                $this->escapeColumnKeys($command->getPayload()),
+                                $command->getPrimaryKey()
+                            );
+                        });
+
+                        continue;
+                    }
+
+                    if ($command instanceof InsertCommand) {
+                        $insert->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        continue;
+                    }
+
+                    throw new UnsupportedCommandTypeException($command);
                 } catch (\Exception $e) {
                     $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
                     if ($innerException instanceof \Exception) {
@@ -138,6 +201,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     throw $e;
                 }
             }
+
+            $queue->execute();
+            $insert->execute();
 
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PostWriteValidationEvent($context, $commands);
@@ -191,13 +257,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $params = [];
         $tupleCount = 0;
 
-        foreach ($pks as $cacheKey => $pk) {
-            // TODO: optimize - if we know it's generated in the normalize step, we don't need to fetch it to know that is does not exist
-//            if ($pk['generated']) {
-//                // entities which have generated ids do not exist yet
-//                $this->storeCache($cacheKey, []);
-//            }
-
+        foreach ($pks as $pk) {
             $newIds = [];
             /** @var Field&StorageAware $field */
             foreach ($pkFields as $field) {
@@ -245,56 +305,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $primaryKeyBag->addExistenceState($definition, $pk, []);
             }
         }
-    }
-
-    private function executeCommand(WriteCommand $command): void
-    {
-        $definition = $command->getDefinition();
-        $table = $definition->getEntityName();
-
-        if ($command instanceof DeleteCommand) {
-            $this->connection->delete(
-                EntityDefinitionQueryHelper::escape($table),
-                $command->getPrimaryKey()
-            );
-
-            return;
-        }
-
-        if ($command instanceof JsonUpdateCommand) {
-            $this->executeJsonUpdate($command);
-
-            return;
-        }
-
-        if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
-            $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
-            $queue->addInsert($definition->getEntityName(), $command->getPayload());
-            $queue->execute();
-
-            return;
-        }
-
-        if ($command instanceof UpdateCommand) {
-            $this->connection->update(
-                EntityDefinitionQueryHelper::escape($table),
-                $this->escapeColumnKeys($command->getPayload()),
-                $command->getPrimaryKey()
-            );
-
-            return;
-        }
-
-        if ($command instanceof InsertCommand) {
-            $this->connection->insert(
-                EntityDefinitionQueryHelper::escape($table),
-                $this->escapeColumnKeys($command->getPayload())
-            );
-
-            return;
-        }
-
-        throw new UnsupportedCommandTypeException($command);
     }
 
     private static function isAssociative(array $array): bool
@@ -370,7 +380,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
         $query->setParameters(array_merge($values, array_values($identifier)));
-        $query->execute();
+
+        RetryableQuery::retryable(function () use ($query): void {
+            $query->execute();
+        });
     }
 
     private function escapeColumnKeys(array $payload): array
@@ -549,11 +562,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $hexPrimaryKey = Uuid::fromBytesToHexList($primaryKey);
 
-        if ($this->primaryKeyBag === null) {
-            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-            die();
-        }
-        $currentState = $this->primaryKeyBag->getExistenceState($definition, $hexPrimaryKey);
+        $currentState = $this->primaryKeyBag === null ? null : $this->primaryKeyBag->getExistenceState($definition, $hexPrimaryKey);
         if ($currentState === null) {
             $currentState = $this->fetchFromDatabase($definition, $primaryKey);
         }
@@ -574,13 +583,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
         $fields = $definition->getPrimaryKeys();
-
-        $pk = [];
-        /** @var Field&StorageAware $field */
-        foreach ($fields as $field) {
-            $pk[] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]
-                ?? $primaryKey[$field->getPropertyName()]);
-        }
 
         /** @var Field&StorageAware $field */
         foreach ($fields as $field) {

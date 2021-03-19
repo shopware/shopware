@@ -47,11 +47,6 @@ class PrimaryKeyBag
         return $this->existences[$definition->getEntityName()][$this->getCacheKey($primaryKey)] ?? null;
     }
 
-    private function getCacheKey(array $primaryKey): string
-    {
-        return implode('_', $primaryKey);
-    }
-
     public function setPrefetchingCompleted(bool $completed): void
     {
         $this->prefetchingCompleted = $completed;
@@ -60,5 +55,10 @@ class PrimaryKeyBag
     public function isPrefetchingCompleted(): bool
     {
         return $this->prefetchingCompleted;
+    }
+
+    private function getCacheKey(array $primaryKey): string
+    {
+        return implode('_', $primaryKey);
     }
 }

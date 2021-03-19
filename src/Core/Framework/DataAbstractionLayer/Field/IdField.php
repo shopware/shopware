@@ -22,13 +22,13 @@ class IdField extends Field implements StorageAware
         return $this->storageName;
     }
 
-    protected function getSerializerClass(): string
-    {
-        return IdFieldSerializer::class;
-    }
-
     public function getExtractPriority(): int
     {
         return 75;
+    }
+
+    protected function getSerializerClass(): string
+    {
+        return IdFieldSerializer::class;
     }
 }

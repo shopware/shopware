@@ -81,7 +81,6 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
                 $done[$property] = true;
             }
 
-            /** @var Field $pkField */
             foreach ($referencedDefinition->getPrimaryKeys() as $pkField) {
                 if (\array_key_exists($pkField->getPropertyName(), $done)) {
                     continue;

@@ -79,14 +79,13 @@ class WriteCommandExtractor
     {
         $done = [];
 
-        /** @var Field $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
             $data = $pkField->getSerializer()->normalize($pkField, $data, $parameters);
             $done[$pkField->getPropertyName()] = true;
         }
 
         $normalizedTranslations = false;
-        foreach ($data as $property => $value) {
+        foreach ($data as $property => $_) {
             if (\array_key_exists($property, $done)) {
                 continue;
             }
@@ -119,7 +118,7 @@ class WriteCommandExtractor
             }
 
             if ($property === 'extensions') {
-                foreach ($value as $extensionName => $extension) {
+                foreach ($value as $extensionName => $_) {
                     $field = $definition->getFields()->get($extensionName);
                     if ($field === null) {
                         continue;
@@ -153,6 +152,7 @@ class WriteCommandExtractor
             $v = $data[$pkField->getPropertyName()] ?? null;
             if ($v === null) {
                 $pk = null;
+
                 break;
             }
             $pk[$pkField->getPropertyName()] = $v;
@@ -165,67 +165,15 @@ class WriteCommandExtractor
         return $data;
     }
 
-    private function normalizeTranslations(TranslationsAssociationField $translationsField, array $data, WriteParameterBag $parameters, bool $hasNormalizedTranslations): array
-    {
-        if (!$hasNormalizedTranslations) {
-            $definition = $parameters->getDefinition();
-            if (!$translationsField->is(Required::class)) {
-                return $data;
-            }
-
-            $parentField = $this->getParentField($definition);
-            if ($parentField && isset($data[$parentField->getPropertyName()])) {
-                // only normalize required translations if it's not a child
-                return $data;
-            }
-        }
-
-        try {
-            $data = $translationsField->getSerializer()->normalize($translationsField, $data, $parameters);
-        } catch (WriteFieldException $e) {
-            $parameters->getContext()->getExceptions()->add($e);
-        }
-
-        return $data;
-    }
-
-    private function getParentField(EntityDefinition $definition): ?FkField
-    {
-        if (!$definition->isInheritanceAware()) {
-            return null;
-        }
-
-        /** @var ManyToOneAssociationField|null $parent */
-        $parent = $definition->getFields()->get('parent');
-
-        if (!$parent) {
-            throw new ParentFieldNotFoundException($definition);
-        }
-
-        if (!$parent instanceof ManyToOneAssociationField) {
-            throw new InvalidParentAssociationException($definition, $parent);
-        }
-
-        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
-
-        if (!$fk) {
-            throw new CanNotFindParentStorageFieldException($definition);
-        }
-        if (!$fk instanceof FkField) {
-            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
-        }
-
-        return $fk;
-    }
-
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
         $definition = $parameters->getDefinition();
 
         $fields = $this->getFieldsInWriteOrder($definition);
 
-        $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);
+        $pkData = $this->getPrimaryKey($rawData, $parameters);
 
+        /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
             $parameters->getContext()->set($parameters->getDefinition()->getClass(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
         }
@@ -280,6 +228,59 @@ class WriteCommandExtractor
             );
             $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
         }
+    }
+
+    private function normalizeTranslations(TranslationsAssociationField $translationsField, array $data, WriteParameterBag $parameters, bool $hasNormalizedTranslations): array
+    {
+        if (!$hasNormalizedTranslations) {
+            $definition = $parameters->getDefinition();
+            if (!$translationsField->is(Required::class)) {
+                return $data;
+            }
+
+            $parentField = $this->getParentField($definition);
+            if ($parentField && isset($data[$parentField->getPropertyName()])) {
+                // only normalize required translations if it's not a child
+                return $data;
+            }
+        }
+
+        try {
+            $data = $translationsField->getSerializer()->normalize($translationsField, $data, $parameters);
+        } catch (WriteFieldException $e) {
+            $parameters->getContext()->getExceptions()->add($e);
+        }
+
+        return $data;
+    }
+
+    private function getParentField(EntityDefinition $definition): ?FkField
+    {
+        if (!$definition->isInheritanceAware()) {
+            return null;
+        }
+
+        /** @var ManyToOneAssociationField|null $parent */
+        $parent = $definition->getFields()->get('parent');
+
+        if (!$parent) {
+            throw new ParentFieldNotFoundException($definition);
+        }
+
+        if (!$parent instanceof ManyToOneAssociationField) {
+            throw new InvalidParentAssociationException($definition, $parent);
+        }
+
+        $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
+
+        if (!$fk) {
+            throw new CanNotFindParentStorageFieldException($definition);
+        }
+        if (!$fk instanceof FkField) {
+            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
+        }
+
+        return $fk;
     }
 
     private function map(array $fields, array $rawData, EntityExistence $existence, WriteParameterBag $parameters): array
@@ -424,7 +425,7 @@ class WriteCommandExtractor
         return $sorted;
     }
 
-    private function getPrimaryKey(array $rawData, WriteParameterBag $parameters, array $fields): array
+    private function getPrimaryKey(array $rawData, WriteParameterBag $parameters): array
     {
         $pk = [];
 
@@ -432,7 +433,16 @@ class WriteCommandExtractor
         /** @var StorageAware&Field $pkField */
         foreach ($pkFields as $pkField) {
             $id = $rawData[$pkField->getPropertyName()] ?? null;
-            $pk[$pkField->getStorageName()] = Uuid::fromHexToBytes($id);
+
+            $values = $pkField->getSerializer()->encode(
+                $pkField,
+                new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []),
+                new KeyValuePair($pkField->getPropertyName(), $id, true),
+                $parameters
+            );
+            foreach ($values as $key => $value) {
+                $pk[$key] = $value;
+            }
         }
 
         return $pk;

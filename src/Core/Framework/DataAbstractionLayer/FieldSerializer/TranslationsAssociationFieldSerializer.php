@@ -32,6 +32,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
+        if (!$field instanceof TranslationsAssociationField) {
+            throw new InvalidSerializerFieldException(TranslationsAssociationField::class, $field);
+        }
+
         $key = $field->getPropertyName();
         $value = $data[$key] ?? null;
 
@@ -55,7 +59,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
         $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
         $languagePropName = $languageField->getPropertyName();
-
 
         foreach ($value as $identifier => $fields) {
             /* Supported formats:

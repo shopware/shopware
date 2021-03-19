@@ -42,9 +42,6 @@ class FkFieldSerializer extends AbstractFieldSerializer
         if (!$field instanceof FkField) {
             throw new InvalidSerializerFieldException(FkField::class, $field);
         }
-        if ($parameters->getDefinition()->getEntityName() === 'product_media') {
-            $stop = true;
-        }
 
         $value = $data->getValue();
 
@@ -82,7 +79,6 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
         return Uuid::fromBytesToHex($value);
     }
-
 
     /**
      * @param string|int|float|bool|array|object|callable|resource|null $value

@@ -2651,11 +2651,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\OneToOneAssociationFieldSerializer\\:\\:mapOwningSide\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PasswordFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PasswordFieldSerializer.php
@@ -2702,11 +2697,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
-
-		-
-			message: "#^Parameter \\#1 \\$languageId of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteParameterBag\\:\\:setCurrentWriteLanguageId\\(\\) expects string, int\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
 
@@ -3123,11 +3113,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$entityName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:getByEntityName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
-			count: 3
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
 
 		-
